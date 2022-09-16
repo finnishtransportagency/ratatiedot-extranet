@@ -62,7 +62,28 @@ E.g. `feat: RTENU-12345 Awesome new feature`
 Check node version. You can use `nvm use` to automatically set the right version.
 Run ` npm i`
 
+To install a common dependency that both frontend and server can use, run command in the root repository:
+
+```
+npx lerna add *npm_package_name*
+npx lerna add *npm _package_name* --dev
+```
+
 ### Usage
+
+#### Frontend development
+
+```
+cd packages/frontend
+npm start
+```
+
+#### Backend development
+
+```
+cd packages/backend
+npm start
+```
 
 ### Build
 
