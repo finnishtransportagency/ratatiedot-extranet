@@ -27,29 +27,40 @@ In Ratatiedot Extranet, we use:
 4. [aws-cdk](https://github.com/aws/aws-cdk) for defining and managing infrastructure and CI/CD Pipeline
 5. Typescript to enforce type-checking
 
-## Way of Working
+## Rules
 
-### Branch naming conventions
+### Branch management and naming
 
-- _(To-do: integration between Github and Jira issues)_
+Based on GitLab Flow (see: https://docs.gitlab.com/ee/topics/gitlab_flow.html). Feature branches are branched from `main`.
 
-### Commit message conventions
+Feature branchers should be name with the following naming convention:
+commit_type/project_code-issue_number-feature_descriptive_name
+E.g. `feature/RTENU-12345-awesome-new-feature`
+If there is no issue, skip that part.
 
-- Follow [The Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) and install [command line tool](http://commitizen.github.io/cz-cli/#making-your-repo-commitizen-friendly)
-- Run `git cz` instead of `git commit`
+### Commit naming
 
-### Pull request and merging conventions
+Conventional commits (see: https://www.conventionalcommits.org/en/v1.0.0/), with the addition of a ticketing issue (if applicable/available).
+E.g.
 
-- By default for all commit types, use standard merge to keep commit history
-- For `fix` and `hot-fix`: it's recommended to squash and merge
+```
+feat(api)!: RTENU-12345 Awesome new feature
+Remade API to be more awesome, but with breaking changes
+```
+
+### Pull request
+
+Feature branches are to be merged to `main` via Pull Requests. Use squash merging by default. If you need to retain intermittent commits for some reason, use regular merging in such case.
+
+Naming: commit_type: PROJECT_CODE-ISSUE_NUMBER Description
+E.g. `feat: RTENU-12345 Awesome new feature`
 
 ## Getting started
 
 ### Installation
 
-```
-npm run prepare
-```
+Check node version. You can use `nvm use` to automatically set the right version.
+Run ` npm i`
 
 ### Usage
 
