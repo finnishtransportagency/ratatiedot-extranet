@@ -8,7 +8,7 @@ _(To-do: Demo link will be published here...)_
 
 - [Project Structure](#project-structure)
 - [Tech Stack](#tech-stack)
-- [Way of Working](#way-of-working)
+- [Rules](#rules)
 - [Getting Started](#getting-started)
 
 ## Project Structure
