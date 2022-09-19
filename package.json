@@ -4,7 +4,10 @@
   "description": "Väyläviraston ratatiedot extranet",
   "main": "index.js",
   "scripts": {
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "dev-client": "cd packages/frontend && npm start",
+    "dev-server": "cd packages/server && npm start",
+    "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\""
   },
   "repository": {
     "type": "git",
@@ -16,6 +19,9 @@
     "url": "https://github.com/finnishtransportagency/ratatiedot-extranet/issues"
   },
   "homepage": "https://github.com/finnishtransportagency/ratatiedot-extranet#readme",
+  "dependencies": {
+    "concurrently": "^7.4.0"
+  },
   "devDependencies": {
     "husky": "^8.0.1",
     "lerna": "^5.5.1",
