@@ -71,18 +71,8 @@ npx lerna add *npm _package_name* --dev
 
 ### Usage
 
-#### Frontend development
-
 ```
-cd packages/frontend
-npm start
-```
-
-#### Backend development
-
-```
-cd packages/backend
-npm start
+npm run dev
 ```
 
 ### Build
