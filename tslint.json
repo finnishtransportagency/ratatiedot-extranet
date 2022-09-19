@@ -1,0 +1,52 @@
+{
+  "defaultSeverity": "warning",
+  "plugins": [
+    "@typescript-eslint/tslint",
+    "tslint:recommended",
+    "tslint-config-standard",
+    "prettier",
+    "tslint-config-prettier",
+    "tslint-react"
+  ],
+  "parserOptions": {
+    "project": "tsconfig.json"
+  },
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "rules": {
+    "no-construct": {
+      "severity": "error"
+    },
+    "only-arrow-functions": true,
+    "await-promise": true,
+    "no-async-without-await": {
+      "severity": "error"
+    },
+    "no-console": false,
+    "no-return-await": true,
+    "no-var-keyword": {
+      "severity": "error"
+    },
+    "restrict-plus-operands": true,
+    "deprecation": true,
+    "import-spacing": true,
+    "no-duplicate-imports": {
+      "severity": "error"
+    },
+    "no-irregular-whitespace": true,
+    "no-trailing-whitespace": true,
+    "no-unused-variable": {
+      "severity": "error"
+    },
+    "trailing-comma": true,
+    "prefer-const": true
+  },
+  "jsRules": {
+    "max-line-length": {
+      "options": [120]
+    }
+  },
+  "rulesDirectory": [],
+  "linterOptions": {
+    "exclude": ["*.{ts,tsx}"]
+  }
+}
