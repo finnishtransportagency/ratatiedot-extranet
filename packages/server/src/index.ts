@@ -5,7 +5,7 @@ const app = express();
 const PORT = 8000;
 
 app.get('/', (_, res) => {
-  // to-do: whitelisting API addresses
+  // TODO: whitelisting API addresses
   res.setHeader('Access-Control-Allow-Origin', '*');
   const data: IDataPayload = {
     data: 'Ratatiedot Extranet API',
