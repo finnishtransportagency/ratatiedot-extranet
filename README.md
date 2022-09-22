@@ -60,20 +60,25 @@ E.g. `feat: RTENU-12345 Awesome new feature`
 ### Installation
 
 Check node version. You can use `nvm use` to automatically set the right version.
-Run ` npm i`
 
 To install a common dependency that both frontend and server can use, run command in the root repository:
 
 ```
-npx lerna add *npm_package_name*
-npx lerna add *npm _package_name* --dev
+npm install
+```
+
+To install dependencies that only frontend or backend use, for example, frontend application:
+
+```
+cd packages/frontend
+npm install
 ```
 
 ### Usage
 
-```
-npm run dev
-```
+- Run `npm run dev-server` to spin up server to serve API locally (http://localhost:8000)
+- Run `npm run dev-client` to run React app locally (http://localhost:3000)
+- Run `npm run dev` for full-stack development experience
 
 ### Build
 
