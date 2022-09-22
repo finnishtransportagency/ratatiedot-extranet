@@ -89,6 +89,7 @@ npm install
 Running e2e/component tests with Cypress.
 
 1. Start local server
+
 ```
 npm run dev
 ```
@@ -96,7 +97,7 @@ npm run dev
 2. Open Cypress GUI
 
 ```
-npx cypress open
+npm run cy:open
 ```
 
 Cypress GUI app should open. Select tests you want to run.
@@ -106,5 +107,12 @@ Optionally you can open [cypress CLI](https://docs.cypress.io/guides/guides/comm
 Cypress has has really good guides explaining how to use the framework.
 🔗 [Cypress Guides](https://docs.cypress.io/guides/overview/why-cypress)
 
+3. Run tests in CLI
+
+Recorded video is exported to videos folder.
+
+```
+npm run cy:run
+```
 
 ### Linting

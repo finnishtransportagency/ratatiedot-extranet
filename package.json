@@ -7,7 +7,9 @@
     "prepare": "husky install",
     "dev-client": "cd packages/frontend && npm start",
     "dev-server": "cd packages/server && npm start",
-    "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\""
+    "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
+    "cy:run": "cypress run",
+    "cy:open": "cypress open"
   },
   "repository": {
     "type": "git",
