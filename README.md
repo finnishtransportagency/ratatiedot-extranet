@@ -79,4 +79,27 @@ npm run dev
 
 ### Testing
 
+> ❕ We are in process of building automated testing/CI-pipeline. For now all tests needs to be run manually.
+
+Running e2e/component tests with Cypress.
+
+1. Start local server
+```
+npm run dev
+```
+
+2. Open Cypress GUI
+
+```
+npx run cypress
+```
+
+Cypress GUI app should open. Select tests you want to run.
+
+Optionally you can open [cypress CLI](https://docs.cypress.io/guides/guides/command-line#How-to-run-commands) and run tests in commandline.
+
+Cypress has has really good guides explaining how to use the framework.
+🔗 [Cypress Guides](https://docs.cypress.io/guides/overview/why-cypress)
+
+
 ### Linting
