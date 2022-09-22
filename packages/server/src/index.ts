@@ -13,7 +13,7 @@ const app = express();
 const whitelist = [FRONTEND_BASE_URL];
 app.use(
   cors({
-    origin: (origin: string | undefined, callback: any) => {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if ((origin && whitelist.indexOf(origin) !== -1) || typeof origin === 'undefined') {
         callback(null, true);
       } else {
