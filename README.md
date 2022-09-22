@@ -91,7 +91,7 @@ npm run dev
 2. Open Cypress GUI
 
 ```
-npx run cypress
+npx cypress open
 ```
 
 Cypress GUI app should open. Select tests you want to run.
