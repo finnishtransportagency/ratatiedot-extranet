@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 
-import { IDataPayload } from './types/data.type';
+import APIRoutes from './routes';
 
 dotenv.config();
 const { NODE_ENV, PORT, HOST, FRONTEND_BASE_URL } = process.env;
@@ -23,11 +23,9 @@ app.use(
   }),
 );
 
-app.get('/', (_, res) => {
-  const data: IDataPayload = {
-    data: 'Ratatiedot Extranet API',
-  };
-  res.json(data);
-});
+// Routings
+APIRoutes(app);
 
-app.listen(PORT, () => console.log(`NODE_ENV=${NODE_ENV}\nServer is running at ${HOST}${PORT}`));
+app.listen(PORT, () => console.log(`NODE_ENV=${NODE_ENV}\nServer is running at ${HOST}:${PORT}`));
+
+export default app;
