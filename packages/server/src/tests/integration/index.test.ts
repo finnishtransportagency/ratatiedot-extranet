@@ -4,7 +4,7 @@ import chaiHttp from 'chai-http';
 import app from '../../index';
 
 chai.use(chaiHttp);
-const should = chai.should();
+chai.should();
 
 describe('GET /api', () => {
   it('status: 200', (done: any) => {
