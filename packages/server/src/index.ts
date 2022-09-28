@@ -4,7 +4,7 @@ import cors from 'cors';
 
 import APIRoutes from './routes';
 
-dotenv.config();
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 const { NODE_ENV, PORT, HOST, FRONTEND_BASE_URL } = process.env;
 
 const app = express();

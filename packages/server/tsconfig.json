@@ -109,5 +109,5 @@
     "watch": true
   },
   "include": ["src"],
-  "exclude": ["tests", "node_modules", "build"]
+  "exclude": ["src/tests", "node_modules", "build"]
 }
