@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "concurrently \"tsc -w\" \"nodemon build/index.js\"",
-    "test": "mocha -r ts-node/register src/tests/**/*.test.ts --exit"
+    "start": "NODE_ENV=development nodemon --watch 'src/**/*' -e 'ts' --exec 'ts-node' src/index.ts"
   },
   "author": "",
   "license": "EUPL v1.2",
@@ -24,6 +23,7 @@
     "chai-http": "^4.3.0",
     "mocha": "^10.0.0",
     "nodemon": "^2.0.20",
+    "nyc": "^15.1.0",
     "typescript": "^4.8.3"
   }
 }
