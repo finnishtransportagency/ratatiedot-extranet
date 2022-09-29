@@ -74,6 +74,8 @@ cd packages/frontend
 npm install
 ```
 
+Create `.env.development` file in server package and copy from `.env.example` to `.env.development`.
+
 ### Usage
 
 - Run `npm run dev-server` to spin up server to serve API locally (http://localhost:8000)

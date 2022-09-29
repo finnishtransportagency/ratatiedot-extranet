@@ -7,7 +7,7 @@ function App() {
   const [data, setData] = useState('');
 
   const connectBackend = async () => {
-    const response = await fetch('http://localhost:8000');
+    const response = await fetch('http://localhost:8000/api');
     const data: IDataPayload = await response.json();
     setData(data.data);
   };
@@ -23,7 +23,7 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
-        <a className="App-link" href="http://localhost:8000" target="_blank" rel="noopener noreferrer">
+        <a className="App-link" href="http://localhost:8000/api" target="_blank" rel="noopener noreferrer">
           {data}
         </a>
       </header>
