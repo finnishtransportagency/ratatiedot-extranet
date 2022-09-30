@@ -118,3 +118,9 @@ npm run cy:run
 ```
 
 ### Linting
+
+### Accessibility
+
+Using `eslint-plugin-jsx-a11y` library to catch accessibility issues early on.
+
+It is highly recommended to install and run accessibility tests using axe (https://www.deque.com/axe/) browser extension.
