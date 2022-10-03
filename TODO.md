@@ -1,0 +1,4 @@
+- Config typing
+- GitHub token
+- package.json script BRANCHes
+- Documentation, README
