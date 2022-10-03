@@ -11,7 +11,9 @@
     "cy:run": "cypress run",
     "cy:open": "cypress open",
     "test:client": "cd packages/frontend && npm test",
-    "test:server": "cd packages/server && npm test"
+    "test:server": "cd packages/server && npm test",
+    "synth:pipeline:dev": "cross-env ENVIRONMENT=dev BRANCH=main cd cdk synth",
+    "deploy:pipeline:dev": "cross-env ENVIRONMENT=dev BRANCH=main cdk deploy rataextra-pipeline-dev"
   },
   "repository": {
     "type": "git",
@@ -24,19 +26,26 @@
   },
   "homepage": "https://github.com/finnishtransportagency/ratatiedot-extranet#readme",
   "dependencies": {
-    "concurrently": "^7.4.0"
+    "aws-cdk-lib": "2.41.0",
+    "concurrently": "^7.4.0",
+    "constructs": "^10.0.0"
   },
   "devDependencies": {
+    "@types/node": "^18.7.23",
+    "aws-cdk": "2.41.0",
+    "cross-env": "^7.0.3",
     "cypress": "^10.8.0",
     "eslint": "^8.24.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",
     "jest": "^27.5.1",
     "lerna": "^5.5.1",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "typescript": "~3.9.7"
   },
   "lint-staged": {
     "*.{js,json,jsx,css,md}": [
