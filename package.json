@@ -12,7 +12,7 @@
     "cy:open": "cypress open",
     "test:client": "cd packages/frontend && npm test",
     "test:server": "cd packages/server && npm test",
-    "synth:pipeline:dev": "cross-env ENVIRONMENT=dev BRANCH=RTENU-52-ci-cd cdk synth",
+    "synth:pipeline:dev": "cross-env ENVIRONMENT=dev BRANCH=chore/RTENU-52-ci-cd cdk synth",
     "deploy:pipeline:dev": "cross-env ENVIRONMENT=dev BRANCH=chore/RTENU-52-ci-cd cdk deploy rataextra-pipeline-dev"
   },
   "repository": {
