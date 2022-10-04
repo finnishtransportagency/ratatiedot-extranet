@@ -1,8 +1,24 @@
 {
   "compilerOptions": {
     "target": "ES2018",
-    "lib": ["ES2018", "dom"],
-    "types": ["cypress", "node"]
+    "module": "commonjs",
+    "lib": ["es2018", "dom"],
+    "declaration": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": false,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "types": ["cypress", "node"],
+    "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["**/*.ts"]
+  "exclude": ["node_modules", "cdk.out"]
 }
