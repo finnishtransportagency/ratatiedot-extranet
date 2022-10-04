@@ -84,6 +84,16 @@ Create `.env.development` file in server package and copy from `.env.example` to
 
 ### Build
 
+### Pipeline
+
+Bootstrap CDK for the AWS account, if that has not been done yet: `ENVIRONMENT=dev BRANCH=main cdk bootstrap`. ENVIRONMENT and BRANCH don't really matter here, but the stack requires you to set them.
+
+Add a pipeline synth and deployment with matching endings to root package.json similar to `synth:pipeline:dev` and `deploy:pipeline:dev`. Set preferred environment name (matching with script name) and branch to deploy from. Run the deployment script with credentials for the preferred AWS-account. The script will deploy CodePipeline, which will automatically set up the environment. The pipeline will automatically update itself and deploy any changes made to the app.
+
+Note! A valid GitHub token with the scopes `admin:repo_hook, public_repo, repo:status, repo_deployment` is required to be had in AWS Secrets Manager. Refer to `./config/index.ts` for authenticationToken name to be set. Set the token as plaintext value.
+
+Reference for pipeline setup: https://docs.aws.amazon.com/cdk/v2/guide/cdk_pipeline.html
+
 ### Testing
 
 > ❕ We are in process of building automated testing/CI-pipeline. For now all tests needs to be run manually.
