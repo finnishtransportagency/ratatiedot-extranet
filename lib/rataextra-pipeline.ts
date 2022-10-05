@@ -1,16 +1,16 @@
-import { SecretValue, Stack, StackProps, Stage, StageProps } from 'aws-cdk-lib';
+import { SecretValue, Stack, Stage, StageProps } from 'aws-cdk-lib';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-import { Construct } from 'constructs';
 import { Cache, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
-import getconfig from '../config';
+import { Construct } from 'constructs';
+import { getPipelineConfig } from './config';
 import { RataExtraStack } from './rataextra-stack';
 
 /**
  * The stack that defines the application pipeline
  */
 export class RataExtraPipelineStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    const config = getconfig();
+  constructor(scope: Construct) {
+    const { config } = getPipelineConfig();
     super(scope, 'rataextra-pipeline-' + config.env, {
       env: {
         region: 'eu-west-1',
@@ -25,6 +25,10 @@ export class RataExtraPipelineStack extends Stack {
         input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
           authentication: SecretValue.secretsManager(config.authenticationToken),
         }),
+        // TODO: Use when connection is in use
+        // input: CodePipelineSource.connection('finnishtransportagency/ratatiedot-extranet', config.branch, {
+        //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
+        // }),
         commands: ['npm ci', 'npm run synth:pipeline:' + config.env],
       }),
       dockerEnabledForSynth: true,
@@ -33,13 +37,13 @@ export class RataExtraPipelineStack extends Stack {
         cache: Cache.local(LocalCacheMode.CUSTOM, LocalCacheMode.SOURCE, LocalCacheMode.DOCKER_LAYER),
       },
     });
-    pipeline.addStage(new RataExtraApplication(this, config.env, config));
+    pipeline.addStage(new RataExtraApplication(this, config.env));
   }
 }
 class RataExtraApplication extends Stage {
   // TODO: Typing
-  constructor(scope: Construct, id: string, config: any, props?: StageProps) {
+  constructor(scope: Construct, id: string, props?: StageProps) {
     super(scope, id, props);
-    const rataExtraStack = new RataExtraStack(this, 'Rataextra', config);
+    new RataExtraStack(this, 'Rataextra');
   }
 }
