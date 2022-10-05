@@ -9,14 +9,11 @@ export function getEnv(name: string) {
 }
 
 const permanentEnvironments = ['dev', 'prod'] as const;
-const allEnvironments = [...permanentEnvironments, 'feature'] as const;
 
 const env = getEnv('ENVIRONMENT');
 const branch = getEnv('BRANCH'); // TODO: Not always from env? Main as default?
 // Used any as otherwise includes isn't allowed
 const isPermanentEnvironment = (environment: string) => permanentEnvironments.includes(environment as any);
-// Meant for sharing slow to startup services for feature branches and running tests
-const sharedInfraEnv = isPermanentEnvironment(env) ? env : 'dev';
 
 // Runtime variables from SSM/Parameter Store
 // TODO: Configuration file now hardcoded
