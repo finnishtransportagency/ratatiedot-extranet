@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { Colors } from '../../constants/Colors';
 import { theme } from '../../styles/createTheme';
 
-export const BackButton = styled(Button)(({ theme }) => {
+export const HomeButton = styled(Button)(({ theme }) => {
   return {
     marginTop: theme.spacing(4),
     padding: '9px',

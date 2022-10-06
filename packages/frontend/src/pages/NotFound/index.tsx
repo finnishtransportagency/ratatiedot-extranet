@@ -1,8 +1,8 @@
 import { Box, ListItemText } from '@mui/material';
 
 import RataExtLogo from '../../assets/images/Logo_long.png';
-import { Container, SubtitleWrapper, BackButton, ParagraphWrapper } from '../AccessDenied/index.styles';
-import { ListWrapper, ListItemWrapper } from './index.styles';
+import { Container, SubtitleWrapper, ParagraphWrapper } from '../AccessDenied/index.styles';
+import { HomeButton, ListWrapper, ListItemWrapper } from './index.styles';
 
 export const NotFound = () => {
   return (
@@ -13,7 +13,7 @@ export const NotFound = () => {
         Hakemasi sivu on väliaikaisesti poissa käytöstä, tai sivua ei ehkä enää ole.
       </ParagraphWrapper>
       <ListWrapper>
-        <ListItemText primary="TEE JOKIN SEURAAVUSTA:" />
+        <ListItemText primary="TEE JOKIN SEURAAVISTA:" />
         <ListItemWrapper sx={{ display: 'list-item' }}>
           <ListItemText primary="Yritä muodostaa yhteys uudelleen napsauttamalla selaimen Päivitä-painiketta." />
         </ListItemWrapper>
@@ -27,9 +27,9 @@ Tarkista URL-osoitteen oikeinkirjoitus (tarkista isot ja pienet kirjaimet sekä 
           <ListItemText primary="Palaa edelliselle sivulle napsauttamalla selaimen Edellinen-painiketta." />
         </ListItemWrapper>
       </ListWrapper>
-      <BackButton href="/" color="primary" variant="contained">
-        Sirry etusivulle
-      </BackButton>
+      <HomeButton href="/" color="primary" variant="contained">
+        Siirry etusivulle
+      </HomeButton>
     </Container>
   );
 };
