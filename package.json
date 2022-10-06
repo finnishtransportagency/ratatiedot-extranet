@@ -12,7 +12,6 @@
     "cy:open": "cypress open",
     "test:client": "cd packages/frontend && npm test",
     "test:server": "cd packages/server && npm test",
-    "synth:pipeline:dev": "cross-env ENVIRONMENT=dev BRANCH=chore/RTENU-52-ci-cd cdk synth",
     "pipeline:synth": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch cdk synth",
     "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch cdk --app \"ts-node bin/raita-pipeline\" deploy rataextra-pipeline-dev"
   },
