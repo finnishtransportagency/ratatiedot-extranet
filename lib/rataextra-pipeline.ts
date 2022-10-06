@@ -29,7 +29,7 @@ export class RataExtraPipelineStack extends Stack {
         // input: CodePipelineSource.connection('finnishtransportagency/ratatiedot-extranet', config.branch, {
         //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
         // }),
-        commands: ['npm ci', 'npm run synth:pipeline:' + config.env],
+        commands: ['npm ci', `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`],
       }),
       dockerEnabledForSynth: true,
       codeBuildDefaults: {

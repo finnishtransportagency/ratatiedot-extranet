@@ -88,7 +88,9 @@ Create `.env.development` file in server package and copy from `.env.example` to
 
 Bootstrap CDK for the AWS account, if that has not been done yet: `ENVIRONMENT=dev BRANCH=main cdk bootstrap`. ENVIRONMENT and BRANCH don't really matter here, but the stack requires you to set them.
 
-Add a pipeline synth and deployment with matching endings to root package.json similar to `synth:pipeline:dev` and `deploy:pipeline:dev`. Set preferred environment name (matching with script name) and branch to deploy from. Run the deployment script with credentials for the preferred AWS-account. The script will deploy CodePipeline, which will automatically set up the environment. The pipeline will automatically update itself and deploy any changes made to the app.
+To set up a new pipeline, run the deployment script (with up-top-date credentials for the preferred AWS-account). E.g. `npm run pipeline:deploy --environment=dev --branch=main` where environment is name of the environment you want to give (defaults are prod/dev) and branch is the Git branch you want to track for updates. The script will deploy CodePipeline, which will automatically set up the environment. The pipeline will automatically update itself and deploy any changes made to the app.
+
+If you update the `pipeline:synth`-script name, you need to have the old script available for at least one commit in the followed branch or you have to rerun the deployment script by hand.
 
 Note! A valid GitHub token with the scopes `admin:repo_hook, public_repo, repo:status, repo_deployment` is required to be had in AWS Secrets Manager. Refer to `./config/index.ts` for authenticationToken name to be set. Set the token as plaintext value.
 
