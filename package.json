@@ -1,15 +1,19 @@
 {
   "name": "ratatiedot-extranet",
   "version": "1.0.0",
+  "private": true,
   "description": "Väyläviraston ratatiedot extranet",
   "main": "index.js",
   "scripts": {
     "prepare": "husky install",
+    "bootstrap": "npx lerna bootstrap --force-local",
+    "build": "lerna run build",
     "dev-client": "cd packages/frontend && npm start",
     "dev-server": "cd packages/server && npm start",
     "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
+    "test": "lerna run test --no-sort",
     "test:client": "cd packages/frontend && npm test",
     "test:server": "cd packages/server && npm test"
   },
