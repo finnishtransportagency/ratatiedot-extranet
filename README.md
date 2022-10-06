@@ -61,20 +61,23 @@ E.g. `feat: RTENU-12345 Awesome new feature`
 
 Check node version. You can use `nvm use` to automatically set the right version.
 
-To install a common dependency that both frontend and server can use, run command in the root repository:
-
 ```
-npm install
-```
-
-To install dependencies that only frontend or backend use, for example, frontend application:
-
-```
-cd packages/frontend
-npm install
+npm run bootstrap
 ```
 
 Create `.env.development` file in server package and copy from `.env.example` to `.env.development`.
+
+To install dependencies that only frontend or backend use, run command in the root repository:
+
+```
+npx lerna add <npm_package> [--dev] --scope=[frontend/server]
+```
+
+To install a common dependency that both frontend and server can use, run command in the root repository:
+
+```
+npm install <npm_package>
+```
 
 ### Usage
 
