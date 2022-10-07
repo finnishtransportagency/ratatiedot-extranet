@@ -19,6 +19,7 @@ export class RataExtraPipelineStack extends Stack {
       tags: config.tags,
     });
 
+    // const buildOutput = new Artifact();
     const pipeline = new CodePipeline(this, 'Rataextra-Pipeline', {
       pipelineName: 'Rataextra-' + config.env,
       synth: new ShellStep('Synth', {
@@ -29,7 +30,11 @@ export class RataExtraPipelineStack extends Stack {
         // input: CodePipelineSource.connection('finnishtransportagency/ratatiedot-extranet', config.branch, {
         //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
         // }),
-        commands: ['npm ci', `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`],
+        commands: [
+          'npm ci',
+          'npm run build',
+          `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
+        ],
       }),
       dockerEnabledForSynth: true,
       codeBuildDefaults: {
@@ -37,11 +42,15 @@ export class RataExtraPipelineStack extends Stack {
         cache: Cache.local(LocalCacheMode.CUSTOM, LocalCacheMode.SOURCE, LocalCacheMode.DOCKER_LAYER),
       },
     });
-    pipeline.addStage(new RataExtraApplication(this, config.env));
+    console.log(pipeline.pipeline.artifactBucket);
+    // const deployment = new BucketDeployment(this, 'Deploy FrontEnd', {
+    //   sources: [pipeline.pipeline.artifactBucket],
+    //   destinationBucket: null
+    // });
+    pipeline.addStage(new RataExtraApplication(this, 'Base Resources for ' + config.env));
   }
 }
 class RataExtraApplication extends Stage {
-  // TODO: Typing
   constructor(scope: Construct, id: string, props?: StageProps) {
     super(scope, id, props);
     new RataExtraStack(this, 'Rataextra');
