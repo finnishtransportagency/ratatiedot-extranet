@@ -42,7 +42,7 @@ export class RataExtraPipelineStack extends Stack {
         cache: Cache.local(LocalCacheMode.CUSTOM, LocalCacheMode.SOURCE, LocalCacheMode.DOCKER_LAYER),
       },
     });
-    console.log(pipeline.pipeline.artifactBucket);
+    // console.log(pipeline.pipeline.artifactBucket);
     // const deployment = new BucketDeployment(this, 'Deploy FrontEnd', {
     //   sources: [pipeline.pipeline.artifactBucket],
     //   destinationBucket: null
