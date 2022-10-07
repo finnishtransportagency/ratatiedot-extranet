@@ -47,7 +47,7 @@ export class RataExtraPipelineStack extends Stack {
     //   sources: [pipeline.pipeline.artifactBucket],
     //   destinationBucket: null
     // });
-    pipeline.addStage(new RataExtraApplication(this, 'Base Resources for ' + config.env));
+    pipeline.addStage(new RataExtraApplication(this, 'RataExtra'));
   }
 }
 class RataExtraApplication extends Stage {
