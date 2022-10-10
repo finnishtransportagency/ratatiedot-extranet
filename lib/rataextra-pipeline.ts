@@ -31,6 +31,7 @@ export class RataExtraPipelineStack extends Stack {
         //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
         // }),
         commands: [
+          'npm i lerna',
           'npm run bootstrap',
           'npm run build',
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
