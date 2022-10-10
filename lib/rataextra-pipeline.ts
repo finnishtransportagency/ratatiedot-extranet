@@ -33,6 +33,7 @@ export class RataExtraPipelineStack extends Stack {
         commands: [
           'npm ci',
           'npm run ci',
+          'ls -la', // TODO: remove
           'npm run build',
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
         ],
