@@ -5,7 +5,9 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { getRataExtraStackConfig } from './config';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
-import { execSync } from 'child_process';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
+import * as path from 'path';
 
 declare const vpc: ec2.Vpc;
 
@@ -13,7 +15,6 @@ export class RataExtraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     const { config } = getRataExtraStackConfig();
     super(scope, id, props);
-    execSync('ls');
     const frontendBucket = new s3.Bucket(this, 'rataextra-frontend-' + config.env, {
       versioned: true,
       // TODO: Environment aware removal, aka don't remove in dev/prod
@@ -21,6 +22,10 @@ export class RataExtraStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
+    new BucketDeployment(this, 'FrontendDeployment', {
+      sources: [Source.asset(path.join(__dirname, './packages/frontend/build'))],
+      destinationBucket: frontendBucket,
+    });
     // const alb = this.createlAlb({ internetFacing: true });
     // frontendBucket.grantRead(alb);
   }
@@ -44,5 +49,8 @@ export class RataExtraStack extends cdk.Stack {
         targets: [new LambdaTarget(listenerTargets)],
       });
     }
+  }
+  public getFrontendBucket(): Bucket {
+    return this.#frontendBucket;
   }
 }
