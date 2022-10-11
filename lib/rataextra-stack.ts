@@ -50,7 +50,4 @@ export class RataExtraStack extends cdk.Stack {
       });
     }
   }
-  public getFrontendBucket(): Bucket {
-    return this.#frontendBucket;
-  }
 }
