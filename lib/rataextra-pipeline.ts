@@ -24,7 +24,7 @@ export class RataExtraPipelineStack extends Stack {
         authentication: SecretValue.secretsManager(config.authenticationToken),
       }),
       installCommands: ['npm_config_user=root npm run ci'],
-      commands: ['cd packages/frontend && npm ci && npm run build'],
+      commands: ['cd packages/frontend && npm i && npm run build'],
       primaryOutputDirectory: './',
     });
 
@@ -37,7 +37,7 @@ export class RataExtraPipelineStack extends Stack {
         //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
         // }),
         commands: [
-          'npm_config_user=root npm run i',
+          'npm_config_user=root npm run ci',
           // 'npm_config_user=root npm run build', // TODO: Lerna symlinking doesn't work in CodePipeline
           // 'cd packages/frontend && npm ci && npm run build', // Testing out separate fe build
           // 'ls -lah && cd ../..',
