@@ -32,6 +32,7 @@ export class RataExtraPipelineStack extends Stack {
         // }),
         commands: [
           'npm_config_user=root npm run ci',
+          'ls -lah node_modules/',
           'npm_config_user=root npm run build', // TODO: Lerna symlinking doesn't work in CodePipeline
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
         ],
