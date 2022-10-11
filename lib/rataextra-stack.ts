@@ -1,5 +1,4 @@
 import * as cdk from 'aws-cdk-lib';
-import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
@@ -15,15 +14,15 @@ export class RataExtraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     const { config } = getRataExtraStackConfig();
     super(scope, id, props);
-    const frontendBucket = new s3.Bucket(this, 'rataextra-frontend-' + config.env, {
+    const frontendBucket = new Bucket(this, 'rataextra-frontend-' + config.env, {
       versioned: true,
       // TODO: Environment aware removal, aka don't remove in dev/prod
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
-
+    const dir = __dirname.includes('/lib/') ? '../packages/frontend/build' : './packages/frontend/build';
     new BucketDeployment(this, 'FrontendDeployment', {
-      sources: [Source.asset(path.join(__dirname, '../packages/frontend/build'))],
+      sources: [Source.asset(path.join(__dirname, dir))],
       destinationBucket: frontendBucket,
     });
     // const alb = this.createlAlb({ internetFacing: true });
