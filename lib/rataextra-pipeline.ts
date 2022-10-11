@@ -31,7 +31,7 @@ export class RataExtraPipelineStack extends Stack {
         //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
         // }),
         commands: [
-          'npm_config_user=root npm run ci -- --hoist',
+          'npm_config_user=root npm run ci',
           'npm_config_user=root npm run build', // TODO: Lerna symlinking doesn't work in CodePipeline
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
         ],
