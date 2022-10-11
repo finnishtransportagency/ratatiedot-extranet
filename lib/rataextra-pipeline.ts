@@ -31,10 +31,9 @@ export class RataExtraPipelineStack extends Stack {
         //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
         // }),
         commands: [
-          'who',
-          'npm run ci',
-          'ls -lah node_modules/', // TODO: remove
-          'npm run build',
+          'npm_config_user=root npm run ci',
+          'ls -lah node_modules/', // TODO: Remove
+          'npm_config_user=root npm run build',
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
         ],
       }),
