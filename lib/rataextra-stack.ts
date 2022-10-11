@@ -23,7 +23,7 @@ export class RataExtraStack extends cdk.Stack {
     });
 
     new BucketDeployment(this, 'FrontendDeployment', {
-      sources: [Source.asset(path.join(__dirname, './packages/frontend/build'))],
+      sources: [Source.asset(path.join(__dirname, '../packages/frontend/build'))],
       destinationBucket: frontendBucket,
     });
     // const alb = this.createlAlb({ internetFacing: true });
