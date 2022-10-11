@@ -32,7 +32,7 @@ export class RataExtraPipelineStack extends Stack {
         // }),
         commands: [
           'npm_config_user=root npm run ci',
-          'cp node_modules/ packages/frontend/ && cp node_modules/ packages/server/', // TODO: Testing, remove
+          'cp -r node_modules/ packages/frontend/ && cp -r node_modules/ packages/server/', // TODO: Testing, remove
           'ls -lah node_modules/', // TODO: Remove
           'npm_config_user=root npm run build',
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
