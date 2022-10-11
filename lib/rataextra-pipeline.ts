@@ -37,11 +37,12 @@ export class RataExtraPipelineStack extends Stack {
         //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
         // }),
         commands: [
-          // 'ls -lah',
+          'ls -lah',
           // 'npm_config_user=root npm run ci',
           // 'npm_config_user=root npm run build', // TODO: Lerna symlinking doesn't work in CodePipeline
           // 'cd packages/frontend && npm ci && npm run build', // Testing out separate fe build
           // 'ls -lah && cd ../..',
+          'pwd',
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
         ],
         primaryOutputDirectory: './cdk.out',
