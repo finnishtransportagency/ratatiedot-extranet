@@ -31,6 +31,7 @@ export class RataExtraPipelineStack extends Stack {
         //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
         // }),
         commands: [
+          'echo $USER',
           'npm run ci',
           'ls -lah node_modules/', // TODO: remove
           'npm run build',
