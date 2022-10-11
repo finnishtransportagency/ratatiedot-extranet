@@ -7,7 +7,7 @@
   "scripts": {
     "prepare": "husky install",
     "bootstrap": "npx lerna bootstrap --force-local",
-    "build": "npx lerna run build",
+    "build": "cross-env npm_config_user=root npx lerna run build",
     "ci": "cross-env npm_config_user=root npx lerna bootstrap --ci --loglevel=verbose",
     "dev-client": "cd packages/frontend && npm start",
     "dev-server": "cd packages/server && npm start",
