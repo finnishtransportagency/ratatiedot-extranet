@@ -24,7 +24,7 @@ export class RataExtraPipelineStack extends Stack {
         authentication: SecretValue.secretsManager(config.authenticationToken),
       }),
       installCommands: ['npm_config_user=root npm run ci'],
-      commands: ['cd packages/frontend && npm i && npm run build', 'cd ../..'],
+      commands: ['npm run build:frontend'],
       primaryOutputDirectory: './',
     });
     const synth = new ShellStep('Synth', {
