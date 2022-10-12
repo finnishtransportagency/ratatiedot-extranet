@@ -1,5 +1,5 @@
 import { SecretValue, Stack, Stage, StageProps } from 'aws-cdk-lib';
-import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
+import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import { Cache, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
 import { getPipelineConfig } from './config';
@@ -19,25 +19,23 @@ export class RataExtraPipelineStack extends Stack {
       tags: config.tags,
     });
 
-    // const buildAction = new CodeBuildStep('Build', {
-    //   input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
-    //     authentication: SecretValue.secretsManager(config.authenticationToken),
-    //   }),
-    //   installCommands: ['npm_config_user=root npm run ci'],
-    //   commands: ['cd packages/frontend && npm i && npm run build', 'cd ../..'],
-    //   primaryOutputDirectory: './',
-    // });
-    const synth = new ShellStep('Synth', {
+    const buildAction = new CodeBuildStep('Build', {
       input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
         authentication: SecretValue.secretsManager(config.authenticationToken),
       }),
+      installCommands: ['npm_config_user=root npm run ci'],
+      commands: ['cd packages/frontend && npm i && npm run build', 'cd ../..'],
+      primaryOutputDirectory: './',
+    });
+    const synth = new ShellStep('Synth', {
+      input: buildAction,
       // TODO: Use when connection is in use
       // input: CodePipelineSource.connection('finnishtransportagency/ratatiedot-extranet', config.branch, {
       //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
       // }),
       commands: [
         'ls -lah',
-        'npm_config_user=root npm run ci',
+        // 'npm_config_user=root npm run ci',
         // 'npm_config_user=root npm run build', // TODO: Lerna symlinking doesn't work in CodePipeline
         // 'cd packages/frontend && npm ci && npm run build', // Testing out separate fe build
         // 'ls -lah && cd ../..',
@@ -45,7 +43,7 @@ export class RataExtraPipelineStack extends Stack {
         'pwd',
         `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
       ],
-      // primaryOutputDirectory: './cdk.out',
+      primaryOutputDirectory: './cdk.out',
     });
     // shelly.outputs
 
@@ -82,7 +80,7 @@ export class RataExtraPipelineStack extends Stack {
     const rataExtra = pipeline.addStage(new RataExtraApplication(this, 'RataExtra'));
     rataExtra.addPost(
       new ShellStep('Deploy Frontend', {
-        input: synth,
+        input: buildAction,
         commands: ['ls -lah', 'pwd', 'npm run build:frontend', 'ls -lah ./packages/frontend/build'],
       }),
     );
