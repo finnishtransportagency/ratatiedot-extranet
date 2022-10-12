@@ -5,8 +5,6 @@ import { Construct } from 'constructs';
 import { getRataExtraStackConfig } from './config';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
-import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
-import * as path from 'path';
 
 declare const vpc: ec2.Vpc;
 
@@ -20,11 +18,11 @@ export class RataExtraStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
-    const dir = '../packages/frontend/build';
-    new BucketDeployment(this, 'FrontendDeployment', {
-      sources: [Source.asset(path.join(__dirname, dir))],
-      destinationBucket: frontendBucket,
-    });
+    // const dir = '../packages/frontend/build';
+    // new BucketDeployment(this, 'FrontendDeployment', {
+    //   sources: [Source.asset(path.join(__dirname, dir))],
+    //   destinationBucket: frontendBucket,
+    // });
     // const alb = this.createlAlb({ internetFacing: true });
     // frontendBucket.grantRead(alb);
   }
