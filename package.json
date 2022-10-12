@@ -8,6 +8,7 @@
     "prepare": "husky install",
     "bootstrap": "npx lerna bootstrap --force-local",
     "build": "npx lerna run build",
+    "build:frontend": "npm ./packages/frontend run build",
     "ci": "npx lerna bootstrap --ci",
     "dev-client": "cd packages/frontend && npm start",
     "dev-server": "cd packages/server && npm start",
