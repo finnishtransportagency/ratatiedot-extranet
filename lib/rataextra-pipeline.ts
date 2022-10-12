@@ -76,9 +76,9 @@ export class RataExtraPipelineStack extends Stack {
         cache: Cache.local(LocalCacheMode.CUSTOM, LocalCacheMode.SOURCE, LocalCacheMode.DOCKER_LAYER),
       },
     });
-    const buildStage: Stage = new Stage(this, 'FrontendBuild', {
-      stageName: 'FrontendBuild',
-    });
+    // const buildStage: Stage = new Stage(this, 'FrontendBuild', {
+    //   stageName: 'FrontendBuild',
+    // });
     const rataExtra = pipeline.addStage(new RataExtraApplication(this, 'RataExtra'));
     rataExtra.addPost(
       new ShellStep('Deploy Frontend', {
@@ -86,7 +86,7 @@ export class RataExtraPipelineStack extends Stack {
         commands: ['ls -lah', 'ls -lah ./packages/frontend/build', 'pwd'],
       }),
     );
-    pipeline.addStage(buildStage);
+    // pipeline.addStage(buildStage);
   }
 }
 class RataExtraApplication extends Stage {
