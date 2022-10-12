@@ -23,7 +23,7 @@ export class RataExtraPipelineStack extends Stack {
       input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
         authentication: SecretValue.secretsManager(config.authenticationToken),
       }),
-      installCommands: ['npm_config_user=root npm run ci', 'npm --prefix packages/frontend ci'],
+      installCommands: ['npm_config_user=root npm run ci', 'npm --prefix packages/frontend i'],
       commands: ['npm run build:frontend'],
       primaryOutputDirectory: './',
     });
