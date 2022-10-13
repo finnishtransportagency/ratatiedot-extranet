@@ -20,9 +20,9 @@ export class RataExtraStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
-    const dir = '../packages/frontend/build';
+    const buildDir = '../packages/frontend/build';
     new BucketDeployment(this, 'FrontendDeployment', {
-      sources: [Source.asset(path.join(__dirname, dir))],
+      sources: [Source.asset(path.join(__dirname, buildDir))],
       destinationBucket: frontendBucket,
     });
     // const alb = this.createlAlb({ internetFacing: true });
