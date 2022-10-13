@@ -89,12 +89,12 @@ export class RataExtraPipelineStack extends Stack {
     //   stageName: 'FrontendBuild',
     // });
     const rataExtra = pipeline.addStage(new RataExtraApplication(this, 'RataExtra'));
-    rataExtra.addPost(
-      new ShellStep('Deploy Frontend', {
-        input: buildAction,
-        commands: ['ls -lah', 'pwd', 'npm run build:frontend', 'ls -lah ./packages/frontend/build'],
-      }),
-    );
+    // rataExtra.addPost(
+    //   new ShellStep('Deploy Frontend', {
+    //     input: buildAction,
+    //     commands: ['ls -lah', 'pwd', 'npm run build:frontend', 'ls -lah ./packages/frontend/build'],
+    //   }),
+    // );
     // pipeline.addStage(buildStage);
   }
 }
