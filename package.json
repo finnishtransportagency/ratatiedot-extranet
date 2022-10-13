@@ -66,6 +66,7 @@
     ]
   },
   "workspaces": [
-    "packages/*"
+    "packages/frontend",
+    "packages/server"
   ]
 }
