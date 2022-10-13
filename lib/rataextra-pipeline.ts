@@ -32,10 +32,6 @@ export class RataExtraPipelineStack extends Stack {
     });
     const synth = new ShellStep('Synth', {
       input: buildAction,
-      // TODO: Use when connection is in use
-      // input: CodePipelineSource.connection('finnishtransportagency/ratatiedot-extranet', config.branch, {
-      //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
-      // }),
       commands: ['npm ci', `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`],
       primaryOutputDirectory: './cdk.out',
     });
