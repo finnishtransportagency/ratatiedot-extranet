@@ -1,6 +1,6 @@
 import { SecretValue, Stack, Stage, StageProps } from 'aws-cdk-lib';
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-import { Cache, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
+import { Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
 import { getPipelineConfig } from './config';
 import { RataExtraStack } from './rataextra-stack';
@@ -26,6 +26,9 @@ export class RataExtraPipelineStack extends Stack {
       installCommands: ['npm -v', 'npm_config_user=root npm run ci', 'npm --prefix packages/frontend i'],
       commands: ['npm run build:frontend'],
       primaryOutputDirectory: './',
+      buildEnvironment: {
+        buildImage: LinuxBuildImage.STANDARD_6_0,
+      },
     });
     const synth = new ShellStep('Synth', {
       input: buildAction,
