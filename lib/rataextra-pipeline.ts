@@ -23,7 +23,12 @@ export class RataExtraPipelineStack extends Stack {
       input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
         authentication: SecretValue.secretsManager(config.authenticationToken),
       }),
-      installCommands: ['npm -v', 'npm_config_user=root npm run ci', 'npm --prefix packages/frontend i'],
+      installCommands: [
+        'npm -v',
+        'npm ci',
+        // 'npm_config_user=root npm run ci',
+        'npm --prefix packages/frontend i',
+      ],
       commands: ['npm run build:frontend'],
       primaryOutputDirectory: './',
       buildEnvironment: {
@@ -39,12 +44,14 @@ export class RataExtraPipelineStack extends Stack {
       commands: [
         'ls -lah',
         'ls -lah node_modules',
-        'npm_config_user=root npm run ci',
+        'ls -lah packages/frontend/node_modules',
+        'pwd',
+        'npm ci',
+        // 'npm_config_user=root npm run ci',
         // 'npm_config_user=root npm run build', // TODO: Lerna symlinking doesn't work in CodePipeline
         // 'cd packages/frontend && npm ci && npm run build', // Testing out separate fe build
         // 'ls -lah && cd ../..',
         // 'ls -lah ./packages/frontend/build',
-        'pwd',
         `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
       ],
       primaryOutputDirectory: './cdk.out',
