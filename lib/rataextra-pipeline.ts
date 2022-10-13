@@ -31,10 +31,9 @@ export class RataExtraPipelineStack extends Stack {
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
         ],
       }),
-      dockerEnabledForSynth: true,
       codeBuildDefaults: {
         // TODO: Cacheing not working currently
-        cache: Cache.local(LocalCacheMode.CUSTOM, LocalCacheMode.SOURCE, LocalCacheMode.DOCKER_LAYER),
+        cache: Cache.local(LocalCacheMode.CUSTOM, LocalCacheMode.SOURCE),
         buildEnvironment: {
           buildImage: LinuxBuildImage.STANDARD_6_0,
         },
