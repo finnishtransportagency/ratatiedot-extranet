@@ -19,30 +19,25 @@ export class RataExtraPipelineStack extends Stack {
       tags: config.tags,
     });
 
-    const buildAction = new CodeBuildStep('Build', {
-      input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
-        authentication: SecretValue.secretsManager(config.authenticationToken),
-      }),
-      installCommands: ['npm ci'],
-      commands: ['npm run build:frontend'],
-      primaryOutputDirectory: './',
-      buildEnvironment: {
-        buildImage: LinuxBuildImage.STANDARD_6_0,
-      },
-    });
-    const synth = new ShellStep('Synth', {
-      input: buildAction,
-      commands: ['npm ci', `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`],
-      primaryOutputDirectory: './cdk.out',
-    });
-
     const pipeline = new CodePipeline(this, 'Rataextra-Pipeline', {
       pipelineName: 'Rataextra-' + config.env,
-      synth: synth,
+      synth: new ShellStep('Synth', {
+        input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
+          authentication: SecretValue.secretsManager(config.authenticationToken),
+        }),
+        installCommands: ['npm run ci --user=root'],
+        commands: [
+          'npm run build:frontend',
+          `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
+        ],
+      }),
       dockerEnabledForSynth: true,
       codeBuildDefaults: {
         // TODO: Cacheing not working currently
         cache: Cache.local(LocalCacheMode.CUSTOM, LocalCacheMode.SOURCE, LocalCacheMode.DOCKER_LAYER),
+        buildEnvironment: {
+          buildImage: LinuxBuildImage.STANDARD_6_0,
+        },
       },
     });
     pipeline.addStage(new RataExtraApplication(this, 'RataExtra'));
