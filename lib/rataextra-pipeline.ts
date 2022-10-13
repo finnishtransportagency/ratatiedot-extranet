@@ -23,7 +23,7 @@ export class RataExtraPipelineStack extends Stack {
       input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
         authentication: SecretValue.secretsManager(config.authenticationToken),
       }),
-      installCommands: ['npm ci', 'npm --prefix packages/frontend i'],
+      installCommands: ['npm ci'],
       commands: ['npm run build:frontend'],
       primaryOutputDirectory: './',
       buildEnvironment: {
@@ -36,7 +36,7 @@ export class RataExtraPipelineStack extends Stack {
       // input: CodePipelineSource.connection('finnishtransportagency/ratatiedot-extranet', config.branch, {
       //   connectionArn: StringParameter.valueFromLookup(this, config.repoConnectionName),
       // }),
-      commands: [`npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`],
+      commands: ['npm ci', `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`],
       primaryOutputDirectory: './cdk.out',
     });
 
