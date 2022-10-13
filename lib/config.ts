@@ -36,7 +36,7 @@ export const getPipelineConfig = () => ({
   config: {
     ...baseConfig,
     branch,
-    repoConnectionName: 'rata-extra-github-connection',
+    repoConnectionName: 'rataextra-github-connection',
     // TODO: Remove once changed to connection
     authenticationToken: 'github-token',
   },
