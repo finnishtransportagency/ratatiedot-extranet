@@ -47,7 +47,6 @@ export const getPipelineConfig = () => {
       env,
       branch,
       stackId: getStackId(branch),
-      region: 'eu-west-1',
       authenticationToken: 'github-token',
       tags: {
         Environment: env,
