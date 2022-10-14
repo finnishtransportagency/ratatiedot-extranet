@@ -11,7 +11,7 @@ import { RataExtraStack } from './rataextra-stack';
 export class RataExtraPipelineStack extends Stack {
   constructor(scope: Construct) {
     const config = getPipelineConfig();
-    super(scope, 'stack-pipeline-rataextra' + config.stackId, {
+    super(scope, 'stack-pipeline-rataextra-' + config.stackId, {
       env: {
         region: 'eu-west-1',
       },
