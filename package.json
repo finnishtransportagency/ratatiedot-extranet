@@ -20,7 +20,7 @@
     "test:server": "cd packages/server && npm test",
     "cdk": "cdk",
     "pipeline:synth": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk synth",
-    "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk deploy rataextra-pipeline-dev"
+    "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk deploy stack-pipeline-rataextra-$npm_config_stackid"
   },
   "repository": {
     "type": "git",
