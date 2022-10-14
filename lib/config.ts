@@ -1,6 +1,6 @@
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
-export function getEnv(name: string) {
+export function getEnvOrFail(name: string) {
   const value = process.env[name];
   if (!value) {
     throw new Error(name + '-environment variable has not been set');
@@ -8,36 +8,52 @@ export function getEnv(name: string) {
   return value;
 }
 
-const permanentEnvironments = ['dev', 'prod'] as const;
+export type RataExtraEnvironment = typeof environments[keyof typeof environments];
 
-const env = getEnv('ENVIRONMENT');
-const branch = getEnv('BRANCH');
-// Used any as otherwise includes isn't allowed
-const isPermanentEnvironment = (environment: string) => permanentEnvironments.includes(environment as any);
+function isRataExtraEnvironment(arg: string | undefined): arg is RataExtraEnvironment {
+  return !!arg && Object.values(environments).includes(arg as any);
+}
+
+const environments = {
+  dev: 'dev',
+  prod: 'prod',
+} as const;
+
+const productionBranch = 'prod';
+const productionStackId = productionBranch;
+const developmentMainBranch = 'main';
+const developmentMainStackId = developmentMainBranch;
+
+function getStackId(branch: string): string {
+  const stackId = getEnvOrFail('STACK_ID');
+  if (branch === developmentMainBranch && stackId !== developmentMainStackId) {
+    throw new Error(`For branch ${developmentMainBranch} stack id must match the branch`);
+  }
+  if (branch === productionBranch && stackId !== productionStackId) {
+    throw new Error(`For branch ${productionBranch} stack id must match the branch`);
+  }
+  return stackId;
+}
+
+// Empty example for now
+export const getRataExtraStackConfig = () => ({});
 
 // Runtime variables from SSM/Parameter Store
-const baseConfig = {
-  env,
-  isPermanentEnvironment,
-  region: 'eu-west-1',
-  tags: {
-    Environment: env,
-    Project: 'Ratatiedot Extranet',
-  },
+export const getPipelineConfig = () => {
+  const env = getEnvOrFail('ENVIRONMENT');
+  if (isRataExtraEnvironment(env)) {
+    const branch = env === environments.prod ? productionBranch : getEnvOrFail('BRANCH');
+    return {
+      env,
+      branch,
+      stackId: getStackId(branch),
+      region: 'eu-west-1',
+      authenticationToken: 'github-token',
+      tags: {
+        Environment: env,
+        Project: 'Ratatiedot Extranet',
+      },
+    };
+  }
+  throw new Error(`Environment value ${env} for ENVIRONMENT is not valid Raita environment.`);
 };
-
-export const getRataExtraStackConfig = () => ({
-  config: {
-    ...baseConfig,
-  },
-});
-
-export const getPipelineConfig = () => ({
-  config: {
-    ...baseConfig,
-    branch,
-    repoConnectionName: 'rataextra-github-connection',
-    // TODO: Remove once changed to connection
-    authenticationToken: 'github-token',
-  },
-});

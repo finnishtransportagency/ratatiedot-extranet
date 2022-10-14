@@ -2,7 +2,7 @@ import { SecretValue, Stack, Stage, StageProps } from 'aws-cdk-lib';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import { Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
-import { getPipelineConfig } from './config';
+import { getPipelineConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';
 
 /**
@@ -10,8 +10,8 @@ import { RataExtraStack } from './rataextra-stack';
  */
 export class RataExtraPipelineStack extends Stack {
   constructor(scope: Construct) {
-    const { config } = getPipelineConfig();
-    super(scope, 'rataextra-pipeline-' + config.env, {
+    const config = getPipelineConfig();
+    super(scope, 'stack-pipeline-rataextra' + config.stackId, {
       env: {
         region: 'eu-west-1',
       },
@@ -19,8 +19,8 @@ export class RataExtraPipelineStack extends Stack {
       tags: config.tags,
     });
 
-    const pipeline = new CodePipeline(this, 'Rataextra-Pipeline', {
-      pipelineName: 'Rataextra-' + config.env,
+    const pipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
+      pipelineName: 'pr-rataextra-' + config.stackId,
       synth: new ShellStep('Synth', {
         input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
           authentication: SecretValue.secretsManager(config.authenticationToken),
@@ -32,20 +32,29 @@ export class RataExtraPipelineStack extends Stack {
         ],
       }),
       codeBuildDefaults: {
-        // TODO: Cacheing not working currently
         cache: Cache.local(LocalCacheMode.CUSTOM, LocalCacheMode.SOURCE),
         buildEnvironment: {
           buildImage: LinuxBuildImage.STANDARD_6_0,
         },
       },
     });
-    pipeline.addStage(new RataExtraApplication(this, 'RataExtra'));
+    pipeline.addStage(
+      new RataExtraApplication(this, 'RataExtra', {
+        stackId: config.stackId,
+        rataExtraEnv: config.env,
+      }),
+    );
   }
 }
+interface RataExtraStageProps extends StageProps {
+  readonly stackId: string;
+  readonly rataExtraEnv: RataExtraEnvironment;
+}
 class RataExtraApplication extends Stage {
-  stack: RataExtraStack;
-  constructor(scope: Construct, id: string, props?: StageProps) {
+  constructor(scope: Construct, id: string, props: RataExtraStageProps) {
     super(scope, id, props);
-    this.stack = new RataExtraStack(this, 'Rataextra');
+    const rataExtraStack = new RataExtraStack(this, `rataextra-${props.env}-${props.stackId}`, {
+      rataExtraEnv: props.env as RataExtraEnvironment, // Weirdly thinks this can be undefined
+    });
   }
 }
