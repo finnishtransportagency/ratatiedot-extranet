@@ -28,7 +28,7 @@ export class RataExtraPipelineStack extends Stack {
         installCommands: ['npm run ci --user=root'],
         commands: [
           'npm run build:frontend',
-          `npm run pipeline:synth --environment=${config.env} --branch=${config.branch}`,
+          `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
         ],
       }),
       codeBuildDefaults: {
