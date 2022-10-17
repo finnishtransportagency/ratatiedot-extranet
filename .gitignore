@@ -32,3 +32,7 @@ yarn-error.log*
 
 # cypress
 videos/
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
