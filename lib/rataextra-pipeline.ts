@@ -53,8 +53,8 @@ interface RataExtraStageProps extends StageProps {
 class RataExtraApplication extends Stage {
   constructor(scope: Construct, id: string, props: RataExtraStageProps) {
     super(scope, id, props);
-    const rataExtraStack = new RataExtraStack(this, `rataextra-${props.env}-${props.stackId}`, {
-      rataExtraEnv: props.env as RataExtraEnvironment, // Weirdly thinks this can be undefined
+    const rataExtraStack = new RataExtraStack(this, `rataextra-${props.rataExtraEnv}-${props.stackId}`, {
+      rataExtraEnv: props.rataExtraEnv,
     });
   }
 }
