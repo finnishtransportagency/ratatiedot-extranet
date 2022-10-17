@@ -22,7 +22,7 @@ export class RataExtraStack extends cdk.Stack {
 
   constructor(scope: Construct, stackId: string, props: RataExtraStackProps) {
     super(scope, stackId, props);
-    this.#stackId = stackId;
+    this.#stackId = stackId.toLowerCase();
     const { rataExtraEnv } = props;
     // As demonstration for now
     const {} = getRataExtraStackConfig();
