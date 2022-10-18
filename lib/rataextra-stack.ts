@@ -15,7 +15,7 @@ import { getRemovalPolicy } from './utils';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 interface RataExtraStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
@@ -148,6 +148,7 @@ export class RataExtraStack extends cdk.Stack {
     );
     const listener = alb.addListener('Listener', {
       port: 443,
+      defaultAction: ListenerAction.fixedResponse(404),
     });
     alb.addRedirect();
     const targets = listenerTargets.map((target) => new LambdaTarget(target));
