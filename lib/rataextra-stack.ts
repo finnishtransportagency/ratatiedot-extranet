@@ -147,7 +147,7 @@ export class RataExtraStack extends cdk.Stack {
       },
     );
     const listener = alb.addListener('Listener', {
-      port: 443,
+      port: 80,
       defaultAction: ListenerAction.fixedResponse(404),
     });
     alb.addRedirect();
