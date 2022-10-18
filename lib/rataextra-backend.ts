@@ -78,10 +78,10 @@ export class RataExtraBackendStack extends NestedStack {
       },
     );
     const listener = alb.addListener('Listener', {
-      port: 80,
+      port: 443,
       defaultAction: ListenerAction.fixedResponse(404),
     });
-    alb.addRedirect();
+    // alb.addRedirect();
     // TODO: Add each Lambda individually with unique paths
     const targets = listenerTargets.map((target) => new LambdaTarget(target));
     listener.addTargets('Targets', {
