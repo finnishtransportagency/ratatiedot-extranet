@@ -33,6 +33,7 @@ export class RataExtraStack extends cdk.Stack {
 
     const applicationVPC = new ec2.Vpc(this, 'rataextra-application-vpc', {
       enableDnsSupport: false,
+      enableDnsHostnames: false,
       vpcName: `vpc-${this.#rataExtraStackIdentifier}-application`,
     });
 
