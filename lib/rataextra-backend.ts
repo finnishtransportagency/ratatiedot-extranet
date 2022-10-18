@@ -82,6 +82,7 @@ export class RataExtraBackendStack extends NestedStack {
       defaultAction: ListenerAction.fixedResponse(404),
     });
     alb.addRedirect();
+    // TODO: Add each Lambda individually with unique paths
     const targets = listenerTargets.map((target) => new LambdaTarget(target));
     listener.addTargets('Targets', {
       targets: targets,

@@ -13,6 +13,13 @@ import { getRemovalPolicy } from './utils';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { RataExtraBackendStack } from './rataextra-backend';
+import {
+  AllowedMethods,
+  BehaviorOptions,
+  CachePolicy,
+  OriginRequestPolicy,
+  ViewerProtocolPolicy,
+} from 'aws-cdk-lib/aws-cloudfront';
 
 interface RataExtraStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
@@ -43,6 +50,7 @@ export class RataExtraStack extends cdk.Stack {
     // TODO: Bucket creation as a function?
     const frontendBucket = new Bucket(this, `rataextra-frontend-`, {
       bucketName: `s3-${this.#rataExtraStackIdentifier}-frontend`,
+      websiteIndexDocument: 'index.html',
       publicReadAccess: false,
       accessControl: BucketAccessControl.PRIVATE,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
@@ -51,9 +59,9 @@ export class RataExtraStack extends cdk.Stack {
       // encryption: BucketEncryption.S3_MANAGED,
     });
 
-    const buildDir = '../packages/frontend/build';
+    const frontendRelativeBuildDir = '../packages/frontend/build';
     new BucketDeployment(this, 'FrontendDeployment', {
-      sources: [Source.asset(path.join(__dirname, buildDir))],
+      sources: [Source.asset(path.join(__dirname, frontendRelativeBuildDir))],
       destinationBucket: frontendBucket,
     });
 
@@ -67,17 +75,6 @@ export class RataExtraStack extends cdk.Stack {
       }),
     );
 
-    const cloudfrontDistribution = new cloudfront.Distribution(this, `rataextra-cloudfront`, {
-      defaultRootObject: 'index.html',
-      comment: `Cloudfront for ${this.#rataExtraStackIdentifier}`,
-      defaultBehavior: {
-        origin: new origins.S3Origin(frontendBucket, {
-          originAccessIdentity: cloudfrontOAI,
-        }),
-        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      },
-    });
-
     const lambdaServiceRole = this.createServiceRole(
       'LambdaServiceRole',
       'lambda.amazonaws.com',
@@ -88,6 +85,28 @@ export class RataExtraStack extends cdk.Stack {
       rataExtraEnv: rataExtraEnv,
       lambdaServiceRole: lambdaServiceRole,
       applicationVpc: privateApplicationVpc,
+    });
+
+    // const backendProxyBehavior: BehaviorOptions = {
+    //   origin: new origins.HttpOrigin(''), // TODO: Real origin from Parameter Store, document
+    //   cachePolicy: CachePolicy.CACHING_DISABLED,
+    //   originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
+    //   allowedMethods: AllowedMethods.ALLOW_ALL,
+    //   viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    // };
+    const cloudfrontDistribution = new cloudfront.Distribution(this, `rataextra-cloudfront`, {
+      defaultRootObject: 'index.html',
+      comment: `Cloudfront for ${this.#rataExtraStackIdentifier}`,
+      defaultBehavior: {
+        origin: new origins.S3Origin(frontendBucket, {
+          originAccessIdentity: cloudfrontOAI,
+        }),
+        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      },
+      // additionalBehaviors: {
+      //   '/api': backendProxyBehavior,
+      // },
     });
   }
   private createServiceRole(name: string, servicePrincipal: string, policyName: string) {
