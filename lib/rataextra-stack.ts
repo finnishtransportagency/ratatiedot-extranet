@@ -7,34 +7,38 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
-import { BlockPublicAccess, Bucket, BucketAccessControl, BucketEncryption, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
+import { BlockPublicAccess, Bucket, BucketAccessControl, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import * as path from 'path';
-import { StackProps } from 'aws-cdk-lib';
+import { Duration, StackProps } from 'aws-cdk-lib';
 import { getRemovalPolicy } from './utils';
+import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 interface RataExtraStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
 }
 
 export class RataExtraStack extends cdk.Stack {
-  #stackId: string;
+  #rataExtraStackIdentifier: string;
 
   constructor(scope: Construct, stackId: string, props: RataExtraStackProps) {
     super(scope, stackId, props);
-    this.#stackId = stackId.toLowerCase();
+    this.#rataExtraStackIdentifier = stackId.toLowerCase();
     const { rataExtraEnv } = props;
     // As demonstration for now
     const {} = getRataExtraStackConfig();
 
     const applicationVPC = new ec2.Vpc(this, 'rataextra-application-vpc', {
       enableDnsSupport: false,
-      vpcName: `vpc-${this.#stackId}-application`,
+      vpcName: `vpc-${this.#rataExtraStackIdentifier}-application`,
     });
 
     // TODO: Bucket creation as a function?
     const frontendBucket = new Bucket(this, `rataextra-frontend-`, {
-      bucketName: `s3-${this.#stackId}-frontend`,
+      bucketName: `s3-${this.#rataExtraStackIdentifier}-frontend`,
       publicReadAccess: false,
       accessControl: BucketAccessControl.PRIVATE,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
@@ -61,7 +65,7 @@ export class RataExtraStack extends cdk.Stack {
 
     const cloudfrontDistribution = new cloudfront.Distribution(this, `rataextra-cloudfront`, {
       defaultRootObject: 'index.html',
-      comment: `Cloudfront for ${this.#stackId}`,
+      comment: `Cloudfront for ${this.#rataExtraStackIdentifier}`,
       defaultBehavior: {
         origin: new origins.S3Origin(frontendBucket, {
           originAccessIdentity: cloudfrontOAI,
@@ -70,36 +74,87 @@ export class RataExtraStack extends cdk.Stack {
       },
     });
 
+    const lambdaServiceRole = this.createServiceRole(
+      'LambdaServiceRole',
+      'lambda.amazonaws.com',
+      'service-role/AWSLambdaBasicExecutionRole',
+    );
+
+    const urlGeneratorFn = this.createDummyLambda({
+      rataExtraStackId: this.#rataExtraStackIdentifier,
+      name: 'dummy-handler',
+      lambdaRole: lambdaServiceRole,
+    });
+
     // ALB for API
-    const alb = this.createlAlb({ stackId: this.#stackId, name: 'api', vpc: applicationVPC });
+    const alb = this.createlAlb({
+      rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
+      name: 'api',
+      vpc: applicationVPC,
+      listenerTargets: [urlGeneratorFn],
+    });
   }
+
+  private createServiceRole(name: string, servicePrincipal: string, policyName: string) {
+    return new Role(this, name, {
+      roleName: `${name}-${this.#rataExtraStackIdentifier}`,
+      assumedBy: new ServicePrincipal(servicePrincipal),
+      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName(policyName)],
+    });
+  }
+
+  private createDummyLambda({
+    rataExtraStackId,
+    name,
+    lambdaRole,
+  }: {
+    name: string;
+    rataExtraStackId: string;
+    lambdaRole: Role;
+  }) {
+    return new NodejsFunction(this, name, {
+      functionName: `lambda-${rataExtraStackId}-${name}`,
+      memorySize: 1024,
+      timeout: Duration.seconds(5),
+      runtime: Runtime.NODEJS_16_X,
+      handler: 'handleRequest',
+      entry: path.join(__dirname, `../packages/server/lambdas/dummy.ts`),
+      environment: {},
+      role: lambdaRole,
+    });
+  }
+
   private createlAlb({
-    stackId,
+    rataExtraStackIdentifier,
     name,
     vpc,
     internetFacing = false,
     listenerTargets,
   }: {
-    stackId: string;
+    rataExtraStackIdentifier: string;
     name: string;
     vpc: ec2.Vpc;
-    listenerTargets?: lambda.Function;
+    listenerTargets: [lambda.Function];
     internetFacing?: boolean;
   }) {
-    const alb = new cdk.aws_elasticloadbalancingv2.ApplicationLoadBalancer(this, `alb-${stackId}-${name}`, {
-      vpc,
-      internetFacing,
-      loadBalancerName: `alb-${stackId}-${name}`,
-    });
+    const alb = new cdk.aws_elasticloadbalancingv2.ApplicationLoadBalancer(
+      this,
+      `alb-${rataExtraStackIdentifier}-${name}`,
+      {
+        vpc,
+        internetFacing,
+        loadBalancerName: `alb-${rataExtraStackIdentifier}-${name}`,
+      },
+    );
     const listener = alb.addListener('Listener', {
-      port: 80,
+      port: 443,
     });
     alb.addRedirect();
-    // TODO: Make not optional
-    if (listenerTargets) {
-      listener.addTargets('Targets', {
-        targets: [new LambdaTarget(listenerTargets)],
-      });
-    }
+    const targets = listenerTargets.map((target) => new LambdaTarget(target));
+    listener.addTargets('Targets', {
+      targets: targets,
+      priority: 1,
+      conditions: [ListenerCondition.pathPatterns(['/'])],
+    });
   }
 }
