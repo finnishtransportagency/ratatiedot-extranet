@@ -1,23 +1,18 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, RouteObject } from 'react-router-dom';
 
 import { Home } from './pages/Home';
-import { AccessDenied } from './pages/AccessDenied';
-import { NotFound } from './pages/NotFound';
 import { Routes } from './constants/Routes';
+import { RootBoundary } from './components/RootBoundary';
 
-const routes = [
+const routes: RouteObject[] = [
   {
     path: Routes.HOME,
     element: <Home />,
-  },
-  {
-    path: Routes.ACCESS_DENIED,
-    element: <AccessDenied />,
-  },
-  // Only match when no route above is found
-  {
-    path: Routes.NOT_FOUND,
-    element: <NotFound />,
+    errorElement: <RootBoundary />, // Send user here whenever error is thrown
+    loader: async () => {
+      // TODO: throw error if user has no permission
+    },
+    children: [],
   },
 ];
 
