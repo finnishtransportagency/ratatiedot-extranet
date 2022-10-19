@@ -115,6 +115,14 @@ Note! A valid GitHub token with the scopes `admin:repo_hook, public_repo, repo:s
 
 Reference for pipeline setup: https://docs.aws.amazon.com/cdk/v2/guide/cdk_pipeline.html
 
+#### Parameter Store
+
+Add following values to Parameter Store for permanent environments:
+
+- **rataextra-cloudfront-certificate-arn**: ARN for the SSL Certificate used by CloudFront. Certificate needs have been added to ACM before this value can be used. E.g. arn:aws:acm:us-east-1:123456789:certificate/123-456-789-0ab
+- **rataextra-cloudfront-domain-name**: Domain name for the certificate above. E.g. test.example.com
+- **rataextra-dmz-api-domain-name**: Domain name for the /api redirection. E.g. test-dmz.example.com
+
 ### Testing
 
 > ❕ We are in process of building automated testing/CI-pipeline. For now all tests needs to be run manually.
