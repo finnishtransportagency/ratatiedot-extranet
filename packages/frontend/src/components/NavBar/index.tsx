@@ -8,27 +8,25 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
+  useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
-import LogoutIcon from '@mui/icons-material/Logout';
-import InfoIcon from '@mui/icons-material/Info';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import EditIcon from '@mui/icons-material/Edit';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import RataExtLogo from '../../assets/images/Logo_noText.png';
 import {
   MobileAppBarWrapper,
-  DesktopAppBarWrapper,
+  AppBarWrapper,
   DrawerWrapper,
   LogoImageWrapper,
   LogoTextWrapper,
+  DrawerHeader,
 } from './index.styles';
 import { useState } from 'react';
 import { Routes } from '../../constants/Routes';
+import { IMenuItem, MenuItemList } from './MenuItemList';
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
@@ -37,6 +35,7 @@ export const NavBar = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
 
   return (
     <Box>
@@ -59,67 +58,39 @@ export const NavBar = () => {
           </IconButton>
         </Toolbar>
       </MobileAppBarWrapper>
-      <DesktopAppBarWrapper position="absolute" color="transparent" open={open}>
-        <Toolbar />
-        {/* <LogoImageWrapper component="img" src={RataExtLogo} alt="Logo" />
-          <LogoTextWrapper>Ratatiedon extranet</LogoTextWrapper>
+      <AppBarWrapper position="fixed" color="transparent" open={open}>
+        <Toolbar>
+          <Typography variant="subtitle2">Ohjeet</Typography>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton size="large" edge="end" color="inherit" area-label="open search">
             <SearchIcon color="primary" />
-          </IconButton> */}
-      </DesktopAppBarWrapper>
+          </IconButton>
+          {/* Temporary open drawer for desktop view */}
+          <IconButton
+            size="large"
+            edge="end"
+            color="inherit"
+            area-label={open ? 'close drawer' : 'open drawer'}
+            onClick={toggleDrawer}
+          >
+            {open ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
+          </IconButton>
+        </Toolbar>
+      </AppBarWrapper>
       <DrawerWrapper variant="persistent" anchor="left" open={open}>
         <Toolbar />
         <List>
-          <ListItem key="Close drawer" disablePadding onClick={toggleDrawer}>
-            <ListItemButton>
-              <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                area-label={open ? 'close drawer' : 'open drawer'}
-                onClick={toggleDrawer}
-              >
-                {open ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}
-              </IconButton>
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="Landing" disablePadding onClick={() => navigate(Routes.LANDING)}>
-            <ListItemButton>
-              <ListItemIcon>
-                <InfoIcon />
-              </ListItemIcon>
-              <ListItemText primary="Etusivu" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="Not found" disablePadding onClick={() => navigate(Routes.NOT_FOUND)}>
-            <ListItemButton>
-              <ListItemIcon>
-                <EditIcon />
-              </ListItemIcon>
-              <ListItemText primary="Sivua ei löydy" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem
-            key="Access denied"
-            disablePadding
-            onClick={() => navigate(Routes.ACCESS_DENIED, { state: { previousPath: location.pathname } })}
-          >
-            <ListItemButton>
-              <ListItemIcon>
-                <CheckCircleOutlineIcon />
-              </ListItemIcon>
-              <ListItemText primary="Pääsy kielletty" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="Log out" disablePadding onClick={() => navigate(Routes.HOME)}>
-            <ListItemButton>
-              <ListItemIcon>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText primary={<Typography variant="subtitle2">Kirjaudu ulos</Typography>} />
-            </ListItemButton>
-          </ListItem>
+          {MenuItemList.map((item: IMenuItem) => {
+            const { key, primary, icon, to } = item;
+            return (
+              <ListItem key={key} disablePadding onClick={() => navigate(to)}>
+                <ListItemButton>
+                  <ListItemIcon>{icon}</ListItemIcon>
+                  <ListItemText primary={primary} />
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
         </List>
       </DrawerWrapper>
     </Box>

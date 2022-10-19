@@ -1,8 +1,7 @@
 import { Typography } from '@mui/material';
 import { useState } from 'react';
 
-import { SubtitleWrapper, ParagraphWrapper } from './index.styles';
-import { ContainerWrapper } from '../../styles/ContainerWrapper';
+import { ContainerWrapper, SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
 import { Footer } from '../../components/Footer';
 
