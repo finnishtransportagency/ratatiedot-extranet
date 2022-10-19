@@ -1,16 +1,9 @@
+import { getEnvOrFail } from '../utils';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
-
-export function getEnvOrFail(name: string) {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(name + '-environment variable has not been set');
-  }
-  return value;
-}
 
 export type RataExtraEnvironment = typeof environments[keyof typeof environments];
 
-function isRataExtraEnvironment(arg: string | undefined): arg is RataExtraEnvironment {
+function isRataExtraEnvironment(arg: string): arg is RataExtraEnvironment {
   return !!arg && Object.values(environments).includes(arg as any);
 }
 
