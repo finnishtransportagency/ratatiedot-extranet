@@ -11,6 +11,14 @@ declare module '@mui/material/styles' {
     tablet: true;
     desktop: true;
   }
+
+  interface Palette {
+    transparent: Palette['primary'];
+  }
+
+  interface PaletteOptions {
+    transparent: PaletteOptions['primary'];
+  }
 }
 
 declare module '@emotion/react' {

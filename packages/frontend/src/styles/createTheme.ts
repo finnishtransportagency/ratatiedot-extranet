@@ -22,6 +22,9 @@ export const theme = createTheme({
     primary: {
       main: Colors.darkblue,
     },
+    transparent: {
+      main: Colors.white,
+    },
   },
   // Typography reference: https://www.figma.com/file/RowcUf6WZvVTqkChr6IRG6/Extranet?node-id=1%3A379
   typography: {
