@@ -2,12 +2,13 @@ import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
-import { StackProps } from 'aws-cdk-lib';
-import { isPermanentStack } from './utils';
+import { RemovalPolicy, StackProps } from 'aws-cdk-lib';
+import { getRemovalPolicy, isPermanentStack } from './utils';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { RataExtraBackendStack } from './rataextra-backend';
 import { RataExtraCloudFrontStack } from './rataextra-cloudfront';
+import { Bucket, BucketAccessControl, BlockPublicAccess, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 
 interface RataExtraStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
@@ -48,6 +49,22 @@ export class RataExtraStack extends cdk.Stack {
       applicationVpc: privateApplicationVpc,
     });
 
+    const removalPolicy = getRemovalPolicy(rataExtraEnv);
+    const autoDeleteObjects = removalPolicy === RemovalPolicy.DESTROY;
+
+    // TODO: Bucket creation as a function?
+    const frontendBucket = new Bucket(this, `rataextra-frontend-`, {
+      bucketName: `s3-${this.#rataExtraStackIdentifier}-frontend`,
+      websiteIndexDocument: 'index.html',
+      publicReadAccess: false,
+      accessControl: BucketAccessControl.PRIVATE,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: removalPolicy,
+      autoDeleteObjects: autoDeleteObjects,
+      objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
+      // encryption: BucketEncryption.S3_MANAGED,
+    });
+
     //CloudFront related resources
     // TODO: Move to own nested stack
     // Downside is that CloudFront would be remade which would require DNS Record update
@@ -59,6 +76,7 @@ export class RataExtraStack extends cdk.Stack {
         cloudfrontCertificateArn: cloudfrontCertificateArn,
         cloudfrontDomainName: cloudfrontDomainName,
         dmzApiEndpoint: dmzApiEndpoint,
+        frontendBucket: frontendBucket,
       });
     }
   }
