@@ -22,7 +22,6 @@ export class RataExtraStack extends cdk.Stack {
     super(scope, id, props);
     this.#rataExtraStackIdentifier = id.toLowerCase();
     const { rataExtraEnv, stackId } = props;
-    // As demonstration for now
     const { cloudfrontCertificateArn, cloudfrontDomainName, dmzApiEndpoint } = getRataExtraStackConfig(this);
 
     const privateApplicationVpc = new ec2.Vpc(this, 'rataextra-application-vpc', {
@@ -65,10 +64,6 @@ export class RataExtraStack extends cdk.Stack {
       // encryption: BucketEncryption.S3_MANAGED,
     });
 
-    //CloudFront related resources
-    // TODO: Move to own nested stack
-    // Downside is that CloudFront would be remade which would require DNS Record update
-    // One option would be to transfer it, but that would require some extra work
     if (isPermanentStack(stackId, rataExtraEnv)) {
       new RataExtraCloudFrontStack(this, 'stack-cf', {
         rataExtraStackIdentifier: this.#rataExtraStackIdentifier,

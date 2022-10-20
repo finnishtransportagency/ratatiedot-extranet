@@ -51,11 +51,11 @@ export class RataExtraCloudFrontStack extends NestedStack {
       }),
     );
 
-    // const certificate = Certificate.fromCertificateArn(
-    //   this,
-    //   `certificate-${this.#rataExtraStackIdentifier}`,
-    //   cloudfrontCertificateArn,
-    // );
+    const certificate = Certificate.fromCertificateArn(
+      this,
+      `certificate-${rataExtraStackIdentifier}`,
+      cloudfrontCertificateArn,
+    );
 
     const backendProxyBehavior: BehaviorOptions = {
       origin: new origins.HttpOrigin(dmzApiEndpoint),
@@ -65,8 +65,8 @@ export class RataExtraCloudFrontStack extends NestedStack {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     };
     const cloudfrontDistribution = new cloudfront.Distribution(this, `rataextra-cloudfront`, {
-      // domainNames: [cloudfrontDomainName],
-      // certificate,
+      domainNames: [cloudfrontDomainName],
+      certificate,
       defaultRootObject: 'index.html',
       comment: `Cloudfront for ${rataExtraStackIdentifier}`,
       priceClass: PriceClass.PRICE_CLASS_100,
