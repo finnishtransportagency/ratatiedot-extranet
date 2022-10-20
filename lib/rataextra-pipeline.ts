@@ -56,6 +56,7 @@ class RataExtraApplication extends Stage {
     super(scope, id, props);
     const rataExtraStack = new RataExtraStack(this, `rataextra-${props.rataExtraEnv}-${props.stackId}`, {
       rataExtraEnv: props.rataExtraEnv,
+      stackId: props.stackId,
     });
   }
 }
