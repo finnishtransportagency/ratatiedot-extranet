@@ -7,7 +7,9 @@
   "scripts": {
     "prepare": "husky install",
     "bootstrap": "npx lerna bootstrap --force-local",
-    "build": "lerna run build",
+    "build": "npx lerna run build",
+    "build:frontend": "npm --prefix packages/frontend run build",
+    "ci": "npx lerna bootstrap --ci",
     "dev-client": "cd packages/frontend && npm start",
     "dev-server": "cd packages/server && npm start",
     "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
@@ -15,7 +17,10 @@
     "cy:open": "cypress open",
     "test": "lerna run test --no-sort",
     "test:client": "cd packages/frontend && npm test",
-    "test:server": "cd packages/server && npm test"
+    "test:server": "cd packages/server && npm test",
+    "cdk": "cdk",
+    "pipeline:synth": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk synth",
+    "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk deploy stack-pipeline-rataextra-$npm_config_stackid"
   },
   "repository": {
     "type": "git",
@@ -28,9 +33,14 @@
   },
   "homepage": "https://github.com/finnishtransportagency/ratatiedot-extranet#readme",
   "dependencies": {
-    "concurrently": "^7.4.0"
+    "aws-cdk-lib": "^2.45.0",
+    "concurrently": "^7.4.0",
+    "constructs": "^10.0.0"
   },
   "devDependencies": {
+    "@types/node": "^18.7.23",
+    "aws-cdk": "2.41.0",
+    "cross-env": "^7.0.3",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
     "cypress": "^10.8.0",
@@ -43,7 +53,8 @@
     "lerna": "^5.5.1",
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "typescript": "~3.9.7"
   },
   "lint-staged": {
     "*.{js,json,jsx,css,md}": [
@@ -55,6 +66,7 @@
     ]
   },
   "workspaces": [
-    "packages/*"
+    "packages/frontend",
+    "packages/server"
   ]
 }
