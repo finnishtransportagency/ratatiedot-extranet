@@ -7,15 +7,16 @@ import '../assets/fonts/Exo_2/Exo2-ExtraBold.ttf';
 import '../assets/fonts/Exo_2/Exo2-Bold.ttf';
 import '../assets/fonts/Exo_2/Exo2-LightItalic.ttf';
 import { Colors } from '../constants/Colors';
+import { Viewports } from '../constants/Viewports';
 
 // Default theme object: https://mui.com/material-ui/customization/default-theme/#main-content
 export const theme = createTheme({
   spacing: 8, // default 8px
   breakpoints: {
     values: {
-      mobile: 0,
-      tablet: 640,
-      desktop: 1024,
+      mobile: Viewports.MOBILE,
+      tablet: Viewports.TABLET,
+      desktop: Viewports.DESKTOP,
     },
   },
   palette: {
