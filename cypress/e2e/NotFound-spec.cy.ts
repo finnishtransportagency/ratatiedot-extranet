@@ -6,14 +6,8 @@ describe('Not Found page', () => {
     describe(`on ${viewport}`, () => {
       it('should visit if no other paths matched', function () {
         cy.viewport(viewport);
-        cy.visit('/whatever');
-        cy.get(`a[href="${Routes.HOME}"]`).invoke('width').should('be.gte', 200);
-        cy.get(`a[href="${Routes.HOME}"]`)
-          .should('exist')
-          .then(() => cy.get('a').click());
-
         cy.visit('/not-found');
-        cy.get(`a[href="${Routes.HOME}"]`)
+        cy.get(`a[href="${Routes.LANDING}"]`)
           .should('exist')
           .then(() => cy.get('a').click());
       });
