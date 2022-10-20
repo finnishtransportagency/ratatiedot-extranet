@@ -1,4 +1,4 @@
-import { NestedStack, RemovalPolicy, StackProps } from 'aws-cdk-lib';
+import { NestedStack, StackProps } from 'aws-cdk-lib';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -13,10 +13,9 @@ import {
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment } from './config';
-import { Bucket, BucketAccessControl, BlockPublicAccess, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import * as path from 'path';
-import { getRemovalPolicy } from './utils';
 
 interface CloudFrontStackProps extends StackProps {
   readonly rataExtraStackIdentifier: string;
@@ -24,28 +23,20 @@ interface CloudFrontStackProps extends StackProps {
   readonly cloudfrontCertificateArn: string;
   readonly cloudfrontDomainName: string;
   readonly dmzApiEndpoint: string;
+  readonly frontendBucket: Bucket;
 }
 export class RataExtraCloudFrontStack extends NestedStack {
   constructor(scope: Construct, id: string, props: CloudFrontStackProps) {
     super(scope, id, props);
-    const { rataExtraEnv, rataExtraStackIdentifier, dmzApiEndpoint, cloudfrontCertificateArn, cloudfrontDomainName } =
-      props;
+    const {
+      rataExtraEnv,
+      rataExtraStackIdentifier,
+      dmzApiEndpoint,
+      cloudfrontCertificateArn,
+      cloudfrontDomainName,
+      frontendBucket,
+    } = props;
     const cloudfrontOAI = new cloudfront.OriginAccessIdentity(this, 'CloudFrontOriginAccessIdentity');
-
-    const removalPolicy = getRemovalPolicy(rataExtraEnv);
-    const autoDeleteObjects = removalPolicy === RemovalPolicy.DESTROY;
-    // TODO: Bucket creation as a function?
-    const frontendBucket = new Bucket(this, `rataextra-frontend-`, {
-      bucketName: `s3-${rataExtraStackIdentifier}-frontend`,
-      websiteIndexDocument: 'index.html',
-      publicReadAccess: false,
-      accessControl: BucketAccessControl.PRIVATE,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      removalPolicy: removalPolicy,
-      autoDeleteObjects: autoDeleteObjects,
-      objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
-      // encryption: BucketEncryption.S3_MANAGED,
-    });
 
     const frontendRelativeBuildDir = '../packages/frontend/build';
     new BucketDeployment(this, 'FrontendDeployment', {
