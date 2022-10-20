@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { ContainerWrapper, SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
 import { Footer } from '../../components/Footer';
+import { useLocation } from 'react-router-dom';
+import { TitleBar } from '../../components/TitleBar';
 
 export const Landing = () => {
   // temporary state -> should save in db instead
@@ -12,6 +14,9 @@ export const Landing = () => {
     const initialValue = JSON.parse(saved);
     return initialValue === 'true' || initialValue;
   });
+
+  const location = useLocation();
+  console.log(location);
 
   const acceptTerm = () => {
     setIsFirstLogin(false);
@@ -54,7 +59,10 @@ export const Landing = () => {
 
   return (
     <ContainerWrapper>
-      <Typography variant="subtitle2">Etusivu</Typography>
+      {/* To do: typo Mess up in desktop view */}
+      <TitleBar>
+        <Typography variant="subtitle2">Etusivu</Typography>
+      </TitleBar>
       {isFirstLogin ? <FirstLoginView /> : <LandingView />}
     </ContainerWrapper>
   );

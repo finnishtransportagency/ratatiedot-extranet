@@ -1,6 +1,6 @@
 import InfoIcon from '@mui/icons-material/Info';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Typography, TypographyProps } from '@mui/material';
+import { Typography } from '@mui/material';
 import { Routes } from '../../constants/Routes';
 
 export interface IMenuItem {

@@ -7,7 +7,6 @@ export const ProtectedContainerWrapper = styled(Box)(({ theme }) => ({
   },
   [theme.breakpoints.up('desktop')]: {
     display: 'flex',
-    // flexDirection: 'column',
     '& .MuiToolbar-root': {
       padding: 0,
     },

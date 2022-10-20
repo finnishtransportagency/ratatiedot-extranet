@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { Box, Typography } from '@mui/material';
 import MuiAppBar, { AppBarProps } from '@mui/material/AppBar';
 import { Theme, CSSObject } from '@mui/material/styles';
 import MuiDrawer, { DrawerProps } from '@mui/material/Drawer';
@@ -12,16 +11,7 @@ interface AppBarWrapperProps extends AppBarProps {
 
 const drawerWidth = 306;
 
-export const LogoTextWrapper = styled(Typography)(() => ({
-  fontSize: '18px',
-})) as typeof Typography;
-
-export const LogoImageWrapper = styled(Box)(() => ({
-  width: '40px',
-  height: '40px',
-})) as typeof Box;
-
-export const MobileAppBarWrapper = styled(MuiAppBar, {
+export const MiniAppBarWrapper = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })<AppBarWrapperProps>(({ theme, open }) => {
   return {
@@ -34,32 +24,6 @@ export const MobileAppBarWrapper = styled(MuiAppBar, {
     },
     [theme.breakpoints.up('desktop')]: {
       display: 'none',
-    },
-  };
-});
-
-export const AppBarWrapper = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarWrapperProps>(({ theme, open }) => {
-  return {
-    boxShadow: `0px 3px ${Colors.lightblue}`,
-    [theme.breakpoints.down('desktop')]: {
-      display: 'none',
-    },
-    [theme.breakpoints.up('desktop')]: {
-      padding: `0px ${theme.spacing(5)}`,
-      transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-      ...(open && {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
-        transition: theme.transitions.create(['margin', 'width'], {
-          easing: theme.transitions.easing.easeOut,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-      }),
     },
   };
 });
@@ -98,7 +62,7 @@ export const DrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ theme, ope
     },
     [theme.breakpoints.up('tablet')]: {
       '& .MuiPaper-root': {
-        width: '306px',
+        width: `${drawerWidth}px`,
         borderColor: Colors.lightblue,
         borderWidth: '3px',
       },
@@ -120,6 +84,7 @@ export const DrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ theme, ope
     '& li:last-child': {
       position: 'fixed',
       bottom: '16px',
+      width: open ? `${drawerWidth}px` : `calc(${theme.spacing(8)} + 1px)`,
       '& .MuiListItemIcon-root': {
         color: Colors.darkblue,
       },
@@ -129,12 +94,3 @@ export const DrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ theme, ope
     },
   };
 });
-
-export const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...(theme.mixins.toolbar as any), // this causing the TS error so set as type `any`
-}));

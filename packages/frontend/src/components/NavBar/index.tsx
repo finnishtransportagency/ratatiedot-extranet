@@ -8,25 +8,22 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import RataExtLogo from '../../assets/images/Logo_noText.png';
 import {
-  MobileAppBarWrapper,
-  AppBarWrapper,
+  MiniAppBarWrapper,
+  // AppBarWrapper,
   DrawerWrapper,
-  LogoImageWrapper,
-  LogoTextWrapper,
-  DrawerHeader,
 } from './index.styles';
 import { useState } from 'react';
-import { Routes } from '../../constants/Routes';
 import { IMenuItem, MenuItemList } from './MenuItemList';
+import { isDesktopScreen } from '../../utils/helpers';
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
@@ -34,15 +31,13 @@ export const NavBar = () => {
   const toggleDrawer = () => setOpen(!open);
 
   const navigate = useNavigate();
-  const location = useLocation();
-  const theme = useTheme();
 
   return (
     <Box>
-      <MobileAppBarWrapper position="fixed" color="transparent" open={open}>
+      <MiniAppBarWrapper position="fixed" color="transparent" open={open}>
         <Toolbar>
-          <LogoImageWrapper component="img" src={RataExtLogo} alt="Logo" />
-          <LogoTextWrapper>Ratatiedon extranet</LogoTextWrapper>
+          <Typography sx={{ width: '40px', height: '40px' }} component="img" src={RataExtLogo} alt="Logo" />
+          <Typography sx={{ fontSize: '18px' }}>Ratatiedon extranet</Typography>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton size="large" edge="end" color="inherit" area-label="open search">
             <SearchIcon color="primary" />
@@ -57,28 +52,23 @@ export const NavBar = () => {
             {open ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
           </IconButton>
         </Toolbar>
-      </MobileAppBarWrapper>
-      <AppBarWrapper position="fixed" color="transparent" open={open}>
-        <Toolbar>
-          <Typography variant="subtitle2">Ohjeet</Typography>
-          <Box sx={{ flexGrow: 1 }} />
-          <IconButton size="large" edge="end" color="inherit" area-label="open search">
-            <SearchIcon color="primary" />
-          </IconButton>
-          {/* Temporary open drawer for desktop view */}
-          <IconButton
-            size="large"
-            edge="end"
-            color="inherit"
-            area-label={open ? 'close drawer' : 'open drawer'}
-            onClick={toggleDrawer}
-          >
-            {open ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
-          </IconButton>
-        </Toolbar>
-      </AppBarWrapper>
-      <DrawerWrapper variant="persistent" anchor="left" open={open}>
-        <Toolbar />
+      </MiniAppBarWrapper>
+      <DrawerWrapper variant={isDesktopScreen ? 'permanent' : 'persistent'} anchor="left" open={open}>
+        {isDesktopScreen ? (
+          <>
+            <Toolbar>
+              <Typography component="img" src={RataExtLogo} alt="Logo" sx={{ width: '65px', height: '65px' }} />
+              <Typography sx={{ fontSize: '18px', opacity: open ? 1 : 0 }}>Ratatiedon extranet</Typography>
+            </Toolbar>
+            <ListItem key={open ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDrawer}>
+              <ListItemButton>
+                <ListItemIcon>{open ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}</ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+          </>
+        ) : (
+          <Toolbar />
+        )}
         <List>
           {MenuItemList.map((item: IMenuItem) => {
             const { key, primary, icon, to } = item;
@@ -86,7 +76,7 @@ export const NavBar = () => {
               <ListItem key={key} disablePadding onClick={() => navigate(to)}>
                 <ListItemButton>
                   <ListItemIcon>{icon}</ListItemIcon>
-                  <ListItemText primary={primary} />
+                  <ListItemText primary={primary} sx={{ opacity: open ? 1 : 0 }} />
                 </ListItemButton>
               </ListItem>
             );
