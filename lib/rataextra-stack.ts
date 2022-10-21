@@ -54,7 +54,6 @@ export class RataExtraStack extends cdk.Stack {
     // TODO: Bucket creation as a function?
     const frontendBucket = new Bucket(this, `rataextra-frontend-`, {
       bucketName: `s3-${this.#rataExtraStackIdentifier}-frontend`,
-      websiteIndexDocument: 'index.html',
       publicReadAccess: false,
       accessControl: BucketAccessControl.PRIVATE,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
