@@ -38,11 +38,6 @@ export class RataExtraCloudFrontStack extends NestedStack {
     } = props;
     const cloudfrontOAI = new cloudfront.OriginAccessIdentity(this, 'CloudFrontOriginAccessIdentity');
 
-    const frontendRelativeBuildDir = '../packages/frontend/build';
-    new BucketDeployment(this, 'FrontendDeployment', {
-      sources: [Source.asset(path.join(__dirname, frontendRelativeBuildDir))],
-      destinationBucket: frontendBucket,
-    });
     frontendBucket.addToResourcePolicy(
       new iam.PolicyStatement({
         actions: ['s3:GetObject'],
@@ -80,6 +75,12 @@ export class RataExtraCloudFrontStack extends NestedStack {
       additionalBehaviors: {
         '/api': backendProxyBehavior,
       },
+    });
+    const frontendRelativeBuildDir = '../packages/frontend/build';
+    new BucketDeployment(this, 'FrontendDeployment', {
+      sources: [Source.asset(path.join(__dirname, frontendRelativeBuildDir))],
+      destinationBucket: frontendBucket,
+      distribution: cloudfrontDistribution, // Cache invalidation
     });
   }
 }
