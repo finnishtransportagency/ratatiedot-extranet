@@ -8,10 +8,10 @@ type Props = {
   children: React.ReactElement;
 };
 
+// Protected routes will be wrapped around by ProtectedPage
+// to get access navigation bar and title bar
 export const ProtectedPage = ({ children }: Props) => {
-  // To-do: Authentication check goes here
-  // if unauthenticated --> logout
-  // if authenticated --> go to first login / landing page
+  // To-do: Authentication will be handled in routes.tsx (e.g. loader function)
   return (
     <ProtectedContainerWrapper>
       <NavBar />

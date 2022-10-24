@@ -17,7 +17,7 @@ const routes: RouteObject[] = [
     children: [],
   },
   {
-    path: Routes.LANDING, // Routes.HOME
+    path: Routes.LANDING,
     element: (
       <ProtectedPage>
         <Landing />
