@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { ContainerWrapper, SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
 import { Footer } from '../../components/Footer';
-import { useLocation } from 'react-router-dom';
 import { TitleBar } from '../../components/TitleBar';
 
 export const Landing = () => {
@@ -14,9 +13,6 @@ export const Landing = () => {
     const initialValue = JSON.parse(saved);
     return initialValue === 'true' || initialValue;
   });
-
-  const location = useLocation();
-  console.log(location);
 
   const acceptTerm = () => {
     setIsFirstLogin(false);
