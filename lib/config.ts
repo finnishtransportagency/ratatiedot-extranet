@@ -56,7 +56,7 @@ export const getPipelineConfig = () => {
       authenticationToken: 'github-token',
       tags: {
         Environment: env,
-        Project: 'Ratatiedot Extranet',
+        Project: 'Ratatiedon Extranet',
       },
     };
   }
