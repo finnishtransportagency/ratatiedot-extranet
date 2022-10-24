@@ -74,6 +74,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       },
       additionalBehaviors: {
         '/api': backendProxyBehavior,
+        '/oauth2': backendProxyBehavior,
       },
     });
     const frontendRelativeBuildDir = '../packages/frontend/build';
