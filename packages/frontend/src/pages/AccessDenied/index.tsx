@@ -2,7 +2,9 @@ import { Box } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import RataExtLogo from '../../assets/images/Logo_long.png';
-import { Container, SubtitleWrapper, BackButton, ParagraphWrapper } from './index.styles';
+import { ContainerWrapper } from '../../styles/ContainerWrapper';
+import { ButtonWrapper as BackButton } from '../../styles/ButtonWrapper';
+import { SubtitleWrapper, ParagraphWrapper } from './index.styles';
 
 export const AccessDenied = () => {
   const navigate = useNavigate();
@@ -10,7 +12,7 @@ export const AccessDenied = () => {
   const prevPath = location.state?.previousPath;
 
   return (
-    <Container>
+    <ContainerWrapper textAlign={'center'}>
       <Box component="img" src={RataExtLogo} alt="Logo" />
       <SubtitleWrapper variant="subtitle2">Pääsy kieletty</SubtitleWrapper>
       <ParagraphWrapper variant="body1">Sinulla ei käyttöoikeutta Ratatiedon extranettiin.</ParagraphWrapper>
@@ -20,6 +22,6 @@ export const AccessDenied = () => {
           Takaisin
         </BackButton>
       )}
-    </Container>
+    </ContainerWrapper>
   );
 };

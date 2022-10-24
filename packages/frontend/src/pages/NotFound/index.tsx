@@ -1,12 +1,15 @@
 import { Box, ListItemText } from '@mui/material';
 
 import RataExtLogo from '../../assets/images/Logo_long.png';
-import { Container, SubtitleWrapper, ParagraphWrapper } from '../AccessDenied/index.styles';
-import { HomeButton, ListWrapper, ListItemWrapper } from './index.styles';
+import { SubtitleWrapper, ParagraphWrapper } from '../AccessDenied/index.styles';
+import { ListWrapper, ListItemWrapper } from './index.styles';
+import { ContainerWrapper } from '../../styles/ContainerWrapper';
+import { ButtonWrapper as HomeButton } from '../../styles/ButtonWrapper';
+import { Routes } from '../../constants/Routes';
 
 export const NotFound = () => {
   return (
-    <Container>
+    <ContainerWrapper textAlign={'center'}>
       <Box component="img" src={RataExtLogo} alt="Logo" />
       <SubtitleWrapper variant="subtitle2">Sivua ei löydy</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
@@ -27,9 +30,9 @@ Tarkista URL-osoitteen oikeinkirjoitus (tarkista isot ja pienet kirjaimet sekä 
           <ListItemText primary="Palaa edelliselle sivulle napsauttamalla selaimen Edellinen-painiketta." />
         </ListItemWrapper>
       </ListWrapper>
-      <HomeButton href="/" color="primary" variant="contained">
+      <HomeButton href={Routes.LANDING} color="primary" variant="contained">
         Siirry etusivulle
       </HomeButton>
-    </Container>
+    </ContainerWrapper>
   );
 };
