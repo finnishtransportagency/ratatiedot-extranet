@@ -17,16 +17,16 @@ export const NotFound = () => {
       </ParagraphWrapper>
       <ListWrapper>
         <ListItemText primary="TEE JOKIN SEURAAVISTA:" />
-        <ListItemWrapper sx={{ display: 'list-item' }} component="symbol">
+        <ListItemWrapper sx={{ display: 'list-item' }}>
           <ListItemText primary="Yritä muodostaa yhteys uudelleen napsauttamalla selaimen Päivitä-painiketta." />
         </ListItemWrapper>
-        <ListItemWrapper sx={{ display: 'list-item' }} component="symbol">
+        <ListItemWrapper sx={{ display: 'list-item' }}>
           <ListItemText
             primary="
 Tarkista URL-osoitteen oikeinkirjoitus (tarkista isot ja pienet kirjaimet sekä välimerkit) ja napsauta selaimen Päivitä-painiketta."
           />
         </ListItemWrapper>
-        <ListItemWrapper sx={{ display: 'list-item' }} component="symbol">
+        <ListItemWrapper sx={{ display: 'list-item' }}>
           <ListItemText primary="Palaa edelliselle sivulle napsauttamalla selaimen Edellinen-painiketta." />
         </ListItemWrapper>
       </ListWrapper>
