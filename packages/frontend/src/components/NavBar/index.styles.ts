@@ -16,6 +16,7 @@ export const MiniAppBarWrapper = styled(MuiAppBar, {
 })<AppBarWrapperProps>(({ theme, open }) => {
   return {
     zIndex: theme.zIndex.drawer + 1,
+    backgroundColor: Colors.white,
     [theme.breakpoints.down('tablet')]: {
       boxShadow: `0px 3px ${Colors.lightblue}`,
     },
