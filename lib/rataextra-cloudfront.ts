@@ -73,8 +73,8 @@ export class RataExtraCloudFrontStack extends NestedStack {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
       additionalBehaviors: {
-        '/api': backendProxyBehavior,
-        '/oauth2': backendProxyBehavior,
+        '/api*': backendProxyBehavior,
+        '/oauth2*': backendProxyBehavior,
       },
     });
     const frontendRelativeBuildDir = '../packages/frontend/build';
