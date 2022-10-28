@@ -24,7 +24,7 @@ export class RataExtraStack extends cdk.Stack {
     const { cloudfrontCertificateArn, cloudfrontDomainName, dmzApiEndpoint, vpcId, vpcAZz, vpcSubnetIds } =
       getRataExtraStackConfig(this);
 
-    const vpc = Vpc.fromVpcAttributes(this, 'DvkVPC', {
+    const vpc = Vpc.fromVpcAttributes(this, 'vpc-rataextra', {
       vpcId,
       availabilityZones: vpcAZz,
       privateSubnetIds: vpcSubnetIds,
