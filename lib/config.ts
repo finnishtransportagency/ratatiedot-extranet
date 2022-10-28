@@ -30,9 +30,6 @@ export const DEVELOPMENT_MAIN_STACK_ID = DEVELOPMENT_MAIN_BRANCH;
 const SSM_CLOUDFRONT_CERTIFICATE_ARN = 'rataextra-cloudfront-certificate-arn';
 const SSM_CLOUDFRONT_DOMAIN_NAME = 'rataextra-cloudfront-domain-name';
 const SSM_DMZ_API_DOMAIN_NAME = 'rataextra-dmz-api-domain-name';
-const SSM_VPC_ID = 'rataextra-vpc-id';
-const SSM_VPC_AZS = 'rataextra-vpc-azs';
-const SSM_VPC_SUBNET_IDS = 'rataextra-vpc-subnet-ids';
 
 function getStackId(branch: string): string {
   const stackId = getEnvOrFail('STACK_ID');
@@ -50,9 +47,6 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   cloudfrontCertificateArn: getSSMStringParameter(scope, SSM_CLOUDFRONT_CERTIFICATE_ARN),
   cloudfrontDomainName: getSSMStringParameter(scope, SSM_CLOUDFRONT_DOMAIN_NAME),
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
-  vpcId: getSSMStringParameter(scope, SSM_VPC_ID),
-  vpcAZz: getSSMStringListParameter(scope, SSM_VPC_AZS),
-  vpcSubnetIds: getSSMStringListParameter(scope, SSM_VPC_SUBNET_IDS),
 });
 
 // Runtime variables from SSM/Parameter Store

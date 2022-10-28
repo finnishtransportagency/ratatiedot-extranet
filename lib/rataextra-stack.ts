@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
 import { RemovalPolicy, StackProps } from 'aws-cdk-lib';
-import { getRemovalPolicy, isPermanentStack } from './utils';
+import { getRemovalPolicy, isPermanentStack, getVpcAttributes } from './utils';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { RataExtraBackendStack } from './rataextra-backend';
@@ -21,13 +21,10 @@ export class RataExtraStack extends cdk.Stack {
     super(scope, id, props);
     this.#rataExtraStackIdentifier = id.toLowerCase();
     const { rataExtraEnv, stackId } = props;
-    const { cloudfrontCertificateArn, cloudfrontDomainName, dmzApiEndpoint, vpcId, vpcAZz, vpcSubnetIds } =
-      getRataExtraStackConfig(this);
+    const { cloudfrontCertificateArn, cloudfrontDomainName, dmzApiEndpoint } = getRataExtraStackConfig(this);
 
-    const vpc = Vpc.fromVpcAttributes(this, 'vpc-rataextra', {
-      vpcId,
-      availabilityZones: vpcAZz,
-      privateSubnetIds: vpcSubnetIds,
+    const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
+      ...getVpcAttributes(rataExtraEnv),
     });
 
     const lambdaServiceRole = this.createServiceRole(
