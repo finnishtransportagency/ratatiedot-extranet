@@ -1,11 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
 import { RemovalPolicy, StackProps } from 'aws-cdk-lib';
-import { getRemovalPolicy, isPermanentStack } from './utils';
+import { getRemovalPolicy, isPermanentStack, getVpcName } from './utils';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { SubnetType } from 'aws-cdk-lib/aws-ec2';
+import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { RataExtraBackendStack } from './rataextra-backend';
 import { RataExtraCloudFrontStack } from './rataextra-cloudfront';
 import { Bucket, BucketAccessControl, BlockPublicAccess, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
@@ -24,17 +23,7 @@ export class RataExtraStack extends cdk.Stack {
     const { rataExtraEnv, stackId } = props;
     const { cloudfrontCertificateArn, cloudfrontDomainName, dmzApiEndpoint } = getRataExtraStackConfig(this);
 
-    const privateApplicationVpc = new ec2.Vpc(this, 'rataextra-application-vpc', {
-      vpcName: `vpc-${this.#rataExtraStackIdentifier}-application`,
-      enableDnsSupport: false,
-      enableDnsHostnames: false,
-      subnetConfiguration: [
-        {
-          name: 'PrivateApplicationSubnet',
-          subnetType: SubnetType.PRIVATE_ISOLATED,
-        },
-      ],
-    });
+    const vpc = Vpc.fromLookup(this, 'DvkVPC', { vpcName: getVpcName(rataExtraEnv) });
 
     const lambdaServiceRole = this.createServiceRole(
       'LambdaServiceRole',
@@ -45,7 +34,7 @@ export class RataExtraStack extends cdk.Stack {
       rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
       rataExtraEnv: rataExtraEnv,
       lambdaServiceRole: lambdaServiceRole,
-      applicationVpc: privateApplicationVpc,
+      applicationVpc: vpc,
     });
 
     const removalPolicy = getRemovalPolicy(rataExtraEnv);

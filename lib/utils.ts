@@ -9,19 +9,22 @@ export const getRemovalPolicy = (rataExtraEnv: RataExtraEnvironment): RemovalPol
 /**
  * Returns whether the stack is the main development stack
  */
-export const isDevelopmentMainStack = (stackId: string, raitaEnv: RataExtraEnvironment) =>
-  stackId === DEVELOPMENT_MAIN_STACK_ID && raitaEnv === ENVIRONMENTS.dev;
+export const isDevelopmentMainStack = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
+  stackId === DEVELOPMENT_MAIN_STACK_ID && rataExtraEnv === ENVIRONMENTS.dev;
 
 /**
  * Returns whether the stack is the production stack
  */
-export const isProductionStack = (stackId: string, raitaEnv: RataExtraEnvironment) =>
-  stackId === PRODUCTION_STACK_ID && raitaEnv === ENVIRONMENTS.prod;
+export const isProductionStack = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
+  stackId === PRODUCTION_STACK_ID && rataExtraEnv === ENVIRONMENTS.prod;
 
 /**
  * Returns whether the stack is one of the two permanent RataExtra stacks
  * - development main stack that corresponds to development main branch in Github
  * - producition stack that corresponds to production branch in Github
  */
-export const isPermanentStack = (stackId: string, raitaEnv: RataExtraEnvironment) =>
-  isDevelopmentMainStack(stackId, raitaEnv) || isProductionStack(stackId, raitaEnv);
+export const isPermanentStack = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
+  isDevelopmentMainStack(stackId, rataExtraEnv) || isProductionStack(stackId, rataExtraEnv);
+
+// TODO: Add VPCs for each environment once available
+export const getVpcName = (rataExtraEnv: RataExtraEnvironment) => 'Rataextra-dev-VPC';

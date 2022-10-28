@@ -1,5 +1,5 @@
 import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps } from 'aws-cdk-lib';
-import { SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { IVpc, SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Role } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
@@ -13,7 +13,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly lambdaServiceRole: Role;
-  readonly applicationVpc: Vpc;
+  readonly applicationVpc: IVpc;
 }
 
 type ListenerTargetLambdas = {
@@ -64,7 +64,7 @@ export class RataExtraBackendStack extends NestedStack {
     name: string;
     rataExtraStackId: string;
     lambdaRole: Role;
-    vpc: Vpc;
+    vpc: IVpc;
   }) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackId}-${name}`,
@@ -91,7 +91,7 @@ export class RataExtraBackendStack extends NestedStack {
     name: string;
     rataExtraStackId: string;
     lambdaRole: Role;
-    vpc: Vpc;
+    vpc: IVpc;
   }) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackId}-${name}`,
@@ -118,7 +118,7 @@ export class RataExtraBackendStack extends NestedStack {
   }: {
     rataExtraStackIdentifier: string;
     name: string;
-    vpc: Vpc;
+    vpc: IVpc;
     listenerTargets: ListenerTargetLambdas[];
     internetFacing?: boolean;
   }) {
