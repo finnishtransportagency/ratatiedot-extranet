@@ -39,7 +39,7 @@ export class RataExtraStack extends cdk.Stack {
     const lambdaServiceRole = this.createServiceRole(
       'LambdaServiceRole',
       'lambda.amazonaws.com',
-      'service-role/AWSLambdaBasicExecutionRole',
+      'service-role/AWSLambdaVPCAccessExecutionRole',
     );
     new RataExtraBackendStack(this, 'stack-backend', {
       rataExtraStackIdentifier: this.#rataExtraStackIdentifier,

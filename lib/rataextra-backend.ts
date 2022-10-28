@@ -1,5 +1,5 @@
 import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps } from 'aws-cdk-lib';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Role } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
@@ -31,12 +31,14 @@ export class RataExtraBackendStack extends NestedStack {
       rataExtraStackId: rataExtraStackIdentifier,
       name: 'dummy-handler',
       lambdaRole: lambdaServiceRole,
+      vpc: applicationVpc,
     });
 
     const dummy2Fn = this.createDummy2Lambda({
       rataExtraStackId: rataExtraStackIdentifier,
       name: 'dummy2-handler',
       lambdaRole: lambdaServiceRole,
+      vpc: applicationVpc,
     });
 
     // Add all lambdas here to add as alb targets
@@ -57,10 +59,12 @@ export class RataExtraBackendStack extends NestedStack {
     rataExtraStackId,
     name,
     lambdaRole,
+    vpc,
   }: {
     name: string;
     rataExtraStackId: string;
     lambdaRole: Role;
+    vpc: Vpc;
   }) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackId}-${name}`,
@@ -71,6 +75,10 @@ export class RataExtraBackendStack extends NestedStack {
       entry: path.join(__dirname, `../packages/server/lambdas/dummy.ts`),
       environment: {},
       role: lambdaRole,
+      vpc,
+      vpcSubnets: {
+        subnetType: SubnetType.PRIVATE_ISOLATED,
+      },
     });
   }
 
@@ -78,10 +86,12 @@ export class RataExtraBackendStack extends NestedStack {
     rataExtraStackId,
     name,
     lambdaRole,
+    vpc,
   }: {
     name: string;
     rataExtraStackId: string;
     lambdaRole: Role;
+    vpc: Vpc;
   }) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackId}-${name}`,
@@ -92,6 +102,10 @@ export class RataExtraBackendStack extends NestedStack {
       entry: path.join(__dirname, `../packages/server/lambdas/dummy2.ts`),
       environment: {},
       role: lambdaRole,
+      vpc: vpc,
+      vpcSubnets: {
+        subnetType: SubnetType.PRIVATE_ISOLATED,
+      },
     });
   }
 
@@ -113,6 +127,9 @@ export class RataExtraBackendStack extends NestedStack {
       `alb-${rataExtraStackIdentifier}-${name}`,
       {
         vpc,
+        vpcSubnets: {
+          subnetType: SubnetType.PRIVATE_ISOLATED,
+        },
         internetFacing,
         loadBalancerName: `alb-${rataExtraStackIdentifier}-${name}`,
       },
@@ -121,8 +138,7 @@ export class RataExtraBackendStack extends NestedStack {
       port: 80,
       defaultAction: ListenerAction.fixedResponse(404),
     });
-    // alb.addRedirect();
-    // TODO: Add each Lambda individually with unique paths
+
     const targets = listenerTargets.map((target, index) =>
       listener.addTargets(`Target-${index}`, {
         targets: [new LambdaTarget(target.lambda)],
