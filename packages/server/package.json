@@ -12,6 +12,7 @@
   "license": "EUPL v1.2",
   "dependencies": {
     "aws-lambda": "^1.0.7",
+    "aws-sdk": "^2.1242.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.2",
     "express": "^4.18.1"
