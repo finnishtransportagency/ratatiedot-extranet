@@ -32,3 +32,6 @@ export const getVpcAttributes = (rataExtraEnv: RataExtraEnvironment) => ({
   availabilityZones: ['euw1-az1', 'eu-west-1b'],
   privateSubnetIds: ['subnet-05ba766fa5c0f0eb0', 'subnet-019cb289645adae50'],
 });
+
+// TODO: Add Security Groups for each environment once available
+export const getSecurityGroupName = (rataExtraEnv: RataExtraEnvironment) => 'Rataextra-dev-Security-Group';
