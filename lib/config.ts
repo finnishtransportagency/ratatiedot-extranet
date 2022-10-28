@@ -4,8 +4,12 @@ import { getEnvOrFail } from '../utils';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
 // Returns token that resolves during deployment to SSM parameter value
-const getSSMParameter = (scope: Construct, parameterName: string) =>
+const getSSMStringParameter = (scope: Construct, parameterName: string) =>
   ssm.StringParameter.valueForStringParameter(scope, parameterName);
+
+// Returns token that resolves during deployment to SSM parameter value
+const getSSMStringListParameter = (scope: Construct, parameterName: string) =>
+  ssm.StringListParameter.valueForTypedListParameter(scope, parameterName);
 
 export type RataExtraEnvironment = typeof ENVIRONMENTS[keyof typeof ENVIRONMENTS];
 
@@ -16,6 +20,7 @@ function isRataExtraEnvironment(arg: string): arg is RataExtraEnvironment {
 export const ENVIRONMENTS = {
   dev: 'dev',
   prod: 'prod',
+  local: 'local',
 } as const;
 
 const PRODUCTION_BRANCH = 'prod';
@@ -25,6 +30,9 @@ export const DEVELOPMENT_MAIN_STACK_ID = DEVELOPMENT_MAIN_BRANCH;
 const SSM_CLOUDFRONT_CERTIFICATE_ARN = 'rataextra-cloudfront-certificate-arn';
 const SSM_CLOUDFRONT_DOMAIN_NAME = 'rataextra-cloudfront-domain-name';
 const SSM_DMZ_API_DOMAIN_NAME = 'rataextra-dmz-api-domain-name';
+const SSM_VPC_ID = 'rataextra-vpc-id';
+const SSM_VPC_AZS = 'rataextra-vpc-azs';
+const SSM_VPC_SUBNET_IDS = 'rataextra-vpc-subnet-ids';
 
 function getStackId(branch: string): string {
   const stackId = getEnvOrFail('STACK_ID');
@@ -39,9 +47,12 @@ function getStackId(branch: string): string {
 
 // Empty example for now
 export const getRataExtraStackConfig = (scope: Construct) => ({
-  cloudfrontCertificateArn: getSSMParameter(scope, SSM_CLOUDFRONT_CERTIFICATE_ARN),
-  cloudfrontDomainName: getSSMParameter(scope, SSM_CLOUDFRONT_DOMAIN_NAME),
-  dmzApiEndpoint: getSSMParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
+  cloudfrontCertificateArn: getSSMStringParameter(scope, SSM_CLOUDFRONT_CERTIFICATE_ARN),
+  cloudfrontDomainName: getSSMStringParameter(scope, SSM_CLOUDFRONT_DOMAIN_NAME),
+  dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
+  vpcId: getSSMStringParameter(scope, SSM_VPC_ID),
+  vpcAZz: getSSMStringListParameter(scope, SSM_VPC_AZS),
+  vpcSubnetIds: getSSMStringListParameter(scope, SSM_VPC_SUBNET_IDS),
 });
 
 // Runtime variables from SSM/Parameter Store

@@ -25,6 +25,3 @@ export const isProductionStack = (stackId: string, rataExtraEnv: RataExtraEnviro
  */
 export const isPermanentStack = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
   isDevelopmentMainStack(stackId, rataExtraEnv) || isProductionStack(stackId, rataExtraEnv);
-
-// TODO: Add VPCs for each environment once available
-export const getVpcName = (rataExtraEnv: RataExtraEnvironment) => 'Rataextra-dev-VPC';

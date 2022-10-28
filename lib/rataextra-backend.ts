@@ -76,9 +76,6 @@ export class RataExtraBackendStack extends NestedStack {
       environment: {},
       role: lambdaRole,
       vpc,
-      vpcSubnets: {
-        subnetType: SubnetType.PRIVATE_ISOLATED,
-      },
     });
   }
 
@@ -103,9 +100,6 @@ export class RataExtraBackendStack extends NestedStack {
       environment: {},
       role: lambdaRole,
       vpc: vpc,
-      vpcSubnets: {
-        subnetType: SubnetType.PRIVATE_ISOLATED,
-      },
     });
   }
 
@@ -127,9 +121,6 @@ export class RataExtraBackendStack extends NestedStack {
       `alb-${rataExtraStackIdentifier}-${name}`,
       {
         vpc,
-        vpcSubnets: {
-          subnetType: SubnetType.PRIVATE_ISOLATED,
-        },
         internetFacing,
         loadBalancerName: `alb-${rataExtraStackIdentifier}-${name}`,
       },
