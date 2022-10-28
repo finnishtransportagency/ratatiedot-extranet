@@ -14,7 +14,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly lambdaServiceRole: Role;
   readonly applicationVpc: IVpc;
-  readonly securityGroup: ISecurityGroup;
+  readonly securityGroup?: ISecurityGroup;
 }
 
 type ListenerTargetLambdas = {
@@ -118,7 +118,7 @@ export class RataExtraBackendStack extends NestedStack {
     vpc: IVpc;
     listenerTargets: ListenerTargetLambdas[];
     internetFacing?: boolean;
-    securityGroup: ISecurityGroup;
+    securityGroup?: ISecurityGroup;
   }) {
     const alb = new aws_elasticloadbalancingv2.ApplicationLoadBalancer(
       this,
