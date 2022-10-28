@@ -26,18 +26,17 @@ export class RataExtraStack extends cdk.Stack {
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
       ...getVpcAttributes(rataExtraEnv),
     });
-
     const lambdaServiceRole = this.createServiceRole(
       'LambdaServiceRole',
       'lambda.amazonaws.com',
       'service-role/AWSLambdaVPCAccessExecutionRole',
     );
-    new RataExtraBackendStack(this, 'stack-backend', {
-      rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
-      rataExtraEnv: rataExtraEnv,
-      lambdaServiceRole: lambdaServiceRole,
-      applicationVpc: vpc,
-    });
+    // new RataExtraBackendStack(this, 'stack-backend', {
+    //   rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
+    //   rataExtraEnv: rataExtraEnv,
+    //   lambdaServiceRole: lambdaServiceRole,
+    //   applicationVpc: vpc,
+    // });
 
     const removalPolicy = getRemovalPolicy(rataExtraEnv);
     const autoDeleteObjects = removalPolicy === RemovalPolicy.DESTROY;
