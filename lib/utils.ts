@@ -25,3 +25,10 @@ export const isProductionStack = (stackId: string, rataExtraEnv: RataExtraEnviro
  */
 export const isPermanentStack = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
   isDevelopmentMainStack(stackId, rataExtraEnv) || isProductionStack(stackId, rataExtraEnv);
+
+// TODO: Add VPCs for each environment once available
+export const getVpcAttributes = (rataExtraEnv: RataExtraEnvironment) => ({
+  vpcId: 'vpc-092f1d064d39ca6a1',
+  availabilityZones: ['euw1-az1', 'eu-west-1b'],
+  privateSubnetIds: ['subnet-05ba766fa5c0f0eb0', 'subnet-019cb289645adae50'],
+});
