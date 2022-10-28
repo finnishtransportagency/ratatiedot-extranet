@@ -27,11 +27,10 @@ export class RataExtraStack extends cdk.Stack {
       ...getVpcAttributes(rataExtraEnv),
     });
 
-    const securityGroup = SecurityGroup.fromLookupByName(
+    const securityGroup = SecurityGroup.fromSecurityGroupId(
       this,
       'rataextra-security-group',
       'Rataextra-dev-Security-Group',
-      vpc,
     );
 
     const lambdaServiceRole = this.createServiceRole(
