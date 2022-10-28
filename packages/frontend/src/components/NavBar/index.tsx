@@ -61,7 +61,7 @@ export const NavBar = () => {
               <Typography sx={{ fontSize: '18px', opacity: open ? 1 : 0 }}>Ratatiedon extranet</Typography>
             </Toolbar>
             <ListItem key={open ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDrawer}>
-              <ListItemButton>
+              <ListItemButton area-label={open ? 'close drawer' : 'open drawer'}>
                 <ListItemIcon>{open ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}</ListItemIcon>
               </ListItemButton>
             </ListItem>
