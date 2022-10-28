@@ -27,6 +27,7 @@ export class RataExtraStack extends cdk.Stack {
       ...getVpcAttributes(rataExtraEnv),
     });
 
+    // TODO: Fix import
     // const securityGroup = SecurityGroup.fromSecurityGroupId(
     //   this,
     //   'rataextra-security-group',
