@@ -28,11 +28,14 @@ export class RataExtraBackendStack extends NestedStack {
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
     super(scope, id, props);
     const { rataExtraEnv, rataExtraStackIdentifier, lambdaServiceRole, applicationVpc, securityGroup } = props;
+
+    const securityGroups = securityGroup ? [securityGroup] : undefined;
     const dummyFn = this.createDummyLambda({
       rataExtraStackId: rataExtraStackIdentifier,
       name: 'dummy-handler',
       lambdaRole: lambdaServiceRole,
       vpc: applicationVpc,
+      securityGroups: securityGroups,
     });
 
     const dummy2Fn = this.createDummy2Lambda({
@@ -40,6 +43,7 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'dummy2-handler',
       lambdaRole: lambdaServiceRole,
       vpc: applicationVpc,
+      securityGroups: securityGroups,
     });
 
     // Add all lambdas here to add as alb targets
@@ -62,11 +66,13 @@ export class RataExtraBackendStack extends NestedStack {
     name,
     lambdaRole,
     vpc,
+    securityGroups,
   }: {
     name: string;
     rataExtraStackId: string;
     lambdaRole: Role;
     vpc: IVpc;
+    securityGroups?: ISecurityGroup[];
   }) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackId}-${name}`,
@@ -78,6 +84,7 @@ export class RataExtraBackendStack extends NestedStack {
       environment: {},
       role: lambdaRole,
       vpc,
+      securityGroups: securityGroups,
     });
   }
 
@@ -86,11 +93,13 @@ export class RataExtraBackendStack extends NestedStack {
     name,
     lambdaRole,
     vpc,
+    securityGroups,
   }: {
     name: string;
     rataExtraStackId: string;
     lambdaRole: Role;
     vpc: IVpc;
+    securityGroups?: ISecurityGroup[];
   }) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackId}-${name}`,
@@ -102,6 +111,7 @@ export class RataExtraBackendStack extends NestedStack {
       environment: {},
       role: lambdaRole,
       vpc: vpc,
+      securityGroups: securityGroups,
     });
   }
 
