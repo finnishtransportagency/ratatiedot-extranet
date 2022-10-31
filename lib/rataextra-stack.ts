@@ -4,7 +4,7 @@ import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
 import { RemovalPolicy, StackProps } from 'aws-cdk-lib';
 import { getRemovalPolicy, isPermanentStack, getVpcAttributes } from './utils';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { RataExtraBackendStack } from './rataextra-backend';
 import { RataExtraCloudFrontStack } from './rataextra-cloudfront';
 import { Bucket, BucketAccessControl, BlockPublicAccess, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
@@ -26,17 +26,26 @@ export class RataExtraStack extends cdk.Stack {
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
       ...getVpcAttributes(rataExtraEnv),
     });
+
+    // TODO: Fix import
+    // const securityGroup = SecurityGroup.fromSecurityGroupId(
+    //   this,
+    //   'rataextra-security-group',
+    //   'Rataextra-dev-Security-Group',
+    // );
+
     const lambdaServiceRole = this.createServiceRole(
       'LambdaServiceRole',
       'lambda.amazonaws.com',
       'service-role/AWSLambdaVPCAccessExecutionRole',
     );
-    // new RataExtraBackendStack(this, 'stack-backend', {
-    //   rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
-    //   rataExtraEnv: rataExtraEnv,
-    //   lambdaServiceRole: lambdaServiceRole,
-    //   applicationVpc: vpc,
-    // });
+    new RataExtraBackendStack(this, 'stack-backend', {
+      rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
+      rataExtraEnv: rataExtraEnv,
+      lambdaServiceRole: lambdaServiceRole,
+      applicationVpc: vpc,
+      // securityGroup,
+    });
 
     const removalPolicy = getRemovalPolicy(rataExtraEnv);
     const autoDeleteObjects = removalPolicy === RemovalPolicy.DESTROY;

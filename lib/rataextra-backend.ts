@@ -1,5 +1,5 @@
 import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps } from 'aws-cdk-lib';
-import { IVpc, SubnetType } from 'aws-cdk-lib/aws-ec2';
+import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { Role } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
@@ -14,6 +14,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly lambdaServiceRole: Role;
   readonly applicationVpc: IVpc;
+  readonly securityGroup?: ISecurityGroup;
 }
 
 type ListenerTargetLambdas = {
@@ -26,7 +27,7 @@ type ListenerTargetLambdas = {
 export class RataExtraBackendStack extends NestedStack {
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
     super(scope, id, props);
-    const { rataExtraEnv, rataExtraStackIdentifier, lambdaServiceRole, applicationVpc } = props;
+    const { rataExtraEnv, rataExtraStackIdentifier, lambdaServiceRole, applicationVpc, securityGroup } = props;
     const dummyFn = this.createDummyLambda({
       rataExtraStackId: rataExtraStackIdentifier,
       name: 'dummy-handler',
@@ -52,6 +53,7 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'api',
       vpc: applicationVpc,
       listenerTargets: lambdas,
+      securityGroup,
     });
   }
 
@@ -109,18 +111,21 @@ export class RataExtraBackendStack extends NestedStack {
     vpc,
     internetFacing = false,
     listenerTargets,
+    securityGroup,
   }: {
     rataExtraStackIdentifier: string;
     name: string;
     vpc: IVpc;
     listenerTargets: ListenerTargetLambdas[];
     internetFacing?: boolean;
+    securityGroup?: ISecurityGroup;
   }) {
     const alb = new aws_elasticloadbalancingv2.ApplicationLoadBalancer(
       this,
       `alb-${rataExtraStackIdentifier}-${name}`,
       {
         vpc,
+        securityGroup,
         internetFacing,
         loadBalancerName: `alb-${rataExtraStackIdentifier}-${name}`,
       },
