@@ -34,4 +34,4 @@ export const getVpcAttributes = (rataExtraEnv: RataExtraEnvironment) => ({
 });
 
 // TODO: Add Security Groups for each environment once available
-export const getSecurityGroupName = (rataExtraEnv: RataExtraEnvironment) => 'Rataextra-dev-Security-Group';
+export const getSecurityGroupId = (rataExtraEnv: RataExtraEnvironment) => 'sg-04a38c9d8b10a6bbd';

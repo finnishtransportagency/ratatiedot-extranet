@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
 import { RemovalPolicy, StackProps } from 'aws-cdk-lib';
-import { getRemovalPolicy, isPermanentStack, getVpcAttributes } from './utils';
+import { getRemovalPolicy, isPermanentStack, getVpcAttributes, getSecurityGroupId } from './utils';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { RataExtraBackendStack } from './rataextra-backend';
@@ -28,11 +28,11 @@ export class RataExtraStack extends cdk.Stack {
     });
 
     // TODO: Fix import
-    // const securityGroup = SecurityGroup.fromSecurityGroupId(
-    //   this,
-    //   'rataextra-security-group',
-    //   'Rataextra-dev-Security-Group',
-    // );
+    const securityGroup = SecurityGroup.fromSecurityGroupId(
+      this,
+      'rataextra-security-group',
+      getSecurityGroupId(rataExtraEnv),
+    );
 
     const lambdaServiceRole = this.createServiceRole(
       'LambdaServiceRole',
@@ -44,7 +44,7 @@ export class RataExtraStack extends cdk.Stack {
       rataExtraEnv: rataExtraEnv,
       lambdaServiceRole: lambdaServiceRole,
       applicationVpc: vpc,
-      // securityGroup,
+      securityGroup,
     });
 
     const removalPolicy = getRemovalPolicy(rataExtraEnv);
