@@ -24,26 +24,50 @@ type ListenerTargetLambdas = {
   path: [string];
 };
 
+type LambdaParameters = {
+  name: string;
+  rataExtraStackId: string;
+  lambdaRole: Role;
+  /** Relative path from declaring file to the lambda function file */
+  relativePath: string;
+  vpc: IVpc;
+  securityGroups?: ISecurityGroup[];
+  memorySize?: number;
+  timeout?: Duration;
+  runtime?: Runtime;
+  /** Name of the function to be called */
+  handler?: string;
+  /** Environment variables to be passed to the function */
+  environment?: Record<string, string>;
+};
+
 export class RataExtraBackendStack extends NestedStack {
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
     super(scope, id, props);
     const { rataExtraEnv, rataExtraStackIdentifier, lambdaServiceRole, applicationVpc, securityGroup } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
-    const dummyFn = this.createDummyLambda({
+
+    // Basic Lambda configs
+    // ID and VPC should not be changed
+    // Role and SG might need to be customized per Lambda
+    const genericLambdaParameters = {
       rataExtraStackId: rataExtraStackIdentifier,
-      name: 'dummy-handler',
-      lambdaRole: lambdaServiceRole,
       vpc: applicationVpc,
+      lambdaRole: lambdaServiceRole,
       securityGroups: securityGroups,
+    };
+
+    const dummyFn = this.createNodejsLambda({
+      ...genericLambdaParameters,
+      name: 'dummy-handler',
+      relativePath: '../packages/server/lambdas/dummy.ts',
     });
 
-    const dummy2Fn = this.createDummy2Lambda({
-      rataExtraStackId: rataExtraStackIdentifier,
+    const dummy2Fn = this.createNodejsLambda({
+      ...genericLambdaParameters,
       name: 'dummy2-handler',
-      lambdaRole: lambdaServiceRole,
-      vpc: applicationVpc,
-      securityGroups: securityGroups,
+      relativePath: '../packages/server/lambdas/dummy2.ts',
     });
 
     // Add all lambdas here to add as alb targets
@@ -61,56 +85,30 @@ export class RataExtraBackendStack extends NestedStack {
     });
   }
 
-  private createDummyLambda({
+  private createNodejsLambda({
     rataExtraStackId,
     name,
     lambdaRole,
+    relativePath,
     vpc,
     securityGroups,
-  }: {
-    name: string;
-    rataExtraStackId: string;
-    lambdaRole: Role;
-    vpc: IVpc;
-    securityGroups?: ISecurityGroup[];
-  }) {
+    memorySize = 1024,
+    timeout = Duration.seconds(5),
+    runtime = Runtime.NODEJS_16_X,
+    handler = 'handleRequest',
+    environment = {},
+  }: LambdaParameters) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackId}-${name}`,
-      memorySize: 1024,
-      timeout: Duration.seconds(5),
-      runtime: Runtime.NODEJS_16_X,
-      handler: 'handleRequest',
-      entry: path.join(__dirname, `../packages/server/lambdas/dummy.ts`),
-      environment: {},
+      memorySize: memorySize,
+      timeout: timeout,
+      // Accepts only Nodejs runtimes
+      runtime: runtime,
+      handler: handler,
+      entry: path.join(__dirname, relativePath),
+      environment: environment,
       role: lambdaRole,
       vpc,
-      securityGroups: securityGroups,
-    });
-  }
-
-  private createDummy2Lambda({
-    rataExtraStackId,
-    name,
-    lambdaRole,
-    vpc,
-    securityGroups,
-  }: {
-    name: string;
-    rataExtraStackId: string;
-    lambdaRole: Role;
-    vpc: IVpc;
-    securityGroups?: ISecurityGroup[];
-  }) {
-    return new NodejsFunction(this, name, {
-      functionName: `lambda-${rataExtraStackId}-${name}`,
-      memorySize: 1024,
-      timeout: Duration.seconds(5),
-      runtime: Runtime.NODEJS_16_X,
-      handler: 'handleRequest',
-      entry: path.join(__dirname, `../packages/server/lambdas/dummy2.ts`),
-      environment: {},
-      role: lambdaRole,
-      vpc: vpc,
       securityGroups: securityGroups,
     });
   }
