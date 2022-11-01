@@ -48,7 +48,7 @@ export class RataExtraBackendStack extends NestedStack {
 
     // Add all lambdas here to add as alb targets
     const lambdas: ListenerTargetLambdas[] = [
-      { lambda: dummy2Fn, priority: 90, path: ['/test'] },
+      { lambda: dummy2Fn, priority: 90, path: ['/api/test'] },
       { lambda: dummyFn, priority: 100, path: ['/*'] },
     ];
     // ALB for API
