@@ -7,7 +7,6 @@ import { Theme, CSSObject } from '@mui/material/styles';
 
 import { Colors } from '../../constants/Colors';
 import RataExtLogo from '../../assets/images/Logo_noText.png';
-// import { DrawerWrapper } from './index.styles';
 import { MenuList } from './MenuList';
 import { drawerWidth } from '../../constants/Viewports';
 
