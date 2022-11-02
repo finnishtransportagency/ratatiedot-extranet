@@ -3,3 +3,5 @@ export const Viewports = {
   TABLET: 640,
   DESKTOP: 1024,
 };
+
+export const drawerWidth = 306;
