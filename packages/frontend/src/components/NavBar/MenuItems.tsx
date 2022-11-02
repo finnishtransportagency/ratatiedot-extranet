@@ -10,7 +10,7 @@ export interface IMenuItem {
   to: string;
 }
 
-export const MenuItemList: IMenuItem[] = [
+export const MenuItems: IMenuItem[] = [
   {
     key: 'Landing',
     primary: 'Etusivu',

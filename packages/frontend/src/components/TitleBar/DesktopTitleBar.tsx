@@ -8,26 +8,27 @@ type Props = {
   children: React.ReactElement;
 };
 
-const Search = styled('div')(() => ({
+const Search = styled('div')(({ theme }) => ({
   display: 'flex',
   borderRadius: '4px',
   borderStyle: 'solid',
   borderWidth: '1px',
   borderColor: Colors.extrablack,
   padding: '8px 10px',
+  [theme.breakpoints.down('desktop')]: {
+    display: 'none',
+  },
 }));
 
-export const TitleBar = ({ children }: Props) => {
+export const DesktopTitleBar = ({ children }: Props) => {
   return (
     <Toolbar sx={{ padding: 0, minHeight: 0 }}>
       {children}
       <Box sx={{ flexGrow: 1 }} />
-      {isDesktopScreen && (
-        <Search>
-          <InputBase placeholder="Etsi sivustolta" inputProps={{ 'aria-label': 'search' }} />
-          <SearchIcon color="primary" />
-        </Search>
-      )}
+      <Search>
+        <InputBase placeholder="Etsi sivustolta" inputProps={{ 'aria-label': 'search' }} />
+        <SearchIcon color="primary" />
+      </Search>
     </Toolbar>
   );
 };
