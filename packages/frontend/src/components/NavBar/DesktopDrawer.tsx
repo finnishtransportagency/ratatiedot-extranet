@@ -23,7 +23,7 @@ export const DesktopDrawer = ({ open, toggleDrawer }: DesktopDrawerProps) => {
         <Typography sx={{ fontSize: '18px', opacity: open ? 1 : 0 }}>Ratatiedon extranet</Typography>
       </Toolbar>
       <ListItem key={open ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDrawer}>
-        <ListItemButton area-label={open ? 'close drawer' : 'open drawer'}>
+        <ListItemButton area-label={open ? 'close desktop drawer' : 'open desktop drawer'}>
           <ListItemIcon>{open ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}</ListItemIcon>
         </ListItemButton>
       </ListItem>
