@@ -94,7 +94,7 @@ brew install awscli
 brew install --cask session-manager-plugin
 ```
 
-Update your AWS credentials and run `./bastion-pipe.sh NameOfAWSProfileInCredentials`. This will set up a pipe to the bastion host using AWS SSM on port 3001. These are then piped to the ALB.
+Refresh your local AWS access credentials in ~/.aws/credentials (if you haven't done so already) and run `./bastion-pipe.sh NameOfAWSProfileInCredentialsFile`. This will set up a pipe to the bastion host using AWS SSM on port 3001. These are then piped to the ALB.
 
 ### Build
 
