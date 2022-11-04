@@ -8,6 +8,8 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as path from 'path';
+import { isDevelopmentMainStack } from './utils';
+import { RataExtraBastionStack } from './rataextra-bastion';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -83,6 +85,13 @@ export class RataExtraBackendStack extends NestedStack {
       listenerTargets: lambdas,
       securityGroup,
     });
+
+    if (isDevelopmentMainStack(rataExtraStackIdentifier, rataExtraEnv)) {
+      new RataExtraBastionStack(this, 'stack-bastion', {
+        rataExtraEnv,
+        albDns: alb.loadBalancerDnsName,
+      });
+    }
   }
 
   private createNodejsLambda({
@@ -150,5 +159,6 @@ export class RataExtraBackendStack extends NestedStack {
         conditions: [ListenerCondition.pathPatterns(target.path)],
       }),
     );
+    return alb;
   }
 }
