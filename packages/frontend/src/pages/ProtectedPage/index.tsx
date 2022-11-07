@@ -1,7 +1,7 @@
 import React from 'react';
 import { Toolbar } from '@mui/material';
 
-import { ProtectedContainerWrapper } from './index.styles';
+import { ContentWrapper, ProtectedContainerWrapper } from './index.styles';
 import { NavBar } from '../../components/NavBar';
 
 type Props = {
@@ -16,7 +16,7 @@ export const ProtectedPage = ({ children }: Props) => {
     <ProtectedContainerWrapper>
       <NavBar />
       <Toolbar />
-      {children}
+      <ContentWrapper>{children}</ContentWrapper>
     </ProtectedContainerWrapper>
   );
 };

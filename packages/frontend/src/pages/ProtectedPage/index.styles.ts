@@ -12,3 +12,7 @@ export const ProtectedContainerWrapper = styled(Box)(({ theme }) => ({
     },
   },
 }));
+
+export const ContentWrapper = styled('div')(() => ({
+  width: '100%',
+}));
