@@ -1,7 +1,7 @@
 import React from 'react';
 import { Toolbar } from '@mui/material';
 
-import { ProtectedContainerWrapper } from './index.styles';
+import { ContentWrapper, ProtectedContainerWrapper } from './index.styles';
 import { NavBar } from '../../components/NavBar';
 import { AppContextProvider } from '../../contexts/AppContextProvider';
 
@@ -18,7 +18,7 @@ export const ProtectedPage = ({ children }: Props) => {
       <AppContextProvider>
         <NavBar />
         <Toolbar />
-        {children}
+        <ContentWrapper>{children}</ContentWrapper>
       </AppContextProvider>
     </ProtectedContainerWrapper>
   );

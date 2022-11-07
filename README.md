@@ -22,7 +22,7 @@ _(To-do: Demo link will be published here...)_
 In Ratatiedot Extranet, we use:
 
 1. React for user interface
-2. Node.js for server-side implementation
+2. Lambda for server-side implementation
 3. AWS services: Cognito, Lambda, IAM, CodePipeline, CodeBuild and CodeDeploy, CloudWatch _(To-do: other AWS services to be decided)_
 4. [aws-cdk](https://github.com/aws/aws-cdk) for defining and managing infrastructure and CI/CD Pipeline
 5. Typescript to enforce type-checking
@@ -85,6 +85,17 @@ npm install <npm_package>
 - Run `npm run dev-client` to run React app locally (http://localhost:3000)
 - Run `npm run dev` for full-stack development experience
 
+### Connecting to AWS dev environment
+
+Install AWS CLI and Session Manager plugin. Example for MacOS:
+
+```
+brew install awscli
+brew install --cask session-manager-plugin
+```
+
+Refresh your local AWS access credentials in ~/.aws/credentials (if you haven't done so already) and run `./bastion-pipe.sh NameOfAWSProfileInCredentialsFile`. This will set up a pipe to the bastion host using AWS SSM on port 3001. These are then piped to the ALB.
+
 ### Build
 
 ### Pipeline
@@ -107,7 +118,7 @@ To set up a new pipeline, run the deployment script `pipeline:deploy` providing 
     npm run pipeline:deploy --environment=dev --branch=feature/RTENU-07-test --stackid=mytestbranch
     npm run pipeline:deploy --environment=dev --branch=feature/RTENU-07-test --stackid=mytestbranch -- --profile myFavouriteAWSProfile
 
-The script will deploy CodePipeline, which will automatically set up the environment. The pipeline will automatically update itself and deploy any changes made to the app based on changes in the defined version control branch.
+The script will deploy CodePipeline, which will automatically set up the environment. The pipeline will automatically update itself and deploy any changes made to the app based on changes in the defined version control branch. You need to have the changes pushed to GitHub for the pipeline to work.
 
 If you update the `pipeline:synth`-script name, you need to have the old script available for at least one commit in the followed branch or you have to rerun the deployment script by hand.
 
