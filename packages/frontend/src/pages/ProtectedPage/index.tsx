@@ -3,6 +3,7 @@ import { Toolbar } from '@mui/material';
 
 import { ProtectedContainerWrapper } from './index.styles';
 import { NavBar } from '../../components/NavBar';
+import { AppContextProvider } from '../../contexts/AppContextProvider';
 
 type Props = {
   children: React.ReactElement;
@@ -14,9 +15,11 @@ export const ProtectedPage = ({ children }: Props) => {
   // To-do: Authentication will be handled in routes.tsx (e.g. loader function)
   return (
     <ProtectedContainerWrapper>
-      <NavBar />
-      <Toolbar />
-      {children}
+      <AppContextProvider>
+        <NavBar />
+        <Toolbar />
+        {children}
+      </AppContextProvider>
     </ProtectedContainerWrapper>
   );
 };
