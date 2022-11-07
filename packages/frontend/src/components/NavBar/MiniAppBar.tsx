@@ -8,32 +8,41 @@ import SearchIcon from '@mui/icons-material/Search';
 import RataExtLogo from '../../assets/images/Logo_noText.png';
 
 import { Colors } from '../../constants/Colors';
+import { Search } from '../Search';
 
 type MiniAppBarProps = {
-  open: boolean;
+  openDrawer: boolean;
+  openSearch: boolean;
   toggleDrawer: React.MouseEventHandler<HTMLElement>;
+  toggleSearch: React.MouseEventHandler<HTMLElement>;
 };
 
-export const MiniAppBar = ({ open, toggleDrawer }: MiniAppBarProps) => {
-  return (
-    <MiniAppBarWrapper position="fixed" color="transparent" open={open}>
-      <Toolbar>
+export const MiniAppBar = ({ openDrawer, openSearch, toggleDrawer, toggleSearch }: MiniAppBarProps) => {
+  const MainAppBar = () => {
+    return (
+      <>
         <Typography sx={{ width: '40px', height: '40px' }} component="img" src={RataExtLogo} alt="Logo" />
         <Typography sx={{ fontSize: '18px' }}>Ratatiedon extranet</Typography>
         <Box sx={{ flexGrow: 1 }} />
-        <IconButton size="large" edge="end" color="inherit" area-label="open search">
+        <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
           <SearchIcon color="primary" />
         </IconButton>
         <IconButton
           size="large"
           edge="end"
           color="inherit"
-          area-label={open ? 'close drawer' : 'open drawer'}
+          area-label={openDrawer ? 'close drawer' : 'open drawer'}
           onClick={toggleDrawer}
         >
-          {open ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
+          {openDrawer ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
         </IconButton>
-      </Toolbar>
+      </>
+    );
+  };
+
+  return (
+    <MiniAppBarWrapper position="fixed" color="transparent" open={openDrawer}>
+      <Toolbar>{openSearch ? <Search openSearch={openSearch} toggleSearch={toggleSearch} /> : <MainAppBar />}</Toolbar>
     </MiniAppBarWrapper>
   );
 };

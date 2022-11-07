@@ -7,15 +7,15 @@ import { drawerWidth } from '../../constants/Viewports';
 import { MenuList } from './MenuList';
 
 type MiniDrawerProps = {
-  open: boolean;
+  openDrawer: boolean;
   toggleDrawer: React.MouseEventHandler<HTMLElement>;
 };
 
-export const MiniDrawer = ({ open }: MiniDrawerProps) => {
+export const MiniDrawer = ({ openDrawer }: MiniDrawerProps) => {
   return (
-    <MiniDrawerWrapper variant="persistent" anchor="left" open={open}>
+    <MiniDrawerWrapper variant="persistent" anchor="left" open={openDrawer}>
       <Toolbar />
-      <MenuList open={open} />
+      <MenuList open={openDrawer} />
     </MiniDrawerWrapper>
   );
 };

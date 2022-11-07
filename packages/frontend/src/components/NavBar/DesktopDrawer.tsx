@@ -11,23 +11,23 @@ import { MenuList } from './MenuList';
 import { drawerWidth } from '../../constants/Viewports';
 
 type DesktopDrawerProps = {
-  open: boolean;
+  openDrawer: boolean;
   toggleDrawer: React.MouseEventHandler<HTMLElement>;
 };
 
-export const DesktopDrawer = ({ open, toggleDrawer }: DesktopDrawerProps) => {
+export const DesktopDrawer = ({ openDrawer, toggleDrawer }: DesktopDrawerProps) => {
   return (
-    <DesktopDrawerWrapper variant="permanent" anchor="left" open={open}>
+    <DesktopDrawerWrapper variant="permanent" anchor="left" open={openDrawer}>
       <Toolbar>
         <Typography component="img" src={RataExtLogo} alt="Logo" sx={{ width: '65px', height: '65px' }} />
-        <Typography sx={{ fontSize: '18px', opacity: open ? 1 : 0 }}>Ratatiedon extranet</Typography>
+        <Typography sx={{ fontSize: '18px', opacity: openDrawer ? 1 : 0 }}>Ratatiedon extranet</Typography>
       </Toolbar>
-      <ListItem key={open ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDrawer}>
-        <ListItemButton area-label={open ? 'close desktop drawer' : 'open desktop drawer'}>
-          <ListItemIcon>{open ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}</ListItemIcon>
+      <ListItem key={openDrawer ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDrawer}>
+        <ListItemButton area-label={openDrawer ? 'close desktop drawer' : 'open desktop drawer'}>
+          <ListItemIcon>{openDrawer ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}</ListItemIcon>
         </ListItemButton>
       </ListItem>
-      <MenuList open={open} />
+      <MenuList open={openDrawer} />
     </DesktopDrawerWrapper>
   );
 };
