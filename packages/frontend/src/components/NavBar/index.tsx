@@ -5,15 +5,23 @@ import { DesktopDrawer } from './DesktopDrawer';
 import { MiniDrawer } from './MiniDrawer';
 
 export const NavBar = () => {
-  const [open, setOpen] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [openSearch, setOpenSearch] = useState(false);
 
-  const toggleDrawer = () => setOpen(!open);
+  const toggleDrawer = () => setOpenDrawer(!openDrawer);
+  const toggleSearch = () => setOpenSearch(!openSearch);
 
+  // Only MiniAppBar (mobile/tablet screen) needs openSearch & toggleSearch
   return (
     <Box>
-      <MiniAppBar open={open} toggleDrawer={toggleDrawer} />
-      <MiniDrawer open={open} toggleDrawer={toggleDrawer} />
-      <DesktopDrawer open={open} toggleDrawer={toggleDrawer} />
+      <MiniAppBar
+        openDrawer={openDrawer}
+        toggleDrawer={toggleDrawer}
+        openSearch={openSearch}
+        toggleSearch={toggleSearch}
+      />
+      <MiniDrawer openDrawer={openDrawer} toggleDrawer={toggleDrawer} />
+      <DesktopDrawer openDrawer={openDrawer} toggleDrawer={toggleDrawer} />
     </Box>
   );
 };

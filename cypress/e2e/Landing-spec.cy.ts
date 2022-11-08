@@ -53,7 +53,7 @@ describe('Landing page', () => {
       cy.get('header.MuiPaper-root').should('not.exist');
     });
 
-    // To-do: weird behavior, closed drawer's width is equal to full drawer width 306px
+    // TODO: weird behavior, closed drawer's width is equal to full drawer width 306px
     it('Drawer exists even when closed', () => {
       cy.get('div.MuiPaper-root.MuiDrawer-paper')
         .should('exist')
