@@ -79,6 +79,37 @@ To install a common dependency that both frontend and server can use, run comman
 npm install <npm_package>
 ```
 
+Install AWS SAM CLI
+Example for MacOs with pre-installed brew, check https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html for further instructions and other platforms
+
+```
+brew tap aws/tap
+brew install aws-sam-cli
+```
+
+Note! AWS SAM CLI requires Docker to run functions locally. If you are using a Docker Desktop alternative, remember to set DOCKER_HOST to env. MacOs example:
+
+```
+export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+```
+
+After installing SAM, you need to synth a separate rataextra stack locally to be invoked. Note that `handler-name` below is the name given to createNodejsLambda, e.g. dummy-handler.
+
+```
+npm run rataextra:synth
+npm run sam:invoke --handler=handler-name
+```
+
+If you have not run the frontend build locally, synth might complain about no `packages/frontend/build`. In that case, you can either run the build script or manually add an empty `build` folder.
+
+Each time you make code changes, you need to run synth. There's also a script that combines both
+
+```
+npm run sam:synthinvoke --handler=handler-name
+```
+
+As doing synth is a slower process, it's recommended to use basic `sam:invoke` whenever you can.
+
 ### Usage
 
 - Run `npm run dev-server` to spin up server to serve API locally (http://localhost:8000)
@@ -123,6 +154,8 @@ The script will deploy CodePipeline, which will automatically set up the environ
 If you update the `pipeline:synth`-script name, you need to have the old script available for at least one commit in the followed branch or you have to rerun the deployment script by hand.
 
 Note! A valid GitHub token with the scopes `admin:repo_hook, public_repo, repo:status, repo_deployment` is required to be had in AWS Secrets Manager. Refer to `./config/index.ts` for authenticationToken name to be set. Set the token as plaintext value.
+
+Note! You need Docker installed on your computer for synth and deploy to work.
 
 Reference for pipeline setup: https://docs.aws.amazon.com/cdk/v2/guide/cdk_pipeline.html
 
