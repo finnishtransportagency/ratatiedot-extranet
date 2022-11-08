@@ -56,7 +56,7 @@ export const Search = ({ openSearch, toggleSearch }: SearchProps) => {
         size="large"
         edge="end"
         area-label="filter"
-        onClick={() => console.log('To-do: open up filter as sidebar')}
+        onClick={() => console.log('TODO: open up filter as sidebar')}
       >
         <TuneIcon color="primary" />
       </IconButton>
