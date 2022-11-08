@@ -18,12 +18,13 @@ import { getSecurityGroupId, getVpcAttributes } from './utils';
 interface RataExtraBastionStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly albDns: string;
+  readonly databaseDns: string | undefined;
 }
 
 export class RataExtraBastionStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: RataExtraBastionStackProps) {
     super(scope, id, props);
-    const { rataExtraEnv, albDns } = props;
+    const { rataExtraEnv, albDns, databaseDns } = props;
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
       ...getVpcAttributes(rataExtraEnv),
@@ -41,11 +42,15 @@ export class RataExtraBastionStack extends cdk.Stack {
     });
 
     const userData = UserData.forLinux();
-    userData.addCommands(
+    const userDataCommands = [
       'sudo yum update -y',
       'sudo yum install socat -y',
-      `sudo socat TCP4-LISTEN:80,reuseaddr,fork TCP:${albDns}:80`,
-    );
+      `nohup sudo socat TCP4-LISTEN:80,reuseaddr,fork TCP:${albDns}:80 &`,
+    ];
+    if (databaseDns) {
+      userDataCommands.push(`nohup sudo socat TCP4-LISTEN:5432,reuseaddr,fork TCP:${databaseDns}:5432 &`);
+    }
+    userData.addCommands(...userDataCommands);
 
     const bastion = new Instance(this, 'ec2-bastion-instance', {
       vpc,

@@ -17,6 +17,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly lambdaServiceRole: Role;
   readonly applicationVpc: IVpc;
   readonly securityGroup?: ISecurityGroup;
+  readonly databaseDomain?: string;
 }
 
 type ListenerTargetLambdas = {
@@ -46,7 +47,8 @@ type LambdaParameters = {
 export class RataExtraBackendStack extends NestedStack {
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
     super(scope, id, props);
-    const { rataExtraEnv, rataExtraStackIdentifier, lambdaServiceRole, applicationVpc, securityGroup } = props;
+    const { rataExtraEnv, rataExtraStackIdentifier, lambdaServiceRole, applicationVpc, securityGroup, databaseDomain } =
+      props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
@@ -90,6 +92,7 @@ export class RataExtraBackendStack extends NestedStack {
       new RataExtraBastionStack(this, 'stack-bastion', {
         rataExtraEnv,
         albDns: alb.loadBalancerDnsName,
+        databaseDns: databaseDomain,
       });
     }
   }
