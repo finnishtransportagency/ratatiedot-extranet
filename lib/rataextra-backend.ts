@@ -88,13 +88,13 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroup,
     });
 
-    if (isDevelopmentMainStack(rataExtraStackIdentifier, rataExtraEnv)) {
-      new RataExtraBastionStack(this, 'stack-bastion', {
-        rataExtraEnv,
-        albDns: alb.loadBalancerDnsName,
-        databaseDns: databaseDomain,
-      });
-    }
+    // if (isDevelopmentMainStack(rataExtraStackIdentifier, rataExtraEnv)) {
+    new RataExtraBastionStack(this, 'stack-bastion', {
+      rataExtraEnv,
+      albDns: alb.loadBalancerDnsName,
+      databaseDns: databaseDomain,
+    });
+    // }
   }
 
   private createNodejsLambda({
