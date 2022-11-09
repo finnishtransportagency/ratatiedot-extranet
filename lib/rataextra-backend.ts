@@ -8,6 +8,8 @@ import { ICommandHooks, NodejsFunction, BundlingOptions } from 'aws-cdk-lib/aws-
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as path from 'path';
+import { isDevelopmentMainStack } from './utils';
+import { RataExtraBastionStack } from './rataextra-bastion';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -15,6 +17,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly lambdaServiceRole: Role;
   readonly applicationVpc: IVpc;
   readonly securityGroup?: ISecurityGroup;
+  readonly databaseDomain?: string;
 }
 
 type ListenerTargetLambdas = {
@@ -45,7 +48,8 @@ type LambdaParameters = {
 export class RataExtraBackendStack extends NestedStack {
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
     super(scope, id, props);
-    const { rataExtraEnv, rataExtraStackIdentifier, lambdaServiceRole, applicationVpc, securityGroup } = props;
+    const { rataExtraEnv, rataExtraStackIdentifier, lambdaServiceRole, applicationVpc, securityGroup, databaseDomain } =
+      props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
@@ -124,6 +128,14 @@ export class RataExtraBackendStack extends NestedStack {
       listenerTargets: lambdas,
       securityGroup,
     });
+
+    if (isDevelopmentMainStack(rataExtraStackIdentifier, rataExtraEnv)) {
+      new RataExtraBastionStack(this, 'stack-bastion', {
+        rataExtraEnv,
+        albDns: alb.loadBalancerDnsName,
+        databaseDns: databaseDomain,
+      });
+    }
   }
 
   private createNodejsLambda({
@@ -193,5 +205,6 @@ export class RataExtraBackendStack extends NestedStack {
         conditions: [ListenerCondition.pathPatterns(target.path)],
       }),
     );
+    return alb;
   }
 }

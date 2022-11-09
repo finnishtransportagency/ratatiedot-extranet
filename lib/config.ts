@@ -31,6 +31,7 @@ const SSM_CLOUDFRONT_CERTIFICATE_ARN = 'rataextra-cloudfront-certificate-arn';
 const SSM_CLOUDFRONT_DOMAIN_NAME = 'rataextra-cloudfront-domain-name';
 const SSM_DMZ_API_DOMAIN_NAME = 'rataextra-dmz-api-domain-name';
 const SSM_RATAEXTRA_RDSPG13_RATAEXTRADEV_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
+const SSM_DATABASE_DOMAIN = 'rataextra-database-domain';
 
 function getStackId(branch: string): string {
   const stackId = getEnvOrFail('STACK_ID');
@@ -49,6 +50,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   cloudfrontDomainName: getSSMStringParameter(scope, SSM_CLOUDFRONT_DOMAIN_NAME),
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
   databaseUrl: getSSMStringParameter(scope, SSM_RATAEXTRA_RDSPG13_RATAEXTRADEV_PASSWORD),
+  databaseDomain: getSSMStringParameter(scope, SSM_DATABASE_DOMAIN),
 });
 
 // Runtime variables from SSM/Parameter Store

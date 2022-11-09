@@ -19,6 +19,9 @@
     "test:client": "cd packages/frontend && npm test",
     "test:server": "cd packages/server && npm test",
     "cdk": "cdk",
+    "rataextra:synth": "cdk --app \"ts-node bin/rataextra\" -o cdk.rataextra synth",
+    "sam:invoke": "sam local invoke -t ./cdk.rataextra/rataextra.template.json $npm_config_handler",
+    "sam:synthinvoke": "npm run rataextra:synth && npm run sam:invoke",
     "pipeline:synth": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk synth",
     "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk deploy stack-pipeline-rataextra-$npm_config_stackid"
   },

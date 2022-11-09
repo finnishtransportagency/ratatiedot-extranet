@@ -22,7 +22,7 @@ _(To-do: Demo link will be published here...)_
 In Ratatiedot Extranet, we use:
 
 1. React for user interface
-2. Node.js for server-side implementation
+2. Lambda for server-side implementation
 3. AWS services: Cognito, Lambda, IAM, CodePipeline, CodeBuild and CodeDeploy, CloudWatch _(To-do: other AWS services to be decided)_
 4. [aws-cdk](https://github.com/aws/aws-cdk) for defining and managing infrastructure and CI/CD Pipeline
 5. Typescript to enforce type-checking
@@ -79,11 +79,90 @@ To install a common dependency that both frontend and server can use, run comman
 npm install <npm_package>
 ```
 
+Install AWS SAM CLI
+Example for MacOs with pre-installed brew, check https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html for further instructions and other platforms
+
+```
+brew tap aws/tap
+brew install aws-sam-cli
+```
+
+Note! AWS SAM CLI requires Docker to run functions locally. If you are using a Docker Desktop alternative, remember to set DOCKER_HOST to env. MacOs example:
+
+```
+export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+```
+
+After installing SAM, you need to synth a separate rataextra stack locally to be invoked. Note that `handler-name` below is the name given to createNodejsLambda, e.g. dummy-handler.
+
+```
+npm run rataextra:synth
+npm run sam:invoke --handler=handler-name
+```
+
+If you have not run the frontend build locally, synth might complain about no `packages/frontend/build`. In that case, you can either run the build script or manually add an empty `build` folder.
+
+Each time you make code changes, you need to run synth. There's also a script that combines both
+
+```
+npm run sam:synthinvoke --handler=handler-name
+```
+
+As doing synth is a slower process, it's recommended to use basic `sam:invoke` whenever you can.
+
 ### Usage
 
 - Run `npm run dev-server` to spin up server to serve API locally (http://localhost:8000)
 - Run `npm run dev-client` to run React app locally (http://localhost:3000)
 - Run `npm run dev` for full-stack development experience
+
+### Connecting to AWS dev environment
+
+Install AWS CLI and Session Manager plugin. Example for MacOS:
+
+```
+brew install awscli
+brew install --cask session-manager-plugin
+```
+
+Copy `.env.bastion.example` as `.env.bastion` and fill the parameters. Refresh your local AWS access credentials in ~/.aws/credentials (if you haven't done so already) and run
+
+```
+./bastion-backend-pipe.sh
+```
+
+This will set up a pipe to the bastion host using AWS SSM on port 3001. These are then piped to the ALB. If you get "Forbidden"-error, you need to refresh your credentials.
+
+#### Connecting to AWS dev database
+
+Do `.env.bastion` steps above if you have not done so already. Refresh local AWS credentials and run
+
+```
+./bastion-database-pipe.sh
+```
+
+This will set up a pipe to the bastion host using AWS SSM on port 5433. These are then piped to the DB.
+
+#### Connecting to feature ALB
+
+Go to AWS console > EC2 > Select bastion instance > Connect > Session Manager > Connect
+Run
+
+```
+sudo socat TCP4-LISTEN:81,reuseaddr,fork TCP:ALB_DNS:80
+```
+
+where you replace ALB_DNS with the DNS name of your ALB. You can get this from AWS console under EC2 > Load Balancers > Select your ALB > DNS name in the Description.
+
+Once you have your connection set up, locally on your computer run
+
+```
+./bastion-feat-backend-pipe.sh
+```
+
+and then you can connect to bastion host using AWS SSM on port 3002. These are then piped to the feature ALB.
+
+Note! If someone else is also doing this, there might be a conflict with the port listening using socat. In such case, use a different port for socat instead of 81. In this case, you also need to update the "portNumber" value in `bastion-feat-backend-pipe.sh`.
 
 ### Build
 
@@ -107,11 +186,13 @@ To set up a new pipeline, run the deployment script `pipeline:deploy` providing 
     npm run pipeline:deploy --environment=dev --branch=feature/RTENU-07-test --stackid=mytestbranch
     npm run pipeline:deploy --environment=dev --branch=feature/RTENU-07-test --stackid=mytestbranch -- --profile myFavouriteAWSProfile
 
-The script will deploy CodePipeline, which will automatically set up the environment. The pipeline will automatically update itself and deploy any changes made to the app based on changes in the defined version control branch.
+The script will deploy CodePipeline, which will automatically set up the environment. The pipeline will automatically update itself and deploy any changes made to the app based on changes in the defined version control branch. You need to have the changes pushed to GitHub for the pipeline to work.
 
 If you update the `pipeline:synth`-script name, you need to have the old script available for at least one commit in the followed branch or you have to rerun the deployment script by hand.
 
 Note! A valid GitHub token with the scopes `admin:repo_hook, public_repo, repo:status, repo_deployment` is required to be had in AWS Secrets Manager. Refer to `./config/index.ts` for authenticationToken name to be set. Set the token as plaintext value.
+
+Note! You need Docker installed on your computer for synth and deploy to work.
 
 Reference for pipeline setup: https://docs.aws.amazon.com/cdk/v2/guide/cdk_pipeline.html
 
@@ -122,6 +203,7 @@ Add following values to Parameter Store for permanent environments:
 - **rataextra-cloudfront-certificate-arn**: ARN for the SSL Certificate used by CloudFront. Certificate needs have been added to ACM us-east-1 region before this value can be used. E.g. arn:aws:acm:us-east-1:123456789:certificate/123-456-789-0ab
 - **rataextra-cloudfront-domain-name**: Domain name for the certificate above. E.g. test.example.com
 - **rataextra-dmz-api-domain-name**: Domain name for the /api redirection. E.g. test-dmz.example.com
+- **rataextra-database-domain**: Database domain name E.g. db.test.amazonaws.com
 
 ### Testing
 
