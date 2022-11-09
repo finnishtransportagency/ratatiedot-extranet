@@ -58,6 +58,32 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
     };
 
+    const prismaParameters = {
+      ...genericLambdaParameters,
+      // environment: {
+      //   DATABASE_URL: 'postgresql://root:root@localhost:5432/test_db?connect_timeout=300',
+      // },
+      bundling: {
+        nodeModules: ['prisma', '@prisma/client'],
+        commandHooks: {
+          beforeInstall(inputDir: string, outputDir: string) {
+            return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
+          },
+          beforeBundling(_inputDir: string, _outputDir: string) {
+            return [];
+          },
+          afterBundling(_inputDir: string, outputDir: string) {
+            return [
+              `cd ${outputDir}`,
+              `npx prisma generate`,
+              `rm -rf node_modules/@prisma/engines`,
+              `rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma`,
+            ];
+          },
+        },
+      },
+    };
+
     const dummyFn = this.createNodejsLambda({
       ...genericLambdaParameters,
       name: 'dummy-handler',
