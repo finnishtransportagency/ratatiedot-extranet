@@ -125,7 +125,44 @@ brew install awscli
 brew install --cask session-manager-plugin
 ```
 
-Refresh your local AWS access credentials in ~/.aws/credentials (if you haven't done so already) and run `./bastion-pipe.sh NameOfAWSProfileInCredentialsFile`. This will set up a pipe to the bastion host using AWS SSM on port 3001. These are then piped to the ALB.
+Copy `.env.bastion.example` as `.env.bastion` and fill the parameters. Refresh your local AWS access credentials in ~/.aws/credentials (if you haven't done so already) and run
+
+```
+./bastion-backend-pipe.sh
+```
+
+This will set up a pipe to the bastion host using AWS SSM on port 3001. These are then piped to the ALB. If you get "Forbidden"-error, you need to refresh your credentials.
+
+#### Connecting to AWS dev database
+
+Do `.env.bastion` steps above if you have not done so already. Refresh local AWS credentials and run
+
+```
+./bastion-database-pipe.sh
+```
+
+This will set up a pipe to the bastion host using AWS SSM on port 5433. These are then piped to the DB.
+
+#### Connecting to feature ALB
+
+Go to AWS console > EC2 > Select bastion instance > Connect > Session Manager > Connect
+Run
+
+```
+sudo socat TCP4-LISTEN:81,reuseaddr,fork TCP:ALB_DNS:80
+```
+
+where you replace ALB_DNS with the DNS name of your ALB. You can get this from AWS console under EC2 > Load Balancers > Select your ALB > DNS name in the Description.
+
+Once you have your connection set up, locally on your computer run
+
+```
+./bastion-feat-backend-pipe.sh
+```
+
+and then you can connect to bastion host using AWS SSM on port 3002. These are then piped to the feature ALB.
+
+Note! If someone else is also doing this, there might be a conflict with the port listening using socat. In such case, use a different port for socat instead of 81. In this case, you also need to update the "portNumber" value in `bastion-feat-backend-pipe.sh`.
 
 ### Build
 
