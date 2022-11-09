@@ -4,12 +4,6 @@ const prisma = new PrismaClient();
 
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
   // ... you will write your Prisma Client queries here
-  const allUsers = await prisma.user.findMany({
-    include: {
-      posts: true,
-      profile: true,
-    },
-  });
 
   await prisma.user
     .create({
