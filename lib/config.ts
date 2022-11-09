@@ -49,7 +49,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   cloudfrontCertificateArn: getSSMStringParameter(scope, SSM_CLOUDFRONT_CERTIFICATE_ARN),
   cloudfrontDomainName: getSSMStringParameter(scope, SSM_CLOUDFRONT_DOMAIN_NAME),
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
-  databaseUrl: getSSMStringParameter(scope, SSM_RATAEXTRA_RDSPG13_RATAEXTRADEV_PASSWORD),
+  databasePassword: getSSMStringParameter(scope, SSM_RATAEXTRA_RDSPG13_RATAEXTRADEV_PASSWORD),
   databaseDomain: getSSMStringParameter(scope, SSM_DATABASE_DOMAIN),
 });
 
