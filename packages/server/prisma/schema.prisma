@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://root:root@192.168.10.113:5432/test_db?connect_timeout=300"
+  url      = env("DATABASE_URL")
 }
 
 model Post {
