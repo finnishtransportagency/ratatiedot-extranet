@@ -131,7 +131,7 @@ Copy `.env.bastion.example` as `.env.bastion` and fill the parameters. Refresh y
 ./bastion-backend-pipe.sh
 ```
 
-This will set up a pipe to the bastion host using AWS SSM on port 3001. These are then piped to the ALB.
+This will set up a pipe to the bastion host using AWS SSM on port 3001. These are then piped to the ALB. If you get "Forbidden"-error, you need to refresh your credentials.
 
 #### Connecting to AWS dev database
 
@@ -154,7 +154,7 @@ sudo socat TCP4-LISTEN:81,reuseaddr,fork TCP:ALB_DNS:80
 
 where you replace ALB_DNS with the DNS name of your ALB. You can get this from AWS console under EC2 > Load Balancers > Select your ALB > DNS name in the Description.
 
-Once you have your connection set up locally on your computer run
+Once you have your connection set up, locally on your computer run
 
 ```
 ./bastion-feat-backend-pipe.sh
