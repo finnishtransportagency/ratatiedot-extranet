@@ -3,8 +3,8 @@ import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { Role } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
-import { RataExtraEnvironment } from './config';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
+import { ICommandHooks, NodejsFunction, BundlingOptions } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as path from 'path';
@@ -39,6 +39,7 @@ type LambdaParameters = {
   handler?: string;
   /** Environment variables to be passed to the function */
   environment?: Record<string, string>;
+  bundling?: BundlingOptions;
 };
 
 export class RataExtraBackendStack extends NestedStack {
@@ -96,8 +97,22 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/dummy2.ts',
     });
 
+    const createUser = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'create-user',
+      relativePath: '../packages/server/lambdas/create-user.ts',
+    });
+
+    const listUsers = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'list-users',
+      relativePath: '../packages/server/lambdas/list-users.ts',
+    });
+
     // Add all lambdas here to add as alb targets
     const lambdas: ListenerTargetLambdas[] = [
+      { lambda: listUsers, priority: 70, path: ['/api/users'] },
+      { lambda: createUser, priority: 80, path: ['/api/create-user'] },
       { lambda: dummy2Fn, priority: 90, path: ['/api/test'] },
       { lambda: dummyFn, priority: 100, path: ['/*'] },
     ];
@@ -123,6 +138,7 @@ export class RataExtraBackendStack extends NestedStack {
     runtime = Runtime.NODEJS_16_X,
     handler = 'handleRequest',
     environment = {},
+    bundling = {},
   }: LambdaParameters) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackId}-${name}`,
@@ -136,6 +152,7 @@ export class RataExtraBackendStack extends NestedStack {
       role: lambdaRole,
       vpc,
       securityGroups: securityGroups,
+      bundling: bundling,
     });
   }
 
