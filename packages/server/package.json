@@ -8,7 +8,9 @@
   "author": "",
   "license": "EUPL v1.2",
   "dependencies": {
+    "@prisma/client": "^4.5.0",
     "aws-lambda": "^1.0.7",
+    "prisma": "^4.5.0",
     "aws-sdk": "^2.1242.0"
   },
   "devDependencies": {
