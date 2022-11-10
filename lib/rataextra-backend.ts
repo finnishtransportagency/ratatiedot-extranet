@@ -3,7 +3,7 @@ import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { Role } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
-import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
+import { RataExtraEnvironment } from './config';
 import { ICommandHooks, NodejsFunction, BundlingOptions } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
@@ -18,6 +18,8 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly applicationVpc: IVpc;
   readonly securityGroup?: ISecurityGroup;
   readonly databaseDomain?: string;
+  readonly databasePassword?: string;
+  readonly databaseName?: string;
 }
 
 type ListenerTargetLambdas = {
@@ -48,8 +50,16 @@ type LambdaParameters = {
 export class RataExtraBackendStack extends NestedStack {
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
     super(scope, id, props);
-    const { rataExtraEnv, rataExtraStackIdentifier, lambdaServiceRole, applicationVpc, securityGroup, databaseDomain } =
-      props;
+    const {
+      rataExtraEnv,
+      rataExtraStackIdentifier,
+      lambdaServiceRole,
+      applicationVpc,
+      securityGroup,
+      databaseDomain,
+      databasePassword,
+      databaseName,
+    } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
@@ -65,9 +75,9 @@ export class RataExtraBackendStack extends NestedStack {
 
     const prismaParameters = {
       ...genericLambdaParameters,
-      // environment: {
-      //   DATABASE_URL: 'postgresql://root:root@localhost:5432/test_db?connect_timeout=300',
-      // },
+      environment: {
+        DATABASE_URL: `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432${databaseName}?schema=public`,
+      },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
         commandHooks: {
