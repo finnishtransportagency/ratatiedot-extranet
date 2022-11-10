@@ -187,7 +187,7 @@ ipconfig getifaddr en0
 Copy address to packages/server/.env file
 
 ```
-DATABASE_URL="postgresql://root:root@192.168.1.123:5432/test_db?schema=public"
+DATABASE_URL="postgresql://root:root@<IP_ADDRESS>:5432/test_db?schema=public"
 ```
 
 run migration
