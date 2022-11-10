@@ -82,10 +82,7 @@ export class RataExtraBackendStack extends NestedStack {
         nodeModules: ['prisma', '@prisma/client'],
         commandHooks: {
           beforeInstall(inputDir: string, outputDir: string) {
-            return [
-              `cp -R ${inputDir}/packages/server/prisma ${outputDir}/`,
-              `cp ${inputDir}/packages/server/.env ${outputDir}`,
-            ];
+            return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
           },
           beforeBundling(_inputDir: string, _outputDir: string) {
             return [];
