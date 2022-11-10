@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { ContainerWrapper, SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
 import { Footer } from '../../components/Footer';
-import { DesktopTitleBar } from '../../components/TitleBar/DesktopTitleBar';
 
 export const Landing = () => {
   // temporary state -> should save in db instead
@@ -53,12 +52,5 @@ export const Landing = () => {
     );
   };
 
-  return (
-    <ContainerWrapper>
-      <DesktopTitleBar>
-        <Typography variant="subtitle2">Etusivu</Typography>
-      </DesktopTitleBar>
-      {isFirstLogin ? <FirstLoginView /> : <LandingView />}
-    </ContainerWrapper>
-  );
+  return <ContainerWrapper>{isFirstLogin ? <FirstLoginView /> : <LandingView />}</ContainerWrapper>;
 };
