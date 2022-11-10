@@ -13,6 +13,9 @@ export const ProtectedContainerWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const ContentWrapper = styled('div')(() => ({
+export const ContentWrapper = styled('div')(({ theme }) => ({
   width: '100%',
+  [theme.breakpoints.up('desktop')]: {
+    marginTop: '90px',
+  },
 }));
