@@ -18,8 +18,18 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
         },
       },
     })
-    .then(async (res) => {
-      console.log(res);
+    .then((res) => {
+      const response = {
+        statusCode: 200,
+        headers: {
+          my_header: 'my_value',
+        },
+        body: JSON.stringify(res),
+        isBase64Encoded: false,
+      };
+      return response;
+    })
+    .then(async () => {
       await prisma.$disconnect();
     })
     .catch(async (e) => {

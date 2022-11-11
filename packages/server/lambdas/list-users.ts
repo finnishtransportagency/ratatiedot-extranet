@@ -1,5 +1,5 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
@@ -12,7 +12,15 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
       },
     })
     .then((res) => {
-      console.log(res);
+      const response = {
+        statusCode: 200,
+        headers: {
+          my_header: 'my_value',
+        },
+        body: JSON.stringify(res),
+        isBase64Encoded: false,
+      };
+      return response;
     })
     .then(async () => {
       await prisma.$disconnect();
