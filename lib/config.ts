@@ -8,8 +8,6 @@ import { getEnvOrFail } from '../utils';
 const getSSMStringParameter = (scope: Construct, parameterName: string) =>
   ssm.StringParameter.valueForStringParameter(scope, parameterName);
 
-const getSSMSecureStringParameter = (scope: Construct, parameterName: string) => SecretValue.ssmSecure(parameterName);
-
 // Returns token that resolves during deployment to SSM parameter value
 const getSSMStringListParameter = (scope: Construct, parameterName: string) =>
   ssm.StringListParameter.valueForTypedListParameter(scope, parameterName);
@@ -33,9 +31,7 @@ export const DEVELOPMENT_MAIN_STACK_ID = DEVELOPMENT_MAIN_BRANCH;
 const SSM_CLOUDFRONT_CERTIFICATE_ARN = 'rataextra-cloudfront-certificate-arn';
 const SSM_CLOUDFRONT_DOMAIN_NAME = 'rataextra-cloudfront-domain-name';
 const SSM_DMZ_API_DOMAIN_NAME = 'rataextra-dmz-api-domain-name';
-const SSM_RATAEXTRA_RDSPG13_RATAEXTRADEV_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
 const SSM_DATABASE_DOMAIN = 'rataextra-database-domain';
-const SSM_DATABASE_NAME = 'rataextra-database-name';
 
 function getStackId(branch: string): string {
   const stackId = getEnvOrFail('STACK_ID');
@@ -53,9 +49,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   cloudfrontCertificateArn: getSSMStringParameter(scope, SSM_CLOUDFRONT_CERTIFICATE_ARN),
   cloudfrontDomainName: getSSMStringParameter(scope, SSM_CLOUDFRONT_DOMAIN_NAME),
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
-  databasePassword: getSSMSecureStringParameter(scope, SSM_RATAEXTRA_RDSPG13_RATAEXTRADEV_PASSWORD),
   databaseDomain: getSSMStringParameter(scope, SSM_DATABASE_DOMAIN),
-  databaseName: getSSMStringParameter(scope, SSM_DATABASE_NAME),
 });
 
 // Runtime variables from SSM/Parameter Store

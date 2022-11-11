@@ -1,4 +1,4 @@
-import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps } from 'aws-cdk-lib';
+import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, SecretValue } from 'aws-cdk-lib';
 import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { Role } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
@@ -18,8 +18,6 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly applicationVpc: IVpc;
   readonly securityGroup?: ISecurityGroup;
   readonly databaseDomain?: string;
-  readonly databasePassword?: string;
-  readonly databaseName?: string;
 }
 
 type ListenerTargetLambdas = {
@@ -50,16 +48,8 @@ type LambdaParameters = {
 export class RataExtraBackendStack extends NestedStack {
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
     super(scope, id, props);
-    const {
-      rataExtraEnv,
-      rataExtraStackIdentifier,
-      lambdaServiceRole,
-      applicationVpc,
-      securityGroup,
-      databaseDomain,
-      databasePassword,
-      databaseName,
-    } = props;
+    const { rataExtraEnv, rataExtraStackIdentifier, lambdaServiceRole, applicationVpc, securityGroup, databaseDomain } =
+      props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
@@ -73,18 +63,10 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
     };
 
-    const encodedConnectionUrl = `postgresql://${databaseName}:${encodeURIComponent(
-      databasePassword as string,
-    )}@${databaseDomain}:5432/${databaseName}?schema=public`;
-
-    console.log('name: ', databaseName);
-    console.log('domain: ', databaseDomain);
-    console.log('passlength: ', databasePassword?.length);
-
     const prismaParameters = {
       ...genericLambdaParameters,
       environment: {
-        DATABASE_URL: encodedConnectionUrl,
+        DATABASE_URL: process.env.DATABASE_URL ?? 'IF_YOU_ARE_READING_THIS_DATABASE_ULR_IS_NOT_SET',
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
