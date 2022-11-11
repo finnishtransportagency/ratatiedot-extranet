@@ -53,7 +53,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
   },
 });
 
-interface DrawerWrapperProps extends DrawerProps {
+export interface DrawerWrapperProps extends DrawerProps {
   open?: boolean;
 }
 export const DesktopDrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ theme, open }) => {
