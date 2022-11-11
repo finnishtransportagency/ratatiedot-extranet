@@ -73,11 +73,14 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
     };
 
+    const encodedConnencitonUrl = encodeURIComponent(
+      `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public`,
+    );
+
     const prismaParameters = {
       ...genericLambdaParameters,
       environment: {
-        DATABASE_URL: `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public`,
-        // `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public`
+        DATABASE_URL: encodedConnencitonUrl,
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
