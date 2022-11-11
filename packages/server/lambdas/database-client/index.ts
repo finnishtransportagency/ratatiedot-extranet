@@ -24,6 +24,10 @@ const secrets = {
   databaseDomain: getParameterByName('rataextra-database-domain'),
 };
 
+console.log('name: ', secrets.databaseName);
+console.log('databaseDomain: ', secrets.databaseDomain);
+console.log('password length: ', secrets.databasePassword.length);
+
 process.env.DATABASE_URL = `postgresql://${secrets.databaseName}:${encodeURIComponent(secrets.databasePassword)}@${
   secrets.databaseDomain
 }:5432/${secrets.databaseName}?schema=public`;
