@@ -18,7 +18,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly applicationVpc: IVpc;
   readonly securityGroup?: ISecurityGroup;
   readonly databaseDomain?: string;
-  readonly databasePassword?: string;
+  readonly databasePassword: string;
   readonly databaseName?: string;
 }
 
@@ -73,9 +73,9 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
     };
 
-    const encodedConnencitonUrl = encodeURIComponent(
-      `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public`,
-    );
+    const encodedConnencitonUrl = `postgresql://${databaseName}:${encodeURIComponent(
+      databasePassword,
+    )}@${databaseDomain}:5432/${databaseName}?schema=public`;
 
     const prismaParameters = {
       ...genericLambdaParameters,
