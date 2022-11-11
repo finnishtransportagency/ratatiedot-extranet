@@ -1,11 +1,14 @@
 import { Construct } from 'constructs';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
+import { SecretValue } from 'aws-cdk-lib';
 import { getEnvOrFail } from '../utils';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
 // Returns token that resolves during deployment to SSM parameter value
 const getSSMStringParameter = (scope: Construct, parameterName: string) =>
   ssm.StringParameter.valueForStringParameter(scope, parameterName);
+
+const getSSMSecureStringParameter = (scope: Construct, parameterName: string) => SecretValue.ssmSecure(parameterName);
 
 // Returns token that resolves during deployment to SSM parameter value
 const getSSMStringListParameter = (scope: Construct, parameterName: string) =>
@@ -50,7 +53,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   cloudfrontCertificateArn: getSSMStringParameter(scope, SSM_CLOUDFRONT_CERTIFICATE_ARN),
   cloudfrontDomainName: getSSMStringParameter(scope, SSM_CLOUDFRONT_DOMAIN_NAME),
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
-  databasePassword: getSSMStringParameter(scope, SSM_RATAEXTRA_RDSPG13_RATAEXTRADEV_PASSWORD),
+  databasePassword: getSSMSecureStringParameter(scope, SSM_RATAEXTRA_RDSPG13_RATAEXTRADEV_PASSWORD),
   databaseDomain: getSSMStringParameter(scope, SSM_DATABASE_DOMAIN),
   databaseName: getSSMStringParameter(scope, SSM_DATABASE_NAME),
 });
