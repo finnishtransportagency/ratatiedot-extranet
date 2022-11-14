@@ -6,14 +6,15 @@ import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 // Construct evironment variable that prisma uses as connection string to database
 const client = new SSMClient({ region: 'eu-west-1' });
 
-const getParameterByName = (parameterName: string): string => {
+const getParameterByName = (parameterName: string): any => {
   const command = new GetParameterCommand({ Name: parameterName });
   client.send(command).then(
     (data) => {
+      console.log('parameter: ', data);
       return data.Parameter?.Value;
     },
     (error) => {
-      console.log(error);
+      console.log('error: ', error);
     },
   );
 };
