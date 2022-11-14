@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { MiniAppBar } from './MiniAppBar';
 import { DesktopDrawer } from './DesktopDrawer';
 import { MiniDrawer } from './MiniDrawer';
+import { DesktopAppBar } from './DesktopAppBar';
 
 export const NavBar = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -11,7 +12,6 @@ export const NavBar = () => {
   const toggleDrawer = () => setOpenDrawer(!openDrawer);
   const toggleSearch = () => setOpenSearch(!openSearch);
 
-  // Only MiniAppBar (mobile/tablet screen) needs openSearch & toggleSearch
   return (
     <Box>
       <MiniAppBar
@@ -21,6 +21,12 @@ export const NavBar = () => {
         toggleSearch={toggleSearch}
       />
       <MiniDrawer openDrawer={openDrawer} toggleDrawer={toggleDrawer} />
+      <DesktopAppBar
+        openDrawer={openDrawer}
+        toggleDrawer={toggleDrawer}
+        openSearch={openSearch}
+        toggleSearch={toggleSearch}
+      />
       <DesktopDrawer openDrawer={openDrawer} toggleDrawer={toggleDrawer} />
     </Box>
   );

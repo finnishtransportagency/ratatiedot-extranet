@@ -1,5 +1,4 @@
 import React from 'react';
-import { Toolbar } from '@mui/material';
 
 import { ContentWrapper, ProtectedContainerWrapper } from './index.styles';
 import { NavBar } from '../../components/NavBar';
@@ -17,7 +16,6 @@ export const ProtectedPage = ({ children }: Props) => {
     <ProtectedContainerWrapper>
       <AppContextProvider>
         <NavBar />
-        <Toolbar />
         <ContentWrapper>{children}</ContentWrapper>
       </AppContextProvider>
     </ProtectedContainerWrapper>

@@ -2,11 +2,12 @@ import { Box, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 
 export const ContainerWrapper = styled(Box)(({ theme }) => ({
-  [theme.breakpoints.down('tablet')]: {
+  [theme.breakpoints.only('mobile')]: {
     margin: '16px 15px',
   },
-  [theme.breakpoints.up('tablet')]: {
+  [theme.breakpoints.only('tablet')]: {
     margin: theme.spacing(4),
+    marginTop: 0,
   },
   [theme.breakpoints.up('desktop')]: {
     margin: theme.spacing(5),

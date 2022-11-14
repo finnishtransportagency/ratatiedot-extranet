@@ -131,7 +131,7 @@ Copy `.env.bastion.example` as `.env.bastion` and fill the parameters. Refresh y
 ./bastion-backend-pipe.sh
 ```
 
-This will set up a pipe to the bastion host using AWS SSM on port 3001. These are then piped to the ALB. If you get "Forbidden"-error, you need to refresh your credentials.
+This will set up a pipe to the bastion host using AWS SSM on localhost:3001. These are then piped to the ALB. If you get "Forbidden"-error, you need to refresh your credentials in `~/.aws/credentials`. For this to keep working, `bastion-backend-pipe.sh` locally needs to be up and running.
 
 #### Connecting to AWS dev database
 
@@ -141,15 +141,15 @@ Do `.env.bastion` steps above if you have not done so already. Refresh local AWS
 ./bastion-database-pipe.sh
 ```
 
-This will set up a pipe to the bastion host using AWS SSM on port 5433. These are then piped to the DB.
+This will set up a pipe to the bastion host using AWS SSM on localhost:5433. These are then piped to the DB. For this to keep working, `bastion-database-pipe.sh` locally needs to be up and running.
 
 #### Connecting to feature ALB
 
 Go to AWS console > EC2 > Select bastion instance > Connect > Session Manager > Connect
-Run
+Run following script in the window that opens for the EC2:
 
 ```
-sudo socat TCP4-LISTEN:81,reuseaddr,fork TCP:ALB_DNS:80
+socat TCP4-LISTEN:81,reuseaddr,fork TCP:ALB_DNS:80
 ```
 
 where you replace ALB_DNS with the DNS name of your ALB. You can get this from AWS console under EC2 > Load Balancers > Select your ALB > DNS name in the Description.
@@ -160,9 +160,9 @@ Once you have your connection set up, locally on your computer run
 ./bastion-feat-backend-pipe.sh
 ```
 
-and then you can connect to bastion host using AWS SSM on port 3002. These are then piped to the feature ALB.
+and then you can connect to bastion host using AWS SSM on localhost:3002. These are then piped to the feature ALB. For this to keep working, both the socat on the bastion and `bastion-feat-backend-pipe.sh` locally need to be up and running.
 
-Note! If someone else is also doing this, there might be a conflict with the port listening using socat. In such case, use a different port for socat instead of 81. In this case, you also need to update the "portNumber" value in `bastion-feat-backend-pipe.sh`.
+Note! If someone else is also doing this, there might be a conflict with the port listening using socat ("Address already in use"). In such case, use a different port for socat instead of 81. In this case, you also need to update the "portNumber" value in `bastion-feat-backend-pipe.sh`.
 
 ### Create local database
 
@@ -241,7 +241,7 @@ To set up a new pipeline, run the deployment script `pipeline:deploy` providing 
     npm run pipeline:deploy --environment=dev --branch=feature/RTENU-07-test --stackid=mytestbranch
     npm run pipeline:deploy --environment=dev --branch=feature/RTENU-07-test --stackid=mytestbranch -- --profile myFavouriteAWSProfile
 
-The script will deploy CodePipeline, which will automatically set up the environment. The pipeline will automatically update itself and deploy any changes made to the app based on changes in the defined version control branch. You need to have the changes pushed to GitHub for the pipeline to work.
+The script will deploy CodePipeline, which will automatically set up the environment. You need to have the changes pushed to GitHub for the pipeline to work. Once set up, the pipeline will automatically update itself and deploy any changes made to the app when commits are pushed to the branch defined in deploy. You can access pipeline resources through the bastion host. See "Connecting to feature ALB".
 
 If you update the `pipeline:synth`-script name, you need to have the old script available for at least one commit in the followed branch or you have to rerun the deployment script by hand.
 
