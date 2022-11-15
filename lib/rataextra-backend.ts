@@ -1,9 +1,9 @@
 import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, SecretValue } from 'aws-cdk-lib';
 import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
-import { Role } from 'aws-cdk-lib/aws-iam';
+import { Role, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
-import { RataExtraEnvironment } from './config';
+import { RataExtraEnvironment, SSM_DATABASE_DOMAIN, SSM_DATABASE_NAME, SSM_DATABASE_PASSWORD } from './config';
 import { ICommandHooks, NodejsFunction, BundlingOptions } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
@@ -106,6 +106,21 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'create-user',
       relativePath: '../packages/server/lambdas/create-user.ts',
     });
+
+    const ssmParameterPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter'],
+      resources: [
+        `arn:aws:ssm:::parameter/${SSM_DATABASE_DOMAIN}`,
+        `arn:aws:ssm:::parameter/${SSM_DATABASE_NAME}`,
+        `arn:aws:ssm:::parameter/${SSM_DATABASE_PASSWORD}`,
+      ],
+    });
+
+    createUser.role?.attachInlinePolicy(
+      new Policy(this, 'list-buckets-policy', {
+        statements: [ssmParameterPolicy],
+      }),
+    );
 
     const listUsers = this.createNodejsLambda({
       ...prismaParameters,
