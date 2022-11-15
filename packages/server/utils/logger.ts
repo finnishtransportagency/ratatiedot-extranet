@@ -1,4 +1,4 @@
-import pino, { LogFn } from 'pino';
+import pino from 'pino';
 
 const level = process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'info';
 
@@ -20,7 +20,8 @@ function getLogger(tag: string) {
     base: undefined,
     mixin: () => {
       return {
-        // uid: getVaylaUser()?.uid,
+        // TODO: Get uid, use same method for that as elsewhere
+        // uid: getUid(), // Totally dummy function call at this point
         correlationId: getCorrelationId(),
         tag,
       };
@@ -37,4 +38,5 @@ function getLogger(tag: string) {
 }
 
 export const log = getLogger('RATAEXTRA_BACKEND');
+// To be used when someone makes changes
 export const auditLog = getLogger('RATAEXTRA_AUDIT');
