@@ -59,6 +59,7 @@ class RataExtraApplication extends Stage {
     const rataExtraStack = new RataExtraStack(this, `rataextra-${props.rataExtraEnv}-${props.stackId}`, {
       rataExtraEnv: props.rataExtraEnv,
       stackId: props.stackId,
+      tags: props.tags,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(rataExtraStack).add(key, value));
   }

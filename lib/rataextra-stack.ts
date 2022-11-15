@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
-import { RemovalPolicy, StackProps } from 'aws-cdk-lib';
+import { RemovalPolicy, StackProps, Tags } from 'aws-cdk-lib';
 import { getRemovalPolicy, isPermanentStack, getVpcAttributes, getSecurityGroupId } from './utils';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
@@ -12,6 +12,7 @@ import { Bucket, BucketAccessControl, BlockPublicAccess, ObjectOwnership } from 
 interface RataExtraStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly stackId: string;
+  readonly tags: { [key: string]: string };
 }
 
 export class RataExtraStack extends cdk.Stack {
@@ -20,7 +21,7 @@ export class RataExtraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: RataExtraStackProps) {
     super(scope, id, props);
     this.#rataExtraStackIdentifier = id.toLowerCase();
-    const { rataExtraEnv, stackId } = props;
+    const { rataExtraEnv, stackId, tags } = props;
     const { cloudfrontCertificateArn, cloudfrontDomainName, dmzApiEndpoint, databaseDomain } =
       getRataExtraStackConfig(this);
 
@@ -40,7 +41,7 @@ export class RataExtraStack extends cdk.Stack {
       'lambda.amazonaws.com',
       'service-role/AWSLambdaVPCAccessExecutionRole',
     );
-    new RataExtraBackendStack(this, 'stack-backend', {
+    const backendStack = new RataExtraBackendStack(this, 'stack-backend', {
       rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
       rataExtraEnv: rataExtraEnv,
       lambdaServiceRole: lambdaServiceRole,
@@ -48,6 +49,7 @@ export class RataExtraStack extends cdk.Stack {
       securityGroup,
       databaseDomain,
     });
+    Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
 
     const removalPolicy = getRemovalPolicy(rataExtraEnv);
     const autoDeleteObjects = removalPolicy === RemovalPolicy.DESTROY;
