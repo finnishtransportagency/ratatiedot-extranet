@@ -89,7 +89,6 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroup,
     });
 
-    cdk.Stack.of(this).region;
     if (isDevelopmentMainStack(rataExtraStackIdentifier, rataExtraEnv)) {
       new RataExtraBastionStack(this, 'stack-bastion', {
         rataExtraEnv,
