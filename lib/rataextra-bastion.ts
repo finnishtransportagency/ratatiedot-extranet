@@ -48,7 +48,7 @@ export class RataExtraBastionStack extends cdk.Stack {
       `nohup socat TCP4-LISTEN:80,reuseaddr,fork TCP:${albDns}:80 &`,
     ];
     if (databaseDns) {
-      userDataCommands.push(`nohup socat TCP4-LISTEN:5432,reuseaddr,fork TCP:${databaseDns}:5432 &`);
+      userDataCommands.push(cdk.Fn.sub('nohup socat TCP4-LISTEN:5432,reuseaddr,fork TCP:${databaseDns}:5432 &'));
     }
     userData.addCommands(...userDataCommands);
 
