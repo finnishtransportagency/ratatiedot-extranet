@@ -110,7 +110,7 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     const ssmParameterPolicy = new PolicyStatement({
-      actions: ['ssm:GetParameter'],
+      actions: ['ssm:GetParameter', 'ssm:GetParameters'],
       resources: [
         `arn:aws:ssm:eu-west-1::parameter/${SSM_DATABASE_DOMAIN}`,
         `arn:aws:ssm:eu-west-1::parameter/${SSM_DATABASE_NAME}`,
@@ -118,9 +118,14 @@ export class RataExtraBackendStack extends NestedStack {
       ],
     });
 
+    const ksmDecryptPolicy = new PolicyStatement({
+      actions: ['kms:Decrypt'],
+      resources: ['arn:aws:kms:eu-west-1::key/6cd436ad-f1f8-479f-aa56-da5a3f7a0711'],
+    });
+
     createUser.role?.attachInlinePolicy(
       new Policy(this, 'list-buckets-policy', {
-        statements: [ssmParameterPolicy],
+        statements: [ssmParameterPolicy, ksmDecryptPolicy],
       }),
     );
 
