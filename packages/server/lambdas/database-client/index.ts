@@ -3,15 +3,16 @@ import { SSM } from '@aws-sdk/client-ssm';
 
 const ssm = new SSM({ region: 'eu-west-1' });
 
-const getParameter = async (parameterName?: string): Promise<string | undefined> => {
-  const parameter = await ssm.getParameter({ Name: parameterName });
-  const value = parameter.Parameter?.Value;
-  return value;
+const getParameter = (parameterName?: string) => {
+  ssm.getParameter({ Name: parameterName }).then((data) => {
+    return data.Parameter?.Value;
+  });
 };
-const getSecureStringParameter = async (parameterName?: string): Promise<string | undefined> => {
-  const parameter = await ssm.getParameter({ Name: parameterName });
-  const value = encodeURIComponent(parameter.Parameter?.Value ?? '');
-  return value;
+
+const getSecureStringParameter = (parameterName?: string) => {
+  ssm.getParameter({ Name: parameterName }).then((data) => {
+    return encodeURIComponent(data.Parameter?.Value as string);
+  });
 };
 
 console.log('getParameter: ', getParameter(process.env.SSM_DATABASE_NAME_ID));
