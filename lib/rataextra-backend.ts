@@ -130,13 +130,13 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     createUser.role?.attachInlinePolicy(
-      new Policy(this, 'ssmParametersPolicy', {
+      new Policy(this, 'createUserParametersPolicy', {
         statements: [ssmParameterPolicy, ksmDecryptPolicy],
       }),
     );
 
     listUsers.role?.attachInlinePolicy(
-      new Policy(this, 'ssmParametersPolicy', {
+      new Policy(this, 'listUsersParametersPolicy', {
         statements: [ssmParameterPolicy, ksmDecryptPolicy],
       }),
     );
