@@ -3,21 +3,6 @@ import { SSM } from '@aws-sdk/client-ssm';
 
 const ssm = new SSM({ region: 'eu-west-1' });
 
-const secrets = [
-  {
-    name: process.env.SSM_DATABASE_NAME_ID,
-    value: '',
-  },
-  {
-    name: process.env.SSM_DATABASE_DOMAIN_ID,
-    value: '',
-  },
-  {
-    name: process.env.SSM_DATABASE_PASSWORD_ID,
-    value: '',
-  },
-];
-
 const getParameter = (parameterName?: string): string | void => {
   ssm
     .getParameter({ Name: parameterName })
@@ -30,12 +15,10 @@ const getParameter = (parameterName?: string): string | void => {
     });
 };
 
-secrets.forEach((secret) => {
-  secret.value = getParameter(secret.name) ?? '';
-});
-
-// process.env.DATABASE_URL = `postgresql://${secrets.databaseName}:${encodeURIComponent(secrets.databasePassword)}@${
-//   secrets.databaseDomain
-// }:5432/${secrets.databaseName}?schema=public`;
+process.env.DATABASE_URL = `postgresql://${getParameter(process.env.SSM_DATABASE_NAME_ID)}:${encodeURIComponent(
+  getParameter(process.env.SSM_DATABASE_PASSWORD_ID) ?? '',
+)}@${getParameter(process.env.SSM_DATABASE_DOMAIN_ID)}:5432/${getParameter(
+  process.env.SSM_DATABASE_NAME_ID,
+)}?schema=public`;
 
 export default new PrismaClient();
