@@ -109,6 +109,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/create-user.ts',
     });
 
+    const listUsers = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'list-users',
+      relativePath: '../packages/server/lambdas/list-users.ts',
+    });
+
     const ssmParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters'],
       resources: [
@@ -124,16 +130,16 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     createUser.role?.attachInlinePolicy(
-      new Policy(this, 'list-buckets-policy', {
+      new Policy(this, 'ssmParametersPolicy', {
         statements: [ssmParameterPolicy, ksmDecryptPolicy],
       }),
     );
 
-    const listUsers = this.createNodejsLambda({
-      ...prismaParameters,
-      name: 'list-users',
-      relativePath: '../packages/server/lambdas/list-users.ts',
-    });
+    listUsers.role?.attachInlinePolicy(
+      new Policy(this, 'ssmParametersPolicy', {
+        statements: [ssmParameterPolicy, ksmDecryptPolicy],
+      }),
+    );
 
     // Add all lambdas here to add as alb targets
     const lambdas: ListenerTargetLambdas[] = [
