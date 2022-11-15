@@ -21,4 +21,4 @@ process.env.DATABASE_URL = `postgresql://${getParameter(process.env.SSM_DATABASE
   process.env.SSM_DATABASE_NAME_ID,
 )}?schema=public`;
 
-export default new PrismaClient();
+export default new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL } } });
