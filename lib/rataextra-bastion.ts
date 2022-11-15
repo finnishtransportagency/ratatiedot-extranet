@@ -49,7 +49,9 @@ export class RataExtraBastionStack extends cdk.Stack {
     ];
     if (databaseDns) {
       userDataCommands.push(
-        `nohup socat TCP4-LISTEN:5432,reuseaddr,fork TCP:${cdk.Fn.sub('${databaseDns}', databaseDns)}:5432 &`,
+        `nohup socat TCP4-LISTEN:5432,reuseaddr,fork TCP:${cdk.Fn.sub('${databaseDns}', {
+          databaseDns: databaseDns,
+        })}:5432 &`,
       );
     }
     userData.addCommands(...userDataCommands);
