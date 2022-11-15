@@ -48,6 +48,7 @@ export class RataExtraStack extends cdk.Stack {
       applicationVpc: vpc,
       securityGroup,
       databaseDomain,
+      tags: tags,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
 
@@ -67,7 +68,7 @@ export class RataExtraStack extends cdk.Stack {
     });
 
     if (isPermanentStack(stackId, rataExtraEnv)) {
-      new RataExtraCloudFrontStack(this, 'stack-cf', {
+      const cloudFrontStack = new RataExtraCloudFrontStack(this, 'stack-cf', {
         rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
         rataExtraEnv: rataExtraEnv,
         cloudfrontCertificateArn: cloudfrontCertificateArn,
@@ -75,6 +76,7 @@ export class RataExtraStack extends cdk.Stack {
         dmzApiEndpoint: dmzApiEndpoint,
         frontendBucket: frontendBucket,
       });
+      Object.entries(props.tags).forEach(([key, value]) => Tags.of(cloudFrontStack).add(key, value));
     }
   }
   private createServiceRole(name: string, servicePrincipal: string, policyName: string) {
