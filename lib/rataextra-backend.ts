@@ -118,26 +118,31 @@ export class RataExtraBackendStack extends NestedStack {
     const ssmParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters'],
       resources: [
-        `arn:aws:ssm:eu-west-1::parameter/${SSM_DATABASE_DOMAIN}`,
-        `arn:aws:ssm:eu-west-1::parameter/${SSM_DATABASE_NAME}`,
-        `arn:aws:ssm:eu-west-1::parameter/${SSM_DATABASE_PASSWORD}`,
+        `arn:aws:ssm:eu-west-1:178238255639:parameter/${SSM_DATABASE_DOMAIN}`,
+        `arn:aws:ssm:eu-west-1:178238255639:parameter/${SSM_DATABASE_NAME}`,
+        `arn:aws:ssm:eu-west-1:178238255639:parameter/${SSM_DATABASE_PASSWORD}`,
       ],
+    });
+
+    const ssmDescribeParametersPolicy = new PolicyStatement({
+      actions: ['ssm:DescribeParameters'],
+      resources: ['*'],
     });
 
     const ksmDecryptPolicy = new PolicyStatement({
       actions: ['kms:Decrypt'],
-      resources: ['arn:aws:kms:eu-west-1::key/6cd436ad-f1f8-479f-aa56-da5a3f7a0711'],
+      resources: ['arn:aws:kms:eu-west-1:178238255639:key/6cd436ad-f1f8-479f-aa56-da5a3f7a0711'],
     });
 
     createUser.role?.attachInlinePolicy(
       new Policy(this, 'createUserParametersPolicy', {
-        statements: [ssmParameterPolicy, ksmDecryptPolicy],
+        statements: [ssmParameterPolicy, ksmDecryptPolicy, ssmDescribeParametersPolicy],
       }),
     );
 
     listUsers.role?.attachInlinePolicy(
       new Policy(this, 'listUsersParametersPolicy', {
-        statements: [ssmParameterPolicy, ksmDecryptPolicy],
+        statements: [ssmParameterPolicy, ksmDecryptPolicy, ssmDescribeParametersPolicy],
       }),
     );
 
