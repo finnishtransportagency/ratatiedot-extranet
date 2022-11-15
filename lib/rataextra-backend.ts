@@ -66,7 +66,9 @@ export class RataExtraBackendStack extends NestedStack {
     const prismaParameters = {
       ...genericLambdaParameters,
       environment: {
-        DATABASE_URL: process.env.DATABASE_URL ?? 'IF_YOU_ARE_READING_THIS_DATABASE_ULR_IS_NOT_SET',
+        SSM_DATABASE_NAME_ID: SSM_DATABASE_NAME,
+        SSM_DATABASE_DOMAIN_ID: SSM_DATABASE_DOMAIN,
+        SSM_DATABASE_PASSWORD_ID: SSM_DATABASE_PASSWORD,
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
