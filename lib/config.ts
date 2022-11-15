@@ -31,7 +31,9 @@ export const DEVELOPMENT_MAIN_STACK_ID = DEVELOPMENT_MAIN_BRANCH;
 const SSM_CLOUDFRONT_CERTIFICATE_ARN = 'rataextra-cloudfront-certificate-arn';
 const SSM_CLOUDFRONT_DOMAIN_NAME = 'rataextra-cloudfront-domain-name';
 const SSM_DMZ_API_DOMAIN_NAME = 'rataextra-dmz-api-domain-name';
-const SSM_DATABASE_DOMAIN = 'rataextra-database-domain';
+export const SSM_DATABASE_DOMAIN = 'rataextra-database-domain';
+export const SSM_DATABASE_NAME = 'rataextra-database-name';
+export const SSM_DATABASE_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
 
 function getStackId(branch: string): string {
   const stackId = getEnvOrFail('STACK_ID');
