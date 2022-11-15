@@ -1,20 +1,38 @@
 import { PrismaClient } from '@prisma/client';
-import { SSM, GetParameterCommand } from '@aws-sdk/client-ssm';
+import { SSM } from '@aws-sdk/client-ssm';
 
-//    const encodedConnectionUrl = `postgresql://${databaseName}:${encodeURIComponent(databasePassword)}@${databaseDomain}:5432/${databaseName}?schema=public`;
-
-// Construct evironment variable that prisma uses as connection string to database
 const ssm = new SSM({ region: 'eu-west-1' });
 
-const getParameter = ssm.getParameter({ Name: 'rataextra-database-name' });
-console.log('parameterPromise: ', getParameter);
-getParameter
-  .then((data) => {
-    console.log('data: ', data);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+const secrets = [
+  {
+    name: process.env.SSM_DATABASE_NAME_ID,
+    value: '',
+  },
+  {
+    name: process.env.SSM_DATABASE_DOMAIN_ID,
+    value: '',
+  },
+  {
+    name: process.env.SSM_DATABASE_PASSWORD_ID,
+    value: '',
+  },
+];
+
+const getParameter = (parameterName?: string): string | void => {
+  ssm
+    .getParameter({ Name: parameterName })
+    .then((data) => {
+      console.log('data: ', data);
+      return data.Parameter?.Value;
+    })
+    .catch((err) => {
+      console.log('error: ', err);
+    });
+};
+
+secrets.forEach((secret) => {
+  secret.value = getParameter(secret.name) ?? '';
+});
 
 // process.env.DATABASE_URL = `postgresql://${secrets.databaseName}:${encodeURIComponent(secrets.databasePassword)}@${
 //   secrets.databaseDomain
