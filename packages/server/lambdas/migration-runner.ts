@@ -36,8 +36,9 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
 
     try {
       console.log('database domain: ', databaseDomain);
+      spawn('ls', ['-la']);
       const child = spawn(
-        `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy`,
+        `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy --schema prisma/schema.prisma`,
       );
       child.on('error', function (err) {
         console.log('Prisma migration failed: ' + err);
