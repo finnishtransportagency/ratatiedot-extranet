@@ -83,9 +83,10 @@ export class RataExtraBackendStack extends NestedStack {
           afterBundling(_inputDir: string, outputDir: string) {
             return [
               `cd ${outputDir}`,
-              `npx prisma generate`,
-              `rm -rf node_modules/@prisma/engines`,
-              `rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma`,
+              'npx prisma generate',
+              'npx prisma migrate deploy',
+              'rm -rf node_modules/@prisma/engines',
+              'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
             ];
           },
         },

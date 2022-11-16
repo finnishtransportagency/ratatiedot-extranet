@@ -29,7 +29,6 @@ export class RataExtraPipelineStack extends Stack {
         commands: [
           'npm run build:frontend',
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
-          'npx prisma migrate deploy',
         ],
       }),
       dockerEnabledForSynth: true,
