@@ -120,7 +120,7 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     migrationRunner.role?.attachInlinePolicy(
-      new Policy(this, 'listUsersParametersPolicy', {
+      new Policy(this, 'migrationRunnerReadParamsPolicy', {
         statements: [ssmParameterPolicy, ksmDecryptPolicy, ssmDescribeParametersPolicy],
       }),
     );
