@@ -5,6 +5,11 @@ import { SSM } from '@aws-sdk/client-ssm';
 const ssm = new SSM({ region: 'eu-west-1' });
 
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
+  const ls = spawn('ls', ['-la']);
+  ls.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
   const getParameter = async (parameterName?: string) => {
     let value;
     try {
@@ -36,10 +41,6 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
 
     try {
       console.log('database domain: ', databaseDomain);
-      const ls = spawn('ls', ['-la']);
-      ls.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
-      });
       const child = spawn(
         `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy --schema prisma/schema.prisma`,
       );

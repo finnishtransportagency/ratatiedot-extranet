@@ -87,6 +87,7 @@ export class RataExtraBackendStack extends NestedStack {
               'npx prisma generate',
               'rm -rf node_modules/@prisma/engines',
               'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
+              'ls -la',
             ];
           },
         },
