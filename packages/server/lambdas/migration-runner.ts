@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
 import { APIGatewayEvent, Context } from 'aws-lambda';
 import { SSM } from '@aws-sdk/client-ssm';
 
@@ -34,9 +34,17 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
       getSecureStringParameter(process.env.SSM_DATABASE_PASSWORD_ID),
     ]);
 
-    exec(
-      `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy`,
-    );
+    try {
+      console.log('database domain: ', databaseDomain);
+      const child = spawn(
+        `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy`,
+      );
+      child.on('error', function (err) {
+        console.log('Prisma migration failed: ' + err);
+      });
+    } catch (err) {
+      console.log('exception: ' + err);
+    }
   };
   executeMigration();
 }
