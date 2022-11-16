@@ -3,29 +3,40 @@ import { SSM } from '@aws-sdk/client-ssm';
 
 const ssm = new SSM({ region: 'eu-west-1' });
 
-const getParameter = (parameterName?: string) => {
-  ssm.getParameter({ Name: parameterName }).then((data) => {
-    return data.Parameter?.Value;
-  });
+const getParameter = async (parameterName?: string) => {
+  let value;
+  try {
+    const data = await ssm.getParameter({ Name: parameterName });
+    value = data.Parameter?.Value;
+  } catch (error) {
+    value = 'NOT_FOUND';
+  }
+  return value;
 };
 
-const getSecureStringParameter = (parameterName?: string) => {
-  ssm.getParameter({ Name: parameterName }).then((data) => {
-    return encodeURIComponent(data.Parameter?.Value as string);
-  });
+const getSecureStringParameter = async (parameterName?: string) => {
+  let value;
+  try {
+    const data = await ssm.getParameter({ Name: parameterName });
+    value = data.Parameter?.Value;
+  } catch (error) {
+    value = 'NOT_FOUND';
+  }
+  return encodeURIComponent(value as string);
 };
 
-console.log('getParameter: ', getParameter(process.env.SSM_DATABASE_NAME_ID));
+const getPrismaClient = async () => {
+  const [databaseName, databaseDomain, databasePassword] = await Promise.all([
+    getParameter(process.env.SSM_DATABASE_NAME_ID),
+    getParameter(process.env.SSM_DATABASE_DOMAIN_ID),
+    getSecureStringParameter(process.env.SSM_DATABASE_PASSWORD_ID),
+  ]);
 
-const DATABASE_URL = `postgresql://${getParameter(process.env.SSM_DATABASE_NAME_ID)}:${getSecureStringParameter(
-  process.env.SSM_DATABASE_PASSWORD_ID,
-)}@${getParameter(process.env.SSM_DATABASE_DOMAIN_ID)}:5432/${getParameter(
-  process.env.SSM_DATABASE_NAME_ID,
-)}?schema=public`;
+  console.log('name: ', databaseName);
 
-process.env.DATABASE_URL = 'test_value';
+  const DATABASE_URL = `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public`;
 
-console.log('testENV: ', process.env.DATABASE_URL);
-console.log('constant: ', DATABASE_URL);
+  return new PrismaClient({ datasources: { db: { url: DATABASE_URL } } });
+};
 
-export default new PrismaClient({ datasources: { db: { url: DATABASE_URL } } });
+export const prisma = await getPrismaClient();
