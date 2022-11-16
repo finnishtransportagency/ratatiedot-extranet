@@ -34,7 +34,7 @@ export class DatabaseClient {
     const [databaseName, databaseDomain, databasePassword] = await Promise.all([
       getParameter(process.env.SSM_DATABASE_NAME_ID),
       getParameter(process.env.SSM_DATABASE_DOMAIN_ID),
-      getParameter(process.env.SSM_DATABASE_PASSWORD_ID),
+      getSecureStringParameter(process.env.SSM_DATABASE_PASSWORD_ID),
     ]);
 
     console.log('name: ', databaseName);
