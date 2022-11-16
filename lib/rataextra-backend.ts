@@ -84,7 +84,7 @@ export class RataExtraBackendStack extends NestedStack {
           afterBundling(_inputDir: string, outputDir: string) {
             return [
               `cd ${outputDir}`,
-              'npx prisma migrate deploy',
+              'npx prisma generate',
               'rm -rf node_modules/@prisma/engines',
               'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
             ];
@@ -99,7 +99,7 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/migration-runner.ts',
     });
 
-    //Run checkExecutionLambda on Create
+    // Run checkExecutionLambda on Create
     new AwsCustomResource(this, 'StatefunctionTrigger', {
       policy: AwsCustomResourcePolicy.fromStatements([
         new PolicyStatement({
