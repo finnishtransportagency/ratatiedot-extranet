@@ -17,12 +17,12 @@ const getParameter = async (parameterName?: string) => {
 const getSecureStringParameter = async (parameterName?: string) => {
   let value;
   try {
-    const data = await ssm.getParameter({ Name: parameterName });
+    const data = await ssm.getParameter({ Name: parameterName, WithDecryption: true });
     value = data.Parameter?.Value;
   } catch (error) {
     value = 'NOT_FOUND';
   }
-  return encodeURIComponent(value as string);
+  return value;
 };
 
 export class DatabaseClient {
