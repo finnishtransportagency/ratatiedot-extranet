@@ -27,16 +27,16 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
     return value;
   };
 
-  (async () => {
+  const executeMigration = async () => {
     const [databaseName, databaseDomain, databasePassword] = await Promise.all([
       getParameter(process.env.SSM_DATABASE_NAME_ID),
       getParameter(process.env.SSM_DATABASE_DOMAIN_ID),
       getSecureStringParameter(process.env.SSM_DATABASE_PASSWORD_ID),
     ]);
 
-    const url = `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public`;
-
-    // Run Database migration
-    exec(`DATABASE_URL="${url}" npx prisma migrate deploy`);
-  })();
+    exec(
+      `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy`,
+    );
+  };
+  executeMigration();
 }
