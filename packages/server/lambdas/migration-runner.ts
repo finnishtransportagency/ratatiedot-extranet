@@ -34,9 +34,9 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
       getSecureStringParameter(process.env.SSM_DATABASE_PASSWORD_ID),
     ]);
 
-    // exec(
-    //   `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy`,
-    // );
+    exec(
+      `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy`,
+    );
   };
   executeMigration();
 }
