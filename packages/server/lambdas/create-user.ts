@@ -1,9 +1,7 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
-import { prisma } from './database-client';
+import { prisma } from './database-client/index.mjs';
 
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
-  // ... you will write your Prisma Client queries here
-
   await prisma.user
     .create({
       data: {
