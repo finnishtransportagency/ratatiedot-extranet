@@ -36,7 +36,10 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
 
     try {
       console.log('database domain: ', databaseDomain);
-      spawn('ls', ['-la']);
+      const ls = spawn('ls', ['-la']);
+      ls.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+      });
       const child = spawn(
         `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy --schema prisma/schema.prisma`,
       );
