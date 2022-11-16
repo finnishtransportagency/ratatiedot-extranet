@@ -1,8 +1,9 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
-import { prisma } from './database-client/index.mjs';
+import { DatabaseClient } from './database-client/index.js';
 
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
-  await prisma.user
+  const database = await DatabaseClient.build();
+  await database.user
     .findMany({
       include: {
         posts: true,
@@ -21,10 +22,10 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
       return response;
     })
     .then(async () => {
-      await prisma.$disconnect();
+      await database.$disconnect();
     })
     .catch(async (e) => {
       console.error(e);
-      await prisma.$disconnect();
+      await database.$disconnect();
     });
 }
