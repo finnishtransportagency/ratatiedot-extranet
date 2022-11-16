@@ -1,6 +1,7 @@
 import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, SecretValue } from 'aws-cdk-lib';
 import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
-import { Role, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Role, Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from 'aws-cdk-lib/custom-resources';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, SSM_DATABASE_DOMAIN, SSM_DATABASE_NAME, SSM_DATABASE_PASSWORD } from './config';
@@ -83,7 +84,6 @@ export class RataExtraBackendStack extends NestedStack {
           afterBundling(_inputDir: string, outputDir: string) {
             return [
               `cd ${outputDir}`,
-              'npx prisma generate',
               'npx prisma migrate deploy',
               'rm -rf node_modules/@prisma/engines',
               'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
@@ -92,6 +92,42 @@ export class RataExtraBackendStack extends NestedStack {
         },
       },
     };
+
+    const migrationRunner = this.createNodejsLambda({
+      ...genericLambdaParameters,
+      name: 'migrationRunner',
+      relativePath: '../packages/server/lambdas/migration-runner.ts',
+    });
+
+    //Run checkExecutionLambda on Create
+    new AwsCustomResource(this, 'StatefunctionTrigger', {
+      policy: AwsCustomResourcePolicy.fromStatements([
+        new PolicyStatement({
+          actions: ['lambda:InvokeFunction'],
+          effect: Effect.ALLOW,
+          resources: [migrationRunner.functionArn],
+        }),
+      ]),
+      timeout: Duration.minutes(15),
+      onCreate: {
+        service: 'Lambda',
+        action: 'invoke',
+        parameters: {
+          FunctionName: migrationRunner.functionName,
+          InvocationType: 'Event',
+        },
+        physicalResourceId: PhysicalResourceId.of('JobSenderTriggerPhysicalId'),
+      },
+      onUpdate: {
+        service: 'Lambda',
+        action: 'invoke',
+        parameters: {
+          FunctionName: migrationRunner.functionName,
+          InvocationType: 'Event',
+        },
+        physicalResourceId: PhysicalResourceId.of('JobSenderTriggerPhysicalId'),
+      },
+    });
 
     const dummyFn = this.createNodejsLambda({
       ...genericLambdaParameters,
