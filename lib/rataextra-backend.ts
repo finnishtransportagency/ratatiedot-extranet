@@ -94,7 +94,7 @@ export class RataExtraBackendStack extends NestedStack {
     };
 
     const migrationRunner = this.createNodejsLambda({
-      ...genericLambdaParameters,
+      ...prismaParameters,
       name: 'migrationRunner',
       relativePath: '../packages/server/lambdas/migration-runner.ts',
     });
