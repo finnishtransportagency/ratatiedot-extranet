@@ -39,7 +39,6 @@ export class DatabaseClient {
 
     console.log('name: ', databaseName);
     const DATABASE_URL = `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public`;
-    console.log(DATABASE_URL);
 
     return new PrismaClient({ datasources: { db: { url: DATABASE_URL } } });
   }
