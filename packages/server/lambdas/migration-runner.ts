@@ -35,14 +35,15 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
     ]);
 
     console.log('database domain: ', databaseDomain);
-    //    const child = spawn(
-    //      `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy --schema prisma/schema.prisma`,
-    //    );
-    //    child.stdout.on('data', (data) => {
-    //      console.log(`stdout: ${data}`);
-    //    });
-    //    child.on('error', function (err) {
-    //      console.log('Prisma migration failed: ' + err);
-    //    });
+    const child = spawn(
+      `DATABASE_URL="postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public}" npx prisma migrate deploy --schema prisma/schema.prisma`,
+    );
+    child.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`);
+    });
+    child.on('error', function (err) {
+      console.log('Prisma migration failed: ' + err);
+    });
   };
+  executeMigration();
 }
