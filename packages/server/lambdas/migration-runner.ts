@@ -5,11 +5,6 @@ import { SSM } from '@aws-sdk/client-ssm';
 const ssm = new SSM({ region: 'eu-west-1' });
 
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
-  const ls = spawn('ls', ['-la']);
-  ls.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-  });
-
   const getParameter = async (parameterName?: string) => {
     let value;
     try {
@@ -50,5 +45,4 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
     //      console.log('Prisma migration failed: ' + err);
     //    });
   };
-  executeMigration();
 }

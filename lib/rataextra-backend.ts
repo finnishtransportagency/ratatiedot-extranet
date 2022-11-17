@@ -87,7 +87,6 @@ export class RataExtraBackendStack extends NestedStack {
               'npx prisma generate',
               'rm -rf node_modules/@prisma/engines',
               'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
-              'ls -la',
             ];
           },
         },
@@ -126,6 +125,7 @@ export class RataExtraBackendStack extends NestedStack {
     );
 
     // Run checkExecutionLambda on Create
+    /*
     new AwsCustomResource(this, 'StatefunctionTrigger', {
       policy: AwsCustomResourcePolicy.fromStatements([
         new PolicyStatement({
@@ -154,6 +154,7 @@ export class RataExtraBackendStack extends NestedStack {
         physicalResourceId: PhysicalResourceId.of('JobSenderTriggerPhysicalId'),
       },
     });
+    */
 
     const dummyFn = this.createNodejsLambda({
       ...genericLambdaParameters,
