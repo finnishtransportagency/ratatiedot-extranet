@@ -33,4 +33,4 @@ DATABASE_URL='postgresql://'${database_name}':'${database_password}'@'${database
 
 ls -la
 
-npx prisma migrate deploy --schema schema.prisma
+npx prisma migrate deploy
