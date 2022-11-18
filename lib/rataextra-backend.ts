@@ -19,6 +19,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly securityGroup?: ISecurityGroup;
   readonly databaseDomain?: string;
   readonly tags: { [key: string]: string };
+  readonly jwtTokenIssuer: string;
 }
 
 type ListenerTargetLambdas = {
@@ -56,6 +57,7 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroup,
       databaseDomain,
       tags,
+      jwtTokenIssuer,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -80,6 +82,7 @@ export class RataExtraBackendStack extends NestedStack {
       ...genericLambdaParameters,
       name: 'dummy2-handler',
       relativePath: '../packages/server/lambdas/dummy2.ts',
+      environment: { JWT_TOKEN_ISSUER: jwtTokenIssuer },
     });
 
     // Add all lambdas here to add as alb targets
