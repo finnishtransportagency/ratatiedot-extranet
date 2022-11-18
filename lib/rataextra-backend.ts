@@ -75,7 +75,10 @@ export class RataExtraBackendStack extends NestedStack {
         nodeModules: ['prisma', '@prisma/client'],
         commandHooks: {
           beforeInstall(inputDir: string, outputDir: string) {
-            return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
+            return [
+              `cp -R ${inputDir}/packages/server/prisma ${outputDir}/`,
+              `cp ${inputDir}/migration-runner.sh ${outputDir}`,
+            ];
           },
           beforeBundling(_inputDir: string, _outputDir: string) {
             return [];
@@ -86,6 +89,7 @@ export class RataExtraBackendStack extends NestedStack {
               'npx prisma generate',
               'rm -rf node_modules/@prisma/engines',
               'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
+              `sh ./migration-runner.sh -n ${SSM_DATABASE_NAME} -d ${SSM_DATABASE_DOMAIN} -p ${SSM_DATABASE_PASSWORD}`,
             ];
           },
         },
