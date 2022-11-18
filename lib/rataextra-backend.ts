@@ -1,4 +1,4 @@
-import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, Stack } from 'aws-cdk-lib';
+import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { Role, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
@@ -55,8 +55,8 @@ export class RataExtraBackendStack extends NestedStack {
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
     console.log('----------------------------');
-    console.log('accountId: ', Stack.of(this).account);
-    console.log('region: ', Stack.of(this).region);
+    console.log('accountId: ', NestedStack.of(this).account);
+    console.log('region: ', NestedStack.of(this).region);
     console.log('----------------------------');
 
     // Basic Lambda configs
@@ -69,6 +69,9 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
     };
 
+    const region = NestedStack.of(this).region;
+    const account = NestedStack.of(this).account;
+
     const prismaParameters = {
       ...genericLambdaParameters,
       environment: {
@@ -76,8 +79,6 @@ export class RataExtraBackendStack extends NestedStack {
         SSM_DATABASE_DOMAIN_ID: SSM_DATABASE_DOMAIN,
         SSM_DATABASE_PASSWORD_ID: SSM_DATABASE_PASSWORD,
         DATABASE_URL: '',
-        region: Stack.of(this).account,
-        account: Stack.of(this).region,
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
@@ -94,7 +95,7 @@ export class RataExtraBackendStack extends NestedStack {
               'npx prisma generate',
               'rm -rf node_modules/@prisma/engines',
               'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
-              `sh ./prisma/migration-runner.sh -n ${SSM_DATABASE_NAME} -d ${SSM_DATABASE_DOMAIN} -p ${SSM_DATABASE_PASSWORD} -r ${process.env.CDK_DEFAULT_REGION} -a ${process.env.CDK_DEFAULT_ACCOUNT}`,
+              `sh ./prisma/migration-runner.sh -n ${SSM_DATABASE_NAME} -d ${SSM_DATABASE_DOMAIN} -p ${SSM_DATABASE_PASSWORD} -r ${region} -a ${account}`,
             ];
           },
         },
