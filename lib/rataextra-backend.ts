@@ -70,8 +70,8 @@ export class RataExtraBackendStack extends NestedStack {
         SSM_DATABASE_DOMAIN_ID: SSM_DATABASE_DOMAIN,
         SSM_DATABASE_PASSWORD_ID: SSM_DATABASE_PASSWORD,
         DATABASE_URL: '',
-        region: process.env.CDK_DEFAULT_REGION,
-        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION as string,
+        account: process.env.CDK_DEFAULT_ACCOUNT as string,
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
