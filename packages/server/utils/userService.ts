@@ -1,7 +1,7 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import { RataExtraLambdaError } from './errors';
 import { log } from './logger';
-import { validateJwtToken } from './validatejwttoken';
+import { validateJwtToken } from './validateJwtToken';
 
 export type User = {
   uid: string;
