@@ -149,7 +149,7 @@ Go to AWS console > EC2 > Select bastion instance > Connect > Session Manager > 
 Run following script in the window that opens for the EC2:
 
 ```
-socat TCP4-LISTEN:81,reuseaddr,fork TCP:ALB_DNS:80
+sudo socat TCP4-LISTEN:81,reuseaddr,fork TCP:ALB_DNS:80
 ```
 
 where you replace ALB_DNS with the DNS name of your ALB. You can get this from AWS console under EC2 > Load Balancers > Select your ALB > DNS name in the Description.
@@ -163,6 +163,16 @@ Once you have your connection set up, locally on your computer run
 and then you can connect to bastion host using AWS SSM on localhost:3002. These are then piped to the feature ALB. For this to keep working, both the socat on the bastion and `bastion-feat-backend-pipe.sh` locally need to be up and running.
 
 Note! If someone else is also doing this, there might be a conflict with the port listening using socat ("Address already in use"). In such case, use a different port for socat instead of 81. In this case, you also need to update the "portNumber" value in `bastion-feat-backend-pipe.sh`.
+
+#### Fixing socat problems
+
+If for some reason socat is not working for a specific piping, you can set it up again by hand. Connect to the EC2 with SSM and run following after adding values as instructed below:
+
+```
+nohup sudo socat TCP4-LISTEN:LISTEN_PORT_TO_FIX,reuseaddr,fork TCP:DNS_TO_REDIRECT:PORT_TO_PIPE &
+```
+
+where `LISTEN_PORT_TO_FIX` is the port you want to listen on (e.g. 80), `DNS_TO_REDIRECT` is where you want to redirect to and `PORT_TO_PIPE` is port in the receiving end. With ALB, port is 80 for poth and DNS is the DNS of the ALB (check AWS console). For database, port is 5432 for both and DNS can be checked from Parameter Store.
 
 ### Build
 

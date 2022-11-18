@@ -26,7 +26,7 @@ export const DesktopAppBar = ({ openDrawer, openSearch, toggleDrawer, toggleSear
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
         <ToolbarWrapper>
-          <Search />
+          <Search openSearch={openSearch} toggleSearch={toggleSearch} isDesktop={true} />
         </ToolbarWrapper>
       </>
     );
@@ -84,6 +84,7 @@ export const DesktopAppBarWrapper = styled(MuiAppBar)<DrawerWrapperProps>(({ the
       ...((!open && {
         ...closedMixin(theme),
       }) as any),
+      overflow: 'visible',
     },
   };
 });

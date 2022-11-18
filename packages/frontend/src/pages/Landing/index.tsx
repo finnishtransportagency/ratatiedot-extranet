@@ -31,7 +31,7 @@ export const Landing = () => {
           Ratatiedon extranetin käyttäjät ovat sitoutuneet noudattamaan ylläolevia palvelun sääntöjä. Palvelun tunnukset
           ovat henkilökohtaiset.
         </ParagraphWrapper>
-        <Typography variant="subtitle2">Jatkakseesi palveluun, sinun on hyväksyttävä käyttöohjeet.</Typography>
+        <Typography variant="subtitle2">Jatkakseesi palveluun sinun on hyväksyttävä käyttöohjeet.</Typography>
         <ButtonWrapper color="primary" variant="contained" onClick={acceptTerm}>
           Hyväksy
         </ButtonWrapper>
@@ -44,8 +44,8 @@ export const Landing = () => {
       <>
         <SubtitleWrapper variant="subtitle1">Tervetuloa uudistuneeseen Ratatiedon extranettiin</SubtitleWrapper>
         <ParagraphWrapper variant="body1">
-          Tarkista ajankohtaiset ilmoitukset, viimeksi muokatut tiedostot ja omat suosikit suoraan tältä sivulta tai
-          löydä muut aineistot navigaatiosta tai haun kautta.
+          Tarkista ajankohtaiset ilmoitukset, viimeksi muokatut tiedostot ja omat suosikit suoraan tältä sivulta. Voit
+          siirtyä myös muihin aineistoihin navigaation tai haun kautta.
         </ParagraphWrapper>
         <Footer />
       </>
