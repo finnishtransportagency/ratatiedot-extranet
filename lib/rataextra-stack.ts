@@ -41,6 +41,10 @@ export class RataExtraStack extends cdk.Stack {
       'service-role/AWSLambdaVPCAccessExecutionRole',
     );
     new RataExtraBackendStack(this, 'stack-backend', {
+      env: {
+        region: process.env.CDK_DEFAULT_REGION ?? '',
+        account: process.env.CDK_DEFAULT_ACCOUNT ?? '',
+      },
       rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
       rataExtraEnv: rataExtraEnv,
       lambdaServiceRole: lambdaServiceRole,

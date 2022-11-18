@@ -1,4 +1,4 @@
-import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps } from 'aws-cdk-lib';
+import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, Stack } from 'aws-cdk-lib';
 import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { Role, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
@@ -12,6 +12,7 @@ import { isDevelopmentMainStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 
 interface ResourceNestedStackProps extends NestedStackProps {
+  readonly env: { region: string; account: string };
   readonly rataExtraStackIdentifier: string;
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly lambdaServiceRole: Role;
@@ -53,6 +54,11 @@ export class RataExtraBackendStack extends NestedStack {
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
+    console.log('----------------------------');
+    console.log('accountId: ', Stack.of(this).account);
+    console.log('region: ', Stack.of(this).region);
+    console.log('----------------------------');
+
     // Basic Lambda configs
     // ID and VPC should not be changed
     // Role and SG might need to be customized per Lambda
@@ -70,8 +76,8 @@ export class RataExtraBackendStack extends NestedStack {
         SSM_DATABASE_DOMAIN_ID: SSM_DATABASE_DOMAIN,
         SSM_DATABASE_PASSWORD_ID: SSM_DATABASE_PASSWORD,
         DATABASE_URL: '',
-        region: process.env.CDK_DEFAULT_REGION as string,
-        account: process.env.CDK_DEFAULT_ACCOUNT as string,
+        region: Stack.of(this).account,
+        account: Stack.of(this).region,
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
