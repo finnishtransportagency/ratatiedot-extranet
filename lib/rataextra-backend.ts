@@ -87,7 +87,6 @@ export class RataExtraBackendStack extends NestedStack {
               'npx prisma generate',
               'rm -rf node_modules/@prisma/engines',
               'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
-              `sh ./prisma/migration-runner.sh -n ${SSM_DATABASE_NAME} -d ${SSM_DATABASE_DOMAIN} -p ${SSM_DATABASE_PASSWORD}`,
             ];
           },
         },

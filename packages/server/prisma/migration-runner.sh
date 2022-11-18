@@ -7,8 +7,6 @@ do
     esac
 done
 
-echo 'Account: ' $account
-
 database_name=$(aws ssm get-parameter \
     --region eu-west-1 \
     --profile 178238255639_RataextraAdmin \

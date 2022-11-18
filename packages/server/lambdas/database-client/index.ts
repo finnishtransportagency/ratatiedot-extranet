@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { SSM } from '@aws-sdk/client-ssm';
+import { exec } from 'child_process';
 
 const ssm = new SSM({ region: 'eu-west-1' });
 
@@ -39,6 +40,14 @@ export class DatabaseClient {
 
     console.log('name: ', databaseName);
     const DATABASE_URL = `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public`;
+
+    exec(
+      `sh ./prisma/migration-runner.sh -n ${databaseName} -d ${databaseDomain} -p ${databasePassword}`,
+      (error, stdout) => {
+        console.log('err: ', error);
+        console.log('stdout: ', stdout);
+      },
+    );
 
     return new PrismaClient({ datasources: { db: { url: DATABASE_URL } } });
   }
