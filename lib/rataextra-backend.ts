@@ -112,48 +112,6 @@ export class RataExtraBackendStack extends NestedStack {
       resources: ['arn:aws:kms:eu-west-1:178238255639:key/6cd436ad-f1f8-479f-aa56-da5a3f7a0711'],
     });
 
-    const migrationRunner = this.createNodejsLambda({
-      ...prismaParameters,
-      name: 'migrationRunner',
-      relativePath: '../packages/server/lambdas/migration-runner.ts',
-    });
-
-    migrationRunner.role?.attachInlinePolicy(
-      new Policy(this, 'migrationRunnerReadParamsPolicy', {
-        statements: [ssmParameterPolicy, ksmDecryptPolicy, ssmDescribeParametersPolicy],
-      }),
-    );
-
-    // Run checkExecutionLambda on Create
-    new AwsCustomResource(this, 'StatefunctionTrigger', {
-      policy: AwsCustomResourcePolicy.fromStatements([
-        new PolicyStatement({
-          actions: ['lambda:InvokeFunction'],
-          effect: Effect.ALLOW,
-          resources: [migrationRunner.functionArn],
-        }),
-      ]),
-      timeout: Duration.minutes(15),
-      onCreate: {
-        service: 'Lambda',
-        action: 'invoke',
-        parameters: {
-          FunctionName: migrationRunner.functionName,
-          InvocationType: 'Event',
-        },
-        physicalResourceId: PhysicalResourceId.of('JobSenderTriggerPhysicalId'),
-      },
-      onUpdate: {
-        service: 'Lambda',
-        action: 'invoke',
-        parameters: {
-          FunctionName: migrationRunner.functionName,
-          InvocationType: 'Event',
-        },
-        physicalResourceId: PhysicalResourceId.of('JobSenderTriggerPhysicalId'),
-      },
-    });
-
     const dummyFn = this.createNodejsLambda({
       ...genericLambdaParameters,
       name: 'dummy-handler',
