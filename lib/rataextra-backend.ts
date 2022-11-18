@@ -54,11 +54,6 @@ export class RataExtraBackendStack extends NestedStack {
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
-    console.log('----------------------------');
-    console.log('accountId: ', NestedStack.of(this).account);
-    console.log('region: ', NestedStack.of(this).region);
-    console.log('----------------------------');
-
     // Basic Lambda configs
     // ID and VPC should not be changed
     // Role and SG might need to be customized per Lambda
@@ -68,9 +63,6 @@ export class RataExtraBackendStack extends NestedStack {
       lambdaRole: lambdaServiceRole,
       securityGroups: securityGroups,
     };
-
-    const region = NestedStack.of(this).region;
-    const account = NestedStack.of(this).account;
 
     const prismaParameters = {
       ...genericLambdaParameters,
@@ -95,7 +87,7 @@ export class RataExtraBackendStack extends NestedStack {
               'npx prisma generate',
               'rm -rf node_modules/@prisma/engines',
               'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
-              `sh ./prisma/migration-runner.sh -n ${SSM_DATABASE_NAME} -d ${SSM_DATABASE_DOMAIN} -p ${SSM_DATABASE_PASSWORD} -r eu-west-1 -a 178238255639`,
+              `sh ./prisma/migration-runner.sh -n ${SSM_DATABASE_NAME} -d ${SSM_DATABASE_DOMAIN} -p ${SSM_DATABASE_PASSWORD}`,
             ];
           },
         },
