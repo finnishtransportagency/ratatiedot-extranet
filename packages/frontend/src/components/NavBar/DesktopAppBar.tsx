@@ -11,11 +11,18 @@ import { useLocation } from 'react-router-dom';
 type DesktopAppBarProps = {
   openDrawer: boolean;
   openSearch: boolean;
-  toggleDrawer: React.MouseEventHandler<HTMLElement>;
-  toggleSearch: React.MouseEventHandler<HTMLElement>;
+  openFilter: boolean;
+  toggleSearch: any;
+  toggleFilter: any;
 };
 
-export const DesktopAppBar = ({ openDrawer, openSearch, toggleDrawer, toggleSearch }: DesktopAppBarProps) => {
+export const DesktopAppBar = ({
+  openDrawer,
+  openSearch,
+  openFilter,
+  toggleSearch,
+  toggleFilter,
+}: DesktopAppBarProps) => {
   const MainAppBar = () => {
     const location = useLocation();
     const pageName = location.pathname.split('/').length ? location.pathname.split('/')[1] : 'ratatiedon extranet';
@@ -26,7 +33,13 @@ export const DesktopAppBar = ({ openDrawer, openSearch, toggleDrawer, toggleSear
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
         <ToolbarWrapper>
-          <Search openSearch={openSearch} toggleSearch={toggleSearch} isDesktop={true} />
+          <Search
+            openSearch={openSearch}
+            toggleSearch={toggleSearch}
+            openFilter={openFilter}
+            toggleFilter={toggleFilter}
+            isDesktop={true}
+          />
         </ToolbarWrapper>
       </>
     );

@@ -13,11 +13,20 @@ import { Search } from '../Search';
 type MiniAppBarProps = {
   openDrawer: boolean;
   openSearch: boolean;
-  toggleDrawer: React.MouseEventHandler<HTMLElement>;
-  toggleSearch: React.MouseEventHandler<HTMLElement>;
+  openFilter: boolean;
+  toggleDrawer: any;
+  toggleSearch: any;
+  toggleFilter: any;
 };
 
-export const MiniAppBar = ({ openDrawer, openSearch, toggleDrawer, toggleSearch }: MiniAppBarProps) => {
+export const MiniAppBar = ({
+  openDrawer,
+  openSearch,
+  openFilter,
+  toggleDrawer,
+  toggleSearch,
+  toggleFilter,
+}: MiniAppBarProps) => {
   const MainAppBar = () => {
     return (
       <>
@@ -42,7 +51,18 @@ export const MiniAppBar = ({ openDrawer, openSearch, toggleDrawer, toggleSearch 
 
   return (
     <MiniAppBarWrapper position="fixed" color="transparent" open={openDrawer}>
-      <Toolbar>{openSearch ? <Search openSearch={openSearch} toggleSearch={toggleSearch} /> : <MainAppBar />}</Toolbar>
+      <Toolbar>
+        {openSearch ? (
+          <Search
+            openSearch={openSearch}
+            toggleSearch={toggleSearch}
+            openFilter={openFilter}
+            toggleFilter={toggleFilter}
+          />
+        ) : (
+          <MainAppBar />
+        )}
+      </Toolbar>
     </MiniAppBarWrapper>
   );
 };

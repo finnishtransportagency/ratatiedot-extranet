@@ -8,9 +8,17 @@ import { DesktopAppBar } from './DesktopAppBar';
 export const NavBar = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
+  const [openFilter, setOpenFilter] = useState(false);
 
   const toggleDrawer = () => setOpenDrawer(!openDrawer);
-  const toggleSearch = () => setOpenSearch(!openSearch);
+  const toggleSearch = () => {
+    setOpenDrawer(false);
+    setOpenSearch(!openSearch);
+  };
+  const toggleFilter = () => {
+    setOpenDrawer(false);
+    setOpenFilter(!openFilter);
+  };
 
   return (
     <Box>
@@ -19,13 +27,16 @@ export const NavBar = () => {
         toggleDrawer={toggleDrawer}
         openSearch={openSearch}
         toggleSearch={toggleSearch}
+        openFilter={openFilter}
+        toggleFilter={toggleFilter}
       />
       <MiniDrawer openDrawer={openDrawer} toggleDrawer={toggleDrawer} />
       <DesktopAppBar
         openDrawer={openDrawer}
-        toggleDrawer={toggleDrawer}
         openSearch={openSearch}
         toggleSearch={toggleSearch}
+        openFilter={openFilter}
+        toggleFilter={toggleFilter}
       />
       <DesktopDrawer openDrawer={openDrawer} toggleDrawer={toggleDrawer} />
     </Box>
