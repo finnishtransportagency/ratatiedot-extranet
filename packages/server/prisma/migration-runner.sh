@@ -9,21 +9,15 @@ done
 
 database_name=$(aws ssm get-parameter \
     --name $name \
-    --region eu-west-1 \
-    --profile 178238255639_RataextraAdmin \
     --query 'Parameter.Value' \
     --output text)
 database_domain=$(aws ssm get-parameter \
     --name $domain \
-    --region eu-west-1 \
-    --profile 178238255639_RataextraAdmin \
     --query 'Parameter.Value' \
     --output text)
 database_password=$(aws ssm get-parameter \
     --name $password \
     --with-decryption \
-    --region eu-west-1 \
-    --profile 178238255639_RataextraAdmin \
     --query 'Parameter.Value' \
     --output text)
 
