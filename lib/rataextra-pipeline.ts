@@ -15,7 +15,6 @@ export class RataExtraPipelineStack extends Stack {
       env: {
         region: 'eu-west-1',
       },
-
       tags: config.tags,
     });
 
