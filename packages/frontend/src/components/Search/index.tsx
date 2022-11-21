@@ -34,7 +34,6 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
 
   const openRecentSearch = () => !openSearch && toggleSearch();
   const closeRecentSearch = () => openSearch && toggleSearch();
-  const openFilterSearch = () => !openFilter && toggleFilter();
   const closeFilterSearch = () => openFilter && toggleFilter();
 
   const exitSearch = () => {
@@ -73,7 +72,6 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
           onChange={(event) => queryHandler(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
-          // onBlur={closeRecentSearch}
         />
         {query && (
           <IconButton size="large" edge="end" area-label="erase query" onClick={() => queryHandler('')}>

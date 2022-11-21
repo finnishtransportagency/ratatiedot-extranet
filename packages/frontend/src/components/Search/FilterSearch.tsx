@@ -6,7 +6,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import TuneIcon from '@mui/icons-material/Tune';
 
-import { FilterSearchData, IFilterSearchData, IItem } from './FilterSearchData';
+import { FilterSearchData, IFilterSearchData, IItem, ItemTypeEnum } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
 
@@ -27,7 +27,7 @@ const FilterSearchItem = (props: IFilterSearchData) => {
   return (
     <>
       <ListItem key={name} onClick={handleClick}>
-        {type && <Checkbox onChange={(e) => console.log(e)} />}
+        {type && type === ItemTypeEnum.CHECKBOX && <Checkbox key={name} onChange={() => console.log('TODO:')} />}
         <ListItemText
           key={name}
           disableTypography
@@ -40,14 +40,14 @@ const FilterSearchItem = (props: IFilterSearchData) => {
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
       <Collapse key={name} in={open} timeout="auto" unmountOnExit>
-        <List component="li" disablePadding>
+        <List key={name} component="li" disablePadding>
           {items.map((item: IItem) => {
             if (item.items) {
               return <FilterSearchItem name={item.name} type={item.type} items={item.items} />;
             }
             return (
               <ListItem sx={{ pl: 4 }} key={item.name}>
-                <Checkbox />
+                {item.type && item.type === ItemTypeEnum.CHECKBOX && <Checkbox onChange={() => console.log('TODO:')} />}
                 <ListItemText key={item.name} primary={item.name} />
               </ListItem>
             );
