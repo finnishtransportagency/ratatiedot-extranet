@@ -149,6 +149,7 @@ export class RataExtraBackendStack extends NestedStack {
     );
 
     // Add all lambdas here to add as alb targets
+    // Keep the list ordered by priority and to be extra careful with wildcard paths!!
     const lambdas: ListenerTargetLambdas[] = [
       { lambda: listUsers, priority: 70, path: ['/api/users'] },
       { lambda: createUser, priority: 80, path: ['/api/create-user'] },
