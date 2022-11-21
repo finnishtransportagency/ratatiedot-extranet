@@ -13,7 +13,7 @@ export const NotFound = () => {
       <Box component="img" src={RataExtLogo} alt="Logo" />
       <SubtitleWrapper variant="subtitle2">Sivua ei löydy</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
-        Hakemasi sivu on väliaikaisesti poissa käytöstä, tai sivua ei ehkä enää ole.
+        Hakemasi sivu on väliaikaisesti poissa käytöstä tai sivua ei ehkä enää ole.
       </ParagraphWrapper>
       <ListWrapper>
         <ListItemText primary="TEE JOKIN SEURAAVISTA:" />

@@ -149,7 +149,7 @@ Go to AWS console > EC2 > Select bastion instance > Connect > Session Manager > 
 Run following script in the window that opens for the EC2:
 
 ```
-socat TCP4-LISTEN:81,reuseaddr,fork TCP:ALB_DNS:80
+sudo socat TCP4-LISTEN:81,reuseaddr,fork TCP:ALB_DNS:80
 ```
 
 where you replace ALB_DNS with the DNS name of your ALB. You can get this from AWS console under EC2 > Load Balancers > Select your ALB > DNS name in the Description.
@@ -218,6 +218,16 @@ npm run sam:invoke --handler=list-users -- --log-file logs.txt
 Logs will be generated in logs.txt file
 
 You can now remove generated logs.txt file
+
+#### Fixing socat problems
+
+If for some reason socat is not working for a specific piping, you can set it up again by hand. Connect to the EC2 with SSM and run following after adding values as instructed below:
+
+```
+nohup sudo socat TCP4-LISTEN:LISTEN_PORT_TO_FIX,reuseaddr,fork TCP:DNS_TO_REDIRECT:PORT_TO_PIPE &
+```
+
+where `LISTEN_PORT_TO_FIX` is the port you want to listen on (e.g. 80), `DNS_TO_REDIRECT` is where you want to redirect to and `PORT_TO_PIPE` is port in the receiving end. With ALB, port is 80 for poth and DNS is the DNS of the ALB (check AWS console). For database, port is 5432 for both and DNS can be checked from Parameter Store.
 
 ### Build
 

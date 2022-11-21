@@ -5,3 +5,4 @@ export const Viewports = {
 };
 
 export const drawerWidth = 306;
+export const appbarWidth = 56;
