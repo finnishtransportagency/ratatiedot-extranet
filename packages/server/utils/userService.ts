@@ -25,7 +25,7 @@ function parseRoles(roles: string): string[] | undefined {
     : undefined;
 }
 
-const isReadUser = (user: User) => user.roles?.includes('Rataextra_luku');
+const isReadUser = (user: User) => user.roles?.includes('Rataextra_lukuDUMMY');
 
 export const validateReadUser = async (event: APIGatewayEvent): Promise<void> => {
   log.debug('dummy2Lambda: Validating read user');
