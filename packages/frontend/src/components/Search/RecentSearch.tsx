@@ -9,7 +9,7 @@ export const RecentSearch = () => {
     const items = new LocalStorageHelper().get(KeyEnum.RECENT_SEARCHES);
     return (
       items &&
-      JSON.parse(items).map((searchText: string, index: number) => (
+      items.map((searchText: string, index: number) => (
         <Typography key={index} variant="body1">
           {searchText}
         </Typography>
