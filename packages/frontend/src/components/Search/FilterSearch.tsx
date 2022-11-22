@@ -26,10 +26,12 @@ const FilterSearchItem = (props: IItem) => {
   const { name, type, items } = props;
   return (
     <>
-      <ListItem key={name} onClick={handleClick}>
-        {type && type === ItemTypeEnum.CHECKBOX && <Checkbox key={name} onChange={() => console.log('TODO:')} />}
+      <ListItem key={`${name}-ListItem`} onClick={handleClick}>
+        {type && type === ItemTypeEnum.CHECKBOX && (
+          <Checkbox key={`${name}-Checkbox`} onChange={() => console.log('TODO:')} />
+        )}
         <ListItemText
-          key={name}
+          key={`${name}-ListItemText`}
           disableTypography
           primary={
             <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
@@ -39,16 +41,18 @@ const FilterSearchItem = (props: IItem) => {
         />
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
-      <Collapse key={name} in={open} timeout="auto" unmountOnExit>
-        <List key={name} component="li" disablePadding>
-          {items?.map((item: IItem) => {
+      <Collapse key={`${name}-Collapse`} in={open} timeout="auto" unmountOnExit>
+        <List key={`${name}-Collapse-List`} component="li" disablePadding>
+          {items?.map((item: IItem, index: number) => {
             if (item.items) {
-              return <FilterSearchItem name={item.name} type={item.type} items={item.items} />;
+              return <FilterSearchItem key={index} name={item.name} type={item.type} items={item.items} />;
             }
             return (
-              <ListItem sx={{ pl: 4 }} key={item.name}>
-                {item.type && item.type === ItemTypeEnum.CHECKBOX && <Checkbox onChange={() => console.log('TODO:')} />}
-                <ListItemText key={item.name} primary={item.name} />
+              <ListItem sx={{ pl: 4 }} key={index}>
+                {item.type && item.type === ItemTypeEnum.CHECKBOX && (
+                  <Checkbox key={`${name}-Collapse-Checkbox`} onChange={() => console.log('TODO:')} />
+                )}
+                <ListItemText key={`${name}-Collapse-ListItemText`} primary={item.name} />
               </ListItem>
             );
           })}
@@ -65,8 +69,8 @@ export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) =>
         <TuneIcon color="primary" />
       </IconButton>
       <Box>
-        {FilterSearchData.map((data: IItem) => (
-          <FilterSearchItem {...data} />
+        {FilterSearchData.map((data: IItem, index: number) => (
+          <FilterSearchItem key={index} {...data} />
         ))}
       </Box>
     </DrawerWrapper>
