@@ -6,7 +6,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import TuneIcon from '@mui/icons-material/Tune';
 
-import { FilterSearchData, IFilterSearchData, IItem, ItemTypeEnum } from './FilterSearchData';
+import { FilterSearchData, IItem, ItemTypeEnum } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
 
@@ -15,7 +15,7 @@ type FilterSearchProps = {
   toggleFilter: any;
 };
 
-const FilterSearchItem = (props: IFilterSearchData) => {
+const FilterSearchItem = (props: IItem) => {
   // TODO: handle checkbox
   const [open, setOpen] = useState(false);
 
@@ -41,7 +41,7 @@ const FilterSearchItem = (props: IFilterSearchData) => {
       </ListItem>
       <Collapse key={name} in={open} timeout="auto" unmountOnExit>
         <List key={name} component="li" disablePadding>
-          {items.map((item: IItem) => {
+          {items?.map((item: IItem) => {
             if (item.items) {
               return <FilterSearchItem name={item.name} type={item.type} items={item.items} />;
             }
@@ -65,7 +65,7 @@ export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) =>
         <TuneIcon color="primary" />
       </IconButton>
       <Box>
-        {FilterSearchData.map((data: IFilterSearchData) => (
+        {FilterSearchData.map((data: IItem) => (
           <FilterSearchItem {...data} />
         ))}
       </Box>

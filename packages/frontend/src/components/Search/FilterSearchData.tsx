@@ -11,15 +11,9 @@ export interface IItem {
   items?: IItem[];
 }
 
-export interface IFilterSearchData {
-  name: string;
-  type?: ItemTypeEnum;
-  items: IItem[];
-}
-
 // TODO: should this be hardcoded?
 // TODO: this is temporary, possible change in data format
-export const FilterSearchData: IFilterSearchData[] = [
+export const FilterSearchData: IItem[] = [
   {
     name: 'Muoto',
     items: [
