@@ -1,4 +1,4 @@
-import { SecretValue, Stack, Stage, StageProps } from 'aws-cdk-lib';
+import { SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import { Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
@@ -43,6 +43,7 @@ export class RataExtraPipelineStack extends Stack {
       new RataExtraApplication(this, 'RataExtra', {
         stackId: config.stackId,
         rataExtraEnv: config.env,
+        tags: config.tags,
       }),
     );
   }
@@ -50,6 +51,7 @@ export class RataExtraPipelineStack extends Stack {
 interface RataExtraStageProps extends StageProps {
   readonly stackId: string;
   readonly rataExtraEnv: RataExtraEnvironment;
+  readonly tags: { [key: string]: string };
 }
 class RataExtraApplication extends Stage {
   constructor(scope: Construct, id: string, props: RataExtraStageProps) {
@@ -57,6 +59,8 @@ class RataExtraApplication extends Stage {
     const rataExtraStack = new RataExtraStack(this, `rataextra-${props.rataExtraEnv}-${props.stackId}`, {
       rataExtraEnv: props.rataExtraEnv,
       stackId: props.stackId,
+      tags: props.tags,
     });
+    Object.entries(props.tags).forEach(([key, value]) => Tags.of(rataExtraStack).add(key, value));
   }
 }

@@ -9,7 +9,8 @@
   "license": "EUPL v1.2",
   "dependencies": {
     "aws-lambda": "^1.0.7",
-    "aws-sdk": "^2.1242.0"
+    "aws-sdk": "^2.1242.0",
+    "pino": "^8.7.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.107",
