@@ -96,9 +96,9 @@ export class RataExtraBackendStack extends NestedStack {
     const ssmParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters'],
       resources: [
-        `arn:aws:ssm:eu-west-1::parameter/${SSM_DATABASE_DOMAIN}`,
-        `arn:aws:ssm:eu-west-1::parameter/${SSM_DATABASE_NAME}`,
-        `arn:aws:ssm:eu-west-1::parameter/${SSM_DATABASE_PASSWORD}`,
+        `arn:aws:ssm:eu-west-1:*:parameter/${SSM_DATABASE_DOMAIN}`,
+        `arn:aws:ssm:eu-west-1:*:parameter/${SSM_DATABASE_NAME}`,
+        `arn:aws:ssm:eu-west-1:*:parameter/${SSM_DATABASE_PASSWORD}`,
       ],
       principals: [new AccountRootPrincipal()],
     });
