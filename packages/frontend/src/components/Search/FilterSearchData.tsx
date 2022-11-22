@@ -1,4 +1,4 @@
-import { flatMapByKey, generateYearsBetween } from '../../utils/helpers';
+import { flatMapByKey, generateYearsBetween, splitYearsIntoChunks } from '../../utils/helpers';
 import categoryData from '../../assets/data/aineistoluokka.json';
 
 export enum ItemTypeEnum {
@@ -47,48 +47,13 @@ export const FilterSearchData: IFilterSearchData[] = [
   },
   {
     name: 'Aika',
-    items: [
-      {
+    items: splitYearsIntoChunks(generateYearsBetween(1980))
+      .reverse()
+      .map((range) => ({
+        name: `${range[0]}-${range[range.length - 1]}`,
         type: ItemTypeEnum.CHECKBOX,
-        name: '2020-2022',
-        items: generateYearsBetween(2020).map((year) => ({
-          type: ItemTypeEnum.CHECKBOX,
-          name: String(year),
-        })),
-      },
-      {
-        type: ItemTypeEnum.CHECKBOX,
-        name: '2010-2019',
-        items: generateYearsBetween(2010, 2019).map((year) => ({
-          type: ItemTypeEnum.CHECKBOX,
-          name: String(year),
-        })),
-      },
-      {
-        type: ItemTypeEnum.CHECKBOX,
-        name: '2000-2009',
-        items: generateYearsBetween(2000, 2009).map((year) => ({
-          type: ItemTypeEnum.CHECKBOX,
-          name: String(year),
-        })),
-      },
-      {
-        type: ItemTypeEnum.CHECKBOX,
-        name: '1990-1999',
-        items: generateYearsBetween(1990, 1999).map((year) => ({
-          type: ItemTypeEnum.CHECKBOX,
-          name: String(year),
-        })),
-      },
-      {
-        type: ItemTypeEnum.CHECKBOX,
-        name: '1980-1989',
-        items: generateYearsBetween(1980, 1989).map((year) => ({
-          type: ItemTypeEnum.CHECKBOX,
-          name: String(year),
-        })),
-      },
-    ],
+        items: range.map((year) => ({ type: ItemTypeEnum.CHECKBOX, name: String(year) })),
+      })),
   },
   {
     name: 'Alue',
