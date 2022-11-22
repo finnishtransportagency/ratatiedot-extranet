@@ -1,6 +1,6 @@
 import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
-import { Role, Policy, PolicyStatement, AccountRootPrincipal } from 'aws-cdk-lib/aws-iam';
+import { Role, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, SSM_DATABASE_DOMAIN, SSM_DATABASE_NAME, SSM_DATABASE_PASSWORD } from './config';
