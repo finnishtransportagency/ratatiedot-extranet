@@ -1,4 +1,4 @@
-import { generateYearsBetween, flatMapByKey } from '../helpers';
+import { generateYearsBetween, flatMapByKey, splitYearsIntoChunks } from '../helpers';
 
 describe('Helpers Utility', () => {
   describe('generateYearsBetween()', () => {
@@ -10,6 +10,24 @@ describe('Helpers Utility', () => {
     });
     it('should return empty array if start year and end year are invalid', () => {
       expect(generateYearsBetween(2020, 2000)).toEqual([]);
+    });
+  });
+
+  describe('splitYearsIntoChunks()', () => {
+    it('should generate a 2-dimensional array of group of 3', () => {
+      const years = generateYearsBetween(2018, 2022);
+      expect(splitYearsIntoChunks(years, 3)).toEqual([
+        [2018, 2019, 2020],
+        [2021, 2022],
+      ]);
+    });
+    it('should generate a 2-dimensional array of group of 2', () => {
+      const years = generateYearsBetween(2018, 2022);
+      expect(splitYearsIntoChunks(years, 2)).toEqual([[2018, 2019], [2020, 2021], [2022]]);
+    });
+    it('should return empty array if `perChunk` is negative', () => {
+      const years = generateYearsBetween(2018, 2022);
+      expect(splitYearsIntoChunks(years, -1)).toEqual([]);
     });
   });
 
