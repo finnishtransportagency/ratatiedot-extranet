@@ -12,7 +12,6 @@ import { isDevelopmentMainStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 
 interface ResourceNestedStackProps extends NestedStackProps {
-  readonly env: { region: string; account: string };
   readonly rataExtraStackIdentifier: string;
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly lambdaServiceRole: Role;
