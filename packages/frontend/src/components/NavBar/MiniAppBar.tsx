@@ -21,20 +21,20 @@ export const MiniAppBar = ({ openDrawer, openSearch, toggleDrawer, toggleSearch 
   const MainAppBar = () => {
     return (
       <>
-        <Typography sx={{ width: '40px', height: '40px' }} component="img" src={RataExtLogo} alt="Logo" />
-        <Typography sx={{ fontSize: '18px' }}>Ratatiedon extranet</Typography>
-        <Box sx={{ flexGrow: 1 }} />
-        <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
-          <SearchIcon color="primary" />
-        </IconButton>
         <IconButton
           size="large"
-          edge="end"
+          edge="start"
           color="inherit"
           area-label={openDrawer ? 'close drawer' : 'open drawer'}
           onClick={toggleDrawer}
         >
           {openDrawer ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
+        </IconButton>
+        <Typography sx={{ width: '40px', height: '40px' }} component="img" src={RataExtLogo} alt="Logo" />
+        <Typography sx={{ fontSize: '18px' }}>Ratatiedon extranet</Typography>
+        <Box sx={{ flexGrow: 1 }} />
+        <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
+          <SearchIcon color="primary" />
         </IconButton>
       </>
     );

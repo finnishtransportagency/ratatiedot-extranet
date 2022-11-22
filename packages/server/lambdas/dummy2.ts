@@ -1,5 +1,5 @@
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { logger } from '../utils/logger';
+import { log } from '../utils/logger';
 import { getRataExtraLambdaError } from '../utils/errors';
 
 /**
@@ -8,6 +8,7 @@ import { getRataExtraLambdaError } from '../utils/errors';
  */
 export async function handleRequest(_event: APIGatewayEvent, _context: Context): Promise<APIGatewayProxyResult> {
   try {
+    log.debug('dummy2Lambda: Sending dummy2 reply.');
     return {
       statusCode: 200,
       headers: {
@@ -16,7 +17,7 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context):
       body: JSON.stringify('Success2!'),
     };
   } catch (err: unknown) {
-    logger.log(err);
+    log.error(err);
     return getRataExtraLambdaError(err);
   }
 }

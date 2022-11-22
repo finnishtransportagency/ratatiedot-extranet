@@ -13,7 +13,8 @@
     "@prisma/client": "^4.5.0",
     "aws-lambda": "^1.0.7",
     "aws-sdk": "^2.1242.0",
-    "prisma": "^4.5.0"
+    "prisma": "^4.5.0",
+    "pino": "^8.7.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.107",
