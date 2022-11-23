@@ -9,7 +9,7 @@ import { getUser, validateReadUser } from '../utils/userService';
  */
 export async function handleRequest(_event: APIGatewayEvent, _context: Context): Promise<APIGatewayProxyResult> {
   try {
-    const user = await getUser(event);
+    const user = await getUser(_event);
     await validateReadUser(user);
     log.info(user, 'dummy2Lambda: Sending dummy2 reply.');
     return {

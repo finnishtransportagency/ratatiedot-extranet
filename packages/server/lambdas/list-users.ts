@@ -1,7 +1,17 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
+import { getRataExtraLambdaError } from '../utils/errors.js';
+import { log } from '../utils/logger.js';
+import { getUser, validateReadUser } from '../utils/userService.js';
 import { DatabaseClient } from './database-client/index.js';
 
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
+  try {
+    const user = await getUser(_event);
+    await validateReadUser(user);
+  } catch (err) {
+    log.error(err);
+    return getRataExtraLambdaError(err);
+  }
   const database = await DatabaseClient.build();
   await database.user
     .findMany({
@@ -25,7 +35,8 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
       await database.$disconnect();
     })
     .catch(async (e) => {
-      console.error(e);
+      log.error(e);
       await database.$disconnect();
     });
+  // TODO: Return response
 }
