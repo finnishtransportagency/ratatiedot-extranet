@@ -164,6 +164,61 @@ and then you can connect to bastion host using AWS SSM on localhost:3002. These 
 
 Note! If someone else is also doing this, there might be a conflict with the port listening using socat ("Address already in use"). In such case, use a different port for socat instead of 81. In this case, you also need to update the "portNumber" value in `bastion-feat-backend-pipe.sh`.
 
+### Create local database
+
+install
+
+```
+npm install
+```
+
+compose database
+
+```
+docker-compose up
+```
+
+Get your IP address
+
+```
+ipconfig getifaddr en0
+```
+
+Copy address to packages/server/.env file
+
+```
+DATABASE_URL="postgresql://root:root@<IP_ADDRESS>:5432/test_db?schema=public"
+```
+
+run migration
+
+```
+DATABASE_URL="postgresql://root:root@<IP_ADDRESS>:5432/test_db?schema=public" npx prisma migrate dev --name init --schema packages/server/prisma/schema.prisma
+```
+
+run synth
+
+```
+npm run rataextra:synth
+```
+
+Optionally:
+test lambda localy create-user
+
+```
+npm run sam:invoke --handler=create-user
+```
+
+list-users
+
+```
+npm run sam:invoke --handler=list-users -- --log-file logs.txt
+```
+
+Logs will be generated in logs.txt file
+
+You can now remove generated logs.txt file
+
 #### Fixing socat problems
 
 If for some reason socat is not working for a specific piping, you can set it up again by hand. Connect to the EC2 with SSM and run following after adding values as instructed below:

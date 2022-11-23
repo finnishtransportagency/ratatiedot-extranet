@@ -3,7 +3,11 @@ import { log } from '../utils/logger';
 import { getRataExtraLambdaError } from '../utils/errors';
 import { getUser, validateReadUser } from '../utils/userService';
 
-export async function handleRequest(event: APIGatewayEvent, _context: Context): Promise<APIGatewayProxyResult> {
+/**
+ * DRAFT IMPLEMENTATION
+ * Generates a pre-signed url for a file in S3 bucket. Currently takes input in the POST request body.
+ */
+export async function handleRequest(_event: APIGatewayEvent, _context: Context): Promise<APIGatewayProxyResult> {
   try {
     const user = await getUser(event);
     await validateReadUser(user);
