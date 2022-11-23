@@ -38,5 +38,4 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
       log.error(e);
       await database.$disconnect();
     });
-  // TODO: Return response
 }

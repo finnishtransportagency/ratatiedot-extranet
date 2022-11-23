@@ -1,7 +1,7 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import { RataExtraLambdaError } from './errors';
 import { validateJwtToken } from './validateJwtToken';
-import { isPermanentStack } from '../../../lib/utils';
+import { isPermanentStack, isProductionStack } from '../../../lib/utils';
 import { RataExtraEnvironment } from '../../../lib/config';
 import { log } from './logger';
 
@@ -11,6 +11,7 @@ const ENVIRONMENT = process.env.ENVIRONMENT || '';
 
 const STATIC_ROLES = {
   read: 'Rataextra_luku',
+  write_dev: 'Rataextra_kirjoitus',
   // admin:
 };
 
@@ -62,6 +63,8 @@ const parseUserFromEvent = async (event: APIGatewayEvent): Promise<RataExtraUser
 
 const isReadUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.read);
 
+const isWriteDevUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.write_dev);
+
 export const getUser = async (event: APIGatewayEvent): Promise<RataExtraUser> => {
   if (!isPermanentStack(STACK_ID, ENVIRONMENT as RataExtraEnvironment)) {
     return getMockUser();
@@ -76,6 +79,19 @@ export const getUser = async (event: APIGatewayEvent): Promise<RataExtraUser> =>
 export const validateReadUser = async (user: RataExtraUser): Promise<void> => {
   if (!isReadUser(user)) {
     log.error(user, 'Forbidden: User is not a read user');
+    throw new RataExtraLambdaError('Forbidden', 403);
+  }
+};
+
+export const validateWriteUser = async (user: RataExtraUser): Promise<void> => {
+  if (!isProductionStack(STACK_ID, ENVIRONMENT as RataExtraEnvironment)) {
+    if (!isWriteDevUser(user)) {
+      log.error(user, 'Forbidden: User is not a write_dev user');
+      throw new RataExtraLambdaError('Forbidden', 403);
+    }
+  } else {
+    // TODO: Prod validation
+    log.error(user, 'Forbidden: No prod write validation yet');
     throw new RataExtraLambdaError('Forbidden', 403);
   }
 };
