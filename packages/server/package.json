@@ -2,15 +2,19 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "scripts": {
     "build": "tsc"
   },
   "author": "",
   "license": "EUPL v1.2",
   "dependencies": {
+    "@aws-sdk/client-ssm": "^3.215.0",
+    "@prisma/client": "^4.5.0",
     "aws-lambda": "^1.0.7",
     "aws-sdk": "^2.1242.0",
-    "pino": "^8.7.0"
+    "pino": "^8.7.0",
+    "prisma": "^4.5.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.107",
