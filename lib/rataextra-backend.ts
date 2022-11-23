@@ -31,6 +31,7 @@ type ListenerTargetLambdas = {
 
 type LambdaParameters = {
   name: string;
+  rataExtraEnv: RataExtraEnvironment;
   rataExtraStackId: string;
   lambdaRole: Role;
   /** Relative path from declaring file to the lambda function file */
@@ -48,7 +49,6 @@ type LambdaParameters = {
 };
 
 export class RataExtraBackendStack extends NestedStack {
-  #rataExtraEnv: RataExtraEnvironment;
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
     super(scope, id, props);
     const {
@@ -61,7 +61,6 @@ export class RataExtraBackendStack extends NestedStack {
       tags,
       jwtTokenIssuer,
     } = props;
-    this.#rataExtraEnv = rataExtraEnv;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
@@ -69,6 +68,7 @@ export class RataExtraBackendStack extends NestedStack {
     // ID and VPC should not be changed
     // Role and SG might need to be customized per Lambda
     const genericLambdaParameters = {
+      rataExtraEnv: rataExtraEnv,
       rataExtraStackId: rataExtraStackIdentifier,
       vpc: applicationVpc,
       lambdaRole: lambdaServiceRole,
@@ -185,6 +185,7 @@ export class RataExtraBackendStack extends NestedStack {
   }
 
   private createNodejsLambda({
+    rataExtraEnv,
     rataExtraStackId,
     name,
     lambdaRole,
@@ -206,7 +207,7 @@ export class RataExtraBackendStack extends NestedStack {
       runtime: runtime,
       handler: handler,
       entry: path.join(__dirname, relativePath),
-      environment: { ...environment, ENVIRONMENT: this.#rataExtraEnv, STACK_ID: rataExtraStackId },
+      environment: { ...environment, ENVIRONMENT: rataExtraEnv, STACK_ID: rataExtraStackId },
       role: lambdaRole,
       vpc,
       securityGroups: securityGroups,
