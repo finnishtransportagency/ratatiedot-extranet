@@ -47,6 +47,7 @@ type LambdaParameters = {
 };
 
 export class RataExtraBackendStack extends NestedStack {
+  #rataExtraEnv: RataExtraEnvironment;
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
     super(scope, id, props);
     const {
@@ -59,6 +60,7 @@ export class RataExtraBackendStack extends NestedStack {
       tags,
       jwtTokenIssuer,
     } = props;
+    this.#rataExtraEnv = rataExtraEnv;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
@@ -130,7 +132,7 @@ export class RataExtraBackendStack extends NestedStack {
       runtime: runtime,
       handler: handler,
       entry: path.join(__dirname, relativePath),
-      environment: environment,
+      environment: { ...environment, ENVIRONMENT: this.#rataExtraEnv, STACK_ID: rataExtraStackId },
       role: lambdaRole,
       vpc,
       securityGroups: securityGroups,
