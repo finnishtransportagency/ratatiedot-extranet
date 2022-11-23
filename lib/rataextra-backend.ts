@@ -111,7 +111,7 @@ export class RataExtraBackendStack extends NestedStack {
 
     const ksmDecryptPolicy = new PolicyStatement({
       actions: ['kms:Decrypt'],
-      resources: [`arn:aws:kms:${this.region}:${this.account}:key/6cd436ad-f1f8-479f-aa56-da5a3f7a0711`],
+      resources: [`arn:aws:kms:${this.region}:${this.account}:aws/ssm`],
     });
 
     const dummyFn = this.createNodejsLambda({
