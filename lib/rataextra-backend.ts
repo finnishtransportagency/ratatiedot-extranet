@@ -161,9 +161,9 @@ export class RataExtraBackendStack extends NestedStack {
     // If you need to add something in between, you need to update all following priorities (n+1), otherwise deployment won't go through
     const lambdas: ListenerTargetLambdas[] = [
       { lambda: dummy2Fn, priority: 10, path: ['/api/test'], targetName: 'dummy2' },
-      { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
       { lambda: listUsers, priority: 20, path: ['/api/users'], targetName: 'listUsers' },
       { lambda: createUser, priority: 30, path: ['/api/create-user'], targetName: 'createUser' },
+      { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
     ];
     // ALB for API
     const alb = this.createlAlb({
