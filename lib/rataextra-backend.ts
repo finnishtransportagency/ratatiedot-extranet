@@ -27,6 +27,7 @@ type ListenerTargetLambdas = {
   /** Must be a unique integer for each. Lowest number is prioritized */
   priority: number;
   path: [string];
+  targetName: string;
 };
 
 type LambdaParameters = {
@@ -159,10 +160,10 @@ export class RataExtraBackendStack extends NestedStack {
     // Append only to this list by default. Increment priorities by 10 when adding new
     // If you need to add something in between, you need to update all following priorities (n+1), otherwise deployment won't go through
     const lambdas: ListenerTargetLambdas[] = [
-      { lambda: dummy2Fn, priority: 90, path: ['/api/test'] },
-      { lambda: dummyFn, priority: 100, path: ['/*'] },
-      { lambda: listUsers, priority: 70, path: ['/api/users'] },
-      { lambda: createUser, priority: 80, path: ['/api/create-user'] },
+      { lambda: dummy2Fn, priority: 90, path: ['/api/test'], targetName: 'dummy2' },
+      { lambda: dummyFn, priority: 100, path: ['/*'], targetName: 'dummy' },
+      { lambda: listUsers, priority: 70, path: ['/api/users'], targetName: 'listUsers' },
+      { lambda: createUser, priority: 80, path: ['/api/create-user'], targetName: 'createUser' },
     ];
     // ALB for API
     const alb = this.createlAlb({
@@ -245,7 +246,7 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     const targets = listenerTargets.map((target) =>
-      listener.addTargets(`Target-${target.lambda.functionName}`, {
+      listener.addTargets(`Target-${target.targetName}`, {
         targets: [new LambdaTarget(target.lambda)],
         priority: target.priority,
         conditions: [ListenerCondition.pathPatterns(target.path)],
