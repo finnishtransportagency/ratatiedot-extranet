@@ -5,7 +5,7 @@ import { isPermanentStack, isProductionStack } from '../../../lib/utils';
 import { RataExtraEnvironment } from '../../../lib/config';
 import { log } from './logger';
 
-const issuer = process.env.JWT_TOKEN_ISSUER;
+const ISSUER = process.env.JWT_TOKEN_ISSUER;
 const STACK_ID = process.env.STACK_ID || '';
 const ENVIRONMENT = process.env.ENVIRONMENT || '';
 
@@ -44,11 +44,11 @@ const getMockUser = (): RataExtraUser => ({
 
 const parseUserFromEvent = async (event: APIGatewayEvent): Promise<RataExtraUser> => {
   const headers = event.headers;
-  if (!issuer) {
+  if (!ISSUER) {
     log.error('Issuer missing');
     throw new RataExtraLambdaError('User validation failed', 500);
   }
-  const jwt = await validateJwtToken(headers['x-amzn-oidc-accesstoken'], headers['x-amzn-oidc-data'], issuer);
+  const jwt = await validateJwtToken(headers['x-amzn-oidc-accesstoken'], headers['x-amzn-oidc-data'], ISSUER);
 
   if (!jwt) {
     throw new RataExtraLambdaError('User validation failed', 500);
