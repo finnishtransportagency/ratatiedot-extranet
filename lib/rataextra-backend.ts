@@ -233,18 +233,18 @@ export class RataExtraBackendStack extends NestedStack {
         loadBalancerName: `alb-${rataExtraStackIdentifier}-${name}`,
       },
     );
-    const listener = alb.addListener('Listener', {
-      port: 80,
-      defaultAction: ListenerAction.fixedResponse(404),
-    });
+    // const listener = alb.addListener('Listener', {
+    //   port: 80,
+    //   defaultAction: ListenerAction.fixedResponse(404),
+    // });
 
-    const targets = listenerTargets.map((target, index) =>
-      listener.addTargets(`Target-${index}`, {
-        targets: [new LambdaTarget(target.lambda)],
-        priority: target.priority,
-        conditions: [ListenerCondition.pathPatterns(target.path)],
-      }),
-    );
+    // const targets = listenerTargets.map((target, index) =>
+    //   listener.addTargets(`Target-${index}`, {
+    //     targets: [new LambdaTarget(target.lambda)],
+    //     priority: target.priority,
+    //     conditions: [ListenerCondition.pathPatterns(target.path)],
+    //   }),
+    // );
     return alb;
   }
 }
