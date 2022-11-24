@@ -8,14 +8,17 @@ import SearchIcon from '@mui/icons-material/Search';
 import { SearchContext } from '../../contexts/SearchContext';
 import { RecentSearch } from './RecentSearch';
 import { KeyEnum, LocalStorageHelper } from '../../utils/StorageHelper';
+import { FilterSearch } from './FilterSearch';
 
 type SearchProps = {
   openSearch: boolean;
+  openFilter: boolean;
   toggleSearch: any;
+  toggleFilter: any;
   isDesktop?: boolean;
 };
 
-export const Search = ({ openSearch, toggleSearch, isDesktop = false }: SearchProps) => {
+export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isDesktop = false }: SearchProps) => {
   const searchContext = useContext(SearchContext);
   const { query, queryHandler } = searchContext;
 
@@ -31,7 +34,12 @@ export const Search = ({ openSearch, toggleSearch, isDesktop = false }: SearchPr
 
   const openRecentSearch = () => !openSearch && toggleSearch();
   const closeRecentSearch = () => openSearch && toggleSearch();
+  const closeFilterSearch = () => openFilter && toggleFilter();
 
+  const exitSearch = () => {
+    closeRecentSearch();
+    closeFilterSearch();
+  };
   const LeftSearchBar = () => {
     return (
       <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
@@ -42,7 +50,7 @@ export const Search = ({ openSearch, toggleSearch, isDesktop = false }: SearchPr
 
   const MiniLeftSearchBar = () => {
     return openSearch ? (
-      <IconButton size="large" edge="start" area-label="back" onClick={toggleSearch}>
+      <IconButton size="large" edge="start" area-label="back" onClick={exitSearch}>
         <ArrayBackIcon color="primary" />
       </IconButton>
     ) : (
@@ -64,23 +72,18 @@ export const Search = ({ openSearch, toggleSearch, isDesktop = false }: SearchPr
           onChange={(event) => queryHandler(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
-          onBlur={closeRecentSearch}
         />
         {query && (
           <IconButton size="large" edge="end" area-label="erase query" onClick={() => queryHandler('')}>
             <CloseIcon color="primary" />
           </IconButton>
         )}
-        <IconButton
-          size="large"
-          edge="end"
-          area-label="filter"
-          onClick={() => console.log('TODO: open up filter as sidebar')}
-        >
+        <IconButton size="large" edge="end" area-label="filter" onClick={toggleFilter}>
           <TuneIcon color="primary" />
         </IconButton>
       </>
-      {openSearch && <RecentSearch />}
+      {openSearch && !openFilter && <RecentSearch />}
+      <FilterSearch openFilter={openFilter} toggleFilter={toggleFilter} />
     </>
   );
 };
