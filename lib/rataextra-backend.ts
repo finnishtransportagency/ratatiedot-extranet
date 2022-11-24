@@ -1,10 +1,10 @@
 import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, Tags } from 'aws-cdk-lib';
 import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
-import { Role } from 'aws-cdk-lib/aws-iam';
+import { Role, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
-import { RataExtraEnvironment } from './config';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { RataExtraEnvironment, SSM_DATABASE_DOMAIN, SSM_DATABASE_NAME, SSM_DATABASE_PASSWORD } from './config';
+import { NodejsFunction, BundlingOptions } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as path from 'path';
@@ -43,6 +43,7 @@ type LambdaParameters = {
   handler?: string;
   /** Environment variables to be passed to the function */
   environment?: Record<string, string>;
+  bundling?: BundlingOptions;
 };
 
 export class RataExtraBackendStack extends NestedStack {
@@ -70,6 +71,49 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
     };
 
+    const prismaParameters = {
+      ...genericLambdaParameters,
+      environment: {
+        SSM_DATABASE_NAME_ID: SSM_DATABASE_NAME,
+        SSM_DATABASE_DOMAIN_ID: SSM_DATABASE_DOMAIN,
+        SSM_DATABASE_PASSWORD_ID: SSM_DATABASE_PASSWORD,
+        DATABASE_URL: '',
+      },
+      bundling: {
+        nodeModules: ['prisma', '@prisma/client'],
+        commandHooks: {
+          beforeInstall(inputDir: string, outputDir: string) {
+            return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
+          },
+          beforeBundling(_inputDir: string, _outputDir: string) {
+            return [];
+          },
+          afterBundling(_inputDir: string, outputDir: string) {
+            return [
+              `cd ${outputDir}`,
+              'npx prisma generate',
+              'rm -rf node_modules/@prisma/engines',
+              'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
+            ];
+          },
+        },
+      },
+    };
+
+    const ssmParameterPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_DOMAIN}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_NAME}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_PASSWORD}`,
+      ],
+    });
+
+    const ksmDecryptPolicy = new PolicyStatement({
+      actions: ['kms:Decrypt'],
+      resources: [`arn:aws:kms:${this.region}:${this.account}:aws/ssm`],
+    });
+
     const dummyFn = this.createNodejsLambda({
       ...genericLambdaParameters,
       name: 'dummy-handler',
@@ -82,10 +126,38 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/dummy2.ts',
     });
 
-    // Add all lambdas here to add as alb targets
+    const createUser = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'create-user',
+      relativePath: '../packages/server/lambdas/create-user.ts',
+    });
+
+    const listUsers = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'list-users',
+      relativePath: '../packages/server/lambdas/list-users.ts',
+    });
+
+    createUser.role?.attachInlinePolicy(
+      new Policy(this, 'createUserParametersPolicy', {
+        statements: [ssmParameterPolicy, ksmDecryptPolicy],
+      }),
+    );
+
+    listUsers.role?.attachInlinePolicy(
+      new Policy(this, 'listUsersParametersPolicy', {
+        statements: [ssmParameterPolicy, ksmDecryptPolicy],
+      }),
+    );
+
+    // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
+    // Append only to this list by default. Increment priorities by 10 when adding new
+    // If you need to add something in between, you need to update all following priorities (n+1), otherwise deployment won't go through
     const lambdas: ListenerTargetLambdas[] = [
       { lambda: dummy2Fn, priority: 90, path: ['/api/test'] },
       { lambda: dummyFn, priority: 100, path: ['/*'] },
+      { lambda: listUsers, priority: 70, path: ['/api/users'] },
+      { lambda: createUser, priority: 80, path: ['/api/create-user'] },
     ];
     // ALB for API
     const alb = this.createlAlb({
@@ -118,6 +190,7 @@ export class RataExtraBackendStack extends NestedStack {
     runtime = Runtime.NODEJS_16_X,
     handler = 'handleRequest',
     environment = {},
+    bundling = {},
   }: LambdaParameters) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackId}-${name}`,
@@ -131,6 +204,7 @@ export class RataExtraBackendStack extends NestedStack {
       role: lambdaRole,
       vpc,
       securityGroups: securityGroups,
+      bundling: bundling,
     });
   }
 
