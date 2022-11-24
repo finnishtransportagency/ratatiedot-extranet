@@ -244,8 +244,8 @@ export class RataExtraBackendStack extends NestedStack {
       defaultAction: ListenerAction.fixedResponse(404),
     });
 
-    const targets = listenerTargets.map((target, index) =>
-      listener.addTargets(`Target-${index}`, {
+    const targets = listenerTargets.map((target) =>
+      listener.addTargets(`Target-${target.lambda.functionName}`, {
         targets: [new LambdaTarget(target.lambda)],
         priority: target.priority,
         conditions: [ListenerCondition.pathPatterns(target.path)],
