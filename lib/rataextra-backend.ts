@@ -24,9 +24,10 @@ interface ResourceNestedStackProps extends NestedStackProps {
 
 type ListenerTargetLambdas = {
   lambda: NodejsFunction;
-  /** Must be a unique integer for each. Lowest number is prioritized */
+  /** Must be a unique integer for each. Lowest number is prioritized. */
   priority: number;
   path: [string];
+  /** Must be a unique string for each. Don't reuse names across different lambdas. */
   targetName: string;
 };
 
@@ -157,8 +158,7 @@ export class RataExtraBackendStack extends NestedStack {
     );
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
-    // Append only to this list by default. Increment priorities by 10 when adding new
-    // If you need to add something in between, you need to update all following priorities (n+1), otherwise deployment won't go through
+    // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
       { lambda: dummy2Fn, priority: 10, path: ['/api/test'], targetName: 'dummy2' },
       { lambda: listUsers, priority: 20, path: ['/api/users'], targetName: 'listUsers' },
