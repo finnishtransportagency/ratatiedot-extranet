@@ -20,8 +20,6 @@ function getLogger(tag: string) {
     base: undefined,
     mixin: () => {
       return {
-        // TODO: Get uid, use same method for that as elsewhere
-        // uid: getUid(), // Totally dummy function call at this point
         correlationId: getCorrelationId(),
         tag,
       };

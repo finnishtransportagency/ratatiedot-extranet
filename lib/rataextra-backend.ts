@@ -19,17 +19,21 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly securityGroup?: ISecurityGroup;
   readonly databaseDomain?: string;
   readonly tags: { [key: string]: string };
+  readonly jwtTokenIssuer: string;
 }
 
 type ListenerTargetLambdas = {
   lambda: NodejsFunction;
-  /** Must be a unique integer for each. Lowest number is prioritized */
+  /** Must be a unique integer for each. Lowest number is prioritized. */
   priority: number;
   path: [string];
+  /** Must be a unique string for each. Don't reuse names across different lambdas. */
+  targetName: string;
 };
 
 type LambdaParameters = {
   name: string;
+  rataExtraEnv: RataExtraEnvironment;
   rataExtraStackId: string;
   lambdaRole: Role;
   /** Relative path from declaring file to the lambda function file */
@@ -57,6 +61,7 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroup,
       databaseDomain,
       tags,
+      jwtTokenIssuer,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -65,6 +70,7 @@ export class RataExtraBackendStack extends NestedStack {
     // ID and VPC should not be changed
     // Role and SG might need to be customized per Lambda
     const genericLambdaParameters = {
+      rataExtraEnv: rataExtraEnv,
       rataExtraStackId: rataExtraStackIdentifier,
       vpc: applicationVpc,
       lambdaRole: lambdaServiceRole,
@@ -124,6 +130,7 @@ export class RataExtraBackendStack extends NestedStack {
       ...genericLambdaParameters,
       name: 'dummy2-handler',
       relativePath: '../packages/server/lambdas/dummy2.ts',
+      environment: { JWT_TOKEN_ISSUER: jwtTokenIssuer },
     });
 
     const createUser = this.createNodejsLambda({
@@ -151,13 +158,12 @@ export class RataExtraBackendStack extends NestedStack {
     );
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
-    // Append only to this list by default. Increment priorities by 10 when adding new
-    // If you need to add something in between, you need to update all following priorities (n+1), otherwise deployment won't go through
+    // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
-      { lambda: dummy2Fn, priority: 90, path: ['/api/test'] },
-      { lambda: dummyFn, priority: 100, path: ['/*'] },
-      { lambda: listUsers, priority: 70, path: ['/api/users'] },
-      { lambda: createUser, priority: 80, path: ['/api/create-user'] },
+      { lambda: dummy2Fn, priority: 10, path: ['/api/test'], targetName: 'dummy2' },
+      { lambda: listUsers, priority: 20, path: ['/api/users'], targetName: 'listUsers' },
+      { lambda: createUser, priority: 30, path: ['/api/create-user'], targetName: 'createUser' },
+      { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
     ];
     // ALB for API
     const alb = this.createlAlb({
@@ -179,6 +185,7 @@ export class RataExtraBackendStack extends NestedStack {
   }
 
   private createNodejsLambda({
+    rataExtraEnv,
     rataExtraStackId,
     name,
     lambdaRole,
@@ -200,7 +207,7 @@ export class RataExtraBackendStack extends NestedStack {
       runtime: runtime,
       handler: handler,
       entry: path.join(__dirname, relativePath),
-      environment: environment,
+      environment: { ...environment, ENVIRONMENT: rataExtraEnv, STACK_ID: rataExtraStackId },
       role: lambdaRole,
       vpc,
       securityGroups: securityGroups,
@@ -238,8 +245,8 @@ export class RataExtraBackendStack extends NestedStack {
       defaultAction: ListenerAction.fixedResponse(404),
     });
 
-    const targets = listenerTargets.map((target, index) =>
-      listener.addTargets(`Target-${index}`, {
+    const targets = listenerTargets.map((target) =>
+      listener.addTargets(`Target-${target.targetName}`, {
         targets: [new LambdaTarget(target.lambda)],
         priority: target.priority,
         conditions: [ListenerCondition.pathPatterns(target.path)],

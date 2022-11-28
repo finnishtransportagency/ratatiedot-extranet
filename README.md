@@ -160,7 +160,7 @@ Once you have your connection set up, locally on your computer run
 ./bastion-feat-backend-pipe.sh
 ```
 
-and then you can connect to bastion host using AWS SSM on localhost:3002. These are then piped to the feature ALB. For this to keep working, both the socat on the bastion and `bastion-feat-backend-pipe.sh` locally need to be up and running.
+and then you can connect to bastion host using AWS SSM on localhost:3002. These are then piped to the feature ALB. For this to keep working, both the socat on the bastion and `bastion-feat-backend-pipe.sh` locally need to be up and running. If you need a connection working for a longer time, you can use nohup described under "Fixing socat problems" to have the connection be up for longer than your terminal session. In such case, use a different port to listen for and stop the process afterwards. If your session has terminated, you need to search for the process listening for your chosen port using `sudo lsof -i -P -n` and then use `sudo kill PID` where PID is the id of the process given by lsof that was listening to your chosen port.
 
 Note! If someone else is also doing this, there might be a conflict with the port listening using socat ("Address already in use"). In such case, use a different port for socat instead of 81. In this case, you also need to update the "portNumber" value in `bastion-feat-backend-pipe.sh`.
 
@@ -240,7 +240,7 @@ pipeline - either use your cli default profile or specify the profile with --pro
 
 There are three variables that determine how the pipeline and the application itself are deployed to the AWS Account. These variables are listed below in format [ENVIRONMENT VARIABLE] --> [deduced stack variable]
 
-- **ENVIRONMENT --> env**: Required environment variable that determines stack **env**. Allowed values `dev` and `prod`. Determines the stack resource performance characteristics and also how other environment variables, BRANCH and STACK_ID work. Also sets removalPolicy for stack resources.
+- **ENVIRONMENT --> env**: Required environment variable that determines stack **env**. Allowed values `dev`, `feat`, `local` and `prod`. Determines the stack resource performance characteristics and also how other environment variables, BRANCH and STACK_ID work. Also sets removalPolicy for stack resources. Use `feat` for any feature branches while `local` is only for local development. `dev`and `prod` are to be used for only specific, permanent environments.
 - **BRANCH --> branch**: Required environment variable that determines **branch** variable which controls from which Github branch source code is pulled for the deployment. The value must correspond to a branch that exists in Github repository. Note: If ENVIRONMENT is `prod`, the branch is always fixed to follow production branch and this environment variable is ignored. If ENVIRONMENT is anything else than `prod`, BRANCH must be given.
 - **STACK_ID --> stackId**: Required environment variable that determines **stackId** which gives name to the stack and is basis for naming of the stack resources. Production branch and development main branch are special cases where the **STACK_ID** name must match with the **BRANCH**. The STACK_ID can only contain alphanumeric characters and hyphens.
 
@@ -248,8 +248,8 @@ Note! Naming of certain AWS resources must be globally unique, these resources i
 
 To set up a new pipeline, run the deployment script `pipeline:deploy` providing environment, branch and stackId as command line arguments with optionally also providing your AWS profile (here environment, branch and stackid correspond to variables explained above):
 
-    npm run pipeline:deploy --environment=dev --branch=feature/RTENU-07-test --stackid=mytestbranch
-    npm run pipeline:deploy --environment=dev --branch=feature/RTENU-07-test --stackid=mytestbranch -- --profile myFavouriteAWSProfile
+    npm run pipeline:deploy --environment=feat --branch=feature/RTENU-07-test --stackid=mytestbranch
+    npm run pipeline:deploy --environment=feat --branch=feature/RTENU-07-test --stackid=mytestbranch -- --profile myFavouriteAWSProfile
 
 The script will deploy CodePipeline, which will automatically set up the environment. You need to have the changes pushed to GitHub for the pipeline to work. Once set up, the pipeline will automatically update itself and deploy any changes made to the app when commits are pushed to the branch defined in deploy. You can access pipeline resources through the bastion host. See "Connecting to feature ALB".
 
@@ -268,7 +268,18 @@ Add following values to Parameter Store for permanent environments:
 - **rataextra-cloudfront-certificate-arn**: ARN for the SSL Certificate used by CloudFront. Certificate needs have been added to ACM us-east-1 region before this value can be used. E.g. arn:aws:acm:us-east-1:123456789:certificate/123-456-789-0ab
 - **rataextra-cloudfront-domain-name**: Domain name for the certificate above. E.g. test.example.com
 - **rataextra-dmz-api-domain-name**: Domain name for the /api redirection. E.g. test-dmz.example.com
-- **rataextra-database-domain**: Database domain name E.g. db.test.amazonaws.com
+- **rataextra-database-domain**: Database domain name. E.g. db.test.amazonaws.com
+- **rataextra-jwt-token-issuer**: Issuer url. E.g. https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_cAt
+
+### Backend development
+
+#### Authorization
+
+Use `utils/userService.ts` to first get `user` and then use an applicable role check validation function. All functions outside of frontend cookie creation function should have applicable authorization. Minimum is to check if they have read rights. Wrap checks in try-catches, as they will throw if the user is not authorized.
+
+#### Logging
+
+Use `utils/logger.ts`. Whenever possible, pass `user` to get the UID.
 
 ### Testing
 
