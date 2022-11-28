@@ -23,6 +23,9 @@ export const theme = createTheme({
     primary: {
       main: Colors.darkblue,
     },
+    secondary: {
+      main: Colors.extrablack,
+    },
     transparent: {
       main: Colors.white,
     },
