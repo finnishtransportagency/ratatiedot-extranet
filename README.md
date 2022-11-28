@@ -269,7 +269,11 @@ Add following values to Parameter Store for permanent environments:
 - **rataextra-cloudfront-domain-name**: Domain name for the certificate above. E.g. test.example.com
 - **rataextra-dmz-api-domain-name**: Domain name for the /api redirection. E.g. test-dmz.example.com
 - **rataextra-database-domain**: Database domain name. E.g. db.test.amazonaws.com
+- **rataextra-database-name**: Database name. E.g. test-database
+- **rataextra-rdspg13-rataextradev-password**: Database password. Note! SecureString. E.g. cat123
 - **rataextra-jwt-token-issuer**: Issuer url. E.g. https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_cAt
+- **rataextra-cloudfront-signer-public-key**: Public RSA key used for signing CloudFront calls. E.g. -----BEGIN PUBLIC KEY-----\nstuff\n-----END PUBLIC KEY-----
+- **rataextra-cloudfront-signer-private-key**: Private RSA key used for signing CloudFront calls. Note! SecureString. E.g. -----BEGIN RSA PRIVATE KEY-----\nsecretstuff\n-----END RSA PRIVATE KEY-----
 
 ### Backend development
 

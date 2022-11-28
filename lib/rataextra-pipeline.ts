@@ -32,7 +32,7 @@ export class RataExtraPipelineStack extends Stack {
       }),
       dockerEnabledForSynth: true,
       codeBuildDefaults: {
-        cache: Cache.local(LocalCacheMode.CUSTOM, LocalCacheMode.SOURCE),
+        cache: Cache.local(LocalCacheMode.DOCKER_LAYER, LocalCacheMode.SOURCE),
         buildEnvironment: {
           buildImage: LinuxBuildImage.STANDARD_6_0,
         },
