@@ -4,7 +4,7 @@ import { Role, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, SSM_DATABASE_DOMAIN, SSM_DATABASE_NAME, SSM_DATABASE_PASSWORD } from './config';
-import { NodejsFunction, BundlingOptions } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as path from 'path';
@@ -81,6 +81,7 @@ export class RataExtraBackendStack extends NestedStack {
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
+        format: OutputFormat.ESM,
         commandHooks: {
           beforeInstall(inputDir: string, outputDir: string) {
             return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
@@ -185,7 +186,7 @@ export class RataExtraBackendStack extends NestedStack {
     vpc,
     securityGroups,
     memorySize = 1024,
-    timeout = Duration.seconds(5),
+    timeout = Duration.seconds(10),
     runtime = Runtime.NODEJS_16_X,
     handler = 'handleRequest',
     environment = {},
