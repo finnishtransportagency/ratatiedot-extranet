@@ -18,9 +18,11 @@ export const SearchResult = () => {
       <Typography variant="body1" sx={{ margin: '24px 0px' }}>
         {mockData.list.pagination.totalItems} tulosta
       </Typography>
-      {mockData.list.entries.map((node: any, index: number) => (
-        <NodeItem key={index} row={index} node={node} />
-      ))}
+      <div style={{ marginLeft: '18px' }}>
+        {mockData.list.entries.map((node: any, index: number) => (
+          <NodeItem key={index} row={index} node={node} />
+        ))}
+      </div>
     </ContainerWrapper>
   );
 };

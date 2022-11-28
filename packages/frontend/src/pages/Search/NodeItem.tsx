@@ -1,5 +1,5 @@
 import { Box, Grid, Typography } from '@mui/material';
-import moment from 'moment';
+import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 
 import Other from '../../assets/icons/Other.svg';
@@ -10,7 +10,7 @@ import PlainText from '../../assets/icons/PlainText.svg';
 import Image from '../../assets/icons/Image.svg';
 import PPT from '../../assets/icons/PowerPoint.svg';
 import { Colors } from '../../constants/Colors';
-import styled from '@emotion/styled';
+import { DateFormat } from '../../constants/Formats';
 
 const NodeTypes = {
   other: Other,
@@ -46,7 +46,7 @@ export const NodeItem = ({ node, row }: any) => {
         <Typography variant="body1">{name}</Typography>
         <div style={{ display: 'flex', color: Colors.darkgrey, paddingBottom: '18px' }}>
           <Typography variant="body1" sx={{ marginRight: '8px' }}>
-            {moment(modifiedAt).format('DD.MM.YYYY')}
+            {format(new Date(modifiedAt), DateFormat)}
           </Typography>
           <Typography variant="body1" sx={{ marginRight: '8px' }}>
             {prettyBytes(content.sizeInBytes)}
