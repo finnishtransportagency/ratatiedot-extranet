@@ -1,6 +1,7 @@
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { log } from '../utils/logger';
 import { getRataExtraLambdaError } from '../utils/errors';
+import { getUser, validateReadUser } from '../utils/userService';
 
 /**
  * DRAFT IMPLEMENTATION
@@ -8,7 +9,9 @@ import { getRataExtraLambdaError } from '../utils/errors';
  */
 export async function handleRequest(_event: APIGatewayEvent, _context: Context): Promise<APIGatewayProxyResult> {
   try {
-    log.debug('dummy2Lambda: Sending dummy2 reply.');
+    const user = await getUser(_event);
+    await validateReadUser(user);
+    log.info(user, 'dummy2Lambda: Sending dummy2 reply.');
     return {
       statusCode: 200,
       headers: {

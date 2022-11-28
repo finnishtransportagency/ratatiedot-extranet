@@ -1,6 +1,5 @@
 import { Construct } from 'constructs';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
-import { SecretValue } from 'aws-cdk-lib';
 import { getEnvOrFail } from '../utils';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
@@ -22,6 +21,7 @@ export const ENVIRONMENTS = {
   dev: 'dev',
   prod: 'prod',
   local: 'local',
+  feat: 'feat',
 } as const;
 
 const PRODUCTION_BRANCH = 'prod';
@@ -31,9 +31,12 @@ export const DEVELOPMENT_MAIN_STACK_ID = DEVELOPMENT_MAIN_BRANCH;
 const SSM_CLOUDFRONT_CERTIFICATE_ARN = 'rataextra-cloudfront-certificate-arn';
 const SSM_CLOUDFRONT_DOMAIN_NAME = 'rataextra-cloudfront-domain-name';
 const SSM_DMZ_API_DOMAIN_NAME = 'rataextra-dmz-api-domain-name';
+const SSM_JWT_TOKEN_ISSUER = 'rataextra-jwt-token-issuer';
 export const SSM_DATABASE_DOMAIN = 'rataextra-database-domain';
 export const SSM_DATABASE_NAME = 'rataextra-database-name';
 export const SSM_DATABASE_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
+const SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY = 'rataextra-cloudfront-signer-public-key';
+export const SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY = 'rataextra-cloudfront-signer-private-key';
 
 function getStackId(branch: string): string {
   const stackId = getEnvOrFail('STACK_ID');
@@ -52,6 +55,8 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   cloudfrontDomainName: getSSMStringParameter(scope, SSM_CLOUDFRONT_DOMAIN_NAME),
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
   databaseDomain: getSSMStringParameter(scope, SSM_DATABASE_DOMAIN),
+  jwtTokenIssuer: getSSMStringParameter(scope, SSM_JWT_TOKEN_ISSUER),
+  cloudfrontSignerPublicKey: getSSMStringParameter(scope, SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY),
 });
 
 // Runtime variables from SSM/Parameter Store

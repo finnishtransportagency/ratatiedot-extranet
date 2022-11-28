@@ -1,9 +1,20 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
+import { getRataExtraLambdaError } from '../utils/errors.js';
+import { log } from '../utils/logger.js';
+import { getUser, validateWriteUser } from '../utils/userService.js';
 import { DatabaseClient } from './database-client/index.js';
 
 const database = await DatabaseClient.build();
 
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
+  try {
+    const user = await getUser(_event);
+    // TODO: Validate write rights
+    await validateWriteUser(user);
+  } catch (err) {
+    log.error(err);
+    return getRataExtraLambdaError(err);
+  }
   await database.user
     .create({
       data: {
@@ -30,6 +41,6 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
       return response;
     })
     .catch(async (e) => {
-      console.error(e);
+      log.error(e);
     });
 }

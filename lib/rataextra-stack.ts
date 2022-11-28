@@ -7,7 +7,7 @@ import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { RataExtraBackendStack } from './rataextra-backend';
 import { RataExtraCloudFrontStack } from './rataextra-cloudfront';
-import { Bucket, BucketAccessControl, BlockPublicAccess, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
+import { Bucket, BucketAccessControl, BlockPublicAccess, ObjectOwnership, BucketEncryption } from 'aws-cdk-lib/aws-s3';
 
 interface RataExtraStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
@@ -22,8 +22,14 @@ export class RataExtraStack extends cdk.Stack {
     super(scope, id, props);
     this.#rataExtraStackIdentifier = id.toLowerCase();
     const { rataExtraEnv, stackId, tags } = props;
-    const { cloudfrontCertificateArn, cloudfrontDomainName, dmzApiEndpoint, databaseDomain } =
-      getRataExtraStackConfig(this);
+    const {
+      cloudfrontCertificateArn,
+      cloudfrontDomainName,
+      dmzApiEndpoint,
+      databaseDomain,
+      jwtTokenIssuer,
+      cloudfrontSignerPublicKey,
+    } = getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
       ...getVpcAttributes(rataExtraEnv),
@@ -48,6 +54,9 @@ export class RataExtraStack extends cdk.Stack {
       applicationVpc: vpc,
       securityGroup,
       databaseDomain,
+      cloudfrontDomainName: cloudfrontDomainName,
+      cloudfrontSignerPublicKey: cloudfrontSignerPublicKey,
+      jwtTokenIssuer,
       tags: tags,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
@@ -64,7 +73,7 @@ export class RataExtraStack extends cdk.Stack {
       removalPolicy: removalPolicy,
       autoDeleteObjects: autoDeleteObjects,
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
-      // encryption: BucketEncryption.S3_MANAGED,
+      encryption: BucketEncryption.S3_MANAGED,
     });
 
     if (isPermanentStack(stackId, rataExtraEnv)) {
@@ -75,6 +84,7 @@ export class RataExtraStack extends cdk.Stack {
         cloudfrontDomainName: cloudfrontDomainName,
         dmzApiEndpoint: dmzApiEndpoint,
         frontendBucket: frontendBucket,
+        cloudfrontSignerPublicKey: cloudfrontSignerPublicKey,
       });
       Object.entries(props.tags).forEach(([key, value]) => Tags.of(cloudFrontStack).add(key, value));
     }
