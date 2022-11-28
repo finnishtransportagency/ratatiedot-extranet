@@ -104,9 +104,7 @@ export class RataExtraBackendStack extends NestedStack {
         esbuildArgs: {
           '--conditions': 'module',
         },
-        banner: {
-          js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);", // Workaround for ESM problem https://github.com/evanw/esbuild/pull/2067
-        },
+        banner: 'import { createRequire } from "module";const require = createRequire(import.meta.url);', // Workaround for ESM problem https://github.com/evanw/esbuild/pull/2067
         commandHooks: {
           beforeInstall(inputDir: string, outputDir: string) {
             return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
