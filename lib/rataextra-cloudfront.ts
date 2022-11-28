@@ -73,7 +73,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
         {
           httpStatus: 404,
           responseHttpStatus: 200,
-          responsePagePath: 'index.html',
+          responsePagePath: '/index.html',
         },
       ],
       comment: `Cloudfront for ${rataExtraStackIdentifier}`,
