@@ -1,8 +1,9 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
 import { DatabaseClient } from './database-client/index.js';
 
+const database = await DatabaseClient.build();
+
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
-  const database = await DatabaseClient.build();
   await database.user
     .create({
       data: {
@@ -25,13 +26,10 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
         body: JSON.stringify(res),
         isBase64Encoded: false,
       };
+      console.log('res: ', response.body);
       return response;
-    })
-    .then(async () => {
-      await database.$disconnect();
     })
     .catch(async (e) => {
       console.error(e);
-      await database.$disconnect();
     });
 }

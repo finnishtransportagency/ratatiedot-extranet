@@ -1,15 +1,11 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
 import { DatabaseClient } from './database-client/index.js';
 
+const database = await DatabaseClient.build();
+
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
-  const database = await DatabaseClient.build();
   await database.user
-    .findMany({
-      include: {
-        posts: true,
-        profile: true,
-      },
-    })
+    .findMany({ take: 10 })
     .then((res) => {
       const response = {
         statusCode: 200,
@@ -19,13 +15,10 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
         body: JSON.stringify(res),
         isBase64Encoded: false,
       };
+      console.log('USERS: ', response.body);
       return response;
-    })
-    .then(async () => {
-      await database.$disconnect();
     })
     .catch(async (e) => {
       console.error(e);
-      await database.$disconnect();
     });
 }
