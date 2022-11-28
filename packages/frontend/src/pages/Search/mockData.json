@@ -1,0 +1,2613 @@
+{
+  "list": {
+    "pagination": {
+      "count": 100,
+      "hasMoreItems": true,
+      "totalItems": 8462,
+      "skipCount": 0,
+      "maxItems": 100
+    },
+    "entries": [
+      {
+        "entry": {
+          "createdAt": "2007-12-19T22:00:00.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "L039013",
+            "displayName": "L039013"
+          },
+          "modifiedAt": "2007-12-19T22:00:00.000+0000",
+          "modifiedByUser": {
+            "id": "L039013",
+            "displayName": "L039013"
+          },
+          "name": "_SECO-SW2-JR_ SW2-RAHOITUSPÄÄTÖS, JÄRJESTÄYTYMINEN JA  JOHTORYHMÄN POSTITUSLISTA (213146).MSG",
+          "id": "836c1750-6667-4a5f-9ad1-ac20559f8fc3",
+          "nodeType": "dcr:dokumentti",
+          "content": {
+            "mimeType": "application/vnd.ms-outlook",
+            "mimeTypeName": "Microsoft Outlook Message",
+            "sizeInBytes": 31232,
+            "encoding": "UTF-8"
+          },
+          "parentId": "cfe1b352-641b-449d-a102-80b7e08f540b"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2015-01-30T05:28:55.074+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "L782008",
+            "displayName": "Kari Honkanen"
+          },
+          "modifiedAt": "2015-01-30T05:29:31.055+0000",
+          "modifiedByUser": {
+            "id": "L782008",
+            "displayName": "Kari Honkanen"
+          },
+          "name": "000_Asiankäsittelyn testidokkari.docx",
+          "id": "791e430f-cb06-4269-8201-4bbd19346dc9",
+          "nodeType": "dcr:dokumentti",
+          "content": {
+            "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "mimeTypeName": "Microsoft Word 2007",
+            "sizeInBytes": 79798,
+            "encoding": "ISO-8859-15"
+          },
+          "parentId": "694d8a1a-0475-4fe4-b84b-dbdda2d615ba"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2016-07-27T08:41:20.105+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "K302271",
+            "displayName": "K302271"
+          },
+          "modifiedAt": "2016-07-27T08:41:21.190+0000",
+          "modifiedByUser": {
+            "id": "K302271",
+            "displayName": "K302271"
+          },
+          "name": "000_Asiankäsittelyn testidokkari.docx",
+          "id": "3d37bc0a-4ccc-41fb-8e23-1770808b8e05",
+          "nodeType": "dcr:dokumentti",
+          "content": {
+            "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "mimeTypeName": "Microsoft Word 2007",
+            "sizeInBytes": 79798,
+            "encoding": "ISO-8859-15"
+          },
+          "parentId": "4760a7e3-62e3-4946-b728-d31e02036a51"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2002-04-11T09:03:13.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-01T09:59:22.608+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "000.EMPTY_MIDDLEPART.lpaikka.txt",
+          "id": "7b7dec53-800d-4964-bdfe-c28729a4fc2b",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "text/plain",
+            "mimeTypeName": "Plain Text",
+            "sizeInBytes": 45025,
+            "encoding": "UTF-8"
+          },
+          "parentId": "25878989-2fd8-4240-83de-73cde420f44e"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "1998-04-29T21:00:00.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:18.530+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0003-13329-1.TIF",
+          "id": "74140a08-0e8d-4d89-bcde-19024393701f",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 414110,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:00:59.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.537+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0004-13329-2.TIF",
+          "id": "593e26ac-fcbd-4397-906b-d9f249e414b5",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 806704,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T07:55:47.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:28.860+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0005-13329-3.TIF",
+          "id": "7d92f98d-feda-4ab0-ac3e-162a95e892ee",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 470164,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T07:57:17.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:21.534+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0006-13329-4.TIF",
+          "id": "2800b8c3-79bd-44b2-8a31-fc0d2c7fa629",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 429556,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2001-06-20T21:00:00.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:29.924+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0008-13528-1.TIF",
+          "id": "57fffe16-7451-421b-b0dd-7d3853cf8c3e",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 494388,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2011-04-04T07:45:24.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:33.196+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0009-13528-11.TIF",
+          "id": "6e44d838-8e64-434a-9c44-25650e2e7e53",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 596968,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T12:45:33.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:31.187+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0009-13528-12.TIF",
+          "id": "35f6da7b-ea6b-4e86-bb95-4148cefdaaa3",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 436186,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T10:34:17.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:33.452+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0009-13528-15.TIF",
+          "id": "78c151cd-b6b9-4c2c-993a-46f8a22c8346",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 129958,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2011-04-04T07:43:28.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:40.541+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0009-13528-2.TIF",
+          "id": "a3faafca-9a74-4d1d-b2f2-979aa20ad17e",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 507212,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T10:22:55.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:33.100+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0009-13528-3.TIF",
+          "id": "8a5d4a85-2321-4982-ac1e-d0b9c8e9c3cd",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 350396,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-05-15T08:19:46.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:52.342+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0010-13528-13.TIF",
+          "id": "cef916f8-401e-437d-9a7a-7a78594ab1a4",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 4621077,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-05-15T06:49:24.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:49.387+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0010-13528-16.TIF",
+          "id": "5ab42ea3-b3e7-4917-906f-02ca0bd3d308",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 374292,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2011-01-21T08:11:18.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:50.835+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0010-13528-17.TIF",
+          "id": "b4c80ecc-ccc9-403f-8783-bb5c9a02682e",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 427250,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-05-15T08:12:15.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:45.610+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0010-13528-4.TIF",
+          "id": "f1b95424-cce5-4236-b372-194183779334",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 5326625,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-05-15T08:19:55.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:45.697+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0011-13528-14.TIF",
+          "id": "4774a1c9-ae20-4193-9f37-120a269be331",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 1430745,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-05-15T08:27:12.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:45.322+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0011-13528-18.TIF",
+          "id": "e9ff8cd7-cb75-4ba5-afc7-260eae9f3c1c",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 4996988,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-05-15T08:27:21.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:50.061+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0011-13528-19.TIF",
+          "id": "236155f0-39d2-402b-bb93-e59c0c8a744e",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 3296152,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-05-15T08:12:22.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:43.682+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-KAR-0011-13528-5.TIF",
+          "id": "4e5565bd-2108-446f-b478-b9c6571efa7d",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 1738706,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2011-04-04T07:05:05.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:29.661+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-PIT-0009-13528-6.TIF",
+          "id": "ccfbf660-8fc3-48cf-80e4-f6084ec93428",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 127936,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T12:13:28.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:39.466+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-PIT-0010-13528-7.TIF",
+          "id": "91ff2597-13f6-474f-9c81-4725696d6ccd",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 154774,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T10:27:21.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:52.494+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-PIT-0010-13528-8.TIF",
+          "id": "31895ce1-2272-4369-a00c-7a3f98ed75a7",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 123066,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-05-15T08:12:30.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:00:49.975+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-PIT-0010-13528-9.TIF",
+          "id": "aec52597-ddd5-4caf-9c24-5a8c4a738904",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 2198107,
+            "encoding": "UTF-8"
+          },
+          "parentId": "5587442d-8db8-49c7-8461-6a4fde33f1c5"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-05-15T08:19:29.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:25.938+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-PIT-0011-13528-10.TIF",
+          "id": "3fec795c-667e-4820-b10e-b941242bffc9",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 1973281,
+            "encoding": "UTF-8"
+          },
+          "parentId": "6a62c0b8-142d-4df2-8b13-0db3b19f6018"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:39:08.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:16.290+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0003-13329-103.TIF",
+          "id": "5dafffde-b862-4456-96a3-459d4f55f3a8",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 51158,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T11:53:10.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:16.436+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0003-13329-30.TIF",
+          "id": "b21fab68-084d-4c7b-b3a5-480316ba16cf",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 60564,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:41:33.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:21.630+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0003-13329-31.TIF",
+          "id": "d35958e3-246a-4c3e-94dc-7f2e24e1462e",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 59350,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:43:25.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:07.347+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0003-13329-32.TIF",
+          "id": "c18c85e9-a29a-4c14-8d06-faa688dd2dd5",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 58054,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:45:01.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:19.091+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0003-13329-33.TIF",
+          "id": "1ed30b87-e790-4489-aa83-3cefc3d8a508",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 40440,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:09:51.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:21.561+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0003-13329-34.TIF",
+          "id": "1ffc280b-c8fb-4040-bb7f-810d892c61c5",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 41870,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:11:13.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:33.630+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0003-13329-35.TIF",
+          "id": "37c87cfb-1b32-4a17-8eab-4d6cf7257425",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 73244,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:12:25.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.489+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0003-13329-36.TIF",
+          "id": "d43a2b29-f071-4f07-a7cd-bb7dfc5e6585",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 72454,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:13:35.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.384+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0003-13329-37.TIF",
+          "id": "e440dbc3-348e-4b52-8c7c-5917c536048d",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 68126,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:14:41.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:18.443+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0003-13329-38.TIF",
+          "id": "7f97993f-fec8-4ec0-8ab0-dfe3fd0223c5",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 72820,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:15:44.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:06.537+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-39.TIF",
+          "id": "54c144fb-6c28-4ce7-aa40-524e3746a194",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 73922,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:19:38.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:33.533+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-40.TIF",
+          "id": "0c409dbe-c397-43d8-9be4-37bc6f987d41",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 70498,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:20:48.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:22.196+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-41.TIF",
+          "id": "ad665e2a-84d8-4aae-bbaf-64c756db2ba1",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 70708,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:21:59.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.308+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-42.TIF",
+          "id": "3e82e366-9c04-494e-8c61-1642973ac753",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 69824,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:30:58.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:06.761+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-43.TIF",
+          "id": "da2e8613-21ad-4f6c-864c-cfac81b17508",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 79668,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:32:02.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:22.987+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-44.TIF",
+          "id": "87965062-b308-4536-b429-0fcbaad50283",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 83670,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:33:07.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:16.249+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-45.TIF",
+          "id": "4b163b48-939a-4905-8ae3-9457a6707752",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 84404,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:34:15.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.774+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-46.TIF",
+          "id": "010e8087-d2b5-42cf-a250-499431596521",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 79826,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:27:21.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:18.993+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-47.TIF",
+          "id": "eefdfd9f-8f4a-4d80-8894-61cf93273294",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 77148,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:46:43.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:21.434+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-48.TIF",
+          "id": "52de15e7-72df-40b1-a5f5-8e12799d9491",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 56068,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:11:38.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:33.514+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-49.TIF",
+          "id": "b361099f-3448-4f90-a217-a1f74f35a17e",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 82496,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:32:27.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:21.575+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-50.TIF",
+          "id": "3881bba6-b03b-4670-8a79-037019403731",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 84430,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:24:50.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:28.925+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-51.TIF",
+          "id": "62c110ba-adbf-4eb9-bdf5-d60c6ffdb7de",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 83868,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:24:58.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.659+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-52.TIF",
+          "id": "e407a7b1-954c-462a-80c3-1760c39e4c48",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 82154,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:32:50.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:16.365+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-53.TIF",
+          "id": "51f72414-d838-47f3-b102-1c1ec7cb2eeb",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 79342,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:32:39.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.154+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-54.TIF",
+          "id": "ebe1b787-a222-4139-b9c9-57ab06ea7809",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 87548,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:26:57.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:06.877+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-55.TIF",
+          "id": "af94b29d-0c4a-42ef-8a52-886504f4996e",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 124506,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:27:04.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:23.097+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-56.TIF",
+          "id": "6761ce4a-e742-460a-8e4c-d4f8ce4a2f4f",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 68218,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:16:22.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:22.253+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-57.TIF",
+          "id": "f256a6d5-9fa9-4985-a414-f395afc8776b",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 97710,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:16:29.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:18.566+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-58.TIF",
+          "id": "b3e55f73-a127-436f-81a1-d2748e0e6a95",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 116862,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:27:16.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.801+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-59.TIF",
+          "id": "48307258-02f7-4988-9484-afc2c65dd4a3",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 115856,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:21:47.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.257+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-60.TIF",
+          "id": "786a35de-1f53-4099-b69a-3b783d6e3334",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 116182,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:21:55.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:16.306+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-61.TIF",
+          "id": "ab6505af-ffc3-4ea5-a255-23c8a97a93f1",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 102412,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:22:03.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:21.588+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-62.TIF",
+          "id": "da9dfab1-b1c3-48ed-8db2-fd226a28726e",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 101366,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:11:52.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.718+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-63.TIF",
+          "id": "6a946a76-04c3-424d-9d6e-37fffcc32bf1",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 114336,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2010-09-21T08:12:00.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:19.038+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0004-13329-64.TIF",
+          "id": "5fe8c5a1-8425-4b2b-8258-eccbc4ab9954",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 99516,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T11:36:58.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.169+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-100.TIF",
+          "id": "1f7617ec-fe42-4a5f-82ea-bd6cb825001a",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 50080,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T11:46:36.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:22.054+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-101.TIF",
+          "id": "93692468-8cd0-4a7f-8aad-6e4c90c1027b",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 85702,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T11:50:06.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:22.941+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-102.TIF",
+          "id": "4cef0894-4ad2-470c-af1c-53a999c63a91",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 84996,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:48:25.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:28.831+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-65.TIF",
+          "id": "a452aedd-6ff1-44cc-bf2d-7abf89b2aec1",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 57150,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:23:49.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:06.501+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-66.TIF",
+          "id": "27af11bb-3373-4d5d-8423-335277ebfc6c",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 58980,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:50:28.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.204+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-67.TIF",
+          "id": "03690041-0bd6-4b4e-9dcb-49f9d22933bd",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 60082,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:52:09.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:22.091+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-68.TIF",
+          "id": "a69af951-a676-4fb1-8546-81e35d205573",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 61144,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:53:19.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:23.110+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-69.TIF",
+          "id": "c7568cab-2e92-4355-9b21-722da96dc991",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 61696,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:25:35.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.553+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-70.TIF",
+          "id": "adb6ef87-23c8-4908-8149-fab9e8db41e3",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 66366,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T11:58:40.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:33.408+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-71.TIF",
+          "id": "06aa2045-e51f-43f7-b7d5-fd0b86c3ba52",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 57912,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T11:28:26.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:22.041+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-72.TIF",
+          "id": "4399017a-460d-48f7-8d5e-6a6dd8cd75e1",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 54462,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:02:01.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.272+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-73.TIF",
+          "id": "70c8e253-693c-4d11-b896-4512b69f4581",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 56752,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:04:17.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:06.619+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-74.TIF",
+          "id": "6e1edf4f-30b1-4237-a3d7-0abef0de92ca",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 42504,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:01:12.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:22.959+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-75.TIF",
+          "id": "e8e4c19c-3257-4c8b-bea7-1d294f1cfe38",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 70012,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:02:40.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:16.220+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-76.TIF",
+          "id": "494a0042-4b78-44d0-b12b-4153e2365f26",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 87314,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:04:01.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:17.676+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-77.TIF",
+          "id": "4970879f-4f90-4230-8476-92ad0984a042",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 91346,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T05:05:01.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:18.796+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-78.TIF",
+          "id": "ea618b35-7646-4fc0-a99d-77099b4ac335",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 77014,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:06:04.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:22.282+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-79.TIF",
+          "id": "f436976d-5fd5-4834-b249-8234d17df7b0",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 68010,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:08:10.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:02:18.482+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0005-13329-80.TIF",
+          "id": "611d75e2-3168-425b-9498-51ab0229bc8e",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 55224,
+            "encoding": "UTF-8"
+          },
+          "parentId": "21113d89-ca7b-466a-b9ce-2ce9f54adad4"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:10:08.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:31.268+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13329-81.TIF",
+          "id": "3c81a02a-0497-48a2-8eba-db2c81553970",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 56788,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:12:20.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:33.326+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13329-82.TIF",
+          "id": "f9264cf7-a428-48b1-88cc-73c410cb1347",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 40518,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:13:53.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:40.591+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13329-83.TIF",
+          "id": "b58fbd6e-d0ca-4597-af8c-16e1f2c01ef7",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 64472,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:15:20.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:29.561+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13329-84.TIF",
+          "id": "f2f6d2fd-7076-45e8-8a33-adc4d93ff0a0",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 56850,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:17:09.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:32.412+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13329-85.TIF",
+          "id": "deced769-ae5d-4531-8057-1d8ba68ecf47",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 56726,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:24:09.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:29.695+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13329-86.TIF",
+          "id": "dafa55b9-1912-4f64-af04-e537a4162ab0",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 61322,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:25:25.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:29.774+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13329-87.TIF",
+          "id": "ffb596f7-6412-4f8b-b29b-d2fddc7a4761",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 60270,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:26:54.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:40.476+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13329-88.TIF",
+          "id": "0184b76a-2299-4d56-bae3-47a9c4445e8c",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 58402,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-11T12:28:14.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:32.974+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13329-89.TIF",
+          "id": "740c9fd1-07be-4da7-be5a-a61b15a0b940",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 51050,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T11:43:16.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:31.075+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13395-2.TIF",
+          "id": "b0dc3794-75e6-4fda-a6ee-975b4b744505",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 65604,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T11:46:54.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:29.890+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13395-3.TIF",
+          "id": "fcb23eb1-72ec-48a9-a1dd-b971e9b80f93",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 72112,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-12T11:49:01.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:37.484+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13395-4.TIF",
+          "id": "85b7fe2d-6ba3-41a5-85ea-01a0a3a863b4",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 74298,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T05:57:27.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:29.972+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13426-12.TIF",
+          "id": "137f6c02-8c0f-4c65-8b7e-8b7740b54257",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 68144,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T06:39:53.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:30.996+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13426-13.TIF",
+          "id": "b642cfb8-89cd-4567-9caf-648b89a37c96",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 79076,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T06:40:56.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:33.337+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13426-14.TIF",
+          "id": "55fe6a3f-78c1-4a75-9307-1053c7a307e3",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 79132,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T06:41:45.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:41.896+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13426-15.TIF",
+          "id": "05dbff3e-0486-44f8-b7f7-5228a93e1bad",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 87982,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T06:42:52.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:29.551+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13426-16.TIF",
+          "id": "281e0176-a612-4cf4-970d-36e647cbea91",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 100668,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      },
+      {
+        "entry": {
+          "createdAt": "2012-06-13T06:43:48.000+0000",
+          "isFolder": false,
+          "isFile": true,
+          "createdByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "modifiedAt": "2019-03-18T23:01:29.634+0000",
+          "modifiedByUser": {
+            "id": "admin",
+            "displayName": "Administrator"
+          },
+          "name": "001.HelsinkiHuopala.PSL-KR-POI-0006-13426-17.TIF",
+          "id": "45b11c63-4732-492d-b3ff-12f39d5d3c7e",
+          "nodeType": "cm:content",
+          "content": {
+            "mimeType": "image/tiff",
+            "mimeTypeName": "TIFF Image",
+            "sizeInBytes": 63980,
+            "encoding": "UTF-8"
+          },
+          "parentId": "39da003f-4181-4770-bd95-10dfc0c8d1e8"
+        }
+      }
+    ]
+  }
+}
