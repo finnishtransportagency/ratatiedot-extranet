@@ -16,6 +16,7 @@ import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadba
 import * as path from 'path';
 import { isDevelopmentMainStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
+import { readFile } from 'fs/promises';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -87,6 +88,64 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
     };
 
+    /**
+     * @param {string} projectRoot
+     * @returns {import('esbuild').Plugin}
+     */
+    const createFixDirnamesPlugin = (projectRoot: string) => {
+      return {
+        name: 'fixDirnames',
+        setup(build: any) {
+          build.onLoad({ filter: /.\.js$/, namespace: 'file' }, async (args: any) => {
+            let contents = await readFile(args.path, 'utf-8');
+
+            contents = contents.replace(
+              /fileURLToPath\(import\.meta\.url\)/g,
+              JSON.stringify(path.relative(projectRoot, args.path)),
+            );
+
+            if (contents.match(/__dirname/)) {
+              const quotedDirname = JSON.stringify(path.relative(projectRoot, path.dirname(args.path)));
+              const declareDirname = `const __dirname = ${quotedDirname};\n`;
+              contents = declareDirname + contents;
+            }
+
+            return { contents };
+          });
+        },
+      };
+    };
+
+    const ESM_REQUIRE_SHIM = `
+      await (async () => {
+        const { dirname } = await import("path");
+        const { fileURLToPath } = await import("url");
+
+        /**
+         * Shim entry-point related paths.
+         */
+        if (typeof globalThis.__filename === "undefined") {
+          globalThis.__filename = fileURLToPath(import.meta.url);
+        }
+        if (typeof globalThis.__dirname === "undefined") {
+          globalThis.__dirname = dirname(globalThis.__filename);
+        }
+        /**
+         * Shim require if needed.
+         */
+        if (typeof globalThis.require === "undefined") {
+          const { default: module } = await import("module");
+          globalThis.require = module.createRequire(import.meta.url);
+        }
+      })();
+    `;
+
+    /** Whether or not you're bundling. */
+    const bundle = true;
+
+    /** Tell esbuild to add the shim to emitted JS. */
+    const shimBanner = ESM_REQUIRE_SHIM;
+
     const prismaParameters = {
       ...genericLambdaParameters,
       environment: {
@@ -104,7 +163,8 @@ export class RataExtraBackendStack extends NestedStack {
         esbuildArgs: {
           '--conditions': 'module',
         },
-        banner: 'import { createRequire } from "module";const require = createRequire(import.meta.url);', // Workaround for ESM problem https://github.com/evanw/esbuild/pull/2067
+        banner: bundle ? shimBanner : undefined, // Workaround for ESM problem. https://github.com/evanw/esbuild/pull/2067#issuecomment-1073039746
+        plugins: [createFixDirnamesPlugin('.')],
         commandHooks: {
           beforeInstall(inputDir: string, outputDir: string) {
             return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
