@@ -75,6 +75,11 @@ export class RataExtraCloudFrontStack extends NestedStack {
           responseHttpStatus: 200,
           responsePagePath: '/index.html',
         },
+        {
+          httpStatus: 403,
+          responseHttpStatus: 200,
+          responsePagePath: '/api/sign-cookie',
+        },
       ],
       comment: `Cloudfront for ${rataExtraStackIdentifier}`,
       priceClass: PriceClass.PRICE_CLASS_100,
@@ -85,8 +90,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
-        // TODO: Uncomment once signing works
-        // trustedKeyGroups: [new cloudfront.KeyGroup(this, 'FrontendKeyGroup', { items: [frontendSignerPublicKey] })],
+        trustedKeyGroups: [new cloudfront.KeyGroup(this, 'FrontendKeyGroup', { items: [frontendSignerPublicKey] })],
       },
       additionalBehaviors: {
         '/api*': backendProxyBehavior,
