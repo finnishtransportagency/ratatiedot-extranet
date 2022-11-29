@@ -75,6 +75,11 @@ export class RataExtraCloudFrontStack extends NestedStack {
           responseHttpStatus: 200,
           responsePagePath: '/index.html',
         },
+        {
+          httpStatus: 403,
+          responseHttpStatus: 200,
+          responsePagePath: '/api/sign-cookie',
+        },
       ],
       comment: `Cloudfront for ${rataExtraStackIdentifier}`,
       priceClass: PriceClass.PRICE_CLASS_100,
