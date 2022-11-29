@@ -71,7 +71,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       defaultRootObject: 'index.html',
       errorResponses: [
         {
-          httpStatus: 404,
+          httpStatus: 403,
           responseHttpStatus: 200,
           responsePagePath: '/index.html',
         },
@@ -85,7 +85,8 @@ export class RataExtraCloudFrontStack extends NestedStack {
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
-        trustedKeyGroups: [new cloudfront.KeyGroup(this, 'FrontendKeyGroup', { items: [frontendSignerPublicKey] })],
+        // TODO: Uncomment once signing works
+        // trustedKeyGroups: [new cloudfront.KeyGroup(this, 'FrontendKeyGroup', { items: [frontendSignerPublicKey] })],
       },
       additionalBehaviors: {
         '/api*': backendProxyBehavior,
