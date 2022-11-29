@@ -1,7 +1,7 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
 import AWS from 'aws-sdk';
 import { log } from '../utils/logger';
-import { getUser, validateReadUser } from '../utils/userService';
+import { getUser } from '../utils/userService';
 
 const CLOUDFRONT_DOMAIN_NAME = process.env.CLOUDFRONT_DOMAIN_NAME;
 const CLOUDFRONT_PUBLIC_KEY_ID = process.env.CLOUDFRONT_PUBLIC_KEY_ID || '';
@@ -9,9 +9,9 @@ const CLOUDFRONT_PRIVATE_KEY_NAME = process.env.CLOUDFRONT_PRIVATE_KEY_NAME || '
 
 export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
   const user = await getUser(_event);
-  await validateReadUser(user);
   log.info(user, 'Signing frontend cookie.');
   const ssm = new AWS.SSM({ region: process.env.region });
+  // TODO: Cache this
   const data = await ssm.getParameter({ Name: CLOUDFRONT_PRIVATE_KEY_NAME, WithDecryption: true }).promise();
 
   const cloudFrontPrivateKey = data.Parameter?.Value || '';
@@ -37,10 +37,12 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
 
   const setCookieAttributes = `; Domain=${CLOUDFRONT_DOMAIN_NAME}; Path=/; Secure; HttpOnly; SameSite=Lax`;
 
+  const returnUrlEnd = _event.queryStringParameters?.redirect_url || '/';
+
   return {
     statusCode: 302,
     multiValueHeaders: {
-      Location: [`https://${CLOUDFRONT_DOMAIN_NAME}/`],
+      Location: [`https://${CLOUDFRONT_DOMAIN_NAME}${returnUrlEnd}`],
       'Set-Cookie': [
         `CloudFront-Key-Pair-Id=${cookie['CloudFront-Key-Pair-Id']}${setCookieAttributes}`,
         `CloudFront-Policy=${cookie['CloudFront-Policy']}${setCookieAttributes}`,
