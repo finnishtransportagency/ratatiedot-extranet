@@ -71,7 +71,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       defaultRootObject: 'index.html',
       errorResponses: [
         {
-          httpStatus: 404,
+          httpStatus: 403,
           responseHttpStatus: 200,
           responsePagePath: '/index.html',
         },
