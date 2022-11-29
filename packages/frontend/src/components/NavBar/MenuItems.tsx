@@ -48,6 +48,7 @@ const fetchMaterialClass = (): IMenuItem[] => {
         return {
           key: item,
           primary: item,
+          // TODO: create page components. Route names may be changed
           to: `/${item}`,
         };
       }),
