@@ -6,9 +6,9 @@ import { DatabaseClient } from './database-client/index.js';
 
 const database = await DatabaseClient.build();
 
-export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
+export async function handleRequest(event: APIGatewayEvent, _context: Context) {
   try {
-    const user = await getUser(_event);
+    const user = await getUser(event);
     // TODO: Validate write rights
     await validateWriteUser(user);
   } catch (err) {
@@ -37,7 +37,6 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
         body: JSON.stringify(res),
         isBase64Encoded: false,
       };
-      console.log('res: ', response.body);
       return response;
     })
     .catch(async (e) => {
