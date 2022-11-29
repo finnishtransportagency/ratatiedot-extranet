@@ -4,16 +4,17 @@ import { log } from '../utils/logger.js';
 import { getUser, validateWriteUser } from '../utils/userService.js';
 import { DatabaseClient } from './database-client/index.js';
 
-export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
+const database = await DatabaseClient.build();
+
+export async function handleRequest(event: APIGatewayEvent, _context: Context) {
   try {
-    const user = await getUser(_event);
+    const user = await getUser(event);
     // TODO: Validate write rights
     await validateWriteUser(user);
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-  const database = await DatabaseClient.build();
   await database.user
     .create({
       data: {
@@ -38,11 +39,7 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
       };
       return response;
     })
-    .then(async () => {
-      await database.$disconnect();
-    })
     .catch(async (e) => {
       log.error(e);
-      await database.$disconnect();
     });
 }

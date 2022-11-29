@@ -4,22 +4,18 @@ import { log } from '../utils/logger.js';
 import { getUser, validateReadUser } from '../utils/userService.js';
 import { DatabaseClient } from './database-client/index.js';
 
-export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
+const database = await DatabaseClient.build();
+
+export async function handleRequest(event: APIGatewayEvent, _context: Context) {
   try {
-    const user = await getUser(_event);
+    const user = await getUser(event);
     await validateReadUser(user);
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-  const database = await DatabaseClient.build();
   await database.user
-    .findMany({
-      include: {
-        posts: true,
-        profile: true,
-      },
-    })
+    .findMany({ take: 10 })
     .then((res) => {
       const response = {
         statusCode: 200,
@@ -31,11 +27,7 @@ export async function handleRequest(_event: APIGatewayEvent, _context: Context) 
       };
       return response;
     })
-    .then(async () => {
-      await database.$disconnect();
-    })
     .catch(async (e) => {
       log.error(e);
-      await database.$disconnect();
     });
 }
