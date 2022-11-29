@@ -3,4 +3,5 @@ export const Routes = {
   ACCESS_DENIED: '/paasy-kielletty',
   NOT_FOUND: '/*',
   LANDING: '/etusivu',
+  SEARCH_RESULT: '/haku',
 };

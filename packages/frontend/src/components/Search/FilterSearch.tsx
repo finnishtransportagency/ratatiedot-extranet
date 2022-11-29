@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import styled from '@emotion/styled';
 import { Box, Checkbox, Collapse, Drawer, IconButton, Typography } from '@mui/material';
 import List from '@mui/material/List';
@@ -9,6 +9,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 import { FilterSearchData, IItem, ItemTypeEnum } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
+import { SearchContext } from '../../contexts/SearchContext';
 
 type FilterSearchProps = {
   openFilter: boolean;
@@ -16,11 +17,18 @@ type FilterSearchProps = {
 };
 
 const FilterSearchItem = (props: IItem) => {
-  // TODO: handle checkbox
   const [open, setOpen] = useState(false);
+  const { checkedList, checkedListHandler } = useContext(SearchContext);
 
   const handleClick = () => {
     setOpen((prevState: boolean) => !prevState);
+  };
+
+  const isChecked = (name: string, items: string[]) => {
+    if (items.length) {
+      return items.every((it) => checkedList.includes(it));
+    }
+    return checkedList.indexOf(name) !== -1;
   };
 
   const { name, type, items } = props;
@@ -28,7 +36,11 @@ const FilterSearchItem = (props: IItem) => {
     <>
       <ListItem key={`${name}-ListItem`} onClick={handleClick}>
         {type && type === ItemTypeEnum.CHECKBOX && (
-          <Checkbox key={`${name}-Checkbox`} onChange={() => console.log('TODO:')} />
+          <Checkbox
+            key={`${name}-Checkbox`}
+            checked={isChecked(name, items ? items.map((it) => it.name) : [])}
+            onChange={() => checkedListHandler(name)}
+          />
         )}
         <ListItemText
           key={`${name}-ListItemText`}
@@ -50,7 +62,11 @@ const FilterSearchItem = (props: IItem) => {
             return (
               <ListItem sx={{ pl: 4 }} key={index}>
                 {item.type && item.type === ItemTypeEnum.CHECKBOX && (
-                  <Checkbox key={`${name}-Collapse-Checkbox`} onChange={() => console.log('TODO:')} />
+                  <Checkbox
+                    key={`${name}-Collapse-Checkbox`}
+                    checked={isChecked(name, []) ? true : isChecked(item.name, [])}
+                    onChange={() => checkedListHandler(item.name)}
+                  />
                 )}
                 <ListItemText key={`${name}-Collapse-ListItemText`} primary={item.name} />
               </ListItem>
