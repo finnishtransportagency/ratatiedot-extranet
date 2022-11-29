@@ -231,7 +231,7 @@ export class RataExtraBackendStack extends NestedStack {
     vpc,
     securityGroups,
     memorySize = 1024,
-    timeout = Duration.seconds(10),
+    timeout = Duration.seconds(15),
     runtime = Runtime.NODEJS_16_X,
     handler = 'handleRequest',
     environment = {},
