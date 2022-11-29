@@ -43,8 +43,9 @@ export const MiniDrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ theme,
     },
     // Logout is the last list item
     '& li:last-child': {
-      position: 'fixed',
-      bottom: '16px',
+      // TODO: Logout should always be placed in bottom
+      // position: 'fixed',
+      // bottom: '16px',
       width: open ? `${drawerWidth}px` : `calc(${theme.spacing(8)} + 1px)`,
       '& .MuiListItemIcon-root': {
         color: Colors.darkblue,
