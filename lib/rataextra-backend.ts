@@ -9,6 +9,7 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
   SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY,
+  ESM_REQUIRE_SHIM,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -16,7 +17,6 @@ import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadba
 import * as path from 'path';
 import { isDevelopmentMainStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
-import { readFile } from 'fs/promises';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -88,14 +88,6 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
     };
 
-    const ESM_REQUIRE_SHIM = `await(async()=>{let{dirname:e}=await import("path"),{fileURLToPath:i}=await import("url");if(typeof globalThis.__filename>"u"&&(globalThis.__filename=i(import.meta.url)),typeof globalThis.__dirname>"u"&&(globalThis.__dirname=e(globalThis.__filename)),typeof globalThis.require>"u"){let{default:a}=await import("module");globalThis.require=a.createRequire(import.meta.url)}})();`;
-
-    /** Whether or not you're bundling. */
-    const bundle = true;
-
-    /** Tell esbuild to add the shim to emitted JS. */
-    const shimBanner = ESM_REQUIRE_SHIM;
-
     const prismaParameters = {
       ...genericLambdaParameters,
       environment: {
@@ -113,7 +105,7 @@ export class RataExtraBackendStack extends NestedStack {
         esbuildArgs: {
           '--conditions': 'module',
         },
-        banner: bundle ? shimBanner : undefined, // Workaround for ESM problem. https://github.com/evanw/esbuild/pull/2067#issuecomment-1073039746
+        banner: ESM_REQUIRE_SHIM, // Workaround for ESM problem. https://github.com/evanw/esbuild/pull/2067#issuecomment-1073039746
         commandHooks: {
           beforeInstall(inputDir: string, outputDir: string) {
             return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
