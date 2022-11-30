@@ -1,7 +1,5 @@
 'use strict';
 
-const CLOUDFRONT_DOMAIN_NAME = process.env.CLOUDFRONT_DOMAIN_NAME;
-
 // Based on example code found from https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-examples.html
 function parseCookies(headers) {
   const parsedCookie = {};
@@ -32,6 +30,8 @@ exports.handler = (event, context, callback) => {
     return;
   }
 
+  const dns = headers.host[0].value;
+
   /* URI encode the original request to be sent as redirect_url in query params */
   const encodedRedirectUrl = encodeURIComponent(`${request.uri}?${request.querystring}`);
   const response = {
@@ -41,7 +41,7 @@ exports.handler = (event, context, callback) => {
       location: [
         {
           key: 'Location',
-          value: `https://${CLOUDFRONT_DOMAIN_NAME}/api/sign-cookie?redirect_url=${encodedRedirectUrl}`,
+          value: `https://${dns}/api/sign-cookie?redirect_url=${encodedRedirectUrl}`,
         },
       ],
     },

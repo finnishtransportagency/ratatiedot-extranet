@@ -87,10 +87,9 @@ export class RataExtraCloudFrontStack extends NestedStack {
           {
             functionVersion: new cloudfront.experimental.EdgeFunction(this, 'FrontendCookieCheckFunction', {
               runtime: Runtime.NODEJS_16_X,
-              handler: 'index.handler',
-              code: Code.fromAsset(path.join(__dirname, '../packages/server/lambdas/frontendCookieCheck.js')),
-              environment: { CLOUDFRONT_DOMAIN_NAME: cloudfrontDomainName },
-            }),
+              handler: 'frontendCookieCheck.handler',
+              code: Code.fromAsset(path.join(__dirname, '../packages/server/lambdas/')),
+            }).currentVersion,
             eventType: cloudfront.LambdaEdgeEventType.VIEWER_REQUEST,
           },
         ],
