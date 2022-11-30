@@ -14,7 +14,7 @@ export class RataExtraPipelineStack extends Stack {
     super(scope, 'stack-pipeline-rataextra-' + config.stackId, {
       env: {
         region: 'eu-west-1',
-        account: config.account,
+        account: undefined,
       },
       tags: config.tags,
     });
@@ -28,7 +28,7 @@ export class RataExtraPipelineStack extends Stack {
         installCommands: ['npm run ci --user=root'],
         commands: [
           'npm run build:frontend',
-          `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
+          `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId} --awsaccount=${config.account}`,
         ],
       }),
       dockerEnabledForSynth: true,
@@ -46,7 +46,7 @@ export class RataExtraPipelineStack extends Stack {
         tags: config.tags,
         env: {
           region: 'eu-west-1',
-          account: config.account,
+          account: undefined,
         },
       }),
     );
