@@ -17,6 +17,7 @@ import { RataExtraEnvironment } from './config';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import * as path from 'path';
+import { Code, Runtime } from 'aws-cdk-lib/aws-lambda';
 
 interface CloudFrontStackProps extends StackProps {
   readonly rataExtraStackIdentifier: string;
@@ -82,11 +83,20 @@ export class RataExtraCloudFrontStack extends NestedStack {
         origin: new origins.S3Origin(frontendBucket, {
           originAccessIdentity: cloudfrontOAI,
         }),
+        edgeLambdas: [
+          {
+            functionVersion: new cloudfront.experimental.EdgeFunction(this, 'FrontendCookieCheckFunction', {
+              runtime: Runtime.NODEJS_16_X,
+              handler: 'frontendCookieCheck.handler',
+              code: Code.fromAsset(path.join(__dirname, '../packages/server/lambdas/')),
+            }).currentVersion,
+            eventType: cloudfront.LambdaEdgeEventType.VIEWER_REQUEST,
+          },
+        ],
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
-        // TODO: Uncomment once signing works
-        // trustedKeyGroups: [new cloudfront.KeyGroup(this, 'FrontendKeyGroup', { items: [frontendSignerPublicKey] })],
+        trustedKeyGroups: [new cloudfront.KeyGroup(this, 'FrontendKeyGroup', { items: [frontendSignerPublicKey] })],
       },
       additionalBehaviors: {
         '/api*': backendProxyBehavior,
