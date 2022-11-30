@@ -14,6 +14,7 @@ export class RataExtraPipelineStack extends Stack {
     super(scope, 'stack-pipeline-rataextra-' + config.stackId, {
       env: {
         region: 'eu-west-1',
+        account: config.account,
       },
       tags: config.tags,
     });
@@ -43,6 +44,10 @@ export class RataExtraPipelineStack extends Stack {
         stackId: config.stackId,
         rataExtraEnv: config.env,
         tags: config.tags,
+        env: {
+          region: 'eu-west-1',
+          account: config.account,
+        },
       }),
     );
   }
