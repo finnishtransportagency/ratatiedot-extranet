@@ -68,7 +68,7 @@ export const getPipelineConfig = () => {
   const env = getEnvOrFail('ENVIRONMENT');
   if (isRataExtraEnvironment(env)) {
     const branch = env === ENVIRONMENTS.prod ? PRODUCTION_BRANCH : getEnvOrFail('BRANCH');
-    const account = getEnvOrFail('ACCOUNT');
+    const account = getEnvOrFail('AWS_ACCOUNT');
     return {
       env,
       account,
