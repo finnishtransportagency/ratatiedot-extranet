@@ -79,18 +79,19 @@ export class RataExtraCloudFrontStack extends NestedStack {
       ],
       comment: `Cloudfront for ${rataExtraStackIdentifier}`,
       priceClass: PriceClass.PRICE_CLASS_100,
+      enableLogging: true,
       defaultBehavior: {
         origin: new origins.S3Origin(frontendBucket, {
           originAccessIdentity: cloudfrontOAI,
         }),
-        edgeLambdas: [
+        functionAssociations: [
           {
-            functionVersion: new cloudfront.experimental.EdgeFunction(this, 'FrontendCookieCheckFunction', {
-              runtime: Runtime.NODEJS_16_X,
-              handler: 'frontendCookieCheck.handler',
-              code: Code.fromAsset(path.join(__dirname, '../packages/server/lambdas/')),
-            }).currentVersion,
-            eventType: cloudfront.LambdaEdgeEventType.VIEWER_REQUEST,
+            function: new cloudfront.Function(this, 'FrontendCookieCheckCFFunction', {
+              code: cloudfront.FunctionCode.fromFile({
+                filePath: path.join(__dirname, '../packages/server/cloudfront/frontendCookieCheck.js'),
+              }),
+            }),
+            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
           },
         ],
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
