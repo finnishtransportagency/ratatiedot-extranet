@@ -17,7 +17,6 @@ import { RataExtraEnvironment } from './config';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import * as path from 'path';
-import { Code, Runtime } from 'aws-cdk-lib/aws-lambda';
 
 interface CloudFrontStackProps extends StackProps {
   readonly rataExtraStackIdentifier: string;
@@ -72,7 +71,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       defaultRootObject: 'index.html',
       errorResponses: [
         {
-          httpStatus: 403,
+          httpStatus: 404,
           responseHttpStatus: 200,
           responsePagePath: '/index.html',
         },
@@ -90,6 +89,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
               code: cloudfront.FunctionCode.fromFile({
                 filePath: path.join(__dirname, '../packages/server/cloudfront/frontendCookieCheck.js'),
               }),
+              functionName: `cffunctions-${rataExtraStackIdentifier}-frontendCookieCheck`,
             }),
             eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
           },

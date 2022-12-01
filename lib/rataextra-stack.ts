@@ -74,6 +74,7 @@ export class RataExtraStack extends cdk.Stack {
       autoDeleteObjects: autoDeleteObjects,
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       encryption: BucketEncryption.S3_MANAGED,
+      websiteIndexDocument: 'index.html',
     });
 
     if (isPermanentStack(stackId, rataExtraEnv)) {
