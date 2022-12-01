@@ -8,7 +8,6 @@ import {
   SSM_DATABASE_DOMAIN,
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
-  SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY,
   ESM_REQUIRE_SHIM,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -25,8 +24,6 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly applicationVpc: IVpc;
   readonly securityGroup?: ISecurityGroup;
   readonly databaseDomain?: string;
-  readonly cloudfrontDomainName?: string;
-  readonly cloudfrontSignerPublicKey?: string;
   readonly tags: { [key: string]: string };
   readonly jwtTokenIssuer: string;
 }
@@ -69,8 +66,6 @@ export class RataExtraBackendStack extends NestedStack {
       applicationVpc,
       securityGroup,
       databaseDomain,
-      cloudfrontDomainName,
-      cloudfrontSignerPublicKey,
       tags,
       jwtTokenIssuer,
     } = props;
@@ -176,31 +171,12 @@ export class RataExtraBackendStack extends NestedStack {
       }),
     );
 
-    const signCookie = this.createNodejsLambda({
-      ...genericLambdaParameters,
-      environment: {
-        CLOUDFRONT_DOMAIN_NAME: cloudfrontDomainName || '',
-        CLOUDFRONT_PUBLIC_KEY_ID: cloudfrontSignerPublicKey || '',
-        CLOUDFRONT_PRIVATE_KEY_NAME: SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY,
-      },
-      name: 'sign-cookie',
-      relativePath: '../packages/server/lambdas/sign-cookie.ts',
-    });
-    signCookie.addToRolePolicy(
-      new PolicyStatement({
-        actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-        resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY}`],
-      }),
-    );
-    signCookie.addToRolePolicy(ksmDecryptPolicy);
-
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
       { lambda: dummy2Fn, priority: 10, path: ['/api/test'], targetName: 'dummy2' },
       { lambda: listUsers, priority: 20, path: ['/api/users'], targetName: 'listUsers' },
       { lambda: createUser, priority: 30, path: ['/api/create-user'], targetName: 'createUser' },
-      { lambda: signCookie, priority: 40, path: ['/api/sign-cookie'], targetName: 'signCookie' },
       { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
     ];
     // ALB for API

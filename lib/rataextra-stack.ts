@@ -22,14 +22,8 @@ export class RataExtraStack extends cdk.Stack {
     super(scope, id, props);
     this.#rataExtraStackIdentifier = id.toLowerCase();
     const { rataExtraEnv, stackId, tags } = props;
-    const {
-      cloudfrontCertificateArn,
-      cloudfrontDomainName,
-      dmzApiEndpoint,
-      databaseDomain,
-      jwtTokenIssuer,
-      cloudfrontSignerPublicKey,
-    } = getRataExtraStackConfig(this);
+    const { cloudfrontCertificateArn, cloudfrontDomainName, dmzApiEndpoint, databaseDomain, jwtTokenIssuer } =
+      getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
       ...getVpcAttributes(rataExtraEnv),
@@ -54,8 +48,6 @@ export class RataExtraStack extends cdk.Stack {
       applicationVpc: vpc,
       securityGroup,
       databaseDomain,
-      cloudfrontDomainName: cloudfrontDomainName,
-      cloudfrontSignerPublicKey: cloudfrontSignerPublicKey,
       jwtTokenIssuer,
       tags: tags,
     });
@@ -84,7 +76,6 @@ export class RataExtraStack extends cdk.Stack {
         cloudfrontDomainName: cloudfrontDomainName,
         dmzApiEndpoint: dmzApiEndpoint,
         frontendBucket: frontendBucket,
-        cloudfrontSignerPublicKey: cloudfrontSignerPublicKey,
       });
       Object.entries(props.tags).forEach(([key, value]) => Tags.of(cloudFrontStack).add(key, value));
     }
