@@ -1,4 +1,4 @@
-import { APIGatewayEvent, Context } from 'aws-lambda';
+import { ALBEvent, Context } from 'aws-lambda';
 import AWS from 'aws-sdk';
 import { log } from '../utils/logger';
 import { getUser } from '../utils/userService';
@@ -7,7 +7,7 @@ const CLOUDFRONT_DOMAIN_NAME = process.env.CLOUDFRONT_DOMAIN_NAME;
 const CLOUDFRONT_PUBLIC_KEY_ID = process.env.CLOUDFRONT_PUBLIC_KEY_ID || '';
 const CLOUDFRONT_PRIVATE_KEY_NAME = process.env.CLOUDFRONT_PRIVATE_KEY_NAME || '';
 
-export async function handleRequest(_event: APIGatewayEvent, _context: Context) {
+export async function handleRequest(_event: ALBEvent, _context: Context) {
   const user = await getUser(_event);
   log.info(user, 'Signing frontend cookie.');
   const ssm = new AWS.SSM({ region: process.env.region });

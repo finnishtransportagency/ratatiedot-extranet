@@ -1,4 +1,4 @@
-import { APIGatewayEvent } from 'aws-lambda';
+import { ALBEvent } from 'aws-lambda';
 import { RataExtraLambdaError } from './errors';
 import { validateJwtToken } from './validateJwtToken';
 import { isPermanentStack, isProductionStack } from '../../../lib/utils';
@@ -42,11 +42,15 @@ const getMockUser = (): RataExtraUser => ({
   roles: [STATIC_ROLES.read],
 });
 
-const parseUserFromEvent = async (event: APIGatewayEvent): Promise<RataExtraUser> => {
-  const headers = event.headers;
+const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
   if (!ISSUER) {
     log.error('Issuer missing');
     throw new RataExtraLambdaError('User validation failed', 500);
+  }
+  const headers = event.headers;
+  if (!headers) {
+    log.error('Headers missing');
+    throw new RataExtraLambdaError('Headers missing', 400);
   }
   const jwt = await validateJwtToken(headers['x-amzn-oidc-accesstoken'], headers['x-amzn-oidc-data'], ISSUER);
 
@@ -65,7 +69,11 @@ const isReadUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.re
 
 const isWriteDevUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.write_dev);
 
-export const getUser = async (event: APIGatewayEvent): Promise<RataExtraUser> => {
+export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
+  if (!STACK_ID || !ENVIRONMENT) {
+    log.error('STACK_ID or ENVIRONMENT missing!');
+    throw new RataExtraLambdaError('Error', 500);
+  }
   if (!isPermanentStack(STACK_ID, ENVIRONMENT as RataExtraEnvironment)) {
     return getMockUser();
   }
