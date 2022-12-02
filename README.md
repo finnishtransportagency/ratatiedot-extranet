@@ -112,9 +112,7 @@ As doing synth is a slower process, it's recommended to use basic `sam:invoke` w
 
 ### Usage
 
-- Run `npm run dev-server` to spin up server to serve API locally (http://localhost:8000)
 - Run `npm run dev-client` to run React app locally (http://localhost:3000)
-- Run `npm run dev` for full-stack development experience
 
 ### Connecting to AWS dev environment
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ContainerWrapper, SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
 import { Footer } from '../../components/Footer';
+import { useQuery } from '@tanstack/react-query';
 
 export const Landing = () => {
   // temporary state -> should save in db instead
@@ -40,6 +41,16 @@ export const Landing = () => {
   };
 
   const LandingView = () => {
+    useQuery({
+      queryKey: ['dummy2'],
+      queryFn: async () => {
+        const response = await fetch('/api/test');
+        if (!response.ok) {
+          throw new Error('Dummy2 failed');
+        }
+        return response.json();
+      },
+    });
     return (
       <>
         <SubtitleWrapper variant="subtitle1">Tervetuloa uudistuneeseen Ratatiedon extranettiin</SubtitleWrapper>
