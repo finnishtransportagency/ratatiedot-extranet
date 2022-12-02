@@ -1,4 +1,4 @@
-import { APIGatewayEvent, Context } from 'aws-lambda';
+import { ALBEvent, Context } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../utils/errors.js';
 import { log } from '../utils/logger.js';
 import { getUser, validateWriteUser } from '../utils/userService.js';
@@ -6,7 +6,7 @@ import { DatabaseClient } from './database-client/index.js';
 
 const database = await DatabaseClient.build();
 
-export async function handleRequest(event: APIGatewayEvent, _context: Context) {
+export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
     // TODO: Validate write rights

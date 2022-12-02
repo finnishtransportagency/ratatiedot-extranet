@@ -149,7 +149,7 @@ export class RataExtraBackendStack extends NestedStack {
       ...genericLambdaParameters,
       name: 'dummy2-handler',
       relativePath: '../packages/server/lambdas/dummy2.ts',
-      environment: { JWT_TOKEN_ISSUER: jwtTokenIssuer },
+      environment: { JWT_TOKEN_ISSUER: jwtTokenIssuer, STACK_ID: rataExtraStackIdentifier, ENVIRONMENT: rataExtraEnv },
     });
 
     const createUser = this.createNodejsLambda({
