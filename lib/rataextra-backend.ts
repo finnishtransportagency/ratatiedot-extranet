@@ -43,8 +43,7 @@ type ListenerTargetLambdas = {
 
 type LambdaParameters = {
   name: string;
-  rataExtraEnv: RataExtraEnvironment;
-  rataExtraStackId: string;
+  rataExtraStackIdentifier: string;
   lambdaRole: Role;
   /** Relative path from declaring file to the lambda function file */
   relativePath: string;
@@ -83,16 +82,17 @@ export class RataExtraBackendStack extends NestedStack {
     // ID and VPC should not be changed
     // Role and SG might need to be customized per Lambda
     const genericLambdaParameters = {
-      rataExtraEnv: rataExtraEnv,
-      rataExtraStackId: rataExtraStackIdentifier,
+      rataExtraStackIdentifier: rataExtraStackIdentifier,
       vpc: applicationVpc,
       lambdaRole: lambdaServiceRole,
       securityGroups: securityGroups,
+      environment: { JWT_TOKEN_ISSUER: jwtTokenIssuer, STACK_ID: stackId, ENVIRONMENT: rataExtraEnv },
     };
 
     const prismaParameters = {
       ...genericLambdaParameters,
       environment: {
+        ...genericLambdaParameters.environment,
         SSM_DATABASE_NAME_ID: SSM_DATABASE_NAME,
         SSM_DATABASE_DOMAIN_ID: SSM_DATABASE_DOMAIN,
         SSM_DATABASE_PASSWORD_ID: SSM_DATABASE_PASSWORD,
@@ -151,7 +151,6 @@ export class RataExtraBackendStack extends NestedStack {
       ...genericLambdaParameters,
       name: 'dummy2-handler',
       relativePath: '../packages/server/lambdas/dummy2.ts',
-      environment: { JWT_TOKEN_ISSUER: jwtTokenIssuer, STACK_ID: stackId, ENVIRONMENT: rataExtraEnv },
     });
 
     const createUser = this.createNodejsLambda({
@@ -181,6 +180,7 @@ export class RataExtraBackendStack extends NestedStack {
     const signCookie = this.createNodejsLambda({
       ...genericLambdaParameters,
       environment: {
+        ...genericLambdaParameters.environment,
         CLOUDFRONT_DOMAIN_NAME: cloudfrontDomainName || '',
         CLOUDFRONT_PUBLIC_KEY_ID: cloudfrontSignerPublicKey || '',
         CLOUDFRONT_PRIVATE_KEY_NAME: SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY,
@@ -225,8 +225,7 @@ export class RataExtraBackendStack extends NestedStack {
   }
 
   private createNodejsLambda({
-    rataExtraEnv,
-    rataExtraStackId,
+    rataExtraStackIdentifier,
     name,
     lambdaRole,
     relativePath,
@@ -240,14 +239,14 @@ export class RataExtraBackendStack extends NestedStack {
     bundling = {},
   }: LambdaParameters) {
     return new NodejsFunction(this, name, {
-      functionName: `lambda-${rataExtraStackId}-${name}`,
+      functionName: `lambda-${rataExtraStackIdentifier}-${name}`,
       memorySize: memorySize,
       timeout: timeout,
       // Accepts only Nodejs runtimes
       runtime: runtime,
       handler: handler,
       entry: path.join(__dirname, relativePath),
-      environment: { ...environment, ENVIRONMENT: rataExtraEnv, STACK_ID: rataExtraStackId },
+      environment: environment,
       role: lambdaRole,
       vpc,
       securityGroups: securityGroups,
