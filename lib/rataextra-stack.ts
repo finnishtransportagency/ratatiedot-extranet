@@ -50,6 +50,7 @@ export class RataExtraStack extends cdk.Stack {
     const backendStack = new RataExtraBackendStack(this, 'stack-backend', {
       rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
       rataExtraEnv: rataExtraEnv,
+      stackId: stackId,
       lambdaServiceRole: lambdaServiceRole,
       applicationVpc: vpc,
       securityGroup,
