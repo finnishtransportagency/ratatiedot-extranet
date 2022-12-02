@@ -14,7 +14,7 @@ export const AccessDenied = () => {
   return (
     <ContainerWrapper textAlign={'center'}>
       <Box component="img" src={RataExtLogo} alt="Logo" />
-      <SubtitleWrapper variant="subtitle2">Pääsy kieletty</SubtitleWrapper>
+      <SubtitleWrapper variant="subtitle2">Pääsy kielletty</SubtitleWrapper>
       <ParagraphWrapper variant="body1">Sinulla ei käyttöoikeutta Ratatiedon extranettiin.</ParagraphWrapper>
       <ParagraphWrapper variant="body1">Ota yhteys organisaatiosi käyttövaltuusvastaavaan.</ParagraphWrapper>
       {prevPath && (
