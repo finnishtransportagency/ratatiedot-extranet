@@ -21,6 +21,7 @@ import { RataExtraBastionStack } from './rataextra-bastion';
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
   readonly rataExtraEnv: RataExtraEnvironment;
+  readonly stackId: string;
   readonly lambdaServiceRole: Role;
   readonly applicationVpc: IVpc;
   readonly securityGroup?: ISecurityGroup;
@@ -64,6 +65,7 @@ export class RataExtraBackendStack extends NestedStack {
     super(scope, id, props);
     const {
       rataExtraEnv,
+      stackId,
       rataExtraStackIdentifier,
       lambdaServiceRole,
       applicationVpc,
@@ -149,7 +151,7 @@ export class RataExtraBackendStack extends NestedStack {
       ...genericLambdaParameters,
       name: 'dummy2-handler',
       relativePath: '../packages/server/lambdas/dummy2.ts',
-      environment: { JWT_TOKEN_ISSUER: jwtTokenIssuer, STACK_ID: rataExtraStackIdentifier, ENVIRONMENT: rataExtraEnv },
+      environment: { JWT_TOKEN_ISSUER: jwtTokenIssuer, STACK_ID: stackId, ENVIRONMENT: rataExtraEnv },
     });
 
     const createUser = this.createNodejsLambda({
