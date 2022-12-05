@@ -86,9 +86,9 @@ export class RataExtraCloudFrontStack extends NestedStack {
         }),
         functionAssociations: [
           {
-            function: new cloudfront.Function(this, 'FrontendCookieCheckCFFunction', {
+            function: new cloudfront.Function(this, 'FrontendRedirectCFFunction', {
               code: cloudfront.FunctionCode.fromFile({
-                filePath: path.join(__dirname, '../packages/server/cloudfront/frontendCookieCheck.js'),
+                filePath: path.join(__dirname, '../packages/server/cloudfront/frontendRedirect.js'),
               }),
             }),
             eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
