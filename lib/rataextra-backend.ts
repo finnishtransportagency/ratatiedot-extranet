@@ -177,6 +177,7 @@ export class RataExtraBackendStack extends NestedStack {
       }),
     );
 
+    // DEPRECATED
     const signCookie = this.createNodejsLambda({
       ...genericLambdaParameters,
       environment: {
@@ -195,6 +196,15 @@ export class RataExtraBackendStack extends NestedStack {
       }),
     );
     signCookie.addToRolePolicy(ksmDecryptPolicy);
+    const returnLogin = this.createNodejsLambda({
+      ...genericLambdaParameters,
+      environment: {
+        ...genericLambdaParameters.environment,
+        CLOUDFRONT_DOMAIN_NAME: cloudfrontDomainName || '',
+      },
+      name: 'return-login',
+      relativePath: '../packages/server/lambdas/return-login.ts',
+    });
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
@@ -203,6 +213,7 @@ export class RataExtraBackendStack extends NestedStack {
       { lambda: listUsers, priority: 20, path: ['/api/users'], targetName: 'listUsers' },
       { lambda: createUser, priority: 30, path: ['/api/create-user'], targetName: 'createUser' },
       { lambda: signCookie, priority: 40, path: ['/api/sign-cookie'], targetName: 'signCookie' },
+      { lambda: returnLogin, priority: 50, path: ['/api/return-login'], targetName: 'returnLogin' },
       { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
     ];
     // ALB for API
