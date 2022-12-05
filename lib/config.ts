@@ -35,8 +35,6 @@ const SSM_JWT_TOKEN_ISSUER = 'rataextra-jwt-token-issuer';
 export const SSM_DATABASE_DOMAIN = 'rataextra-database-domain';
 export const SSM_DATABASE_NAME = 'rataextra-database-name';
 export const SSM_DATABASE_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
-const SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY = 'rataextra-cloudfront-signer-public-key';
-export const SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY = 'rataextra-cloudfront-signer-private-key';
 
 // Minified JS code that is used to make ES modules working
 // Also handles __dirname & import.meta.url
@@ -60,7 +58,6 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
   databaseDomain: getSSMStringParameter(scope, SSM_DATABASE_DOMAIN),
   jwtTokenIssuer: getSSMStringParameter(scope, SSM_JWT_TOKEN_ISSUER),
-  cloudfrontSignerPublicKey: getSSMStringParameter(scope, SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY),
 });
 
 // Runtime variables from SSM/Parameter Store

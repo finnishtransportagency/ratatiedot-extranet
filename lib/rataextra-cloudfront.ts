@@ -8,7 +8,6 @@ import {
   CachePolicy,
   OriginRequestPolicy,
   PriceClass,
-  PublicKey,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
@@ -17,7 +16,6 @@ import { RataExtraEnvironment } from './config';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import * as path from 'path';
-import { Code, Runtime } from 'aws-cdk-lib/aws-lambda';
 
 interface CloudFrontStackProps extends StackProps {
   readonly rataExtraStackIdentifier: string;
@@ -26,7 +24,6 @@ interface CloudFrontStackProps extends StackProps {
   readonly cloudfrontDomainName: string;
   readonly dmzApiEndpoint: string;
   readonly frontendBucket: Bucket;
-  readonly cloudfrontSignerPublicKey: string;
 }
 export class RataExtraCloudFrontStack extends NestedStack {
   constructor(scope: Construct, id: string, props: CloudFrontStackProps) {
@@ -38,7 +35,6 @@ export class RataExtraCloudFrontStack extends NestedStack {
       cloudfrontCertificateArn,
       cloudfrontDomainName,
       frontendBucket,
-      cloudfrontSignerPublicKey,
     } = props;
     const cloudfrontOAI = new cloudfront.OriginAccessIdentity(this, 'CloudFrontOriginAccessIdentity');
 
@@ -63,8 +59,6 @@ export class RataExtraCloudFrontStack extends NestedStack {
       allowedMethods: AllowedMethods.ALLOW_ALL,
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     };
-
-    const frontendSignerPublicKey = new PublicKey(this, 'FrontendPublicKey', { encodedKey: cloudfrontSignerPublicKey });
 
     const cloudfrontDistribution = new cloudfront.Distribution(this, `rataextra-cloudfront`, {
       domainNames: [cloudfrontDomainName],
@@ -97,7 +91,6 @@ export class RataExtraCloudFrontStack extends NestedStack {
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
-        trustedKeyGroups: [new cloudfront.KeyGroup(this, 'FrontendKeyGroup', { items: [frontendSignerPublicKey] })],
       },
       additionalBehaviors: {
         '/api*': backendProxyBehavior,
