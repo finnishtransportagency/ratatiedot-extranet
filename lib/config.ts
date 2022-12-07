@@ -35,6 +35,7 @@ const SSM_JWT_TOKEN_ISSUER = 'rataextra-jwt-token-issuer';
 export const SSM_DATABASE_DOMAIN = 'rataextra-database-domain';
 export const SSM_DATABASE_NAME = 'rataextra-database-name';
 export const SSM_DATABASE_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
+export const SSM_ALFRESCO_API_KEY_NAME = 'rataextra-alfresco-api-key';
 
 // Minified JS code that is used to make ES modules working
 // Also handles __dirname & import.meta.url
@@ -58,6 +59,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
   databaseDomain: getSSMStringParameter(scope, SSM_DATABASE_DOMAIN),
   jwtTokenIssuer: getSSMStringParameter(scope, SSM_JWT_TOKEN_ISSUER),
+  alfrescoAPIKeyName: getSSMStringParameter(scope, SSM_ALFRESCO_API_KEY_NAME),
 });
 
 // Runtime variables from SSM/Parameter Store
