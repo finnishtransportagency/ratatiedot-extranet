@@ -37,7 +37,7 @@
   "homepage": "https://github.com/finnishtransportagency/ratatiedot-extranet#readme",
   "dependencies": {
     "aws-cdk-lib": "^2.45.0",
-    "axios": "^1.1.3",
+    "axios": "^1.2.1",
     "concurrently": "^7.4.0",
     "constructs": "^10.0.0",
     "date-fns": "^2.29.3",
