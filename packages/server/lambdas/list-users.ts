@@ -1,19 +1,19 @@
 import { ALBEvent, Context } from 'aws-lambda';
-import { getRataExtraLambdaError } from '../utils/errors.js';
+// import { getRataExtraLambdaError } from '../utils/errors.js';
 import { log } from '../utils/logger.js';
-import { getUser, validateReadUser } from '../utils/userService.js';
+// import { getUser, validateReadUser } from '../utils/userService.js';
 import { DatabaseClient } from './database-client/index.js';
 
 const database = await DatabaseClient.build();
 
 export async function handleRequest(event: ALBEvent, _context: Context) {
-  try {
-    const user = await getUser(event);
-    await validateReadUser(user);
-  } catch (err) {
-    log.error(err);
-    return getRataExtraLambdaError(err);
-  }
+  //  try {
+  //    const user = await getUser(event);
+  //    await validateReadUser(user);
+  //  } catch (err) {
+  //    log.error(err);
+  //    return getRataExtraLambdaError(err);
+  //  }
   await database.user
     .findMany({ take: 10 })
     .then((res) => {
