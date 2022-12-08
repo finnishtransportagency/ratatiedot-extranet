@@ -19,6 +19,11 @@ export const isProductionStack = (stackId: string, rataExtraEnv: RataExtraEnviro
   stackId === PRODUCTION_STACK_ID && rataExtraEnv === ENVIRONMENTS.prod;
 
 /**
+ * Returns whether the stack is a feat or local stack
+ */
+export const isFeatOrLocalStack = (rataExtraEnv: RataExtraEnvironment) =>
+  rataExtraEnv === ENVIRONMENTS.feat || rataExtraEnv === ENVIRONMENTS.local;
+/**
  * Returns whether the stack is one of the two permanent RataExtra stacks
  * - development main stack that corresponds to development main branch in Github
  * - producition stack that corresponds to production branch in Github

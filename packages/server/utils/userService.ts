@@ -1,7 +1,7 @@
 import { ALBEvent } from 'aws-lambda';
 import { RataExtraLambdaError } from './errors';
 import { validateJwtToken } from './validateJwtToken';
-import { isPermanentStack, isProductionStack } from '../../../lib/utils';
+import { isFeatOrLocalStack, isProductionStack } from '../../../lib/utils';
 import { RataExtraEnvironment } from '../../../lib/config';
 import { log } from './logger';
 
@@ -74,7 +74,7 @@ export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
     log.error('STACK_ID or ENVIRONMENT missing!');
     throw new RataExtraLambdaError('Error', 500);
   }
-  if (!isPermanentStack(STACK_ID, ENVIRONMENT as RataExtraEnvironment)) {
+  if (isFeatOrLocalStack(ENVIRONMENT as RataExtraEnvironment)) {
     return getMockUser();
   }
   return parseUserFromEvent(event);
@@ -92,6 +92,7 @@ export const validateReadUser = async (user: RataExtraUser): Promise<void> => {
 };
 
 export const validateWriteUser = async (user: RataExtraUser): Promise<void> => {
+  // TODO: Update check once individual write roles are starting to roll in
   if (!isProductionStack(STACK_ID, ENVIRONMENT as RataExtraEnvironment)) {
     if (!isWriteDevUser(user)) {
       log.error(user, 'Forbidden: User is not a write_dev user');
