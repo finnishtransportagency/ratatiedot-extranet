@@ -1,0 +1,23 @@
+body {
+  margin: 0;
+}
+
+@font-face {
+  font-family: 'Exo2-Regular';
+  src: local('Exo2-Regular'), url('./assets//fonts/Exo_2/Exo2-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Exo2-Bold';
+  src: local('Exo2-Bold'), url('./assets//fonts/Exo_2/Exo2-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Exo2-ExtraBold';
+  src: local('Exo2-ExtraBold'), url('./assets//fonts/Exo_2/Exo2-ExtraBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Exo2-LightItalic';
+  src: local('Exo2-LightItalic'), url('./assets//fonts/Exo_2/Exo2-LightItalic.ttf') format('truetype');
+}
