@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
+import { RataExtraEnvironment, getRataExtraStackConfig, SSM_ALFRESCO_API_URL } from './config';
 import { RemovalPolicy, StackProps, Tags } from 'aws-cdk-lib';
 import { getRemovalPolicy, isPermanentStack, getVpcAttributes, getSecurityGroupId } from './utils';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
@@ -28,8 +28,7 @@ export class RataExtraStack extends cdk.Stack {
       dmzApiEndpoint,
       databaseDomain,
       jwtTokenIssuer,
-      alfrescoAPIKeyName,
-      alfrescoAPIUrlName,
+      alfrescoAPIKey,
     } = getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
@@ -59,8 +58,8 @@ export class RataExtraStack extends cdk.Stack {
       cloudfrontDomainName: cloudfrontDomainName,
       jwtTokenIssuer,
       tags: tags,
-      alfrescoAPIKeyName: alfrescoAPIKeyName,
-      alfrescoAPIUrlName: alfrescoAPIUrlName,
+      alfrescoAPIKey: alfrescoAPIKey,
+      alfrescoAPIUrl: SSM_ALFRESCO_API_URL,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
 

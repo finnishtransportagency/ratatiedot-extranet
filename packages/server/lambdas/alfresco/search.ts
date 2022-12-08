@@ -8,8 +8,8 @@ import { getUser, validateReadUser } from '../../utils/userService';
 
 let alfrescoAPIKey: string | null = null;
 let alfrescoAPIUrl: string | null = null;
-const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY_NAME || '';
-const alfrescoAPIUrlName = process.env.ALFRESCO_API_URL_NAME || '';
+const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY || '';
+const alfrescoAPIUrlName = process.env.ALFRESCO_API_URL || '';
 
 const searchByTerm = async (term: string) => {
   try {
