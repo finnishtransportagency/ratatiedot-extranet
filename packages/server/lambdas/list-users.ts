@@ -9,6 +9,7 @@ const database = await DatabaseClient.build();
 export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
+    log.info(user, 'Listing users');
     await validateReadUser(user);
   } catch (err) {
     log.error(err);
