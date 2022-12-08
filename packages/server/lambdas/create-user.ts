@@ -9,7 +9,7 @@ const database = await DatabaseClient.build();
 export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
-    // TODO: Validate write rights
+    log.info(user, 'Creating temp users');
     await validateWriteUser(user);
   } catch (err) {
     log.error(err);
