@@ -275,13 +275,15 @@ Add following values to Parameter Store for permanent environments:
 
 ### Backend development
 
+Cache any async content that doesn't change often to speed up lambda running tie on subsequent runs. This can be done by setting the value with let above the handler function and then checking if it has a value or not and fetching a new value only if it is missing.
+
 #### Authorization
 
-Use `utils/userService.ts` to first get `user` and then use an applicable role check validation function. All functions outside of frontend cookie creation function should have applicable authorization. Minimum is to check if they have read rights. Wrap checks in try-catches, as they will throw if the user is not authorized.
+Use `utils/userService.ts` to first get `user` and then use an applicable role check validation function. All functions outside of frontend cookie creation function should have applicable authorization. Minimum is to check if they have read rights. Wrap checks in try-catches, as they will throw if the user is not authorized. This should be done first thing in the handler-function.
 
 #### Logging
 
-Use `utils/logger.ts`. Whenever possible, pass `user` to get the UID.
+Use `utils/logger.ts`. Whenever possible, pass `user` to get the UID. A info-level log should be done with user attached after authorizing the user at the beginning of a lambda function. Use error-level for any catch-blocks. In these cases, you usually don't have user, but do log that if it's available.
 
 ### Testing
 
