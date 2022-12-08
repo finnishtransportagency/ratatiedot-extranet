@@ -7,7 +7,9 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 
 let alfrescoAPIKey: string | null = null;
+let alfrescoAPIUrl: string | null = null;
 const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY_NAME || '';
+const alfrescoAPIUrlName = process.env.ALFRESCO_API_URL_NAME || '';
 
 const getSecuredStringParamter = async (name: string) => {
   const ssm = new AWS.SSM({ region: 'eu-west-1' });
@@ -21,7 +23,7 @@ const getSecuredStringParamter = async (name: string) => {
     return value.Parameter?.Value || '';
   } catch (error) {
     log.error(error);
-    return '';
+    throw error;
   }
 };
 
@@ -30,18 +32,21 @@ const searchByTerm = async (term: string) => {
     if (!alfrescoAPIKey) {
       alfrescoAPIKey = await getSecuredStringParamter(alfrescoAPIKeyName);
     }
-    const testUrl = `https://api.testivaylapilvi.fi/alfresco/api/-default-/public/alfresco/versions/1/queries/nodes?term=${term}`;
+    if (!alfrescoAPIUrl) {
+      alfrescoAPIUrl = await getSecuredStringParamter(alfrescoAPIUrlName);
+    }
     const options = {
       headers: {
         'X-API-Key': alfrescoAPIKey,
         Cookie:
-          'VaylaExtra_TEST=rd461o00000000000000000000ffffac11d0e3o7777; OAMAuthnCookie_testiextranet.vayla.fi_443=bb09ba4f84ea043650e135012b1cf45b5654929e%7ELPz6Cw0EWQG%2FSOS6Qgc6DjZy4B%2BezmRWZXN7asEHo01MQZ8ckyuReRjKkxoK0RXjT7mYK%2B3qGRax9KzYRnrFAI4DGVenndPRKpb2R%2BBN8svRsT8OnZFG%2BtX4T%2BYlBgT2PNZtDnj81VmMaDgYeutt7L0PkqSfHSVkwwoZBXmm%2BnF8RGPX9E2DMR9smelIKB8zSEfuq8x6O2wRp0LBmG6BSG9QNjKn5IQvvUkPMi8xV14qRkL%2F%2BRoYxfEIWdSp9vptUNB%2FXpWUbxX402XCKqMSHhhF6Fp%2B7uorfW%2FXdsKGbdQbnOi6ADmuJcXqP0BQbwuX%2B4QiatTfzPaCPgotztzW2XH64khWYr9QoBfCeZhk9k30zmcjvkgypRF%2BT9rFm%2BOsHjl4%2B7sJvjFvCRe%2BIyedztBCQ9FT37HQlCQZYSFh4RSSN3t72u6iMkCjoHQixyoduBEErInOnDEEY%2Fp6q3AO%2FEXpb3rw1ll%2FOzxdRAga40%2BQD09VSpJZ%2FT9mGWNIRc1TgjqTtWOcBdNEbD8yrOCYaEh2LdHRXpZKoK3rzby4iufSx4EdQjxSlQs34SdMCFrH2IG914A%2Fu8AhEJhvBNavxX1C9BK4I%2Bu3eR%2FCab1eH4aTtIXDmLwdQzAWAYB31XQR; OAMAuthnHintCookie=1',
+          'VaylaExtra_TEST=rd461o00000000000000000000ffffac11d0e3o7777; OAMAuthnCookie_testiextranet.vayla.fi_443=878ab508b49bac5848d1d02345635e0227764ed1%7EW9EDe2q3Ee0F5AMkx9OX4ketDcJYAHqhDE8Fxn2aE7z10xGT7KSwdrkVHbnRaRIDGaVRtFpAK5lWARxzcDIFhwcm9Xg1FJZJAphVdI7qZz9g9sw1pABB7ttybpU4KOJ4d8Uh18CoAHeRdr06pEy1xKRRHfcnZCtwlel27rg1VJV8HWKGFcxbGNElVsce%2BlLmNr%2FtblRp9rTdAgpmy41TWdBAsrBS33kpyzbWk3Oru3IdlJx7AE8vddo6ES67%2B%2Fcvc%2BA7vTrjquw5rAMM4Um0UtWQzrVmnAbWXcPKcB9MgulrKsrU%2B315DskAHRvA25XQRxzI7q7Neh8PyG0nOWFmmsd2OvuPAJVCzMEYWfo8sesDPIMcONcVFvMnTMPETIXzFozZ4thfmE3LD6usNFgPOxwjRrHfsxwsJy9WRKkdj12S8959%2FZtz5nxm6N5ni5a4KgeVDhlEQqL9VPWDBNaYTpDrl%2FRlBBOF6A4uZ7laL%2FyW7587f1my0WRtpkvxQRZKoqvnqQldPROnGQ1hUKT9hQDcQ%2BAmUG%2Fy4kzgK%2BQDB1pxMgIbheyMRf8tuo2g2bgl64quOE3oa7e199DkPw8vQlRd%2FVt6T%2B4mChtpaH%2FSENrfPLE4b3URfd8%2BBT3VXVqi; OAMAuthnHintCookie=1',
       },
     };
-    const response = await axios.get(testUrl, options);
+    const response = await axios.get(`${alfrescoAPIUrl}/queries/nodes?term=${term}`, options);
     return response.data;
   } catch (err) {
     log.error(err);
+    throw err;
   }
 };
 
@@ -49,18 +54,16 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
     await validateReadUser(user);
+    const data = await searchByTerm('Tampere');
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: data,
+    };
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-  const data = await searchByTerm('Tampere');
-  console.log('>>>> EVENT: ', event);
-  console.log('>>>> EVENT.queryStringParameters', event.queryStringParameters);
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: data,
-  };
 }
