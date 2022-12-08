@@ -1,9 +1,9 @@
 import { ALBEvent, Context } from 'aws-lambda';
-import AWS from 'aws-sdk';
 import axios from 'axios';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
+import { getParamter, getSecuredStringParamter } from '../../utils/parameterStore';
 import { getUser, validateReadUser } from '../../utils/userService';
 
 let alfrescoAPIKey: string | null = null;
@@ -11,29 +11,13 @@ let alfrescoAPIUrl: string | null = null;
 const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY_NAME || '';
 const alfrescoAPIUrlName = process.env.ALFRESCO_API_URL_NAME || '';
 
-const getSecuredStringParamter = async (name: string) => {
-  const ssm = new AWS.SSM({ region: 'eu-west-1' });
-  try {
-    const value = await ssm
-      .getParameter({
-        Name: name,
-        WithDecryption: true,
-      })
-      .promise();
-    return value.Parameter?.Value || '';
-  } catch (error) {
-    log.error(error);
-    throw error;
-  }
-};
-
 const searchByTerm = async (term: string) => {
   try {
     if (!alfrescoAPIKey) {
       alfrescoAPIKey = await getSecuredStringParamter(alfrescoAPIKeyName);
     }
     if (!alfrescoAPIUrl) {
-      alfrescoAPIUrl = await getSecuredStringParamter(alfrescoAPIUrlName);
+      alfrescoAPIUrl = await getParamter(alfrescoAPIUrlName);
     }
     const options = {
       headers: {
