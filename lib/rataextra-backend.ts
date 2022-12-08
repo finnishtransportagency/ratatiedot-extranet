@@ -29,6 +29,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly tags: { [key: string]: string };
   readonly jwtTokenIssuer: string;
   readonly alfrescoAPIKeyName: string;
+  readonly alfrescoAPIUrlName: string;
 }
 
 type ListenerTargetLambdas = {
@@ -73,6 +74,7 @@ export class RataExtraBackendStack extends NestedStack {
       tags,
       jwtTokenIssuer,
       alfrescoAPIKeyName,
+      alfrescoAPIUrlName,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -190,6 +192,7 @@ export class RataExtraBackendStack extends NestedStack {
       environment: {
         ...genericLambdaParameters.environment,
         ALFRESCO_API_KEY_NAME: alfrescoAPIKeyName,
+        ALFRESCO_API_URL_NAME: alfrescoAPIUrlName,
       },
       name: 'alfresco-search',
       relativePath: '../packages/server/lambdas/alfresco/search.ts',
