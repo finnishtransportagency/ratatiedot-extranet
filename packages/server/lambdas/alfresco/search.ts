@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getParamter, getSecuredStringParamter } from '../../utils/parameterStore';
+import { getParameter, getSecuredStringParameter } from '../../utils/parameterStore';
 import { getUser, validateReadUser } from '../../utils/userService';
 
 let alfrescoAPIKey: string | null = null;
@@ -14,10 +14,10 @@ const alfrescoAPIUrlName = process.env.ALFRESCO_API_URL || '';
 const searchByTerm = async (term: string) => {
   try {
     if (!alfrescoAPIKey) {
-      alfrescoAPIKey = await getSecuredStringParamter(alfrescoAPIKeyName);
+      alfrescoAPIKey = await getSecuredStringParameter(alfrescoAPIKeyName);
     }
     if (!alfrescoAPIUrl) {
-      alfrescoAPIUrl = await getParamter(alfrescoAPIUrlName);
+      alfrescoAPIUrl = await getParameter(alfrescoAPIUrlName);
     }
     const options = {
       headers: {

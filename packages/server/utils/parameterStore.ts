@@ -3,7 +3,7 @@ import { log } from './logger';
 
 const ssm = new AWS.SSM({ region: process.env.region || 'eu-west-1' });
 
-export const getSecuredStringParamter = async (name: string) => {
+export const getSecuredStringParameter = async (name: string) => {
   try {
     const value = await ssm
       .getParameter({
@@ -18,7 +18,7 @@ export const getSecuredStringParamter = async (name: string) => {
   }
 };
 
-export const getParamter = async (name: string) => {
+export const getParameter = async (name: string) => {
   try {
     const value = await ssm.getParameter({ Name: name }).promise();
     return value.Parameter?.Value || '';
