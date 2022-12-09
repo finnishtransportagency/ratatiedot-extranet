@@ -11,7 +11,7 @@ let alfrescoAPIUrl: string | null = null;
 const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY || '';
 const alfrescoAPIUrlName = process.env.ALFRESCO_API_URL || '';
 
-const searchByTerm = async (term: string) => {
+const searchByTerm = async (cookie: string, term: string) => {
   try {
     if (!alfrescoAPIKey) {
       alfrescoAPIKey = await getSecuredStringParameter(alfrescoAPIKeyName);
@@ -22,7 +22,7 @@ const searchByTerm = async (term: string) => {
     const options = {
       headers: {
         'X-API-Key': alfrescoAPIKey,
-        // Cookie: '',
+        Cookie: cookie,
       },
     };
     const response = await axios.get(`${alfrescoAPIUrl}/queries/nodes?term=${term}`, options);
@@ -39,8 +39,11 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
     await validateReadUser(user);
     let data = {};
     const term = event.queryStringParameters?.term ? decodeURIComponent(event.queryStringParameters.term) : '';
+    // Testing cookie by event.json file
+    const cookie = event.headers?.cookie || '';
+
     if (term) {
-      data = await searchByTerm(term);
+      data = await searchByTerm(cookie, term);
     }
     return {
       statusCode: 200,
