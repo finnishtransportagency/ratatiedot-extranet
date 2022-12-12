@@ -1,40 +1,47 @@
-import { Paging, SearchParameter } from './types';
+import { IMimeSearchParameter, IModifiedSearchParameter, Paging, SearchParameter } from './types';
 
 const mimeTypesMapping = {
-  MSWORD: ['\\"application/msword\\"', '\\"application/vnd.openxmlformats-officedocument.wordprocessingml.document\\"'],
-  PDF: ['\\"application/pdf\\"'],
+  MSWORD: ['"application/msword"', '"application/vnd.openxmlformats-officedocument.wordprocessingml.document"'],
+  PDF: ['"application/pdf"'],
 };
 
 const DIVIDER = ':';
-const SEARCH_START = '+@cm\\\\' + DIVIDER;
+const SEARCH_START = '+@cm\\' + DIVIDER;
+
+// TODO: from/to conversion to YYYY-MM-DD
+function buildModifiedQuery(parameter: IModifiedSearchParameter): string {
+  return SEARCH_START + 'modified' + DIVIDER + '[' + parameter.from + ' TO ' + parameter.to + ']';
+}
+
+function buildMimeQuery(parameter: IMimeSearchParameter): string {
+  let query = SEARCH_START + 'content.mimetype' + DIVIDER;
+  if (parameter.fileTypes.length > 1) {
+    query += '[' + parameter.fileTypes.map((fileType) => mimeTypesMapping[fileType].join(', ')).join(', ') + ']';
+  } else {
+    const fileTypes = parameter.fileTypes[0];
+    const mimes = mimeTypesMapping[fileTypes];
+    if (mimes.length > 1) {
+      query += '[' + mimes.join(', ') + ']';
+    } else {
+      query += mimes[0];
+    }
+  }
+  return query;
+}
 
 export function luceneQueryBuilder(searchParameters: Array<SearchParameter>): string {
   let query = '';
-  searchParameters.map((param) => {
-    switch (param.parameterName) {
+  searchParameters.map((parameter) => {
+    switch (parameter.parameterName) {
       case 'modified':
-        const modifiedParam = param;
-        // TODO: from/to conversion to YYYY-MM-DD
-        query += SEARCH_START + 'modified' + DIVIDER + '[' + modifiedParam.from + ' TO ' + modifiedParam.to + ']';
+        query += buildModifiedQuery(parameter);
         break;
       case 'mime':
-        const mimeParam = param;
-        query += SEARCH_START + 'content.mimetype' + DIVIDER;
-        if (mimeParam.fileTypes.length > 1) {
-        } else {
-          const fileTypes = mimeParam.fileTypes[0];
-          const mimes = mimeTypesMapping[fileTypes];
-          if (mimes.length > 1) {
-            query += '[' + mimes.map((mime) => mime) + ']';
-          } else {
-            query += mimes[0];
-          }
-        }
+        query += buildMimeQuery(parameter);
         break;
       default:
     }
   });
-  query += '\\"';
   return query;
 }
 
@@ -47,7 +54,7 @@ export function lucenePagination(page: number): Paging {
 
 // {
 //   "query": {
-//     "query": "+@cm\\:content.mimetype:\"application/msword\"",
+//     "query": "+@cm\\:content.mimetype:\"application/pdf\"",
 //     "language": "lucene"
 //   }
 // }
