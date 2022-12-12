@@ -20,6 +20,14 @@ export interface IMenuItem {
   children?: any;
 }
 
+const hasWhitespace = (name: string) => {
+  return /\s/.test(name);
+};
+
+export const getRouterName = (name: string) => {
+  return hasWhitespace(name) ? name.split(' ').join('-').toLocaleLowerCase() : name.toLocaleLowerCase();
+};
+
 const fetchMaterialClass = (): IMenuItem[] => {
   const loadIcons = (category: string) => {
     switch (category) {
@@ -49,7 +57,7 @@ const fetchMaterialClass = (): IMenuItem[] => {
           key: item,
           primary: item,
           // TODO: create page components. Route names may be changed
-          to: `/${item}`,
+          to: `/${getRouterName(item)}`,
         };
       }),
     };
