@@ -1,21 +1,21 @@
 import { log } from '../../../utils/logger';
 import { lucenePagination, luceneQueryBuilder } from './luceneQueryBuilder';
-import { queryLanguagesMapping, SearchParameters, QueryLanguages, Query } from './types';
+import { QueryLanguage, SearchParameters, Query } from './types';
 
 export const searchQueryBuilder = ({
   searchParameters,
   page = 0,
-  language = queryLanguagesMapping.LUCENE,
+  language = QueryLanguage.LUCENE,
 }: {
   searchParameters: SearchParameters;
   page: number;
-  language: QueryLanguages;
+  language: QueryLanguage;
 }): Query => {
   switch (language) {
     case 'lucene':
       return {
         query: luceneQueryBuilder(searchParameters),
-        language: queryLanguagesMapping.LUCENE,
+        language,
         paging: lucenePagination(page),
       };
     default:

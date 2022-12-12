@@ -1,5 +1,4 @@
-export type QueryLanguages = typeof queryLanguagesMapping[keyof typeof queryLanguagesMapping];
-export enum queryLanguagesMapping {
+export enum QueryLanguage {
   LUCENE = 'lucene',
   CMIS = 'cmis',
 }
@@ -16,7 +15,7 @@ export enum SearchParameterName {
 
 export type Query = {
   query: string;
-  language: string;
+  language: QueryLanguage;
   paging: Paging;
 };
 
