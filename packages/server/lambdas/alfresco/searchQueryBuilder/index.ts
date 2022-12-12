@@ -12,7 +12,7 @@ export const searchQueryBuilder = ({
   language: QueryLanguage;
 }): Query => {
   switch (language) {
-    case 'lucene':
+    case QueryLanguage.LUCENE:
       return {
         query: luceneQueryBuilder(searchParameters),
         language,

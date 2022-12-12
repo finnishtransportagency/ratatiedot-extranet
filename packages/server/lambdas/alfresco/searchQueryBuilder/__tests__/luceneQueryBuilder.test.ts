@@ -70,5 +70,14 @@ describe('Lucene Query Builder', () => {
         '+@cm\\:modified:[2020-01-01 TO 2020-12-31]+@cm\\:content.mimetype:"application/pdf"',
       );
     });
+    it('should return query for name', () => {
+      const parameters: Array<SearchParameter> = [
+        {
+          parameterName: SearchParameterName.NAME,
+          fileName: 'test',
+        },
+      ];
+      expect(luceneQueryBuilder(parameters)).toEqual('+@cm\\:name:"test*"');
+    });
   });
 });

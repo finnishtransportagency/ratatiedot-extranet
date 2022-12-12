@@ -1,37 +1,47 @@
 import { format } from 'date-fns';
-import { IMimeSearchParameter, IModifiedSearchParameter, Paging, SearchParameter } from './types';
+import {
+  IMimeSearchParameter,
+  IModifiedSearchParameter,
+  INameSearchParameter,
+  Paging,
+  SearchParameter,
+  SearchParameterName,
+} from './types';
 
 const mimeTypesMapping = {
+  EXCEL: ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+  IMAGE: ['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/tiff', 'image/webp'],
   MSWORD: ['"application/msword"', '"application/vnd.openxmlformats-officedocument.wordprocessingml.document"'],
   PDF: ['"application/pdf"'],
+  PRESENTATION: [
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  ],
+  TXT: ['text/plain'],
 };
 
 const DIVIDER = ':';
-const SEARCH_START = '+@cm\\' + DIVIDER;
+const SEARCH_START = `+@cm\\${DIVIDER}`;
 
 // Only supports ISO-8601
 function buildModifiedQuery(parameter: IModifiedSearchParameter): string {
-  return (
-    SEARCH_START +
-    'modified' +
-    DIVIDER +
-    '[' +
-    format(new Date(parameter.from), 'yyyy-MM-dd') +
-    ' TO ' +
-    format(new Date(parameter.to), 'yyyy-MM-dd') +
-    ']'
-  );
+  return `${SEARCH_START}modified${DIVIDER}[${format(new Date(parameter.from), 'yyyy-MM-dd')} TO ${format(
+    new Date(parameter.to),
+    'yyyy-MM-dd',
+  )}]`;
 }
 
 function buildMimeQuery(parameter: IMimeSearchParameter): string {
-  let query = SEARCH_START + 'content.mimetype' + DIVIDER;
+  let query = `${SEARCH_START}content.mimetype${DIVIDER}`;
   if (parameter.fileTypes.length > 1) {
-    query += '[' + parameter.fileTypes.map((fileType) => mimeTypesMapping[fileType].join(', ')).join(', ') + ']';
+    const joinedMimes = parameter.fileTypes.map((fileType) => mimeTypesMapping[fileType].join(', ')).join(', ');
+    query += `[${joinedMimes}]`;
   } else {
     const fileTypes = parameter.fileTypes[0];
     const mimes = mimeTypesMapping[fileTypes];
     if (mimes.length > 1) {
-      query += '[' + mimes.join(', ') + ']';
+      const joinedMimes = mimes.join(', ');
+      query += `[${joinedMimes}]`;
     } else {
       query += mimes[0];
     }
@@ -39,15 +49,22 @@ function buildMimeQuery(parameter: IMimeSearchParameter): string {
   return query;
 }
 
+function buildNameQuery(parameter: INameSearchParameter): string {
+  return `${SEARCH_START}name${DIVIDER}"${parameter.fileName}*"`;
+}
+
 export function luceneQueryBuilder(searchParameters: Array<SearchParameter>): string {
   let query = '';
   searchParameters.map((parameter) => {
     switch (parameter.parameterName) {
-      case 'modified':
+      case SearchParameterName.MODIFIED:
         query += buildModifiedQuery(parameter);
         break;
-      case 'mime':
+      case SearchParameterName.MIME:
         query += buildMimeQuery(parameter);
+        break;
+      case SearchParameterName.NAME:
+        query += buildNameQuery(parameter);
         break;
       default:
     }
@@ -84,5 +101,12 @@ export function lucenePagination(page: number): Paging {
 //   "paging": {
 //     "maxItems": "10",
 //     "skipCount": "0"
+//   }
+// }
+
+// {
+//   "query": {
+//     "query": "+@cm\\:name:\"testi*\"",
+//     "language": "lucene"
 //   }
 // }

@@ -4,13 +4,18 @@ export enum QueryLanguage {
 }
 
 export enum FileType {
+  EXCEL = 'EXCEL',
+  IMAGE = 'IMAGE',
   MSWORD = 'MSWORD',
   PDF = 'PDF',
+  PRESENTATION = 'PRESENTATION',
+  TXT = 'TXT',
 }
 
 export enum SearchParameterName {
   MODIFIED = 'modified',
   MIME = 'mime',
+  NAME = 'name',
 }
 
 export type Query = {
@@ -39,4 +44,9 @@ export interface IMimeSearchParameter extends IBaseSearchParameter {
   fileTypes: Array<FileType>;
 }
 
-export type SearchParameter = IModifiedSearchParameter | IMimeSearchParameter;
+export interface INameSearchParameter extends IBaseSearchParameter {
+  parameterName: SearchParameterName.NAME;
+  fileName: string;
+}
+
+export type SearchParameter = IModifiedSearchParameter | IMimeSearchParameter | INameSearchParameter;
