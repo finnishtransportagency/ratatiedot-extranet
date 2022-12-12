@@ -1,4 +1,4 @@
-import { IMimeSearchParameter, IModifiedSearchParameter, SearchParameters } from '.';
+import { IMimeSearchParameter, IModifiedSearchParameter, Paging, SearchParameters } from '.';
 
 const mimeTypesMapping = {
   MSWORD: ['\\"application/msword\\"', '\\"application/vnd.openxmlformats-officedocument.wordprocessingml.document\\"'],
@@ -38,7 +38,7 @@ export function luceneQueryBuilder(searchParameters: SearchParameters): string {
   return query;
 }
 
-export function lucenePagination(page: number) {
+export function lucenePagination(page: number): Paging {
   return {
     maxItems: 10,
     skipCount: page,

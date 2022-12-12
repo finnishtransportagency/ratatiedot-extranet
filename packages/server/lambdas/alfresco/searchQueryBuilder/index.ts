@@ -14,6 +14,12 @@ export type SearchParameterNames = 'modified' | 'mime';
 export type Query = {
   query: string;
   language: string;
+  paging: Paging;
+};
+
+export type Paging = {
+  maxItems: number;
+  skipCount: number;
 };
 
 interface IBaseSearchParameter {
@@ -41,7 +47,7 @@ export const searchQueryBuilder = ({
   searchParameters: SearchParameters;
   page: number;
   language: QueryLanguages;
-}) => {
+}): Query => {
   switch (language) {
     case 'lucene':
       return {
