@@ -1,5 +1,6 @@
 import { Typography } from '@mui/material';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ContainerWrapper, SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
@@ -7,6 +8,8 @@ import { Footer } from '../../components/Footer';
 import { useQuery } from '@tanstack/react-query';
 
 export const Landing = () => {
+  const { t } = useTranslation(['common', 'landing']);
+
   // temporary state -> should save in db instead
   const [isFirstLogin, setIsFirstLogin] = useState(() => {
     const saved = localStorage.getItem('isFirstLogin') || 'true';
@@ -22,19 +25,12 @@ export const Landing = () => {
   const FirstLoginView = () => {
     return (
       <>
-        <SubtitleWrapper variant="subtitle1">Käyttöohjeet: Ratatiedon extranet</SubtitleWrapper>
-        <ParagraphWrapper variant="body1">
-          Ratatiedon extranettiin kerätty aineisto on tarkoitettu liikenteenohjaukselle, isännöitsijöille,
-          kunnossapitäjille, rakentajille ja liikennöijille. Tietoja ei saa luovuttaa eteenpäin ilman Väyläviraston
-          lupaa. Tietoja saa käyttää radanpidon ja liikennöinnin työtehtäviin.
-        </ParagraphWrapper>
-        <ParagraphWrapper variant="body1">
-          Ratatiedon extranetin käyttäjät ovat sitoutuneet noudattamaan ylläolevia palvelun sääntöjä. Palvelun tunnukset
-          ovat henkilökohtaiset.
-        </ParagraphWrapper>
-        <Typography variant="subtitle2">Jatkakseesi palveluun sinun on hyväksyttävä käyttöohjeet.</Typography>
+        <SubtitleWrapper variant="subtitle1">{t('landing:first_login.title')}</SubtitleWrapper>
+        <ParagraphWrapper variant="body1">{t('landing:first_login.description_primary')}</ParagraphWrapper>
+        <ParagraphWrapper variant="body1">{t('landing:first_login.description_secondary')}</ParagraphWrapper>
+        <Typography variant="subtitle2">{t('landing:first_login.must_accept')}</Typography>
         <ButtonWrapper color="primary" variant="contained" onClick={acceptTerm}>
-          Hyväksy
+          {t('common:action.accept')}
         </ButtonWrapper>
       </>
     );
@@ -53,11 +49,8 @@ export const Landing = () => {
     });
     return (
       <>
-        <SubtitleWrapper variant="subtitle1">Tervetuloa uudistuneeseen Ratatiedon extranettiin</SubtitleWrapper>
-        <ParagraphWrapper variant="body1">
-          Tarkista ajankohtaiset ilmoitukset, viimeksi muokatut tiedostot ja omat suosikit suoraan tältä sivulta. Voit
-          siirtyä myös muihin aineistoihin navigaation tai haun kautta.
-        </ParagraphWrapper>
+        <SubtitleWrapper variant="subtitle1">{t('landing:welcome.text')}</SubtitleWrapper>
+        <ParagraphWrapper variant="body1">{t('landing:welcome.description')}</ParagraphWrapper>
         <Footer />
       </>
     );

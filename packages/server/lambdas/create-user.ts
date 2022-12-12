@@ -1,20 +1,20 @@
 import { ALBEvent, Context } from 'aws-lambda';
-// import { getRataExtraLambdaError } from '../utils/errors.js';
+import { getRataExtraLambdaError } from '../utils/errors.js';
 import { log } from '../utils/logger.js';
-// import { getUser, validateWriteUser } from '../utils/userService.js';
+import { getUser, validateWriteUser } from '../utils/userService.js';
 import { DatabaseClient } from './database-client/index.js';
 
 const database = await DatabaseClient.build();
 
 export async function handleRequest(event: ALBEvent, _context: Context) {
-  //  try {
-  //    const user = await getUser(event);
-  //    // TODO: Validate write rights
-  //    await validateWriteUser(user);
-  //  } catch (err) {
-  //    log.error(err);
-  //    return getRataExtraLambdaError(err);
-  //  }
+  try {
+    const user = await getUser(event);
+    log.info(user, 'Creating temp users');
+    await validateWriteUser(user);
+  } catch (err) {
+    log.error(err);
+    return getRataExtraLambdaError(err);
+  }
   await database.user
     .create({
       data: {
@@ -28,7 +28,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
         },
       },
     })
-    .then((res) => {
+    .then((res: any) => {
       const response = {
         statusCode: 200,
         headers: {
@@ -39,7 +39,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
       };
       return response;
     })
-    .catch(async (e) => {
+    .catch(async (e: any) => {
       log.error(e);
     });
 }
