@@ -1,4 +1,4 @@
-import { IMimeSearchParameter, IModifiedSearchParameter, Paging, SearchParameters } from '.';
+import { Paging, SearchParameter } from './types';
 
 const mimeTypesMapping = {
   MSWORD: ['\\"application/msword\\"', '\\"application/vnd.openxmlformats-officedocument.wordprocessingml.document\\"'],
@@ -8,17 +8,17 @@ const mimeTypesMapping = {
 const DIVIDER = ':';
 const SEARCH_START = '+@cm\\\\' + DIVIDER;
 
-export function luceneQueryBuilder(searchParameters: SearchParameters): string {
+export function luceneQueryBuilder(searchParameters: Array<SearchParameter>): string {
   let query = '';
   searchParameters.map((param) => {
     switch (param.parameterName) {
       case 'modified':
-        const modifiedParam = param as IModifiedSearchParameter;
+        const modifiedParam = param;
         // TODO: from/to conversion to YYYY-MM-DD
         query += SEARCH_START + 'modified' + DIVIDER + '[' + modifiedParam.from + ' TO ' + modifiedParam.to + ']';
         break;
       case 'mime':
-        const mimeParam = param as IMimeSearchParameter;
+        const mimeParam = param;
         query += SEARCH_START + 'content.mimetype' + DIVIDER;
         if (mimeParam.fileTypes.length > 1) {
         } else {

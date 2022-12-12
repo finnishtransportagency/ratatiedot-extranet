@@ -1,43 +1,6 @@
 import { log } from '../../../utils/logger';
 import { lucenePagination, luceneQueryBuilder } from './luceneQueryBuilder';
-
-export type QueryLanguages = typeof queryLanguagesMapping[keyof typeof queryLanguagesMapping];
-export const queryLanguagesMapping = {
-  LUCENE: 'lucene',
-  CMIS: 'cmis',
-} as const;
-
-export type FileTypes = 'MSWORD' | 'PDF';
-
-export type SearchParameterNames = 'modified' | 'mime';
-
-export type Query = {
-  query: string;
-  language: string;
-  paging: Paging;
-};
-
-export type Paging = {
-  maxItems: number;
-  skipCount: number;
-};
-
-interface IBaseSearchParameter {
-  parameterName: SearchParameterNames;
-}
-
-export interface IModifiedSearchParameter extends IBaseSearchParameter {
-  from: string;
-  to: string;
-}
-
-export interface IMimeSearchParameter extends IBaseSearchParameter {
-  fileTypes: Array<FileTypes>;
-}
-
-export type SearchParameter = IModifiedSearchParameter | IMimeSearchParameter;
-
-export type SearchParameters = Array<SearchParameter>;
+import { queryLanguagesMapping, SearchParameters, QueryLanguages, Query } from './types';
 
 export const searchQueryBuilder = ({
   searchParameters,
