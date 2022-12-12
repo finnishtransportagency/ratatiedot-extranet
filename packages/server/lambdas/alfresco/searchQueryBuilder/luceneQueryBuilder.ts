@@ -72,10 +72,10 @@ export function luceneQueryBuilder(searchParameters: Array<SearchParameter>): st
   return query;
 }
 
-export function lucenePagination(page: number): Paging {
+export function lucenePagination(page?: number): Paging {
   return {
     maxItems: 10,
-    skipCount: page,
+    skipCount: Math.max(page ?? 0, 0),
   };
 }
 

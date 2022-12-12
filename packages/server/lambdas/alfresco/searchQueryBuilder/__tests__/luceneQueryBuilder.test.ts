@@ -1,4 +1,4 @@
-import { luceneQueryBuilder } from '../luceneQueryBuilder';
+import { lucenePagination, luceneQueryBuilder } from '../luceneQueryBuilder';
 import { FileType, SearchParameter, SearchParameterName } from '../types';
 
 describe('Lucene Query Builder', () => {
@@ -78,6 +78,22 @@ describe('Lucene Query Builder', () => {
         },
       ];
       expect(luceneQueryBuilder(parameters)).toEqual('+@cm\\:name:"test*"');
+    });
+  });
+  describe('lucenePagination', () => {
+    it('should return default pagination if no page given', () => {
+      expect(lucenePagination()).toEqual({ maxItems: 10, skipCount: 0 });
+    });
+  });
+  describe('lucenePagination', () => {
+    it('should return given positive pagination page', () => {
+      expect(lucenePagination(5)).toEqual({ maxItems: 10, skipCount: 5 });
+    });
+  });
+
+  describe('lucenePagination', () => {
+    it('should return zero given negative pagination page', () => {
+      expect(lucenePagination(-4)).toEqual({ maxItems: 10, skipCount: 0 });
     });
   });
 });
