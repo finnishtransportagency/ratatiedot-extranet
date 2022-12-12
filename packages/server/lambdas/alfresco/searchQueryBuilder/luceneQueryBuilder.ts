@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { IMimeSearchParameter, IModifiedSearchParameter, Paging, SearchParameter } from './types';
 
 const mimeTypesMapping = {
@@ -8,9 +9,18 @@ const mimeTypesMapping = {
 const DIVIDER = ':';
 const SEARCH_START = '+@cm\\' + DIVIDER;
 
-// TODO: from/to conversion to YYYY-MM-DD
+// Only supports ISO-8601
 function buildModifiedQuery(parameter: IModifiedSearchParameter): string {
-  return SEARCH_START + 'modified' + DIVIDER + '[' + parameter.from + ' TO ' + parameter.to + ']';
+  return (
+    SEARCH_START +
+    'modified' +
+    DIVIDER +
+    '[' +
+    format(new Date(parameter.from), 'yyyy-MM-dd') +
+    ' TO ' +
+    format(new Date(parameter.to), 'yyyy-MM-dd') +
+    ']'
+  );
 }
 
 function buildMimeQuery(parameter: IMimeSearchParameter): string {
