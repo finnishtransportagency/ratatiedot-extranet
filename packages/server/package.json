@@ -4,7 +4,8 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest"
   },
   "author": "",
   "license": "EUPL v1.2",
@@ -19,6 +20,7 @@
     "prisma": "^4.5.0"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.18.6",
     "@types/aws-lambda": "^8.10.107",
     "@types/chai": "^4.3.3",
     "@types/jsonwebtoken": "^8.5.9",
