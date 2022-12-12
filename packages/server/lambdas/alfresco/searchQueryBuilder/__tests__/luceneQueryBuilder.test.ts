@@ -12,5 +12,16 @@ describe('Lucene Query Builder', () => {
       ];
       expect(luceneQueryBuilder(parameters)).toEqual('+@cm\\:content.mimetype:"application/pdf"');
     });
+    it('should return query with msword in array', () => {
+      const parameters: Array<SearchParameter> = [
+        {
+          parameterName: SearchParameterName.MIME,
+          fileTypes: [FileType.MSWORD],
+        },
+      ];
+      expect(luceneQueryBuilder(parameters)).toEqual(
+        '+@cm\\:content.mimetype:["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]',
+      );
+    });
   });
 });
