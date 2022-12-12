@@ -11,35 +11,32 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
     const user = await getUser(event);
     log.info(user, 'Creating temp users');
     await validateWriteUser(user);
+    await database.user
+      .create({
+        data: {
+          name: 'Alice',
+          email: Date.now() + '@email.com',
+          posts: {
+            create: { title: 'Hello World' },
+          },
+          profile: {
+            create: { bio: 'I like turtles' },
+          },
+        },
+      })
+      .then((res: any) => {
+        const response = {
+          statusCode: 200,
+          headers: {
+            my_header: 'my_value',
+          },
+          body: JSON.stringify(res),
+          isBase64Encoded: false,
+        };
+        return response;
+      });
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-  await database.user
-    .create({
-      data: {
-        name: 'Alice',
-        email: Date.now() + '@email.com',
-        posts: {
-          create: { title: 'Hello World' },
-        },
-        profile: {
-          create: { bio: 'I like turtles' },
-        },
-      },
-    })
-    .then((res: any) => {
-      const response = {
-        statusCode: 200,
-        headers: {
-          my_header: 'my_value',
-        },
-        body: JSON.stringify(res),
-        isBase64Encoded: false,
-      };
-      return response;
-    })
-    .catch(async (e: any) => {
-      log.error(e);
-    });
 }
