@@ -40,5 +40,3 @@ export interface IMimeSearchParameter extends IBaseSearchParameter {
 }
 
 export type SearchParameter = IModifiedSearchParameter | IMimeSearchParameter;
-
-export type SearchParameters = Array<SearchParameter>;
