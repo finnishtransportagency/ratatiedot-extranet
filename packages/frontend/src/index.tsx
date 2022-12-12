@@ -8,6 +8,7 @@ import reportWebVitals from './reportWebVitals';
 import { router } from './routes';
 import { theme } from './styles/createTheme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import './i18n';
 
 const queryClient = new QueryClient();
 
