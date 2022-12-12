@@ -1,13 +1,13 @@
 import { log } from '../../../utils/logger';
 import { lucenePagination, luceneQueryBuilder } from './luceneQueryBuilder';
-import { QueryLanguage, SearchParameters, Query } from './types';
+import { QueryLanguage, Query, SearchParameter } from './types';
 
 export const searchQueryBuilder = ({
   searchParameters,
   page = 0,
   language = QueryLanguage.LUCENE,
 }: {
-  searchParameters: SearchParameters;
+  searchParameters: Array<SearchParameter>;
   page: number;
   language: QueryLanguage;
 }): Query => {
