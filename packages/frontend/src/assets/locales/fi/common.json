@@ -1,0 +1,14 @@
+{
+  "page": {
+    "frontpage": "Etusivu",
+    "plans": "Kaaviot",
+    "traffic": "Liikennöinti",
+    "structures": "Taitorakenteet",
+    "safety_equipment": "Turvalaitteet",
+    "contact_info": "Yhteystiedot",
+    "others": "Muut"
+  },
+  "action": {
+    "accept": "Hyväksy"
+  }
+}
