@@ -16,7 +16,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
       headers: {
         my_header: 'my_value',
       },
-      body: JSON.stringify(users.res),
+      body: JSON.stringify(users),
       isBase64Encoded: false,
     };
     return response;
