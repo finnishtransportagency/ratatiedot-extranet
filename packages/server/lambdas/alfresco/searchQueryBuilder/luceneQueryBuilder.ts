@@ -9,15 +9,15 @@ import {
 } from './types';
 
 const mimeTypesMapping = {
-  EXCEL: ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-  IMAGE: ['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/tiff', 'image/webp'],
+  EXCEL: ['"application/vnd.ms-excel"', '"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"'],
+  IMAGE: ['"image/gif"', '"image/jpeg"', '"image/png"', '"image/svg+xml"', '"image/tiff"', '"image/webp"'],
   MSWORD: ['"application/msword"', '"application/vnd.openxmlformats-officedocument.wordprocessingml.document"'],
   PDF: ['"application/pdf"'],
   PRESENTATION: [
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    '"application/vnd.ms-powerpoint"',
+    '"application/vnd.openxmlformats-officedocument.presentationml.presentation"',
   ],
-  TXT: ['text/plain'],
+  TXT: ['"text/plain"'],
 };
 
 const DIVIDER = ':';
