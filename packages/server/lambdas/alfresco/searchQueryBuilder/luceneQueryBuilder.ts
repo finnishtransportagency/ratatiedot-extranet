@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import {
   IMimeSearchParameter,
   IModifiedSearchParameter,
@@ -24,13 +24,22 @@ export const mimeTypesMappingForTests = mimeTypesMapping;
 
 const DIVIDER = ':';
 const SEARCH_START = `+@cm\\${DIVIDER}`;
+const YEAR = new RegExp(/^\d{4}$/);
+const onlyYear = (date: string) => YEAR.test(date);
 
 // Only supports ISO-8601
+// In case of only year given, set from to first day of the year and to to last day of the year
+// If to missing, set to to last day of from year
 function buildModifiedQuery(parameter: IModifiedSearchParameter): string {
-  return `${SEARCH_START}modified${DIVIDER}[${format(new Date(parameter.from), 'yyyy-MM-dd')} TO ${format(
-    new Date(parameter.to),
-    'yyyy-MM-dd',
-  )}]`;
+  const from = onlyYear(parameter.from)
+    ? set(new Date(parameter.from), { month: 0, date: 1 })
+    : new Date(parameter.from);
+  const to = parameter.to
+    ? onlyYear(parameter.to)
+      ? set(new Date(parameter.to), { month: 11, date: 31 })
+      : new Date(parameter.to)
+    : set(new Date(parameter.from), { month: 11, date: 31 });
+  return `${SEARCH_START}modified${DIVIDER}[${format(from, 'yyyy-MM-dd')} TO ${format(to, 'yyyy-MM-dd')}]`;
 }
 
 function buildMimeQuery(parameter: IMimeSearchParameter): string {

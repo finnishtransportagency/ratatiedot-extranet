@@ -70,6 +70,52 @@ describe('Lucene Query Builder', () => {
         '+@cm\\:modified:[2020-01-01 TO 2020-12-31]+@cm\\:content.mimetype:"application/pdf"',
       );
     });
+    it('should return query with autfilled to when given only from', () => {
+      const parameters: Array<SearchParameter> = [
+        {
+          parameterName: SearchParameterName.MODIFIED,
+          from: '2020-01-01',
+        },
+        {
+          parameterName: SearchParameterName.MIME,
+          fileTypes: [FileType.PDF],
+        },
+      ];
+      expect(luceneQueryBuilder(parameters)).toEqual(
+        '+@cm\\:modified:[2020-01-01 TO 2020-12-31]+@cm\\:content.mimetype:"application/pdf"',
+      );
+    });
+    it('should return query with dates spanning start and end of year when given from with only year', () => {
+      const parameters: Array<SearchParameter> = [
+        {
+          parameterName: SearchParameterName.MODIFIED,
+          from: '2020',
+        },
+        {
+          parameterName: SearchParameterName.MIME,
+          fileTypes: [FileType.PDF],
+        },
+      ];
+      expect(luceneQueryBuilder(parameters)).toEqual(
+        '+@cm\\:modified:[2020-01-01 TO 2020-12-31]+@cm\\:content.mimetype:"application/pdf"',
+      );
+    });
+    it('should return query with dates spanning start of from and end of to when given both with only years', () => {
+      const parameters: Array<SearchParameter> = [
+        {
+          parameterName: SearchParameterName.MODIFIED,
+          from: '2020',
+          to: '2021',
+        },
+        {
+          parameterName: SearchParameterName.MIME,
+          fileTypes: [FileType.PDF],
+        },
+      ];
+      expect(luceneQueryBuilder(parameters)).toEqual(
+        '+@cm\\:modified:[2020-01-01 TO 2021-12-31]+@cm\\:content.mimetype:"application/pdf"',
+      );
+    });
     it('should return query for name', () => {
       const parameters: Array<SearchParameter> = [
         {

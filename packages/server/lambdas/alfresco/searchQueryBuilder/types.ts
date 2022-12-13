@@ -36,7 +36,7 @@ interface IBaseSearchParameter {
 export interface IModifiedSearchParameter extends IBaseSearchParameter {
   parameterName: SearchParameterName.MODIFIED;
   from: string;
-  to: string;
+  to?: string;
 }
 
 export interface IMimeSearchParameter extends IBaseSearchParameter {
