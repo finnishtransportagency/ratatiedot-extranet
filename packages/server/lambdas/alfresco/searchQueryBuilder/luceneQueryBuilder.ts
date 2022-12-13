@@ -24,10 +24,10 @@ export const mimeTypesMappingForTests = mimeTypesMapping;
 
 const DIVIDER = ':';
 const SEARCH_START = `+@cm\\${DIVIDER}`;
+
 const YEAR = new RegExp(/^\d{4}$/);
 const onlyYear = (date: string) => YEAR.test(date);
-
-// Only supports ISO-8601
+// Only supports ISO-8601 and YYYY
 // In case of only year given, set from to first day of the year and to to last day of the year
 // If to missing, set to to last day of from year
 function buildModifiedQuery(parameter: IModifiedSearchParameter): string {
