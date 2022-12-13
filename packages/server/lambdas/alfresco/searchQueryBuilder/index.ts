@@ -1,5 +1,5 @@
 import { log } from '../../../utils/logger';
-import { lucenePagination, luceneQueryBuilder } from './luceneQueryBuilder';
+import { LuceneQueryBuilder } from './luceneQueryBuilder';
 import { QueryLanguage, Query, SearchParameter } from './types';
 
 export const searchQueryBuilder = ({
@@ -13,10 +13,11 @@ export const searchQueryBuilder = ({
 }): Query => {
   switch (language) {
     case QueryLanguage.LUCENE:
+      const luceneQueryBuilder = new LuceneQueryBuilder();
       return {
-        query: luceneQueryBuilder(searchParameters),
+        query: luceneQueryBuilder.queryBuilder(searchParameters),
         language,
-        paging: lucenePagination(page),
+        paging: luceneQueryBuilder.pagination(page),
       };
     default:
       log.error(`Searchquery for ${language} not yet implemented.`);

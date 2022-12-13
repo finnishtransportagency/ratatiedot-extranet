@@ -1,6 +1,7 @@
-import { lucenePagination, luceneQueryBuilder, mimeTypesMappingForTests } from '../luceneQueryBuilder';
+import { LuceneQueryBuilder, mimeTypesMappingForTests } from '../luceneQueryBuilder';
 import { FileType, SearchParameter, SearchParameterName } from '../types';
 
+const luceneQueryBuilder = new LuceneQueryBuilder();
 describe('Lucene Query Builder', () => {
   describe('luceneQueryBuilder', () => {
     it('should return query for pdf not in an array', () => {
@@ -10,7 +11,7 @@ describe('Lucene Query Builder', () => {
           fileTypes: [FileType.PDF],
         },
       ];
-      expect(luceneQueryBuilder(parameters)).toEqual('+@cm\\:content.mimetype:"application/pdf"');
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+@cm\\:content.mimetype:"application/pdf"');
     });
     it('should return query for msword in array', () => {
       const parameters: Array<SearchParameter> = [
@@ -19,7 +20,7 @@ describe('Lucene Query Builder', () => {
           fileTypes: [FileType.MSWORD],
         },
       ];
-      expect(luceneQueryBuilder(parameters)).toEqual(
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
         '+@cm\\:content.mimetype:["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]',
       );
     });
@@ -30,7 +31,7 @@ describe('Lucene Query Builder', () => {
           fileTypes: [FileType.MSWORD, FileType.PDF],
         },
       ];
-      expect(luceneQueryBuilder(parameters)).toEqual(
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
         '+@cm\\:content.mimetype:["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/pdf"]',
       );
     });
@@ -42,7 +43,7 @@ describe('Lucene Query Builder', () => {
           to: '2020-12-31',
         },
       ];
-      expect(luceneQueryBuilder(parameters)).toEqual('+@cm\\:modified:[2020-01-01 TO 2020-12-31]');
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+@cm\\:modified:[2020-01-01 TO 2020-12-31]');
     });
     it('should return query for modified time from/to when given ISO-8601 datetimes', () => {
       const parameters: Array<SearchParameter> = [
@@ -52,7 +53,7 @@ describe('Lucene Query Builder', () => {
           to: '2020-12-31T00:00',
         },
       ];
-      expect(luceneQueryBuilder(parameters)).toEqual('+@cm\\:modified:[2020-01-01 TO 2020-12-31]');
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+@cm\\:modified:[2020-01-01 TO 2020-12-31]');
     });
     it('should return query for modified time from/to and mime pdf when given both', () => {
       const parameters: Array<SearchParameter> = [
@@ -66,7 +67,7 @@ describe('Lucene Query Builder', () => {
           fileTypes: [FileType.PDF],
         },
       ];
-      expect(luceneQueryBuilder(parameters)).toEqual(
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
         '+@cm\\:modified:[2020-01-01 TO 2020-12-31]+@cm\\:content.mimetype:"application/pdf"',
       );
     });
@@ -81,7 +82,7 @@ describe('Lucene Query Builder', () => {
           fileTypes: [FileType.PDF],
         },
       ];
-      expect(luceneQueryBuilder(parameters)).toEqual(
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
         '+@cm\\:modified:[2020-01-01 TO 2020-12-31]+@cm\\:content.mimetype:"application/pdf"',
       );
     });
@@ -96,7 +97,7 @@ describe('Lucene Query Builder', () => {
           fileTypes: [FileType.PDF],
         },
       ];
-      expect(luceneQueryBuilder(parameters)).toEqual(
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
         '+@cm\\:modified:[2020-01-01 TO 2020-12-31]+@cm\\:content.mimetype:"application/pdf"',
       );
     });
@@ -112,7 +113,7 @@ describe('Lucene Query Builder', () => {
           fileTypes: [FileType.PDF],
         },
       ];
-      expect(luceneQueryBuilder(parameters)).toEqual(
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
         '+@cm\\:modified:[2020-01-01 TO 2021-12-31]+@cm\\:content.mimetype:"application/pdf"',
       );
     });
@@ -123,23 +124,23 @@ describe('Lucene Query Builder', () => {
           fileName: 'test',
         },
       ];
-      expect(luceneQueryBuilder(parameters)).toEqual('+@cm\\:name:"test*"');
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+@cm\\:name:"test*"');
     });
   });
   describe('lucenePagination', () => {
     it('should return default pagination if no page given', () => {
-      expect(lucenePagination()).toEqual({ maxItems: 10, skipCount: 0 });
+      expect(luceneQueryBuilder.pagination()).toEqual({ maxItems: 10, skipCount: 0 });
     });
   });
   describe('lucenePagination', () => {
     it('should return given positive pagination page', () => {
-      expect(lucenePagination(5)).toEqual({ maxItems: 10, skipCount: 5 });
+      expect(luceneQueryBuilder.pagination(5)).toEqual({ maxItems: 10, skipCount: 5 });
     });
   });
 
   describe('lucenePagination', () => {
     it('should return zero given negative pagination page', () => {
-      expect(lucenePagination(-4)).toEqual({ maxItems: 10, skipCount: 0 });
+      expect(luceneQueryBuilder.pagination(-4)).toEqual({ maxItems: 10, skipCount: 0 });
     });
   });
   describe('mimeTypesMapping', () => {
