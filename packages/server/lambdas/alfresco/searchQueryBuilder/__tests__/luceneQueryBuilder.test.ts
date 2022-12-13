@@ -1,4 +1,4 @@
-import { lucenePagination, luceneQueryBuilder } from '../luceneQueryBuilder';
+import { lucenePagination, luceneQueryBuilder, mimeTypesMappingForTests } from '../luceneQueryBuilder';
 import { FileType, SearchParameter, SearchParameterName } from '../types';
 
 describe('Lucene Query Builder', () => {
@@ -94,6 +94,13 @@ describe('Lucene Query Builder', () => {
   describe('lucenePagination', () => {
     it('should return zero given negative pagination page', () => {
       expect(lucenePagination(-4)).toEqual({ maxItems: 10, skipCount: 0 });
+    });
+  });
+  describe('mimeTypesMapping', () => {
+    it('All mimetypesMappings should start and end with "', () => {
+      const flatMimes = Object.values(mimeTypesMappingForTests).flat();
+      const mimesStartAndEndWithDoubleQuote = flatMimes.every((mime) => mime.startsWith('"') && mime.endsWith('"'));
+      expect(mimesStartAndEndWithDoubleQuote).toEqual(true);
     });
   });
 });

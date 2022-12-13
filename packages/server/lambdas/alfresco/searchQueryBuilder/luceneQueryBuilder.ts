@@ -19,6 +19,8 @@ const mimeTypesMapping = {
   ],
   TXT: ['"text/plain"'],
 };
+// Exported for testing, not meant for general usage
+export const mimeTypesMappingForTests = mimeTypesMapping;
 
 const DIVIDER = ':';
 const SEARCH_START = `+@cm\\${DIVIDER}`;
