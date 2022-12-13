@@ -10,14 +10,16 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
     await validateReadUser(user);
-    const users = await database.user.findMany({
-      include: { profile: true },
-    });
-    return {
+    const users = await database.user.findMany({ take: 10 });
+    const response = {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(users),
+      headers: {
+        my_header: 'my_value',
+      },
+      body: JSON.stringify(users.res),
+      isBase64Encoded: false,
     };
+    return response;
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);
