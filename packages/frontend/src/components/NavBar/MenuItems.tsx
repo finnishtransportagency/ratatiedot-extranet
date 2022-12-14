@@ -20,6 +20,10 @@ export interface IMenuItem {
   children?: any;
 }
 
+export const getRouterName = (name: string) => {
+  return name.replace(/\s/g, '-').toLowerCase();
+};
+
 const fetchMaterialClass = (): IMenuItem[] => {
   const loadIcons = (category: string) => {
     switch (category) {
@@ -49,7 +53,7 @@ const fetchMaterialClass = (): IMenuItem[] => {
           key: item,
           primary: item,
           // TODO: create page components. Route names may be changed
-          to: `/${item}`,
+          to: `/${getRouterName(item)}`,
         };
       }),
     };

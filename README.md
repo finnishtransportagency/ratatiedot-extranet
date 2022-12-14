@@ -285,7 +285,7 @@ Use `utils/userService.ts` to first get `user` and then use an applicable role c
 
 #### Logging
 
-Use `utils/logger.ts`. Whenever possible, pass `user` to get the UID. A info-level log should be done with user attached after authorizing the user at the beginning of a lambda function. Use error-level for any catch-blocks. In these cases, you usually don't have user, but do log that if it's available.
+Use `utils/logger.ts`. Whenever possible, pass `user` to get the UID. A info-level log should be done with user attached after authorizing the user at the beginning of a lambda function. Use error-level for any catch-blocks. In these cases, you usually don't have user, but do log that if it's available. If any changes are made to the system/databases/etc., also add an `auditLog`-line describing the action from logger. These _must_ have the user. As these logs are mixed in with technical logs, they can be used in place of normal logging when logging changes made. Errors etc. should still use normal logging.
 
 ### Testing
 
