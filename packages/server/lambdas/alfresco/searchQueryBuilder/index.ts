@@ -15,8 +15,10 @@ export const searchQueryBuilder = ({
     case QueryLanguage.LUCENE:
       const luceneQueryBuilder = new LuceneQueryBuilder();
       return {
-        query: luceneQueryBuilder.queryBuilder(searchParameters),
-        language,
+        query: {
+          query: luceneQueryBuilder.queryBuilder(searchParameters),
+          language,
+        },
         paging: luceneQueryBuilder.pagination(page),
       };
     default:
