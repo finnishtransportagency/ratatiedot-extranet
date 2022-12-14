@@ -29,6 +29,7 @@ export class RataExtraStack extends cdk.Stack {
       databaseDomain,
       jwtTokenIssuer,
       alfrescoAPIKey,
+      alfrescoAncestor,
     } = getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
@@ -60,6 +61,7 @@ export class RataExtraStack extends cdk.Stack {
       tags: tags,
       alfrescoAPIKey: alfrescoAPIKey,
       alfrescoAPIUrl: SSM_ALFRESCO_API_URL,
+      alfrescoAncestor,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
 

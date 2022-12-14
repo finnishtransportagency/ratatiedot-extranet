@@ -9,6 +9,9 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
   ESM_REQUIRE_SHIM,
+  SSM_ALFRESCO_API_KEY,
+  SSM_ALFRESCO_API_URL,
+  SSM_ALFRESCO_API_ANCESTOR,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -31,6 +34,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly jwtTokenIssuer: string;
   readonly alfrescoAPIKey: string;
   readonly alfrescoAPIUrl: string;
+  readonly alfrescoAncestor: string;
 }
 
 type ListenerTargetLambdas = {
@@ -77,6 +81,7 @@ export class RataExtraBackendStack extends NestedStack {
       jwtTokenIssuer,
       alfrescoAPIKey,
       alfrescoAPIUrl,
+      alfrescoAncestor,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -136,6 +141,7 @@ export class RataExtraBackendStack extends NestedStack {
         ...genericLambdaParameters.environment,
         ALFRESCO_API_KEY: alfrescoAPIKey,
         ALFRESCO_API_URL: alfrescoAPIUrl,
+        ALFRESCO_ANCESTOR: alfrescoAncestor,
       },
     };
 
@@ -155,6 +161,11 @@ export class RataExtraBackendStack extends NestedStack {
         `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_NAME}`,
         `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_PASSWORD}`,
       ],
+    });
+
+    const ssmAlfrescoParameterPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
+      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_KEY}`],
     });
 
     const ksmDecryptPolicy = new PolicyStatement({
@@ -218,7 +229,25 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'alfresco-list-files',
       relativePath: '../packages/server/lambdas/alfresco/list-files.ts',
     });
-    // TODO: Add get-page-contents, add policies
+
+    // TODO: Make this a part of createNodejsLambda
+    listUsers.role?.attachInlinePolicy(
+      new Policy(this, 'alfrescoListFilesPermissioNpolicy', {
+        statements: [ssmDatabaseParameterPolicy, ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
+      }),
+    );
+
+    const dbGetPageContents = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-get-page-contents',
+      relativePath: '../packages/server/lambdas/database/get-page-contents.ts',
+    });
+
+    alfrescoListFiles.role?.attachInlinePolicy(
+      new Policy(this, 'alfresoListFilesPermissionPolicy', {
+        statements: [ssmDatabaseParameterPolicy, ksmDecryptPolicy],
+      }),
+    );
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
@@ -230,6 +259,12 @@ export class RataExtraBackendStack extends NestedStack {
       // Alfresco service will reserve 100-150th priority
       { lambda: alfrescoSearch, priority: 100, path: ['/api/alfresco/search'], targetName: 'alfrescoSearch' },
       { lambda: alfrescoListFiles, priority: 110, path: ['/api/alfresco/list-files'], targetName: 'alfrescoListFiles' },
+      {
+        lambda: dbGetPageContents,
+        priority: 200,
+        path: ['/api/database/get-page-contents'],
+        targetName: 'dbGetPageContents',
+      },
       { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
     ];
     // ALB for API

@@ -1,13 +1,11 @@
 import { CategoryDataBase } from '@prisma/client';
-import { getParameter, getSecuredStringParameter } from './parameterStore';
+import { getSecuredStringParameter } from './parameterStore';
 
 const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY || '';
-const alfrescoAPIUrlName = process.env.ALFRESCO_API_URL || '';
-const alfrescoAncestorParameterName = process.env.ALFRESCO_API_ANCESTOR || '';
+const alfrescoAPIUrl = process.env.ALFRESCO_API_URL || '';
+const alfrescoAncestor = process.env.ALFRESCO_API_ANCESTOR || '';
 
 let alfrescoAPIKey: string | null = null;
-let alfrescoAPIUrl: string | null = null;
-let alfrescoAncestor: string | null = null;
 
 export const getAlfrescoOptions = async (uid: string, headers?: Record<string, string>) => {
   if (!alfrescoAPIKey) {
@@ -22,19 +20,9 @@ export const getAlfrescoOptions = async (uid: string, headers?: Record<string, s
   };
 };
 
-export const getAlfrescoUrlBase = async () => {
-  if (!alfrescoAPIUrl) {
-    alfrescoAPIUrl = await getParameter(alfrescoAPIUrlName);
-  }
-  return alfrescoAPIUrl;
-};
+export const getAlfrescoUrlBase = alfrescoAPIUrl;
 
-export const getAlfrescoAncestor = async () => {
-  if (!alfrescoAncestor) {
-    alfrescoAncestor = await getParameter(alfrescoAncestorParameterName);
-  }
-  return alfrescoAncestor;
-};
+export const getAlfrescoAncestor = alfrescoAncestor;
 
 export const findEndpoint = (
   queryEndpoint: string,
