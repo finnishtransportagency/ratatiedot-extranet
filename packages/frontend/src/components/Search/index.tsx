@@ -4,6 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import TuneIcon from '@mui/icons-material/Tune';
 import ArrayBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
+import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 
 import { SearchContext } from '../../contexts/SearchContext';
 import { RecentSearch } from './RecentSearch';
@@ -88,7 +89,7 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
           </IconButton>
         )}
         <IconButton size="large" edge="end" area-label="filter" onClick={toggleFilter}>
-          <TuneIcon color="primary" />
+          {openFilter ? <DisabledByDefaultIcon color="primary" /> : <TuneIcon color="primary" />}
         </IconButton>
       </>
       {openSearch && !openFilter && <RecentSearch />}
