@@ -20,12 +20,8 @@ export interface IMenuItem {
   children?: any;
 }
 
-const hasWhitespace = (name: string) => {
-  return /\s/.test(name);
-};
-
 export const getRouterName = (name: string) => {
-  return hasWhitespace(name) ? name.split(' ').join('-').toLocaleLowerCase() : name.toLocaleLowerCase();
+  return name.replace(/\s/g, '-').toLowerCase();
 };
 
 const fetchMaterialClass = (): IMenuItem[] => {
