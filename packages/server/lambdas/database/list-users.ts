@@ -1,9 +1,9 @@
 import { ALBEvent, Context } from 'aws-lambda';
-import { getRataExtraLambdaError } from '../utils/errors.js';
-import { log } from '../utils/logger.js';
-import { getUser, validateReadUser } from '../utils/userService.js';
-import { DatabaseClient } from './database-client/index.js';
-
+import { getRataExtraLambdaError } from '../../utils/errors.js';
+import { log } from '../../utils/logger.js';
+import { getUser, validateReadUser } from '../../utils/userService.js';
+import { DatabaseClient } from './client/index.js';
+// DEPRECATED
 const database = await DatabaseClient.build();
 
 export async function handleRequest(event: ALBEvent, _context: Context) {

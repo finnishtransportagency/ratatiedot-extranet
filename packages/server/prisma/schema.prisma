@@ -10,6 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Test models
 model Post {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -34,4 +35,20 @@ model User {
   name    String?
   posts   Post[]
   profile Profile?
+}
+
+// Real models
+model CategoryDataBase {
+  id                   Int                   @id @default(autoincrement())
+  rataextraRequestPage String
+  alfrescoFolder       String
+  categoryDataContents CategoryDataContents?
+  writeRights          String
+}
+
+model CategoryDataContents {
+  id               Int              @id @default(autoincrement())
+  categoryDataBase CategoryDataBase @relation(fields: [baseId], references: [id])
+  baseId           Int              @unique
+  fields           Json
 }

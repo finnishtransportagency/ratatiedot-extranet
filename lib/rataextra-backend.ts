@@ -130,6 +130,24 @@ export class RataExtraBackendStack extends NestedStack {
       },
     };
 
+    const alfrescoParameters = {
+      ...genericLambdaParameters,
+      environment: {
+        ...genericLambdaParameters.environment,
+        ALFRESCO_API_KEY: alfrescoAPIKey,
+        ALFRESCO_API_URL: alfrescoAPIUrl,
+      },
+    };
+
+    const prismaAlfrescoCombinedParameters = {
+      ...prismaParameters,
+      ...alfrescoParameters,
+      environment: {
+        ...prismaParameters.environment,
+        ...alfrescoParameters.environment,
+      },
+    };
+
     const ssmDatabaseParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
       resources: [
@@ -159,13 +177,13 @@ export class RataExtraBackendStack extends NestedStack {
     const createUser = this.createNodejsLambda({
       ...prismaParameters,
       name: 'create-user',
-      relativePath: '../packages/server/lambdas/create-user.ts',
+      relativePath: '../packages/server/lambdas/database/create-user.ts',
     });
 
     const listUsers = this.createNodejsLambda({
       ...prismaParameters,
       name: 'list-users',
-      relativePath: '../packages/server/lambdas/list-users.ts',
+      relativePath: '../packages/server/lambdas/database/list-users.ts',
     });
 
     createUser.role?.attachInlinePolicy(
@@ -190,15 +208,17 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     const alfrescoSearch = this.createNodejsLambda({
-      ...genericLambdaParameters,
-      environment: {
-        ...genericLambdaParameters.environment,
-        ALFRESCO_API_KEY: alfrescoAPIKey,
-        ALFRESCO_API_URL: alfrescoAPIUrl,
-      },
+      ...alfrescoParameters,
       name: 'alfresco-search',
       relativePath: '../packages/server/lambdas/alfresco/search.ts',
     });
+
+    const alfrescoListFiles = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-list-files',
+      relativePath: '../packages/server/lambdas/alfresco/list-files.ts',
+    });
+    // TODO: Add get-page-contents, add policies
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
@@ -209,6 +229,7 @@ export class RataExtraBackendStack extends NestedStack {
       { lambda: returnLogin, priority: 50, path: ['/api/return-login'], targetName: 'returnLogin' },
       // Alfresco service will reserve 100-150th priority
       { lambda: alfrescoSearch, priority: 100, path: ['/api/alfresco/search'], targetName: 'alfrescoSearch' },
+      { lambda: alfrescoListFiles, priority: 110, path: ['/api/alfresco/list-files'], targetName: 'alfrescoListFiles' },
       { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
     ];
     // ALB for API
