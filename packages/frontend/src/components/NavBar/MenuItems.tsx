@@ -73,6 +73,6 @@ export const MenuItems: IMenuItem[] = [
     key: 'Logout',
     primary: <Typography variant="subtitle2">Kirjaudu ulos</Typography>,
     icon: <LogoutIcon />,
-    to: Routes.HOME, // TODO: unauthenticated route
+    to: Routes.LOGOUT,
   },
 ];
