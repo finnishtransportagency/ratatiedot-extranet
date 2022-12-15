@@ -1,15 +1,18 @@
 import { useContext, useState } from 'react';
 import styled from '@emotion/styled';
-import { Box, Checkbox, Collapse, Drawer, IconButton, Typography } from '@mui/material';
+import { Box, Button, Checkbox, Collapse, Drawer, IconButton, Toolbar, Typography } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import TuneIcon from '@mui/icons-material/Tune';
+import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 
 import { FilterSearchData, IItem, ItemTypeEnum } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
 import { SearchContext } from '../../contexts/SearchContext';
+import { ButtonWrapper } from '../../styles/ButtonWrapper';
+import { useTranslation } from 'react-i18next';
 
 type FilterSearchProps = {
   openFilter: boolean;
@@ -79,11 +82,24 @@ const FilterSearchItem = (props: IItem) => {
 };
 
 export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) => {
+  const { t } = useTranslation(['common']);
+
   return (
     <DrawerWrapper anchor="right" open={openFilter} disableEnforceFocus>
-      <IconButton sx={{ alignSelf: 'end' }} size="large" area-label="filter" onClick={toggleFilter}>
-        <TuneIcon color="primary" />
-      </IconButton>
+      <Toolbar>
+        <ButtonWrapper color="primary" variant="contained">
+          {t('common:action.update_results')}
+        </ButtonWrapper>
+        <Box sx={{ flexGrow: 1 }} />
+        <IconButtonWrapper size="large" area-label="filter" onClick={toggleFilter}>
+          {openFilter ? <DisabledByDefaultIcon color="primary" /> : <TuneIcon color="primary" />}
+        </IconButtonWrapper>
+      </Toolbar>
+      <Toolbar>
+        <Button sx={{ textTransform: 'none' }} color="primary">
+          {t('common:action.remove_filters')}
+        </Button>
+      </Toolbar>
       <Box>
         {FilterSearchData.map((data: IItem, index: number) => (
           <FilterSearchItem key={index} {...data} />
@@ -97,16 +113,25 @@ const DrawerWrapper = styled(Drawer)(({ theme }) => ({
   [theme.breakpoints.only('mobile')]: {
     '& .MuiPaper-root': {
       width: '100%',
+      marginTop: '56px',
     },
   },
   [theme.breakpoints.only('tablet')]: {
     '& .MuiPaper-root': {
       width: '50%',
+      marginTop: '56px',
     },
   },
   [theme.breakpoints.only('desktop')]: {
     '& .MuiPaper-root': {
       width: '375px',
     },
+  },
+}));
+
+const IconButtonWrapper = styled(IconButton)(({ theme }) => ({
+  alignSelf: 'end',
+  [theme.breakpoints.down('desktop')]: {
+    display: 'none',
   },
 }));
