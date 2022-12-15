@@ -51,7 +51,7 @@ export const NodeItem = ({ node, row }: any) => {
             {format(new Date(modifiedAt), DateFormat)}
           </Typography>
           <Typography variant="body1" sx={{ marginRight: '8px' }}>
-            {getLocaleByteUnit(prettyBytes(content.sizeInBytes, { locale: 'fi' }), LocaleLang.FI)}
+            {getLocaleByteUnit(prettyBytes(content.sizeInBytes || 0, { locale: 'fi' }), LocaleLang.FI)}
           </Typography>
         </div>
       </Grid>
