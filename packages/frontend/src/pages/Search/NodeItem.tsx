@@ -11,6 +11,8 @@ import Image from '../../assets/icons/Image.svg';
 import PPT from '../../assets/icons/PowerPoint.svg';
 import { Colors } from '../../constants/Colors';
 import { DateFormat } from '../../constants/Formats';
+import { getLocaleByteUnit } from '../../utils/helpers';
+import { LocaleLang } from '../../constants/Units';
 
 const NodeTypes = {
   other: Other,
@@ -49,7 +51,7 @@ export const NodeItem = ({ node, row }: any) => {
             {format(new Date(modifiedAt), DateFormat)}
           </Typography>
           <Typography variant="body1" sx={{ marginRight: '8px' }}>
-            {prettyBytes(content.sizeInBytes)}
+            {getLocaleByteUnit(prettyBytes(content.sizeInBytes, { locale: 'fi' }), LocaleLang.FI)}
           </Typography>
         </div>
       </Grid>

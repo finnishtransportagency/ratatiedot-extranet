@@ -1,3 +1,5 @@
+import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
+
 /**
  * Generate range of years
  * @param startYear
@@ -43,4 +45,9 @@ export const flatMapByKey = (array: Array<any>, key: any): Array<any> => {
     if (!next[key]) return acc;
     return (acc = [...next[key], ...acc]);
   }, []);
+};
+
+export const getLocaleByteUnit = (unitStr: string, locale: LocaleLang) => {
+  const unitParts = unitStr.split(' ');
+  return unitParts[0] + ' ' + (LocaleUnit[locale][unitParts[1] as keyof FileSizeUnit] || unitParts[1]);
 };
