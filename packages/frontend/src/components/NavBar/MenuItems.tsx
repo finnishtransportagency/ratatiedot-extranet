@@ -65,7 +65,7 @@ export const MenuItems: IMenuItem[] = [
     key: 'Landing',
     primary: 'Etusivu',
     icon: <InfoIcon />,
-    to: Routes.LANDING,
+    to: Routes.HOME,
   },
   ...fetchMaterialClass(),
   // Logout should always be the last menu item

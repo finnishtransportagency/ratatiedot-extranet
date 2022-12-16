@@ -9,7 +9,7 @@ describe('Landing page', () => {
     describe(`on ${viewport}`, () => {
       beforeEach(() => {
         cy.viewport(viewport);
-        cy.visit(Routes.LANDING);
+        cy.visit(Routes.HOME);
       });
 
       it('MuiAppBar exists', function () {
