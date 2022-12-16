@@ -1,4 +1,5 @@
-import { generateYearsBetween, flatMapByKey, splitYearsIntoChunks } from '../helpers';
+import { LocaleLang } from '../../constants/Units';
+import { generateYearsBetween, flatMapByKey, splitYearsIntoChunks, getLocaleByteUnit } from '../helpers';
 
 describe('Helpers Utility', () => {
   describe('generateYearsBetween()', () => {
@@ -54,17 +55,29 @@ describe('Helpers Utility', () => {
         ),
       ).toEqual([1, 2, 3, 10, 20]);
     });
+    it('should return empty array if no key is found', () => {
+      expect(
+        flatMapByKey(
+          [
+            { name: 'A', items: [10, 20] },
+            { name: 'B', items: [1, 2, 3] },
+          ],
+          'inexistent_key',
+        ),
+      ).toEqual([]);
+    });
   });
-  it('should return empty array if no key is found', () => {
-    expect(
-      flatMapByKey(
-        [
-          { name: 'A', items: [10, 20] },
-          { name: 'B', items: [1, 2, 3] },
-        ],
-        'inexistent_key',
-      ),
-    ).toEqual([]);
+
+  describe('getFinnishByteUnit()', () => {
+    it('should return correct Finnish byte units', () => {
+      expect(getLocaleByteUnit('3,5 B', LocaleLang.FI)).toBe('3,5 t');
+      expect(getLocaleByteUnit('3,5 kB', LocaleLang.FI)).toBe('3,5 kt');
+      expect(getLocaleByteUnit('3,5 MB', LocaleLang.FI)).toBe('3,5 Mt');
+      expect(getLocaleByteUnit('3,5 GB', LocaleLang.FI)).toBe('3,5 Gt');
+      expect(getLocaleByteUnit('3,5 TB', LocaleLang.FI)).toBe('3,5 Tt');
+      expect(getLocaleByteUnit('3,5 PB', LocaleLang.FI)).toBe('3,5 Pt');
+      expect(getLocaleByteUnit('3,5 xxB', LocaleLang.FI)).toBe('3,5 xxB');
+    });
   });
 });
 
