@@ -12,10 +12,9 @@ let alfrescoAPIUrl: string | null = null;
 const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY || '';
 const alfrescoAPIUrlName = process.env.ALFRESCO_API_URL || '';
 
-const searchByTerm = async ({ headers, body }: ALBEvent) => {
+const searchByTerm = async (body: string | null, uid: string) => {
   try {
-    // Testing `cookie` and `body` by event.json file
-    const cookie = headers?.cookie || '';
+    // Testing `body` by event.json file
     // ALBEvent's body type is string | null
     const parsedBody = body ? JSON.parse(body) : {};
     const bodyRequest = searchQueryBuilder({
@@ -33,8 +32,8 @@ const searchByTerm = async ({ headers, body }: ALBEvent) => {
     const options = {
       headers: {
         'X-API-Key': alfrescoAPIKey,
-        Cookie: cookie,
         'Content-Type': 'application/json;charset=UTF-8',
+        'OAM-REMOTE-USER': uid,
       },
     };
     const response = await axios.post(`${alfrescoAPIUrl}/search`, bodyRequest, options);
@@ -49,7 +48,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
     await validateReadUser(user);
-    const data = await searchByTerm(event);
+    const data = await searchByTerm(event.body, user.uid);
     return {
       statusCode: 200,
       headers: {
