@@ -10,8 +10,6 @@ import {
   SSM_DATABASE_PASSWORD,
   ESM_REQUIRE_SHIM,
   SSM_ALFRESCO_API_KEY,
-  SSM_ALFRESCO_API_URL,
-  SSM_ALFRESCO_API_ANCESTOR,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
