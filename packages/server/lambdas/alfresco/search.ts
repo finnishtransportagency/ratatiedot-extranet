@@ -16,6 +16,7 @@ const searchByTerm = async (body: string | null, uid: string) => {
   try {
     // Testing `body` by event.json file
     // ALBEvent's body type is string | null
+    log.info(body, 'POST body request');
     const parsedBody = body ? JSON.parse(body) : {};
     const bodyRequest = searchQueryBuilder({
       searchParameters: parsedBody.searchParameters,
@@ -48,6 +49,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
     await validateReadUser(user);
+    log.info(user, 'Alfresco search');
     const data = await searchByTerm(event.body, user.uid);
     return {
       statusCode: 200,
