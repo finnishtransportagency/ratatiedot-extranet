@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "loadenv": "./loadenv"
   },
   "author": "",
   "license": "EUPL v1.2",

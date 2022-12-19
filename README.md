@@ -96,7 +96,7 @@ export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
 After installing SAM, you need to synth a separate rataextra stack locally to be invoked. Note that `handler-name` below is the name given to createNodejsLambda, e.g. dummy-handler.
 
 ```
-npm run rataextra:synth
+npm run local:synth
 npm run sam:invoke --handler=handler-name
 ```
 
@@ -191,13 +191,19 @@ DATABASE_URL="postgresql://root:root@<IP_ADDRESS>:5432/test_db?schema=public"
 run migration
 
 ```
-DATABASE_URL="postgresql://root:root@<IP_ADDRESS>:5432/test_db?schema=public" npx prisma migrate dev --name init --schema packages/server/prisma/schema.prisma
+npm run local:db:migrate
+```
+
+run database population
+
+```
+npm run local:db:populate
 ```
 
 run synth
 
 ```
-npm run rataextra:synth
+npm run local:synth
 ```
 
 Optionally:
@@ -216,6 +222,10 @@ npm run sam:invoke --handler=list-users -- --log-file logs.txt
 Logs will be generated in logs.txt file
 
 You can now remove generated logs.txt file
+
+#### Updating local database
+
+Whenever you add new tables of columns to the database, try add some test data to the packages/server/populate-local-db.sh. Rerun migration first. Also check that the populate-script still works after the changes.
 
 #### Fixing socat problems
 
@@ -274,6 +284,7 @@ Add following values to Parameter Store for permanent environments:
 - **rataextra-cloudfront-signer-private-key**: Private RSA key used for signing CloudFront calls. Note! SecureString. E.g. -----BEGIN RSA PRIVATE KEY-----\nsecretstuff\n-----END RSA PRIVATE KEY-----
 - **rataextra-alfresco-api-key**: API Key for Alfresco API service, type: SecureString
 - **rataextra-alfresco-api-url**: URL for Alfresco API service
+- **rataextra-alfresco-ancestor**: Root folder name in Alfresco
 
 ### Backend development
 
