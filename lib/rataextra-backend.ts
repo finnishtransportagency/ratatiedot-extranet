@@ -9,6 +9,8 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
   ESM_REQUIRE_SHIM,
+  SSM_ALFRESCO_API_KEY,
+  SSM_ALFRESCO_API_URL,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -162,7 +164,11 @@ export class RataExtraBackendStack extends NestedStack {
 
     const ssmAlfrescoParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_KEY}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_URL}`,
+      ],
     });
 
     const ksmDecryptPolicy = new PolicyStatement({
@@ -228,12 +234,13 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     // TODO: Make this a part of createNodejsLambda
-    listUsers.role?.attachInlinePolicy(
+    alfrescoSearch.role?.attachInlinePolicy(
       new Policy(this, 'alfrescoListFilesPermissionPolicy', {
         statements: [ssmDatabaseParameterPolicy, ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
       }),
     );
 
+    // TODO: Add Policy
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
@@ -242,7 +249,13 @@ export class RataExtraBackendStack extends NestedStack {
 
     alfrescoListFiles.role?.attachInlinePolicy(
       new Policy(this, 'alfresoListFilesPermissionPolicy', {
-        statements: [ssmDatabaseParameterPolicy, ksmDecryptPolicy],
+        statements: [ssmDatabaseParameterPolicy, ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
+      }),
+    );
+
+    alfrescoSearch.role?.attachInlinePolicy(
+      new Policy(this, 'alfrescoParametersPolicy', {
+        statements: [ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
       }),
     );
 

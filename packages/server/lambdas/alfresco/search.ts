@@ -16,12 +16,15 @@ const searchByTerm = async (body: string | null, uid: string) => {
   try {
     // Testing `body` by event.json file
     // ALBEvent's body type is string | null
+    log.info(body, 'POST body request');
     const parsedBody = body ? JSON.parse(body) : {};
+    log.info(parsedBody, 'Body parsing...');
     const bodyRequest = searchQueryBuilder({
       searchParameters: parsedBody.searchParameters,
       page: parsedBody.page,
       language: parsedBody.language,
     });
+    log.info(bodyRequest, 'Complete body request');
 
     if (!alfrescoAPIKey) {
       alfrescoAPIKey = await getSecuredStringParameter(alfrescoAPIKeyName);
@@ -48,6 +51,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
     await validateReadUser(user);
+    log.info(user, 'Alfresco search');
     const data = await searchByTerm(event.body, user.uid);
     return {
       statusCode: 200,
