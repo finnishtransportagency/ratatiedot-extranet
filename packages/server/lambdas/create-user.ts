@@ -11,7 +11,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
     const user = await getUser(event);
     auditLog.info(user, 'Creating temp users');
     await validateWriteUser(user);
-    const cretedUser = await database.user.create({
+    const createdUser = await database.user.create({
       data: {
         name: 'Alice',
         email: Date.now() + '@email.com',
@@ -28,7 +28,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
       headers: {
         my_header: 'my_value',
       },
-      body: JSON.stringify(cretedUser),
+      body: JSON.stringify(createdUser),
       isBase64Encoded: false,
     };
     return response;
