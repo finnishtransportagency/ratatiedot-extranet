@@ -18,11 +18,13 @@ const searchByTerm = async (body: string | null, uid: string) => {
     // ALBEvent's body type is string | null
     log.info(body, 'POST body request');
     const parsedBody = body ? JSON.parse(body) : {};
+    log.info(parsedBody, 'Body parsing...');
     const bodyRequest = searchQueryBuilder({
       searchParameters: parsedBody.searchParameters,
       page: parsedBody.page,
       language: parsedBody.language,
     });
+    log.info(bodyRequest, 'Complete body request');
 
     if (!alfrescoAPIKey) {
       alfrescoAPIKey = await getSecuredStringParameter(alfrescoAPIKeyName);
