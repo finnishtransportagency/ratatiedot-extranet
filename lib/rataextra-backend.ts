@@ -11,7 +11,7 @@ import {
   ESM_REQUIRE_SHIM,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as path from 'path';
 import { isDevelopmentMainStack } from './utils';
@@ -242,6 +242,7 @@ export class RataExtraBackendStack extends NestedStack {
       vpc,
       securityGroups: securityGroups,
       bundling: bundling,
+      architecture: Architecture.ARM_64,
     });
   }
 
