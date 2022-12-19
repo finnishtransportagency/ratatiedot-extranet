@@ -9,6 +9,8 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
   ESM_REQUIRE_SHIM,
+  SSM_ALFRESCO_API_KEY,
+  SSM_ALFRESCO_API_URL,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -199,6 +201,20 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'alfresco-search',
       relativePath: '../packages/server/lambdas/alfresco/search.ts',
     });
+
+    const alfrescoParametersPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter'],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_KEY}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_URL}`,
+      ],
+    });
+
+    alfrescoSearch.role?.attachInlinePolicy(
+      new Policy(this, 'alfrescoParametersPolicy', {
+        statements: [alfrescoParametersPolicy],
+      }),
+    );
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
