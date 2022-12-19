@@ -9,7 +9,6 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
   ESM_REQUIRE_SHIM,
-  SSM_ALFRESCO_API_KEY,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -163,7 +162,7 @@ export class RataExtraBackendStack extends NestedStack {
 
     const ssmAlfrescoParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_KEY}`],
+      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
     });
 
     const ksmDecryptPolicy = new PolicyStatement({
@@ -230,7 +229,7 @@ export class RataExtraBackendStack extends NestedStack {
 
     // TODO: Make this a part of createNodejsLambda
     listUsers.role?.attachInlinePolicy(
-      new Policy(this, 'alfrescoListFilesPermissioNpolicy', {
+      new Policy(this, 'alfrescoListFilesPermissionPolicy', {
         statements: [ssmDatabaseParameterPolicy, ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
       }),
     );
