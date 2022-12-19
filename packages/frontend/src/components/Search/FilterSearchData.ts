@@ -2,15 +2,16 @@ import { flatMapByKey, generateYearsBetween, splitYearsIntoChunks } from '../../
 import categoryData from '../../assets/data/aineistoluokka.json';
 import { FileFormats, FinnishRegions } from '../../constants/Data';
 
-export enum ItemTypeEnum {
-  CHECKBOX = 'checkbox',
-  DATE_PICKER = 'date_picker',
+export enum ESearchParameterName {
+  MIME = 'mime',
+  REGION = 'region',
+  MATERIAL_CLASS = 'materialClass',
 }
 
 export interface IItem {
   name: string;
-  type?: ItemTypeEnum;
-  items?: IItem[] | any[];
+  type: ESearchParameterName;
+  items: string[];
 }
 
 // TODO: should this be hardcoded?
@@ -18,28 +19,17 @@ export interface IItem {
 export const FilterSearchData: IItem[] = [
   {
     name: 'Muoto',
-    items: FileFormats.map((formatType: string) => ({
-      type: ItemTypeEnum.CHECKBOX,
-      name: formatType,
-    })),
+    type: ESearchParameterName.MIME,
+    items: FileFormats,
   },
-  // {
-  //   name: 'Aika',
-  //   type: ItemTypeEnum.DATE_PICKER,
-  //   items: generateYearsBetween(2002),
-  // },
   {
     name: 'Alue',
-    items: FinnishRegions.map((region: string) => ({
-      type: ItemTypeEnum.CHECKBOX,
-      name: region,
-    })),
+    type: ESearchParameterName.REGION,
+    items: FinnishRegions,
   },
   {
     name: 'Aineistoluokka',
-    items: flatMapByKey(categoryData, 'items').map((item: string) => ({
-      type: ItemTypeEnum.CHECKBOX,
-      name: item,
-    })),
+    type: ESearchParameterName.MATERIAL_CLASS,
+    items: flatMapByKey(categoryData, 'items'),
   },
 ];
