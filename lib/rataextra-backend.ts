@@ -16,6 +16,7 @@ import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadba
 import * as path from 'path';
 import { isDevelopmentMainStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -50,6 +51,7 @@ type LambdaParameters = {
   memorySize?: number;
   timeout?: Duration;
   runtime?: Runtime;
+  logRetention?: RetentionDays;
   /** Name of the function to be called */
   handler?: string;
   /** Environment variables to be passed to the function */
@@ -221,6 +223,7 @@ export class RataExtraBackendStack extends NestedStack {
     memorySize = 1024,
     timeout = Duration.seconds(15),
     runtime = Runtime.NODEJS_16_X,
+    logRetention = RetentionDays.SIX_MONTHS,
     handler = 'handleRequest',
     environment = {},
     bundling = {},
@@ -231,6 +234,7 @@ export class RataExtraBackendStack extends NestedStack {
       timeout: timeout,
       // Accepts only Nodejs runtimes
       runtime: runtime,
+      logRetention,
       handler: handler,
       entry: path.join(__dirname, relativePath),
       environment: environment,
