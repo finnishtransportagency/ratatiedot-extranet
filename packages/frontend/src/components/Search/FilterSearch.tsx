@@ -1,11 +1,14 @@
 import { useContext, useState } from 'react';
 import styled from '@emotion/styled';
-import { Box, Button, Checkbox, Collapse, Drawer, IconButton, Toolbar, Typography } from '@mui/material';
+import { Box, Button, Checkbox, Collapse, Drawer, IconButton, TextField, Toolbar, Typography } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import TuneIcon from '@mui/icons-material/Tune';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
+import { DatePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { FilterSearchData, IItem, ItemTypeEnum } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
@@ -59,9 +62,6 @@ const FilterSearchItem = (props: IItem) => {
       <Collapse key={`${name}-Collapse`} in={open} timeout="auto" unmountOnExit>
         <List key={`${name}-Collapse-List`} component="li" disablePadding>
           {items?.map((item: IItem, index: number) => {
-            if (item.items) {
-              return <FilterSearchItem key={index} name={item.name} type={item.type} items={item.items} />;
-            }
             return (
               <ListItem sx={{ pl: 4 }} key={index}>
                 {item.type && item.type === ItemTypeEnum.CHECKBOX && (
@@ -83,6 +83,7 @@ const FilterSearchItem = (props: IItem) => {
 
 export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) => {
   const { t } = useTranslation(['common']);
+  const [value, setValue] = useState(null);
 
   return (
     <DrawerWrapper anchor="right" open={openFilter} disableEnforceFocus>
@@ -101,6 +102,35 @@ export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) =>
         </Button>
       </Toolbar>
       <Box>
+        <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
+          Aika
+        </Typography>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            views={['year']}
+            label="Vuodesta"
+            minDate={new Date('2002-01-01')}
+            maxDate={new Date()}
+            value={value}
+            onChange={(newValue) => {
+              // setValue(newValue);
+              console.log(newValue);
+            }}
+            renderInput={(params) => <TextField {...params} helperText={null} />}
+          />
+          <DatePicker
+            views={['year']}
+            label="Vuoteen"
+            minDate={new Date('2002-01-01')}
+            maxDate={new Date()}
+            value={value}
+            onChange={(newValue) => {
+              // setValue(newValue);
+              console.log(newValue);
+            }}
+            renderInput={(params) => <TextField {...params} helperText={null} />}
+          />
+        </LocalizationProvider>
         {FilterSearchData.map((data: IItem, index: number) => (
           <FilterSearchItem key={index} {...data} />
         ))}

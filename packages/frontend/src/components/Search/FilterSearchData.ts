@@ -4,12 +4,13 @@ import { FileFormats, FinnishRegions } from '../../constants/Data';
 
 export enum ItemTypeEnum {
   CHECKBOX = 'checkbox',
+  DATE_PICKER = 'date_picker',
 }
 
 export interface IItem {
   name: string;
   type?: ItemTypeEnum;
-  items?: IItem[];
+  items?: IItem[] | any[];
 }
 
 // TODO: should this be hardcoded?
@@ -22,21 +23,11 @@ export const FilterSearchData: IItem[] = [
       name: formatType,
     })),
   },
-  {
-    name: 'Aika',
-    items: splitYearsIntoChunks(generateYearsBetween(1980))
-      .reverse()
-      .map((range) => {
-        return {
-          name: `${range[0]}-${range[range.length - 1]}`,
-          type: ItemTypeEnum.CHECKBOX,
-          items: range.map((year) => ({
-            type: ItemTypeEnum.CHECKBOX,
-            name: String(year),
-          })),
-        };
-      }),
-  },
+  // {
+  //   name: 'Aika',
+  //   type: ItemTypeEnum.DATE_PICKER,
+  //   items: generateYearsBetween(2002),
+  // },
   {
     name: 'Alue',
     items: FinnishRegions.map((region: string) => ({
