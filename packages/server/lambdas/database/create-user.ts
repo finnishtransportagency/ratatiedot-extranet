@@ -3,9 +3,12 @@ import { getRataExtraLambdaError } from '../../utils/errors.js';
 import { log } from '../../utils/logger.js';
 import { getUser, validateWriteUser } from '../../utils/userService.js';
 import { DatabaseClient } from './client/index.js';
-// DEPRECATED
+
 const database = await DatabaseClient.build();
 
+/**
+ * @DEPRECATED
+ */
 export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
