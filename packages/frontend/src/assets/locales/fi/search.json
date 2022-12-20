@@ -1,0 +1,8 @@
+{
+  "from_year": "Vuodesta",
+  "to_year": "Vuoteen",
+  "action": {
+    "update_results": "Päivitä tulokset",
+    "remove_filters": "Poista kaikki suodattimet"
+  }
+}

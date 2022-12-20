@@ -9,8 +9,6 @@
     "others": "Muut"
   },
   "action": {
-    "accept": "Hyväksy",
-    "update_results": "Päivitä tulokset",
-    "remove_filters": "Poista kaikki suodattimet"
+    "accept": "Hyväksy"
   }
 }

@@ -1,26 +1,38 @@
 import React, { useState } from 'react';
+import { ESearchParameterName } from '../components/Search/FilterSearchData';
 
 export const SearchContext = React.createContext({
   query: '',
   queryHandler: (_: string) => {},
-  checkedList: [''],
-  checkedListHandler: (itemName: string) => {},
+  checkedList: {
+    [ESearchParameterName.MIME]: [''],
+    [ESearchParameterName.REGION]: [''],
+    [ESearchParameterName.MATERIAL_CLASS]: [''],
+  },
+  checkedListHandler: (checkboxes: any) => {},
+  years: [null, null],
+  yearsHandler: (from: any, to: any) => {},
 });
 
 export const SearchContextProvider = (props: any) => {
   const [query, setQuery] = useState('');
-  const [checkedList, setcheckedList] = useState<string[]>([]);
+  const [years, setYears] = useState<any[]>([]);
+  const [checkedList, setCheckedList] = useState<{ [name in ESearchParameterName]: string[] }>({
+    [ESearchParameterName.MIME]: [],
+    [ESearchParameterName.REGION]: [],
+    [ESearchParameterName.MATERIAL_CLASS]: [],
+  });
 
   const queryHandler = (query: string) => {
     setQuery(query);
   };
 
-  // TODO: checkedList should be arranged based on category, currently use string array
-  // TODO: check nested check box list: if check 2020-2022 --> add 2020 to 2022
-  const checkedListHandler = (itemName: string) => {
-    const nameIndex = checkedList.indexOf(itemName);
-    if (nameIndex === -1) return setcheckedList([...checkedList, itemName]);
-    return setcheckedList(checkedList.filter((name) => name !== itemName));
+  const yearsHandler = (from: any, to: any) => {
+    setYears([from, to]);
+  };
+
+  const checkedListHandler = (checkboxes: any) => {
+    return setCheckedList(checkboxes);
   };
 
   return (
@@ -30,6 +42,8 @@ export const SearchContextProvider = (props: any) => {
         queryHandler: queryHandler,
         checkedList: checkedList,
         checkedListHandler: checkedListHandler,
+        years: years,
+        yearsHandler: yearsHandler,
       }}
     >
       {props.children}
