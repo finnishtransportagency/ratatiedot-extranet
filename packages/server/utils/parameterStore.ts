@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+const AWS = require('aws-sdk'); //eslint-disable-line @typescript-eslint/no-var-requires
 import { log } from './logger';
 
 const ssm = new AWS.SSM({ region: process.env.region || 'eu-west-1' });
