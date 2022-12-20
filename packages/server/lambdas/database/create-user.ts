@@ -14,12 +14,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
     const user = await getUser(event);
     log.info(user, 'Creating temp users');
     await validateWriteUser(user);
-  } catch (err) {
-    log.error(err);
-    return getRataExtraLambdaError(err);
-  }
-  await database.user
-    .create({
+    const createdUser = await database.user.create({
       data: {
         name: 'Alice',
         email: Date.now() + '@email.com',
@@ -30,19 +25,18 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
           create: { bio: 'I like turtles' },
         },
       },
-    })
-    .then((res) => {
-      const response = {
-        statusCode: 200,
-        headers: {
-          my_header: 'my_value',
-        },
-        body: JSON.stringify(res),
-        isBase64Encoded: false,
-      };
-      return response;
-    })
-    .catch(async (e) => {
-      log.error(e);
     });
+    const response = {
+      statusCode: 200,
+      headers: {
+        my_header: 'my_value',
+      },
+      body: JSON.stringify(createdUser),
+      isBase64Encoded: false,
+    };
+    return response;
+  } catch (err) {
+    log.error(err);
+    return getRataExtraLambdaError(err);
+  }
 }

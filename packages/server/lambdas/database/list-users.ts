@@ -14,24 +14,18 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
     const user = await getUser(event);
     log.info(user, 'Listing users');
     await validateReadUser(user);
+    const users = await database.user.findMany({ take: 10 });
+    const response = {
+      statusCode: 200,
+      headers: {
+        my_header: 'my_value',
+      },
+      body: JSON.stringify(users),
+      isBase64Encoded: false,
+    };
+    return response;
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-  await database.user
-    .findMany({ take: 10 })
-    .then((res) => {
-      const response = {
-        statusCode: 200,
-        headers: {
-          my_header: 'my_value',
-        },
-        body: JSON.stringify(res),
-        isBase64Encoded: false,
-      };
-      return response;
-    })
-    .catch(async (e) => {
-      log.error(e);
-    });
 }
