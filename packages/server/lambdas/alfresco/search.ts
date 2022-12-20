@@ -58,7 +58,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: data,
+      body: JSON.stringify(data),
     };
   } catch (err) {
     log.error(err);
