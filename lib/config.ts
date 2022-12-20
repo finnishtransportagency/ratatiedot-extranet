@@ -37,7 +37,7 @@ export const SSM_DATABASE_NAME = 'rataextra-database-name';
 export const SSM_DATABASE_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
 export const SSM_ALFRESCO_API_KEY = 'rataextra-alfresco-api-key';
 export const SSM_ALFRESCO_API_URL = 'rataextra-alfresco-api-url';
-export const SSM_ALFRESCO_API_ANCESTOR = 'rataextra-alfresco-ancestor';
+const SSM_ALFRESCO_API_ANCESTOR = 'rataextra-alfresco-ancestor';
 
 // Minified JS code that is used to make ES modules working
 // Also handles __dirname & import.meta.url
