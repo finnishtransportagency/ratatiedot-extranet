@@ -9,6 +9,8 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
   ESM_REQUIRE_SHIM,
+  SSM_ALFRESCO_API_KEY,
+  SSM_ALFRESCO_API_URL,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -29,6 +31,8 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly cloudfrontDomainName?: string;
   readonly tags: { [key: string]: string };
   readonly jwtTokenIssuer: string;
+  readonly alfrescoAPIKey: string;
+  readonly alfrescoAPIUrl: string;
 }
 
 type ListenerTargetLambdas = {
@@ -73,6 +77,8 @@ export class RataExtraBackendStack extends NestedStack {
       cloudfrontDomainName,
       tags,
       jwtTokenIssuer,
+      alfrescoAPIKey,
+      alfrescoAPIUrl,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -185,6 +191,31 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/return-login.ts',
     });
 
+    const alfrescoSearch = this.createNodejsLambda({
+      ...genericLambdaParameters,
+      environment: {
+        ...genericLambdaParameters.environment,
+        ALFRESCO_API_KEY: alfrescoAPIKey,
+        ALFRESCO_API_URL: alfrescoAPIUrl,
+      },
+      name: 'alfresco-search',
+      relativePath: '../packages/server/lambdas/alfresco/search.ts',
+    });
+
+    const alfrescoParametersPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter'],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_KEY}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_URL}`,
+      ],
+    });
+
+    alfrescoSearch.role?.attachInlinePolicy(
+      new Policy(this, 'alfrescoParametersPolicy', {
+        statements: [alfrescoParametersPolicy],
+      }),
+    );
+
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
@@ -192,6 +223,8 @@ export class RataExtraBackendStack extends NestedStack {
       { lambda: listUsers, priority: 20, path: ['/api/users'], targetName: 'listUsers' },
       { lambda: createUser, priority: 30, path: ['/api/create-user'], targetName: 'createUser' },
       { lambda: returnLogin, priority: 50, path: ['/api/return-login'], targetName: 'returnLogin' },
+      // Alfresco service will reserve 100-150th priority
+      { lambda: alfrescoSearch, priority: 100, path: ['/api/alfresco/search'], targetName: 'alfrescoSearch' },
       { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
     ];
     // ALB for API

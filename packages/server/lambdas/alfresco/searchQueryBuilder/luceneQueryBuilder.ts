@@ -49,13 +49,13 @@ export class LuceneQueryBuilder implements QueryBuilder {
     let query = `${SEARCH_START}content.mimetype${DIVIDER}`;
     if (parameter.fileTypes.length > 1) {
       const joinedMimes = parameter.fileTypes.map((fileType) => mimeTypesMapping[fileType].join(', ')).join(', ');
-      query += `[${joinedMimes}]`;
+      query += `(${joinedMimes})`;
     } else {
       const fileTypes = parameter.fileTypes[0];
       const mimes = mimeTypesMapping[fileTypes];
       if (mimes.length > 1) {
         const joinedMimes = mimes.join(', ');
-        query += `[${joinedMimes}]`;
+        query += `(${joinedMimes})`;
       } else {
         query += mimes[0];
       }

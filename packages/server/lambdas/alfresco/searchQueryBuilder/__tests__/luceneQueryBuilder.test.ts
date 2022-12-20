@@ -21,7 +21,7 @@ describe('Lucene Query Builder', () => {
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+@cm\\:content.mimetype:["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]',
+        '+@cm\\:content.mimetype:("application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")',
       );
     });
     it('should return query for msword and pdf in array', () => {
@@ -32,7 +32,7 @@ describe('Lucene Query Builder', () => {
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+@cm\\:content.mimetype:["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/pdf"]',
+        '+@cm\\:content.mimetype:("application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/pdf")',
       );
     });
     it('should return query for modified time from/to when given dates in ISO-8601 format', () => {

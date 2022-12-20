@@ -19,8 +19,10 @@ export enum SearchParameterName {
 }
 
 export type Query = {
-  query: string;
-  language: QueryLanguage;
+  query: {
+    query: string;
+    language: QueryLanguage;
+  };
   paging: Paging;
 };
 

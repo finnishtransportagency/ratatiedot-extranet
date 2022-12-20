@@ -272,6 +272,8 @@ Add following values to Parameter Store for permanent environments:
 - **rataextra-jwt-token-issuer**: Issuer url. E.g. https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_cAt
 - **rataextra-cloudfront-signer-public-key**: Public RSA key used for signing CloudFront calls. E.g. -----BEGIN PUBLIC KEY-----\nstuff\n-----END PUBLIC KEY-----
 - **rataextra-cloudfront-signer-private-key**: Private RSA key used for signing CloudFront calls. Note! SecureString. E.g. -----BEGIN RSA PRIVATE KEY-----\nsecretstuff\n-----END RSA PRIVATE KEY-----
+- **rataextra-alfresco-api-key**: API Key for Alfresco API service, type: SecureString
+- **rataextra-alfresco-api-url**: URL for Alfresco API service
 
 ### Backend development
 
