@@ -45,6 +45,7 @@
     "concurrently": "^7.4.0",
     "constructs": "^10.0.0",
     "date-fns": "^2.29.3",
+    "esbuild": "^0.16.10",
     "pretty-bytes": "^6.0.0"
   },
   "devDependencies": {
