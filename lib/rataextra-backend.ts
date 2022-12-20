@@ -99,7 +99,6 @@ export class RataExtraBackendStack extends NestedStack {
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
-        forceDockerBundling: !isLocalStack(rataExtraEnv),
         format: OutputFormat.ESM,
         platform: 'node',
         target: 'node16',
