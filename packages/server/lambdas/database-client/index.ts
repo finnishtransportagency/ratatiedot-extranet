@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { getParameter } from '../../utils/parameterStore';
+import { getParameter, getSecuredStringParameter } from '../../utils/parameterStore';
 
 const databaseNameId = process.env.SSM_DATABASE_NAME_ID || '';
 const databaseDomainId = process.env.SSM_DATABASE_DOMAIN_ID || '';
@@ -15,7 +15,7 @@ export class DatabaseClient {
       [databaseName, databaseDomain, databasePassword] = await Promise.all([
         getParameter(databaseNameId),
         getParameter(databaseDomainId),
-        getParameter(databasePasswordId),
+        getSecuredStringParameter(databasePasswordId),
       ]);
     }
 
