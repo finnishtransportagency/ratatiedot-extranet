@@ -5,12 +5,14 @@ import { initReactI18next } from 'react-i18next';
 
 import common from './assets/locales/fi/common.json';
 import landing from './assets/locales/fi/landing.json';
+import search from './assets/locales/fi/search.json';
 
 export const defaultNS = 'common';
 export const resources = {
   fi: {
     common,
     landing,
+    search,
   },
 };
 

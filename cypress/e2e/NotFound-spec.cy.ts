@@ -7,7 +7,7 @@ describe('Not Found page', () => {
       it('should visit if no other paths matched', function () {
         cy.viewport(viewport);
         cy.visit('/not-found');
-        cy.get(`a[href="${Routes.LANDING}"]`)
+        cy.get(`a[href="${Routes.HOME}"]`)
           .should('exist')
           .then(() => cy.get('a').click());
       });

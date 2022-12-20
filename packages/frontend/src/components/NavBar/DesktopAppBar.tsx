@@ -29,7 +29,7 @@ export const DesktopAppBar = ({
     return (
       <>
         <Typography variant="subtitle2" textTransform="capitalize">
-          {pageName}
+          {pageName || 'Etusivu'}
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
         <ToolbarWrapper>
