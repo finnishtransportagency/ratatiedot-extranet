@@ -54,7 +54,6 @@
     "aws-cdk": "2.41.0",
     "cross-env": "^7.0.3",
     "cypress": "^10.8.0",
-    "esbuild": "^0.16.7",
     "eslint": "^8.24.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jsx-a11y": "^6.6.1",
