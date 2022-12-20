@@ -1,3 +1,4 @@
+// TODO: Figure out how to import this in a way that actually works
 const AWS = require('aws-sdk'); //eslint-disable-line @typescript-eslint/no-var-requires
 import { log } from './logger';
 
