@@ -1,4 +1,4 @@
-import { flatMapByKey, generateYearsBetween, splitYearsIntoChunks } from '../../utils/helpers';
+import { flatMapByKey } from '../../utils/helpers';
 import categoryData from '../../assets/data/aineistoluokka.json';
 import { FileFormats, FinnishRegions } from '../../constants/Data';
 

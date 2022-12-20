@@ -75,8 +75,8 @@ export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) =>
   const { t } = useTranslation(['search']);
 
   const { checkedList, checkedListHandler, years, yearsHandler } = useContext(SearchContext);
-  const [from, setFrom] = useState<Date | null>(years[0]);
-  const [to, setTo] = useState<Date | null>(years[1]);
+  const [from, setFrom] = useState<Date | null>(years[0] ? years[0] : null);
+  const [to, setTo] = useState<Date | null>(years[1] ? years[1] : null);
 
   const [checkboxes, setCheckboxes] = useState<{ [name in ESearchParameterName]: string[] }>(checkedList);
 
