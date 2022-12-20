@@ -44,9 +44,6 @@ export const ESM_REQUIRE_SHIM = `await(async()=>{let{dirname:e}=await import("pa
 
 function getStackId(branch: string): string {
   const stackId = getEnvOrFail('STACK_ID');
-  if (branch === DEVELOPMENT_MAIN_BRANCH && stackId !== DEVELOPMENT_MAIN_STACK_ID) {
-    throw new Error(`For branch ${DEVELOPMENT_MAIN_BRANCH} stack id must match the branch`);
-  }
   if (branch === PRODUCTION_BRANCH && stackId !== PRODUCTION_STACK_ID) {
     throw new Error(`For branch ${PRODUCTION_BRANCH} stack id must match the branch`);
   }
