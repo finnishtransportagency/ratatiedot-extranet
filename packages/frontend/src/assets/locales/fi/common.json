@@ -10,5 +10,8 @@
   },
   "action": {
     "accept": "Hyväksy"
+  },
+  "error": {
+    "500": "Jotain meni pieleen!"
   }
 }
