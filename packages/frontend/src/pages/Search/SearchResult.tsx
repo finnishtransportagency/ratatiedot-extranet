@@ -14,9 +14,10 @@ import { NodeItem } from './NodeItem';
 
 export const SearchResult = () => {
   const [searchParams] = useSearchParams();
-  const [data, setData] = useState<any>({}); // TODO:
+  const [data, setData] = useState<any>({}); // TODO: shouldn't be `any` type
   const query = searchParams.get('query');
 
+  // TODO: Move this to separate api folder?
   const { isLoading } = useQuery({
     queryKey: ['alfresco-search'],
     queryFn: async () => {
@@ -35,7 +36,7 @@ export const SearchResult = () => {
       setData(res);
     },
     // temporary
-    // TODO:
+    // TODO: throw error in toaster
     onError: (err) => {
       console.log(err);
       setData(mockData);
