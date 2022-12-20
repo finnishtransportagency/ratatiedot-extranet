@@ -45,7 +45,6 @@
     "concurrently": "^7.4.0",
     "constructs": "^10.0.0",
     "date-fns": "^2.29.3",
-    "esbuild": "^0.16.10",
     "pretty-bytes": "^6.0.0"
   },
   "devDependencies": {
@@ -55,6 +54,7 @@
     "aws-cdk": "2.41.0",
     "cross-env": "^7.0.3",
     "cypress": "^10.8.0",
+    "esbuild": "^0.16.10",
     "eslint": "^8.24.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jsx-a11y": "^6.6.1",
