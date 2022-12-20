@@ -45,24 +45,29 @@ type ListenerTargetLambdas = {
   targetName: string;
 };
 
-type LambdaParameters = {
+interface LambdaParameters extends GeneralLambdaParameters {
   name: string;
-  rataExtraStackIdentifier: string;
-  lambdaRole: Role;
   /** Relative path from declaring file to the lambda function file */
   relativePath: string;
-  vpc: IVpc;
-  securityGroups?: ISecurityGroup[];
   memorySize?: number;
   timeout?: Duration;
   runtime?: Runtime;
   logRetention?: RetentionDays;
   /** Name of the function to be called */
   handler?: string;
+  environment?: Record<string, string>;
+  bundling?: BundlingOptions;
+}
+
+interface GeneralLambdaParameters {
+  rataExtraStackIdentifier: string;
+  lambdaRole: Role;
+  vpc: IVpc;
+  securityGroups?: ISecurityGroup[];
   /** Environment variables to be passed to the function */
   environment?: Record<string, string>;
   bundling?: BundlingOptions;
-};
+}
 
 export class RataExtraBackendStack extends NestedStack {
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
@@ -88,7 +93,7 @@ export class RataExtraBackendStack extends NestedStack {
     // Basic Lambda configs
     // ID and VPC should not be changed
     // Role and SG might need to be customized per Lambda
-    const genericLambdaParameters = {
+    const genericLambdaParameters: GeneralLambdaParameters = {
       rataExtraStackIdentifier: rataExtraStackIdentifier,
       vpc: applicationVpc,
       lambdaRole: lambdaServiceRole,
@@ -96,7 +101,7 @@ export class RataExtraBackendStack extends NestedStack {
       environment: { JWT_TOKEN_ISSUER: jwtTokenIssuer, STACK_ID: stackId, ENVIRONMENT: rataExtraEnv },
     };
 
-    const prismaParameters = {
+    const prismaParameters: GeneralLambdaParameters = {
       ...genericLambdaParameters,
       environment: {
         ...genericLambdaParameters.environment,
@@ -109,7 +114,6 @@ export class RataExtraBackendStack extends NestedStack {
         nodeModules: ['prisma', '@prisma/client'],
         forceDockerBundling: !isLocalStack(rataExtraEnv),
         format: OutputFormat.ESM,
-        platform: 'node',
         target: 'node16',
         mainFields: ['module', 'main'],
         esbuildArgs: {
@@ -135,7 +139,7 @@ export class RataExtraBackendStack extends NestedStack {
       },
     };
 
-    const alfrescoParameters = {
+    const alfrescoParameters: GeneralLambdaParameters = {
       ...genericLambdaParameters,
       environment: {
         ...genericLambdaParameters.environment,
@@ -145,7 +149,7 @@ export class RataExtraBackendStack extends NestedStack {
       },
     };
 
-    const prismaAlfrescoCombinedParameters = {
+    const prismaAlfrescoCombinedParameters: GeneralLambdaParameters = {
       ...prismaParameters,
       ...alfrescoParameters,
       environment: {
