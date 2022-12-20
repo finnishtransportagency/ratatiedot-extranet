@@ -16,7 +16,7 @@ import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-l
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as path from 'path';
-import { isDevelopmentMainStack } from './utils';
+import { isDevelopmentMainStack, isLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 
@@ -105,6 +105,7 @@ export class RataExtraBackendStack extends NestedStack {
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
+        forceDockerBundling: !isLocalStack(rataExtraEnv),
         format: OutputFormat.ESM,
         platform: 'node',
         target: 'node16',
