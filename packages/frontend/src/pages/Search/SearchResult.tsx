@@ -33,7 +33,12 @@ export const SearchResult = () => {
       return response.data;
     },
     onSuccess: (res) => {
-      setData(res);
+      if (typeof res !== 'object') {
+        // Temporary fix for "Success!" default response
+        setData(mockData);
+      } else {
+        setData(res);
+      }
     },
     // temporary
     // TODO: throw error in toaster
