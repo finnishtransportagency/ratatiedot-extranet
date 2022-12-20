@@ -39,7 +39,10 @@ const searchByTerm = async (body: string | null, uid: string) => {
         'OAM-REMOTE-USER': uid,
       },
     };
+    log.info(`${alfrescoAPIUrl}/search`, 'Axios URL');
+    log.info(options, 'Axios header options');
     const response = await axios.post(`${alfrescoAPIUrl}/search`, bodyRequest, options);
+    log.info(response, 'Axios response');
     return response.data;
   } catch (err) {
     log.error(err);
