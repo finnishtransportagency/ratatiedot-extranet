@@ -32,8 +32,8 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
     }
 
     const options = await getAlfrescoOptions(user.uid);
-    const alfrescoAPIUrlBase = await getAlfrescoUrlBase();
-    const alfrescoAPIPath = await getAlfrescoAncestor();
+    const alfrescoAPIUrlBase = getAlfrescoUrlBase;
+    const alfrescoAPIPath = getAlfrescoAncestor;
     const response = await axios.get(`${alfrescoAPIUrlBase}${alfrescoAPIPath}${alfrescoEndpoint}`, options);
     return {
       statusCode: 200,
