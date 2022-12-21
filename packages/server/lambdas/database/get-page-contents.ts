@@ -2,7 +2,7 @@ import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, Context } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
 
-import { getRataExtraLambdaError } from '../../utils/errors';
+import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
@@ -20,14 +20,14 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
     await validateReadUser(user);
     const category = event.queryStringParameters?.category;
     if (!category) {
-      throw new Error('Category missing');
+      throw new RataExtraLambdaError('Category missing', 400);
     }
     if (!fileEndpointsCache.length) {
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
-      throw new Error('Category not found');
+      throw new RataExtraLambdaError('Category not found', 500);
     }
     const contents = await database.categoryDataContents.findUnique({ where: { baseId: categoryData.id } });
 
