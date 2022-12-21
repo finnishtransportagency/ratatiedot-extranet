@@ -23,7 +23,7 @@ export const SearchResult = () => {
     );
   }
 
-  if (isError || data) {
+  if (isError) {
     return (
       <ContainerWrapper>
         <Alert severity="error">{error?.message || t('common:error.500')}</Alert>
