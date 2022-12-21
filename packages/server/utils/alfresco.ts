@@ -1,7 +1,7 @@
 import { CategoryDataBase } from '@prisma/client';
 import { getSecuredStringParameter } from './parameterStore';
 
-const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY || '';
+const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY_NAME || '';
 const alfrescoAPIUrl = process.env.ALFRESCO_API_URL || '';
 const alfrescoAncestor = process.env.ALFRESCO_API_ANCESTOR || '';
 
@@ -20,9 +20,9 @@ export const getAlfrescoOptions = async (uid: string, headers?: Record<string, s
   };
 };
 
-export const getAlfrescoUrlBase = alfrescoAPIUrl;
+export const getAlfrescoUrlBase = () => alfrescoAPIUrl;
 
-export const getAlfrescoAncestor = alfrescoAncestor;
+export const getAlfrescoAncestor = () => alfrescoAncestor;
 
 export const findEndpoint = (
   queryEndpoint: string,

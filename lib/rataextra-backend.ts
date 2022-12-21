@@ -9,8 +9,6 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
   ESM_REQUIRE_SHIM,
-  SSM_ALFRESCO_API_KEY,
-  SSM_ALFRESCO_API_URL,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -147,7 +145,7 @@ export class RataExtraBackendStack extends NestedStack {
       ...genericLambdaParameters,
       environment: {
         ...genericLambdaParameters.environment,
-        ALFRESCO_API_KEY: alfrescoAPIKey,
+        ALFRESCO_API_KEY_NAME: alfrescoAPIKey,
         ALFRESCO_API_URL: alfrescoAPIUrl,
         ALFRESCO_ANCESTOR: alfrescoAncestor,
       },
@@ -173,11 +171,7 @@ export class RataExtraBackendStack extends NestedStack {
 
     const ssmAlfrescoParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-      resources: [
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`,
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_KEY}`,
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_URL}`,
-      ],
+      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
     });
 
     const ksmDecryptPolicy = new PolicyStatement({

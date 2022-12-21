@@ -61,6 +61,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
   databaseDomain: getSSMStringParameter(scope, SSM_DATABASE_DOMAIN),
   jwtTokenIssuer: getSSMStringParameter(scope, SSM_JWT_TOKEN_ISSUER),
+  alfrescoApiUrl: getSSMStringParameter(scope, SSM_ALFRESCO_API_URL),
   alfrescoAPIKey: SSM_ALFRESCO_API_KEY,
   alfrescoAncestor: getSSMStringParameter(scope, SSM_ALFRESCO_API_ANCESTOR),
 });
