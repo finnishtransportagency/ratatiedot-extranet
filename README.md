@@ -1,6 +1,6 @@
-# Ratatiedot Extranet
+# RATATIETO
 
-Ratatieto is a service of the Finnish Railways Agency, which distributes track maintenance documents to internal and external stakeholders.
+Ratatieto is an extranet service of the Finnish Railways Agency, which distributes track maintenance documents to internal and external stakeholders.
 
 _(To-do: Demo link will be published here...)_
 
