@@ -17,6 +17,7 @@ export const searchQueryBuilder = ({
       return {
         query: {
           query: luceneQueryBuilder.queryBuilder(searchParameters),
+          // TODO: ANCESTOR
           language,
         },
         paging: luceneQueryBuilder.pagination(page),
