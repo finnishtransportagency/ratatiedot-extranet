@@ -1,6 +1,6 @@
 #! /bin/bash
 set -a; source .env; set +a
-psql -h $LOCAL_IP -p 5432 -d test_db -U root << END_OF_SCRIPT
+psql -h $LOCAL_IP -p $DB_PORT -d $DATABASE_NAME -U $DATABASE_USER << END_OF_SCRIPT
 TRUNCATE "CategoryDataContents", "CategoryDataBase" restart identity;
 
 INSERT INTO "CategoryDataBase" ("rataextraRequestPage", "alfrescoFolder", "writeRights")
