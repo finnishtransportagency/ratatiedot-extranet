@@ -27,7 +27,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
     }
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
-      throw new RataExtraLambdaError('Category not found', 500);
+      throw new RataExtraLambdaError('Category not found', 404);
     }
     const contents = await database.categoryDataContents.findUnique({ where: { baseId: categoryData.id } });
 
@@ -36,7 +36,7 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(contents?.fields),
+      body: JSON.stringify({ fields: contents?.fields }),
     };
   } catch (err) {
     log.error(err);
