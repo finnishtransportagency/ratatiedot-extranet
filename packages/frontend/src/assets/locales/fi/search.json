@@ -1,6 +1,8 @@
 {
   "from_year": "Vuodesta",
-  "to_year": "Vuoteen",
+  "to_year": "Vuotee",
+  "search_results": "Hakutulokset",
+  "results": "tulosta",
   "action": {
     "update_results": "Päivitä tulokset",
     "remove_filters": "Poista kaikki suodattimet"
