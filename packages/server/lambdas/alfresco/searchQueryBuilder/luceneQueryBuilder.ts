@@ -69,7 +69,7 @@ export class LuceneQueryBuilder implements QueryBuilder {
 
   public queryBuilder(searchParameters: Array<SearchParameter>): string {
     let query = '';
-    searchParameters.map((parameter) => {
+    searchParameters?.map((parameter) => {
       switch (parameter.parameterName) {
         case SearchParameterName.MODIFIED:
           query += this.buildModifiedQuery(parameter);
