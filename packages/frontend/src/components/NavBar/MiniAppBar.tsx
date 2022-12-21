@@ -40,7 +40,7 @@ export const MiniAppBar = ({
           {openDrawer ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
         </IconButton>
         <Typography sx={{ width: '40px', height: '40px' }} component="img" src={RataExtLogo} alt="Logo" />
-        <Typography sx={{ fontSize: '18px' }}>Ratatiedon extranet</Typography>
+        <Typography sx={{ fontSize: '18px' }}>RATATIETO</Typography>
         <Box sx={{ flexGrow: 1 }} />
         <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
           <SearchIcon color="primary" />
