@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
 
 /**
@@ -50,4 +51,8 @@ export const flatMapByKey = (array: Array<any>, key: any): Array<any> => {
 export const getLocaleByteUnit = (unitStr: string, locale: LocaleLang) => {
   const unitParts = unitStr.split(' ');
   return unitParts[0] + ' ' + (LocaleUnit[locale][unitParts[1] as keyof FileSizeUnit] || unitParts[1]);
+};
+
+export const formatYear = (date: Date | null) => {
+  return date ? format(date, 'yyyy') : '';
 };
