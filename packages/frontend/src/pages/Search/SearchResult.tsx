@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Tags } from '../../components/Tags';
 import { ContainerWrapper } from '../Landing/index.styles';
 import { NodeItem } from './NodeItem';
-import { usePostAlfrescoSearch } from '../../hooks/query/Search';
+import { TAlfrescoSearchProps, usePostAlfrescoSearch } from '../../hooks/query/Search';
 import { useContext } from 'react';
 import { SearchContext } from '../../contexts/SearchContext';
 import { formatYear } from '../../utils/helpers';
@@ -17,7 +17,7 @@ export const SearchResult = () => {
   const query = searchParams.get('query');
   const searchContext = useContext(SearchContext);
   const { years, checkedList } = searchContext;
-  const searchParameter = {
+  const searchParameter: TAlfrescoSearchProps = {
     term: query,
     from: formatYear(years[0]),
     to: formatYear(years[1]),

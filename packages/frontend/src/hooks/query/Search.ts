@@ -3,7 +3,7 @@ import axios from 'axios';
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
 import { ExtendedSearchParameterName, TSearchParamaterBody } from '../../types/types.d';
 
-type TAlfrescoSearchProps = {
+export type TAlfrescoSearchProps = {
   term: string | null;
   from?: string | number;
   to?: string | number;
