@@ -176,11 +176,13 @@ compose database
 docker-compose up
 ```
 
-Copy this variable in your packages/server/.env file
+copy ´DATABASE_URL´ variable from ´/packages/server/.env.example´ to ´/packages/server/.env´
 
 ```
 DATABASE_URL="postgresql://root:root@docker.internal:5432/test_db?schema=public"
 ```
+
+> Here we use ´docker.internal´ as database IP. If you want to configure postgres parameters (e.g. port number) you can do it in ´docker.compose.yml´.
 
 run migration
 
