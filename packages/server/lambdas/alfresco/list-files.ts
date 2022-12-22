@@ -8,26 +8,21 @@ import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../util
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { searchQueryBuilder } from './searchQueryBuilder';
-import { Include, IParentSearchParameter, SearchParameter, SearchParameterName } from './searchQueryBuilder/types';
+import { Include, IParentSearchParameter, QueryLanguage, SearchParameterName } from './searchQueryBuilder/types';
 
-const searchByTermWithParent = async (body: string | null, uid: string, alfrescoParent: string) => {
+const searchByTermWithParent = async (uid: string, alfrescoParent: string, page: number, language: QueryLanguage) => {
   try {
-    const parsedBody = body ? JSON.parse(body) : {};
-
-    const searchparameters: Array<SearchParameter> = parsedBody.searchParameters;
     const parent: IParentSearchParameter = {
       parameterName: SearchParameterName.PARENT,
       parent: alfrescoParent,
     };
-    searchparameters.concat(parent);
 
     const bodyRequest = searchQueryBuilder({
-      searchParameters: searchparameters,
-      page: parsedBody.page,
-      language: parsedBody.language,
+      searchParameters: [parent],
+      page: page,
+      language: language,
       include: [Include.PROPERTIES],
     });
-
     const alfrescoAPIUrl = getAlfrescoUrlBase();
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
 
@@ -37,8 +32,7 @@ const searchByTermWithParent = async (body: string | null, uid: string, alfresco
     throw err;
   }
 };
-// TODO: Preliminary implementation based on search.ts
-// Not tested, so won't likely work
+
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
@@ -48,18 +42,24 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
     const user = await getUser(event);
     log.info(user, `Fetching files for ${event.path}`);
     await validateReadUser(user);
-    const category = event.queryStringParameters?.category;
+    const params = event.queryStringParameters;
+    const category = params?.category;
     if (!category) {
       throw new RataExtraLambdaError('Category missing', 400);
     }
     if (!fileEndpointsCache.length) {
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
+    const page = params?.page ? parseInt(params?.page) : 0;
+    const language = (params?.language as QueryLanguage) ?? QueryLanguage.LUCENE;
+    if (!Object.values(QueryLanguage).includes(language)) {
+      throw new RataExtraLambdaError('Invalid language', 400);
+    }
     const alfrescoParent = findEndpoint(category, fileEndpointsCache)?.alfrescoFolder;
     if (!alfrescoParent) {
       throw new RataExtraLambdaError('Category not found', 404);
     }
-    const data = await searchByTermWithParent(event.body, user.uid, alfrescoParent);
+    const data = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
     return {
       statusCode: 200,
       headers: {
