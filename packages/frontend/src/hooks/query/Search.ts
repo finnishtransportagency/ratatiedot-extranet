@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
-import { ExtendedSearchParameterName, TSearchParamaterBody } from '../../types/types.d';
+import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
 
 export type TAlfrescoSearchProps = {
   term: string | null;
@@ -11,7 +11,7 @@ export type TAlfrescoSearchProps = {
 };
 
 const getSearchBody = ({ term, from, to, fileTypes }: TAlfrescoSearchProps) => {
-  let body: { searchParameters: TSearchParamaterBody[] } = { searchParameters: [] };
+  let body: { searchParameters: TSearchParameterBody[] } = { searchParameters: [] };
   if (term) {
     body.searchParameters.push({
       parameterName: ExtendedSearchParameterName.NAME,

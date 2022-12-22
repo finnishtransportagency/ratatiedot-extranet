@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SearchParameterName } from '../components/Search/FilterSearchData';

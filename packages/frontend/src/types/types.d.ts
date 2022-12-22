@@ -46,4 +46,4 @@ type TMimeSearchParameter = {
   fileTypes: string[];
 };
 
-type TSearchParamaterBody = TNameSearchParameter | TModifiedSearchParameter | TMimeSearchParameter;
+type TSearchParameterBody = TNameSearchParameter | TModifiedSearchParameter | TMimeSearchParameter;
