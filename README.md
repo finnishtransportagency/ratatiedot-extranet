@@ -176,16 +176,10 @@ compose database
 docker-compose up
 ```
 
-Get your IP address
+Copy this variable in your packages/server/.env file
 
 ```
-ipconfig getifaddr en0
-```
-
-Copy address to packages/server/.env file
-
-```
-DATABASE_URL="postgresql://root:root@<IP_ADDRESS>:5432/test_db?schema=public"
+DATABASE_URL="postgresql://root:root@docker.internal:5432/test_db?schema=public"
 ```
 
 run migration
