@@ -35,9 +35,7 @@ const routes: RouteObject[] = [
     children: [],
   },
   {
-    path: Routes.LOGOUT,
-    element: <LoggingOut></LoggingOut>,
-    errorElement: <RootBoundary />, // Send user here whenever error is thrown
+    path: Routes.LOGOUT_REDIRECT,
     loader: () => {
       document.cookie = 'Return=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       // check if cookie is removed
@@ -46,7 +44,7 @@ const routes: RouteObject[] = [
         throw new Error('Could not remove cookie.');
       }
       // redirect to logout url after succesfull cookie removal
-      window.location.replace(`${window.location.origin}/sso/logout?auth=1`);
+      window.location.href = `${window.location.origin}/sso/logout?auth=1`;
     },
   },
 ];

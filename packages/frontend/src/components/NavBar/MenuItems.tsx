@@ -73,6 +73,6 @@ export const MenuItems: IMenuItem[] = [
     key: 'Logout',
     primary: <Typography variant="subtitle2">Kirjaudu ulos</Typography>,
     icon: <LogoutIcon />,
-    to: Routes.LOGOUT,
+    to: `${window.location.origin}/sso/logout?auth=1`,
   },
 ];
