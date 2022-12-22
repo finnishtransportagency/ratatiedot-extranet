@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouteObject, redirect } from 'react-router-dom';
+import { createBrowserRouter, RouteObject } from 'react-router-dom';
 
 import { Landing } from './pages/Landing';
 import { Routes } from './constants/Routes';
@@ -38,7 +38,7 @@ const routes: RouteObject[] = [
     path: Routes.LOGOUT,
     element: <LoggingOut></LoggingOut>,
     errorElement: <RootBoundary />, // Send user here whenever error is thrown
-    loader: async () => {
+    loader: () => {
       document.cookie = 'Return=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       // check if cookie is removed
       if (document.cookie.indexOf('Return') !== -1) {
@@ -46,12 +46,8 @@ const routes: RouteObject[] = [
         throw new Error('Could not remove cookie.');
       }
       // redirect to logout url after succesfull cookie removal
-      return redirect('/sso/logout?auth=1');
+      window.location.replace(`${window.location.origin}/sso/logout?auth=1`);
     },
-  },
-  {
-    // create route for redirect so React Router doensn't throw 404
-    path: Routes.LOGOUT_REDIRECT,
   },
 ];
 
