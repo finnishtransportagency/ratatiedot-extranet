@@ -8,7 +8,12 @@ import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../util
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { searchQueryBuilder } from './searchQueryBuilder';
-import { Include, IParentSearchParameter, QueryLanguage, SearchParameterName } from './searchQueryBuilder/types';
+import {
+  AdditionalFields,
+  IParentSearchParameter,
+  QueryLanguage,
+  SearchParameterName,
+} from './searchQueryBuilder/types';
 
 const searchByTermWithParent = async (uid: string, alfrescoParent: string, page: number, language: QueryLanguage) => {
   try {
@@ -21,7 +26,7 @@ const searchByTermWithParent = async (uid: string, alfrescoParent: string, page:
       searchParameters: [parent],
       page: page,
       language: language,
-      include: [Include.PROPERTIES],
+      additionalFields: [AdditionalFields.PROPERTIES],
     });
     const alfrescoAPIUrl = getAlfrescoUrlBase();
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });

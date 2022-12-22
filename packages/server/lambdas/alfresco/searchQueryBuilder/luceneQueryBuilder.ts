@@ -4,7 +4,7 @@ import {
   IMimeSearchParameter,
   IModifiedSearchParameter,
   INameSearchParameter,
-  Include,
+  AdditionalFields,
   IParentSearchParameter,
   Paging,
   SearchParameter,
@@ -33,8 +33,8 @@ const onlyYear = (date: string) => YEAR.test(date);
 
 export class LuceneQueryBuilder implements QueryBuilder {
   // Filters values that are not approved
-  include(include: Array<Include>): Array<Include> {
-    return include.filter((val) => Object.values(Include).includes(val));
+  additionalFields(additionalFields: Array<AdditionalFields>): Array<AdditionalFields> {
+    return additionalFields.filter((val) => Object.values(AdditionalFields).includes(val));
   }
   // Only supports ISO-8601 and YYYY
   // In case of only year given, set from to first day of the year and to to last day of the year

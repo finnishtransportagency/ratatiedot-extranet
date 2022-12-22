@@ -1,5 +1,5 @@
 import { LuceneQueryBuilder, mimeTypesMappingForTests } from '../luceneQueryBuilder';
-import { FileType, Include, SearchParameter, SearchParameterName } from '../types';
+import { FileType, AdditionalFields, SearchParameter, SearchParameterName } from '../types';
 
 const luceneQueryBuilder = new LuceneQueryBuilder();
 describe('Lucene Query Builder', () => {
@@ -147,13 +147,13 @@ describe('Lucene Query Builder', () => {
       expect(luceneQueryBuilder.pagination(-4)).toEqual({ maxItems: 10, skipCount: 0 });
     });
   });
-  describe('luceneInclude', () => {
-    it('return value that is a valid Include enum type', () => {
-      expect(luceneQueryBuilder.include([Include.PROPERTIES])).toEqual([Include.PROPERTIES]);
+  describe('luceneAdditionalFields', () => {
+    it('return value that is a valid AdditionalField enum type', () => {
+      expect(luceneQueryBuilder.additionalFields([AdditionalFields.PROPERTIES])).toEqual([AdditionalFields.PROPERTIES]);
     });
-    it("don't return values that are not valid Include enum type", () => {
-      expect(luceneQueryBuilder.include(['properties', 'invalidValue'] as Array<Include>)).toEqual([
-        Include.PROPERTIES,
+    it("don't return values that are not valid AdditionalField enum type", () => {
+      expect(luceneQueryBuilder.additionalFields(['properties', 'invalidValue'] as Array<AdditionalFields>)).toEqual([
+        AdditionalFields.PROPERTIES,
       ]);
     });
   });

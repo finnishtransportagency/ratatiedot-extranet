@@ -20,7 +20,7 @@ export enum SearchParameterName {
 }
 
 export type Query = {
-  include?: Array<Include>;
+  additionalFields?: Array<AdditionalFields>;
   query: {
     query: string;
     language: QueryLanguage;
@@ -33,7 +33,7 @@ export type Paging = {
   skipCount: number;
 };
 
-export enum Include {
+export enum AdditionalFields {
   PROPERTIES = 'properties',
 }
 
