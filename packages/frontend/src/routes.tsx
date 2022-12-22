@@ -46,8 +46,12 @@ const routes: RouteObject[] = [
         throw new Error('Could not remove cookie.');
       }
       // redirect to logout url after succesfull cookie removal
-      return redirect(Routes.LOGOUT_REDIRECT);
+      return redirect('/sso/logout?auth=1');
     },
+  },
+  {
+    // create route for redirect so React Router doensn't throw 404
+    path: Routes.LOGOUT_REDIRECT,
   },
 ];
 

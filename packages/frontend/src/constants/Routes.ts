@@ -5,5 +5,5 @@ export const Routes = {
   LANDING: '/etusivu',
   SEARCH_RESULT: '/haku',
   LOGOUT: 'logout',
-  LOGOUT_REDIRECT: '/sso/logout?auth=1',
+  LOGOUT_REDIRECT: '/sso/logout*',
 };
