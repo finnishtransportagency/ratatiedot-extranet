@@ -10,7 +10,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
-import { ESearchParameterName, FilterSearchData, IItem } from './FilterSearchData';
+import { SearchParameterName, FilterSearchData, IItem } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
 import { SearchContext } from '../../contexts/SearchContext';
@@ -36,7 +36,7 @@ const FilterSearchItem = (props: IFilterSearchItem) => {
     setOpen((prevState: boolean) => !prevState);
   };
 
-  const isDefaultChecked = (name: ESearchParameterName, value: string) => {
+  const isDefaultChecked = (name: SearchParameterName, value: string) => {
     return checkedList[name]?.indexOf(value) !== -1;
   };
 
@@ -78,7 +78,7 @@ export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) =>
   const [from, setFrom] = useState<Date | null>(years[0] ? years[0] : null);
   const [to, setTo] = useState<Date | null>(years[1] ? years[1] : null);
 
-  const [checkboxes, setCheckboxes] = useState<{ [name in ESearchParameterName]: string[] }>(checkedList);
+  const [checkboxes, setCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>(checkedList);
 
   const clearFilters = () => {
     setFrom(null);
@@ -86,7 +86,7 @@ export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) =>
     // TODO: remove all check boxes
   };
 
-  const handleCheckBoxes = (name: ESearchParameterName, value: EMimeType) => {
+  const handleCheckBoxes = (name: SearchParameterName, value: EMimeType) => {
     const index = checkboxes[name].indexOf(value);
     if (index === -1) {
       setCheckboxes({ ...checkboxes, [name]: [...checkboxes[name], value] });

@@ -1,19 +1,19 @@
 import { Chip, Stack } from '@mui/material';
 import { useContext } from 'react';
-import { format } from 'date-fns';
 
 import { SearchContext } from '../../contexts/SearchContext';
+import { formatYear } from '../../utils/helpers';
 
 export const Tags = () => {
   const { years, checkedList } = useContext(SearchContext);
-  const fromYear = years[0] ? format(years[0], 'yyyy') : '';
-  const toYear = years[1] ? format(years[1], 'yyyy') : '';
+  const fromYear = formatYear(years[0]);
+  const toYear = formatYear(years[1]);
   let yearRange = '';
   if (fromYear) {
     yearRange += fromYear;
-  }
-  if (toYear) {
-    yearRange += `- ${toYear}`;
+    if (fromYear < toYear && toYear) {
+      yearRange += `- ${toYear}`;
+    }
   }
 
   return (

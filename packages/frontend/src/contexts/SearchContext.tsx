@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { ESearchParameterName } from '../components/Search/FilterSearchData';
+import { useSearchParams } from 'react-router-dom';
+import { SearchParameterName } from '../components/Search/FilterSearchData';
 
 export const SearchContext = React.createContext({
   query: '',
   queryHandler: (_: string) => {},
   checkedList: {
-    [ESearchParameterName.MIME]: [''],
-    [ESearchParameterName.REGION]: [''],
-    [ESearchParameterName.MATERIAL_CLASS]: [''],
+    [SearchParameterName.MIME]: [''],
+    [SearchParameterName.REGION]: [''],
+    [SearchParameterName.MATERIAL_CLASS]: [''],
   },
   checkedListHandler: (checkboxes: any) => {},
   years: [null, null],
@@ -15,12 +16,15 @@ export const SearchContext = React.createContext({
 });
 
 export const SearchContextProvider = (props: any) => {
-  const [query, setQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState<string>(() => {
+    return searchParams.get('query') || '';
+  });
   const [years, setYears] = useState<any[]>([]);
-  const [checkedList, setCheckedList] = useState<{ [name in ESearchParameterName]: string[] }>({
-    [ESearchParameterName.MIME]: [],
-    [ESearchParameterName.REGION]: [],
-    [ESearchParameterName.MATERIAL_CLASS]: [],
+  const [checkedList, setCheckedList] = useState<{ [name in SearchParameterName]: string[] }>({
+    [SearchParameterName.MIME]: [],
+    [SearchParameterName.REGION]: [],
+    [SearchParameterName.MATERIAL_CLASS]: [],
   });
 
   const queryHandler = (query: string) => {
