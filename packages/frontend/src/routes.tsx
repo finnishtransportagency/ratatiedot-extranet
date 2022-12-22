@@ -5,6 +5,7 @@ import { Routes } from './constants/Routes';
 import { ProtectedPage } from './pages/ProtectedPage';
 import { RootBoundary } from './components/RootBoundary';
 import { SearchResult } from './pages/Search/SearchResult';
+import { LoggingOut } from './pages/LoggingOut';
 
 const routes: RouteObject[] = [
   {
@@ -35,15 +36,17 @@ const routes: RouteObject[] = [
   },
   {
     path: Routes.LOGOUT,
-    element: <div>LOGGING OUT...</div>,
+    element: <LoggingOut></LoggingOut>,
     errorElement: <RootBoundary />, // Send user here whenever error is thrown
     loader: async () => {
-      console.log('Logging out');
       document.cookie = 'Return=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      // check if cookie exists then redirect to /
-      if (document.cookie.indexOf('Return') === -1) {
-        return redirect(Routes.LOGOUT_REDIRECT);
+      // check if cookie is removed
+      if (document.cookie.indexOf('Return') !== -1) {
+        // TODO: What do we do if we ever get here? Now user might get stuck.
+        throw new Error('Could not remove cookie.');
       }
+      // redirect to logout url after succesfull cookie removal
+      return redirect(Routes.LOGOUT_REDIRECT);
     },
   },
 ];
