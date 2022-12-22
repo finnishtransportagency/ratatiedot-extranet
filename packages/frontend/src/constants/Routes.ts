@@ -4,5 +4,6 @@ export const Routes = {
   NOT_FOUND: '/*',
   LANDING: '/etusivu',
   SEARCH_RESULT: '/haku',
-  LOGOUT: '/sso/logout?auth=1',
+  LOGOUT: 'logout',
+  LOGOUT_REDIRECT: '/sso/logout?auth=1',
 };
