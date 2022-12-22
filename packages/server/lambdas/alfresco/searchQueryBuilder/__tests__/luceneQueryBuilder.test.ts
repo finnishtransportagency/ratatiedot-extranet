@@ -1,5 +1,5 @@
 import { LuceneQueryBuilder, mimeTypesMappingForTests } from '../luceneQueryBuilder';
-import { FileType, SearchParameter, SearchParameterName } from '../types';
+import { FileType, Include, SearchParameter, SearchParameterName } from '../types';
 
 const luceneQueryBuilder = new LuceneQueryBuilder();
 describe('Lucene Query Builder', () => {
@@ -145,6 +145,16 @@ describe('Lucene Query Builder', () => {
     });
     it('should return zero given negative pagination page', () => {
       expect(luceneQueryBuilder.pagination(-4)).toEqual({ maxItems: 10, skipCount: 0 });
+    });
+  });
+  describe('luceneInclude', () => {
+    it('return value that is a valid Include enum type', () => {
+      expect(luceneQueryBuilder.include([Include.PROPERTIES])).toEqual([Include.PROPERTIES]);
+    });
+    it("don't return values that are not valid Include enum type", () => {
+      expect(luceneQueryBuilder.include(['properties', 'invalidValue'] as Array<Include>)).toEqual([
+        Include.PROPERTIES,
+      ]);
     });
   });
   describe('mimeTypesMapping', () => {

@@ -20,6 +20,7 @@ export enum SearchParameterName {
 }
 
 export type Query = {
+  include?: Array<Include>;
   query: {
     query: string;
     language: QueryLanguage;
@@ -31,6 +32,10 @@ export type Paging = {
   maxItems: number;
   skipCount: number;
 };
+
+export enum Include {
+  PROPERTIES = 'properties',
+}
 
 interface IBaseSearchParameter {
   parameterName: SearchParameterName;
