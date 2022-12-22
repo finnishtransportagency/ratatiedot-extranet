@@ -24,3 +24,26 @@ declare module '@mui/material/styles' {
 declare module '@emotion/react' {
   export interface Theme extends MaterialTheme {}
 }
+
+export enum ExtendedSearchParameterName {
+  NAME = 'name',
+  MODIFIED = 'modified',
+}
+
+type TNameSearchParameter = {
+  parameterName: ExtendedSearchParameterName.NAME;
+  fileName: string;
+};
+
+type TModifiedSearchParameter = {
+  parameterName: ExtendedSearchParameterName.MODIFIED;
+  from: string | number;
+  to?: string | number;
+};
+
+type TMimeSearchParameter = {
+  parameterName: SearchParameterName.MIME;
+  fileTypes: string[];
+};
+
+type TSearchParameterBody = TNameSearchParameter | TModifiedSearchParameter | TMimeSearchParameter;

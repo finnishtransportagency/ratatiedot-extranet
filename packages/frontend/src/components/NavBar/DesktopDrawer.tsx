@@ -20,7 +20,7 @@ export const DesktopDrawer = ({ openDrawer, toggleDrawer }: DesktopDrawerProps) 
     <DesktopDrawerWrapper variant="permanent" anchor="left" open={openDrawer}>
       <Toolbar>
         <Typography component="img" src={RataExtLogo} alt="Logo" sx={{ width: '65px', height: '65px' }} />
-        <Typography sx={{ fontSize: '18px', opacity: openDrawer ? 1 : 0 }}>Ratatiedon extranet</Typography>
+        <Typography sx={{ fontSize: '18px', opacity: openDrawer ? 1 : 0 }}>RATATIET0</Typography>
       </Toolbar>
       <ListItem key={openDrawer ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDrawer}>
         <ListItemButton area-label={openDrawer ? 'close desktop drawer' : 'open desktop drawer'}>

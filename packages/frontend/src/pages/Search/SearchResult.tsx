@@ -1,61 +1,55 @@
-import { Typography } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Alert, Typography } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useTranslation } from 'react-i18next';
 
 import { Tags } from '../../components/Tags';
 import { ContainerWrapper } from '../Landing/index.styles';
-
-// TODO: Use real data fetched from Backend (currently use mock data)
-import mockData from './mockData.json';
 import { NodeItem } from './NodeItem';
+import { TAlfrescoSearchProps, usePostAlfrescoSearch } from '../../hooks/query/Search';
+import { useContext } from 'react';
+import { SearchContext } from '../../contexts/SearchContext';
+import { formatYear } from '../../utils/helpers';
+import { useSearchParams } from 'react-router-dom';
 
 export const SearchResult = () => {
+  const { t } = useTranslation(['search', 'common']);
   const [searchParams] = useSearchParams();
-  const [data, setData] = useState<any>({}); // TODO: shouldn't be `any` type
   const query = searchParams.get('query');
+  const searchContext = useContext(SearchContext);
+  const { years, checkedList } = searchContext;
+  const searchParameter: TAlfrescoSearchProps = {
+    term: query,
+    from: formatYear(years[0]),
+    to: formatYear(years[1]),
+    fileTypes: checkedList.mime,
+  };
 
-  // TODO: Move this to separate api folder?
-  const { isLoading } = useQuery({
-    queryKey: ['alfresco-search'],
-    queryFn: async () => {
-      const body = {
-        searchParameters: [
-          {
-            parameterName: 'name',
-            fileName: query,
-          },
-        ],
-      };
-      const response = await axios.post('/api/alfresco/search', body);
-      return response.data;
-    },
-    onSuccess: (res) => {
-      setData(res);
-    },
-    // temporary
-    // TODO: throw error in toaster
-    onError: (err) => {
-      console.log(err);
-      setData(mockData);
-    },
-  });
+  const { isLoading, isError, error, data } = usePostAlfrescoSearch(searchParameter);
 
   if (isLoading) {
     return (
       <ContainerWrapper>
-        <CircularProgress />;
+        <CircularProgress />
       </ContainerWrapper>
     );
   }
+
+  if (isError) {
+    return (
+      <ContainerWrapper>
+        <Alert severity="error">{error?.message || t('common:error.500')}</Alert>
+      </ContainerWrapper>
+    );
+  }
+
   return (
     <ContainerWrapper>
-      <Typography variant="subtitle1">Hakutulokset "{query}"</Typography>
+      <Typography variant="subtitle1">
+        {t('search:search_results')} "{query}"
+      </Typography>
       <Tags />
       <Typography variant="body1" sx={{ margin: '24px 0px' }}>
-        {data.list.pagination.totalItems} tulosta
+        {data.list.pagination.totalItems} {t('search:results')}
       </Typography>
       <div style={{ marginLeft: '18px' }}>
         {data.list.entries.map((node: any, index: number) => (

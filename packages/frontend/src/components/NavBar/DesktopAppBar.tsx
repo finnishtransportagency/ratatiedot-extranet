@@ -25,7 +25,7 @@ export const DesktopAppBar = ({
 }: DesktopAppBarProps) => {
   const MainAppBar = () => {
     const location = useLocation();
-    const pageName = location.pathname.split('/').length ? location.pathname.split('/')[1] : 'ratatiedon extranet';
+    const pageName = location.pathname.split('/').length ? location.pathname.split('/')[1] : 'Ratatieto';
     return (
       <>
         <Typography variant="subtitle2" textTransform="capitalize">

@@ -10,5 +10,11 @@
   },
   "action": {
     "accept": "Hyväksy"
+  },
+  "error": {
+    "500": "Jokin meni pieleen!"
+  },
+  "loading": {
+    "logging_out": "Kirjaudutaan ulos..."
   }
 }

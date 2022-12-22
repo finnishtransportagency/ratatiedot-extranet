@@ -42,7 +42,11 @@ export const NodeItem = ({ node, row }: any) => {
       sx={{ paddingBottom: '18px', backgroundColor: row % 2 ? Colors.lightgrey : Colors.white }}
     >
       <Grid item mobile={1} tablet={0.5} desktop={0.5}>
-        <Box component="img" src={matchMimeType(content.mimeType)} alt="Logo" />
+        <Box
+          component="img"
+          src={content && content.mimeType ? matchMimeType(content.mimeType) : NodeTypes.other}
+          alt="Logo"
+        />
       </Grid>
       <Grid item mobile={11} tablet={11.5} desktop={11.5}>
         <Typography variant="body1">{name}</Typography>
