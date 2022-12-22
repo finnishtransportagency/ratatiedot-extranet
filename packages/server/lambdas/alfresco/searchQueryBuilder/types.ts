@@ -16,6 +16,7 @@ export enum SearchParameterName {
   MODIFIED = 'modified',
   MIME = 'mime',
   NAME = 'name',
+  PARENT = 'parent',
 }
 
 export type Query = {
@@ -51,4 +52,13 @@ export interface INameSearchParameter extends IBaseSearchParameter {
   fileName: string;
 }
 
-export type SearchParameter = IModifiedSearchParameter | IMimeSearchParameter | INameSearchParameter;
+export interface IParentSearchParameter extends IBaseSearchParameter {
+  parameterName: SearchParameterName.PARENT;
+  parent: string;
+}
+
+export type SearchParameter =
+  | IModifiedSearchParameter
+  | IMimeSearchParameter
+  | INameSearchParameter
+  | IParentSearchParameter;

@@ -126,19 +126,23 @@ describe('Lucene Query Builder', () => {
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+@cm\\:name:"test*"');
     });
+    it('should return query for parent', () => {
+      const parameters: Array<SearchParameter> = [
+        {
+          parameterName: SearchParameterName.PARENT,
+          parent: 'testuuid',
+        },
+      ];
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+PARENT:"workspace\\://SpacesStore/testuuid"');
+    });
   });
   describe('lucenePagination', () => {
     it('should return default pagination if no page given', () => {
       expect(luceneQueryBuilder.pagination()).toEqual({ maxItems: 10, skipCount: 0 });
     });
-  });
-  describe('lucenePagination', () => {
     it('should return given positive pagination page', () => {
       expect(luceneQueryBuilder.pagination(5)).toEqual({ maxItems: 10, skipCount: 5 });
     });
-  });
-
-  describe('lucenePagination', () => {
     it('should return zero given negative pagination page', () => {
       expect(luceneQueryBuilder.pagination(-4)).toEqual({ maxItems: 10, skipCount: 0 });
     });

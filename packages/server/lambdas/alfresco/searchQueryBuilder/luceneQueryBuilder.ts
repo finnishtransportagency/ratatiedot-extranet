@@ -4,6 +4,7 @@ import {
   IMimeSearchParameter,
   IModifiedSearchParameter,
   INameSearchParameter,
+  IParentSearchParameter,
   Paging,
   SearchParameter,
   SearchParameterName,
@@ -24,7 +25,7 @@ const mimeTypesMapping = {
 export const mimeTypesMappingForTests = mimeTypesMapping;
 
 const DIVIDER = ':';
-const SEARCH_START = `+@cm\\${DIVIDER}`;
+const METADATA_SEARCH_START = `+@cm\\${DIVIDER}`;
 
 const YEAR = new RegExp(/^\d{4}$/);
 const onlyYear = (date: string) => YEAR.test(date);
@@ -42,11 +43,11 @@ export class LuceneQueryBuilder implements QueryBuilder {
         ? set(new Date(parameter.to), { month: 11, date: 31 })
         : new Date(parameter.to)
       : set(new Date(parameter.from), { month: 11, date: 31 });
-    return `${SEARCH_START}modified${DIVIDER}[${format(from, 'yyyy-MM-dd')} TO ${format(to, 'yyyy-MM-dd')}]`;
+    return `${METADATA_SEARCH_START}modified${DIVIDER}[${format(from, 'yyyy-MM-dd')} TO ${format(to, 'yyyy-MM-dd')}]`;
   }
 
   buildMimeQuery(parameter: IMimeSearchParameter): string {
-    let query = `${SEARCH_START}content.mimetype${DIVIDER}`;
+    let query = `${METADATA_SEARCH_START}content.mimetype${DIVIDER}`;
     if (parameter.fileTypes.length > 1) {
       const joinedMimes = parameter.fileTypes.map((fileType) => mimeTypesMapping[fileType].join(', ')).join(', ');
       query += `(${joinedMimes})`;
@@ -64,7 +65,11 @@ export class LuceneQueryBuilder implements QueryBuilder {
   }
 
   buildNameQuery(parameter: INameSearchParameter): string {
-    return `${SEARCH_START}name${DIVIDER}"${parameter.fileName}*"`;
+    return `${METADATA_SEARCH_START}name${DIVIDER}"${parameter.fileName}*"`;
+  }
+
+  buildParentQuery(parameter: IParentSearchParameter) {
+    return `+PARENT:\"workspace\\://SpacesStore/${parameter.parent}\"`;
   }
 
   public queryBuilder(searchParameters: Array<SearchParameter>): string {
@@ -79,6 +84,9 @@ export class LuceneQueryBuilder implements QueryBuilder {
           break;
         case SearchParameterName.NAME:
           query += this.buildNameQuery(parameter);
+          break;
+        case SearchParameterName.PARENT:
+          query += this.buildParentQuery(parameter);
           break;
         default:
       }
