@@ -10,6 +10,7 @@ import { useContext } from 'react';
 import { SearchContext } from '../../contexts/SearchContext';
 import { formatYear } from '../../utils/helpers';
 import { useSearchParams } from 'react-router-dom';
+import { mimeNamesMapping } from '../../constants/Data';
 
 export const SearchResult = () => {
   const { t } = useTranslation(['search', 'common']);
@@ -21,7 +22,7 @@ export const SearchResult = () => {
     term: query,
     from: formatYear(years[0]),
     to: formatYear(years[1]),
-    fileTypes: checkedList.mime,
+    fileTypes: checkedList.mime.map((mimeType: string) => mimeNamesMapping[mimeType as keyof typeof mimeNamesMapping]),
   };
 
   const { isLoading, isError, error, data } = usePostAlfrescoSearch(searchParameter);

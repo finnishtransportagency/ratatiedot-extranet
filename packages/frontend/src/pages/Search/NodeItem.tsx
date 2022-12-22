@@ -1,6 +1,7 @@
 import { Box, Grid, Typography } from '@mui/material';
 import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
+import { get } from 'lodash';
 
 import Other from '../../assets/icons/Other.svg';
 import Word from '../../assets/icons/Word.svg';
@@ -29,6 +30,8 @@ const NodeTypes = {
 export const NodeItem = ({ node, row }: any) => {
   const { entry } = node;
   const { name, modifiedAt, content } = entry;
+  const contentMimeType = get(content, 'mimeType', '');
+  const contentSizeInBytes = get(content, 'sizeInBytes', 0);
 
   const matchMimeType = (mimeType: string) => {
     const foundMimeType = Object.entries(NodeTypes).find(([key]) => mimeType.indexOf(key) !== -1);
@@ -42,11 +45,7 @@ export const NodeItem = ({ node, row }: any) => {
       sx={{ paddingBottom: '18px', backgroundColor: row % 2 ? Colors.lightgrey : Colors.white }}
     >
       <Grid item mobile={1} tablet={0.5} desktop={0.5}>
-        <Box
-          component="img"
-          src={content && content.mimeType ? matchMimeType(content.mimeType) : NodeTypes.other}
-          alt="Logo"
-        />
+        <Box component="img" src={matchMimeType(contentMimeType)} alt="Logo" />
       </Grid>
       <Grid item mobile={11} tablet={11.5} desktop={11.5}>
         <Typography variant="body1">{name}</Typography>
@@ -55,7 +54,7 @@ export const NodeItem = ({ node, row }: any) => {
             {format(new Date(modifiedAt), DateFormat)}
           </Typography>
           <Typography variant="body1" sx={{ marginRight: '8px' }}>
-            {getLocaleByteUnit(prettyBytes(content.sizeInBytes || 0, { locale: 'fi' }), LocaleLang.FI)}
+            {getLocaleByteUnit(prettyBytes(contentSizeInBytes, { locale: 'fi' }), LocaleLang.FI)}
           </Typography>
         </div>
       </Grid>
