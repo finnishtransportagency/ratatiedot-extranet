@@ -9,7 +9,7 @@ describe('searchQueryBuilder', () => {
         query: '',
       },
       paging: {
-        maxItems: 10,
+        maxItems: 25,
         skipCount: 0,
       },
     });

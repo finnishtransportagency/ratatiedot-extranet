@@ -138,13 +138,13 @@ describe('Lucene Query Builder', () => {
   });
   describe('lucenePagination', () => {
     it('should return default pagination if no page given', () => {
-      expect(luceneQueryBuilder.pagination()).toEqual({ maxItems: 10, skipCount: 0 });
+      expect(luceneQueryBuilder.pagination()).toEqual({ maxItems: 25, skipCount: 0 });
     });
     it('should return given positive pagination page', () => {
-      expect(luceneQueryBuilder.pagination(5)).toEqual({ maxItems: 10, skipCount: 5 });
+      expect(luceneQueryBuilder.pagination(5)).toEqual({ maxItems: 25, skipCount: 5 });
     });
     it('should return zero given negative pagination page', () => {
-      expect(luceneQueryBuilder.pagination(-4)).toEqual({ maxItems: 10, skipCount: 0 });
+      expect(luceneQueryBuilder.pagination(-4)).toEqual({ maxItems: 25, skipCount: 0 });
     });
   });
   describe('luceneAdditionalFields', () => {
