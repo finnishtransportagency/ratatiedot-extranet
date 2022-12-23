@@ -18,7 +18,7 @@ export const searchQueryBuilder = ({
           language,
         },
         paging: luceneQueryBuilder.pagination(page),
-        ...(additionalFields && { additionalFields: luceneQueryBuilder.additionalFields(additionalFields) }),
+        ...(additionalFields && { include: luceneQueryBuilder.additionalFields(additionalFields) }),
       };
     default:
       log.error(`Searchquery for ${language} not yet implemented.`);
