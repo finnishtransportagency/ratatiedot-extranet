@@ -1,18 +1,13 @@
 import { log } from '../../../utils/logger';
 import { LuceneQueryBuilder } from './luceneQueryBuilder';
-import { QueryLanguage, Query, SearchParameter, AdditionalFields } from './types';
+import { QueryLanguage, Query, QueryRequest } from './types';
 
 export const searchQueryBuilder = ({
   searchParameters,
   page = 0,
   language = QueryLanguage.LUCENE,
   additionalFields,
-}: {
-  searchParameters: Array<SearchParameter>;
-  page: number;
-  language: QueryLanguage;
-  additionalFields?: Array<AdditionalFields>;
-}): Query => {
+}: QueryRequest): Query => {
   switch (language) {
     case QueryLanguage.LUCENE:
       const luceneQueryBuilder = new LuceneQueryBuilder();

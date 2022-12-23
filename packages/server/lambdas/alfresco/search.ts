@@ -1,4 +1,4 @@
-import { ALBEvent, Context } from 'aws-lambda';
+import { ALBEvent, ALBResult } from 'aws-lambda';
 import axios from 'axios';
 import { getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 
@@ -6,11 +6,12 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { searchQueryBuilder } from './searchQueryBuilder';
+import { QueryRequest } from './searchQueryBuilder/types';
 
 const searchByTerm = async (body: string | null, uid: string) => {
   try {
     log.debug(body, 'POST body request');
-    const parsedBody = body ? JSON.parse(body) : {};
+    const parsedBody: QueryRequest = body ? JSON.parse(body) : {};
     log.debug(parsedBody, 'Body parsing...');
     const bodyRequest = searchQueryBuilder({
       searchParameters: parsedBody.searchParameters,
@@ -29,11 +30,17 @@ const searchByTerm = async (body: string | null, uid: string) => {
   }
 };
 
-export async function handleRequest(event: ALBEvent, _context: Context) {
+/**
+ * Endpoint for searching for files from Alfresco with given search parameters
+ * @param {ALBEvent} event
+ * @param {QueryRequest} event.body JSON stringified QueryRequest
+ * @returns {Promise<ALBResult>} List of files stringified in body
+ */
+export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
     await validateReadUser(user);
-    log.info(user, 'Alfresco search');
+    log.info(user, `Alfresco search: ${event.body}`);
     const data = await searchByTerm(event.body, user.uid);
     return {
       statusCode: 200,

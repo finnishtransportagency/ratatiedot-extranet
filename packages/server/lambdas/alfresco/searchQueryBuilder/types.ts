@@ -19,6 +19,13 @@ export enum SearchParameterName {
   PARENT = 'parent',
 }
 
+export type QueryRequest = {
+  searchParameters: Array<SearchParameter>;
+  page?: number;
+  language: QueryLanguage;
+  additionalFields?: Array<AdditionalFields>;
+};
+
 export type Query = {
   additionalFields?: Array<AdditionalFields>;
   query: {

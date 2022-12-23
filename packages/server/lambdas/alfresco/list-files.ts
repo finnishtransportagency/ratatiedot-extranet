@@ -1,5 +1,5 @@
 import { CategoryDataBase } from '@prisma/client';
-import { ALBEvent, Context } from 'aws-lambda';
+import { ALBEvent, ALBResult } from 'aws-lambda';
 import axios from 'axios';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
@@ -42,23 +42,30 @@ const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-export async function handleRequest(event: ALBEvent, _context: Context) {
+/**
+ * Get the list of files embedded to given page
+ * @param {ALBEvent} event
+ * @param {{category: string, page?: number, language?: QueryLanguage }} event.queryStringParameters
+ * @param {string} event.queryStringParameters.category Page to be searched for
+ * @returns {Promise<ALBResult>} List of files for given page
+ */
+export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    log.info(user, `Fetching files for ${event.path}`);
+    log.info(user, `Fetching files for ${event.queryStringParameters}`);
     await validateReadUser(user);
     const params = event.queryStringParameters;
     const category = params?.category;
     if (!category) {
       throw new RataExtraLambdaError('Category missing', 400);
     }
-    if (!fileEndpointsCache.length) {
-      fileEndpointsCache = await database.categoryDataBase.findMany();
-    }
     const page = params?.page ? parseInt(params?.page) : 0;
     const language = (params?.language as QueryLanguage) ?? QueryLanguage.LUCENE;
     if (!Object.values(QueryLanguage).includes(language)) {
       throw new RataExtraLambdaError('Invalid language', 400);
+    }
+    if (!fileEndpointsCache.length) {
+      fileEndpointsCache = await database.categoryDataBase.findMany();
     }
     const alfrescoParent = findEndpoint(category, fileEndpointsCache)?.alfrescoFolder;
     if (!alfrescoParent) {

@@ -1,5 +1,5 @@
 import { CategoryDataBase } from '@prisma/client';
-import { ALBEvent, Context } from 'aws-lambda';
+import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
@@ -7,16 +7,20 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 
-// TODO: Preliminary implementation
-// Not tested, so won't likely work
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-export async function handleRequest(event: ALBEvent, _context: Context) {
+/**
+ * Get custom content for page
+ * @param {ALBEvent} event
+ * @param {{string}} event.queryStringParameters.category Page to get the custom content for
+ * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
+ */
+export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    log.info(user, `Fetching files for ${event.path}`);
+    log.info(user, `Fetching files for ${event.queryStringParameters}`);
     await validateReadUser(user);
     const category = event.queryStringParameters?.category;
     if (!category) {
