@@ -13,6 +13,8 @@ export const SearchContext = React.createContext({
   checkedListHandler: (checkboxes: any) => {},
   years: [null, null],
   yearsHandler: (from: any, to: any) => {},
+  page: 0,
+  pageHandler: (page: number) => {},
 });
 
 export const SearchContextProvider = (props: any) => {
@@ -26,6 +28,7 @@ export const SearchContextProvider = (props: any) => {
     [SearchParameterName.REGION]: [],
     [SearchParameterName.MATERIAL_CLASS]: [],
   });
+  const [page, setPage] = useState<number>(0);
 
   const queryHandler = (query: string) => {
     setQuery(query);
@@ -39,6 +42,10 @@ export const SearchContextProvider = (props: any) => {
     return setCheckedList(checkboxes);
   };
 
+  const pageHandler = (page: number) => {
+    setPage(page);
+  };
+
   return (
     <SearchContext.Provider
       value={{
@@ -48,6 +55,8 @@ export const SearchContextProvider = (props: any) => {
         checkedListHandler: checkedListHandler,
         years: years,
         yearsHandler: yearsHandler,
+        page: page,
+        pageHandler: pageHandler,
       }}
     >
       {props.children}

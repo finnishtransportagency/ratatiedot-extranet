@@ -1,4 +1,4 @@
-import { Alert, Typography } from '@mui/material';
+import { Alert, Pagination, Typography } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useTranslation } from 'react-i18next';
 
@@ -17,12 +17,13 @@ export const SearchResult = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('query');
   const searchContext = useContext(SearchContext);
-  const { years, checkedList } = searchContext;
+  const { years, checkedList, page, pageHandler } = searchContext;
   const searchParameter: TAlfrescoSearchProps = {
     term: query,
     from: formatYear(years[0]),
     to: formatYear(years[1]),
     fileTypes: checkedList.mime.map((mimeType: string) => mimeNamesMapping[mimeType as keyof typeof mimeNamesMapping]),
+    page: page,
   };
 
   const { isLoading, isError, error, data } = usePostAlfrescoSearch(searchParameter);
@@ -57,6 +58,17 @@ export const SearchResult = () => {
           <NodeItem key={index} row={index} node={node} />
         ))}
       </div>
+      {data.list.pagination.totalItems && (
+        <Pagination
+          sx={{ justifyContent: 'center', display: 'flex' }}
+          page={page + 1}
+          showFirstButton
+          showLastButton
+          count={Math.ceil(data.list.pagination.totalItems / data.list.pagination.maxItems)}
+          color="primary"
+          onChange={(_: React.ChangeEvent<unknown>, pageNumber: number) => pageHandler(pageNumber - 1)}
+        />
+      )}
     </ContainerWrapper>
   );
 };
