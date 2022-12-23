@@ -8,10 +8,11 @@ export type TAlfrescoSearchProps = {
   from?: string | number;
   to?: string | number;
   fileTypes?: string[];
+  page?: number;
 };
 
-const getSearchBody = ({ term, from, to, fileTypes }: TAlfrescoSearchProps) => {
-  let body: { searchParameters: TSearchParameterBody[] } = { searchParameters: [] };
+const getSearchBody = ({ term, from, to, fileTypes, page = 0 }: TAlfrescoSearchProps) => {
+  let body: { searchParameters: TSearchParameterBody[]; page: number } = { searchParameters: [], page: page };
   if (term) {
     body.searchParameters.push({
       parameterName: ExtendedSearchParameterName.NAME,
