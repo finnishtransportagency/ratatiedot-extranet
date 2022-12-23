@@ -3,6 +3,7 @@ import { log } from '../utils/logger';
 import { getRataExtraLambdaError } from '../utils/errors';
 
 /**
+ * @DEPRECATED
  * DRAFT IMPLEMENTATION
  * Generates a pre-signed url for a file in S3 bucket. Currently takes input in the POST request body.
  */

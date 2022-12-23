@@ -9,14 +9,12 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
   ESM_REQUIRE_SHIM,
-  SSM_ALFRESCO_API_KEY,
-  SSM_ALFRESCO_API_URL,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as path from 'path';
-import { isDevelopmentMainStack, isLocalStack } from './utils';
+import { isDevelopmentMainStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 
@@ -33,6 +31,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly jwtTokenIssuer: string;
   readonly alfrescoAPIKey: string;
   readonly alfrescoAPIUrl: string;
+  readonly alfrescoAncestor: string;
 }
 
 type ListenerTargetLambdas = {
@@ -44,24 +43,29 @@ type ListenerTargetLambdas = {
   targetName: string;
 };
 
-type LambdaParameters = {
+interface LambdaParameters extends GeneralLambdaParameters {
   name: string;
-  rataExtraStackIdentifier: string;
-  lambdaRole: Role;
   /** Relative path from declaring file to the lambda function file */
   relativePath: string;
-  vpc: IVpc;
-  securityGroups?: ISecurityGroup[];
   memorySize?: number;
   timeout?: Duration;
   runtime?: Runtime;
   logRetention?: RetentionDays;
   /** Name of the function to be called */
   handler?: string;
+  environment?: Record<string, string>;
+  bundling?: BundlingOptions;
+}
+
+interface GeneralLambdaParameters {
+  rataExtraStackIdentifier: string;
+  lambdaRole: Role;
+  vpc: IVpc;
+  securityGroups?: ISecurityGroup[];
   /** Environment variables to be passed to the function */
   environment?: Record<string, string>;
   bundling?: BundlingOptions;
-};
+}
 
 export class RataExtraBackendStack extends NestedStack {
   constructor(scope: Construct, id: string, props: ResourceNestedStackProps) {
@@ -79,6 +83,7 @@ export class RataExtraBackendStack extends NestedStack {
       jwtTokenIssuer,
       alfrescoAPIKey,
       alfrescoAPIUrl,
+      alfrescoAncestor,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -86,15 +91,20 @@ export class RataExtraBackendStack extends NestedStack {
     // Basic Lambda configs
     // ID and VPC should not be changed
     // Role and SG might need to be customized per Lambda
-    const genericLambdaParameters = {
+    const genericLambdaParameters: GeneralLambdaParameters = {
       rataExtraStackIdentifier: rataExtraStackIdentifier,
       vpc: applicationVpc,
       lambdaRole: lambdaServiceRole,
       securityGroups: securityGroups,
-      environment: { JWT_TOKEN_ISSUER: jwtTokenIssuer, STACK_ID: stackId, ENVIRONMENT: rataExtraEnv },
+      environment: {
+        JWT_TOKEN_ISSUER: jwtTokenIssuer,
+        STACK_ID: stackId,
+        ENVIRONMENT: rataExtraEnv,
+        LOG_LEVEL: isFeatOrLocalStack(rataExtraEnv) ? 'debug' : 'info',
+      },
     };
 
-    const prismaParameters = {
+    const prismaParameters: GeneralLambdaParameters = {
       ...genericLambdaParameters,
       environment: {
         ...genericLambdaParameters.environment,
@@ -106,7 +116,6 @@ export class RataExtraBackendStack extends NestedStack {
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
         format: OutputFormat.ESM,
-        platform: 'node',
         target: 'node16',
         mainFields: ['module', 'main'],
         esbuildArgs: {
@@ -132,6 +141,25 @@ export class RataExtraBackendStack extends NestedStack {
       },
     };
 
+    const alfrescoParameters: GeneralLambdaParameters = {
+      ...genericLambdaParameters,
+      environment: {
+        ...genericLambdaParameters.environment,
+        ALFRESCO_API_KEY_NAME: alfrescoAPIKey,
+        ALFRESCO_API_URL: alfrescoAPIUrl,
+        ALFRESCO_ANCESTOR: alfrescoAncestor,
+      },
+    };
+
+    const prismaAlfrescoCombinedParameters: GeneralLambdaParameters = {
+      ...prismaParameters,
+      ...alfrescoParameters,
+      environment: {
+        ...prismaParameters.environment,
+        ...alfrescoParameters.environment,
+      },
+    };
+
     const ssmDatabaseParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
       resources: [
@@ -139,6 +167,11 @@ export class RataExtraBackendStack extends NestedStack {
         `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_NAME}`,
         `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_PASSWORD}`,
       ],
+    });
+
+    const ssmAlfrescoParameterPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
+      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
     });
 
     const ksmDecryptPolicy = new PolicyStatement({
@@ -161,13 +194,13 @@ export class RataExtraBackendStack extends NestedStack {
     const createUser = this.createNodejsLambda({
       ...prismaParameters,
       name: 'create-user',
-      relativePath: '../packages/server/lambdas/create-user.ts',
+      relativePath: '../packages/server/lambdas/database/create-user.ts',
     });
 
     const listUsers = this.createNodejsLambda({
       ...prismaParameters,
       name: 'list-users',
-      relativePath: '../packages/server/lambdas/list-users.ts',
+      relativePath: '../packages/server/lambdas/database/list-users.ts',
     });
 
     createUser.role?.attachInlinePolicy(
@@ -192,27 +225,40 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     const alfrescoSearch = this.createNodejsLambda({
-      ...genericLambdaParameters,
-      environment: {
-        ...genericLambdaParameters.environment,
-        ALFRESCO_API_KEY: alfrescoAPIKey,
-        ALFRESCO_API_URL: alfrescoAPIUrl,
-      },
+      ...alfrescoParameters,
       name: 'alfresco-search',
       relativePath: '../packages/server/lambdas/alfresco/search.ts',
     });
 
-    const alfrescoParametersPolicy = new PolicyStatement({
-      actions: ['ssm:GetParameter'],
-      resources: [
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_KEY}`,
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_ALFRESCO_API_URL}`,
-      ],
+    const alfrescoListFiles = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-list-files',
+      relativePath: '../packages/server/lambdas/alfresco/list-files.ts',
     });
+
+    // TODO: Make this a part of createNodejsLambda
+    alfrescoSearch.role?.attachInlinePolicy(
+      new Policy(this, 'alfrescoListFilesPermissionPolicy', {
+        statements: [ssmDatabaseParameterPolicy, ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
+      }),
+    );
+
+    // TODO: Add Policy
+    const dbGetPageContents = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-get-page-contents',
+      relativePath: '../packages/server/lambdas/database/get-page-contents.ts',
+    });
+
+    alfrescoListFiles.role?.attachInlinePolicy(
+      new Policy(this, 'alfresoListFilesPermissionPolicy', {
+        statements: [ssmDatabaseParameterPolicy, ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
+      }),
+    );
 
     alfrescoSearch.role?.attachInlinePolicy(
       new Policy(this, 'alfrescoParametersPolicy', {
-        statements: [alfrescoParametersPolicy],
+        statements: [ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
       }),
     );
 
@@ -225,6 +271,13 @@ export class RataExtraBackendStack extends NestedStack {
       { lambda: returnLogin, priority: 50, path: ['/api/return-login'], targetName: 'returnLogin' },
       // Alfresco service will reserve 100-150th priority
       { lambda: alfrescoSearch, priority: 100, path: ['/api/alfresco/search'], targetName: 'alfrescoSearch' },
+      { lambda: alfrescoListFiles, priority: 110, path: ['/api/alfresco/list-files'], targetName: 'alfrescoListFiles' },
+      {
+        lambda: dbGetPageContents,
+        priority: 200,
+        path: ['/api/database/get-page-contents'],
+        targetName: 'dbGetPageContents',
+      },
       { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
     ];
     // ALB for API

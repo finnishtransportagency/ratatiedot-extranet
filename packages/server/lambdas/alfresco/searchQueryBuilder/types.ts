@@ -16,9 +16,18 @@ export enum SearchParameterName {
   MODIFIED = 'modified',
   MIME = 'mime',
   NAME = 'name',
+  PARENT = 'parent',
 }
 
+export type QueryRequest = {
+  searchParameters: Array<SearchParameter>;
+  page?: number;
+  language: QueryLanguage;
+  additionalFields?: Array<AdditionalFields>;
+};
+
 export type Query = {
+  additionalFields?: Array<AdditionalFields>;
   query: {
     query: string;
     language: QueryLanguage;
@@ -30,6 +39,10 @@ export type Paging = {
   maxItems: number;
   skipCount: number;
 };
+
+export enum AdditionalFields {
+  PROPERTIES = 'properties',
+}
 
 interface IBaseSearchParameter {
   parameterName: SearchParameterName;
@@ -51,4 +64,13 @@ export interface INameSearchParameter extends IBaseSearchParameter {
   fileName: string;
 }
 
-export type SearchParameter = IModifiedSearchParameter | IMimeSearchParameter | INameSearchParameter;
+export interface IParentSearchParameter extends IBaseSearchParameter {
+  parameterName: SearchParameterName.PARENT;
+  parent: string;
+}
+
+export type SearchParameter =
+  | IModifiedSearchParameter
+  | IMimeSearchParameter
+  | INameSearchParameter
+  | IParentSearchParameter;

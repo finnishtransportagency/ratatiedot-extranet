@@ -19,11 +19,15 @@
     "test:client": "cd packages/frontend && npm test",
     "test:server": "cd packages/server && npm test",
     "cdk": "cdk",
-    "rataextra:synth": "cdk --app \"ts-node bin/rataextra\" -o cdk.rataextra synth",
+    "local:synth": "cdk --app \"ts-node bin/rataextra\" -o cdk.rataextra synth",
     "sam:invoke": "sam local invoke -t ./cdk.rataextra/rataextra.template.json $npm_config_handler",
-    "sam:synthinvoke": "npm run rataextra:synth && npm run sam:invoke",
+    "sam:synthinvoke": "npm run local:synth && npm run sam:invoke",
     "pipeline:synth": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk synth",
-    "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk deploy stack-pipeline-rataextra-$npm_config_stackid"
+    "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk deploy stack-pipeline-rataextra-$npm_config_stackid",
+    "prisma:format": "prisma format --schema packages/server/prisma/schema.prisma",
+    "prisma:generate": "prisma generate --schema packages/server/prisma/schema.prisma",
+    "local:db:migrate": "cd packages/server && npm run loadenv && prisma migrate dev --name init --schema prisma/schema.prisma",
+    "local:db:populate": "cd packages/server && ./populate-local-db.sh"
   },
   "repository": {
     "type": "git",
@@ -52,7 +56,7 @@
     "aws-cdk": "2.41.0",
     "cross-env": "^7.0.3",
     "cypress": "^10.8.0",
-    "esbuild": "^0.16.7",
+    "esbuild": "^0.16.10",
     "eslint": "^8.24.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jsx-a11y": "^6.6.1",

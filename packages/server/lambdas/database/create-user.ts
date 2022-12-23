@@ -1,15 +1,18 @@
 import { ALBEvent, Context } from 'aws-lambda';
-import { getRataExtraLambdaError } from '../utils/errors.js';
-import { auditLog, log } from '../utils/logger.js';
-import { getUser, validateWriteUser } from '../utils/userService.js';
-import { DatabaseClient } from './database-client/index.js';
+import { getRataExtraLambdaError } from '../../utils/errors.js';
+import { log } from '../../utils/logger.js';
+import { getUser, validateWriteUser } from '../../utils/userService.js';
+import { DatabaseClient } from './client/index.js';
 
 const database = await DatabaseClient.build();
 
+/**
+ * @DEPRECATED
+ */
 export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
-    auditLog.info(user, 'Creating temp users');
+    log.info(user, 'Creating temp users');
     await validateWriteUser(user);
     const createdUser = await database.user.create({
       data: {

@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { getParameter, getSecuredStringParameter } from '../../utils/parameterStore';
+import { getParameter, getSecuredStringParameter } from '../../../utils/parameterStore';
 
 const databaseNameId = process.env.SSM_DATABASE_NAME_ID || '';
 const databaseDomainId = process.env.SSM_DATABASE_DOMAIN_ID || '';

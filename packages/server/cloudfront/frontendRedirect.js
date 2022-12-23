@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * Check if asking for file or page. For pages (including /index.html), check if cookie "Return" is set.
+ * If cookie is missing, redirect to /api/return-login to check SSO session
+ * @param {CloudFrontFunctionsEvent} event aws-lambda.CloudFrontFunctionsEvent
+ * @returns Original request or redirect
+ */
 function handler(event) {
   var request = event.request;
   var headers = request.headers;
