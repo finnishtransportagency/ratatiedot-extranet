@@ -1,17 +1,23 @@
 import styled from '@emotion/styled';
 import { Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+
 import { Colors } from '../../constants/Colors';
+import { Routes } from '../../constants/Routes';
 import { appbarWidth } from '../../constants/Viewports';
 import { KeyEnum, LocalStorageHelper } from '../../utils/StorageHelper';
 
 export const RecentSearch = () => {
+  const { t } = useTranslation(['search']);
+
   const RecentSearchItems = () => {
     const items = new LocalStorageHelper().get(KeyEnum.RECENT_SEARCHES);
     return (
       items &&
       items.map((searchText: string, index: number) => (
         <Typography key={index} variant="body1">
-          {searchText}
+          <CustomLink to={`${Routes.SEARCH_RESULT}?query=${searchText}`}>{searchText}</CustomLink>
         </Typography>
       ))
     );
@@ -20,7 +26,7 @@ export const RecentSearch = () => {
   return (
     <RecentSearchWrapper>
       <Typography variant="body1" sx={{ color: Colors.darkgrey }}>
-        VIIMEISET HAUT
+        {t('search:last_searches')}
       </Typography>
       <RecentSearchItems />
     </RecentSearchWrapper>
@@ -47,3 +53,11 @@ const RecentSearchWrapper = styled('div')(({ theme }) => {
     },
   };
 });
+
+const CustomLink = styled(Link)(() => ({
+  textDecoration: 'none',
+  color: Colors.extrablack,
+  '&:hover': {
+    color: Colors.darkblue,
+  },
+}));
