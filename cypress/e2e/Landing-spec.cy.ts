@@ -46,7 +46,7 @@ describe('Landing page', () => {
   describe(`on ${desktopViewport}`, () => {
     beforeEach(() => {
       cy.viewport(desktopViewport);
-      cy.visit(Routes.LANDING);
+      cy.visit(Routes.HOME);
     });
 
     it('MuiAppBar does not exist', function () {

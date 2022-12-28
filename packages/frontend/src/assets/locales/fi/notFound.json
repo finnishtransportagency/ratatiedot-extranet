@@ -1,0 +1,10 @@
+{
+  "title": "Sivua ei löydy",
+  "description_primary": "Hakemasi sivu on väliaikaisesti poissa käytöstä tai sivua ei ehkä enää ole.",
+  "list": {
+    "title": "TEE JOKIN SEURAAVISTA:",
+    "item_1": "Yritä muodostaa yhteys uudelleen napsauttamalla selaimen Päivitä-painiketta.",
+    "item_2": "Tarkista URL-osoitteen oikeinkirjoitus (tarkista isot ja pienet kirjaimet sekä välimerkit) ja napsauta selaimen Päivitä-painiketta.",
+    "item_3": "Palaa edelliselle sivulle napsauttamalla selaimen Edellinen-painiketta."
+  }
+}

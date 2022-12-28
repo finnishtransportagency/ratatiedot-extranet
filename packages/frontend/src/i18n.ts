@@ -6,6 +6,8 @@ import { initReactI18next } from 'react-i18next';
 import common from './assets/locales/fi/common.json';
 import landing from './assets/locales/fi/landing.json';
 import search from './assets/locales/fi/search.json';
+import accessDenied from './assets/locales/fi/accessDenied.json';
+import notFound from './assets/locales/fi/notFound.json';
 
 export const defaultNS = 'common';
 export const resources = {
@@ -13,6 +15,8 @@ export const resources = {
     common,
     landing,
     search,
+    accessDenied,
+    notFound,
   },
 };
 

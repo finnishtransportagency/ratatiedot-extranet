@@ -1,12 +1,12 @@
 {
   "welcome": {
-    "text": "Tervetuloa uudistuneeseen Ratatiedon extranettiin",
+    "text": "Tervetuloa uudistuneeseen Ratatieto-palveluun",
     "description": "Tarkista ajankohtaiset ilmoitukset, viimeksi muokatut tiedostot ja omat suosikit suoraan tältä sivulta. Voit siirtyä myös muihin aineistoihin navigaation tai haun kautta."
   },
   "first_login": {
     "title": "Käyttöohjeet: Ratatieto",
-    "description_primary": "Ratatiedon extranettiin kerätty aineisto on tarkoitettu liikenteenohjaukselle, isännöitsijöille, kunnossapitäjille, rakentajille ja liikennöijille. Tietoja ei saa luovuttaa eteenpäin ilman Väyläviraston lupaa. Tietoja saa käyttää radanpidon ja liikennöinnin työtehtäviin.",
-    "description_secondary": "Ratatiedon extranetin käyttäjät ovat sitoutunee noudattamaan ylläolevia palvelun sääntöjä. Palvelun tunnukset ovat henkilökohtaiset.",
+    "description_primary": "Ratatieto-palveluun kerätty aineisto on tarkoitettu liikenteenohjaukselle, isännöitsijöille, kunnossapitäjille, rakentajille ja liikennöijille. Tietoja ei saa luovuttaa eteenpäin ilman Väyläviraston lupaa. Tietoja saa käyttää radanpidon ja liikennöinnin työtehtäviin.",
+    "description_secondary": "Ratatieto-palvelun  käyttäjät ovat sitoutuneet noudattamaan ylläolevia palvelun sääntöjä. Palvelun tunnukset ovat henkilökohtaiset.",
     "must_accept": "Jatkakseesi palveluun sinun on hyväksyttävä käyttöohjeet."
   }
 }
