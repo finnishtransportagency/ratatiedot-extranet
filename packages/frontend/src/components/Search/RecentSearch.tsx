@@ -2,11 +2,12 @@ import styled from '@emotion/styled';
 import { Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { SearchStorage } from '.';
 
 import { Colors } from '../../constants/Colors';
 import { Routes } from '../../constants/Routes';
 import { appbarWidth } from '../../constants/Viewports';
-import { KeyEnum, LocalStorageHelper } from '../../utils/StorageHelper';
+import { KeyEnum } from '../../utils/StorageHelper';
 
 type RecentSearchProps = {
   exitSearch: () => void;
@@ -16,12 +17,18 @@ export const RecentSearch = ({ exitSearch }: RecentSearchProps) => {
   const { t } = useTranslation(['search']);
 
   const RecentSearchItems = () => {
-    const items = new LocalStorageHelper().get(KeyEnum.RECENT_SEARCHES);
+    const items = SearchStorage.get(KeyEnum.RECENT_SEARCHES);
     return (
       items &&
       items.map((searchText: string, index: number) => (
         <Typography key={index} variant="body1">
-          <CustomLink to={`${Routes.SEARCH_RESULT}?query=${searchText}`} onClick={exitSearch}>
+          <CustomLink
+            to={`${Routes.SEARCH_RESULT}?query=${searchText}`}
+            onClick={() => {
+              SearchStorage.add(KeyEnum.RECENT_SEARCHES, searchText);
+              exitSearch();
+            }}
+          >
             {searchText}
           </CustomLink>
         </Typography>
