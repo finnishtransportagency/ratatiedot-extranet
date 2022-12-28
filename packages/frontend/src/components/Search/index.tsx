@@ -92,7 +92,7 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
           {openFilter ? <DisabledByDefaultIcon color="primary" /> : <TuneIcon color="primary" />}
         </IconButton>
       </>
-      {openSearch && !openFilter && <RecentSearch />}
+      {openSearch && !openFilter && <RecentSearch exitSearch={exitSearch} />}
       <FilterSearch openFilter={openFilter} toggleFilter={toggleFilter} />
     </>
   );

@@ -8,7 +8,11 @@ import { Routes } from '../../constants/Routes';
 import { appbarWidth } from '../../constants/Viewports';
 import { KeyEnum, LocalStorageHelper } from '../../utils/StorageHelper';
 
-export const RecentSearch = () => {
+type RecentSearchProps = {
+  exitSearch: () => void;
+};
+
+export const RecentSearch = ({ exitSearch }: RecentSearchProps) => {
   const { t } = useTranslation(['search']);
 
   const RecentSearchItems = () => {
@@ -17,7 +21,9 @@ export const RecentSearch = () => {
       items &&
       items.map((searchText: string, index: number) => (
         <Typography key={index} variant="body1">
-          <CustomLink to={`${Routes.SEARCH_RESULT}?query=${searchText}`}>{searchText}</CustomLink>
+          <CustomLink to={`${Routes.SEARCH_RESULT}?query=${searchText}`} onClick={exitSearch}>
+            {searchText}
+          </CustomLink>
         </Typography>
       ))
     );
