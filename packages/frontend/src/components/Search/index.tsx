@@ -23,7 +23,7 @@ type SearchProps = {
 
 export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isDesktop = false }: SearchProps) => {
   const searchContext = useContext(SearchContext);
-  const { query, queryHandler } = searchContext;
+  const { query, queryHandler, resetFilters } = searchContext;
   const navigate = useNavigate();
 
   // Set limit for number of searches
@@ -36,8 +36,8 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
   const enterSearch = (event: React.KeyboardEvent) => {
     if (event.code === 'Enter' && query) {
       SearchStorage.add(KeyEnum.RECENT_SEARCHES, query);
+      resetFilters();
       closeSearch();
-      // TODO: Navigate to new SearchPage (path /haku)
       navigate(`${Routes.SEARCH_RESULT}?query=${query}`);
     }
   };
