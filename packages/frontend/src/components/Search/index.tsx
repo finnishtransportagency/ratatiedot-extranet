@@ -21,13 +21,13 @@ type SearchProps = {
   isDesktop?: boolean;
 };
 
+// Set limit for number of searches
+export const SearchStorage = new LocalStorageHelper(5);
+
 export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isDesktop = false }: SearchProps) => {
   const searchContext = useContext(SearchContext);
   const { query, queryHandler } = searchContext;
   const navigate = useNavigate();
-
-  // Set limit for number of searches
-  const SearchStorage = new LocalStorageHelper(5);
 
   const closeSearch = () => {
     openSearch && toggleSearch();
@@ -60,7 +60,14 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
 
   const MiniLeftSearchBar = () => {
     return openSearch ? (
-      <IconButton size="large" edge="start" area-label="back" onClick={exitSearch}>
+      <IconButton
+        size="large"
+        edge="start"
+        area-label="back"
+        onClick={() => {
+          exitSearch();
+        }}
+      >
         <ArrayBackIcon color="primary" />
       </IconButton>
     ) : (
@@ -92,7 +99,7 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
           {openFilter ? <DisabledByDefaultIcon color="primary" /> : <TuneIcon color="primary" />}
         </IconButton>
       </>
-      {openSearch && !openFilter && <RecentSearch />}
+      {openSearch && !openFilter && <RecentSearch exitSearch={exitSearch} />}
       <FilterSearch openFilter={openFilter} toggleFilter={toggleFilter} />
     </>
   );
