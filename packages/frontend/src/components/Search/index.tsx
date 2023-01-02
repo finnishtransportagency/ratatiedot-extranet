@@ -81,6 +81,7 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
       <>
         {isDesktop ? <LeftSearchBar /> : <MiniLeftSearchBar />}
         <InputBase
+          inputRef={(input) => openSearch && input?.focus()}
           fullWidth={true}
           placeholder="Etsi sivustolta"
           inputProps={{ 'aria-label': 'search' }}
