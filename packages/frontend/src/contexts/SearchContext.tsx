@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SearchParameterName } from '../components/Search/FilterSearchData';
 
@@ -15,7 +15,6 @@ export const SearchContext = React.createContext({
   yearsHandler: (from: any, to: any) => {},
   page: 0,
   pageHandler: (page: number) => {},
-  resetFilters: () => {},
 });
 
 export const SearchContextProvider = (props: any) => {
@@ -30,6 +29,17 @@ export const SearchContextProvider = (props: any) => {
     [SearchParameterName.MATERIAL_CLASS]: [],
   });
   const [page, setPage] = useState<number>(0);
+
+  useEffect(() => {
+    queryHandler(searchParams.get('query') || '');
+    yearsHandler(null, null);
+    savedCheckboxesHandler({
+      [SearchParameterName.MIME]: [],
+      [SearchParameterName.REGION]: [],
+      [SearchParameterName.MATERIAL_CLASS]: [],
+    });
+    pageHandler(0);
+  }, [searchParams]);
 
   const queryHandler = (query: string) => {
     setQuery(query);
@@ -47,16 +57,6 @@ export const SearchContextProvider = (props: any) => {
     setPage(page);
   };
 
-  const resetFilters = () => {
-    yearsHandler(null, null);
-    savedCheckboxesHandler({
-      [SearchParameterName.MIME]: [],
-      [SearchParameterName.REGION]: [],
-      [SearchParameterName.MATERIAL_CLASS]: [],
-    });
-    pageHandler(0);
-  };
-
   return (
     <SearchContext.Provider
       value={{
@@ -68,7 +68,6 @@ export const SearchContextProvider = (props: any) => {
         yearsHandler: yearsHandler,
         page: page,
         pageHandler: pageHandler,
-        resetFilters: resetFilters,
       }}
     >
       {props.children}

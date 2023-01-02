@@ -26,7 +26,7 @@ export const SearchStorage = new LocalStorageHelper(5);
 
 export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isDesktop = false }: SearchProps) => {
   const searchContext = useContext(SearchContext);
-  const { query, queryHandler, resetFilters } = searchContext;
+  const { query, queryHandler } = searchContext;
   const navigate = useNavigate();
 
   const closeSearch = () => {
@@ -38,7 +38,6 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
       SearchStorage.add(KeyEnum.RECENT_SEARCHES, query);
       closeSearch();
       navigate(`${Routes.SEARCH_RESULT}?query=${query}`);
-      resetFilters();
     }
   };
 
