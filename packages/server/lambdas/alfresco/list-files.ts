@@ -53,7 +53,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
     log.info(user, `Fetching files for ${event.queryStringParameters}`);
-    await validateReadUser(user);
+    validateReadUser(user);
     const params = event.queryStringParameters;
     const category = params?.category;
     if (!category) {

@@ -14,14 +14,14 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 /**
  * Get custom content for page
  * @param {ALBEvent} event
- * @param {{string}} event.queryStringParameters.category Page to get the custom content for
+ * @param {string} event.queryStringParameters.category Page to get the custom content for
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    log.info(user, `Fetching files for ${event.queryStringParameters}`);
-    await validateReadUser(user);
+    log.info(user, `Fetching page contents for page ${event.queryStringParameters}`);
+    validateReadUser(user);
     const category = event.queryStringParameters?.category;
     if (!category) {
       throw new RataExtraLambdaError('Category missing', 400);

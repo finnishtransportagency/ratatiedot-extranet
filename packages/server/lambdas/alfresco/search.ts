@@ -39,7 +39,7 @@ const searchByTerm = async (body: string | null, uid: string) => {
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    await validateReadUser(user);
+    validateReadUser(user);
     log.info(user, `Alfresco search: ${event.body}`);
     const data = await searchByTerm(event.body, user.uid);
     return {
