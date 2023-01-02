@@ -37,7 +37,6 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
     if (event.code === 'Enter' && query) {
       SearchStorage.add(KeyEnum.RECENT_SEARCHES, query);
       closeSearch();
-      // TODO: Navigate to new SearchPage (path /haku)
       navigate(`${Routes.SEARCH_RESULT}?query=${query}`);
     }
   };

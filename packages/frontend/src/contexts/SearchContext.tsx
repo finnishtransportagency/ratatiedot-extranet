@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SearchParameterName } from '../components/Search/FilterSearchData';
 
 export const SearchContext = React.createContext({
   query: '',
   queryHandler: (_: string) => {},
-  checkedList: {
+  savedCheckboxes: {
     [SearchParameterName.MIME]: [''],
     [SearchParameterName.REGION]: [''],
     [SearchParameterName.MATERIAL_CLASS]: [''],
   },
-  checkedListHandler: (checkboxes: any) => {},
+  savedCheckboxesHandler: (checkboxes: any) => {},
   years: [null, null],
   yearsHandler: (from: any, to: any) => {},
   page: 0,
@@ -23,12 +23,23 @@ export const SearchContextProvider = (props: any) => {
     return searchParams.get('query') || '';
   });
   const [years, setYears] = useState<any[]>([]);
-  const [checkedList, setCheckedList] = useState<{ [name in SearchParameterName]: string[] }>({
+  const [savedCheckboxes, setSavedCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>({
     [SearchParameterName.MIME]: [],
     [SearchParameterName.REGION]: [],
     [SearchParameterName.MATERIAL_CLASS]: [],
   });
   const [page, setPage] = useState<number>(0);
+
+  useEffect(() => {
+    queryHandler(searchParams.get('query') || '');
+    yearsHandler(null, null);
+    savedCheckboxesHandler({
+      [SearchParameterName.MIME]: [],
+      [SearchParameterName.REGION]: [],
+      [SearchParameterName.MATERIAL_CLASS]: [],
+    });
+    pageHandler(0);
+  }, [searchParams]);
 
   const queryHandler = (query: string) => {
     setQuery(query);
@@ -38,8 +49,8 @@ export const SearchContextProvider = (props: any) => {
     setYears([from, to]);
   };
 
-  const checkedListHandler = (checkboxes: any) => {
-    return setCheckedList(checkboxes);
+  const savedCheckboxesHandler = (checkboxes: any) => {
+    return setSavedCheckboxes(checkboxes);
   };
 
   const pageHandler = (page: number) => {
@@ -51,8 +62,8 @@ export const SearchContextProvider = (props: any) => {
       value={{
         query: query,
         queryHandler: queryHandler,
-        checkedList: checkedList,
-        checkedListHandler: checkedListHandler,
+        savedCheckboxes: savedCheckboxes,
+        savedCheckboxesHandler: savedCheckboxesHandler,
         years: years,
         yearsHandler: yearsHandler,
         page: page,
