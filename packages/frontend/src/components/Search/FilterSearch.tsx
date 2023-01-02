@@ -154,6 +154,7 @@ export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) =>
               minDate={new Date('2002-01-01')}
               maxDate={new Date()}
               value={to}
+              shouldDisableYear={(year: any) => (from ? year < from : true)}
               onChange={(newValue) => setTo(newValue)}
               renderInput={(params) => <TextField {...params} helperText={null} />}
             />

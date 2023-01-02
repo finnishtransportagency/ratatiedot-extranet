@@ -36,9 +36,9 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
   const enterSearch = (event: React.KeyboardEvent) => {
     if (event.code === 'Enter' && query) {
       SearchStorage.add(KeyEnum.RECENT_SEARCHES, query);
-      resetFilters();
       closeSearch();
       navigate(`${Routes.SEARCH_RESULT}?query=${query}`);
+      resetFilters();
     }
   };
 
