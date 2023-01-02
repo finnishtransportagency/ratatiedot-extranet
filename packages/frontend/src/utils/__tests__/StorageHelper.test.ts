@@ -38,6 +38,16 @@ describe('StorageHelper', () => {
     myStorage.add(KeyEnum.RECENT_SEARCHES, 'C');
     expect(myStorage.get(KeyEnum.RECENT_SEARCHES)).toEqual(['C', 'B']);
   });
+
+  it('should replace duplicated value (insensitive case)', () => {
+    const myStorage = new LocalStorageHelper(3);
+    myStorage.add(KeyEnum.RECENT_SEARCHES, 'A');
+    myStorage.add(KeyEnum.RECENT_SEARCHES, 'B');
+    myStorage.add(KeyEnum.RECENT_SEARCHES, '');
+    myStorage.add(KeyEnum.RECENT_SEARCHES, 'C');
+    myStorage.add(KeyEnum.RECENT_SEARCHES, 'b');
+    expect(myStorage.get(KeyEnum.RECENT_SEARCHES)).toEqual(['b', 'C', 'A']);
+  });
 });
 // Or can set `"isolatedModules": false` in tsconfig.json
 export {};

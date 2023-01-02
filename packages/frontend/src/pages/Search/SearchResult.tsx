@@ -41,6 +41,9 @@ export const SearchResult = () => {
   if (isError) {
     return (
       <ContainerWrapper>
+        <Typography variant="subtitle1">
+          {t('search:search_results')} "{query}"
+        </Typography>
         <Alert severity="error">{error?.message || t('common:error.500')}</Alert>
       </ContainerWrapper>
     );

@@ -4,6 +4,7 @@
   "search_results": "Hakutulokset",
   "results": "tulosta",
   "time": "Aika",
+  "last_searches": "VIIMEISET HAUT",
   "action": {
     "update_results": "Päivitä tulokset",
     "remove_filters": "Poista kaikki suodattimet"
