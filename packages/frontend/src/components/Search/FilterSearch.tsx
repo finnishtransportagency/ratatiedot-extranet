@@ -17,11 +17,7 @@ import { SearchContext } from '../../contexts/SearchContext';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
 import { useTranslation } from 'react-i18next';
 import { EMimeType } from '../../constants/Data';
-
-type FilterSearchProps = {
-  openFilter: boolean;
-  toggleFilter: any;
-};
+import { AppBarContext } from '../../contexts/AppBarContext';
 
 interface IFilterSearchItem extends IItem {
   checkboxes: any;
@@ -79,8 +75,9 @@ const FilterSearchItem = (props: IFilterSearchItem) => {
   );
 };
 
-export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) => {
+export const FilterSearch = () => {
   const { t } = useTranslation(['search']);
+  const { openFilter, toggleFilter } = useContext(AppBarContext);
 
   const { savedCheckboxes, savedCheckboxesHandler, years, yearsHandler } = useContext(SearchContext);
   const [from, setFrom] = useState<Date | null>(years[0] ? years[0] : null);

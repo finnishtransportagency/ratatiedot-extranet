@@ -1,17 +1,15 @@
 import styled from '@emotion/styled';
 import { Toolbar } from '@mui/material';
 import MuiDrawer, { DrawerProps } from '@mui/material/Drawer';
+import { useContext } from 'react';
 
 import { Colors } from '../../constants/Colors';
 import { drawerWidth } from '../../constants/Viewports';
+import { AppBarContext } from '../../contexts/AppBarContext';
 import { MenuList } from './MenuList';
 
-type MiniDrawerProps = {
-  openDrawer: boolean;
-  toggleDrawer: React.MouseEventHandler<HTMLElement>;
-};
-
-export const MiniDrawer = ({ openDrawer }: MiniDrawerProps) => {
+export const MiniDrawer = () => {
+  const { openDrawer } = useContext(AppBarContext);
   return (
     <MiniDrawerWrapper variant="persistent" anchor="left" open={openDrawer}>
       <Toolbar />

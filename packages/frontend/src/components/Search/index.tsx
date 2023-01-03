@@ -12,21 +12,19 @@ import { KeyEnum, LocalStorageHelper } from '../../utils/StorageHelper';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { FilterSearch } from './FilterSearch';
+import { AppBarContext } from '../../contexts/AppBarContext';
 
 type SearchProps = {
-  openSearch: boolean;
-  openFilter: boolean;
-  toggleSearch: any;
-  toggleFilter: any;
   isDesktop?: boolean;
 };
 
 // Set limit for number of searches
 export const SearchStorage = new LocalStorageHelper(5);
 
-export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isDesktop = false }: SearchProps) => {
+export const Search = ({ isDesktop = false }: SearchProps) => {
   const searchContext = useContext(SearchContext);
   const { query, queryHandler } = searchContext;
+  const { openSearch, toggleSearch, openFilter, toggleFilter } = useContext(AppBarContext);
   const navigate = useNavigate();
 
   const closeSearch = () => {
@@ -81,6 +79,7 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
       <>
         {isDesktop ? <LeftSearchBar /> : <MiniLeftSearchBar />}
         <InputBase
+          inputRef={(input) => openSearch && input?.focus()}
           fullWidth={true}
           placeholder="Etsi sivustolta"
           inputProps={{ 'aria-label': 'search' }}
@@ -99,7 +98,7 @@ export const Search = ({ openSearch, toggleSearch, openFilter, toggleFilter, isD
         </IconButton>
       </>
       {openSearch && !openFilter && <RecentSearch exitSearch={exitSearch} />}
-      <FilterSearch openFilter={openFilter} toggleFilter={toggleFilter} />
+      <FilterSearch />
     </>
   );
 };
