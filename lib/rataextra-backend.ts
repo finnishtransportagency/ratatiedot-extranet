@@ -283,7 +283,7 @@ export class RataExtraBackendStack extends NestedStack {
       },
       {
         lambda: dbUpdatePageContents,
-        priority: 200,
+        priority: 210,
         path: ['/api/database/page-contents'],
         httpRequestMethods: ['POST'],
         targetName: 'dbUpdatePageContents',
