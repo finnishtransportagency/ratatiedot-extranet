@@ -9,13 +9,11 @@ import { Colors } from '../../constants/Colors';
 import RataExtLogo from '../../assets/images/Logo_noText.png';
 import { MenuList } from './MenuList';
 import { drawerWidth } from '../../constants/Viewports';
+import { useContext } from 'react';
+import { AppBarContext } from '../../contexts/AppBarContext';
 
-type DesktopDrawerProps = {
-  openDrawer: boolean;
-  toggleDrawer: React.MouseEventHandler<HTMLElement>;
-};
-
-export const DesktopDrawer = ({ openDrawer, toggleDrawer }: DesktopDrawerProps) => {
+export const DesktopDrawer = () => {
+  const { openDrawer, toggleDrawer } = useContext(AppBarContext);
   return (
     <DesktopDrawerWrapper variant="permanent" anchor="left" open={openDrawer}>
       <Toolbar>
