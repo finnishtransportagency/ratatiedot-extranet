@@ -20,7 +20,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    log.info(user, `Fetching page contents for page ${event.queryStringParameters}`);
+    log.info(user, `Fetching page contents for page ${JSON.stringify(event.queryStringParameters)}`);
     validateReadUser(user);
     const category = event.queryStringParameters?.category;
     if (!category) {
