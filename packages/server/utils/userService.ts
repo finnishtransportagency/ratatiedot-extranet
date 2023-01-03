@@ -11,7 +11,7 @@ const ENVIRONMENT = process.env.ENVIRONMENT || '';
 
 const STATIC_ROLES = {
   read: 'Ratatieto_luku',
-  admin: 'Ratatieto_admin',
+  admin: 'Ratatieto_kirjoitus',
 };
 
 export type RataExtraUser = {
