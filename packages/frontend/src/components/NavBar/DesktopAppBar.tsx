@@ -7,12 +7,22 @@ import { Search } from '../Search';
 import { drawerWidth } from '../../constants/Viewports';
 import { DrawerWrapperProps } from './DesktopDrawer';
 import { useLocation } from 'react-router-dom';
-import { useContext } from 'react';
-import { AppBarContext } from '../../contexts/AppBarContext';
 
-export const DesktopAppBar = () => {
-  const { openDrawer } = useContext(AppBarContext);
+type DesktopAppBarProps = {
+  openDrawer: boolean;
+  openSearch: boolean;
+  openFilter: boolean;
+  toggleSearch: any;
+  toggleFilter: any;
+};
 
+export const DesktopAppBar = ({
+  openDrawer,
+  openSearch,
+  openFilter,
+  toggleSearch,
+  toggleFilter,
+}: DesktopAppBarProps) => {
   const MainAppBar = () => {
     const location = useLocation();
     const pageName = location.pathname.split('/').length ? location.pathname.split('/')[1] : 'Ratatieto';
@@ -23,7 +33,13 @@ export const DesktopAppBar = () => {
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
         <ToolbarWrapper>
-          <Search isDesktop={true} />
+          <Search
+            openSearch={openSearch}
+            toggleSearch={toggleSearch}
+            openFilter={openFilter}
+            toggleFilter={toggleFilter}
+            isDesktop={true}
+          />
         </ToolbarWrapper>
       </>
     );
