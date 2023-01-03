@@ -98,7 +98,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
         </IconButton>
       </>
       {openSearch && !openFilter && <RecentSearch exitSearch={exitSearch} />}
-      <FilterSearch openFilter={openFilter} toggleFilter={toggleFilter} />
+      <FilterSearch />
     </>
   );
 };
