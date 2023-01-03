@@ -6,7 +6,7 @@ import { Tags } from '../../components/Tags';
 import { ContainerWrapper } from '../Landing/index.styles';
 import { NodeItem } from './NodeItem';
 import { TAlfrescoSearchProps, usePostAlfrescoSearch } from '../../hooks/query/Search';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { SearchContext } from '../../contexts/SearchContext';
 import { formatYear } from '../../utils/helpers';
 import { useSearchParams } from 'react-router-dom';
