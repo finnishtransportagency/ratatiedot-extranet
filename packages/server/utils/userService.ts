@@ -98,9 +98,7 @@ export const validateReadUser = (user: RataExtraUser): void => {
  * @param {string} writeRole Role being validated against
  */
 export const validateWriteUser = (user: RataExtraUser, writeRole: string): void => {
-  if (isAdmin(user)) {
-    return;
-  } else if (isWriteUser(user, writeRole)) {
+  if (isAdmin(user) || isWriteUser(user, writeRole)) {
     return;
   } else {
     log.error(user, 'Forbidden: User is not an authorised write user');
