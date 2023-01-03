@@ -93,11 +93,11 @@ Note! AWS SAM CLI requires Docker to run functions locally. If you are using a D
 export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
 ```
 
-After installing SAM, you need to synth a separate rataextra stack locally to be invoked. Note that `handler-name` below is the name given to createNodejsLambda, e.g. dummy-handler.
+After installing SAM, you need to synth a separate rataextra stack locally to be invoked. Note that `handler-name` below is the name given to createNodejsLambda, e.g. dummy-handler. Replace `myFavouriteAWSProfile` with your AWS profile.
 
 ```
 npm run local:synth
-npm run sam:invoke --handler=handler-name
+npm run sam:invoke --handler=handler-name --profile=myFavouriteAWSProfile
 ```
 
 If you have not run the frontend build locally, synth might complain about no `packages/frontend/build`. In that case, you can either run the build script or manually add an empty `build` folder.
@@ -206,14 +206,18 @@ Optionally:
 test lambda localy create-user
 
 ```
-npm run sam:invoke --handler=create-user
+npm run sam:invoke --handler=create-user --profile=myFavouriteAWSProfile
 ```
+
+where you replace `myFavouriteAWSProfile` with your AWS profile.
 
 list-users
 
 ```
-npm run sam:invoke --handler=list-users -- --log-file logs.txt
+npm run sam:invoke --handler=list-users --profile=myFavouriteAWSProfile -- --log-file logs.txt
 ```
+
+where you replace `myFavouriteAWSProfile` with your AWS profile.
 
 Logs will be generated in logs.txt file
 
