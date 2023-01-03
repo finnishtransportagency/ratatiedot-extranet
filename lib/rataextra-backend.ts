@@ -1,6 +1,6 @@
 import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, Tags } from 'aws-cdk-lib';
 import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
-import { Role, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Role, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
 import {
@@ -54,8 +54,6 @@ interface LambdaParameters extends GeneralLambdaParameters {
   logRetention?: RetentionDays;
   /** Name of the function to be called */
   handler?: string;
-  environment?: Record<string, string>;
-  bundling?: BundlingOptions;
 }
 
 interface GeneralLambdaParameters {
@@ -66,6 +64,7 @@ interface GeneralLambdaParameters {
   /** Environment variables to be passed to the function */
   environment?: Record<string, string>;
   bundling?: BundlingOptions;
+  initialPolicy: PolicyStatement[];
 }
 
 export class RataExtraBackendStack extends NestedStack {
@@ -89,6 +88,24 @@ export class RataExtraBackendStack extends NestedStack {
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
+    const ssmDatabaseParameterPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_DOMAIN}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_NAME}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_PASSWORD}`,
+      ],
+    });
+
+    const ssmAlfrescoParameterPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
+      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
+    });
+
+    const kmsDecryptPolicy = new PolicyStatement({
+      actions: ['kms:Decrypt'],
+      resources: [`arn:aws:kms:${this.region}:${this.account}:aws/ssm`],
+    });
     // Basic Lambda configs
     // ID and VPC should not be changed
     // Role and SG might need to be customized per Lambda
@@ -103,6 +120,7 @@ export class RataExtraBackendStack extends NestedStack {
         ENVIRONMENT: rataExtraEnv,
         LOG_LEVEL: isFeatOrLocalStack(rataExtraEnv) ? 'debug' : 'info',
       },
+      initialPolicy: [],
     };
 
     const prismaParameters: GeneralLambdaParameters = {
@@ -140,6 +158,7 @@ export class RataExtraBackendStack extends NestedStack {
           },
         },
       },
+      initialPolicy: [ssmDatabaseParameterPolicy, kmsDecryptPolicy],
     };
 
     const alfrescoParameters: GeneralLambdaParameters = {
@@ -150,6 +169,7 @@ export class RataExtraBackendStack extends NestedStack {
         ALFRESCO_API_URL: alfrescoAPIUrl,
         ALFRESCO_ANCESTOR: alfrescoAncestor,
       },
+      initialPolicy: [ssmAlfrescoParameterPolicy, kmsDecryptPolicy],
     };
 
     const prismaAlfrescoCombinedParameters: GeneralLambdaParameters = {
@@ -159,26 +179,8 @@ export class RataExtraBackendStack extends NestedStack {
         ...prismaParameters.environment,
         ...alfrescoParameters.environment,
       },
+      initialPolicy: [...prismaParameters.initialPolicy, ...alfrescoParameters.initialPolicy],
     };
-
-    const ssmDatabaseParameterPolicy = new PolicyStatement({
-      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-      resources: [
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_DOMAIN}`,
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_NAME}`,
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_PASSWORD}`,
-      ],
-    });
-
-    const ssmAlfrescoParameterPolicy = new PolicyStatement({
-      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
-    });
-
-    const ksmDecryptPolicy = new PolicyStatement({
-      actions: ['kms:Decrypt'],
-      resources: [`arn:aws:kms:${this.region}:${this.account}:aws/ssm`],
-    });
 
     const dummyFn = this.createNodejsLambda({
       ...genericLambdaParameters,
@@ -204,17 +206,6 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/list-users.ts',
     });
 
-    createUser.role?.attachInlinePolicy(
-      new Policy(this, 'createUserParametersPolicy', {
-        statements: [ssmDatabaseParameterPolicy, ksmDecryptPolicy],
-      }),
-    );
-
-    listUsers.role?.attachInlinePolicy(
-      new Policy(this, 'listUsersParametersPolicy', {
-        statements: [ssmDatabaseParameterPolicy, ksmDecryptPolicy],
-      }),
-    );
     const returnLogin = this.createNodejsLambda({
       ...genericLambdaParameters,
       environment: {
@@ -237,37 +228,17 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/list-files.ts',
     });
 
-    // TODO: Make this a part of createNodejsLambda
-    alfrescoSearch.role?.attachInlinePolicy(
-      new Policy(this, 'alfrescoListFilesPermissionPolicy', {
-        statements: [ssmDatabaseParameterPolicy, ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
-      }),
-    );
-
-    // TODO: Add Policy
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
       relativePath: '../packages/server/lambdas/database/get-page-contents.ts',
     });
-    // TODO: Add Policy
+
     const dbUpdatePageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-update-page-contents',
       relativePath: '../packages/server/lambdas/database/update-page-contents.ts',
     });
-
-    alfrescoListFiles.role?.attachInlinePolicy(
-      new Policy(this, 'alfresoListFilesPermissionPolicy', {
-        statements: [ssmDatabaseParameterPolicy, ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
-      }),
-    );
-
-    alfrescoSearch.role?.attachInlinePolicy(
-      new Policy(this, 'alfrescoParametersPolicy', {
-        statements: [ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
-      }),
-    );
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
@@ -352,6 +323,7 @@ export class RataExtraBackendStack extends NestedStack {
     handler = 'handleRequest',
     environment = {},
     bundling = {},
+    initialPolicy,
   }: LambdaParameters) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackIdentifier}-${name}`,
@@ -367,6 +339,7 @@ export class RataExtraBackendStack extends NestedStack {
       vpc,
       securityGroups: securityGroups,
       bundling: bundling,
+      initialPolicy,
     });
   }
 
