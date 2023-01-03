@@ -38,7 +38,8 @@ type ListenerTargetLambdas = {
   lambda: NodejsFunction;
   /** Must be a unique integer for each. Lowest number is prioritized. */
   priority: number;
-  path: [string];
+  path: string[];
+  httpRequestMethods: string[];
   /** Must be a unique string for each. Don't reuse names across different lambdas. */
   targetName: string;
 };
@@ -249,6 +250,12 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'db-get-page-contents',
       relativePath: '../packages/server/lambdas/database/get-page-contents.ts',
     });
+    // TODO: Add Policy
+    const dbUpdatePageContents = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-update-page-contents',
+      relativePath: '../packages/server/lambdas/database/update-page-contents.ts',
+    });
 
     alfrescoListFiles.role?.attachInlinePolicy(
       new Policy(this, 'alfresoListFilesPermissionPolicy', {
@@ -265,20 +272,52 @@ export class RataExtraBackendStack extends NestedStack {
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
-      { lambda: dummy2Fn, priority: 10, path: ['/api/test'], targetName: 'dummy2' },
-      { lambda: listUsers, priority: 20, path: ['/api/users'], targetName: 'listUsers' },
-      { lambda: createUser, priority: 30, path: ['/api/create-user'], targetName: 'createUser' },
-      { lambda: returnLogin, priority: 50, path: ['/api/return-login'], targetName: 'returnLogin' },
+      { lambda: dummy2Fn, priority: 10, path: ['/api/test'], httpRequestMethods: ['GET'], targetName: 'dummy2' },
+      { lambda: listUsers, priority: 20, path: ['/api/users'], httpRequestMethods: ['GET'], targetName: 'listUsers' },
+      {
+        lambda: createUser,
+        priority: 30,
+        path: ['/api/create-user'],
+        httpRequestMethods: ['GET'],
+        targetName: 'createUser',
+      },
+      {
+        lambda: returnLogin,
+        priority: 50,
+        path: ['/api/return-login'],
+        httpRequestMethods: ['GET'],
+        targetName: 'returnLogin',
+      },
       // Alfresco service will reserve 100-150th priority
-      { lambda: alfrescoSearch, priority: 100, path: ['/api/alfresco/search'], targetName: 'alfrescoSearch' },
-      { lambda: alfrescoListFiles, priority: 110, path: ['/api/alfresco/list-files'], targetName: 'alfrescoListFiles' },
+      {
+        lambda: alfrescoSearch,
+        priority: 100,
+        path: ['/api/alfresco/search'],
+        httpRequestMethods: ['POST'],
+        targetName: 'alfrescoSearch',
+      },
+      {
+        lambda: alfrescoListFiles,
+        priority: 110,
+        path: ['/api/alfresco/files'],
+        httpRequestMethods: ['GET'],
+        targetName: 'alfrescoListFiles',
+      },
       {
         lambda: dbGetPageContents,
         priority: 200,
-        path: ['/api/database/get-page-contents'],
+        path: ['/api/database/page-contents'],
+        httpRequestMethods: ['GET'],
         targetName: 'dbGetPageContents',
       },
-      { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
+      {
+        lambda: dbUpdatePageContents,
+        priority: 200,
+        path: ['/api/database/page-contents'],
+        httpRequestMethods: ['POST'],
+        targetName: 'dbUpdatePageContents',
+      },
+      { lambda: dummyFn, priority: 1000, path: ['/*'], httpRequestMethods: ['GET'], targetName: 'dummy' },
     ];
     // ALB for API
     const alb = this.createlAlb({
@@ -365,7 +404,10 @@ export class RataExtraBackendStack extends NestedStack {
       listener.addTargets(`Target-${target.targetName}`, {
         targets: [new LambdaTarget(target.lambda)],
         priority: target.priority,
-        conditions: [ListenerCondition.pathPatterns(target.path)],
+        conditions: [
+          ListenerCondition.pathPatterns(target.path),
+          ListenerCondition.httpRequestMethods(target.httpRequestMethods),
+        ],
       }),
     );
     return alb;
