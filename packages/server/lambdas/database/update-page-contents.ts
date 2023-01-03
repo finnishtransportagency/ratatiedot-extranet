@@ -27,11 +27,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     const body: UpdateRequestBody = event.body ? JSON.parse(event.body) : {};
     log.debug(`Request body: ${JSON.stringify(body)}`);
-    const category = body.category;
+    const { category, fields } = body;
     log.info(user, `Updating page contents for page ${body.category}`);
     validateReadUser(user);
     if (!category) {
       throw new RataExtraLambdaError('Category missing', 400);
+    }
+    if (!fields) {
+      throw new RataExtraLambdaError('Fields missing', 400);
     }
     if (!fileEndpointsCache.length) {
       fileEndpointsCache = await database.categoryDataBase.findMany();
@@ -46,7 +49,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const contents = await database.categoryDataContents.update({
       where: { baseId: categoryData.id },
-      data: { fields: JSON.stringify(body.fields) },
+      data: { fields: fields },
     });
 
     return {
