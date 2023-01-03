@@ -21,7 +21,13 @@ export interface IMenuItem {
 }
 
 export const getRouterName = (name: string) => {
-  return name.replace(/\s/g, '-').toLowerCase();
+  return name
+    .replace(/\s/g, '-')
+    .replace(/--/g, '-')
+    .replace(/[()]/g, '')
+    .toLowerCase()
+    .replace(/ä/g, 'a')
+    .replace(/ö/g, 'o');
 };
 
 const fetchMaterialClass = (): IMenuItem[] => {
