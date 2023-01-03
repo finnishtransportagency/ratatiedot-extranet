@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { ENVIRONMENTS } from '../../../../../lib/config';
 import { getParameter, getSecuredStringParameter } from '../../../utils/parameterStore';
 
 const environment = process.env.ENVIRONMENT;
@@ -13,7 +14,7 @@ let databasePassword: string | null = null;
 export class DatabaseClient {
   public static async build(): Promise<PrismaClient> {
     let DATABASE_URL: string;
-    if (environment === 'local') {
+    if (environment === ENVIRONMENTS.local) {
       DATABASE_URL = 'postgresql://root:root@host.docker.internal:5432/test_db?schema=public';
     } else {
       if (!databaseName || !databaseDomain || !databasePassword) {
