@@ -38,7 +38,7 @@ function parseRoles(roles: string): string[] | undefined {
 
 const getMockUser = (): RataExtraUser => ({
   uid: 'MOCK_UID',
-  roles: [STATIC_ROLES.read],
+  roles: [STATIC_ROLES.read, STATIC_ROLES.admin],
 });
 
 const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
