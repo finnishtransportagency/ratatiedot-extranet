@@ -1,8 +1,9 @@
 {
   "from_year": "Vuodesta",
-  "to_year": "Vuotee",
+  "to_year": "Vuoteen",
   "search_results": "Hakutulokset",
   "results": "tulosta",
+  "time": "Aika",
   "last_searches": "VIIMEISET HAUT",
   "action": {
     "update_results": "Päivitä tulokset",

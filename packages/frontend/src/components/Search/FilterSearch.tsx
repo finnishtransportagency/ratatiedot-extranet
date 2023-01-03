@@ -25,22 +25,26 @@ type FilterSearchProps = {
 
 interface IFilterSearchItem extends IItem {
   checkboxes: any;
-  handleCheckBoxes: any;
+  handleCheckboxes: any;
 }
 
 const FilterSearchItem = (props: IFilterSearchItem) => {
   const [open, setOpen] = useState(false);
-  const { checkedList } = useContext(SearchContext);
+  const { savedCheckboxes } = useContext(SearchContext);
 
   const handleClick = () => {
     setOpen((prevState: boolean) => !prevState);
   };
 
   const isDefaultChecked = (name: SearchParameterName, value: string) => {
-    return checkedList[name]?.indexOf(value) !== -1;
+    return savedCheckboxes[name]?.indexOf(value) !== -1;
   };
 
-  const { name, type, items, handleCheckBoxes } = props;
+  const isChecked = (name: SearchParameterName, value: string) => {
+    return checkboxes[name]?.indexOf(value) !== -1;
+  };
+
+  const { name, type, items, handleCheckboxes, checkboxes } = props;
 
   return (
     <>
@@ -60,7 +64,11 @@ const FilterSearchItem = (props: IFilterSearchItem) => {
           {items?.map((item: string, index: number) => {
             return (
               <ListItem key={index}>
-                <Checkbox defaultChecked={isDefaultChecked(type, item)} onChange={() => handleCheckBoxes(type, item)} />
+                <Checkbox
+                  defaultChecked={isDefaultChecked(type, item)}
+                  checked={isChecked(type, item)}
+                  onChange={() => handleCheckboxes(type, item)}
+                />
                 <ListItemText primary={item} />
               </ListItem>
             );
@@ -74,19 +82,23 @@ const FilterSearchItem = (props: IFilterSearchItem) => {
 export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) => {
   const { t } = useTranslation(['search']);
 
-  const { checkedList, checkedListHandler, years, yearsHandler } = useContext(SearchContext);
+  const { savedCheckboxes, savedCheckboxesHandler, years, yearsHandler } = useContext(SearchContext);
   const [from, setFrom] = useState<Date | null>(years[0] ? years[0] : null);
   const [to, setTo] = useState<Date | null>(years[1] ? years[1] : null);
 
-  const [checkboxes, setCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>(checkedList);
+  const [checkboxes, setCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>(savedCheckboxes);
 
   const clearFilters = () => {
     setFrom(null);
     setTo(null);
-    // TODO: remove all check boxes
+    setCheckboxes({
+      [SearchParameterName.MIME]: [],
+      [SearchParameterName.REGION]: [],
+      [SearchParameterName.MATERIAL_CLASS]: [],
+    });
   };
 
-  const handleCheckBoxes = (name: SearchParameterName, value: EMimeType) => {
+  const handleCheckboxes = (name: SearchParameterName, value: EMimeType) => {
     const index = checkboxes[name].indexOf(value);
     if (index === -1) {
       setCheckboxes({ ...checkboxes, [name]: [...checkboxes[name], value] });
@@ -96,7 +108,7 @@ export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) =>
   };
 
   const saveFilters = () => {
-    checkedListHandler(checkboxes);
+    savedCheckboxesHandler(checkboxes);
     yearsHandler(from, to);
     toggleFilter();
   };
@@ -121,7 +133,7 @@ export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) =>
         <ListItem>
           <ListItemText disableTypography>
             <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
-              Aika
+              {t('search:time')}
             </Typography>
           </ListItemText>
         </ListItem>
@@ -142,13 +154,14 @@ export const FilterSearch = ({ openFilter, toggleFilter }: FilterSearchProps) =>
               minDate={new Date('2002-01-01')}
               maxDate={new Date()}
               value={to}
+              shouldDisableYear={(year: any) => (from ? year < from : true)}
               onChange={(newValue) => setTo(newValue)}
               renderInput={(params) => <TextField {...params} helperText={null} />}
             />
           </LocalizationProvider>
         </ListItem>
         {FilterSearchData.map((data: IItem, index: number) => (
-          <FilterSearchItem key={index} {...data} checkboxes={checkboxes} handleCheckBoxes={handleCheckBoxes} />
+          <FilterSearchItem key={index} {...data} checkboxes={checkboxes} handleCheckboxes={handleCheckboxes} />
         ))}
       </Box>
     </DrawerWrapper>

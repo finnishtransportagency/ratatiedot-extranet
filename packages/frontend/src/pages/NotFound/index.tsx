@@ -6,32 +6,30 @@ import { ListWrapper, ListItemWrapper } from './index.styles';
 import { ContainerWrapper } from '../../styles/ContainerWrapper';
 import { ButtonWrapper as HomeButton } from '../../styles/ButtonWrapper';
 import { Routes } from '../../constants/Routes';
+import { useTranslation } from 'react-i18next';
 
 export const NotFound = () => {
+  const { t } = useTranslation(['notFound', 'common']);
+
   return (
     <ContainerWrapper textAlign={'center'}>
       <Box component="img" src={RataExtLogo} alt="Logo" />
-      <SubtitleWrapper variant="subtitle2">Sivua ei löydy</SubtitleWrapper>
-      <ParagraphWrapper variant="body1">
-        Hakemasi sivu on väliaikaisesti poissa käytöstä tai sivua ei ehkä enää ole.
-      </ParagraphWrapper>
+      <SubtitleWrapper variant="subtitle2">{t('notFound:title')}</SubtitleWrapper>
+      <ParagraphWrapper variant="body1">{t('notFound:description_primary')}</ParagraphWrapper>
       <ListWrapper>
-        <ListItemText primary="TEE JOKIN SEURAAVISTA:" />
+        <ListItemText primary={t('notFound:list.title')} />
         <ListItemWrapper sx={{ display: 'list-item' }}>
-          <ListItemText primary="Yritä muodostaa yhteys uudelleen napsauttamalla selaimen Päivitä-painiketta." />
+          <ListItemText primary={t('notFound:list.item_1')} />
         </ListItemWrapper>
         <ListItemWrapper sx={{ display: 'list-item' }}>
-          <ListItemText
-            primary="
-Tarkista URL-osoitteen oikeinkirjoitus (tarkista isot ja pienet kirjaimet sekä välimerkit) ja napsauta selaimen Päivitä-painiketta."
-          />
+          <ListItemText primary={t('notFound:list.item_2')} />
         </ListItemWrapper>
         <ListItemWrapper sx={{ display: 'list-item' }}>
-          <ListItemText primary="Palaa edelliselle sivulle napsauttamalla selaimen Edellinen-painiketta." />
+          <ListItemText primary={t('notFound:list.item_3')} />
         </ListItemWrapper>
       </ListWrapper>
-      <HomeButton href={Routes.LANDING} color="primary" variant="contained">
-        Siirry etusivulle
+      <HomeButton href={Routes.HOME} color="primary" variant="contained">
+        {t('common:action.go_home')}
       </HomeButton>
     </ContainerWrapper>
   );
