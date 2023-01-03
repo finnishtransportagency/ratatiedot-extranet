@@ -12,19 +12,20 @@ const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 /**
- * Get custom content for page
+ * Get custom content for page. Example request: /api/database/page-contents/linjakaaviot
  * @param {ALBEvent} event
- * @param {{string}} event.queryStringParameters.category Page to get the custom content for
+ * @param {{string}} event.path Path should end with the page to get the custom content for
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    log.info(user, `Fetching page contents for page ${JSON.stringify(event.queryStringParameters)}`);
+    const paths = event.path.split('/');
+    const category = paths.pop();
+    log.info(user, `Fetching page contents for page ${category}`);
     validateReadUser(user);
-    const category = event.queryStringParameters?.category;
-    if (!category) {
-      throw new RataExtraLambdaError('Category missing', 400);
+    if (!category || paths.pop() !== 'page-contents') {
+      throw new RataExtraLambdaError('Category missing from path', 400);
     }
     if (!fileEndpointsCache.length) {
       log.debug('Cache empty');

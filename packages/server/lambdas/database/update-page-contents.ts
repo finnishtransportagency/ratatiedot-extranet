@@ -7,33 +7,30 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 
-type UpdateRequestBody = {
-  category: string;
-  fields: Record<string, string>;
-};
-
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 /**
- * Update custom content for page
+ * Update custom content for page. Example request: /api/database/page-contents/linjakaaviot
  * @param {ALBEvent} event
- * @param {{UpdateRequestBody}} event.body Page to get the custom content for
+ * @param {{string}} event.path Path should end with the page to update the custom content for
+ * @param {{Record<string, string>}} event.body Page to get the custom content for
  * @returns  {Promise<ALBResult>} JSON stringified object of updated contents inside body
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    const body: UpdateRequestBody = event.body ? JSON.parse(event.body) : {};
+    const paths = event.path.split('/');
+    const category = paths.pop();
+    const body: Record<string, string> = event.body ? JSON.parse(event.body) : {};
     log.debug(`Request body: ${JSON.stringify(body)}`);
-    const { category, fields } = body;
-    log.info(user, `Updating page contents for page ${body.category}`);
+    log.info(user, `Updating page contents for page ${category}`);
     validateReadUser(user);
-    if (!category) {
-      throw new RataExtraLambdaError('Category missing', 400);
+    if (!category || paths.pop() !== 'page-contents') {
+      throw new RataExtraLambdaError('Category missing from path', 400);
     }
-    if (!fields) {
+    if (!body) {
       throw new RataExtraLambdaError('Fields missing', 400);
     }
     if (!fileEndpointsCache.length) {
@@ -49,7 +46,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const contents = await database.categoryDataContents.update({
       where: { baseId: categoryData.id },
-      data: { fields: fields },
+      data: { fields: body },
     });
 
     return {
