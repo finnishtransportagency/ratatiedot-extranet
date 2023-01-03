@@ -30,7 +30,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       log.debug('Cache empty');
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
-    log.debug(`Cached ${fileEndpointsCache}`);
+    log.debug(`Cached ${JSON.stringify(fileEndpointsCache)}`);
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
       throw new RataExtraLambdaError('Category not found', 404);

@@ -26,6 +26,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
     const body: UpdateRequestBody = event.body ? JSON.parse(event.body) : {};
+    log.debug(`Request body: ${JSON.stringify(body)}`);
     const category = body.category;
     log.info(user, `Updating page contents for page ${body.category}`);
     validateReadUser(user);
@@ -45,7 +46,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const contents = await database.categoryDataContents.update({
       where: { baseId: categoryData.id },
-      data: { fields: body.fields },
+      data: { fields: JSON.stringify(body.fields) },
     });
 
     return {
