@@ -14,7 +14,8 @@ let databasePassword: string | null = null;
 export class DatabaseClient {
   public static async build(): Promise<PrismaClient> {
     let DATABASE_URL: string;
-    if (environment === ENVIRONMENTS.local) {
+    const setLocalDatabaseConnection = environment === ENVIRONMENTS.local;
+    if (setLocalDatabaseConnection) {
       DATABASE_URL = 'postgresql://root:root@host.docker.internal:5432/test_db?schema=public';
     } else {
       if (!databaseName || !databaseDomain || !databasePassword) {
