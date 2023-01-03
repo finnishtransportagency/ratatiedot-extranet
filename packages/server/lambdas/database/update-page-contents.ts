@@ -19,7 +19,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 /**
  * Update custom content for page
  * @param {ALBEvent} event
- * @param {UpdateRequestBody} event.body Page to get the custom content for
+ * @param {{UpdateRequestBody}} event.body Page to get the custom content for
  * @returns  {Promise<ALBResult>} JSON stringified object of updated contents inside body
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
