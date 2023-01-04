@@ -87,19 +87,14 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
           onChange={(event) => queryHandler(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
-          onBlur={() => {
-            setTimeout(() => {
-              // with setTimeout, onClick() will be fired before onBlur()
-              closeRecentSearch();
-            }, 100);
-          }}
+          onBlur={closeRecentSearch}
         />
         {query && (
-          <IconButton size="large" edge="end" area-label="erase query" onClick={() => queryHandler('')}>
+          <IconButton size="large" edge="end" area-label="erase query" onMouseDown={() => queryHandler('')}>
             <CloseIcon color="primary" />
           </IconButton>
         )}
-        <IconButton size="large" edge="end" area-label="filter" onClick={toggleFilter}>
+        <IconButton size="large" edge="end" area-label="filter" onMouseDown={toggleFilter}>
           {openFilter ? <DisabledByDefaultIcon color="primary" /> : <TuneIcon color="primary" />}
         </IconButton>
       </>
