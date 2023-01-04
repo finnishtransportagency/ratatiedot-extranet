@@ -51,7 +51,7 @@ const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
     log.error('Headers missing');
     throw new RataExtraLambdaError('Headers missing', 400);
   }
-  const jwt = await validateJwtToken(headers['x-iam-accesstoken'], headers['x-iam-data'], ISSUER);
+  const jwt = await validateJwtToken(headers['x-Iam-Accesstoken'], headers['x-Iam-Data'], ISSUER);
 
   if (!jwt) {
     throw new RataExtraLambdaError('User validation failed', 500);
