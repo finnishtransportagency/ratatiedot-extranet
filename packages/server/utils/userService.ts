@@ -88,7 +88,9 @@ export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
 export const validateReadUser = (user: RataExtraUser): void => {
   if (!isReadUser(user)) {
     log.error(user, 'Forbidden: User is not a read user');
-    throw new RataExtraLambdaError('Forbidden', 403);
+    // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
+    // Fixing this would require using Lambda@Edge to check only frontend origin responses
+    throw new RataExtraLambdaError('Forbidden', 401);
   }
 };
 
@@ -102,6 +104,7 @@ export const validateWriteUser = (user: RataExtraUser, writeRole: string): void 
     return;
   } else {
     log.error(user, 'Forbidden: User is not an authorised write user');
-    throw new RataExtraLambdaError('Forbidden', 403);
+    // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
+    throw new RataExtraLambdaError('Forbidden', 401);
   }
 };
