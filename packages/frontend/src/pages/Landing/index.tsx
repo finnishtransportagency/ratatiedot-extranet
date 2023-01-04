@@ -1,10 +1,11 @@
 import { Typography } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ContainerWrapper, SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
 import { Footer } from '../../components/Footer';
+import { RichTextEditor } from '../../components/RichTextEditor';
 
 export const Landing = () => {
   const { t } = useTranslation(['common', 'landing']);
@@ -36,10 +37,23 @@ export const Landing = () => {
   };
 
   const LandingView = () => {
+    const [edit, setEdit] = useState(false);
+    const toggleEdit = () => {
+      setEdit((current) => !current);
+    };
+    useEffect(() => {
+      console.log('isEditing : ', edit);
+    }, [edit]);
+
     return (
       <>
+        <button onClick={() => toggleEdit()}>{`MODE: ${edit ? 'edit' : 'view'}`}</button>
         <SubtitleWrapper variant="subtitle1">{t('landing:welcome.text')}</SubtitleWrapper>
-        <ParagraphWrapper variant="body1">{t('landing:welcome.description')}</ParagraphWrapper>
+        <RichTextEditor
+          isEditing={edit}
+          element={ParagraphWrapper}
+          elementProps={{ variant: 'body1' }}
+        ></RichTextEditor>
         <Footer />
       </>
     );
