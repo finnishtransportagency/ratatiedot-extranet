@@ -88,10 +88,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
           onBlur={() => {
-            setTimeout(() => {
-              // with setTimeout, onClick() will be fired before onBlur()
-              closeRecentSearch();
-            }, 100);
+            closeRecentSearch();
           }}
         />
         {query && (
