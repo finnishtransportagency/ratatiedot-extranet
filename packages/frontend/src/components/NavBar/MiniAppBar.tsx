@@ -9,24 +9,11 @@ import RataExtLogo from '../../assets/images/Logo_noText.png';
 
 import { Colors } from '../../constants/Colors';
 import { Search } from '../Search';
+import { useContext } from 'react';
+import { AppBarContext } from '../../contexts/AppBarContext';
 
-type MiniAppBarProps = {
-  openDrawer: boolean;
-  openSearch: boolean;
-  openFilter: boolean;
-  toggleDrawer: any;
-  toggleSearch: any;
-  toggleFilter: any;
-};
-
-export const MiniAppBar = ({
-  openDrawer,
-  openSearch,
-  openFilter,
-  toggleDrawer,
-  toggleSearch,
-  toggleFilter,
-}: MiniAppBarProps) => {
+export const MiniAppBar = () => {
+  const { openDrawer, toggleDrawer, openSearch, toggleSearch } = useContext(AppBarContext);
   const MainAppBar = () => {
     return (
       <>
@@ -51,18 +38,7 @@ export const MiniAppBar = ({
 
   return (
     <MiniAppBarWrapper position="fixed" color="transparent" open={openDrawer}>
-      <Toolbar>
-        {openSearch ? (
-          <Search
-            openSearch={openSearch}
-            toggleSearch={toggleSearch}
-            openFilter={openFilter}
-            toggleFilter={toggleFilter}
-          />
-        ) : (
-          <MainAppBar />
-        )}
-      </Toolbar>
+      <Toolbar>{openSearch ? <Search /> : <MainAppBar />}</Toolbar>
     </MiniAppBarWrapper>
   );
 };
