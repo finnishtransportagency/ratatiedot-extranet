@@ -87,6 +87,12 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
           onChange={(event) => queryHandler(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
+          onBlur={() => {
+            setTimeout(() => {
+              // with setTimeout, onClick() will be fired before onBlur()
+              closeRecentSearch();
+            }, 100);
+          }}
         />
         {query && (
           <IconButton size="large" edge="end" area-label="erase query" onClick={() => queryHandler('')}>
