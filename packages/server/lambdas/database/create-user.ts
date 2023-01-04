@@ -13,7 +13,8 @@ export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
     log.info(user, 'Creating temp users');
-    await validateWriteUser(user);
+    // Temp hardcoding for deprecated handler
+    validateWriteUser(user, 'Ratatieto_admin');
     const createdUser = await database.user.create({
       data: {
         name: 'Alice',

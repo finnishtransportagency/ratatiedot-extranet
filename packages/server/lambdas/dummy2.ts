@@ -11,7 +11,7 @@ import { getUser, validateReadUser } from '../utils/userService';
 export async function handleRequest(_event: ALBEvent, _context: Context): Promise<APIGatewayProxyResult> {
   try {
     const user = await getUser(_event);
-    await validateReadUser(user);
+    validateReadUser(user);
     log.info(user, 'dummy2Lambda: Sending dummy2 reply.');
     return {
       statusCode: 200,

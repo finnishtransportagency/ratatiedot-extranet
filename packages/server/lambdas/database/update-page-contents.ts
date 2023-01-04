@@ -4,7 +4,7 @@ import { findEndpoint } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateReadUser } from '../../utils/userService';
+import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 
 const database = await DatabaseClient.build();
@@ -12,31 +12,42 @@ const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 /**
- * Get custom content for page. Example request: /api/database/page-contents/linjakaaviot
+ * Update custom content for page. Example request: /api/database/page-contents/linjakaaviot
  * @param {ALBEvent} event
- * @param {{string}} event.path Path should end with the page to get the custom content for
- * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
+ * @param {{string}} event.path Path should end with the page to update the custom content for
+ * @param {{Record<string, string>}} event.body Page to get the custom content for
+ * @returns  {Promise<ALBResult>} JSON stringified object of updated contents inside body
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
     const paths = event.path.split('/');
     const category = paths.pop();
-    log.info(user, `Fetching page contents for page ${category}`);
+    const body: Record<string, string> = event.body ? JSON.parse(event.body) : {};
+    log.debug(`Request body: ${JSON.stringify(body)}`);
+    log.info(user, `Updating page contents for page ${category}`);
     validateReadUser(user);
     if (!category || paths.pop() !== 'page-contents') {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
+    if (!body) {
+      throw new RataExtraLambdaError('Fields missing', 400);
+    }
     if (!fileEndpointsCache.length) {
-      log.debug('Cache empty');
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
-    log.debug(`Cached ${JSON.stringify(fileEndpointsCache)}`);
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
       throw new RataExtraLambdaError('Category not found', 404);
     }
-    const contents = await database.categoryDataContents.findUnique({ where: { baseId: categoryData.id } });
+
+    const writeRole = categoryData.writeRights;
+    validateWriteUser(user, writeRole);
+
+    const contents = await database.categoryDataContents.update({
+      where: { baseId: categoryData.id },
+      data: { fields: body },
+    });
 
     return {
       statusCode: 200,

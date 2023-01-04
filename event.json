@@ -2,6 +2,10 @@
   "headers": {
     "cookie": ""
   },
-  "queryStringParameters": { "term": "tampere" },
+  "httpMethod": "POST",
+  "path": "/api/alfresco/search",
+  "queryStringParameters": {
+    "term": "tampere"
+  },
   "body": "{\"searchParameters\":[{\"parameterName\": \"name\",\"fileName\": \"tampere\"},{  \"parameterName\": \"modified\",  \"from\": \"2019\",  \"to\": \"2021\"},{  \"parameterName\": \"mime\",  \"fileTypes\": [\"PDF\", \"EXCEL\"]}],\"language\": \"lucene\",\"page\": 0}"
 }

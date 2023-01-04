@@ -1,7 +1,7 @@
 import { ALBEvent } from 'aws-lambda';
 import { RataExtraLambdaError } from './errors';
 import { validateJwtToken } from './validateJwtToken';
-import { isFeatOrLocalStack, isProductionStack } from '../../../lib/utils';
+import { isFeatOrLocalStack } from '../../../lib/utils';
 import { RataExtraEnvironment } from '../../../lib/config';
 import { log } from './logger';
 
@@ -10,9 +10,8 @@ const STACK_ID = process.env.STACK_ID || '';
 const ENVIRONMENT = process.env.ENVIRONMENT || '';
 
 const STATIC_ROLES = {
-  read: 'Rataextra_luku',
-  write_dev: 'Rataextra_kirjoitus',
-  // admin:
+  read: 'Ratatieto_luku',
+  admin: 'Ratatieto_kirjoitus',
 };
 
 export type RataExtraUser = {
@@ -39,7 +38,7 @@ function parseRoles(roles: string): string[] | undefined {
 
 const getMockUser = (): RataExtraUser => ({
   uid: 'MOCK_UID',
-  roles: [STATIC_ROLES.read],
+  roles: [STATIC_ROLES.read, STATIC_ROLES.admin],
 });
 
 const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
@@ -67,7 +66,9 @@ const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
 
 const isReadUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.read);
 
-const isWriteDevUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.write_dev);
+const isAdmin = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.admin);
+
+const isWriteUser = (user: RataExtraUser, writeRole: string) => user.roles?.includes(writeRole);
 
 export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
   if (!STACK_ID || !ENVIRONMENT) {
@@ -82,25 +83,28 @@ export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
 
 /**
  * Checks if the user has necessary role for read access. Throws 403 Forbidden if not.
- * @param user User being validated
+ * @param {RataExtraUser} user User being validated
  */
-export const validateReadUser = async (user: RataExtraUser): Promise<void> => {
+export const validateReadUser = (user: RataExtraUser): void => {
   if (!isReadUser(user)) {
     log.error(user, 'Forbidden: User is not a read user');
-    throw new RataExtraLambdaError('Forbidden', 403);
+    // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
+    // Fixing this would require using Lambda@Edge to check only frontend origin responses
+    throw new RataExtraLambdaError('Forbidden', 401);
   }
 };
 
-export const validateWriteUser = async (user: RataExtraUser): Promise<void> => {
-  // TODO: Update check once individual write roles are starting to roll in
-  if (!isProductionStack(STACK_ID, ENVIRONMENT as RataExtraEnvironment)) {
-    if (!isWriteDevUser(user)) {
-      log.error(user, 'Forbidden: User is not a write_dev user');
-      throw new RataExtraLambdaError('Forbidden', 403);
-    }
+/**
+ * Checks if the user has necessary role for write access. Also checks for admin rights. Throws 403 Forbidden if not authorised.
+ * @param {RataExtraUser} user User being validated
+ * @param {string} writeRole Role being validated against
+ */
+export const validateWriteUser = (user: RataExtraUser, writeRole: string): void => {
+  if (isAdmin(user) || isWriteUser(user, writeRole)) {
+    return;
   } else {
-    // TODO: Prod validation
-    log.error(user, 'Forbidden: No prod write validation yet');
-    throw new RataExtraLambdaError('Forbidden', 403);
+    log.error(user, 'Forbidden: User is not an authorised write user');
+    // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
+    throw new RataExtraLambdaError('Forbidden', 401);
   }
 };

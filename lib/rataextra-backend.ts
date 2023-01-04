@@ -1,6 +1,6 @@
 import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, Tags } from 'aws-cdk-lib';
 import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
-import { Role, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Role, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
 import {
@@ -38,7 +38,8 @@ type ListenerTargetLambdas = {
   lambda: NodejsFunction;
   /** Must be a unique integer for each. Lowest number is prioritized. */
   priority: number;
-  path: [string];
+  path: string[];
+  httpRequestMethods: string[];
   /** Must be a unique string for each. Don't reuse names across different lambdas. */
   targetName: string;
 };
@@ -53,8 +54,6 @@ interface LambdaParameters extends GeneralLambdaParameters {
   logRetention?: RetentionDays;
   /** Name of the function to be called */
   handler?: string;
-  environment?: Record<string, string>;
-  bundling?: BundlingOptions;
 }
 
 interface GeneralLambdaParameters {
@@ -65,6 +64,7 @@ interface GeneralLambdaParameters {
   /** Environment variables to be passed to the function */
   environment?: Record<string, string>;
   bundling?: BundlingOptions;
+  initialPolicy: PolicyStatement[];
 }
 
 export class RataExtraBackendStack extends NestedStack {
@@ -88,6 +88,24 @@ export class RataExtraBackendStack extends NestedStack {
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
 
+    const ssmDatabaseParameterPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_DOMAIN}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_NAME}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_PASSWORD}`,
+      ],
+    });
+
+    const ssmAlfrescoParameterPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
+      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
+    });
+
+    const kmsDecryptPolicy = new PolicyStatement({
+      actions: ['kms:Decrypt'],
+      resources: [`arn:aws:kms:${this.region}:${this.account}:aws/ssm`],
+    });
     // Basic Lambda configs
     // ID and VPC should not be changed
     // Role and SG might need to be customized per Lambda
@@ -102,6 +120,7 @@ export class RataExtraBackendStack extends NestedStack {
         ENVIRONMENT: rataExtraEnv,
         LOG_LEVEL: isFeatOrLocalStack(rataExtraEnv) ? 'debug' : 'info',
       },
+      initialPolicy: [],
     };
 
     const prismaParameters: GeneralLambdaParameters = {
@@ -139,6 +158,7 @@ export class RataExtraBackendStack extends NestedStack {
           },
         },
       },
+      initialPolicy: [ssmDatabaseParameterPolicy, kmsDecryptPolicy],
     };
 
     const alfrescoParameters: GeneralLambdaParameters = {
@@ -149,6 +169,7 @@ export class RataExtraBackendStack extends NestedStack {
         ALFRESCO_API_URL: alfrescoAPIUrl,
         ALFRESCO_ANCESTOR: alfrescoAncestor,
       },
+      initialPolicy: [ssmAlfrescoParameterPolicy, kmsDecryptPolicy],
     };
 
     const prismaAlfrescoCombinedParameters: GeneralLambdaParameters = {
@@ -158,26 +179,8 @@ export class RataExtraBackendStack extends NestedStack {
         ...prismaParameters.environment,
         ...alfrescoParameters.environment,
       },
+      initialPolicy: [...prismaParameters.initialPolicy, ...alfrescoParameters.initialPolicy],
     };
-
-    const ssmDatabaseParameterPolicy = new PolicyStatement({
-      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-      resources: [
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_DOMAIN}`,
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_NAME}`,
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_PASSWORD}`,
-      ],
-    });
-
-    const ssmAlfrescoParameterPolicy = new PolicyStatement({
-      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
-    });
-
-    const ksmDecryptPolicy = new PolicyStatement({
-      actions: ['kms:Decrypt'],
-      resources: [`arn:aws:kms:${this.region}:${this.account}:aws/ssm`],
-    });
 
     const dummyFn = this.createNodejsLambda({
       ...genericLambdaParameters,
@@ -203,17 +206,6 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/list-users.ts',
     });
 
-    createUser.role?.attachInlinePolicy(
-      new Policy(this, 'createUserParametersPolicy', {
-        statements: [ssmDatabaseParameterPolicy, ksmDecryptPolicy],
-      }),
-    );
-
-    listUsers.role?.attachInlinePolicy(
-      new Policy(this, 'listUsersParametersPolicy', {
-        statements: [ssmDatabaseParameterPolicy, ksmDecryptPolicy],
-      }),
-    );
     const returnLogin = this.createNodejsLambda({
       ...genericLambdaParameters,
       environment: {
@@ -236,49 +228,67 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/list-files.ts',
     });
 
-    // TODO: Make this a part of createNodejsLambda
-    alfrescoSearch.role?.attachInlinePolicy(
-      new Policy(this, 'alfrescoListFilesPermissionPolicy', {
-        statements: [ssmDatabaseParameterPolicy, ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
-      }),
-    );
-
-    // TODO: Add Policy
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
       relativePath: '../packages/server/lambdas/database/get-page-contents.ts',
     });
 
-    alfrescoListFiles.role?.attachInlinePolicy(
-      new Policy(this, 'alfresoListFilesPermissionPolicy', {
-        statements: [ssmDatabaseParameterPolicy, ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
-      }),
-    );
-
-    alfrescoSearch.role?.attachInlinePolicy(
-      new Policy(this, 'alfrescoParametersPolicy', {
-        statements: [ssmAlfrescoParameterPolicy, ksmDecryptPolicy],
-      }),
-    );
+    const dbUpdatePageContents = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-update-page-contents',
+      relativePath: '../packages/server/lambdas/database/update-page-contents.ts',
+    });
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
-      { lambda: dummy2Fn, priority: 10, path: ['/api/test'], targetName: 'dummy2' },
-      { lambda: listUsers, priority: 20, path: ['/api/users'], targetName: 'listUsers' },
-      { lambda: createUser, priority: 30, path: ['/api/create-user'], targetName: 'createUser' },
-      { lambda: returnLogin, priority: 50, path: ['/api/return-login'], targetName: 'returnLogin' },
+      { lambda: dummy2Fn, priority: 10, path: ['/api/test'], httpRequestMethods: ['GET'], targetName: 'dummy2' },
+      { lambda: listUsers, priority: 20, path: ['/api/users'], httpRequestMethods: ['GET'], targetName: 'listUsers' },
+      {
+        lambda: createUser,
+        priority: 30,
+        path: ['/api/create-user'],
+        httpRequestMethods: ['GET'],
+        targetName: 'createUser',
+      },
+      {
+        lambda: returnLogin,
+        priority: 50,
+        path: ['/api/return-login'],
+        httpRequestMethods: ['GET'],
+        targetName: 'returnLogin',
+      },
       // Alfresco service will reserve 100-150th priority
-      { lambda: alfrescoSearch, priority: 100, path: ['/api/alfresco/search'], targetName: 'alfrescoSearch' },
-      { lambda: alfrescoListFiles, priority: 110, path: ['/api/alfresco/list-files'], targetName: 'alfrescoListFiles' },
+      {
+        lambda: alfrescoSearch,
+        priority: 100,
+        path: ['/api/alfresco/search'],
+        httpRequestMethods: ['POST'],
+        targetName: 'alfrescoSearch',
+      },
+      {
+        lambda: alfrescoListFiles,
+        priority: 110,
+        path: ['/api/alfresco/files'],
+        httpRequestMethods: ['GET'],
+        targetName: 'alfrescoListFiles',
+      },
       {
         lambda: dbGetPageContents,
         priority: 200,
-        path: ['/api/database/get-page-contents'],
+        path: ['/api/database/page-contents/*'],
+        httpRequestMethods: ['GET'],
         targetName: 'dbGetPageContents',
       },
-      { lambda: dummyFn, priority: 1000, path: ['/*'], targetName: 'dummy' },
+      {
+        lambda: dbUpdatePageContents,
+        priority: 210,
+        path: ['/api/database/page-contents/*'],
+        httpRequestMethods: ['POST'],
+        targetName: 'dbUpdatePageContents',
+      },
+      { lambda: dummyFn, priority: 1000, path: ['/*'], httpRequestMethods: ['GET'], targetName: 'dummy' },
     ];
     // ALB for API
     const alb = this.createlAlb({
@@ -313,6 +323,7 @@ export class RataExtraBackendStack extends NestedStack {
     handler = 'handleRequest',
     environment = {},
     bundling = {},
+    initialPolicy,
   }: LambdaParameters) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackIdentifier}-${name}`,
@@ -328,6 +339,7 @@ export class RataExtraBackendStack extends NestedStack {
       vpc,
       securityGroups: securityGroups,
       bundling: bundling,
+      initialPolicy,
     });
   }
 
@@ -365,7 +377,10 @@ export class RataExtraBackendStack extends NestedStack {
       listener.addTargets(`Target-${target.targetName}`, {
         targets: [new LambdaTarget(target.lambda)],
         priority: target.priority,
-        conditions: [ListenerCondition.pathPatterns(target.path)],
+        conditions: [
+          ListenerCondition.pathPatterns(target.path),
+          ListenerCondition.httpRequestMethods(target.httpRequestMethods),
+        ],
       }),
     );
     return alb;
