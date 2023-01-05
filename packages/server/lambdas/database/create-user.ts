@@ -2,7 +2,7 @@ import { ALBEvent, Context } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors.js';
 import { log } from '../../utils/logger.js';
 import { getUser, validateWriteUser } from '../../utils/userService.js';
-import { DatabaseClient } from './client/index.js';
+import { DatabaseClient } from '/opt/nodejs/dbClient';
 
 const database = await DatabaseClient.build();
 

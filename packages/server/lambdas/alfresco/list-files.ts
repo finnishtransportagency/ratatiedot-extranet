@@ -6,7 +6,7 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getUser, validateReadUser } from '../../utils/userService';
-import { DatabaseClient } from '../database/client';
+import { DatabaseClient } from '/opt/nodejs/dbClient';
 import { searchQueryBuilder } from './searchQueryBuilder';
 import {
   AdditionalFields,

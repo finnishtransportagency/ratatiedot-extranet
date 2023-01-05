@@ -11,7 +11,7 @@ import {
   ESM_REQUIRE_SHIM,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Code, LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as path from 'path';
 import { isDevelopmentMainStack, isFeatOrLocalStack } from './utils';
@@ -65,6 +65,7 @@ interface GeneralLambdaParameters {
   environment?: Record<string, string>;
   bundling?: BundlingOptions;
   initialPolicy: PolicyStatement[];
+  layers?: LayerVersion[];
 }
 
 export class RataExtraBackendStack extends NestedStack {
@@ -105,6 +106,10 @@ export class RataExtraBackendStack extends NestedStack {
     const kmsDecryptPolicy = new PolicyStatement({
       actions: ['kms:Decrypt'],
       resources: [`arn:aws:kms:${this.region}:${this.account}:aws/ssm`],
+    });
+    const prismaLayer = new LayerVersion(this, 'prismaLayer', {
+      compatibleRuntimes: [Runtime.NODEJS_16_X],
+      code: Code.fromAsset(path.join(__dirname, '../packages/server/layers/databaseClient')),
     });
     // Basic Lambda configs
     // ID and VPC should not be changed
@@ -159,6 +164,7 @@ export class RataExtraBackendStack extends NestedStack {
         },
       },
       initialPolicy: [ssmDatabaseParameterPolicy, kmsDecryptPolicy],
+      layers: [prismaLayer],
     };
 
     const alfrescoParameters: GeneralLambdaParameters = {
@@ -324,6 +330,7 @@ export class RataExtraBackendStack extends NestedStack {
     environment = {},
     bundling = {},
     initialPolicy,
+    layers,
   }: LambdaParameters) {
     return new NodejsFunction(this, name, {
       functionName: `lambda-${rataExtraStackIdentifier}-${name}`,
@@ -340,6 +347,7 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
       bundling: bundling,
       initialPolicy,
+      layers,
     });
   }
 
