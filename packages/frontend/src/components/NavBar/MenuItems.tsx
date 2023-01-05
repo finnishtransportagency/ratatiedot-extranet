@@ -17,7 +17,7 @@ export interface IMenuItem {
   primary: string | JSX.Element;
   icon?: JSX.Element;
   to?: string;
-  children?: any;
+  children?: IMenuItem[];
 }
 
 export const getRouterName = (name: string) => {
