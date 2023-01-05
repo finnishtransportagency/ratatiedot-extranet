@@ -8,6 +8,7 @@ import { log } from './logger';
 const ISSUER = process.env.JWT_TOKEN_ISSUER;
 const STACK_ID = process.env.STACK_ID || '';
 const ENVIRONMENT = process.env.ENVIRONMENT || '';
+const MOCK_UID = process.env.MOCK_UID || '';
 
 const STATIC_ROLES = {
   read: 'Ratatieto_luku',
@@ -17,6 +18,7 @@ const STATIC_ROLES = {
 export type RataExtraUser = {
   uid: string;
   roles?: string[];
+  isMockUser?: boolean;
 };
 
 function parseRoles(roles: string): string[] | undefined {
@@ -37,8 +39,9 @@ function parseRoles(roles: string): string[] | undefined {
 }
 
 const getMockUser = (): RataExtraUser => ({
-  uid: 'MOCK_UID',
+  uid: MOCK_UID,
   roles: [STATIC_ROLES.read, STATIC_ROLES.admin],
+  isMockUser: true,
 });
 
 const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
