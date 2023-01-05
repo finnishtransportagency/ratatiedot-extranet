@@ -16,8 +16,8 @@ export const MenuList = () => {
       {MenuItems.map((item: IMenuItem) => {
         const { key, primary, icon, to, children } = item;
         return (
-          <>
-            <ListItem disablePadding key={key} alignItems="flex-start" onClick={() => menuHandler(key)}>
+          <div key={key}>
+            <ListItem disablePadding alignItems="flex-start" onClick={() => menuHandler(key)}>
               <ListItemButton href={to ? to : ''}>
                 <ListItemIcon>{icon}</ListItemIcon>
                 <ListItemText primary={primary} sx={{ opacity: openDrawer ? 1 : 0 }} />
@@ -37,7 +37,7 @@ export const MenuList = () => {
                   </ListItemButton>
                 );
               })}
-          </>
+          </div>
         );
       })}
     </>
