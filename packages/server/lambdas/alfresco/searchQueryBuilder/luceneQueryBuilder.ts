@@ -1,5 +1,5 @@
 import { format, set } from 'date-fns';
-import { QueryBuilder } from './queryBuilder';
+import { SearchQueryBuilder } from './searchQueryBuilder';
 import {
   IMimeSearchParameter,
   IModifiedSearchParameter,
@@ -31,7 +31,7 @@ const METADATA_SEARCH_START = `+@cm\\${DIVIDER}`;
 const YEAR = new RegExp(/^\d{4}$/);
 const onlyYear = (date: string) => YEAR.test(date);
 
-export class LuceneQueryBuilder implements QueryBuilder {
+export class LuceneQueryBuilder implements SearchQueryBuilder {
   // Filters values that are not approved
   additionalFields(additionalFields: Array<AdditionalFields>): Array<AdditionalFields> {
     return additionalFields.filter((val) => Object.values(AdditionalFields).includes(val));
