@@ -17,8 +17,8 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
  * Update custom content for page. Example request: /api/alfresco/file/linjakaaviot
  * @param {ALBEvent} event
  * @param {{string}} event.path Path should end with the page to upload the file to
- * @param {{FileUploadBody}} event.body File contents and metadata
- * @returns  {Promise<ALBResult>} JSON stringified object of updated contents inside body
+ * @param {{IFileRequestBody}} event.body File contents and metadata to upload
+ * @returns  {Promise<ALBResult>} JSON stringified object of uploaded file metadata
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {

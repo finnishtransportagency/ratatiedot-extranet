@@ -14,9 +14,8 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 /**
  * Update custom content for page. Example request: /api/alfresco/file/linjakaaviot/test.pdf
  * @param {ALBEvent} event
- * @param {{string}} event.path Path should end with the page to upload the file to
- * @param {{FileUploadBody}} event.body Page to get the custom content for
- * @returns  {Promise<ALBResult>} JSON stringified object of updated contents inside body
+ * @param {{string}} event.path Path containing category from and file to delete
+ * @returns  {Promise<ALBResult>} Confirmation that the file has been deleted
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
