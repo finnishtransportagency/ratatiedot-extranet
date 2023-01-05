@@ -190,6 +190,8 @@ run migration
 npm run local:db:migrate
 ```
 
+If you get `sh: ./loadenv: Permission denied`, add execution rights to the file with `chmod 755 packages/server/loadenv`.
+
 run database population
 
 ```
