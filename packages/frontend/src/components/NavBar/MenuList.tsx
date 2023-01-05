@@ -1,31 +1,15 @@
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { useState } from 'react';
+import { useContext } from 'react';
 import { Colors } from '../../constants/Colors';
+import { AppBarContext } from '../../contexts/AppBarContext';
+import { MenuContext } from '../../contexts/MenuContext';
 
 import { IMenuItem, MenuItems } from './MenuItems';
 
-type MenuListProps = {
-  open: boolean;
-};
-
-export const MenuList = ({ open }: MenuListProps) => {
-  const resetMenu = () => {
-    let menuData = {};
-    MenuItems.forEach((item: IMenuItem) => {
-      menuData = {
-        ...menuData,
-        [item.key]: false,
-      };
-    });
-    return menuData;
-  };
-
-  const [menu, setMenu] = useState<{ [key: string]: boolean }>(resetMenu);
-
-  const handleClick = (key: string) => {
-    setMenu({ ...menu, [key]: !menu[key] });
-  };
+export const MenuList = () => {
+  const { openDrawer } = useContext(AppBarContext);
+  const { menu, menuHandler } = useContext(MenuContext);
 
   return (
     <>
@@ -33,15 +17,15 @@ export const MenuList = ({ open }: MenuListProps) => {
         const { key, primary, icon, to, children } = item;
         return (
           <>
-            <ListItem disablePadding key={key} alignItems="flex-start" onClick={() => handleClick(key)}>
+            <ListItem disablePadding key={key} alignItems="flex-start" onClick={() => menuHandler(key)}>
               <ListItemButton href={to ? to : ''}>
                 <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={primary} sx={{ opacity: open ? 1 : 0 }} />
-                {children && (menu[key] ? <ExpandLess /> : <ExpandMore />)}
+                <ListItemText primary={primary} sx={{ opacity: openDrawer ? 1 : 0 }} />
+                {children && (menu[key as never] ? <ExpandLess /> : <ExpandMore />)}
               </ListItemButton>
             </ListItem>
             {children &&
-              menu[key] &&
+              menu[key as never] &&
               children.map((child: IMenuItem) => {
                 return (
                   <ListItemButton

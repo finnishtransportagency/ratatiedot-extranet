@@ -11,21 +11,31 @@ import { MenuList } from './MenuList';
 import { drawerWidth } from '../../constants/Viewports';
 import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
+import { MenuContext } from '../../contexts/MenuContext';
 
 export const DesktopDrawer = () => {
   const { openDrawer, toggleDrawer } = useContext(AppBarContext);
+  const { resetMenu } = useContext(MenuContext);
+
+  const toggleDesktopDrawer = () => {
+    if (openDrawer) {
+      resetMenu();
+    }
+    toggleDrawer();
+  };
+
   return (
     <DesktopDrawerWrapper variant="permanent" anchor="left" open={openDrawer}>
       <Toolbar>
         <Typography component="img" src={RataExtLogo} alt="Logo" sx={{ width: '65px', height: '65px' }} />
         <Typography sx={{ fontSize: '18px', opacity: openDrawer ? 1 : 0 }}>RATATIET0</Typography>
       </Toolbar>
-      <ListItem key={openDrawer ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDrawer}>
+      <ListItem key={openDrawer ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDesktopDrawer}>
         <ListItemButton area-label={openDrawer ? 'close desktop drawer' : 'open desktop drawer'}>
           <ListItemIcon>{openDrawer ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}</ListItemIcon>
         </ListItemButton>
       </ListItem>
-      <MenuList open={openDrawer} />
+      <MenuList />
     </DesktopDrawerWrapper>
   );
 };
