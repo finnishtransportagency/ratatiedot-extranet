@@ -6,6 +6,7 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
+import { fileRequestBuilder } from './fileRequestBuilder';
 import { IFileRequestBody } from './fileRequestBuilder/types';
 
 const database = await DatabaseClient.build();
@@ -47,6 +48,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateWriteUser(user, writeRole);
 
     // TODO: Alfresco functionality. See search.ts for help
+    const request = fileRequestBuilder({ ...body, category: category });
 
     return {
       statusCode: 200,
