@@ -27,4 +27,8 @@ export type FileDeleteRequest = {
   fileName: string;
 };
 
+export enum FileStore {
+  ALFRESCO = 'alfresco',
+}
+
 // TODO: Unify any duplicate types/interfaces. See SearchParameter for example
