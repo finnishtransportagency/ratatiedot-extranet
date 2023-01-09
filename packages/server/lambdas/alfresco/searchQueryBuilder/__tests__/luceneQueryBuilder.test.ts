@@ -149,10 +149,10 @@ describe('Lucene Query Builder', () => {
   });
   describe('luceneSorting', () => {
     it('should return empty array if no parameter is given', () => {
-      expect(luceneQueryBuilder.sort()).toEqual([]);
+      expect(luceneQueryBuilder.sorting()).toEqual([]);
     });
     it('should return name sorting by ascending', () => {
-      expect(luceneQueryBuilder.sort({ field: SortingFieldParameter.name, ascending: true })).toEqual({
+      expect(luceneQueryBuilder.sorting({ field: SortingFieldParameter.name, ascending: true })).toEqual({
         field: 'cm:name',
         ascending: true,
         type: 'FIELD',
@@ -160,7 +160,7 @@ describe('Lucene Query Builder', () => {
     });
     it('should return modified sorting by descending', () => {
       expect(
-        luceneQueryBuilder.sort([
+        luceneQueryBuilder.sorting([
           { field: SortingFieldParameter.name, ascending: true },
           { field: SortingFieldParameter.modified, ascending: false },
         ]),

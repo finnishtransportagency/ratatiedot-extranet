@@ -19,7 +19,7 @@ export const searchQueryBuilder = ({
           language,
         },
         paging: luceneQueryBuilder.pagination(page),
-        sort: luceneQueryBuilder.sort(sortingParameters),
+        sort: luceneQueryBuilder.sorting(sortingParameters),
         ...(additionalFields && { include: luceneQueryBuilder.additionalFields(additionalFields) }),
       };
     default:
