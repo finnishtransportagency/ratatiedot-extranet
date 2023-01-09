@@ -5,7 +5,7 @@ import { findEndpoint } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
-import { DatabaseClient } from './client';
+import { DatabaseClient } from '/opt/nodejs/dbClient';
 
 const database = await DatabaseClient.build();
 
