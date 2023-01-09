@@ -31,6 +31,7 @@ export class RataExtraStack extends cdk.Stack {
       alfrescoAPIKey,
       alfrescoApiUrl,
       alfrescoAncestor,
+      mockUid,
     } = getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
@@ -63,6 +64,7 @@ export class RataExtraStack extends cdk.Stack {
       alfrescoAPIKey: alfrescoAPIKey,
       alfrescoAPIUrl: alfrescoApiUrl,
       alfrescoAncestor,
+      mockUid: mockUid,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
 
