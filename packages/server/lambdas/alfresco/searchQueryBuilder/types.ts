@@ -24,7 +24,7 @@ export type QueryRequest = {
   page?: number;
   language: QueryLanguage;
   additionalFields?: Array<AdditionalFields>;
-  sortingParameters?: SortingParameter | Array<SortingParameter>;
+  sortingParameters?: Array<SortingParameter>;
 };
 
 export type Query = {

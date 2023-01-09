@@ -8,7 +8,7 @@ describe('searchQueryBuilder', () => {
         language: QueryLanguage.LUCENE,
         searchParameters: [],
         page: 0,
-        sortingParameters: { field: SortingFieldParameter.name, ascending: true },
+        sortingParameters: [{ field: SortingFieldParameter.name, ascending: true }],
       }),
     ).toEqual({
       query: {
@@ -19,7 +19,7 @@ describe('searchQueryBuilder', () => {
         maxItems: 25,
         skipCount: 0,
       },
-      sort: { type: 'FIELD', field: 'cm:name', ascending: true },
+      sort: [{ type: 'FIELD', field: 'cm:name', ascending: true }],
     });
   });
 });

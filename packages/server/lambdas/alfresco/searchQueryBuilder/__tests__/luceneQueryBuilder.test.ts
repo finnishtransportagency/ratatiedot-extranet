@@ -152,11 +152,13 @@ describe('Lucene Query Builder', () => {
       expect(luceneQueryBuilder.sorting()).toEqual([]);
     });
     it('should return name sorting by ascending', () => {
-      expect(luceneQueryBuilder.sorting({ field: SortingFieldParameter.name, ascending: true })).toEqual({
-        field: 'cm:name',
-        ascending: true,
-        type: 'FIELD',
-      });
+      expect(luceneQueryBuilder.sorting([{ field: SortingFieldParameter.name, ascending: true }])).toEqual([
+        {
+          field: 'cm:name',
+          ascending: true,
+          type: 'FIELD',
+        },
+      ]);
     });
     it('should return modified sorting by descending', () => {
       expect(

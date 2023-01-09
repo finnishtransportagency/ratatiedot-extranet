@@ -108,8 +108,8 @@ export class LuceneQueryBuilder implements QueryBuilder {
     };
   }
 
-  public sorting(params?: SortingParameter | SortingParameter[]): [] | Sorting | Sorting[] {
-    return Array.isArray(params)
+  public sorting(params?: SortingParameter[]): [] | Sorting[] {
+    return params && params.length
       ? params.map((param: SortingParameter) => {
           return {
             type: 'FIELD',
@@ -117,12 +117,6 @@ export class LuceneQueryBuilder implements QueryBuilder {
             ascending: param.ascending,
           };
         })
-      : params
-      ? {
-          type: 'FIELD',
-          field: `cm:${params.field}`,
-          ascending: params.ascending,
-        }
       : [];
   }
 }
