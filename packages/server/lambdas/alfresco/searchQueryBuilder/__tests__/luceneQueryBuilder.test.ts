@@ -1,5 +1,5 @@
 import { LuceneQueryBuilder, mimeTypesMappingForTests } from '../luceneQueryBuilder';
-import { FileType, AdditionalFields, SearchParameter, SearchParameterName } from '../types';
+import { FileType, AdditionalFields, SearchParameter, SearchParameterName, SortingFieldParameter } from '../types';
 
 const luceneQueryBuilder = new LuceneQueryBuilder();
 describe('Lucene Query Builder', () => {
@@ -141,10 +141,41 @@ describe('Lucene Query Builder', () => {
       expect(luceneQueryBuilder.pagination()).toEqual({ maxItems: 25, skipCount: 0 });
     });
     it('should return given positive pagination page', () => {
-      expect(luceneQueryBuilder.pagination(5)).toEqual({ maxItems: 25, skipCount: 5 });
+      expect(luceneQueryBuilder.pagination(5)).toEqual({ maxItems: 25, skipCount: 5 * 25 });
     });
     it('should return zero given negative pagination page', () => {
       expect(luceneQueryBuilder.pagination(-4)).toEqual({ maxItems: 25, skipCount: 0 });
+    });
+  });
+  describe('luceneSorting', () => {
+    it('should return empty array if no parameter is given', () => {
+      expect(luceneQueryBuilder.sort()).toEqual([]);
+    });
+    it('should return name sorting by ascending', () => {
+      expect(luceneQueryBuilder.sort({ field: SortingFieldParameter.name, ascending: true })).toEqual({
+        field: 'cm:name',
+        ascending: true,
+        type: 'FIELD',
+      });
+    });
+    it('should return modified sorting by descending', () => {
+      expect(
+        luceneQueryBuilder.sort([
+          { field: SortingFieldParameter.name, ascending: true },
+          { field: SortingFieldParameter.modified, ascending: false },
+        ]),
+      ).toEqual([
+        {
+          field: 'cm:name',
+          ascending: true,
+          type: 'FIELD',
+        },
+        {
+          field: 'cm:modified',
+          ascending: false,
+          type: 'FIELD',
+        },
+      ]);
     });
   });
   describe('luceneAdditionalFields', () => {
