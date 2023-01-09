@@ -108,7 +108,7 @@ export class LuceneQueryBuilder implements QueryBuilder {
     };
   }
 
-  public sort(params?: SortingParameter | SortingParameter[]): [] | Sorting | Sorting[] {
+  public sorting(params?: SortingParameter | SortingParameter[]): [] | Sorting | Sorting[] {
     return Array.isArray(params)
       ? params.map((param: SortingParameter) => {
           return {

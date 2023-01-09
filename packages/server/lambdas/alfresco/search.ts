@@ -17,6 +17,7 @@ const searchByTerm = async (body: string | null, uid: string) => {
       searchParameters: parsedBody.searchParameters,
       page: parsedBody.page,
       language: parsedBody.language,
+      sortingParameters: parsedBody.sortingParameters,
     });
     log.debug(bodyRequest, 'Complete body request');
 
