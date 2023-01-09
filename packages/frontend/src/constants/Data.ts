@@ -1,7 +1,5 @@
 export const FileFormats = ['PDF', 'Excel', 'Image', 'PowerPoint', 'Word', 'PlainText'];
 
-export const FinnishRegions = ['Etelä', 'Länsi', 'Itä', 'Pohjoinen'];
-
 export enum EMimeType {
   Excel = 'Excel',
   Image = 'Image',
