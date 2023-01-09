@@ -1,6 +1,6 @@
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import React, { useContext } from 'react';
+import { Fragment, useContext } from 'react';
 
 import { Colors } from '../../constants/Colors';
 import { AppBarContext } from '../../contexts/AppBarContext';
@@ -17,7 +17,7 @@ export const MenuList = () => {
       {MenuItems.map((item: IMenuItem) => {
         const { key, primary, icon, to, children } = item;
         return (
-          <React.Fragment key={key}>
+          <Fragment key={key}>
             <ListItem disablePadding alignItems="flex-start" onClick={() => menuHandler(key)}>
               <ListItemButton href={to ? to : ''}>
                 <ListItemIcon>{icon}</ListItemIcon>
@@ -38,7 +38,7 @@ export const MenuList = () => {
                   </ListItemButton>
                 );
               })}
-          </React.Fragment>
+          </Fragment>
         );
       })}
     </>
