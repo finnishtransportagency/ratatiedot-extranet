@@ -26,7 +26,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { SearchParameterName, FilterSearchData, IItem } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
-import { SearchContext, SortingParameters } from '../../contexts/SearchContext';
+import { SearchContext } from '../../contexts/SearchContext';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
 import { useTranslation } from 'react-i18next';
 import { EMimeType, SortDataType } from '../../constants/Data';
@@ -160,8 +160,8 @@ export const FilterSearch = () => {
             sx={{ width: '100%' }}
           >
             <MenuItem value={SortDataType.NONE}>{t('search:no_sort')}</MenuItem>
-            <MenuItem value={SortDataType.ASC_NAME}>A–Z</MenuItem>
-            <MenuItem value={SortDataType.DESC_NAME}>Z-A</MenuItem>
+            <MenuItem value={SortDataType.ASC_NAME}>{t('search:A-Z')}</MenuItem>
+            <MenuItem value={SortDataType.DESC_NAME}>{t('search:Z-A')}</MenuItem>
             <MenuItem value={SortDataType.ASC_MODIFIED}>{t('search:latest_first')}</MenuItem>
             <MenuItem value={SortDataType.DESC_MODIFIED}>{t('search:oldest_first')}</MenuItem>
           </Select>
