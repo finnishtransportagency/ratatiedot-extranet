@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SearchParameterName } from '../components/Search/FilterSearchData';
+import { SortDataType } from '../constants/Data';
+
+export type SortingParameters = { field: string; ascending: boolean };
 
 export const SearchContext = React.createContext({
   query: '',
@@ -15,6 +18,8 @@ export const SearchContext = React.createContext({
   yearsHandler: (from: any, to: any) => {},
   page: 0,
   pageHandler: (page: number) => {},
+  sort: [null],
+  sortHandler: (_: string) => {},
 });
 
 export const SearchContextProvider = (props: any) => {
@@ -29,6 +34,7 @@ export const SearchContextProvider = (props: any) => {
     [SearchParameterName.MATERIAL_CLASS]: [],
   });
   const [page, setPage] = useState<number>(0);
+  const [sort, setSort] = useState<any[]>([]);
 
   useEffect(() => {
     queryHandler(searchParams.get('query') || '');
@@ -57,6 +63,27 @@ export const SearchContextProvider = (props: any) => {
     setPage(page);
   };
 
+  const sortHandler = (type: string) => {
+    const sortRequest = [];
+    switch (type) {
+      case SortDataType.ASC_NAME:
+        sortRequest.push({ field: 'name', ascending: true });
+        break;
+      case SortDataType.DESC_NAME:
+        sortRequest.push({ field: 'name', ascending: false });
+        break;
+      case SortDataType.ASC_MODIFIED:
+        sortRequest.push({ field: 'modified', ascending: true });
+        break;
+      case SortDataType.DESC_MODIFIED:
+        sortRequest.push({ field: 'modified', ascending: false });
+        break;
+      default:
+        break;
+    }
+    setSort(sortRequest);
+  };
+
   return (
     <SearchContext.Provider
       value={{
@@ -68,6 +95,8 @@ export const SearchContextProvider = (props: any) => {
         yearsHandler: yearsHandler,
         page: page,
         pageHandler: pageHandler,
+        sort: sort,
+        sortHandler: sortHandler,
       }}
     >
       {props.children}

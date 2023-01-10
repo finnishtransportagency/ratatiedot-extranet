@@ -9,6 +9,8 @@ import {
   Paging,
   SearchParameter,
   SearchParameterName,
+  Sorting,
+  SortingParameter,
 } from './types';
 
 const mimeTypesMapping = {
@@ -104,5 +106,17 @@ export class LuceneQueryBuilder implements QueryBuilder {
       maxItems: 25,
       skipCount: Math.max(page ?? 0, 0) * 25, // skip number of items
     };
+  }
+
+  public sorting(params?: SortingParameter[]): [] | Sorting[] {
+    return params && params.length
+      ? params.map((param: SortingParameter) => {
+          return {
+            type: 'FIELD',
+            field: `cm:${param.field}`,
+            ascending: param.ascending,
+          };
+        })
+      : [];
   }
 }

@@ -16,3 +16,11 @@ export const mimeNamesMapping: { [name in EMimeType]: string } = {
   PowerPoint: 'PRESENTATION',
   PlainText: 'TXT',
 };
+
+export const SortDataType = {
+  ASC_NAME: 'ASC_NAME',
+  DESC_NAME: 'DESC_NAME',
+  ASC_MODIFIED: 'ASC_MODIFIED',
+  DESC_MODIFIED: 'DESC_MODIFIED',
+  NONE: 'NONE',
+};
