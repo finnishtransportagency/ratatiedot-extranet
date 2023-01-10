@@ -1,40 +1,37 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { isEmpty } from 'lodash';
 import { findEndpoint } from '../../utils/alfresco';
-
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
-import { DatabaseClient } from './client';
+import { DatabaseClient } from '../database/client';
+import { deleteFileRequestBuilder } from './fileRequestBuilder';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 /**
- * Update custom content for page. Example request: /api/database/page-contents/linjakaaviot
+ * Update custom content for page. Example request: /api/alfresco/file/linjakaaviot/test.pdf
  * @param {ALBEvent} event
- * @param {{string}} event.path Path should end with the page to update the custom content for
- * @param {{Record<string, string>}} event.body Page to get the custom content for
- * @returns  {Promise<ALBResult>} JSON stringified object of updated contents inside body
+ * @param {{string}} event.path Path containing category from and file to delete
+ * @returns  {Promise<ALBResult>} Confirmation that the file has been deleted
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const paths = event.path.split('/');
+    const fileName = paths.pop();
     const category = paths.pop();
-    const body: Record<string, string> = event.body ? JSON.parse(event.body) : {};
-    log.debug(`Request body: ${JSON.stringify(body)}`);
 
     const user = await getUser(event);
-    log.info(user, `Updating page contents for page ${category}`);
+    log.info(user, `Deleting file ${fileName} from category ${category}`);
     validateReadUser(user);
 
-    if (!category || paths.pop() !== 'page-contents') {
+    if (!category || paths.pop() !== 'file') {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
-    if (isEmpty(body)) {
-      throw new RataExtraLambdaError('Request body missing', 400);
+    if (!fileName) {
+      throw new RataExtraLambdaError('File name missing from path', 400);
     }
     if (!fileEndpointsCache.length) {
       fileEndpointsCache = await database.categoryDataBase.findMany();
@@ -47,17 +44,16 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
 
-    const contents = await database.categoryDataContents.update({
-      where: { baseId: categoryData.id },
-      data: { fields: body },
-    });
+    // TODO: Alfresco functionality. See search.ts for help
+    const request = deleteFileRequestBuilder({ fileName: fileName, category: category });
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ fields: contents?.fields }),
+      // TODO: Return content
+      body: JSON.stringify('Appropriate information about file as JSON'),
     };
   } catch (err) {
     log.error(err);
