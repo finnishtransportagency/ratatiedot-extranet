@@ -1,6 +1,6 @@
 import { flatMapByKey } from '../../utils/helpers';
 import categoryData from '../../assets/data/aineistoluokka.json';
-import { FileFormats, FinnishRegions } from '../../constants/Data';
+import { FileFormats } from '../../constants/Data';
 
 export enum SearchParameterName {
   MIME = 'mime',
@@ -14,18 +14,11 @@ export interface IItem {
   items: string[];
 }
 
-// TODO: should this be hardcoded?
-// TODO: this is temporary, possible change in data format
 export const FilterSearchData: IItem[] = [
   {
     name: 'Muoto',
     type: SearchParameterName.MIME,
     items: FileFormats,
-  },
-  {
-    name: 'Alue',
-    type: SearchParameterName.REGION,
-    items: FinnishRegions,
   },
   {
     name: 'Aineistoluokka',
