@@ -5,7 +5,6 @@ import { Routes } from './constants/Routes';
 import { ProtectedPage } from './pages/ProtectedPage';
 import { RootBoundary } from './components/RootBoundary';
 import { SearchResult } from './pages/Search/SearchResult';
-import { LoggingOut } from './pages/LoggingOut';
 
 const routes: RouteObject[] = [
   {
