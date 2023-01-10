@@ -1,6 +1,19 @@
 import { useContext, useState } from 'react';
 import styled from '@emotion/styled';
-import { Box, Button, Checkbox, Collapse, Drawer, IconButton, TextField, Toolbar, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Collapse,
+  Drawer,
+  IconButton,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  TextField,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -13,11 +26,12 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { SearchParameterName, FilterSearchData, IItem } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
-import { SearchContext } from '../../contexts/SearchContext';
+import { SearchContext, SortingParameters } from '../../contexts/SearchContext';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
 import { useTranslation } from 'react-i18next';
-import { EMimeType } from '../../constants/Data';
+import { EMimeType, SortDataType } from '../../constants/Data';
 import { AppBarContext } from '../../contexts/AppBarContext';
+import { mapSortTypeToValue } from '../../utils/helpers';
 
 interface IFilterSearchItem extends IItem {
   checkboxes: any;
@@ -79,10 +93,11 @@ export const FilterSearch = () => {
   const { t } = useTranslation(['search']);
   const { openFilter, toggleFilter } = useContext(AppBarContext);
 
-  const { savedCheckboxes, savedCheckboxesHandler, years, yearsHandler } = useContext(SearchContext);
+  const { savedCheckboxes, savedCheckboxesHandler, years, yearsHandler, sort, sortHandler } = useContext(SearchContext);
   const [from, setFrom] = useState<Date | null>(years[0] ? years[0] : null);
   const [to, setTo] = useState<Date | null>(years[1] ? years[1] : null);
-
+  // Currently, sort array contains only 1 object
+  const [sortType, setSortType] = useState<string>(() => mapSortTypeToValue(sort[0]));
   const [checkboxes, setCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>(savedCheckboxes);
 
   const clearFilters = () => {
@@ -107,6 +122,7 @@ export const FilterSearch = () => {
   const saveFilters = () => {
     savedCheckboxesHandler(checkboxes);
     yearsHandler(from, to);
+    sortHandler(sortType);
     toggleFilter();
   };
 
@@ -127,6 +143,29 @@ export const FilterSearch = () => {
         </Button>
       </Toolbar>
       <Box>
+        <ListItem>
+          <ListItemText disableTypography>
+            <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
+              {t('search:sort_results')}
+            </Typography>
+          </ListItemText>
+        </ListItem>
+        <ListItem>
+          <Select
+            displayEmpty
+            label={t('search:sort_results')}
+            value={sortType}
+            onChange={(event) => setSortType(event.target.value)}
+            input={<OutlinedInput />}
+            sx={{ width: '100%' }}
+          >
+            <MenuItem value={SortDataType.NONE}>{t('search:no_sort')}</MenuItem>
+            <MenuItem value={SortDataType.ASC_NAME}>A–Z</MenuItem>
+            <MenuItem value={SortDataType.DESC_NAME}>Z-A</MenuItem>
+            <MenuItem value={SortDataType.ASC_MODIFIED}>{t('search:latest_first')}</MenuItem>
+            <MenuItem value={SortDataType.DESC_MODIFIED}>{t('search:oldest_first')}</MenuItem>
+          </Select>
+        </ListItem>
         <ListItem>
           <ListItemText disableTypography>
             <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
