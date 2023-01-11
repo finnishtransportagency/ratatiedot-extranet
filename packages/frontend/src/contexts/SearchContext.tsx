@@ -3,7 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { SearchParameterName } from '../components/Search/FilterSearchData';
 import { SortDataType } from '../constants/Data';
 
-export type SortingParameters = { field: string; ascending: boolean };
+export type Sorting = { field: string; ascending: boolean };
+export type SortingParameters = Sorting[] | [];
 
 export const SearchContext = React.createContext({
   query: '',

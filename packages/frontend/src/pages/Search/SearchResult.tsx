@@ -7,7 +7,7 @@ import { ContainerWrapper } from '../Landing/index.styles';
 import { NodeItem } from './NodeItem';
 import { TAlfrescoSearchProps, usePostAlfrescoSearch } from '../../hooks/query/Search';
 import { useContext } from 'react';
-import { SearchContext } from '../../contexts/SearchContext';
+import { SearchContext, SortingParameters } from '../../contexts/SearchContext';
 import { formatYear } from '../../utils/helpers';
 import { useSearchParams } from 'react-router-dom';
 import { mimeNamesMapping } from '../../constants/Data';
@@ -17,7 +17,7 @@ export const SearchResult = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('query');
   const searchContext = useContext(SearchContext);
-  const { years, savedCheckboxes, page, pageHandler } = searchContext;
+  const { years, savedCheckboxes, page, pageHandler, sort = [] } = searchContext;
   const searchParameter: TAlfrescoSearchProps = {
     term: query,
     from: formatYear(years[0]),
@@ -26,6 +26,7 @@ export const SearchResult = () => {
       (mimeType: string) => mimeNamesMapping[mimeType as keyof typeof mimeNamesMapping],
     ),
     page: page,
+    sort: sort as SortingParameters,
   };
 
   const { isLoading, isError, error, data } = usePostAlfrescoSearch(searchParameter);

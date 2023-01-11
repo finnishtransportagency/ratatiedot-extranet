@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { SortDataType } from '../constants/Data';
 import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
-import { SortingParameters } from '../contexts/SearchContext';
+import { Sorting } from '../contexts/SearchContext';
 
 /**
  * Generate range of years
@@ -64,7 +64,7 @@ export const formatYear = (date: Date | null) => {
  * @param sortRequest
  * @returns string
  */
-export const mapSortTypeToValue = (sortRequest: SortingParameters | null) => {
+export const mapSortTypeToValue = (sortRequest: Sorting | null) => {
   if (!sortRequest) return SortDataType.NONE;
   const { field, ascending } = sortRequest;
   if (field === 'name' && ascending) return SortDataType.ASC_NAME;

@@ -93,7 +93,8 @@ export const FilterSearch = () => {
   const { t } = useTranslation(['search']);
   const { openFilter, toggleFilter } = useContext(AppBarContext);
 
-  const { savedCheckboxes, savedCheckboxesHandler, years, yearsHandler, sort, sortHandler } = useContext(SearchContext);
+  const { savedCheckboxes, savedCheckboxesHandler, years, yearsHandler, sort, sortHandler, pageHandler } =
+    useContext(SearchContext);
   const [from, setFrom] = useState<Date | null>(years[0] ? years[0] : null);
   const [to, setTo] = useState<Date | null>(years[1] ? years[1] : null);
   // Currently, sort array contains only 1 object
@@ -103,6 +104,7 @@ export const FilterSearch = () => {
   const clearFilters = () => {
     setFrom(null);
     setTo(null);
+    setSortType(() => mapSortTypeToValue(null));
     setCheckboxes({
       [SearchParameterName.MIME]: [],
       [SearchParameterName.REGION]: [],
@@ -123,6 +125,8 @@ export const FilterSearch = () => {
     savedCheckboxesHandler(checkboxes);
     yearsHandler(from, to);
     sortHandler(sortType);
+    // reset pagination
+    pageHandler(0);
     toggleFilter();
   };
 
