@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
+import { SortingParameters } from '../../contexts/SearchContext';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
 
 export type TAlfrescoSearchProps = {
@@ -9,11 +10,11 @@ export type TAlfrescoSearchProps = {
   to?: string | number;
   fileTypes?: string[];
   page?: number;
-  sort?: any[];
+  sort?: SortingParameters;
 };
 
 const getSearchBody = ({ term, from, to, fileTypes, page = 0, sort = [] }: TAlfrescoSearchProps) => {
-  let body: { searchParameters: TSearchParameterBody[]; page?: number; sort?: any[] } = {
+  let body: { searchParameters: TSearchParameterBody[]; page?: number; sort?: SortingParameters } = {
     searchParameters: [],
     page: page,
     sort: sort,
