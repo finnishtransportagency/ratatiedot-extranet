@@ -166,8 +166,8 @@ export const FilterSearch = () => {
             <MenuItem value={SortDataType.NONE}>{t('search:no_sort')}</MenuItem>
             <MenuItem value={SortDataType.ASC_NAME}>{t('search:A-Z')}</MenuItem>
             <MenuItem value={SortDataType.DESC_NAME}>{t('search:Z-A')}</MenuItem>
-            <MenuItem value={SortDataType.ASC_MODIFIED}>{t('search:latest_first')}</MenuItem>
-            <MenuItem value={SortDataType.DESC_MODIFIED}>{t('search:oldest_first')}</MenuItem>
+            <MenuItem value={SortDataType.DESC_MODIFIED}>{t('search:latest_first')}</MenuItem>
+            <MenuItem value={SortDataType.ASC_MODIFIED}>{t('search:oldest_first')}</MenuItem>
           </Select>
         </ListItem>
         <ListItem>
