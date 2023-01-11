@@ -17,7 +17,7 @@ export const SearchResult = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('query');
   const searchContext = useContext(SearchContext);
-  const { years, savedCheckboxes, page, pageHandler } = searchContext;
+  const { years, savedCheckboxes, page, pageHandler, sort } = searchContext;
   const searchParameter: TAlfrescoSearchProps = {
     term: query,
     from: formatYear(years[0]),
@@ -26,6 +26,7 @@ export const SearchResult = () => {
       (mimeType: string) => mimeNamesMapping[mimeType as keyof typeof mimeNamesMapping],
     ),
     page: page,
+    sort: sort,
   };
 
   const { isLoading, isError, error, data } = usePostAlfrescoSearch(searchParameter);
