@@ -17,6 +17,7 @@ export enum SearchParameterName {
   MIME = 'mime',
   NAME = 'name',
   PARENT = 'parent',
+  CATEGORY = 'category', // aineistoluokka folder name
 }
 
 export type QueryRequest = {
@@ -87,8 +88,14 @@ export interface IParentSearchParameter extends IBaseSearchParameter {
   parent: string;
 }
 
+export interface ICategorySearchParameter extends IBaseSearchParameter {
+  parameterName: SearchParameterName.CATEGORY;
+  categoryName: string;
+}
+
 export type SearchParameter =
   | IModifiedSearchParameter
   | IMimeSearchParameter
   | INameSearchParameter
-  | IParentSearchParameter;
+  | IParentSearchParameter
+  | ICategorySearchParameter;
