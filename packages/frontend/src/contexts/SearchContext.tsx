@@ -11,8 +11,7 @@ export const SearchContext = React.createContext({
   queryHandler: (_: string) => {},
   savedCheckboxes: {
     [SearchParameterName.MIME]: [''],
-    [SearchParameterName.REGION]: [''],
-    [SearchParameterName.MATERIAL_CLASS]: [''],
+    [SearchParameterName.CATEGORY]: [''],
   },
   savedCheckboxesHandler: (checkboxes: any) => {},
   years: [null, null],
@@ -31,8 +30,7 @@ export const SearchContextProvider = (props: any) => {
   const [years, setYears] = useState<any[]>([]);
   const [savedCheckboxes, setSavedCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>({
     [SearchParameterName.MIME]: [],
-    [SearchParameterName.REGION]: [],
-    [SearchParameterName.MATERIAL_CLASS]: [],
+    [SearchParameterName.CATEGORY]: [],
   });
   const [page, setPage] = useState<number>(0);
   const [sort, setSort] = useState<any[]>([]);
@@ -42,8 +40,7 @@ export const SearchContextProvider = (props: any) => {
     yearsHandler(null, null);
     savedCheckboxesHandler({
       [SearchParameterName.MIME]: [],
-      [SearchParameterName.REGION]: [],
-      [SearchParameterName.MATERIAL_CLASS]: [],
+      [SearchParameterName.CATEGORY]: [],
     });
     pageHandler(0);
   }, [searchParams]);

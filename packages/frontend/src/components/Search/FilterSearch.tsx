@@ -107,15 +107,20 @@ export const FilterSearch = () => {
     setSortType(() => mapSortTypeToValue(null));
     setCheckboxes({
       [SearchParameterName.MIME]: [],
-      [SearchParameterName.REGION]: [],
-      [SearchParameterName.MATERIAL_CLASS]: [],
+      [SearchParameterName.CATEGORY]: [],
     });
   };
 
   const handleCheckboxes = (name: SearchParameterName, value: EMimeType) => {
     const index = checkboxes[name].indexOf(value);
     if (index === -1) {
-      setCheckboxes({ ...checkboxes, [name]: [...checkboxes[name], value] });
+      // Temporary: only let 1 aineistoluokka/category be selected at a time
+      // TODO: select and filter by multiple ainestoluokka/category
+      if (name === SearchParameterName.CATEGORY) {
+        setCheckboxes({ ...checkboxes, [name]: [value] });
+      } else {
+        setCheckboxes({ ...checkboxes, [name]: [...checkboxes[name], value] });
+      }
     } else {
       setCheckboxes({ ...checkboxes, [name]: checkboxes[name].filter((item) => item !== value) });
     }

@@ -9,11 +9,13 @@ export type TAlfrescoSearchProps = {
   from?: string | number;
   to?: string | number;
   fileTypes?: string[];
+  // TODO: multiple ainestoluokka/category
+  categoryName: string;
   page?: number;
   sort?: SortingParameters;
 };
 
-const getSearchBody = ({ term, from, to, fileTypes, page = 0, sort = [] }: TAlfrescoSearchProps) => {
+const getSearchBody = ({ term, from, to, fileTypes, categoryName, page = 0, sort = [] }: TAlfrescoSearchProps) => {
   let body: { searchParameters: TSearchParameterBody[]; page?: number; sort?: SortingParameters } = {
     searchParameters: [],
     page: page,
@@ -36,6 +38,12 @@ const getSearchBody = ({ term, from, to, fileTypes, page = 0, sort = [] }: TAlfr
     body.searchParameters.push({
       parameterName: SearchParameterName.MIME,
       fileTypes: fileTypes,
+    });
+  }
+  if (categoryName) {
+    body.searchParameters.push({
+      parameterName: SearchParameterName.CATEGORY,
+      categoryName: categoryName,
     });
   }
   return body;

@@ -1,4 +1,5 @@
 import { Theme as MaterialTheme } from '@mui/material';
+import { SearchParameterName } from '../components/Search/FilterSearchData';
 
 declare module '@mui/material/styles' {
   interface BreakpointOverrides {
@@ -46,4 +47,13 @@ type TMimeSearchParameter = {
   fileTypes: string[];
 };
 
-type TSearchParameterBody = TNameSearchParameter | TModifiedSearchParameter | TMimeSearchParameter;
+type TCategorySearchParameter = {
+  parameterName: SearchParameterName.CATEGORY;
+  categoryName: string;
+};
+
+type TSearchParameterBody =
+  | TNameSearchParameter
+  | TModifiedSearchParameter
+  | TMimeSearchParameter
+  | TCategorySearchParameter;

@@ -25,6 +25,8 @@ export const SearchResult = () => {
     fileTypes: savedCheckboxes.mime.map(
       (mimeType: string) => mimeNamesMapping[mimeType as keyof typeof mimeNamesMapping],
     ),
+    // TODO: multiple ainestoluokka/category
+    categoryName: savedCheckboxes.category[0],
     page: page,
     sort: sort as SortingParameters,
   };
