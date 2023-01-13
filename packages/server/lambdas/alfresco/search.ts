@@ -15,8 +15,6 @@ import {
   SearchParameterName,
 } from './searchQueryBuilder/types';
 
-const database = await DatabaseClient.build();
-
 const searchByTerm = async (uid: string, body: QueryRequest) => {
   try {
     const bodyRequest = searchQueryBuilder({
@@ -56,6 +54,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const categoryParameter = searchParameters.find(
       (parameter: SearchParameter) => SearchParameterName.CATEGORY === parameter.parameterName.toLowerCase(),
     ) as ICategorySearchParameter;
+    const database = await DatabaseClient.build();
     if (categoryParameter) {
       const categoryResponse = await database.categoryDataBase.findFirst({
         where: {
