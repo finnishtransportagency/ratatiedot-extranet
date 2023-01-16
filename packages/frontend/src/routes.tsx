@@ -5,7 +5,7 @@ import { Routes } from './constants/Routes';
 import { ProtectedPage } from './pages/ProtectedPage';
 import { RootBoundary } from './components/RootBoundary';
 import { SearchResult } from './pages/Search/SearchResult';
-import { LoggingOut } from './pages/LoggingOut';
+import { ManagementReport } from './pages/ManagementReport';
 
 const routes: RouteObject[] = [
   {
@@ -20,6 +20,15 @@ const routes: RouteObject[] = [
       // TODO: throw error if user has no permission
     },
     children: [],
+  },
+  {
+    path: '/hallintaraportit',
+    element: (
+      <ProtectedPage>
+        <ManagementReport />
+      </ProtectedPage>
+    ),
+    errorElement: <RootBoundary />,
   },
   {
     path: Routes.SEARCH_RESULT,
