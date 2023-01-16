@@ -5,21 +5,25 @@ import { getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
+import { DatabaseClient } from '../database/client';
 import { searchQueryBuilder } from './searchQueryBuilder';
-import { QueryRequest } from './searchQueryBuilder/types';
+import {
+  ICategorySearchParameter,
+  IParentSearchParameter,
+  QueryRequest,
+  SearchParameter,
+  SearchParameterName,
+} from './searchQueryBuilder/types';
 
-const searchByTerm = async (body: string | null, uid: string) => {
+const searchByTerm = async (uid: string, body: QueryRequest) => {
   try {
-    log.debug(body, 'POST body request');
-    const parsedBody: QueryRequest = body ? JSON.parse(body) : {};
-    log.debug(parsedBody, 'Body parsing...');
     const bodyRequest = searchQueryBuilder({
-      searchParameters: parsedBody.searchParameters,
-      page: parsedBody.page,
-      language: parsedBody.language,
+      searchParameters: body.searchParameters,
+      page: body.page,
+      language: body.language,
+      sort: body.sort,
     });
     log.debug(bodyRequest, 'Complete body request');
-
     const alfrescoAPIUrl = getAlfrescoUrlBase();
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
 
@@ -40,8 +44,32 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
     validateReadUser(user);
-    log.info(user, `Alfresco search: ${event.body}`);
-    const data = await searchByTerm(event.body, user.uid);
+    const { body } = event;
+    log.info(user, `Alfresco search: ${body}`);
+    log.debug(body, 'POST body request');
+    const parsedBody: QueryRequest = body ? JSON.parse(body) : {};
+    log.debug(parsedBody, 'Body parsing...');
+    const { searchParameters } = parsedBody;
+    // Currently, only accept one category
+    const categoryParameter = searchParameters.find(
+      (parameter: SearchParameter) => SearchParameterName.CATEGORY === parameter.parameterName.toLowerCase(),
+    ) as ICategorySearchParameter;
+    const database = await DatabaseClient.build();
+    if (categoryParameter) {
+      const categoryResponse = await database.categoryDataBase.findFirst({
+        where: {
+          rataextraRequestPage: categoryParameter.categoryName,
+        },
+      });
+
+      const parentParameter: IParentSearchParameter = {
+        parameterName: SearchParameterName.PARENT,
+        parent: categoryResponse?.alfrescoFolder || '',
+      };
+      searchParameters.push(parentParameter);
+    }
+
+    const data = await searchByTerm(user.uid, parsedBody);
     return {
       statusCode: 200,
       headers: {

@@ -1,12 +1,12 @@
 import { AlfrescoFileRequestBuilder } from './alfrescoRequestBuilder';
-import { FileDeleteRequest, FileDeleteRequestBody, FileRequest, IFileRequestBody, FileStore } from './types';
+import { FileDeleteRequest, FileDeleteRequestBody, IFileRequestBody, FileStore } from './types';
 
-export const fileRequestBuilder = (request: IFileRequestBody, store?: FileStore): FileRequest => {
+export const fileRequestBuilder = (nodeId: string, request: IFileRequestBody, store?: FileStore) => {
   switch (store) {
     case FileStore.ALFRESCO:
     default:
       const alfrescoRequestBuilder = new AlfrescoFileRequestBuilder();
-      return alfrescoRequestBuilder.requestBuilder(request);
+      return alfrescoRequestBuilder.requestBuilder(nodeId, request);
   }
 };
 export const deleteFileRequestBuilder = (request: FileDeleteRequestBody, store?: FileStore): FileDeleteRequest => {

@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { getRouterName } from '../../components/NavBar/MenuItems';
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
+import { SortingParameters } from '../../contexts/SearchContext';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
 
 export type TAlfrescoSearchProps = {
@@ -8,11 +10,18 @@ export type TAlfrescoSearchProps = {
   from?: string | number;
   to?: string | number;
   fileTypes?: string[];
+  // TODO: multiple ainestoluokka/category
+  categoryName: string;
   page?: number;
+  sort?: SortingParameters;
 };
 
-const getSearchBody = ({ term, from, to, fileTypes, page = 0 }: TAlfrescoSearchProps) => {
-  let body: { searchParameters: TSearchParameterBody[]; page: number } = { searchParameters: [], page: page };
+const getSearchBody = ({ term, from, to, fileTypes, categoryName, page = 0, sort = [] }: TAlfrescoSearchProps) => {
+  let body: { searchParameters: TSearchParameterBody[]; page?: number; sort?: SortingParameters } = {
+    searchParameters: [],
+    page: page,
+    sort: sort,
+  };
   if (term) {
     body.searchParameters.push({
       parameterName: ExtendedSearchParameterName.NAME,
@@ -30,6 +39,12 @@ const getSearchBody = ({ term, from, to, fileTypes, page = 0 }: TAlfrescoSearchP
     body.searchParameters.push({
       parameterName: SearchParameterName.MIME,
       fileTypes: fileTypes,
+    });
+  }
+  if (categoryName) {
+    body.searchParameters.push({
+      parameterName: SearchParameterName.CATEGORY,
+      categoryName: getRouterName(categoryName),
     });
   }
   return body;

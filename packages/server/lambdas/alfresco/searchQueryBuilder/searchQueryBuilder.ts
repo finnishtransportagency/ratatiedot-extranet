@@ -1,6 +1,7 @@
-import { Paging, SearchParameter } from './types';
+import { Paging, SearchParameter, Sorting, SortingParameter } from './types';
 
 export interface SearchQueryBuilder {
   queryBuilder(searchParameters: Array<SearchParameter>): string;
   pagination(page?: number): Paging;
+  sorting(params?: SortingParameter | SortingParameter[]): [] | Sorting | Sorting[];
 }

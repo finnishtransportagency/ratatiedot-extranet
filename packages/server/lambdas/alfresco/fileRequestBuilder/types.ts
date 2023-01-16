@@ -1,18 +1,23 @@
 // TODO: Add necessary fields
 // Might need renaming. Result depends on if upload and update use same fields or not
+
+const CM_CONTENT = 'cm:content';
 export interface IFileRequestBody {
-  // Is probably inside IFile, maybe
-  fileName: string;
-  file: IFile;
-  category: string;
+  name: string;
+  filedata: string;
+  nodeType: typeof CM_CONTENT;
 }
 
 // TODO: Add necessary fields
 export interface IFile {
-  fileName: string;
+  name: string;
 }
 
 // TODO: Add necessary fields
+export type IFileResponse = {
+  file: IFile;
+};
+
 export type FileRequest = {
   file: IFile;
 };

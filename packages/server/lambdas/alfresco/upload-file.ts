@@ -27,7 +27,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const body: IFileRequestBody = event.body ? JSON.parse(event.body) : {};
 
     const user = await getUser(event);
-    log.info(user, `Uploading file ${body.fileName} to category ${category}`);
+    log.info(user, `Uploading file ${body.name} to category ${category}`);
+    log.info('Body: ', body);
     validateReadUser(user);
 
     if (!category || paths.pop() !== 'file') {
@@ -48,15 +49,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateWriteUser(user, writeRole);
 
     // TODO: Alfresco functionality. See search.ts for help
-    const request = fileRequestBuilder(body);
+    const response = await fileRequestBuilder('', body);
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      // TODO: Return content
-      body: JSON.stringify('Appropriate information about file as JSON'),
+      body: JSON.stringify(response),
     };
   } catch (err) {
     log.error(err);
