@@ -220,7 +220,7 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     const alfrescoSearch = this.createNodejsLambda({
-      ...alfrescoParameters,
+      ...prismaAlfrescoCombinedParameters,
       name: 'alfresco-search',
       relativePath: '../packages/server/lambdas/alfresco/search.ts',
     });
