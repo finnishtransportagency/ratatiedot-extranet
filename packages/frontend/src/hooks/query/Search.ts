@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { getRouterName } from '../../components/NavBar/MenuItems';
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
 import { SortingParameters } from '../../contexts/SearchContext';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
@@ -43,7 +44,7 @@ const getSearchBody = ({ term, from, to, fileTypes, categoryName, page = 0, sort
   if (categoryName) {
     body.searchParameters.push({
       parameterName: SearchParameterName.CATEGORY,
-      categoryName: categoryName,
+      categoryName: getRouterName(categoryName),
     });
   }
   return body;
