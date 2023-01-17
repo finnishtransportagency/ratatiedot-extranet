@@ -49,7 +49,7 @@ export class RataExtraPipelineStack extends Stack {
         },
       }),
     );
-
+    /*
     // reduce cdk.out size
     const strip = new CodeBuildStep('StripAssetsFromAssembly', {
       input: pipeline.cloudAssemblyFileSet,
@@ -81,6 +81,7 @@ export class RataExtraPipelineStack extends Stack {
     pipeline.addWave('BeforeStageDeploy', {
       pre: [strip],
     });
+    */
   }
 }
 interface RataExtraStageProps extends StageProps {
