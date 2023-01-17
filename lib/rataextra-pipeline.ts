@@ -1,9 +1,10 @@
 import { SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
-import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
+import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import { Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
 import { getPipelineConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 /**
  * The stack that defines the application pipeline
@@ -48,6 +49,38 @@ export class RataExtraPipelineStack extends Stack {
         },
       }),
     );
+
+    // reduce cdk.out size
+    const strip = new CodeBuildStep('StripAssetsFromAssembly', {
+      input: pipeline.cloudAssemblyFileSet,
+      commands: [
+        'S3_PATH=${CODEBUILD_SOURCE_VERSION#"arn:aws:s3:::"}',
+        'ZIP_ARCHIVE=$(basename $S3_PATH)',
+        'echo $S3_PATH',
+        'echo $ZIP_ARCHIVE',
+        'ls',
+        'rm -rfv asset.*',
+        'zip -r -q -A $ZIP_ARCHIVE *',
+        'ls',
+        'aws s3 cp $ZIP_ARCHIVE s3://$S3_PATH',
+      ],
+      rolePolicyStatements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: ['s3:*'],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: ['kms:GenerateDataKey'],
+        }),
+      ],
+    });
+
+    pipeline.addWave('BeforeStageDeploy', {
+      pre: [strip],
+    });
   }
 }
 interface RataExtraStageProps extends StageProps {
