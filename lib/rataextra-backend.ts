@@ -234,13 +234,13 @@ export class RataExtraBackendStack extends NestedStack {
     const alfrescoUploadFile = this.createNodejsLambda({
       ...prismaAlfrescoCombinedParameters,
       name: 'alfresco-upload-file',
-      relativePath: '../packages/server/lambdas/alfresco/update-file.ts',
+      relativePath: '../packages/server/lambdas/alfresco/upload-file.ts',
     });
 
     const alfrescoUpdateFile = this.createNodejsLambda({
       ...prismaAlfrescoCombinedParameters,
       name: 'alfresco-update-file',
-      relativePath: '../packages/server/lambdas/alfresco/upload-file.ts',
+      relativePath: '../packages/server/lambdas/alfresco/update-file.ts',
     });
 
     const alfrescoDeleteFile = this.createNodejsLambda({

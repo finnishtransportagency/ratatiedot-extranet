@@ -39,30 +39,18 @@ export class RataExtraPipelineStack extends Stack {
         },
       },
     });
-    pipeline.addStage(
-      new RataExtraApplication(this, 'RataExtra', {
-        stackId: config.stackId,
-        rataExtraEnv: config.env,
-        tags: config.tags,
-        env: {
-          region: 'eu-west-1',
-        },
-      }),
-    );
-    /*
-    // reduce cdk.out size
+
     const strip = new CodeBuildStep('StripAssetsFromAssembly', {
       input: pipeline.cloudAssemblyFileSet,
       commands: [
+        "cross_region_replication_buckets=$(grep BucketName cross-region-stack-* | awk -F 'BucketName' '{print $2}' | tr -d ': ' | tr -d '\"' | tr -d ',')",
         'S3_PATH=${CODEBUILD_SOURCE_VERSION#"arn:aws:s3:::"}',
         'ZIP_ARCHIVE=$(basename $S3_PATH)',
-        'echo $S3_PATH',
-        'echo $ZIP_ARCHIVE',
-        'ls',
-        'rm -rfv asset.*',
+        'rm -rf asset.*',
         'zip -r -q -A $ZIP_ARCHIVE *',
-        'ls',
         'aws s3 cp $ZIP_ARCHIVE s3://$S3_PATH',
+        'object_location=${S3_PATH#*/}',
+        'for bucket in $cross_region_replication_buckets; do aws s3 cp $ZIP_ARCHIVE s3://$bucket/$object_location; done',
       ],
       rolePolicyStatements: [
         new PolicyStatement({
@@ -81,7 +69,17 @@ export class RataExtraPipelineStack extends Stack {
     pipeline.addWave('BeforeStageDeploy', {
       pre: [strip],
     });
-    */
+
+    pipeline.addStage(
+      new RataExtraApplication(this, 'RataExtra', {
+        stackId: config.stackId,
+        rataExtraEnv: config.env,
+        tags: config.tags,
+        env: {
+          region: 'eu-west-1',
+        },
+      }),
+    );
   }
 }
 interface RataExtraStageProps extends StageProps {

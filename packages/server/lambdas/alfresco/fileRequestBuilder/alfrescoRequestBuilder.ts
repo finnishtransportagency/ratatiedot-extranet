@@ -1,23 +1,23 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { getAlfrescoUrlBase } from '../../../utils/alfresco';
 import { FileDeleteRequest, FileDeleteRequestBody, IFileRequestBody, IFileResponse } from './types';
+import FormData from 'form-data';
 
 export class AlfrescoFileRequestBuilder {
-  public async requestBuilder(
-    nodeId: string,
-    requestBody: IFileRequestBody,
-  ): Promise<AxiosResponse<IFileResponse> | AxiosError> {
+  public async requestBuilder(nodeId: string, requestBody: string): Promise<AxiosResponse<IFileResponse> | AxiosError> {
     const bodyFormData = new FormData();
-    for (const key in requestBody) {
-      if (Object.prototype.hasOwnProperty.call(requestBody, key)) {
-        bodyFormData.append(key, requestBody[key as keyof IFileRequestBody]);
-      }
-    }
+    console.log('bodyFormData -> ', bodyFormData);
+    // for (const key in requestBody) {
+    //   if (Object.prototype.hasOwnProperty.call(requestBody, key)) {
+    //     bodyFormData.append(key, requestBody[key as keyof IFileRequestBody]);
+    //   }
+    // }
+    bodyFormData.append('filedata', requestBody);
 
     const response = await axios({
       method: 'post',
       url: `${getAlfrescoUrlBase()}/nodes/${nodeId}/children`,
-      data: bodyFormData,
+      data: requestBody,
       headers: { 'Content-Type': 'multipart/form-data' },
     })
       .then((response) => {
