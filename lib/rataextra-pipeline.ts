@@ -4,7 +4,7 @@ import { Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuil
 import { Construct } from 'constructs';
 import { getPipelineConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';
-import * as iam from 'aws-cdk-lib/aws-iam';
+import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 
 /**
  * The stack that defines the application pipeline
@@ -65,13 +65,13 @@ export class RataExtraPipelineStack extends Stack {
         'aws s3 cp $ZIP_ARCHIVE s3://$S3_PATH',
       ],
       rolePolicyStatements: [
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
+        new PolicyStatement({
+          effect: Effect.ALLOW,
           resources: ['*'],
           actions: ['s3:*'],
         }),
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
+        new PolicyStatement({
+          effect: Effect.ALLOW,
           resources: ['*'],
           actions: ['kms:GenerateDataKey'],
         }),

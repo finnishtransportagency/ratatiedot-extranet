@@ -13,7 +13,7 @@ import {
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import * as path from 'path';
+import { join } from 'path';
 import { isDevelopmentMainStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
@@ -375,7 +375,7 @@ export class RataExtraBackendStack extends NestedStack {
       runtime: runtime,
       logRetention,
       handler: handler,
-      entry: path.join(__dirname, relativePath),
+      entry: join(__dirname, relativePath),
       environment: environment,
       role: lambdaRole,
       vpc,
