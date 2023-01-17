@@ -4,8 +4,7 @@ import { FileFormats } from '../../constants/Data';
 
 export enum SearchParameterName {
   MIME = 'mime',
-  REGION = 'region',
-  MATERIAL_CLASS = 'materialClass',
+  CATEGORY = 'category',
 }
 
 export interface IItem {
@@ -22,7 +21,7 @@ export const FilterSearchData: IItem[] = [
   },
   {
     name: 'Aineistoluokka',
-    type: SearchParameterName.MATERIAL_CLASS,
+    type: SearchParameterName.CATEGORY,
     items: flatMapByKey(categoryData, 'items'),
   },
 ];
