@@ -22,6 +22,6 @@ export const FilterSearchData: IItem[] = [
   {
     name: 'Aineistoluokka',
     type: SearchParameterName.CATEGORY,
-    items: flatMapByKey(getTranslatedCategoryData(categoryData), 'items'),
+    items: flatMapByKey(getTranslatedCategoryData(categoryData), 'subCategories'),
   },
 ];
