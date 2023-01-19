@@ -18,11 +18,13 @@ export class RataExtraPipelineStack extends Stack {
       tags: config.tags,
     });
 
+    const oauth = SecretValue.secretsManager(config.authenticationToken);
+
     const pipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
       pipelineName: 'pr-rataextra-' + config.stackId,
       synth: new ShellStep('Synth', {
         input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
-          authentication: SecretValue.secretsManager(config.authenticationToken),
+          authentication: oauth,
         }),
         installCommands: ['npm run ci --user=root'],
         commands: [
