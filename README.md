@@ -265,7 +265,7 @@ The script will deploy CodePipeline, which will automatically set up the environ
 
 If you update the `pipeline:synth`-script name, you need to have the old script available for at least one commit in the followed branch or you have to rerun the deployment script by hand.
 
-Note! A valid GitHub token with the scopes `admin:repo_hook, public_repo, repo:status, repo_deployment` is required to be had in AWS Secrets Manager. Refer to `./config/index.ts` for authenticationToken name to be set. Set the token as plaintext value.
+Note! A valid GitHub token with the scopes `admin:repo_hook, public_repo, repo:status, repo_deployment` is required to be had in AWS Secrets Manager. Set the token as plaintext value. New expired date is set in the next 1 year. In order to give sufficient permission to your Github token, you may need to edit your pipeline in AWS CodePipeline (e.g. stage Source), connect and grant the authorization right of your Github account.
 
 Note! You need Docker installed on your computer for synth and deploy to work.
 
