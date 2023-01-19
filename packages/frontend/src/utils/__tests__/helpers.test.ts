@@ -1,5 +1,12 @@
 import { LocaleLang } from '../../constants/Units';
-import { generateYearsBetween, flatMapByKey, splitYearsIntoChunks, getLocaleByteUnit } from '../helpers';
+import {
+  generateYearsBetween,
+  flatMapByKey,
+  splitYearsIntoChunks,
+  getLocaleByteUnit,
+  getTranslatedCategoryData,
+  getSubCategoryData,
+} from '../helpers';
 
 describe('Helpers Utility', () => {
   describe('generateYearsBetween()', () => {
@@ -39,6 +46,31 @@ describe('Helpers Utility', () => {
     it('should return empty array if `perChunk` is negative', () => {
       const years = generateYearsBetween(2018, 2022);
       expect(splitYearsIntoChunks(years, -1)).toEqual([]);
+    });
+  });
+
+  describe('getTranslatedCategoryData()', () => {
+    it('should return translated values for category and sub-categories', () => {
+      expect(
+        getTranslatedCategoryData([
+          { category: { ANIMALS: 'Eläimet' }, subCategories: { DOG: 'Koira', CAT: 'Kissa' } },
+          { category: { FLOWERS: 'Kukat' }, subCategories: { ROSE: 'Ruusu', DAISY: 'Päivänkakkara' } },
+        ]),
+      ).toEqual([
+        { category: 'Eläimet', subCategories: ['Koira', 'Kissa'] },
+        { category: 'Kukat', subCategories: ['Ruusu', 'Päivänkakkara'] },
+      ]);
+    });
+  });
+
+  describe('getSubCategoryData()', () => {
+    it('should return sub-categories', () => {
+      expect(
+        getSubCategoryData([
+          { category: { ANIMALS: 'Eläimet' }, subCategories: { DOG: 'Koira', CAT: 'Kissa' } },
+          { category: { FLOWERS: 'Kukat' }, subCategories: { ROSE: 'Ruusu', DAISY: 'Päivänkakkara' } },
+        ]),
+      ).toEqual({ DOG: 'Koira', CAT: 'Kissa', ROSE: 'Ruusu', DAISY: 'Päivänkakkara' });
     });
   });
 

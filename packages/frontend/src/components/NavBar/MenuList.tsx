@@ -9,8 +9,15 @@ import { MenuContext } from '../../contexts/MenuContext';
 import { IMenuItem, MenuItems } from './MenuItems';
 
 export const MenuList = () => {
-  const { openDrawer } = useContext(AppBarContext);
+  const { openDrawer, toggleDrawer } = useContext(AppBarContext);
   const { menu, menuHandler } = useContext(MenuContext);
+
+  const categoryHandler = (key: string) => {
+    menuHandler(key);
+    if (!openDrawer) {
+      toggleDrawer();
+    }
+  };
 
   return (
     <>
@@ -18,7 +25,7 @@ export const MenuList = () => {
         const { key, primary, icon, to, children } = item;
         return (
           <Fragment key={key}>
-            <ListItem disablePadding alignItems="flex-start" onClick={() => menuHandler(key)}>
+            <ListItem disablePadding alignItems="flex-start" onClick={() => categoryHandler(key)}>
               <ListItemButton href={to ? to : ''}>
                 <ListItemIcon>{icon}</ListItemIcon>
                 <ListItemText primary={primary} sx={{ opacity: openDrawer ? 1 : 0 }} />
