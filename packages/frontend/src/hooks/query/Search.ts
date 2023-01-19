@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { getRouterName } from '../../components/NavBar/MenuItems';
+
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
 import { SortingParameters } from '../../contexts/SearchContext';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
+import { getRouterName } from '../../utils/helpers';
 
 export type TAlfrescoSearchProps = {
   term: string | null;

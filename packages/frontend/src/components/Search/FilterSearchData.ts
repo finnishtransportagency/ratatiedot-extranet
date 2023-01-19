@@ -1,5 +1,5 @@
-import { flatMapByKey } from '../../utils/helpers';
-import categoryData from '../../assets/data/aineistoluokka.json';
+import { flatMapByKey, getTranslatedCategoryData } from '../../utils/helpers';
+import categoryData from '../../assets/data/FinnishCategories.json';
 import { FileFormats } from '../../constants/Data';
 
 export enum SearchParameterName {
@@ -22,6 +22,6 @@ export const FilterSearchData: IItem[] = [
   {
     name: 'Aineistoluokka',
     type: SearchParameterName.CATEGORY,
-    items: flatMapByKey(categoryData, 'items'),
+    items: flatMapByKey(getTranslatedCategoryData(categoryData), 'subCategories'),
   },
 ];
