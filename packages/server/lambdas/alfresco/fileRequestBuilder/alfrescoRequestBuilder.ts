@@ -3,16 +3,18 @@ import { getAlfrescoUrlBase } from '../../../utils/alfresco';
 import { FileDeleteRequest, FileDeleteRequestBody, IFileRequestBody, IFileResponse } from './types';
 import { FormData } from 'formdata-node';
 
+const dataToBlob = async (data: string) => {
+  const base64 = await fetch(data);
+  const blob = await base64.blob();
+  return blob;
+};
 export class AlfrescoFileRequestBuilder {
   public async requestBuilder(nodeId: string, requestBody: string): Promise<AxiosResponse<IFileResponse> | AxiosError> {
     const bodyFormData = new FormData();
-    // for (const key in requestBody) {
-    //   if (Object.prototype.hasOwnProperty.call(requestBody, key)) {
-    //     bodyFormData.append(key, requestBody[key as keyof IFileRequestBody]);
-    //   }
-    // }
-    const buffer = Buffer.from(requestBody, 'base64');
-    bodyFormData.append('filedata', buffer, Date.now().toString() + '_FILE.txt');
+
+    const blob = dataToBlob(requestBody);
+    console.log('blob: ', blob);
+    bodyFormData.append('filedata', blob, Date.now().toString() + '_FILE.txt');
     console.log('bodyFormData -> ', bodyFormData);
 
     const response = await axios({
