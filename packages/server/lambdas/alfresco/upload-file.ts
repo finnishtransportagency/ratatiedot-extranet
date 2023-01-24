@@ -7,11 +7,18 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { fileRequestBuilder } from './fileRequestBuilder';
-import { IFileRequestBody } from './fileRequestBuilder/types';
+import fetch from 'node-fetch';
+import { FormData } from 'formdata-node';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
+
+const dataToBlob = async (data: string) => {
+  const base64 = await fetch(data);
+  const blob = base64.blob();
+  return blob;
+};
 
 /**
  * Update custom content for page. Example request: /api/alfresco/file/linjakaaviot
@@ -46,11 +53,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
-    if (event.isBase64Encoded && event.body) {
-      console.log('Decoding base64 body');
+    if (event.body) {
       log.info(user, `Uploading file ${event.body} to category ${category}`);
 
-      const response = await fileRequestBuilder('6a1200cb-5fc9-4364-b9bb-645c64c9e31e', event.body);
+      const blob = await dataToBlob(event.body).then((blob) => blob);
+      const bodyFormData = new FormData();
+      bodyFormData.append('filedata', blob, Date.now().toString() + '_FILE.txt');
+
+      const response = await fileRequestBuilder('6a1200cb-5fc9-4364-b9bb-645c64c9e31e', bodyFormData);
 
       return {
         statusCode: 200,
