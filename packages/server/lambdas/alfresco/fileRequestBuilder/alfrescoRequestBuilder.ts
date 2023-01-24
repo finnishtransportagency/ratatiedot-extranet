@@ -1,36 +1,32 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
 import { getAlfrescoUrlBase } from '../../../utils/alfresco';
-import { FileDeleteRequest, FileDeleteRequestBody, IFileResponse } from './types';
-import { FormData } from 'formdata-node';
+import { FileDeleteRequest, FileDeleteRequestBody } from './types';
+import fetch from 'node-fetch';
 import { log } from '../../../utils/logger';
 
 const postFile = async (data: FormData, nodeId: string) => {
-  return await axios({
-    method: 'post',
-    url: `${getAlfrescoUrlBase()}/nodes/${nodeId}/children`,
-    data: data,
+  log.info('postFile(), data : ');
+  log.info(data);
+  log.info(nodeId);
+  const url = `${getAlfrescoUrlBase()}/nodes/${nodeId}/children`;
+  const resp = await fetch(url, {
+    method: 'POST',
+    body: data,
     headers: { 'Content-Type': 'multipart/form-data' },
   });
+  console.log(resp);
+  return resp;
 };
 
 export class AlfrescoFileRequestBuilder {
-  public async requestBuilder(
-    nodeId: string,
-    requestBody: FormData,
-  ): Promise<AxiosResponse<IFileResponse> | AxiosError> {
-    log.info('requestBuilder 23');
+  public async requestBuilder(nodeId: string, requestBody: FormData) {
+    log.info('requestBuilder, requestBody : ');
+    log.info(requestBody);
 
-    const response = postFile(requestBody, nodeId)
-      .then((response) => {
-        console.log('RESPONSE1: ', response);
-        return response;
-      })
-      .catch((error: AxiosError) => {
-        console.log('ERROR1', error);
-        return error;
-      });
-
-    return response;
+    try {
+      await postFile(requestBody, nodeId);
+    } catch (error) {
+      console.log('request was aborted');
+    }
   }
   public deleteRequestBuilder(requestParameters: FileDeleteRequestBody): FileDeleteRequest {
     throw new Error('Method not implemented.');
