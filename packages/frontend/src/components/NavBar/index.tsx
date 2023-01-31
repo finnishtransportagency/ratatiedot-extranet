@@ -4,12 +4,16 @@ import { DesktopDrawer } from './DesktopDrawer';
 import { MiniDrawer } from './MiniDrawer';
 import { DesktopAppBar } from './DesktopAppBar';
 
-export const NavBar = () => {
+type NavBarProps = {
+  pageTitle?: string;
+};
+
+export const NavBar = ({ pageTitle }: NavBarProps) => {
   return (
     <Box>
       <MiniAppBar />
       <MiniDrawer />
-      <DesktopAppBar />
+      <DesktopAppBar pageTitle={pageTitle} />
       <DesktopDrawer />
     </Box>
   );
