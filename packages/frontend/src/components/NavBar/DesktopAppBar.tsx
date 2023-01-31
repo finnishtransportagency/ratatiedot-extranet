@@ -6,20 +6,21 @@ import { Colors } from '../../constants/Colors';
 import { Search } from '../Search';
 import { drawerWidth } from '../../constants/Viewports';
 import { DrawerWrapperProps } from './DesktopDrawer';
-import { useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
 
-export const DesktopAppBar = () => {
+type DesktopAppBarProps = {
+  pageTitle?: string;
+};
+
+export const DesktopAppBar = ({ pageTitle }: DesktopAppBarProps) => {
   const { openDrawer } = useContext(AppBarContext);
 
   const MainAppBar = () => {
-    const location = useLocation();
-    const pageName = location.pathname.split('/').length ? location.pathname.split('/')[1] : 'Ratatieto';
     return (
       <>
         <Typography variant="subtitle2" textTransform="capitalize">
-          {pageName || 'Etusivu'}
+          {pageTitle || 'Etusivu'}
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
         <ToolbarWrapper>
