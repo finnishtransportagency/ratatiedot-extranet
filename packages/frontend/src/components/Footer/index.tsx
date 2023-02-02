@@ -1,47 +1,83 @@
 import styled from '@emotion/styled';
-import { Box, Typography } from '@mui/material';
-import { Colors } from '../../constants/Colors';
-import { ParagraphWrapper } from '../../pages/Landing/index.styles';
+import { Box, Grid, Link, Typography } from '@mui/material';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
-const TypoWrapper = styled(Typography)(() => ({
-  '& .MuiTypography-root': {
-    borderBottomStyle: 'solid',
-    borderBottomColor: Colors.darkgreen,
-    borderBottomWidth: 2,
-    width: '36px',
-  },
+import { Colors } from '../../constants/Colors';
+import FacebookIcon from '../../assets/icons/Facebook.svg';
+import TwitterIcon from '../../assets/icons/Twitter.svg';
+import InstagramIcon from '../../assets/icons/Instagram.svg';
+import LinkedinIcon from '../../assets/icons/Linkedin.svg';
+import FlickrIcon from '../../assets/icons/Flickr.svg';
+import YoutubeIcon from '../../assets/icons/Youtube.svg';
+
+const FooterWrapper = styled(Box)(() => ({
+  backgroundColor: Colors.lightgrey,
+  marginTop: '32px',
+  padding: '32px',
 }));
 
-const TypoWrapperStyle = {
-  borderBottomStyle: 'solid',
-  borderBottomColor: Colors.darkgreen,
-  borderBottomWidth: 4,
-  width: '36px',
-  lineHeight: 1.5,
-  marginBottom: '16px',
+const LinkStyle = {
+  textDecoration: 'none',
+  boxShadow: 'none',
+  color: Colors.darkblue,
+  display: 'block',
+  fontWeight: 'bold',
+};
+
+const LinkIconStyle = {
+  width: '13px',
+  height: '13px',
+  marginLeft: '5px',
+};
+
+const SocialMediaIconStyle = {
+  margin: '0 8px',
 };
 
 export const Footer = () => {
   return (
-    <Box
-      sx={{
-        backgroundColor: Colors.lightgrey,
-        padding: '1px 16px',
-      }}
-    >
-      <TypoWrapper variant="subtitle1" sx={TypoWrapperStyle}>
-        Yhteystiedot
-      </TypoWrapper>
-      <ParagraphWrapper variant="body1">
-        Käyttäjätunnukset
-        <Typography variant="subtitle2">Taina Lind</Typography>
-        taina.lind@vayla.fi
-      </ParagraphWrapper>
-      <ParagraphWrapper variant="body1">
-        Sisältö
-        <Typography variant="subtitle2"> Merja Hyvärinen</Typography>
-        merja.hyvärinen@vayla.fi
-      </ParagraphWrapper>
-    </Box>
+    <FooterWrapper>
+      <Typography variant="body1">Väylävirasto</Typography>
+      <Grid container spacing={{ tablet: 3, desktop: 3 }}>
+        <Grid item mobile={12} tablet={6} desktop={6}>
+          <Typography variant="body1" sx={{ marginTop: '24px' }}>
+            Väyläviraston julkinen verkkopalvelu
+            <Link href="https://vayla.fi/" style={LinkStyle}>
+              vayla.fi
+              <OpenInNewIcon sx={LinkIconStyle} />
+            </Link>
+          </Typography>
+        </Grid>
+        <Grid item mobile={12} tablet={6} desktop={6}>
+          <Typography variant="body1" sx={{ marginTop: '24px' }}>
+            Väyläviraston extranet-palvelu
+            <Link href="https://extranet.vayla.fi/" style={LinkStyle}>
+              extranet.vayla.fi
+              <OpenInNewIcon sx={LinkIconStyle} />
+            </Link>
+          </Typography>
+        </Grid>
+      </Grid>
+      <Typography variant="body1" sx={{ marginTop: '24px', textAlign: 'center' }}>
+        <Link href="https://www.facebook.com/vaylafi/" target="_blank" style={SocialMediaIconStyle}>
+          <Box component="img" src={FacebookIcon} alt="facebook" />
+        </Link>
+        <Link href="https://twitter.com/vaylafi" target="_blank" style={SocialMediaIconStyle}>
+          <Box component="img" src={TwitterIcon} alt="twitter" />
+        </Link>
+        <Link href="https://www.instagram.com/vaylafi/" target="_blank" style={SocialMediaIconStyle}>
+          <Box component="img" src={InstagramIcon} alt="instagram" />
+        </Link>
+        <Link href="https://www.linkedin.com/company/vaylafi" target="_blank" style={SocialMediaIconStyle}>
+          <Box component="img" src={LinkedinIcon} alt="linkedin" />
+        </Link>
+        <Link href="https://www.flickr.com/photos/vaylafi" target="_blank" style={SocialMediaIconStyle}>
+          <Box component="img" src={FlickrIcon} alt="flickr" />
+        </Link>
+        <Link href="https://www.youtube.com/c/vaylafi" target="_blank" style={SocialMediaIconStyle}>
+          <Box component="img" src={YoutubeIcon} alt="youtube" />
+        </Link>
+      </Typography>
+    </FooterWrapper>
   );
 };
