@@ -27,7 +27,7 @@ import { SearchParameterName, FilterSearchData, IItem } from './FilterSearchData
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
 import { SearchContext } from '../../contexts/SearchContext';
-import { ButtonWrapper } from '../../styles/ButtonWrapper';
+import { ButtonWrapper } from '../../styles/common';
 import { useTranslation } from 'react-i18next';
 import { EMimeType, SortDataType } from '../../constants/Data';
 import { AppBarContext } from '../../contexts/AppBarContext';

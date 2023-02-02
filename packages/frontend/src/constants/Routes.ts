@@ -1,7 +1,6 @@
-import categoryData from '../assets/data/FinnishCategories.json';
 import { getRouterName, getSubCategoryData } from '../utils/helpers';
 
-const SubCategoryNames = getSubCategoryData(categoryData);
+const SubCategoryNames = getSubCategoryData();
 
 export const Routes = {
   HOME: '/',

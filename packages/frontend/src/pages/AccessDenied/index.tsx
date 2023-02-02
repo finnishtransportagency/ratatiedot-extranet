@@ -2,8 +2,8 @@ import { Box } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import RataExtLogo from '../../assets/images/Logo_long.png';
-import { ContainerWrapper } from '../../styles/ContainerWrapper';
-import { ButtonWrapper as BackButton } from '../../styles/ButtonWrapper';
+import { ContainerWrapper } from '../../styles/common';
+import { ButtonWrapper as BackButton } from '../../styles/common';
 import { SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { useTranslation } from 'react-i18next';
 

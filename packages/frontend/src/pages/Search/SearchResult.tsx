@@ -3,7 +3,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useTranslation } from 'react-i18next';
 
 import { Tags } from '../../components/Tags';
-import { ContainerWrapper } from '../Landing/index.styles';
+import { ProtectedContainerWrapper } from '../../styles/common';
 import { NodeItem } from './NodeItem';
 import { TAlfrescoSearchProps, usePostAlfrescoSearch } from '../../hooks/query/Search';
 import { useContext } from 'react';
@@ -35,25 +35,25 @@ export const SearchResult = () => {
 
   if (isLoading) {
     return (
-      <ContainerWrapper>
+      <ProtectedContainerWrapper>
         <CircularProgress />
-      </ContainerWrapper>
+      </ProtectedContainerWrapper>
     );
   }
 
   if (isError) {
     return (
-      <ContainerWrapper>
+      <ProtectedContainerWrapper>
         <Typography variant="subtitle1">
           {t('search:search_results')} "{query}"
         </Typography>
         <Alert severity="error">{error?.message || t('common:error.500')}</Alert>
-      </ContainerWrapper>
+      </ProtectedContainerWrapper>
     );
   }
 
   return (
-    <ContainerWrapper>
+    <ProtectedContainerWrapper>
       <Typography variant="subtitle1">
         {t('search:search_results')} "{query}"
       </Typography>
@@ -77,6 +77,6 @@ export const SearchResult = () => {
           onChange={(_: React.ChangeEvent<unknown>, pageNumber: number) => pageHandler(pageNumber - 1)}
         />
       )}
-    </ContainerWrapper>
+    </ProtectedContainerWrapper>
   );
 };

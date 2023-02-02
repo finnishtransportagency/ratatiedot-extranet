@@ -31,7 +31,6 @@ import { DriverActivity } from './pages/Others/DriverActivity';
 import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
 import { getSubCategoryData } from './utils/helpers';
-import categoryData from './assets/data/FinnishCategories.json';
 
 const getProtectedRoute = (path: string, component: JSX.Element, pageTitle?: string) => ({
   path: path,
@@ -46,7 +45,7 @@ const getProtectedRoute = (path: string, component: JSX.Element, pageTitle?: str
 const HOME_ROUTE = getProtectedRoute(Routes.HOME, <Landing />);
 const SEARCH_ROUTE = getProtectedRoute(Routes.SEARCH_RESULT, <SearchResult />);
 
-const SubCategoryNames = getSubCategoryData(categoryData);
+const SubCategoryNames = getSubCategoryData();
 
 const DIAGRAMS_ROUTES = [
   getProtectedRoute(Routes.LINE_DIAGRAMS, <LineDiagrams />, SubCategoryNames.LINE_DIAGRAMS),

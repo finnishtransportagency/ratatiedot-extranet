@@ -22,6 +22,7 @@ const LinkStyle = {
   color: Colors.darkblue,
   display: 'block',
   fontWeight: 'bold',
+  width: 'fit-content',
 };
 
 const LinkIconStyle = {
@@ -42,7 +43,7 @@ export const Footer = () => {
         <Grid item mobile={12} tablet={6} desktop={6}>
           <Typography variant="body1" sx={{ marginTop: '24px' }}>
             Väyläviraston julkinen verkkopalvelu
-            <Link href="https://vayla.fi/" style={LinkStyle}>
+            <Link href="https://vayla.fi/" target="_blank" style={LinkStyle}>
               vayla.fi
               <OpenInNewIcon sx={LinkIconStyle} />
             </Link>
@@ -51,7 +52,7 @@ export const Footer = () => {
         <Grid item mobile={12} tablet={6} desktop={6}>
           <Typography variant="body1" sx={{ marginTop: '24px' }}>
             Väyläviraston extranet-palvelu
-            <Link href="https://extranet.vayla.fi/" style={LinkStyle}>
+            <Link href="https://extranet.vayla.fi/" target="_blank" style={LinkStyle}>
               extranet.vayla.fi
               <OpenInNewIcon sx={LinkIconStyle} />
             </Link>

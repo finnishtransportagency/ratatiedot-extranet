@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ContentWrapper, ProtectedContainerWrapper } from './index.styles';
+import { ContentWrapper, ContainerWrapper } from './index.styles';
 import { NavBar } from '../../components/NavBar';
 import { AppContextProvider } from '../../contexts/AppContextProvider';
 import { Footer } from '../../components/Footer';
@@ -14,7 +14,7 @@ type Props = {
 // to get access navigation bar and title bar
 export const ProtectedPage = ({ children, pageTitle }: Props) => {
   return (
-    <ProtectedContainerWrapper>
+    <ContainerWrapper>
       <AppContextProvider>
         <NavBar pageTitle={pageTitle} />
         <ContentWrapper>
@@ -22,6 +22,6 @@ export const ProtectedPage = ({ children, pageTitle }: Props) => {
           <Footer />
         </ContentWrapper>
       </AppContextProvider>
-    </ProtectedContainerWrapper>
+    </ContainerWrapper>
   );
 };
