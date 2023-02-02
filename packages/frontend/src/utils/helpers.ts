@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { SortDataType } from '../constants/Data';
 import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
 import { Sorting } from '../contexts/SearchContext';
+import categoryData from '../assets/data/FinnishCategories.json';
 
 /**
  * Generate range of years
@@ -121,7 +122,7 @@ type SubCategoryData = {
  * @param categoryData
  * @returns object
  */
-export const getSubCategoryData = (categoryData: CategoryDataParameter[]): SubCategoryData => {
+export const getSubCategoryData = (): SubCategoryData => {
   return categoryData.reduce((subCategories: object, item: CategoryDataParameter) => {
     subCategories = { ...subCategories, ...item.subCategories };
     return subCategories;
