@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 
 import { ContainerWrapper, SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ButtonWrapper } from '../../styles/ButtonWrapper';
-import { Footer } from '../../components/Footer';
 
 export const Landing = () => {
   const { t } = useTranslation(['common', 'landing']);
@@ -40,7 +39,6 @@ export const Landing = () => {
       <>
         <SubtitleWrapper variant="subtitle1">{t('landing:welcome.text')}</SubtitleWrapper>
         <ParagraphWrapper variant="body1">{t('landing:welcome.description')}</ParagraphWrapper>
-        <Footer />
       </>
     );
   };
