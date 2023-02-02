@@ -1,13 +1,13 @@
 import { AlfrescoFileRequestBuilder } from './alfrescoRequestBuilder';
 import { FileDeleteRequest, FileDeleteRequestBody, FileStore } from './types';
-import { FormData } from 'formdata-node';
+import { ALBEvent } from 'aws-lambda';
 
-export const fileRequestBuilder = (nodeId: string, request: FormData, store?: FileStore) => {
+export const fileRequestBuilder = (event: ALBEvent, store?: FileStore) => {
   switch (store) {
     case FileStore.ALFRESCO:
     default:
       const alfrescoRequestBuilder = new AlfrescoFileRequestBuilder();
-      return alfrescoRequestBuilder.requestBuilder(nodeId, request);
+      return alfrescoRequestBuilder.requestBuilder(event);
   }
 };
 export const deleteFileRequestBuilder = (request: FileDeleteRequestBody, store?: FileStore): FileDeleteRequest => {
@@ -18,4 +18,3 @@ export const deleteFileRequestBuilder = (request: FileDeleteRequestBody, store?:
       return alfrescoRequestBuilder.deleteRequestBuilder(request);
   }
 };
-// TODO: Delete request builder

@@ -1,32 +1,43 @@
-import { getAlfrescoUrlBase } from '../../../utils/alfresco';
 import { FileDeleteRequest, FileDeleteRequestBody } from './types';
-import fetch from 'node-fetch';
-import { log } from '../../../utils/logger';
+import { FormData } from 'formdata-node';
+import { getAlfrescoOptions } from '../../../utils/alfresco';
+import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
+import { getUser } from '../../../utils/userService';
+import { ALBEvent } from 'aws-lambda';
+import { Blob } from 'buffer';
+import { FileInfo } from 'busboy';
 
-const postFile = async (data: FormData, nodeId: string) => {
-  log.info('postFile(), data : ');
-  log.info(data);
-  log.info(nodeId);
-  const url = `${getAlfrescoUrlBase()}/nodes/${nodeId}/children`;
-  const resp = await fetch(url, {
-    method: 'POST',
-    body: data,
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  console.log(resp);
-  return resp;
+const base64ToBuffer = (base64string: string) => {
+  const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
+  return buffer;
+};
+
+const bufferToBlob = (buffer: Buffer) => {
+  const blob = new Blob([buffer]);
+  return blob;
+};
+
+const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
+  const formData = new FormData();
+  const fileData: Blob = bufferToBlob(requestFormData.filedata as Buffer);
+  const fileInfo = requestFormData.fileinfo as FileInfo;
+  formData.append('filedata', fileData, fileInfo.filename);
+  formData.append('name', fileInfo.filename);
+  formData.append('nodeType', 'cm:content');
+  return formData;
 };
 
 export class AlfrescoFileRequestBuilder {
-  public async requestBuilder(nodeId: string, requestBody: FormData) {
-    log.info('requestBuilder, requestBody : ');
-    log.info(requestBody);
-
-    try {
-      await postFile(requestBody, nodeId);
-    } catch (error) {
-      console.log('request was aborted');
-    }
+  public async requestBuilder(event: ALBEvent) {
+    event.body = base64ToBuffer(event.body as string);
+    const user = await getUser(event);
+    const parsedForm = (await parseForm(event)) as ParsedFormDataOptions;
+    const options = {
+      method: 'POST',
+      body: createForm(parsedForm),
+      headers: (await getAlfrescoOptions(user.uid)).headers,
+    } as unknown as RequestInit;
+    return options;
   }
   public deleteRequestBuilder(requestParameters: FileDeleteRequestBody): FileDeleteRequest {
     throw new Error('Method not implemented.');

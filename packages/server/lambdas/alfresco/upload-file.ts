@@ -7,17 +7,22 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { fileRequestBuilder } from './fileRequestBuilder';
-import { FormData } from 'formdata-node';
-import { Blob } from 'node:buffer';
+import fetch from 'node-fetch';
+import { RequestInit } from 'node-fetch';
 
 const database = await DatabaseClient.build();
 
-let fileEndpointsCache: Array<CategoryDataBase> = [];
+const fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const base64ToBlob = (base64string: string) => {
-  const buffer = Buffer.from(base64string, 'base64');
-  const blob = new Blob([buffer]);
-  return blob;
+const postFile = async (options: RequestInit, nodeId: string) => {
+  const url = `https://api.testivaylapilvi.fi/alfresco/api/-default-/public/alfresco/versions/1/nodes/${nodeId}/children`;
+  try {
+    const res = await fetch(url, options);
+    const result = await res.text();
+    return result;
+  } catch (err) {
+    console.error('error:' + err);
+  }
 };
 
 /**
@@ -27,7 +32,7 @@ const base64ToBlob = (base64string: string) => {
  * @param {{string}} event.body File contents and metadata to upload
  * @returns  {Promise<ALBResult>} JSON stringified object of uploaded file metadata
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
   try {
     const paths = event.path.split('/');
     const category = paths.pop();
@@ -42,7 +47,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('Request body missing', 400);
     }
     if (!fileEndpointsCache.length) {
-      fileEndpointsCache = await database.categoryDataBase.findMany();
+      const categories = await database.categoryDataBase.findMany();
+      categories.forEach((category) => {
+        fileEndpointsCache.push(category);
+      });
     }
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
@@ -51,28 +59,18 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
+
     if (event.body) {
-      const blob = base64ToBlob(event.body);
-      const body = new FormData();
-      body.append('filedata', blob);
+      const requestOptions = (await fileRequestBuilder(event)) as RequestInit;
 
-      const response = await fileRequestBuilder('6a1200cb-5fc9-4364-b9bb-645c64c9e31e', body);
-
-      return {
-        statusCode: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(response),
-      };
+      await postFile(requestOptions, categoryData.alfrescoFolder).then((result) => {
+        return {
+          statusCode: 200,
+          headers: { 'Content-Type:': 'application/json' },
+          body: JSON.stringify(result),
+        };
+      });
     }
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify('Hello from here'),
-    };
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);
