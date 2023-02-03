@@ -60,18 +60,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
 
-    if (event.body) {
-      const headers = (await getAlfrescoOptions(user.uid)).headers;
-      const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
+    const headers = (await getAlfrescoOptions(user.uid)).headers;
+    const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
 
-      await postFile(requestOptions, categoryData.alfrescoFolder).then((result) => {
-        return {
-          statusCode: 200,
-          headers: { 'Content-Type:': 'application/json' },
-          body: JSON.stringify(result),
-        };
-      });
-    }
+    const result = await postFile(requestOptions, categoryData.alfrescoFolder);
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type:': 'application/json' },
+      body: JSON.stringify(result),
+    };
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);

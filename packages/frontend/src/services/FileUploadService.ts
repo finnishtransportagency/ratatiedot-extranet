@@ -5,10 +5,7 @@ const upload = (nodeId: string, file: File): Promise<any> => {
 
   formData.append('file', file);
 
-  return http.post(
-    `https://api.testivaylapilvi.fi/alfresco/api/-default-/public/alfresco/versions/1/nodes/${nodeId}/children`,
-    formData,
-  );
+  return http.post(`http://localhost:3004/api/alfresco/file/hallintaraportit`, formData);
 };
 
 const FileUploadService = {
