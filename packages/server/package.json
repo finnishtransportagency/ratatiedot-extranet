@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "test": "jest",
+    "test": "jest --config ./jest.config.js",
     "loadenv": "./loadenv"
   },
   "author": "",
@@ -32,6 +32,7 @@
     "@types/jwk-to-pem": "^2.0.1",
     "@types/mocha": "^10.0.0",
     "aws-sdk": "^2.1278.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",
     "mocha": "^10.0.0",
