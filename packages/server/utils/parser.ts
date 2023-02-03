@@ -8,35 +8,33 @@ export interface ParsedFormDataOptions {
 
 export const parseForm = (event: ALBEvent) => {
   return new Promise<ParsedFormDataOptions>((resolve, reject) => {
-    if (event.headers) {
-      const form = {} as ParsedFormDataOptions;
-      const bb = busboy({ headers: event.headers });
+    const form = {} as ParsedFormDataOptions;
+    const bb = busboy({ headers: event.headers });
 
-      // bb.on('field', (fieldname, val) => {
-      //   form[fieldname] = val;
-      // });
+    // bb.on('field', (fieldname, val) => {
+    //   form[fieldname] = val;
+    // });
 
-      bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
-        form.fieldname = fieldname;
-        form.file = file;
-        form.fileinfo = fileinfo as FileInfo;
+    bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
+      form.fieldname = fieldname;
+      form.file = file;
+      form.fileinfo = fileinfo as FileInfo;
 
-        file.on('data', (data: Buffer) => {
-          form[fieldname] = data;
-        });
-
-        file.on('end', () => console.log('File parse finished'));
+      file.on('data', (data: Buffer) => {
+        form[fieldname] = data;
       });
 
-      bb.on('finish', () => {
-        resolve(form);
-      });
+      file.on('end', () => console.log('File parse finished'));
+    });
 
-      bb.on('error', (err) => {
-        reject(err);
-      });
+    bb.on('finish', () => {
+      resolve(form);
+    });
 
-      bb.end(event.body);
-    }
+    bb.on('error', (err) => {
+      reject(err);
+    });
+
+    bb.end(event.body);
   });
 };

@@ -1,7 +1,7 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
-import { findEndpoint } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
@@ -61,7 +61,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     if (event.body) {
-      const requestOptions = (await fileRequestBuilder(event)) as RequestInit;
+      const headers = (await getAlfrescoOptions(user.uid)).headers;
+      const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
 
       await postFile(requestOptions, categoryData.alfrescoFolder).then((result) => {
         return {

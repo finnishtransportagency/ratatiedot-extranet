@@ -1,8 +1,6 @@
 import { FileDeleteRequest, FileDeleteRequestBody } from './types';
 import { FormData } from 'formdata-node';
-import { getAlfrescoOptions } from '../../../utils/alfresco';
 import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
-import { getUser } from '../../../utils/userService';
 import { ALBEvent } from 'aws-lambda';
 import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
@@ -28,14 +26,13 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
 };
 
 export class AlfrescoFileRequestBuilder {
-  public async requestBuilder(event: ALBEvent) {
+  public async requestBuilder(event: ALBEvent, headers: HeadersInit) {
     event.body = base64ToBuffer(event.body as string);
-    const user = await getUser(event);
     const parsedForm = (await parseForm(event)) as ParsedFormDataOptions;
     const options = {
       method: 'POST',
       body: createForm(parsedForm),
-      headers: (await getAlfrescoOptions(user.uid)).headers,
+      headers: headers,
     } as unknown as RequestInit;
     return options;
   }
