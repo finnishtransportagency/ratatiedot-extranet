@@ -12,7 +12,7 @@ import { RequestInit } from 'node-fetch';
 
 const database = await DatabaseClient.build();
 
-const fileEndpointsCache: Array<CategoryDataBase> = [];
+let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 const postFile = async (options: RequestInit, nodeId: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1`;
@@ -48,10 +48,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       throw new RataExtraLambdaError('Request body missing', 400);
     }
     if (!fileEndpointsCache.length) {
-      const categories = await database.categoryDataBase.findMany();
-      categories.forEach((category) => {
-        fileEndpointsCache.push(category);
-      });
+      fileEndpointsCache = await database.categoryDataBase.findMany();
     }
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
