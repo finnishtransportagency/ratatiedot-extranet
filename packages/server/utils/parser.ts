@@ -11,10 +11,6 @@ export const parseForm = (event: ALBEvent) => {
     const form = {} as ParsedFormDataOptions;
     const bb = busboy({ headers: event.headers });
 
-    // bb.on('field', (fieldname, val) => {
-    //   form[fieldname] = val;
-    // });
-
     bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
       form.fieldname = fieldname;
       form.file = file;
