@@ -1,7 +1,7 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
-import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
@@ -15,7 +15,8 @@ const database = await DatabaseClient.build();
 const fileEndpointsCache: Array<CategoryDataBase> = [];
 
 const postFile = async (options: RequestInit, nodeId: string) => {
-  const url = `https://api.testivaylapilvi.fi/alfresco/api/-default-/public/alfresco/versions/1/nodes/${nodeId}/children`;
+  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1`;
+  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
   try {
     const res = await fetch(url, options);
     const result = await res.text();
