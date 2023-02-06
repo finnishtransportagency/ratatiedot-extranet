@@ -1,11 +1,11 @@
-import http from 'axios';
+import axios from 'axios';
 
-const upload = (nodeId: string, file: File): Promise<any> => {
+const upload = async (node: string, file: File): Promise<any> => {
   let formData = new FormData();
 
   formData.append('file', file);
 
-  return http.post(`http://localhost:3004/api/alfresco/file/hallintaraportit`, formData);
+  return await axios.post(`/api/alfresco/file/${node}`, formData);
 };
 
 const FileUploadService = {
