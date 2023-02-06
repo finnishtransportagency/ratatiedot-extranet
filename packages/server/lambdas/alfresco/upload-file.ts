@@ -26,7 +26,7 @@ const postFile = async (options: RequestInit, nodeId: string) => {
 };
 
 /**
- * Update custom content for page. Example request: /api/alfresco/file/linjakaaviot
+ * Upload custom content for page. Example request: /api/alfresco/file/linjakaaviot
  * @param {ALBEvent} event
  * @param {{string}} event.path Path should end with the page to upload the file to
  * @param {{string}} event.body File contents and metadata to upload
