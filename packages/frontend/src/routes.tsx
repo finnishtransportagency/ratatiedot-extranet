@@ -30,96 +30,62 @@ import { MonitoringEquipment } from './pages/Others/MonitoringEquipment';
 import { DriverActivity } from './pages/Others/DriverActivity';
 import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
-import { getSubCategoryData } from './utils/helpers';
 
-const getProtectedRoute = (path: string, component: JSX.Element, pageTitle?: string) => ({
+const getProtectedRoute = (path: string, component: JSX.Element, handle?: any): RouteObject => ({
   path: path,
-  element: <ProtectedPage children={component} pageTitle={pageTitle} />,
+  element: <ProtectedPage children={component} />,
   errorElement: <RootBoundary />, // Send user here whenever error is thrown
   loader: async () => {
     // TODO: throw error if user has no permission
   },
+  handle: handle,
   children: [],
 });
 
 const HOME_ROUTE = getProtectedRoute(Routes.HOME, <Landing />);
 const SEARCH_ROUTE = getProtectedRoute(Routes.SEARCH_RESULT, <SearchResult />);
 
-const SubCategoryNames = getSubCategoryData();
-
 const DIAGRAMS_ROUTES = [
-  getProtectedRoute(Routes.LINE_DIAGRAMS, <LineDiagrams />, SubCategoryNames.LINE_DIAGRAMS),
-  getProtectedRoute(Routes.SPEED_DIAGRAMS, <SpeedDiagrams />, SubCategoryNames.SPEED_DIAGRAMS),
-  getProtectedRoute(Routes.TRACK_DIAGRAMS, <TrackDiagrams />, SubCategoryNames.TRACK_DIAGRAMS),
-  getProtectedRoute(Routes.GROUPING_DIAGRAMS, <GroupingDiagrams />, SubCategoryNames.GROUPING_DIAGRAMS),
+  getProtectedRoute(Routes.LINE_DIAGRAMS, <LineDiagrams />, { crum: (data: any) => <span>{data.threadName}</span> }),
+  getProtectedRoute(Routes.SPEED_DIAGRAMS, <SpeedDiagrams />),
+  getProtectedRoute(Routes.TRACK_DIAGRAMS, <TrackDiagrams />),
+  getProtectedRoute(Routes.GROUPING_DIAGRAMS, <GroupingDiagrams />),
 ];
 
 const OPERATION_ROUTES = [
-  getProtectedRoute(Routes.INTERCHANGE_DECISIONS, <InterchangeDecisions />, SubCategoryNames.INTERCHANGE_DECISIONS),
-  getProtectedRoute(Routes.RAILWAY_SIGNS, <RailwaySigns />, SubCategoryNames.RAILWAY_SIGNS),
-  getProtectedRoute(Routes.RAILWAY_ASSET_NUMBERS, <RailwayAssetNumbers />, SubCategoryNames.RAILWAY_ASSET_NUMBERS),
-  getProtectedRoute(Routes.RAILWAY_MAPS, <RailwayMaps />, SubCategoryNames.RAILWAY_MAPS),
-  getProtectedRoute(
-    Routes.RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS,
-    <RailwayInterchangeDevelopmentNeeds />,
-    SubCategoryNames.RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS,
-  ),
-  getProtectedRoute(Routes.ROUTE_DOCUMENTS, <RouteDocuments />, SubCategoryNames.ROUTE_DOCUMENTS),
-  getProtectedRoute(Routes.RINF_REGISTER, <RINFRegister />, SubCategoryNames.RINF_REGISTER),
-  getProtectedRoute(Routes.VAK_RAIL_DEPOT, <VAKRailDepot />, SubCategoryNames.VAK_RAIL_DEPOT),
+  getProtectedRoute(Routes.INTERCHANGE_DECISIONS, <InterchangeDecisions />),
+  getProtectedRoute(Routes.RAILWAY_SIGNS, <RailwaySigns />),
+  getProtectedRoute(Routes.RAILWAY_ASSET_NUMBERS, <RailwayAssetNumbers />),
+  getProtectedRoute(Routes.RAILWAY_MAPS, <RailwayMaps />),
+  getProtectedRoute(Routes.RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS, <RailwayInterchangeDevelopmentNeeds />),
+  getProtectedRoute(Routes.ROUTE_DOCUMENTS, <RouteDocuments />),
+  getProtectedRoute(Routes.RINF_REGISTER, <RINFRegister />),
+  getProtectedRoute(Routes.VAK_RAIL_DEPOT, <VAKRailDepot />),
 ];
 
 const SPECIALTY_STRUCTURES_ROUTES = [
-  getProtectedRoute(Routes.BRIDGE_INSPECTIONS, <BridgeInspections />, SubCategoryNames.BRIDGE_INSPECTIONS),
-  getProtectedRoute(
-    Routes.BRIDGE_MAINTENANCE_INSTRUCTIONS,
-    <BridgeMaintenanceInstructions />,
-    SubCategoryNames.BRIDGE_MAINTENANCE_INSTRUCTIONS,
-  ),
-  getProtectedRoute(Routes.TUNNELS, <Tunnels />, SubCategoryNames.TUNNELS),
-  getProtectedRoute(
-    Routes.RAILWAY_TUNNEL_RESCUE_PLANS,
-    <RailwayTunnelRescuePlans />,
-    SubCategoryNames.RAILWAY_TUNNEL_RESCUE_PLANS,
-  ),
+  getProtectedRoute(Routes.BRIDGE_INSPECTIONS, <BridgeInspections />),
+  getProtectedRoute(Routes.BRIDGE_MAINTENANCE_INSTRUCTIONS, <BridgeMaintenanceInstructions />),
+  getProtectedRoute(Routes.TUNNELS, <Tunnels />),
+  getProtectedRoute(Routes.RAILWAY_TUNNEL_RESCUE_PLANS, <RailwayTunnelRescuePlans />),
 ];
 
 const SAFETY_EQUIPMENT_ROUTES = [
-  getProtectedRoute(
-    Routes.SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS,
-    <MaintenanceInstructions />,
-    SubCategoryNames.SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS,
-  ),
-  getProtectedRoute(Routes.SAFETY_EQUIPMENT_MANUALS, <Manuals />, SubCategoryNames.SAFETY_EQUIPMENT_MANUALS),
+  getProtectedRoute(Routes.SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS, <MaintenanceInstructions />),
+  getProtectedRoute(Routes.SAFETY_EQUIPMENT_MANUALS, <Manuals />),
 ];
 
 const CONTACT_INFORMATION_ROUTES = [
-  getProtectedRoute(
-    Routes.INTERCHANGE_CONTACT_INFORMATION,
-    <InterchangeContactInformation />,
-    SubCategoryNames.INTERCHANGE_CONTACT_INFORMATION,
-  ),
-  getProtectedRoute(
-    Routes.TRAFFIC_CONTROL_CONTACT_INFORMATION,
-    <TrafficControl />,
-    SubCategoryNames.TRAFFIC_CONTROL_CONTACT_INFORMATION,
-  ),
+  getProtectedRoute(Routes.INTERCHANGE_CONTACT_INFORMATION, <InterchangeContactInformation />),
+  getProtectedRoute(Routes.TRAFFIC_CONTROL_CONTACT_INFORMATION, <TrafficControl />),
 ];
 
 const OTHERS_ROUTES = [
-  getProtectedRoute(Routes.MANAGEMENT_REPORTS, <ManagementReports />, SubCategoryNames.MANAGEMENT_REPORTS),
-  getProtectedRoute(Routes.MONITORING_EQUIPMENT, <MonitoringEquipment />, SubCategoryNames.MONITORING_EQUIPMENT),
-  getProtectedRoute(
-    Routes.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY,
-    <DriverActivity />,
-    SubCategoryNames.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY,
-  ),
-  getProtectedRoute(Routes.PLANNING_ARCHIVE, <PlanningArchive />, SubCategoryNames.PLANNING_ARCHIVE),
-  getProtectedRoute(
-    Routes.RAILWAY_MONITORING_SERVICE,
-    <RailwayMonitoringService />,
-    SubCategoryNames.RAILWAY_MONITORING_SERVICE,
-  ),
+  getProtectedRoute(Routes.MANAGEMENT_REPORTS, <ManagementReports />),
+  getProtectedRoute(Routes.MONITORING_EQUIPMENT, <MonitoringEquipment />),
+  getProtectedRoute(Routes.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY, <DriverActivity />),
+  getProtectedRoute(Routes.PLANNING_ARCHIVE, <PlanningArchive />),
+  getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
 ];
 
 const routes: RouteObject[] = [
