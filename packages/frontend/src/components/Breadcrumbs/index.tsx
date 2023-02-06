@@ -1,22 +1,28 @@
 import { Breadcrumbs, Link, Stack, Typography } from '@mui/material';
-import { useLocation, useMatches } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { Colors } from '../../constants/Colors';
+import { parseRouterName } from '../../utils/helpers';
 
 export const CustomBreadcrumbs = () => {
+  const { t } = useTranslation(['common']);
   const { pathname } = useLocation();
   const routerNames = pathname.split('/').slice(1);
 
-  const breadcrumbs = routerNames.map((routerName: string, index: number) => {
-    // if (index === 0) {
-    //   return (
-    //     <Typography key="0" color="text.primary">
-    //       {routerName}
-    //     </Typography>
-    //   );
-    // }
+  const BreadcrumbText = ({ routerName }: { routerName: string }) => {
     return (
-      <Link underline="hover" key={index} color={Colors.extrablack} href={pathname}>
-        {routerName}
+      <Typography sx={{ textTransform: 'capitalize', color: Colors.extrablack }}>
+        {parseRouterName(routerName) || t('common:page.frontpage')}
+      </Typography>
+    );
+  };
+
+  const breadcrumbs = routerNames.map((routerName: string, index: number) => {
+    return index === 0 ? (
+      <BreadcrumbText key={index} routerName={routerName} />
+    ) : (
+      <Link underline="hover" key={index} href={pathname}>
+        <BreadcrumbText routerName={routerName} />
       </Link>
     );
   });

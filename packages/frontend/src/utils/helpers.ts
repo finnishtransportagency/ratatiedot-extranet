@@ -127,3 +127,8 @@ export const getRouterName = (name: string) => {
     .replace(/ä/g, 'a')
     .replace(/ö/g, 'o');
 };
+
+// TODO: should return original page's title
+export const parseRouterName = (routerName: string) => {
+  return routerName.replace(/-/g, ' ');
+};
