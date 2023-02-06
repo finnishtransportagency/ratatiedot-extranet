@@ -40,15 +40,29 @@ export const Routes = {
   RAILWAY_TUNNEL_RESCUE_PLANS: `/${getRouterName(MainCategoryNames.SPECIALTY_STRUCTURES)}/${getRouterName(
     SubCategoryNames.RAILWAY_TUNNEL_RESCUE_PLANS,
   )}`,
-  SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS: `/${getRouterName(MainCategoryNames.SPECIALTY_STRUCTURES)}/${getRouterName(
-    MainCategoryNames.SAFETY_EQUIPMENT,
-  )}/${getRouterName(SubCategoryNames.SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS)}`,
-  SAFETY_EQUIPMENT_MANUALS: `/${getRouterName(SubCategoryNames.SAFETY_EQUIPMENT_MANUALS)}`,
-  INTERCHANGE_CONTACT_INFORMATION: `/${getRouterName(SubCategoryNames.INTERCHANGE_CONTACT_INFORMATION)}`,
-  TRAFFIC_CONTROL_CONTACT_INFORMATION: `/${getRouterName(SubCategoryNames.TRAFFIC_CONTROL_CONTACT_INFORMATION)}`,
-  MANAGEMENT_REPORTS: `/${getRouterName(SubCategoryNames.MANAGEMENT_REPORTS)}`,
-  MONITORING_EQUIPMENT: `/${getRouterName(SubCategoryNames.MONITORING_EQUIPMENT)}`,
-  REGIONAL_LIMITATIONS_DRIVER_ACTIVITY: `/${getRouterName(SubCategoryNames.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY)}`,
-  PLANNING_ARCHIVE: `/${getRouterName(SubCategoryNames.PLANNING_ARCHIVE)}`,
-  RAILWAY_MONITORING_SERVICE: `/${getRouterName(SubCategoryNames.RAILWAY_MONITORING_SERVICE)}`,
+  SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS: `/${getRouterName(MainCategoryNames.SAFETY_EQUIPMENT)}/${getRouterName(
+    SubCategoryNames.SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS,
+  )}`,
+  SAFETY_EQUIPMENT_MANUALS: `/${getRouterName(MainCategoryNames.SAFETY_EQUIPMENT)}/${getRouterName(
+    SubCategoryNames.SAFETY_EQUIPMENT_MANUALS,
+  )}`,
+  INTERCHANGE_CONTACT_INFORMATION: `/${getRouterName(MainCategoryNames.CONTACT_INFORMATION)}/${getRouterName(
+    SubCategoryNames.INTERCHANGE_CONTACT_INFORMATION,
+  )}`,
+  TRAFFIC_CONTROL_CONTACT_INFORMATION: `/${getRouterName(MainCategoryNames.CONTACT_INFORMATION)}/${getRouterName(
+    SubCategoryNames.TRAFFIC_CONTROL_CONTACT_INFORMATION,
+  )}`,
+  MANAGEMENT_REPORTS: `/${getRouterName(MainCategoryNames.OTHERS)}/${getRouterName(
+    SubCategoryNames.MANAGEMENT_REPORTS,
+  )}`,
+  MONITORING_EQUIPMENT: `/${getRouterName(MainCategoryNames.OTHERS)}/${getRouterName(
+    SubCategoryNames.MONITORING_EQUIPMENT,
+  )}`,
+  REGIONAL_LIMITATIONS_DRIVER_ACTIVITY: `/${getRouterName(MainCategoryNames.OTHERS)}/${getRouterName(
+    SubCategoryNames.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY,
+  )}`,
+  PLANNING_ARCHIVE: `/${getRouterName(MainCategoryNames.OTHERS)}/${getRouterName(SubCategoryNames.PLANNING_ARCHIVE)}`,
+  RAILWAY_MONITORING_SERVICE: `/${getRouterName(MainCategoryNames.OTHERS)}/${getRouterName(
+    SubCategoryNames.RAILWAY_MONITORING_SERVICE,
+  )}`,
 };
