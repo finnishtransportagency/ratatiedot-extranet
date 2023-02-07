@@ -31,14 +31,13 @@ import { DriverActivity } from './pages/Others/DriverActivity';
 import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
 
-const getProtectedRoute = (path: string, component: JSX.Element, handle?: any): RouteObject => ({
+const getProtectedRoute = (path: string, component: JSX.Element): RouteObject => ({
   path: path,
   element: <ProtectedPage children={component} />,
   errorElement: <RootBoundary />, // Send user here whenever error is thrown
   loader: async () => {
     // TODO: throw error if user has no permission
   },
-  handle: handle,
   children: [],
 });
 
@@ -46,7 +45,7 @@ const HOME_ROUTE = getProtectedRoute(Routes.HOME, <Landing />);
 const SEARCH_ROUTE = getProtectedRoute(Routes.SEARCH_RESULT, <SearchResult />);
 
 const DIAGRAMS_ROUTES = [
-  getProtectedRoute(Routes.LINE_DIAGRAMS, <LineDiagrams />, { crum: (data: any) => <span>{data.threadName}</span> }),
+  getProtectedRoute(Routes.LINE_DIAGRAMS, <LineDiagrams />),
   getProtectedRoute(Routes.SPEED_DIAGRAMS, <SpeedDiagrams />),
   getProtectedRoute(Routes.TRACK_DIAGRAMS, <TrackDiagrams />),
   getProtectedRoute(Routes.GROUPING_DIAGRAMS, <GroupingDiagrams />),
