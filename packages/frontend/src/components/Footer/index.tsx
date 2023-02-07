@@ -43,7 +43,7 @@ export const Footer = () => {
         <Grid item mobile={12} tablet={6} desktop={6}>
           <Typography variant="body1" sx={{ marginTop: '24px' }}>
             Väyläviraston julkinen verkkopalvelu
-            <Link href="https://vayla.fi/" target="_blank" style={LinkStyle}>
+            <Link href="https://vayla.fi/" target="_blank" rel="noopener noreferrer" style={LinkStyle}>
               vayla.fi
               <OpenInNewIcon sx={LinkIconStyle} />
             </Link>
@@ -52,7 +52,7 @@ export const Footer = () => {
         <Grid item mobile={12} tablet={6} desktop={6}>
           <Typography variant="body1" sx={{ marginTop: '24px' }}>
             Väyläviraston extranet-palvelu
-            <Link href="https://extranet.vayla.fi/" target="_blank" style={LinkStyle}>
+            <Link href="https://extranet.vayla.fi/" target="_blank" rel="noopener noreferrer" style={LinkStyle}>
               extranet.vayla.fi
               <OpenInNewIcon sx={LinkIconStyle} />
             </Link>
@@ -60,22 +60,47 @@ export const Footer = () => {
         </Grid>
       </Grid>
       <Typography variant="body1" sx={{ marginTop: '24px', textAlign: 'center' }}>
-        <Link href="https://www.facebook.com/vaylafi/" target="_blank" style={SocialMediaIconStyle}>
+        <Link
+          href="https://www.facebook.com/vaylafi/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={SocialMediaIconStyle}
+        >
           <Box component="img" src={FacebookIcon} alt="facebook" />
         </Link>
-        <Link href="https://twitter.com/vaylafi" target="_blank" style={SocialMediaIconStyle}>
+        <Link href="https://twitter.com/vaylafi" target="_blank" rel="noopener noreferrer" style={SocialMediaIconStyle}>
           <Box component="img" src={TwitterIcon} alt="twitter" />
         </Link>
-        <Link href="https://www.instagram.com/vaylafi/" target="_blank" style={SocialMediaIconStyle}>
+        <Link
+          href="https://www.instagram.com/vaylafi/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={SocialMediaIconStyle}
+        >
           <Box component="img" src={InstagramIcon} alt="instagram" />
         </Link>
-        <Link href="https://www.linkedin.com/company/vaylafi" target="_blank" style={SocialMediaIconStyle}>
+        <Link
+          href="https://www.linkedin.com/company/vaylafi"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={SocialMediaIconStyle}
+        >
           <Box component="img" src={LinkedinIcon} alt="linkedin" />
         </Link>
-        <Link href="https://www.flickr.com/photos/vaylafi" target="_blank" style={SocialMediaIconStyle}>
+        <Link
+          href="https://www.flickr.com/photos/vaylafi"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={SocialMediaIconStyle}
+        >
           <Box component="img" src={FlickrIcon} alt="flickr" />
         </Link>
-        <Link href="https://www.youtube.com/c/vaylafi" target="_blank" style={SocialMediaIconStyle}>
+        <Link
+          href="https://www.youtube.com/c/vaylafi"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={SocialMediaIconStyle}
+        >
           <Box component="img" src={YoutubeIcon} alt="youtube" />
         </Link>
       </Typography>
