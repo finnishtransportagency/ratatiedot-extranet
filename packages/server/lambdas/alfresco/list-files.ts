@@ -28,7 +28,7 @@ const searchByTermWithParent = async (uid: string, alfrescoParent: string, page:
       language: language,
       additionalFields: [AdditionalFields.PROPERTIES],
     });
-    const alfrescoSearchAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1/search/`;
+    const alfrescoSearchAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1/search`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
 
     const response = await axios.post(`${alfrescoSearchAPIUrl}`, bodyRequest, options);

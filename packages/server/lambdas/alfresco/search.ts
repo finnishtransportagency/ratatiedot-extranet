@@ -24,7 +24,7 @@ const searchByTerm = async (uid: string, body: QueryRequest) => {
       sort: body.sort,
     });
     log.debug(bodyRequest, 'Complete body request');
-    const alfrescoSearchAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1/search/`;
+    const alfrescoSearchAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1/search`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
 
     const response = await axios.post(alfrescoSearchAPIUrl, bodyRequest, options);
