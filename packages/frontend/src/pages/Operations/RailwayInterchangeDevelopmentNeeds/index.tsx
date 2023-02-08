@@ -1,3 +1,4 @@
+import { CategoryFiles } from '../../../components/Files/CategoryFiles';
 import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
 import { getSubCategoryData } from '../../../utils/helpers';
 
@@ -6,7 +7,8 @@ export const RailwayInterchangeDevelopmentNeeds = () => {
 
   return (
     <ProtectedContainerWrapper>
-      <PageTitleWrapper>{categoryNames.GROUPING_DIAGRAMS}</PageTitleWrapper>
+      <PageTitleWrapper>{categoryNames.RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS}</PageTitleWrapper>
+      <CategoryFiles categoryName={categoryNames.RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS} />
     </ProtectedContainerWrapper>
   );
 };

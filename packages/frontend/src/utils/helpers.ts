@@ -119,13 +119,7 @@ export const getSubCategoryData = (): SubCategoryData => {
  * @returns
  */
 export const getRouterName = (name: string) => {
-  return name
-    .replace(/\s/g, '-')
-    .replace(/--/g, '-')
-    .replace(/[()]/g, '')
-    .toLowerCase()
-    .replace(/ä/g, 'a')
-    .replace(/ö/g, 'o');
+  return name.replace(/\s/g, '-').replace(/[()]/g, '').toLowerCase().replace(/ä/g, 'a').replace(/ö/g, 'o');
 };
 
 // TODO: should return original page's title

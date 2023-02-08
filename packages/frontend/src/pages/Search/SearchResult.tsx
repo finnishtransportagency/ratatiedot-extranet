@@ -1,16 +1,17 @@
-import { Alert, Pagination, Typography } from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
+import { Pagination, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import { Tags } from '../../components/Tags';
 import { ProtectedContainerWrapper } from '../../styles/common';
-import { NodeItem } from './NodeItem';
+import { NodeItem } from '../../components/Files/File';
 import { TAlfrescoSearchProps, usePostAlfrescoSearch } from '../../hooks/query/Search';
 import { useContext } from 'react';
 import { SearchContext, SortingParameters } from '../../contexts/SearchContext';
 import { formatYear } from '../../utils/helpers';
 import { useSearchParams } from 'react-router-dom';
 import { mimeNamesMapping } from '../../constants/Data';
+import { Spinner } from '../../components/Spinner';
+import { ErrorMessage } from '../../components/Notification/ErrorMessage';
 
 export const SearchResult = () => {
   const { t } = useTranslation(['search', 'common']);
@@ -33,24 +34,9 @@ export const SearchResult = () => {
 
   const { isLoading, isError, error, data } = usePostAlfrescoSearch(searchParameter);
 
-  if (isLoading) {
-    return (
-      <ProtectedContainerWrapper>
-        <CircularProgress />
-      </ProtectedContainerWrapper>
-    );
-  }
+  if (isLoading) return <Spinner />;
 
-  if (isError) {
-    return (
-      <ProtectedContainerWrapper>
-        <Typography variant="subtitle1">
-          {t('search:search_results')} "{query}"
-        </Typography>
-        <Alert severity="error">{error?.message || t('common:error.500')}</Alert>
-      </ProtectedContainerWrapper>
-    );
-  }
+  if (isError) return <ErrorMessage title={`${t('search:search_results')} "${query}"`} error={error} />;
 
   return (
     <ProtectedContainerWrapper>
