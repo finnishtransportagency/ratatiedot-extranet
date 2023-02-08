@@ -57,7 +57,7 @@ export class RataExtraPipelineStack extends Stack {
       rolePolicyStatements: [
         new PolicyStatement({
           effect: Effect.ALLOW,
-          resources: [`arn:aws:s3:${this.region}:${this.account}:*`],
+          resources: ['arn:aws:s3:::'],
           actions: ['s3:GetObject'],
         }),
         new PolicyStatement({
