@@ -3,8 +3,8 @@ import { Box, ListItemText } from '@mui/material';
 import RataExtLogo from '../../assets/images/Logo_long.png';
 import { SubtitleWrapper, ParagraphWrapper } from '../AccessDenied/index.styles';
 import { ListWrapper, ListItemWrapper } from './index.styles';
-import { ContainerWrapper } from '../../styles/ContainerWrapper';
-import { ButtonWrapper as HomeButton } from '../../styles/ButtonWrapper';
+import { ContainerWrapper } from '../../styles/common';
+import { ButtonWrapper as HomeButton } from '../../styles/common';
 import { Routes } from '../../constants/Routes';
 import { useTranslation } from 'react-i18next';
 

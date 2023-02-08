@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import MuiAppBar from '@mui/material/AppBar';
-import { Box, Toolbar, Typography, Theme, CSSObject } from '@mui/material';
+import { Box, Toolbar, Theme, CSSObject } from '@mui/material';
 
 import { Colors } from '../../constants/Colors';
 import { Search } from '../Search';
@@ -8,6 +8,7 @@ import { drawerWidth } from '../../constants/Viewports';
 import { DrawerWrapperProps } from './DesktopDrawer';
 import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
+import { CustomBreadcrumbs } from '../Breadcrumbs';
 
 type DesktopAppBarProps = {
   pageTitle?: string;
@@ -19,9 +20,7 @@ export const DesktopAppBar = ({ pageTitle }: DesktopAppBarProps) => {
   const MainAppBar = () => {
     return (
       <>
-        <Typography variant="subtitle2" textTransform="capitalize">
-          {pageTitle || 'Etusivu'}
-        </Typography>
+        <CustomBreadcrumbs />
         <Box sx={{ flexGrow: 1 }} />
         <ToolbarWrapper>
           <Search isDesktop={true} />
