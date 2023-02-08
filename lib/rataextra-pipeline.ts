@@ -57,12 +57,12 @@ export class RataExtraPipelineStack extends Stack {
       rolePolicyStatements: [
         new PolicyStatement({
           effect: Effect.ALLOW,
-          resources: ['*'],
-          actions: ['s3:*'],
+          resources: [`arn:aws:s3:${this.region}:${this.account}:*`],
+          actions: ['s3:GetObject'],
         }),
         new PolicyStatement({
           effect: Effect.ALLOW,
-          resources: ['*'],
+          resources: [`arn:aws:kms:${this.region}:${this.account}:aws/ssm`],
           actions: ['kms:GenerateDataKey'],
         }),
       ],
