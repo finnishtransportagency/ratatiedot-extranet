@@ -1,11 +1,10 @@
-import { flatMapByKey } from '../../utils/helpers';
-import categoryData from '../../assets/data/aineistoluokka.json';
-import { FileFormats, FinnishRegions } from '../../constants/Data';
+import { flatMapByKey, getTranslatedCategoryData } from '../../utils/helpers';
+import categoryData from '../../assets/data/FinnishCategories.json';
+import { FileFormats } from '../../constants/Data';
 
 export enum SearchParameterName {
   MIME = 'mime',
-  REGION = 'region',
-  MATERIAL_CLASS = 'materialClass',
+  CATEGORY = 'category',
 }
 
 export interface IItem {
@@ -14,8 +13,6 @@ export interface IItem {
   items: string[];
 }
 
-// TODO: should this be hardcoded?
-// TODO: this is temporary, possible change in data format
 export const FilterSearchData: IItem[] = [
   {
     name: 'Muoto',
@@ -23,13 +20,8 @@ export const FilterSearchData: IItem[] = [
     items: FileFormats,
   },
   {
-    name: 'Alue',
-    type: SearchParameterName.REGION,
-    items: FinnishRegions,
-  },
-  {
     name: 'Aineistoluokka',
-    type: SearchParameterName.MATERIAL_CLASS,
-    items: flatMapByKey(categoryData, 'items'),
+    type: SearchParameterName.CATEGORY,
+    items: flatMapByKey(getTranslatedCategoryData(categoryData), 'subCategories'),
   },
 ];

@@ -32,6 +32,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly alfrescoAPIKey: string;
   readonly alfrescoAPIUrl: string;
   readonly alfrescoAncestor: string;
+  readonly mockUid?: string;
 }
 
 type ListenerTargetLambdas = {
@@ -85,6 +86,7 @@ export class RataExtraBackendStack extends NestedStack {
       alfrescoAPIKey,
       alfrescoAPIUrl,
       alfrescoAncestor,
+      mockUid,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -124,6 +126,7 @@ export class RataExtraBackendStack extends NestedStack {
         STACK_ID: stackId,
         ENVIRONMENT: rataExtraEnv,
         LOG_LEVEL: isFeatOrLocalStack(rataExtraEnv) ? 'debug' : 'info',
+        MOCK_UID: mockUid || '',
       },
       initialPolicy: [],
     };
@@ -223,7 +226,7 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     const alfrescoSearch = this.createNodejsLambda({
-      ...alfrescoParameters,
+      ...prismaAlfrescoCombinedParameters,
       name: 'alfresco-search',
       relativePath: '../packages/server/lambdas/alfresco/search.ts',
     });

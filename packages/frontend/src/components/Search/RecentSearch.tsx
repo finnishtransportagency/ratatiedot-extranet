@@ -24,8 +24,11 @@ export const RecentSearch = ({ exitSearch }: RecentSearchProps) => {
         <Typography key={index} variant="body1">
           <CustomLink
             to={`${Routes.SEARCH_RESULT}?query=${searchText}`}
-            onClick={() => {
+            onMouseDown={(e) => {
+              e.preventDefault();
               SearchStorage.add(KeyEnum.RECENT_SEARCHES, searchText);
+            }}
+            onClick={() => {
               exitSearch();
             }}
           >

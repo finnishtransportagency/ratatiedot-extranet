@@ -1,7 +1,5 @@
 export const FileFormats = ['PDF', 'Excel', 'Image', 'PowerPoint', 'Word', 'PlainText'];
 
-export const FinnishRegions = ['Etelä', 'Länsi', 'Itä', 'Pohjoinen'];
-
 export enum EMimeType {
   Excel = 'Excel',
   Image = 'Image',
@@ -17,4 +15,12 @@ export const mimeNamesMapping: { [name in EMimeType]: string } = {
   PDF: 'PDF',
   PowerPoint: 'PRESENTATION',
   PlainText: 'TXT',
+};
+
+export const SortDataType = {
+  ASC_NAME: 'ASC_NAME',
+  DESC_NAME: 'DESC_NAME',
+  ASC_MODIFIED: 'ASC_MODIFIED',
+  DESC_MODIFIED: 'DESC_MODIFIED',
+  NONE: 'NONE',
 };

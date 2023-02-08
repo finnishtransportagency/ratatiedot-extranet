@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { Box } from '@mui/material';
 
-export const ProtectedContainerWrapper = styled(Box)(({ theme }) => ({
+export const ContainerWrapper = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down('desktop')]: {
     display: 'block',
   },
@@ -13,7 +13,7 @@ export const ProtectedContainerWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const ContentWrapper = styled('div')(({ theme }) => ({
+export const ContentWrapper = styled(Box)(({ theme }) => ({
   width: '100%',
   [theme.breakpoints.up('desktop')]: {
     marginTop: '90px',

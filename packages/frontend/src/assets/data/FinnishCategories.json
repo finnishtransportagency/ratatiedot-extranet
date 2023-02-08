@@ -1,0 +1,61 @@
+[
+  {
+    "category": {
+      "DIAGRAMS": "Kaaviot"
+    },
+    "subCategories": {
+      "LINE_DIAGRAMS": "Linjakaaviot",
+      "SPEED_DIAGRAMS": "Nopeuskaaviot",
+      "TRACK_DIAGRAMS": "Raiteistokaaviot",
+      "GROUPING_DIAGRAMS": "Ryhmityskaaviot"
+    }
+  },
+  {
+    "category": {
+      "OPERATIONS": "Liikennöinti"
+    },
+    "subCategories": {
+      "INTERCHANGE_DECISIONS": "Liikennepaikkapäätökset",
+      "RAILWAY_SIGNS": "Paikantamismerkit risteysasemilla",
+      "RAILWAY_ASSET_NUMBERS": "Rataomaisuusnumerot",
+      "RAILWAY_MAPS": "Ratatietokartat",
+      "RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS": "Rautatieliikennepaikkojen kehitystarpeet",
+      "ROUTE_DOCUMENTS": "Reittikirjatiedot",
+      "RINF_REGISTER": "RINF-rekisteri (ERADIS-tunnus)",
+      "VAK_RAIL_DEPOT": "VAK-ratapihat"
+    }
+  },
+  {
+    "category": { "SPECIALTY_STRUCTURES": "Taitorakenteet" },
+    "subCategories": {
+      "BRIDGE_INSPECTIONS": "Siltatarkastukset",
+      "BRIDGE_MAINTENANCE_INSTRUCTIONS": "Siltojen kiskotus- ja kunnossapito-ohjeet",
+      "TUNNELS": "Tunnelitiedot",
+      "RAILWAY_TUNNEL_RESCUE_PLANS": "Rautatietunneleiden pelastussuunnitelmat"
+    }
+  },
+  {
+    "category": { "SAFETY_EQUIPMENT": "Turvalaitteet" },
+    "subCategories": {
+      "SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS": "Turvalaitteiden huolto-ohjeet",
+      "SAFETY_EQUIPMENT_MANUALS": "Turvalaitteiden käyttöohjeet"
+    }
+  },
+  {
+    "category": { "CONTACT_INFORMATION": "Yhteystiedot" },
+    "subCategories": {
+      "INTERCHANGE_CONTACT_INFORMATION": "Liikennepaikkojen yhteystiedot",
+      "TRAFFIC_CONTROL_CONTACT_INFORMATION": "Liikenteenohjauksen yhteystiedot"
+    }
+  },
+  {
+    "category": { "OTHERS": "Muut" },
+    "subCategories": {
+      "MANAGEMENT_REPORTS": "Hallintaraportit",
+      "MONITORING_EQUIPMENT": "Kaluston valvontalaitteet",
+      "REGIONAL_LIMITATIONS_DRIVER_ACTIVITY": "Pienimuotoisen kuljettajatoiminnan aluerajaukset",
+      "PLANNING_ARCHIVE": "Piirustusarkisto",
+      "RAILWAY_MONITORING_SERVICE": "Ratakuvapalvelu"
+    }
+  }
+]

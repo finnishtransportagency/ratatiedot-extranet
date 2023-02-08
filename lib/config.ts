@@ -38,6 +38,7 @@ export const SSM_DATABASE_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
 export const SSM_ALFRESCO_API_KEY = 'rataextra-alfresco-api-key';
 export const SSM_ALFRESCO_API_URL = 'rataextra-alfresco-api-url';
 const SSM_ALFRESCO_API_ANCESTOR = 'rataextra-alfresco-ancestor';
+const SSM_MOCK_UID = 'rataextra-static-test-user';
 
 // Minified JS code that is used to make ES modules working
 // Also handles __dirname & import.meta.url
@@ -61,6 +62,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   alfrescoApiUrl: getSSMStringParameter(scope, SSM_ALFRESCO_API_URL),
   alfrescoAPIKey: SSM_ALFRESCO_API_KEY,
   alfrescoAncestor: getSSMStringParameter(scope, SSM_ALFRESCO_API_ANCESTOR),
+  mockUid: getSSMStringParameter(scope, SSM_MOCK_UID),
 });
 
 // Runtime variables from SSM/Parameter Store

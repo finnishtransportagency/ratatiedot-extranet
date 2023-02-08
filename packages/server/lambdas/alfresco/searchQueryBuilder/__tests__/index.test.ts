@@ -1,9 +1,16 @@
 import { searchQueryBuilder } from '..';
-import { QueryLanguage } from '../types';
+import { QueryLanguage, SortingFieldParameter } from '../types';
 
 describe('searchQueryBuilder', () => {
   it("don't have additionalFields alongside query if not given", () => {
-    expect(searchQueryBuilder({ language: QueryLanguage.LUCENE, searchParameters: [], page: 0 })).toEqual({
+    expect(
+      searchQueryBuilder({
+        language: QueryLanguage.LUCENE,
+        searchParameters: [],
+        page: 0,
+        sort: [{ field: SortingFieldParameter.name, ascending: true }],
+      }),
+    ).toEqual({
       query: {
         language: 'lucene',
         query: '',
@@ -12,6 +19,7 @@ describe('searchQueryBuilder', () => {
         maxItems: 25,
         skipCount: 0,
       },
+      sort: [{ type: 'FIELD', field: 'cm:name', ascending: true }],
     });
   });
 });

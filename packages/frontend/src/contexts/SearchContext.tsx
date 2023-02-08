@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SearchParameterName } from '../components/Search/FilterSearchData';
+import { SortDataType } from '../constants/Data';
+
+export type Sorting = { field: string; ascending: boolean };
+export type SortingParameters = Sorting[] | [];
 
 export const SearchContext = React.createContext({
   query: '',
   queryHandler: (_: string) => {},
   savedCheckboxes: {
     [SearchParameterName.MIME]: [''],
-    [SearchParameterName.REGION]: [''],
-    [SearchParameterName.MATERIAL_CLASS]: [''],
+    [SearchParameterName.CATEGORY]: [''],
   },
   savedCheckboxesHandler: (checkboxes: any) => {},
   years: [null, null],
   yearsHandler: (from: any, to: any) => {},
   page: 0,
   pageHandler: (page: number) => {},
+  sort: [null],
+  sortHandler: (_: string) => {},
 });
 
 export const SearchContextProvider = (props: any) => {
@@ -25,18 +30,17 @@ export const SearchContextProvider = (props: any) => {
   const [years, setYears] = useState<any[]>([]);
   const [savedCheckboxes, setSavedCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>({
     [SearchParameterName.MIME]: [],
-    [SearchParameterName.REGION]: [],
-    [SearchParameterName.MATERIAL_CLASS]: [],
+    [SearchParameterName.CATEGORY]: [],
   });
   const [page, setPage] = useState<number>(0);
+  const [sort, setSort] = useState<any[]>([]);
 
   useEffect(() => {
     queryHandler(searchParams.get('query') || '');
     yearsHandler(null, null);
     savedCheckboxesHandler({
       [SearchParameterName.MIME]: [],
-      [SearchParameterName.REGION]: [],
-      [SearchParameterName.MATERIAL_CLASS]: [],
+      [SearchParameterName.CATEGORY]: [],
     });
     pageHandler(0);
   }, [searchParams]);
@@ -57,6 +61,27 @@ export const SearchContextProvider = (props: any) => {
     setPage(page);
   };
 
+  const sortHandler = (type: string) => {
+    const sortRequest = [];
+    switch (type) {
+      case SortDataType.ASC_NAME:
+        sortRequest.push({ field: 'name', ascending: true });
+        break;
+      case SortDataType.DESC_NAME:
+        sortRequest.push({ field: 'name', ascending: false });
+        break;
+      case SortDataType.ASC_MODIFIED:
+        sortRequest.push({ field: 'modified', ascending: true });
+        break;
+      case SortDataType.DESC_MODIFIED:
+        sortRequest.push({ field: 'modified', ascending: false });
+        break;
+      default:
+        break;
+    }
+    setSort(sortRequest);
+  };
+
   return (
     <SearchContext.Provider
       value={{
@@ -68,6 +93,8 @@ export const SearchContextProvider = (props: any) => {
         yearsHandler: yearsHandler,
         page: page,
         pageHandler: pageHandler,
+        sort: sort,
+        sortHandler: sortHandler,
       }}
     >
       {props.children}

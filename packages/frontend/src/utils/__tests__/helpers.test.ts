@@ -1,5 +1,12 @@
 import { LocaleLang } from '../../constants/Units';
-import { generateYearsBetween, flatMapByKey, splitYearsIntoChunks, getLocaleByteUnit } from '../helpers';
+import {
+  generateYearsBetween,
+  flatMapByKey,
+  splitYearsIntoChunks,
+  getLocaleByteUnit,
+  getTranslatedCategoryData,
+  getSubCategoryData,
+} from '../helpers';
 
 describe('Helpers Utility', () => {
   describe('generateYearsBetween()', () => {
@@ -39,6 +46,52 @@ describe('Helpers Utility', () => {
     it('should return empty array if `perChunk` is negative', () => {
       const years = generateYearsBetween(2018, 2022);
       expect(splitYearsIntoChunks(years, -1)).toEqual([]);
+    });
+  });
+
+  describe('getTranslatedCategoryData()', () => {
+    it('should return translated values for category and sub-categories', () => {
+      expect(
+        getTranslatedCategoryData([
+          { category: { ANIMALS: 'Eläimet' }, subCategories: { DOG: 'Koira', CAT: 'Kissa' } },
+          { category: { FLOWERS: 'Kukat' }, subCategories: { ROSE: 'Ruusu', DAISY: 'Päivänkakkara' } },
+        ]),
+      ).toEqual([
+        { category: 'Eläimet', subCategories: ['Koira', 'Kissa'] },
+        { category: 'Kukat', subCategories: ['Ruusu', 'Päivänkakkara'] },
+      ]);
+    });
+  });
+
+  describe('getSubCategoryData()', () => {
+    it('should return sub-categories', () => {
+      expect(getSubCategoryData()).toEqual({
+        BRIDGE_INSPECTIONS: 'Siltatarkastukset',
+        BRIDGE_MAINTENANCE_INSTRUCTIONS: 'Siltojen kiskotus- ja kunnossapito-ohjeet',
+        GROUPING_DIAGRAMS: 'Ryhmityskaaviot',
+        INTERCHANGE_CONTACT_INFORMATION: 'Liikennepaikkojen yhteystiedot',
+        INTERCHANGE_DECISIONS: 'Liikennepaikkapäätökset',
+        LINE_DIAGRAMS: 'Linjakaaviot',
+        MANAGEMENT_REPORTS: 'Hallintaraportit',
+        MONITORING_EQUIPMENT: 'Kaluston valvontalaitteet',
+        PLANNING_ARCHIVE: 'Piirustusarkisto',
+        RAILWAY_ASSET_NUMBERS: 'Rataomaisuusnumerot',
+        RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS: 'Rautatieliikennepaikkojen kehitystarpeet',
+        RAILWAY_MAPS: 'Ratatietokartat',
+        RAILWAY_MONITORING_SERVICE: 'Ratakuvapalvelu',
+        RAILWAY_SIGNS: 'Paikantamismerkit risteysasemilla',
+        RAILWAY_TUNNEL_RESCUE_PLANS: 'Rautatietunneleiden pelastussuunnitelmat',
+        REGIONAL_LIMITATIONS_DRIVER_ACTIVITY: 'Pienimuotoisen kuljettajatoiminnan aluerajaukset',
+        RINF_REGISTER: 'RINF-rekisteri (ERADIS-tunnus)',
+        ROUTE_DOCUMENTS: 'Reittikirjatiedot',
+        SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS: 'Turvalaitteiden huolto-ohjeet',
+        SAFETY_EQUIPMENT_MANUALS: 'Turvalaitteiden käyttöohjeet',
+        SPEED_DIAGRAMS: 'Nopeuskaaviot',
+        TRACK_DIAGRAMS: 'Raiteistokaaviot',
+        TRAFFIC_CONTROL_CONTACT_INFORMATION: 'Liikenteenohjauksen yhteystiedot',
+        TUNNELS: 'Tunnelitiedot',
+        VAK_RAIL_DEPOT: 'VAK-ratapihat',
+      });
     });
   });
 

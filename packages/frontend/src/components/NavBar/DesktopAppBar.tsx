@@ -1,26 +1,26 @@
 import styled from '@emotion/styled';
 import MuiAppBar from '@mui/material/AppBar';
-import { Box, Toolbar, Typography, Theme, CSSObject } from '@mui/material';
+import { Box, Toolbar, Theme, CSSObject } from '@mui/material';
 
 import { Colors } from '../../constants/Colors';
 import { Search } from '../Search';
 import { drawerWidth } from '../../constants/Viewports';
 import { DrawerWrapperProps } from './DesktopDrawer';
-import { useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
+import { CustomBreadcrumbs } from '../Breadcrumbs';
 
-export const DesktopAppBar = () => {
+type DesktopAppBarProps = {
+  pageTitle?: string;
+};
+
+export const DesktopAppBar = ({ pageTitle }: DesktopAppBarProps) => {
   const { openDrawer } = useContext(AppBarContext);
 
   const MainAppBar = () => {
-    const location = useLocation();
-    const pageName = location.pathname.split('/').length ? location.pathname.split('/')[1] : 'Ratatieto';
     return (
       <>
-        <Typography variant="subtitle2" textTransform="capitalize">
-          {pageName || 'Etusivu'}
-        </Typography>
+        <CustomBreadcrumbs />
         <Box sx={{ flexGrow: 1 }} />
         <ToolbarWrapper>
           <Search isDesktop={true} />

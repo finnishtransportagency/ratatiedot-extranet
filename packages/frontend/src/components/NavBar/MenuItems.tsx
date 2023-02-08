@@ -10,25 +10,16 @@ import WidgetsIcon from '@mui/icons-material/Widgets';
 import BrowserNotSupportedIcon from '@mui/icons-material/BrowserNotSupported';
 
 import { Routes } from '../../constants/Routes';
-import categoryData from '../../assets/data/aineistoluokka.json';
+import categoryData from '../../assets/data/FinnishCategories.json';
+import { getRouterName, getTranslatedCategoryData } from '../../utils/helpers';
 
 export interface IMenuItem {
   key: string;
   primary: string | JSX.Element;
   icon?: JSX.Element;
   to?: string;
-  children?: any;
+  children?: IMenuItem[];
 }
-
-export const getRouterName = (name: string) => {
-  return name
-    .replace(/\s/g, '-')
-    .replace(/--/g, '-')
-    .replace(/[()]/g, '')
-    .toLowerCase()
-    .replace(/ä/g, 'a')
-    .replace(/ö/g, 'o');
-};
 
 const fetchMaterialClass = (): IMenuItem[] => {
   const loadIcons = (category: string) => {
@@ -49,17 +40,17 @@ const fetchMaterialClass = (): IMenuItem[] => {
         return <BrowserNotSupportedIcon />;
     }
   };
-  return categoryData.map((data) => {
+  return getTranslatedCategoryData(categoryData).map((data) => {
     return {
       key: data.category,
       primary: data.category,
       icon: loadIcons(data.category),
-      children: data.items.map((item) => {
+      children: data.subCategories.map((item) => {
         return {
           key: item,
           primary: item,
-          // TODO: create page components. Route names may be changed
-          to: `/${getRouterName(item)}`,
+          // TODO: Route names may be changed
+          to: `/${getRouterName(data.category)}/${getRouterName(item)}`,
         };
       }),
     };

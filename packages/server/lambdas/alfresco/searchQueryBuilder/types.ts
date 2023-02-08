@@ -17,6 +17,7 @@ export enum SearchParameterName {
   MIME = 'mime',
   NAME = 'name',
   PARENT = 'parent',
+  CATEGORY = 'category', // aineistoluokka folder name
 }
 
 export type QueryRequest = {
@@ -24,6 +25,7 @@ export type QueryRequest = {
   page?: number;
   language: QueryLanguage;
   additionalFields?: Array<AdditionalFields>;
+  sort?: Array<SortingParameter>;
 };
 
 export type Query = {
@@ -33,6 +35,7 @@ export type Query = {
     language: QueryLanguage;
   };
   paging: Paging;
+  sort?: Sorting | Array<Sorting>;
 };
 
 export type Paging = {
@@ -42,6 +45,22 @@ export type Paging = {
 
 export enum AdditionalFields {
   PROPERTIES = 'properties',
+}
+
+export enum SortingFieldParameter {
+  name = 'name',
+  modified = 'modified',
+}
+
+export type SortingParameter = {
+  field: SortingFieldParameter;
+  ascending: boolean;
+};
+
+export interface Sorting {
+  type: 'FIELD';
+  field: string;
+  ascending: boolean;
 }
 
 interface IBaseSearchParameter {
@@ -69,8 +88,14 @@ export interface IParentSearchParameter extends IBaseSearchParameter {
   parent: string;
 }
 
+export interface ICategorySearchParameter extends IBaseSearchParameter {
+  parameterName: SearchParameterName.CATEGORY;
+  categoryName: string;
+}
+
 export type SearchParameter =
   | IModifiedSearchParameter
   | IMimeSearchParameter
   | INameSearchParameter
-  | IParentSearchParameter;
+  | IParentSearchParameter
+  | ICategorySearchParameter;

@@ -1,30 +1,22 @@
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { useState } from 'react';
+import { Fragment, useContext } from 'react';
+
 import { Colors } from '../../constants/Colors';
+import { AppBarContext } from '../../contexts/AppBarContext';
+import { MenuContext } from '../../contexts/MenuContext';
 
 import { IMenuItem, MenuItems } from './MenuItems';
 
-type MenuListProps = {
-  open: boolean;
-};
+export const MenuList = () => {
+  const { openDrawer, toggleDrawer } = useContext(AppBarContext);
+  const { menu, menuHandler } = useContext(MenuContext);
 
-export const MenuList = ({ open }: MenuListProps) => {
-  const resetMenu = () => {
-    let menuData = {};
-    MenuItems.forEach((item: IMenuItem) => {
-      menuData = {
-        ...menuData,
-        [item.key]: false,
-      };
-    });
-    return menuData;
-  };
-
-  const [menu, setMenu] = useState<{ [key: string]: boolean }>(resetMenu);
-
-  const handleClick = (key: string) => {
-    setMenu({ ...menu, [key]: !menu[key] });
+  const categoryHandler = (key: string) => {
+    menuHandler(key);
+    if (!openDrawer) {
+      toggleDrawer();
+    }
   };
 
   return (
@@ -32,16 +24,16 @@ export const MenuList = ({ open }: MenuListProps) => {
       {MenuItems.map((item: IMenuItem) => {
         const { key, primary, icon, to, children } = item;
         return (
-          <>
-            <ListItem disablePadding key={key} alignItems="flex-start" onClick={() => handleClick(key)}>
+          <Fragment key={key}>
+            <ListItem disablePadding alignItems="flex-start" onClick={() => categoryHandler(key)}>
               <ListItemButton href={to ? to : ''}>
                 <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={primary} sx={{ opacity: open ? 1 : 0 }} />
-                {children && (menu[key] ? <ExpandLess /> : <ExpandMore />)}
+                <ListItemText primary={primary} sx={{ opacity: openDrawer ? 1 : 0 }} />
+                {children && (menu[key as never] ? <ExpandLess /> : <ExpandMore />)}
               </ListItemButton>
             </ListItem>
             {children &&
-              menu[key] &&
+              menu[key as never] &&
               children.map((child: IMenuItem) => {
                 return (
                   <ListItemButton
@@ -53,7 +45,7 @@ export const MenuList = ({ open }: MenuListProps) => {
                   </ListItemButton>
                 );
               })}
-          </>
+          </Fragment>
         );
       })}
     </>

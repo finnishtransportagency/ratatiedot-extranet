@@ -13,7 +13,7 @@ export const MiniDrawer = () => {
   return (
     <MiniDrawerWrapper variant="persistent" anchor="left" open={openDrawer}>
       <Toolbar />
-      <MenuList open={openDrawer} />
+      <MenuList />
     </MiniDrawerWrapper>
   );
 };
