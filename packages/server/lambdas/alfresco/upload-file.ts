@@ -41,6 +41,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const user = await getUser(event);
     validateReadUser(user);
+    log.info(user, `Uploading file`);
 
     if (!category || paths.pop() !== 'file') {
       throw new RataExtraLambdaError('Category missing from path', 400);
@@ -55,8 +56,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     if (!categoryData) {
       throw new RataExtraLambdaError('Category not found', 404);
     }
-
-    log.info(user, `Uploading file to ${categoryData.alfrescoFolder}`);
 
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
