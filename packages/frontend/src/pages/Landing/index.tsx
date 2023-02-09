@@ -2,8 +2,8 @@ import { Typography } from '@mui/material';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ContainerWrapper, SubtitleWrapper, ParagraphWrapper } from './index.styles';
-import { ButtonWrapper } from '../../styles/ButtonWrapper';
+import { SubtitleWrapper, ParagraphWrapper } from './index.styles';
+import { ButtonWrapper, ProtectedContainerWrapper } from '../../styles/common';
 
 export const Landing = () => {
   const { t } = useTranslation(['common', 'landing']);
@@ -43,5 +43,5 @@ export const Landing = () => {
     );
   };
 
-  return <ContainerWrapper>{isFirstLogin ? <FirstLoginView /> : <LandingView />}</ContainerWrapper>;
+  return <ProtectedContainerWrapper>{isFirstLogin ? <FirstLoginView /> : <LandingView />}</ProtectedContainerWrapper>;
 };

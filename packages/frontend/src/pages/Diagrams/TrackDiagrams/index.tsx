@@ -1,3 +1,12 @@
+import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
+import { getSubCategoryData } from '../../../utils/helpers';
+
 export const TrackDiagrams = () => {
-  return <></>;
+  const categoryNames = getSubCategoryData();
+
+  return (
+    <ProtectedContainerWrapper>
+      <PageTitleWrapper>{categoryNames.TRACK_DIAGRAMS}</PageTitleWrapper>
+    </ProtectedContainerWrapper>
+  );
 };

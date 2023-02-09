@@ -57,3 +57,40 @@ type TSearchParameterBody =
   | TModifiedSearchParameter
   | TMimeSearchParameter
   | TCategorySearchParameter;
+
+type MainCategoryData = {
+  DIAGRAMS: string;
+  OPERATIONS: string;
+  SPECIALTY_STRUCTURES: string;
+  SAFETY_EQUIPMENT: string;
+  CONTACT_INFORMATION: string;
+  OTHERS: string;
+};
+
+type SubCategoryData = {
+  LINE_DIAGRAMS: string;
+  SPEED_DIAGRAMS: string;
+  TRACK_DIAGRAMS: string;
+  GROUPING_DIAGRAMS: string;
+  INTERCHANGE_DECISIONS: string;
+  RAILWAY_SIGNS: string;
+  RAILWAY_ASSET_NUMBERS: string;
+  RAILWAY_MAPS: string;
+  RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS: string;
+  ROUTE_DOCUMENTS: string;
+  RINF_REGISTER: string;
+  VAK_RAIL_DEPOT: string;
+  BRIDGE_INSPECTIONS: string;
+  BRIDGE_MAINTENANCE_INSTRUCTIONS: string;
+  TUNNELS: string;
+  RAILWAY_TUNNEL_RESCUE_PLANS: string;
+  SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS: string;
+  SAFETY_EQUIPMENT_MANUALS: string;
+  INTERCHANGE_CONTACT_INFORMATION: string;
+  TRAFFIC_CONTROL_CONTACT_INFORMATION: string;
+  MANAGEMENT_REPORTS: string;
+  MONITORING_EQUIPMENT: string;
+  REGIONAL_LIMITATIONS_DRIVER_ACTIVITY: string;
+  PLANNING_ARCHIVE: string;
+  RAILWAY_MONITORING_SERVICE: string;
+};

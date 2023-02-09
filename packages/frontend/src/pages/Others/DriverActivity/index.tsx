@@ -1,3 +1,12 @@
+import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
+import { getSubCategoryData } from '../../../utils/helpers';
+
 export const DriverActivity = () => {
-  return <></>;
+  const categoryNames = getSubCategoryData();
+
+  return (
+    <ProtectedContainerWrapper>
+      <PageTitleWrapper>{categoryNames.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY}</PageTitleWrapper>
+    </ProtectedContainerWrapper>
+  );
 };
