@@ -9,17 +9,18 @@ import { DatabaseClient } from '../database/client';
 import { fileRequestBuilder } from './fileRequestBuilder';
 import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
+import { AlfrescoResponse } from './fileRequestBuilder/types';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const postFile = async (options: RequestInit, nodeId: string) => {
+const postFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
   try {
     const res = await fetch(url, options);
-    const result = await res.text();
+    const result = (await res.json()) as AlfrescoResponse;
     return result;
   } catch (err) {
     console.error('error:' + err);
@@ -62,6 +63,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
 
     const result = await postFile(requestOptions, categoryData.alfrescoFolder);
+    log.info(user, `uploading file ${result?.entry.name} to ${categoryData.alfrescoFolder}`);
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
