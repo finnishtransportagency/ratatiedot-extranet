@@ -1,4 +1,4 @@
-import * as cdk from 'aws-cdk-lib';
+import { Stack } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
 import { RemovalPolicy, StackProps, Tags } from 'aws-cdk-lib';
@@ -15,7 +15,7 @@ interface RataExtraStackProps extends StackProps {
   readonly tags: { [key: string]: string };
 }
 
-export class RataExtraStack extends cdk.Stack {
+export class RataExtraStack extends Stack {
   #rataExtraStackIdentifier: string;
 
   constructor(scope: Construct, id: string, props: RataExtraStackProps) {

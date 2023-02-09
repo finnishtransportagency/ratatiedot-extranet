@@ -19,11 +19,13 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
-    const user = await getUser(event);
     const paths = event.path.split('/');
     const category = paths.pop();
+
+    const user = await getUser(event);
     log.info(user, `Fetching page contents for page ${category}`);
     validateReadUser(user);
+
     if (!category || paths.pop() !== 'page-contents') {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
@@ -36,6 +38,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     if (!categoryData) {
       throw new RataExtraLambdaError('Category not found', 404);
     }
+
     const contents = await database.categoryDataContents.findUnique({ where: { baseId: categoryData.id } });
 
     return {

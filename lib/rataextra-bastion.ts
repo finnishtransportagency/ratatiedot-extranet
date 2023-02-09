@@ -1,4 +1,4 @@
-import * as cdk from 'aws-cdk-lib';
+import { Stack, Fn } from 'aws-cdk-lib';
 import { StackProps } from 'aws-cdk-lib';
 import {
   SecurityGroup,
@@ -21,7 +21,7 @@ interface RataExtraBastionStackProps extends StackProps {
   readonly databaseDns?: string | undefined;
 }
 
-export class RataExtraBastionStack extends cdk.Stack {
+export class RataExtraBastionStack extends Stack {
   constructor(scope: Construct, id: string, props: RataExtraBastionStackProps) {
     super(scope, id, props);
     const { rataExtraEnv, albDns, databaseDns } = props;
@@ -49,7 +49,7 @@ export class RataExtraBastionStack extends cdk.Stack {
     ];
     if (databaseDns) {
       userDataCommands.push(
-        `nohup socat TCP4-LISTEN:5432,reuseaddr,fork TCP:${cdk.Fn.sub('${databaseDns}', {
+        `nohup socat TCP4-LISTEN:5432,reuseaddr,fork TCP:${Fn.sub('${databaseDns}', {
           databaseDns: databaseDns,
         })}:5432 &`,
       );

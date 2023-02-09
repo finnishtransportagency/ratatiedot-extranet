@@ -1,9 +1,10 @@
 import { SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
-import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
+import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import { Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
 import { getPipelineConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';
+import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 
 /**
  * The stack that defines the application pipeline
@@ -40,6 +41,38 @@ export class RataExtraPipelineStack extends Stack {
         },
       },
     });
+
+    const strip = new CodeBuildStep('StripAssetsFromAssembly', {
+      input: pipeline.cloudAssemblyFileSet,
+      commands: [
+        "cross_region_replication_buckets=$(grep BucketName cross-region-stack-* | awk -F 'BucketName' '{print $2}' | tr -d ': ' | tr -d '\"' | tr -d ',')",
+        'S3_PATH=${CODEBUILD_SOURCE_VERSION#"arn:aws:s3:::"}',
+        'ZIP_ARCHIVE=$(basename $S3_PATH)',
+        'rm -rf asset.*',
+        'zip -r -q -A $ZIP_ARCHIVE *',
+        'aws s3 cp $ZIP_ARCHIVE s3://$S3_PATH',
+        'object_location=${S3_PATH#*/}',
+        'for bucket in $cross_region_replication_buckets; do aws s3 cp $ZIP_ARCHIVE s3://$bucket/$object_location; done',
+      ],
+      // TODO use more accurate resource definition
+      rolePolicyStatements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          resources: ['arn:aws:s3:::*'],
+          actions: ['s3:GetObject', 's3:ListBucket', 's3:PutObject'],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          resources: [`arn:aws:kms:${this.region}:${this.account}:aws/ssm`],
+          actions: ['kms:GenerateDataKey'],
+        }),
+      ],
+    });
+
+    pipeline.addWave('BeforeStageDeploy', {
+      pre: [strip],
+    });
+
     pipeline.addStage(
       new RataExtraApplication(this, 'RataExtra', {
         stackId: config.stackId,

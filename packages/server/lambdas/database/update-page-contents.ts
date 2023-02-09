@@ -1,5 +1,6 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
+import { isEmpty } from 'lodash';
 import { findEndpoint } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
@@ -20,18 +21,20 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
-    const user = await getUser(event);
     const paths = event.path.split('/');
     const category = paths.pop();
     const body: Record<string, string> = event.body ? JSON.parse(event.body) : {};
     log.debug(`Request body: ${JSON.stringify(body)}`);
+
+    const user = await getUser(event);
     log.info(user, `Updating page contents for page ${category}`);
     validateReadUser(user);
+
     if (!category || paths.pop() !== 'page-contents') {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
-    if (!body) {
-      throw new RataExtraLambdaError('Fields missing', 400);
+    if (isEmpty(body)) {
+      throw new RataExtraLambdaError('Request body missing', 400);
     }
     if (!fileEndpointsCache.length) {
       fileEndpointsCache = await database.categoryDataBase.findMany();
