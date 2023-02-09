@@ -40,8 +40,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const category = paths.pop();
 
     const user = await getUser(event);
+    log.info(user, `Fetching files for ${JSON.stringify(event.queryStringParameters)}`);
     validateReadUser(user);
-    log.info(user, `Uploading file`);
 
     if (!category || paths.pop() !== 'file') {
       throw new RataExtraLambdaError('Category missing from path', 400);
