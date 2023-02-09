@@ -54,6 +54,7 @@ export class RataExtraPipelineStack extends Stack {
         'object_location=${S3_PATH#*/}',
         'for bucket in $cross_region_replication_buckets; do aws s3 cp $ZIP_ARCHIVE s3://$bucket/$object_location; done',
       ],
+      // TODO use more accurate resource definition
       rolePolicyStatements: [
         new PolicyStatement({
           effect: Effect.ALLOW,
