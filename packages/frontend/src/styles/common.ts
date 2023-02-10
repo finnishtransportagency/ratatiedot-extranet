@@ -31,8 +31,10 @@ export const PageTitleWrapper = styled(Typography)(({ theme }) => {
   return {
     fontWeight: 700,
     fontSize: '23px',
+    marginBottom: '25px',
     [theme.breakpoints.only('desktop')]: {
       fontSize: '28px',
+      marginBottom: '35px',
     },
   };
 });

@@ -1,3 +1,4 @@
+import { CategoryFiles } from '../../../components/Files/CategoryFiles';
 import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
 import { getSubCategoryData } from '../../../utils/helpers';
 
@@ -7,6 +8,7 @@ export const Tunnels = () => {
   return (
     <ProtectedContainerWrapper>
       <PageTitleWrapper>{categoryNames.TUNNELS}</PageTitleWrapper>
+      <CategoryFiles categoryName={categoryNames.TUNNELS} />
     </ProtectedContainerWrapper>
   );
 };
