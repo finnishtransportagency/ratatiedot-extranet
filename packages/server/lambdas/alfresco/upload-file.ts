@@ -16,7 +16,7 @@ const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 const postFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
-  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/arfresco/versions/1`;
+  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
   try {
     const res = await fetch(url, options);
