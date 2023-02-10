@@ -52,10 +52,10 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    log.info(user, `Fetching files for ${JSON.stringify(event.queryStringParameters)}`);
     validateReadUser(user);
     const params = event.queryStringParameters;
     const category = params?.category;
+    log.info(`User ${user.uid} is fetching files for page ${category}`);
     if (!category) {
       throw new RataExtraLambdaError('Category missing', 400);
     }

@@ -23,7 +23,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const category = paths.pop();
 
     const user = await getUser(event);
-    log.info(user, `Fetching page contents for page ${category}`);
+    log.info(`User ${user.uid} is fetching page contents for page ${category}`);
     validateReadUser(user);
 
     if (!category || paths.pop() !== 'page-contents') {

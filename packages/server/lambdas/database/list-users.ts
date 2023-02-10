@@ -12,7 +12,7 @@ const database = await DatabaseClient.build();
 export async function handleRequest(event: ALBEvent, _context: Context) {
   try {
     const user = await getUser(event);
-    log.info(user, 'Listing users');
+    log.info(`User ${user.uid} is listing users`);
     validateReadUser(user);
     const users = await database.user.findMany({ take: 10 });
     const response = {

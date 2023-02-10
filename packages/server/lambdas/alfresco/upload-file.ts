@@ -40,7 +40,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const category = paths.pop();
 
     const user = await getUser(event);
-    log.info(user, `Uploading files for ${JSON.stringify(event.queryStringParameters)}`);
+    log.info(`User ${user.uid} is uploading files for page ${category}`);
     validateReadUser(user);
 
     if (!category || paths.pop() !== 'file') {
@@ -64,7 +64,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
 
     const result = await postFile(requestOptions, categoryData.alfrescoFolder);
-    log.info(user, `Uploaded file ${result?.entry.name} to ${categoryData.alfrescoFolder}`);
+    log.info(`User ${user.uid} uploaded file ${result?.entry.name} to ${categoryData.alfrescoFolder}`);
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },

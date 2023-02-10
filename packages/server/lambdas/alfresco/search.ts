@@ -45,11 +45,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     validateReadUser(user);
     const { body } = event;
-    log.info(user, `Alfresco search: ${body}`);
     log.debug(body, 'POST body request');
     const parsedBody: QueryRequest = body ? JSON.parse(body) : {};
     log.debug(parsedBody, 'Body parsing...');
     const { searchParameters } = parsedBody;
+    log.info(`User ${user.uid} is searching Alfresco files with data ${searchParameters}`);
     // Currently, only accept one category
     const categoryParameter = searchParameters.find(
       (parameter: SearchParameter) => SearchParameterName.CATEGORY === parameter.parameterName.toLowerCase(),

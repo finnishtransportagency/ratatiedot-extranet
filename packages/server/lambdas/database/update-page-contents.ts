@@ -27,7 +27,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.debug(`Request body: ${JSON.stringify(body)}`);
 
     const user = await getUser(event);
-    log.info(user, `Updating page contents for page ${category}`);
+    log.info(`User ${user.uid} is updating page contents for page ${category}`);
     validateReadUser(user);
 
     if (!category || paths.pop() !== 'page-contents') {
