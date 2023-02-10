@@ -40,7 +40,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const category = paths.pop();
 
     const user = await getUser(event);
-    log.info(user, `Uploading files for ${JSON.stringify(event.queryStringParameters)}`);
+    log.info(user, `Uploading files for page ${category}`);
     validateReadUser(user);
 
     if (!category || paths.pop() !== 'file') {
