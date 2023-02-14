@@ -286,6 +286,7 @@ Add following values to Parameter Store for permanent environments:
 - **rataextra-cloudfront-signer-private-key**: Private RSA key used for signing CloudFront calls. Note! SecureString. E.g. -----BEGIN RSA PRIVATE KEY-----\nsecretstuff\n-----END RSA PRIVATE KEY-----
 - **rataextra-alfresco-api-key**: API Key for Alfresco API service, type: SecureString
 - **rataextra-alfresco-api-url**: URL for Alfresco API service
+- **rataextra-alfresco-download-url**: URL for downloading Alfresco file
 - **rataextra-alfresco-ancestor**: Root folder name in Alfresco
 
 ### Backend development
