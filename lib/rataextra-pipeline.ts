@@ -11,7 +11,7 @@ import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
  */
 export class RataExtraPipelineStack extends Stack {
   constructor(scope: Construct) {
-    const config = getPipelineConfig();
+    const config = getPipelineConfig(scope);
     super(scope, 'stack-pipeline-rataextra-' + config.stackId, {
       env: {
         region: 'eu-west-1',
