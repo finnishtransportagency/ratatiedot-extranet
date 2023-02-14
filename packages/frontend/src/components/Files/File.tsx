@@ -32,6 +32,7 @@ export const NodeItem = ({ node, row }: any) => {
   const { id, name, modifiedAt, content } = entry;
   const contentMimeType = get(content, 'mimeType', '');
   const contentSizeInBytes = get(content, 'sizeInBytes', 0);
+  const { REACT_APP_ALFRESCO_API_URL } = process.env;
 
   const matchMimeType = (mimeType: string) => {
     const foundMimeType = Object.entries(NodeTypes).find(([key]) => mimeType.indexOf(key) !== -1);
@@ -51,7 +52,7 @@ export const NodeItem = ({ node, row }: any) => {
       component="a"
       target="_blank"
       rel="noopener noreferrer"
-      href={`${process.env.REACT_APP_ALFRESCO_API_URL}/alfresco/versions/1/nodes/${id}/content?attachment=false`}
+      href={`${REACT_APP_ALFRESCO_API_URL}/alfresco/versions/1/nodes/${id}/content?attachment=false`}
     >
       <Grid item mobile={1} tablet={0.5} desktop={0.5}>
         <Box component="img" src={matchMimeType(contentMimeType)} alt="Logo" />
