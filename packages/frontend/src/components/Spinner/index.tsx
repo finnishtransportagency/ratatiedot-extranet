@@ -1,5 +1,10 @@
 import { CircularProgress } from '@mui/material';
+import { ProtectedContainerWrapper } from '../../styles/common';
 
 export const Spinner = () => {
-  return <CircularProgress />;
+  return (
+    <ProtectedContainerWrapper>
+      <CircularProgress />
+    </ProtectedContainerWrapper>
+  );
 };

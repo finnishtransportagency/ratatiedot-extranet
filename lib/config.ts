@@ -37,6 +37,7 @@ export const SSM_DATABASE_NAME = 'rataextra-database-name';
 export const SSM_DATABASE_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
 export const SSM_ALFRESCO_API_KEY = 'rataextra-alfresco-api-key';
 export const SSM_ALFRESCO_API_URL = 'rataextra-alfresco-api-url';
+const SSM_ALFRESCO_DOWNLOAD_URL = 'rataextra-alfresco-download-url';
 const SSM_ALFRESCO_API_ANCESTOR = 'rataextra-alfresco-ancestor';
 const SSM_MOCK_UID = 'rataextra-static-test-user';
 
@@ -66,13 +67,14 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
 });
 
 // Runtime variables from SSM/Parameter Store
-export const getPipelineConfig = () => {
+export const getPipelineConfig = (scope?: Construct) => {
   const env = getEnvOrFail('ENVIRONMENT');
   if (isRataExtraEnvironment(env)) {
     const branch = env === ENVIRONMENTS.prod ? PRODUCTION_BRANCH : getEnvOrFail('BRANCH');
     return {
       env,
       branch,
+      alfrescoDownloadUrl: scope ? getSSMStringParameter(scope, SSM_ALFRESCO_DOWNLOAD_URL) : '',
       stackId: getStackId(branch),
       authenticationToken: 'github-token',
       tags: {

@@ -65,7 +65,7 @@ Check node version. You can use `nvm use` to automatically set the right version
 npm run bootstrap
 ```
 
-Create `.env.development` file in server package and copy from `.env.example` to `.env.development`.
+Create `.env` file in server package and copy from `.env.example` to `.env`.
 
 To install dependencies that only frontend or backend use, run command in the root repository:
 
@@ -286,6 +286,7 @@ Add following values to Parameter Store for permanent environments:
 - **rataextra-cloudfront-signer-private-key**: Private RSA key used for signing CloudFront calls. Note! SecureString. E.g. -----BEGIN RSA PRIVATE KEY-----\nsecretstuff\n-----END RSA PRIVATE KEY-----
 - **rataextra-alfresco-api-key**: API Key for Alfresco API service, type: SecureString
 - **rataextra-alfresco-api-url**: URL for Alfresco API service
+- **rataextra-alfresco-download-url**: URL for downloading Alfresco file
 - **rataextra-alfresco-ancestor**: Root folder name in Alfresco
 
 ### Backend development

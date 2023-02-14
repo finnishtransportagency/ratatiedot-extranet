@@ -11,7 +11,7 @@ import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
  */
 export class RataExtraPipelineStack extends Stack {
   constructor(scope: Construct) {
-    const config = getPipelineConfig();
+    const config = getPipelineConfig(scope);
     super(scope, 'stack-pipeline-rataextra-' + config.stackId, {
       env: {
         region: 'eu-west-1',
@@ -29,7 +29,7 @@ export class RataExtraPipelineStack extends Stack {
         }),
         installCommands: ['npm run ci --user=root'],
         commands: [
-          'npm run build:frontend',
+          `npm run build:frontend --alfrescoDownloadUrl=${config.alfrescoDownloadUrl}`,
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
         ],
       }),
