@@ -62,19 +62,19 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   jwtTokenIssuer: getSSMStringParameter(scope, SSM_JWT_TOKEN_ISSUER),
   alfrescoApiUrl: getSSMStringParameter(scope, SSM_ALFRESCO_API_URL),
   alfrescoAPIKey: SSM_ALFRESCO_API_KEY,
+  alfrescoDownloadUrl: getSSMStringParameter(scope, SSM_ALFRESCO_DOWNLOAD_URL),
   alfrescoAncestor: getSSMStringParameter(scope, SSM_ALFRESCO_API_ANCESTOR),
   mockUid: getSSMStringParameter(scope, SSM_MOCK_UID),
 });
 
 // Runtime variables from SSM/Parameter Store
-export const getPipelineConfig = (scope?: Construct) => {
+export const getPipelineConfig = () => {
   const env = getEnvOrFail('ENVIRONMENT');
   if (isRataExtraEnvironment(env)) {
     const branch = env === ENVIRONMENTS.prod ? PRODUCTION_BRANCH : getEnvOrFail('BRANCH');
     return {
       env,
       branch,
-      alfrescoDownloadUrl: scope ? getSSMStringParameter(scope, SSM_ALFRESCO_DOWNLOAD_URL) : '',
       stackId: getStackId(branch),
       authenticationToken: 'github-token',
       tags: {
