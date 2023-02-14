@@ -2,7 +2,7 @@ import { SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import { Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
-import { getPipelineConfig, RataExtraEnvironment } from './config';
+import { getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';
 import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 
@@ -11,13 +11,14 @@ import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
  */
 export class RataExtraPipelineStack extends Stack {
   constructor(scope: Construct) {
-    const config = getPipelineConfig(scope);
+    const config = getPipelineConfig();
     super(scope, 'stack-pipeline-rataextra-' + config.stackId, {
       env: {
         region: 'eu-west-1',
       },
       tags: config.tags,
     });
+    const { alfrescoDownloadUrl } = getRataExtraStackConfig(this);
 
     const oauth = SecretValue.secretsManager(config.authenticationToken);
 
@@ -29,7 +30,7 @@ export class RataExtraPipelineStack extends Stack {
         }),
         installCommands: ['npm run ci --user=root'],
         commands: [
-          `npm run build:frontend --alfrescoDownloadUrl=${config.alfrescoDownloadUrl}`,
+          `npm run build:frontend --alfrescoDownloadUrl=${alfrescoDownloadUrl}`,
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
         ],
       }),
