@@ -11,7 +11,8 @@
   "action": {
     "accept": "Hyväksy",
     "back": "Takaisin",
-    "go_home": "Siirry etusivulle"
+    "go_home": "Siirry etusivulle",
+    "load_more": "Lataa lisää"
   },
   "error": {
     "500": "Jokin meni pieleen!"

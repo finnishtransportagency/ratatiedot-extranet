@@ -6,12 +6,14 @@ import { Spinner } from '../Spinner';
 import { useLayoutEffect, useState } from 'react';
 import { ButtonWrapper } from '../../styles/common';
 import { get } from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 type TCategoryFilesProps = {
   categoryName: string;
 };
 
 export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
+  const { t } = useTranslation(['common']);
   const [fileList, setFileList] = useState<any[]>([]);
   const [page, setPage] = useState(0);
   const { isLoading, isError, error, data } = useGetCategoryFiles({
@@ -41,7 +43,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
       ))}
       {data.list.pagination.hasMoreItems && (
         <ButtonWrapper color="primary" variant="outlined" onClick={loadMore}>
-          Lataa lisää
+          {t('common:action.load_more')}
         </ButtonWrapper>
       )}
     </>
