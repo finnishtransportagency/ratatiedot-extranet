@@ -8,7 +8,7 @@
     "prepare": "husky install",
     "bootstrap": "npx lerna bootstrap --force-local",
     "build": "npx lerna run build",
-    "build:frontend": "cross-env REACT_APP_ALFRESCO_DOWNLOAD_URL=$npm_config_alfrescoDownloadUrl npm --prefix packages/frontend run build",
+    "build:frontend": "npm --prefix packages/frontend run build",
     "ci": "npx lerna bootstrap --ci",
     "dev-client": "cd packages/frontend && npm start",
     "dev-server": "cd packages/server && npm start",
