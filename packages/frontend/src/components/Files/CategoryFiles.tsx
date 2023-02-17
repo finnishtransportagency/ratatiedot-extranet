@@ -1,13 +1,15 @@
-import { useGetCategoryFiles } from '../../hooks/query/CategoryFiles';
 import { NodeItem } from './File';
 import { getRouterName } from '../../utils/helpers';
 import { ErrorMessage } from '../Notification/ErrorMessage';
 import { Spinner } from '../Spinner';
-import { useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ButtonWrapper } from '../../styles/common';
 import { get } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { TNode } from '../../types/types';
+import { Typography } from '@mui/material';
+import { Colors } from '../../constants/Colors';
+import axios from 'axios';
 
 type TCategoryFilesProps = {
   categoryName: string;
@@ -17,32 +19,55 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   const { t } = useTranslation(['common']);
   const [fileList, setFileList] = useState<TNode[]>([]);
   const [page, setPage] = useState(0);
-  const { isLoading, isError, error, data } = useGetCategoryFiles({
-    routerName: getRouterName(categoryName),
-    page: page,
-  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState();
+  const [totalFiles, setTotalFiles] = useState(0);
+  const [hasMoreItems, setHasMoreItems] = useState(false);
 
-  useLayoutEffect(() => {
-    const entries = get(data, 'list.entries', []);
-    if (entries.length) {
+  const getCategoryFiles = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`);
+      const data = response.data;
+      const totalFiles = get(data, 'list.entries', []);
+      const totalItems = get(data, 'list.pagination.totalItems', 0);
+      const hasMoreItems = get(data, 'list.pagination.hasMoreItems', false);
+
       setFileList((f) => {
-        return [...f, ...data.list.entries];
+        return page > 0 ? [...f, ...totalFiles] : [...totalFiles];
       });
+      setTotalFiles(totalItems);
+      setHasMoreItems(hasMoreItems);
+    } catch (err: any) {
+      setError(err);
+    } finally {
+      setLoading(false);
     }
-  }, [data]);
+  }, [categoryName, page]);
+
+  useEffect(() => {
+    setPage(0); // Reset page to 0 for saving file in development
+    getCategoryFiles();
+  }, []);
+
+  useEffect(() => {
+    getCategoryFiles();
+  }, [page]);
 
   const loadMore = () => setPage(page + 1);
 
-  if (isLoading) return <Spinner />;
-
-  if (isError) return <ErrorMessage error={error} />;
+  if (error) return <ErrorMessage error={error} />;
 
   return (
     <>
       {fileList.map((node: TNode, index: number) => (
         <NodeItem key={index} row={index} node={node} />
       ))}
-      {data.list.pagination.hasMoreItems && (
+      {loading && <Spinner />}
+      <Typography sx={{ color: Colors.darkgrey }}>
+        Näytetään {fileList.length}/{totalFiles} tulosta
+      </Typography>
+      {hasMoreItems && (
         <ButtonWrapper color="primary" variant="outlined" onClick={loadMore}>
           {t('common:action.load_more')}
         </ButtonWrapper>
