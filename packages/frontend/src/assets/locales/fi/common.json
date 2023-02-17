@@ -11,12 +11,18 @@
   "action": {
     "accept": "Hyväksy",
     "back": "Takaisin",
-    "go_home": "Siirry etusivulle"
+    "go_home": "Siirry etusivulle",
+    "next": "Seuraava",
+    "cancel": "Peruuta"
   },
   "error": {
     "500": "Jokin meni pieleen!"
   },
   "loading": {
     "logging_out": "Kirjaudutaan ulos..."
+  },
+  "file": {
+    "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
+    "add_file": "Lisää tiedosto"
   }
 }
