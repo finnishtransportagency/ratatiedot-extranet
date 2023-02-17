@@ -7,6 +7,7 @@ import { useLayoutEffect, useState } from 'react';
 import { ButtonWrapper } from '../../styles/common';
 import { get } from 'lodash';
 import { useTranslation } from 'react-i18next';
+import { TNode } from '../../types/types';
 
 type TCategoryFilesProps = {
   categoryName: string;
@@ -14,7 +15,7 @@ type TCategoryFilesProps = {
 
 export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   const { t } = useTranslation(['common']);
-  const [fileList, setFileList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<TNode[]>([]);
   const [page, setPage] = useState(0);
   const { isLoading, isError, error, data } = useGetCategoryFiles({
     routerName: getRouterName(categoryName),
@@ -38,7 +39,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
 
   return (
     <>
-      {fileList.map((node: any, index: number) => (
+      {fileList.map((node: TNode, index: number) => (
         <NodeItem key={index} row={index} node={node} />
       ))}
       {data.list.pagination.hasMoreItems && (
