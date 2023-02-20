@@ -94,3 +94,14 @@ type SubCategoryData = {
   PLANNING_ARCHIVE: string;
   RAILWAY_MONITORING_SERVICE: string;
 };
+
+type TNode = {
+  entry: {
+    id: string;
+    name: string;
+    modifiedAt: string;
+    nodeType: string;
+    content: any;
+    parentId: string;
+  };
+};

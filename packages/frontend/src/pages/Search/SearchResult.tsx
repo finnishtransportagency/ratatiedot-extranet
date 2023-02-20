@@ -12,6 +12,7 @@ import { useSearchParams } from 'react-router-dom';
 import { mimeNamesMapping } from '../../constants/Data';
 import { Spinner } from '../../components/Spinner';
 import { ErrorMessage } from '../../components/Notification/ErrorMessage';
+import { TNode } from '../../types/types';
 
 export const SearchResult = () => {
   const { t } = useTranslation(['search', 'common']);
@@ -48,7 +49,7 @@ export const SearchResult = () => {
         {data.list.pagination.totalItems} {t('search:results')}
       </Typography>
       <div style={{ marginLeft: '18px' }}>
-        {data.list.entries.map((node: any, index: number) => (
+        {data.list.entries.map((node: TNode, index: number) => (
           <NodeItem key={index} row={index} node={node} />
         ))}
       </div>
