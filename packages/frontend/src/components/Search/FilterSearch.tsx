@@ -93,13 +93,23 @@ export const FilterSearch = () => {
   const { t } = useTranslation(['search']);
   const { openFilter, toggleFilter } = useContext(AppBarContext);
 
-  const { savedCheckboxes, savedCheckboxesHandler, years, yearsHandler, sort, sortHandler, pageHandler } =
-    useContext(SearchContext);
+  const {
+    savedCheckboxes,
+    savedCheckboxesHandler,
+    years,
+    yearsHandler,
+    sort,
+    sortHandler,
+    pageHandler,
+    contentSearch,
+    contentSearchHandler,
+  } = useContext(SearchContext);
   const [from, setFrom] = useState<Date | null>(years[0] ? years[0] : null);
   const [to, setTo] = useState<Date | null>(years[1] ? years[1] : null);
   // Currently, sort array contains only 1 object
   const [sortType, setSortType] = useState<string>(() => mapSortTypeToValue(sort[0]));
   const [checkboxes, setCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>(savedCheckboxes);
+  const [isContentSearched, setIsContentSearched] = useState(contentSearch);
 
   const clearFilters = () => {
     setFrom(null);
@@ -109,6 +119,7 @@ export const FilterSearch = () => {
       [SearchParameterName.MIME]: [],
       [SearchParameterName.CATEGORY]: [],
     });
+    setIsContentSearched(false);
   };
 
   const handleCheckboxes = (name: SearchParameterName, value: EMimeType) => {
@@ -130,6 +141,7 @@ export const FilterSearch = () => {
     savedCheckboxesHandler(checkboxes);
     yearsHandler(from, to);
     sortHandler(sortType);
+    contentSearchHandler(isContentSearched);
     // reset pagination
     pageHandler(0);
     toggleFilter();
@@ -152,6 +164,21 @@ export const FilterSearch = () => {
         </Button>
       </Toolbar>
       <Box>
+        <ListItem>
+          <ListItemText disableTypography>
+            <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
+              {t('search:content_search')}
+            </Typography>
+          </ListItemText>
+        </ListItem>
+        <ListItem>
+          <Checkbox
+            defaultChecked={contentSearch}
+            checked={isContentSearched}
+            onChange={() => setIsContentSearched(!isContentSearched)}
+          />
+          <ListItemText primary={t('search:content_search_checkbox')} />
+        </ListItem>
         <ListItem>
           <ListItemText disableTypography>
             <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
