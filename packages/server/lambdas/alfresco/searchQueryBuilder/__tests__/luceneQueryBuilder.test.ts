@@ -121,10 +121,20 @@ describe('Lucene Query Builder', () => {
       const parameters: Array<SearchParameter> = [
         {
           parameterName: SearchParameterName.NAME,
-          fileName: 'test',
+          term: 'test',
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+@cm\\:name:"test*"');
+    });
+    it('should return query for content search', () => {
+      const parameters: Array<SearchParameter> = [
+        {
+          parameterName: SearchParameterName.NAME,
+          term: 'test',
+          contentSearch: true,
+        },
+      ];
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+TEXT:"test*"');
     });
     it('should return query for parent', () => {
       const parameters: Array<SearchParameter> = [

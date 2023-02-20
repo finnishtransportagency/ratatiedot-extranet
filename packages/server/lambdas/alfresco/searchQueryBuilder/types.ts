@@ -80,7 +80,8 @@ export interface IMimeSearchParameter extends IBaseSearchParameter {
 
 export interface INameSearchParameter extends IBaseSearchParameter {
   parameterName: SearchParameterName.NAME;
-  fileName: string;
+  term: string;
+  contentSearch?: boolean;
 }
 
 export interface IParentSearchParameter extends IBaseSearchParameter {
