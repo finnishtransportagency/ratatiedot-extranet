@@ -16,7 +16,7 @@ type TCategoryFilesProps = {
 };
 
 export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
-  const { t } = useTranslation(['common']);
+  const { t } = useTranslation(['common', 'search']);
   const [fileList, setFileList] = useState<TNode[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -65,7 +65,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
       ))}
       {loading && <Spinner />}
       <Typography sx={{ color: Colors.darkgrey }}>
-        Näytetään {fileList.length}/{totalFiles} tulosta
+        {t('search:show_results', { files: fileList.length, total: totalFiles })}
       </Typography>
       {hasMoreItems && (
         <ButtonWrapper color="primary" variant="outlined" onClick={loadMore}>
