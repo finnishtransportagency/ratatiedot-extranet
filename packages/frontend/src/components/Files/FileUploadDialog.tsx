@@ -125,7 +125,7 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
                   </Collapse>
                 </div>
               ) : (
-                'File not selected '
+                t('common:file.file_not_selected')
               )}
               <Box sx={{ display: 'flex' }}>
                 <ButtonWrapper

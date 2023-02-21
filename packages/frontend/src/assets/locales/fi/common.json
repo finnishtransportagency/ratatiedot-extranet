@@ -27,6 +27,7 @@
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
     "add_file": "Lisää tiedosto",
     "description": "Selitysteksti",
-    "more_actions": "Valinnaiset toiminnot"
+    "more_actions": "Valinnaiset toiminnot",
+    "file_not_selected": "Tiedostoa ei valittu"
   }
 }
