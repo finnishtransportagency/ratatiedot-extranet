@@ -1,39 +1,70 @@
-import { Box, Typography } from '@mui/material';
-import { FileModal } from '../Modal/FileModal';
-import { FileInput } from '../FormInput/FileInput';
+import { useState } from 'react';
+import { format } from 'date-fns';
+import prettyBytes from 'pretty-bytes';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
+
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CheckIcon from '@mui/icons-material/CheckSharp';
+import { Box, Collapse, IconButton, TextField, Typography } from '@mui/material';
+
+import { LocaleLang } from '../../constants/Units';
+import { DateFormat } from '../../constants/Formats';
+import { uploadFile } from '../../services/FileUploadService';
 import { ButtonWrapper } from '../../styles/common';
-import { useEffect, useState } from 'react';
+import { getLocaleByteUnit } from '../../utils/helpers';
+
+import { FileInput } from '../FileInput/FileInput';
+import { FileModal } from '../Modal/FileModal';
+
+import './styles.css';
 
 interface FileUploadProps {
   categoryName: string;
 }
 
-const uploadFile = async () => {
-  // await fetch('/', {
-  //   method: 'POST',
-  // });
-};
-
 export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
   const { t } = useTranslation(['common']);
-  const [childData, setChildData] = useState<any>({ target: { value: '' } });
+  const { pathname } = useLocation();
+
+  const [file, setFile] = useState<File>();
+  const [name, setName] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
   const [dialogPhase, setPhase] = useState<string>('select-file');
-  useEffect(() => console.log(childData.target.value), [childData]);
+  const [expanded, setExpanded] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(true);
+
+  const parentNode = pathname.split('/').pop() as string;
+
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
+
+  const selectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = event.target;
+    const selectedFiles = files as FileList;
+    setFile(selectedFiles?.[0]);
+  };
+
   switch (dialogPhase) {
     case 'select-file':
       return (
         <FileModal
-          open={true}
+          open={dialogOpen}
           title={t('common:file.add_file')}
           children={
             <Box component="form">
               <Typography aria-describedby="modal-modal-description" variant="body1" sx={{ marginBottom: '12px' }}>
                 {t('common:file.select_file_title')}
               </Typography>
-              <FileInput passChildData={setChildData}></FileInput>
+              <FileInput passFileData={selectFile}></FileInput>
               <Box sx={{ display: 'flex' }}>
-                <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={uploadFile}>
+                <ButtonWrapper
+                  sx={{ marginLeft: 'auto' }}
+                  color="primary"
+                  variant="text"
+                  onClick={() => setPhase('dialog-close')}
+                >
                   {t('common:action.cancel')}
                 </ButtonWrapper>
                 <ButtonWrapper color="primary" variant="contained" onClick={() => setPhase('give-additional-data')}>
@@ -48,11 +79,58 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
     case 'give-additional-data':
       return (
         <FileModal
-          open={true}
+          open={dialogOpen}
           title={t('common:file.add_file')}
           children={
             <Box component="form">
-              <Typography>{childData.target.value}</Typography>
+              {file ? (
+                <div className="additional-form">
+                  <div>
+                    <Typography>{file.name}</Typography>
+                    <Box sx={{ display: 'flex' }}>
+                      <Typography style={{ color: 'grey' }}>
+                        {format(new Date(file.lastModified), DateFormat)}
+                      </Typography>
+                      <Typography style={{ color: 'grey', marginLeft: '8px' }}>
+                        {getLocaleByteUnit(prettyBytes(file.size, { locale: 'fi' }), LocaleLang.FI)}
+                      </Typography>
+                    </Box>
+                  </div>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography variant="body1" sx={{ textTransform: 'uppercase' }}>
+                      {t('common:file.more_actions')}
+                    </Typography>
+                    <IconButton
+                      className={`expand-button ${expanded ? 'active' : ''}`}
+                      edge="end"
+                      size="small"
+                      onClick={handleExpandClick}
+                      aria-expanded={expanded}
+                      aria-label={t('common:file.more_actions')}
+                    >
+                      <ExpandMoreIcon />
+                    </IconButton>
+                  </Box>
+                  <Collapse sx={{ width: '100%' }} in={expanded} timeout="auto" unmountOnExit>
+                    <Typography variant="body1">Nimi</Typography>
+                    <TextField
+                      sx={{ margin: '4px 0 26px 0' }}
+                      fullWidth
+                      defaultValue={file.name}
+                      onChange={(e) => setName(e.target.value)}
+                    ></TextField>
+                    <Typography variant="body1">{t('common:file.description')}</Typography>
+                    <TextField
+                      sx={{ margin: '4px 0 0 0' }}
+                      className="form-text-field"
+                      onChange={(e) => setDescription(e.target.value)}
+                      fullWidth
+                    ></TextField>
+                  </Collapse>
+                </div>
+              ) : (
+                'File not selected '
+              )}
               <Box sx={{ display: 'flex' }}>
                 <ButtonWrapper
                   sx={{ marginLeft: 'auto' }}
@@ -62,8 +140,15 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
                 >
                   {t('common:action.back')}
                 </ButtonWrapper>
-                <ButtonWrapper color="primary" variant="contained" onClick={uploadFile}>
-                  {t('common:action.next')}
+                <ButtonWrapper
+                  color="primary"
+                  variant="contained"
+                  onClick={() =>
+                    uploadFile(file as File, { name: name, description: description, parentNode: parentNode })
+                  }
+                  startIcon={<CheckIcon></CheckIcon>}
+                >
+                  {t('common:action.add')}
                 </ButtonWrapper>
               </Box>
             </Box>
@@ -71,6 +156,7 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
         ></FileModal>
       );
     default:
-      return <Typography>File uploaded!</Typography>;
+      setDialogOpen(false);
+      return <div>todo</div>;
   }
 };

@@ -1,15 +1,25 @@
-import axios from 'axios';
+export interface FileData {
+  name: string;
+  description: string;
+  parentNode: string;
+}
 
-const upload = async (node: string, file: File): Promise<any> => {
-  let formData = new FormData();
-
-  formData.append('file', file);
-
-  return await axios.post(`/api/alfresco/file/${node}`, formData);
+export const uploadFile = async (file: File, fileData: FileData) => {
+  const { name, parentNode, description } = fileData;
+  if (file) {
+    const form = new FormData();
+    form.append('name', name);
+    form.append('filedata', file);
+    form.append('nodeType', 'cm:content');
+    const options = {
+      method: 'POST',
+      body: form,
+    };
+    await fetch(`/api/alfresco/file/${parentNode}`, options)
+      .then((response) => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }
 };
-
-const FileUploadService = {
-  upload,
-};
-
-export default FileUploadService;
