@@ -1,4 +1,6 @@
 import { Box, Button, Typography } from '@mui/material';
+import { Colors } from '../constants/Colors';
+import { Styles } from '../constants/Styles';
 import styled from '@emotion/styled';
 
 export const ContainerWrapper = styled(Box)(({ theme }) => ({
@@ -42,14 +44,32 @@ export const PageTitleWrapper = styled(Typography)(({ theme }) => {
 export const ButtonWrapper = styled(Button)(({ theme }) => {
   return {
     marginTop: theme.spacing(4),
-    padding: '9px',
+    padding: '9px 24px',
     borderRadius: '100px',
     [theme.breakpoints.down('tablet')]: {
       width: '100%',
     },
     [theme.breakpoints.up('tablet')]: {
-      width: '220px',
       height: '42px',
     },
   };
 }) as typeof Button;
+
+export const ModalContentWrapper = styled(Box)(({ theme }) => {
+  return {
+    position: 'absolute',
+    padding: '6px 16px 16px 16px',
+    borderRadius: Styles.radius,
+    top: '42%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: Colors.white,
+    [theme.breakpoints.down('tablet')]: {
+      boxSizing: 'border-box',
+      width: '100vw',
+    },
+    [theme.breakpoints.up('tablet')]: {
+      width: '600px',
+    },
+  };
+});

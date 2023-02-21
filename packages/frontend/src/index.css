@@ -21,3 +21,9 @@ body {
   font-family: 'Exo2-LightItalic';
   src: local('Exo2-LightItalic'), url('./assets//fonts/Exo_2/Exo2-LightItalic.ttf') format('truetype');
 }
+
+/* Hide browser default file input button */
+::-webkit-file-upload-button,
+::file-selector-button {
+  display: none;
+}

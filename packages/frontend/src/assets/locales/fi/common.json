@@ -12,6 +12,9 @@
     "accept": "Hyväksy",
     "back": "Takaisin",
     "go_home": "Siirry etusivulle",
+    "next": "Seuraava",
+    "add": "Lisää",
+    "cancel": "Peruuta",
     "load_more": "Lataa lisää"
   },
   "error": {
@@ -19,5 +22,13 @@
   },
   "loading": {
     "logging_out": "Kirjaudutaan ulos..."
+  },
+  "file": {
+    "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
+    "add_file": "Lisää tiedosto",
+    "description": "Selitysteksti",
+    "more_actions": "Valinnaiset toiminnot",
+    "file_not_selected": "Tiedostoa ei valittu",
+    "file_not_uploaded": "Tiedostoa ei ladattu"
   }
 }
