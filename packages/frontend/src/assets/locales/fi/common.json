@@ -13,6 +13,7 @@
     "back": "Takaisin",
     "go_home": "Siirry etusivulle",
     "next": "Seuraava",
+    "add": "Lisää",
     "cancel": "Peruuta"
   },
   "error": {
@@ -23,6 +24,8 @@
   },
   "file": {
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
-    "add_file": "Lisää tiedosto"
+    "add_file": "Lisää tiedosto",
+    "description": "Selitysteksti",
+    "more_actions": "Valinnaiset toiminnot"
   }
 }
