@@ -1,5 +1,4 @@
 import { TextField } from '@mui/material';
-import './styles.css';
 
 interface FileInputProps {
   passFileData?: any;
