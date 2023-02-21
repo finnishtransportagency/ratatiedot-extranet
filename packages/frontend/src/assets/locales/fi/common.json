@@ -28,6 +28,7 @@
     "add_file": "Lisää tiedosto",
     "description": "Selitysteksti",
     "more_actions": "Valinnaiset toiminnot",
-    "file_not_selected": "Tiedostoa ei valittu"
+    "file_not_selected": "Tiedostoa ei valittu",
+    "file_not_uploaded": "Tiedostoa ei ladattu"
   }
 }
