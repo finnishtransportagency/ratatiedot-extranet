@@ -14,7 +14,7 @@ export const ManagementReports = () => {
       <CategoryFiles categoryName={categoryNames.MANAGEMENT_REPORTS} />
       {/* button to test file upload */}
       <button onClick={() => setDialogOpen(true)}>LATAA TIEDOSTO</button>
-      {dialogOpen ? <FileUploadDialog categoryName={categoryNames.MANAGEMENT_REPORTS}></FileUploadDialog> : <></>}
+      {dialogOpen ? <FileUploadDialog categoryName={categoryNames.MANAGEMENT_REPORTS}></FileUploadDialog> : null}
     </ProtectedContainerWrapper>
   );
 };
