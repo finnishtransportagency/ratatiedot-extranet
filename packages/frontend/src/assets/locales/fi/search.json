@@ -5,12 +5,15 @@
   "results": "tulosta",
   "time": "Aika",
   "sort_results": "Lajittele tulokset",
+  "content_search": "Sisältöhaku",
+  "content_search_checkbox": "Etsi tiedoston sisällöstä",
   "no_sort": "Ei lajiteltu",
   "A-Z": "A-Ö",
   "Z-A": "Ö-A",
   "oldest_first": "Vanhin ensin",
   "latest_first": "Uusin ensin",
   "last_searches": "VIIMEISET HAUT",
+  "show_results": " Näytetään {{files}}/{{total}} tulosta",
   "action": {
     "update_results": "Päivitä tulokset",
     "remove_filters": "Poista kaikki suodattimet"

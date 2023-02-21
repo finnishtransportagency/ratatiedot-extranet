@@ -12,13 +12,14 @@ import { useSearchParams } from 'react-router-dom';
 import { mimeNamesMapping } from '../../constants/Data';
 import { Spinner } from '../../components/Spinner';
 import { ErrorMessage } from '../../components/Notification/ErrorMessage';
+import { TNode } from '../../types/types';
 
 export const SearchResult = () => {
   const { t } = useTranslation(['search', 'common']);
   const [searchParams] = useSearchParams();
   const query = searchParams.get('query');
   const searchContext = useContext(SearchContext);
-  const { years, savedCheckboxes, page, pageHandler, sort = [] } = searchContext;
+  const { years, savedCheckboxes, page, pageHandler, sort = [], contentSearch = false } = searchContext;
   const searchParameter: TAlfrescoSearchProps = {
     term: query,
     from: formatYear(years[0]),
@@ -30,6 +31,7 @@ export const SearchResult = () => {
     categoryName: savedCheckboxes.category[0],
     page: page,
     sort: sort as SortingParameters,
+    contentSearch: contentSearch,
   };
 
   const { isLoading, isError, error, data } = usePostAlfrescoSearch(searchParameter);
@@ -48,7 +50,7 @@ export const SearchResult = () => {
         {data.list.pagination.totalItems} {t('search:results')}
       </Typography>
       <div style={{ marginLeft: '18px' }}>
-        {data.list.entries.map((node: any, index: number) => (
+        {data.list.entries.map((node: TNode, index: number) => (
           <NodeItem key={index} row={index} node={node} />
         ))}
       </div>

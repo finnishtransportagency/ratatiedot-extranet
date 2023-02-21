@@ -33,7 +33,8 @@ export enum ExtendedSearchParameterName {
 
 type TNameSearchParameter = {
   parameterName: ExtendedSearchParameterName.NAME;
-  fileName: string;
+  term: string;
+  contentSearch?: boolean;
 };
 
 type TModifiedSearchParameter = {
@@ -93,4 +94,15 @@ type SubCategoryData = {
   REGIONAL_LIMITATIONS_DRIVER_ACTIVITY: string;
   PLANNING_ARCHIVE: string;
   RAILWAY_MONITORING_SERVICE: string;
+};
+
+type TNode = {
+  entry: {
+    id: string;
+    name: string;
+    modifiedAt: string;
+    nodeType: string;
+    content: any;
+    parentId: string;
+  };
 };

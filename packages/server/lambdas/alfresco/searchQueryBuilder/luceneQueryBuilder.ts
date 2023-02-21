@@ -72,7 +72,9 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   }
 
   buildNameQuery(parameter: INameSearchParameter): string {
-    return `${METADATA_SEARCH_START}name${DIVIDER}"${parameter.fileName}*"`;
+    return parameter.contentSearch
+      ? `+TEXT:"${parameter.term}*"`
+      : `${METADATA_SEARCH_START}name${DIVIDER}"${parameter.term}*"`;
   }
 
   buildParentQuery(parameter: IParentSearchParameter) {

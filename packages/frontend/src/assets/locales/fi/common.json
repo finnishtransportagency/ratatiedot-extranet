@@ -14,7 +14,8 @@
     "go_home": "Siirry etusivulle",
     "next": "Seuraava",
     "add": "Lisää",
-    "cancel": "Peruuta"
+    "cancel": "Peruuta",
+    "load_more": "Lataa lisää"
   },
   "error": {
     "500": "Jokin meni pieleen!"

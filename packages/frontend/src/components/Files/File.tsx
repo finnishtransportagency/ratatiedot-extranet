@@ -14,6 +14,7 @@ import { Colors } from '../../constants/Colors';
 import { DateFormat } from '../../constants/Formats';
 import { getLocaleByteUnit } from '../../utils/helpers';
 import { LocaleLang } from '../../constants/Units';
+import { TNode } from '../../types/types';
 
 const NodeTypes = {
   other: Other,
@@ -27,7 +28,12 @@ const NodeTypes = {
   ppt: PPT,
 };
 
-export const NodeItem = ({ node, row }: any) => {
+type NodeItemProps = {
+  node: TNode;
+  row: number;
+};
+
+export const NodeItem = ({ node, row }: NodeItemProps) => {
   const { entry } = node;
   const { id, name, modifiedAt, content } = entry;
   const contentMimeType = get(content, 'mimeType', '');

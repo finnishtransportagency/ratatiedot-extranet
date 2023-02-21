@@ -20,6 +20,8 @@ export const SearchContext = React.createContext({
   pageHandler: (page: number) => {},
   sort: [null],
   sortHandler: (_: string) => {},
+  contentSearch: false,
+  contentSearchHandler: (_: boolean) => {},
 });
 
 export const SearchContextProvider = (props: any) => {
@@ -34,6 +36,7 @@ export const SearchContextProvider = (props: any) => {
   });
   const [page, setPage] = useState<number>(0);
   const [sort, setSort] = useState<any[]>([]);
+  const [contentSearch, setContentSearch] = useState(false);
 
   useEffect(() => {
     queryHandler(searchParams.get('query') || '');
@@ -43,6 +46,7 @@ export const SearchContextProvider = (props: any) => {
       [SearchParameterName.CATEGORY]: [],
     });
     pageHandler(0);
+    contentSearchHandler(false);
   }, [searchParams]);
 
   const queryHandler = (query: string) => {
@@ -82,6 +86,8 @@ export const SearchContextProvider = (props: any) => {
     setSort(sortRequest);
   };
 
+  const contentSearchHandler = (contentSearch: boolean) => setContentSearch(contentSearch);
+
   return (
     <SearchContext.Provider
       value={{
@@ -95,6 +101,8 @@ export const SearchContextProvider = (props: any) => {
         pageHandler: pageHandler,
         sort: sort,
         sortHandler: sortHandler,
+        contentSearch: contentSearch,
+        contentSearchHandler: contentSearchHandler,
       }}
     >
       {props.children}
