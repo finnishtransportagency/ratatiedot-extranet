@@ -33,7 +33,8 @@ export enum ExtendedSearchParameterName {
 
 type TNameSearchParameter = {
   parameterName: ExtendedSearchParameterName.NAME;
-  fileName: string;
+  term: string;
+  contentSearch?: boolean;
 };
 
 type TModifiedSearchParameter = {

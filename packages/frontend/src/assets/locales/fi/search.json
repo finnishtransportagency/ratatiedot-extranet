@@ -5,6 +5,8 @@
   "results": "tulosta",
   "time": "Aika",
   "sort_results": "Lajittele tulokset",
+  "content_search": "Sisältöhaku",
+  "content_search_checkbox": "Etsi tiedoston sisällöstä",
   "no_sort": "Ei lajiteltu",
   "A-Z": "A-Ö",
   "Z-A": "Ö-A",
