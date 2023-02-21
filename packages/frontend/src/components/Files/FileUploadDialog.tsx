@@ -17,6 +17,7 @@ import { FileInput } from '../FileInput/FileInput';
 import { FileModal } from '../Modal/FileModal';
 
 import './styles.css';
+import { AxiosError } from 'axios';
 
 interface FileUploadProps {
   categoryName: string;
@@ -28,9 +29,26 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
   const [file, setFile] = useState<File>();
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [dialogPhase, setPhase] = useState<string>('select-file');
+  const [dialogPhase, setPhase] = useState<number>(1);
   const [expanded, setExpanded] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [fileError, setFileError] = useState<AxiosError>();
+
+  const handleFileUpload = async (file: File) => {
+    await uploadFile(file, {
+      name,
+      description,
+      parentNode: categoryName.toLocaleLowerCase(),
+    })
+      .then((result) => {
+        setDialogOpen(false);
+        return result;
+      })
+      .catch((error) => {
+        setDialogOpen(false);
+        setFileError(error);
+      });
+  };
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -43,7 +61,7 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
   };
 
   switch (dialogPhase) {
-    case 'select-file':
+    case 1:
       return (
         <FileModal
           open={dialogOpen}
@@ -59,11 +77,11 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
                   sx={{ marginLeft: 'auto' }}
                   color="primary"
                   variant="text"
-                  onClick={() => setPhase('dialog-close')}
+                  onClick={() => setDialogOpen(false)}
                 >
                   {t('common:action.cancel')}
                 </ButtonWrapper>
-                <ButtonWrapper color="primary" variant="contained" onClick={() => setPhase('give-additional-data')}>
+                <ButtonWrapper color="primary" variant="contained" onClick={() => setPhase(2)}>
                   {t('common:action.next')}
                 </ButtonWrapper>
               </Box>
@@ -72,11 +90,12 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
         ></FileModal>
       );
 
-    case 'give-additional-data':
+    case 2:
       return (
         <FileModal
           open={dialogOpen}
           title={t('common:file.add_file')}
+          error={fileError}
           children={
             <Box component="form">
               {file ? (
@@ -128,24 +147,13 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
                 t('common:file.file_not_selected')
               )}
               <Box sx={{ display: 'flex' }}>
-                <ButtonWrapper
-                  sx={{ marginLeft: 'auto' }}
-                  color="primary"
-                  variant="text"
-                  onClick={() => setPhase('select-file')}
-                >
+                <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={() => setPhase(1)}>
                   {t('common:action.back')}
                 </ButtonWrapper>
                 <ButtonWrapper
                   color="primary"
                   variant="contained"
-                  onClick={() =>
-                    uploadFile(file as File, {
-                      name: name,
-                      description: description,
-                      parentNode: categoryName.toLocaleLowerCase(),
-                    })
-                  }
+                  onClick={() => handleFileUpload(file as File)}
                   startIcon={<CheckIcon></CheckIcon>}
                 >
                   {t('common:action.add')}
@@ -156,7 +164,6 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
         ></FileModal>
       );
     default:
-      setDialogOpen(false);
-      return <div>todo</div>;
+      return <div></div>;
   }
 };

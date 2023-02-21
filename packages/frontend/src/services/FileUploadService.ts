@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 export interface FileData {
   name: string;
@@ -6,8 +6,9 @@ export interface FileData {
   parentNode: string;
 }
 
-export const uploadFile = async (file: File, fileData: FileData) => {
+export const uploadFile = async (file: File, fileData: FileData): Promise<AxiosResponse> => {
   const { name, parentNode, description } = fileData;
+  let response = null;
   if (file) {
     const form = new FormData();
     form.append('name', name);
@@ -17,10 +18,7 @@ export const uploadFile = async (file: File, fileData: FileData) => {
       method: 'POST',
       body: form,
     };
-    await axios(`/api/alfresco/file/${parentNode}`, options)
-      .then((response) => response)
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+    response = await axios(`/api/alfresco/file/${parentNode}`, options);
   }
+  return response as any;
 };

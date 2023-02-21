@@ -106,3 +106,35 @@ type TNode = {
     parentId: string;
   };
 };
+
+interface AlfrescoResponse {
+  entry: {
+    isFile: boolean;
+    createdByUser: {
+      id: string;
+      displayName: string;
+    };
+    modifiedAt: Date;
+    nodeType: string;
+    content: {
+      mimeType: string;
+      mimeTypeName: string;
+      sizeInBytes: number;
+      encoding: string;
+    };
+    parentId: string;
+    aspectNames: string[];
+    createdAt: string;
+    isFolder: string;
+    modifiedByUser: {
+      id: string;
+      displayName: string;
+    };
+    name: string;
+    id: string;
+    properties: {
+      'cm:versionLabel': number;
+      'cm:versionType': string;
+    };
+  };
+}
