@@ -1,3 +1,4 @@
+import { TextField } from '@mui/material';
 import './styles.css';
 
 interface FileInputProps {
@@ -6,8 +7,16 @@ interface FileInputProps {
 
 export const FileInput = ({ passFileData }: FileInputProps) => {
   return (
-    <input
-      className="file-input"
+    <TextField
+      sx={{
+        boxSizing: 'border-box',
+        width: '100%',
+        padding: '10px 8px',
+        border: '1px solid #333333',
+        borderRadius: '4px',
+        fontFamily: 'Exo2-Regular',
+        fontSize: '16px',
+      }}
       defaultValue=""
       type="file"
       onChange={(event) => {
