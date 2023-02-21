@@ -7,9 +7,7 @@ interface FileInputProps {
 export const FileInput = ({ passFileData }: FileInputProps) => {
   return (
     <TextField
-      sx={{
-        width: '100%',
-      }}
+      fullWidth
       defaultValue=""
       type="file"
       onChange={(event) => {
