@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckIcon from '@mui/icons-material/CheckSharp';
@@ -25,7 +24,6 @@ interface FileUploadProps {
 
 export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
   const { t } = useTranslation(['common']);
-  const { pathname } = useLocation();
 
   const [file, setFile] = useState<File>();
   const [name, setName] = useState<string>('');
@@ -33,8 +31,6 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
   const [dialogPhase, setPhase] = useState<string>('select-file');
   const [expanded, setExpanded] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(true);
-
-  const parentNode = pathname.split('/').pop() as string;
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -144,7 +140,11 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
                   color="primary"
                   variant="contained"
                   onClick={() =>
-                    uploadFile(file as File, { name: name, description: description, parentNode: parentNode })
+                    uploadFile(file as File, {
+                      name: name,
+                      description: description,
+                      parentNode: categoryName.toLocaleLowerCase(),
+                    })
                   }
                   startIcon={<CheckIcon></CheckIcon>}
                 >
