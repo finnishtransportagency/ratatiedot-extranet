@@ -16,7 +16,10 @@ export const uploadFile = async (file: File, fileData: FileData): Promise<AxiosR
     form.append('nodeType', 'cm:content');
     const options = {
       method: 'POST',
-      body: form,
+      data: form,
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
     };
     response = await axios(`/api/alfresco/file/${parentNode}`, options);
   }
