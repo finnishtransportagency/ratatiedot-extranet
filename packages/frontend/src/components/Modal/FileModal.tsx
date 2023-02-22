@@ -1,4 +1,4 @@
-import { FunctionComponent, JSXElementConstructor, ReactElement, useEffect, useState } from 'react';
+import { FunctionComponent, JSXElementConstructor, ReactElement, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Close from '@mui/icons-material/Close';
@@ -11,20 +11,14 @@ import { AxiosError } from 'axios';
 
 interface ModalProps {
   title?: string;
-  handleClose?: ((event: {}, reason: 'backdropClick' | 'escapeKeyDown') => void) | undefined;
   children?: ReactElement<any, string | JSXElementConstructor<any>>;
   open: boolean;
   error?: AxiosError | Error | undefined;
+  handleClose: () => void;
 }
 
-export const FileModal: FunctionComponent<ModalProps> = (props) => {
+export const FileModal: FunctionComponent<ModalProps> = ({ title, children, open, error, handleClose }) => {
   const { t } = useTranslation(['common']);
-  const [open, setOpen] = useState(true);
-  const handleClose = () => setOpen(false);
-
-  useEffect(() => {
-    console.log('Error: ', props.error);
-  }, [props.error]);
 
   return (
     <Modal
@@ -36,25 +30,25 @@ export const FileModal: FunctionComponent<ModalProps> = (props) => {
       <ModalContentWrapper>
         <div>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <HighlightedTitle>{props.title}</HighlightedTitle>
+            <HighlightedTitle>{title}</HighlightedTitle>
             <IconButton
               sx={{ color: Colors.extrablack, marginRight: '-10px' }}
               edge="end"
               size="small"
               area-label="close-modal"
-              onClick={handleClose}
+              onClick={() => handleClose()}
             >
               <Close></Close>
             </IconButton>
           </Box>
-          {props.error ? (
+          {error ? (
             <Alert sx={{ margin: '16px 0' }} severity="error">
               <span>{t('common:file.file_not_uploaded')}</span>
               <br></br>
-              {props.error.message}
+              {error.message}
             </Alert>
           ) : null}
-          {props.children}
+          {children}
         </div>
       </ModalContentWrapper>
     </Modal>
