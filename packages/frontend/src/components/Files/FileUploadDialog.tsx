@@ -58,6 +58,7 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
     const { files } = event.target;
     const selectedFiles = files as FileList;
     setFile(selectedFiles?.[0]);
+    setName(selectedFiles?.[0].name);
   };
 
   switch (dialogPhase) {
