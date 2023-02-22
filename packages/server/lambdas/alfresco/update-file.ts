@@ -6,7 +6,7 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { fileRequestBuilder } from './fileRequestBuilder';
+import { updateFileRequestBuilder } from './fileRequestBuilder';
 import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
@@ -15,9 +15,16 @@ const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const postFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
+const updateFile = async (
+  options: RequestInit,
+  nodeId: string,
+  newFileName?: string,
+): Promise<AlfrescoResponse | undefined> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
+  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/content`;
+  if (newFileName) {
+    url.concat(`&name=${newFileName}`);
+  }
   try {
     const res = await fetch(url, options);
     const result = (await res.json()) as AlfrescoResponse;
@@ -35,17 +42,21 @@ const postFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoR
  * @returns  {Promise<ALBResult>} JSON stringified object of uploaded file metadata
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
-  console.log('EVENT: ', event);
   try {
     const paths = event.path.split('/');
-    const category = paths.pop();
+    const nodeId = paths.at(-1);
+    const category = paths.at(-2);
+    const name = event.queryStringParameters?.name;
 
     const user = await getUser(event);
-    log.info(user, `Uploading files for page ${category}`);
+    log.info(user, `Updating file ${nodeId} in ${category}`);
     validateReadUser(user);
 
-    if (!category || paths.pop() !== 'file') {
+    if (!category) {
       throw new RataExtraLambdaError('Category missing from path', 400);
+    }
+    if (!nodeId) {
+      throw new RataExtraLambdaError('Node ID missing from path', 400);
     }
     if (isEmpty(event.body)) {
       throw new RataExtraLambdaError('Request body missing', 400);
@@ -62,10 +73,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
+    const requestOptions = (await updateFileRequestBuilder(event, headers)) as RequestInit;
 
-    const result = await postFile(requestOptions, categoryData.alfrescoFolder);
-    log.info(user, `Uploaded file ${result?.entry.name} to ${categoryData.alfrescoFolder}`);
+    const result = await updateFile(requestOptions, nodeId, name);
+    log.info(user, `Updated file ${nodeId} in ${categoryData.alfrescoFolder}`);
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },

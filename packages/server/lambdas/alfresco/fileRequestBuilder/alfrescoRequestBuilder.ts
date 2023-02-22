@@ -5,8 +5,13 @@ import { ALBEvent } from 'aws-lambda';
 import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
 
-const base64ToBuffer = (base64string: string) => {
+const base64ToString = (base64string: string): string => {
   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
+  return buffer;
+};
+
+const base64ToBuffer = (base64string: string): Buffer => {
+  const buffer = Buffer.from(base64string, 'base64');
   return buffer;
 };
 
@@ -27,7 +32,7 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
 
 export class AlfrescoFileRequestBuilder {
   public async requestBuilder(event: ALBEvent, headers: HeadersInit) {
-    event.body = base64ToBuffer(event.body as string);
+    event.body = base64ToString(event.body as string);
     const parsedForm = (await parseForm(event)) as ParsedFormDataOptions;
     const options = {
       method: 'POST',
@@ -37,11 +42,10 @@ export class AlfrescoFileRequestBuilder {
     return options;
   }
   public async updateRequestBuilder(event: ALBEvent, headers: HeadersInit) {
-    event.body = base64ToBuffer(event.body as string);
-    const fileData = (await parseForm(event)) as ParsedFormDataOptions;
+    const buffer = base64ToBuffer(event.body as string);
     const options = {
       method: 'PUT',
-      body: fileData.file,
+      body: buffer,
       headers: headers,
     } as unknown as RequestInit;
     return options;
