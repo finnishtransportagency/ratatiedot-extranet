@@ -58,6 +58,7 @@ export const FileUploadDialog = ({ categoryName, open, onClose }: FileUploadProp
       })
       .catch((error) => {
         setIsLoading(false);
+        setSuccess(false);
         setError(true);
       });
   };
