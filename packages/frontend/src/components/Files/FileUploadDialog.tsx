@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { CircularProgress } from '@mui/material';
 import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { useTranslation } from 'react-i18next';
+import { AxiosError } from 'axios';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckIcon from '@mui/icons-material/CheckSharp';
@@ -16,14 +18,16 @@ import { getLocaleByteUnit } from '../../utils/helpers';
 import { FileInput } from '../FileInput/FileInput';
 import { FileModal } from '../Modal/FileModal';
 
+import { Colors } from '../../constants/Colors';
 import './styles.css';
-import { AxiosError } from 'axios';
 
 interface FileUploadProps {
   categoryName: string;
+  onClose: (event?: Event) => void;
+  open: boolean;
 }
 
-export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
+export const FileUploadDialog = ({ categoryName, open, onClose }: FileUploadProps) => {
   const { t } = useTranslation(['common']);
 
   const [file, setFile] = useState<File>();
@@ -31,23 +35,31 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
   const [description, setDescription] = useState<string>('');
   const [dialogPhase, setPhase] = useState<number>(1);
   const [expanded, setExpanded] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [fileError, setFileError] = useState<AxiosError>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleClose = () => {
+    onClose();
+  };
 
   const handleFileUpload = async (file: File) => {
-    await uploadFile(file, {
-      name,
-      description,
-      parentNode: categoryName.toLocaleLowerCase(),
-    })
-      .then((result) => {
-        setDialogOpen(false);
-        return result;
+    setIsLoading(true);
+    setTimeout(async () => {
+      await uploadFile(file, {
+        name,
+        description,
+        parentNode: categoryName.toLocaleLowerCase(),
       })
-      .catch((error) => {
-        setDialogOpen(false);
-        setFileError(error);
-      });
+        .then((result) => {
+          setIsLoading(false);
+          handleClose();
+          return result;
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          setFileError(error);
+        });
+    }, 100000);
   };
 
   const handleExpandClick = () => {
@@ -65,7 +77,8 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
     case 1:
       return (
         <FileModal
-          open={dialogOpen}
+          open={open}
+          handleClose={handleClose}
           title={t('common:file.add_file')}
           children={
             <Box component="form">
@@ -74,12 +87,7 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
               </Typography>
               <FileInput passFileData={selectFile}></FileInput>
               <Box sx={{ display: 'flex' }}>
-                <ButtonWrapper
-                  sx={{ marginLeft: 'auto' }}
-                  color="primary"
-                  variant="text"
-                  onClick={() => setDialogOpen(false)}
-                >
+                <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={() => handleClose()}>
                   {t('common:action.cancel')}
                 </ButtonWrapper>
                 <ButtonWrapper color="primary" variant="contained" onClick={() => setPhase(2)}>
@@ -90,11 +98,11 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
           }
         ></FileModal>
       );
-
     case 2:
       return (
         <FileModal
-          open={dialogOpen}
+          open={open}
+          handleClose={handleClose}
           title={t('common:file.add_file')}
           error={fileError}
           children={
@@ -154,8 +162,15 @@ export const FileUploadDialog = ({ categoryName }: FileUploadProps) => {
                 <ButtonWrapper
                   color="primary"
                   variant="contained"
+                  disabled={isLoading}
                   onClick={() => handleFileUpload(file as File)}
-                  startIcon={<CheckIcon></CheckIcon>}
+                  startIcon={
+                    isLoading ? (
+                      <CircularProgress sx={{ color: Colors.darkgrey }} size="16px"></CircularProgress>
+                    ) : (
+                      <CheckIcon></CheckIcon>
+                    )
+                  }
                 >
                   {t('common:action.add')}
                 </ButtonWrapper>
