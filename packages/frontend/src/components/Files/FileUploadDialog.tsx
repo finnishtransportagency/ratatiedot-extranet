@@ -3,7 +3,6 @@ import { CircularProgress } from '@mui/material';
 import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { useTranslation } from 'react-i18next';
-import { AxiosError } from 'axios';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckIcon from '@mui/icons-material/CheckSharp';
