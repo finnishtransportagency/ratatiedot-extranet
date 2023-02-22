@@ -36,6 +36,16 @@ export class AlfrescoFileRequestBuilder {
     } as unknown as RequestInit;
     return options;
   }
+  public async updateRequestBuilder(event: ALBEvent, headers: HeadersInit) {
+    event.body = base64ToBuffer(event.body as string);
+    const fileData = (await parseForm(event)) as ParsedFormDataOptions;
+    const options = {
+      method: 'PUT',
+      body: fileData.file,
+      headers: headers,
+    } as unknown as RequestInit;
+    return options;
+  }
   public deleteRequestBuilder(requestParameters: FileDeleteRequestBody): FileDeleteRequest {
     throw new Error('Method not implemented.');
   }
