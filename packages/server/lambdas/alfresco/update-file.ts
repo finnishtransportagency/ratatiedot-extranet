@@ -35,7 +35,7 @@ const postFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoR
  * @returns  {Promise<ALBResult>} JSON stringified object of uploaded file metadata
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
-  console.log('Event: ', event);
+  console.log('EVENT: ', event);
   try {
     const paths = event.path.split('/');
     const category = paths.pop();
