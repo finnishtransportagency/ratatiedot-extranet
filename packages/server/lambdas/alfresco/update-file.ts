@@ -44,8 +44,8 @@ const updateFile = async (
 export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
   try {
     const paths = event.path.split('/');
-    const nodeId = paths.at(-1);
-    const category = paths.at(-2);
+    const nodeId = paths.at(-2);
+    const category = paths.at(-3);
     const name = event.queryStringParameters?.name;
 
     const user = await getUser(event);
