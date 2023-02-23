@@ -12,21 +12,23 @@ import { LocaleLang } from '../../constants/Units';
 import { DateFormat } from '../../constants/Formats';
 import { uploadFile } from '../../services/FileUploadService';
 import { ButtonWrapper } from '../../styles/common';
-import { getLocaleByteUnit } from '../../utils/helpers';
+import { getLocaleByteUnit, getRouterName } from '../../utils/helpers';
 
 import { FileInput } from '../FileInput/FileInput';
 import { FileModal } from '../Modal/FileModal';
 
 import { Colors } from '../../constants/Colors';
 import './styles.css';
+import { AxiosResponse } from 'axios';
 
 interface FileUploadProps {
   categoryName: string;
   onClose: (event?: Event) => void;
+  onUpload: (result: AxiosResponse) => any;
   open: boolean;
 }
 
-export const FileUploadDialog = ({ categoryName, open, onClose }: FileUploadProps) => {
+export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: FileUploadProps) => {
   const { t } = useTranslation(['common']);
 
   const [file, setFile] = useState<File>();
@@ -47,13 +49,14 @@ export const FileUploadDialog = ({ categoryName, open, onClose }: FileUploadProp
     await uploadFile(file, {
       name,
       description,
-      parentNode: categoryName.toLocaleLowerCase(),
+      parentNode: getRouterName(categoryName),
     })
       .then((result) => {
         setIsLoading(false);
         handleClose();
         setError(false);
         setSuccess(true);
+        onUpload(result);
         return result;
       })
       .catch((error) => {

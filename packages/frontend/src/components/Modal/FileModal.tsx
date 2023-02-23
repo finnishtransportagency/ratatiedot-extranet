@@ -7,6 +7,7 @@ import { ModalContentWrapper } from '../../styles/common';
 import { HighlightedTitle } from '../Typography/HighlightedTitle';
 import { Colors } from '../../constants/Colors';
 import { useTranslation } from 'react-i18next';
+import { SnackbarAlert } from '../Notification/Snackbar';
 
 interface ModalProps {
   title?: string;
@@ -54,22 +55,18 @@ export const FileModal: FunctionComponent<ModalProps> = ({
           </div>
         </ModalContentWrapper>
       </Modal>
-      <Snackbar open={error} onClose={onSnackbarClose}>
-        <Alert sx={{ backgroundColor: Colors.darkred }} variant="filled" severity="error" onClose={onSnackbarClose}>
-          {t('common:file.file_not_uploaded')}
-        </Alert>
-      </Snackbar>
-      <Snackbar open={success} onClose={onSnackbarClose}>
-        <Alert
-          sx={{ backgroundColor: Colors.black }}
-          variant="filled"
-          severity="error"
-          icon={false}
-          onClose={onSnackbarClose}
-        >
-          {t('common:file.file_uploaded')}
-        </Alert>
-      </Snackbar>
+      <SnackbarAlert
+        open={error}
+        onSnackbarClose={onSnackbarClose}
+        color={Colors.darkred}
+        text={t('common:file.file_not_uploaded')}
+      ></SnackbarAlert>
+      <SnackbarAlert
+        open={success}
+        onSnackbarClose={onSnackbarClose}
+        color={Colors.black}
+        text={t('common:file.file_uploaded')}
+      ></SnackbarAlert>
     </>
   );
 };
