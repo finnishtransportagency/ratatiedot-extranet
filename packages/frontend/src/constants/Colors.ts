@@ -6,4 +6,6 @@ export const Colors = {
   white: '#FFFFFF',
   darkgreen: '#207A43',
   extrablack: '#333333',
+  black: '#242222',
+  darkred: '#C73F00',
 };

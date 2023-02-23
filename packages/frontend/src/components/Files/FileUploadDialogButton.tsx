@@ -1,4 +1,5 @@
 import { Box, ButtonProps } from '@mui/material';
+import { AxiosResponse } from 'axios';
 import { t } from 'i18next';
 import { FunctionComponent, useState } from 'react';
 import { FileUploadDialog } from '../../components/Files/FileUploadDialog';
@@ -7,9 +8,14 @@ import { ButtonWrapper } from '../../styles/common';
 interface DialogButtonProps {
   categoryName: string;
   buttonProps?: ButtonProps;
+  onUpload: (response: AxiosResponse) => any;
 }
 
-export const FileUploadDialogButton: FunctionComponent<DialogButtonProps> = ({ buttonProps, categoryName }) => {
+export const FileUploadDialogButton: FunctionComponent<DialogButtonProps> = ({
+  buttonProps,
+  categoryName,
+  onUpload,
+}) => {
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
@@ -19,12 +25,22 @@ export const FileUploadDialogButton: FunctionComponent<DialogButtonProps> = ({ b
     setOpen(false);
   };
 
+  const handleUpload = (result: AxiosResponse) => {
+    onUpload(result);
+    console.log(result);
+  };
+
   return (
     <Box>
       <ButtonWrapper {...buttonProps} onClick={handleOpen}>
         {t('common:file.add_file')}
       </ButtonWrapper>
-      <FileUploadDialog onClose={handleClose} open={open} categoryName={categoryName}></FileUploadDialog>
+      <FileUploadDialog
+        onClose={handleClose}
+        onUpload={handleUpload}
+        open={open}
+        categoryName={categoryName}
+      ></FileUploadDialog>
     </Box>
   );
 };

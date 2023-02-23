@@ -29,6 +29,7 @@
     "description": "Selitysteksti",
     "more_actions": "Valinnaiset toiminnot",
     "file_not_selected": "Tiedostoa ei valittu",
-    "file_not_uploaded": "Tiedostoa ei ladattu"
+    "file_not_uploaded": "Tiedostoa ei lähetetty",
+    "file_uploaded": "Tiedosto lähetetty"
   }
 }

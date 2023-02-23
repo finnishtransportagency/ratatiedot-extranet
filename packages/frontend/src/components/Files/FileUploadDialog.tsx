@@ -3,7 +3,6 @@ import { CircularProgress } from '@mui/material';
 import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { useTranslation } from 'react-i18next';
-import { AxiosError } from 'axios';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckIcon from '@mui/icons-material/CheckSharp';
@@ -13,21 +12,23 @@ import { LocaleLang } from '../../constants/Units';
 import { DateFormat } from '../../constants/Formats';
 import { uploadFile } from '../../services/FileUploadService';
 import { ButtonWrapper } from '../../styles/common';
-import { getLocaleByteUnit } from '../../utils/helpers';
+import { getLocaleByteUnit, getRouterName } from '../../utils/helpers';
 
 import { FileInput } from '../FileInput/FileInput';
 import { FileModal } from '../Modal/FileModal';
 
 import { Colors } from '../../constants/Colors';
 import './styles.css';
+import { AxiosResponse } from 'axios';
 
 interface FileUploadProps {
   categoryName: string;
   onClose: (event?: Event) => void;
+  onUpload: (result: AxiosResponse) => any;
   open: boolean;
 }
 
-export const FileUploadDialog = ({ categoryName, open, onClose }: FileUploadProps) => {
+export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: FileUploadProps) => {
   const { t } = useTranslation(['common']);
 
   const [file, setFile] = useState<File>();
@@ -35,7 +36,8 @@ export const FileUploadDialog = ({ categoryName, open, onClose }: FileUploadProp
   const [description, setDescription] = useState<string>('');
   const [dialogPhase, setPhase] = useState<number>(1);
   const [expanded, setExpanded] = useState(false);
-  const [fileError, setFileError] = useState<AxiosError>();
+  const [error, setError] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClose = () => {
@@ -44,22 +46,29 @@ export const FileUploadDialog = ({ categoryName, open, onClose }: FileUploadProp
 
   const handleFileUpload = async (file: File) => {
     setIsLoading(true);
-    setTimeout(async () => {
-      await uploadFile(file, {
-        name,
-        description,
-        parentNode: categoryName.toLocaleLowerCase(),
+    await uploadFile(file, {
+      name,
+      description,
+      parentNode: getRouterName(categoryName),
+    })
+      .then((result) => {
+        setIsLoading(false);
+        handleClose();
+        setError(false);
+        setSuccess(true);
+        onUpload(result);
+        return result;
       })
-        .then((result) => {
-          setIsLoading(false);
-          handleClose();
-          return result;
-        })
-        .catch((error) => {
-          setIsLoading(false);
-          setFileError(error);
-        });
-    }, 100000);
+      .catch((error) => {
+        setIsLoading(false);
+        setSuccess(false);
+        setError(true);
+      });
+  };
+
+  const handleSnackbarClose = () => {
+    setError(false);
+    setSuccess(false);
   };
 
   const handleExpandClick = () => {
@@ -78,6 +87,7 @@ export const FileUploadDialog = ({ categoryName, open, onClose }: FileUploadProp
       return (
         <FileModal
           open={open}
+          onSnackbarClose={handleSnackbarClose}
           handleClose={handleClose}
           title={t('common:file.add_file')}
           children={
@@ -102,9 +112,11 @@ export const FileUploadDialog = ({ categoryName, open, onClose }: FileUploadProp
       return (
         <FileModal
           open={open}
+          onSnackbarClose={handleSnackbarClose}
           handleClose={handleClose}
           title={t('common:file.add_file')}
-          error={fileError}
+          error={error}
+          success={success}
           children={
             <Box component="form">
               {file ? (
