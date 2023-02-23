@@ -5,9 +5,7 @@ import { getSubCategoryData } from '../../../utils/helpers';
 
 export const ManagementReports = () => {
   const categoryNames = getSubCategoryData();
-  const handleUpload = (result: any) => {
-    console.log(result);
-  };
+  const handleUpload = (result: any) => {};
 
   return (
     <ProtectedContainerWrapper>
