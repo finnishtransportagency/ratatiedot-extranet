@@ -38,7 +38,7 @@ export class AlfrescoFileRequestBuilder {
       method: 'POST',
       body: createForm(parsedForm),
       headers: headers,
-    } as unknown as RequestInit;
+    } as RequestInit;
     return options;
   }
   public async updateRequestBuilder(event: ALBEvent, headers: HeadersInit) {
@@ -47,7 +47,15 @@ export class AlfrescoFileRequestBuilder {
       method: 'PUT',
       body: buffer,
       headers: headers,
-    } as unknown as RequestInit;
+    } as RequestInit;
+    return options;
+  }
+  public async updateJsonRequestBuilder(event: ALBEvent, headers: HeadersInit) {
+    const options = {
+      method: 'PUT',
+      body: event.body,
+      headers: headers,
+    } as RequestInit;
     return options;
   }
   public deleteRequestBuilder(requestParameters: FileDeleteRequestBody): FileDeleteRequest {
