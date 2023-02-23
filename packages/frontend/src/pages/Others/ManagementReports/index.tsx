@@ -5,13 +5,19 @@ import { getSubCategoryData } from '../../../utils/helpers';
 
 export const ManagementReports = () => {
   const categoryNames = getSubCategoryData();
+  const handleUpload = (result: any) => {
+    console.log(result);
+  };
 
   return (
     <ProtectedContainerWrapper>
       <PageTitleWrapper>{categoryNames.MANAGEMENT_REPORTS}</PageTitleWrapper>
       <CategoryFiles categoryName={categoryNames.MANAGEMENT_REPORTS} />
       {/* button to test file upload */}
-      <FileUploadDialogButton categoryName={categoryNames.MANAGEMENT_REPORTS}></FileUploadDialogButton>
+      <FileUploadDialogButton
+        onUpload={handleUpload}
+        categoryName={categoryNames.MANAGEMENT_REPORTS}
+      ></FileUploadDialogButton>
     </ProtectedContainerWrapper>
   );
 };
