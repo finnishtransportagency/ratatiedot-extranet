@@ -29,7 +29,7 @@ const updateFileMetadata = async (options: RequestInit, nodeId: string): Promise
 };
 
 /**
- * Upload custom content for page. Example request: /api/alfresco/file/linjakaaviot
+ * Update file metadata. Example request: /api/alfresco/file/linjakaaviot/AAA-123-BBB
  * @param {ALBEvent} event
  * @param {{string}} event.path Path should end with the page to upload the file to
  * @param {{string}} event.body File contents and metadata to upload
