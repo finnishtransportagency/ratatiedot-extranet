@@ -1,4 +1,3 @@
-import { FileDeleteRequest, FileDeleteRequestBody } from './types';
 import { FormData } from 'formdata-node';
 import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
 import { ALBEvent } from 'aws-lambda';
@@ -50,7 +49,7 @@ export class AlfrescoFileRequestBuilder {
     } as RequestInit;
     return options;
   }
-  public async updateJsonRequestBuilder(event: ALBEvent, headers: HeadersInit) {
+  public updateJsonRequestBuilder(event: ALBEvent, headers: HeadersInit) {
     const options = {
       method: 'PUT',
       body: event.body,
@@ -58,7 +57,11 @@ export class AlfrescoFileRequestBuilder {
     } as RequestInit;
     return options;
   }
-  public deleteRequestBuilder(requestParameters: FileDeleteRequestBody): FileDeleteRequest {
-    throw new Error('Method not implemented.');
+  public deleteRequestBuilder(headers: HeadersInit) {
+    const options = {
+      method: 'DELETE',
+      headers: headers,
+    };
+    return options;
   }
 }
