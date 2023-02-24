@@ -243,6 +243,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/update-file.ts',
     });
 
+    const alfrescoUpdateFileMetadata = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-update-file-metadata',
+      relativePath: '../packages/server/lambdas/alfresco/update-file-metadata.ts',
+    });
+
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
@@ -299,9 +305,16 @@ export class RataExtraBackendStack extends NestedStack {
       {
         lambda: alfrescoUpdateFile,
         priority: 130,
-        path: ['/api/alfresco/file/*'],
+        path: ['/api/alfresco/file/*/content'],
         httpRequestMethods: ['PUT'],
         targetName: 'alfrescoUpdateFile',
+      },
+      {
+        lambda: alfrescoUpdateFileMetadata,
+        priority: 132,
+        path: ['/api/alfresco/file/*'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'alfrescoUpdateFileMetadata',
       },
       {
         lambda: dbGetPageContents,

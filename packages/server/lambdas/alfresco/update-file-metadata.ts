@@ -6,7 +6,7 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { updateFileRequestBuilder } from './fileRequestBuilder';
+import { updateFileMetadataRequestBuilder } from './fileRequestBuilder';
 import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
@@ -15,16 +15,10 @@ const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const updateFile = async (
-  options: RequestInit,
-  nodeId: string,
-  newFileName?: string,
-): Promise<AlfrescoResponse | undefined> => {
+const updateFileMetadata = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/content`;
-  if (newFileName) {
-    url.concat(`&name=${newFileName}`);
-  }
+  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
+
   try {
     const res = await fetch(url, options);
     const result = (await res.json()) as AlfrescoResponse;
@@ -35,7 +29,7 @@ const updateFile = async (
 };
 
 /**
- * Update file content. Example request: /api/alfresco/file/linjakaaviot/FOO-123-AAA/content
+ * Update file metadata. Example request: /api/alfresco/file/linjakaaviot/AAA-123-BBB
  * @param {ALBEvent} event
  * @param {{string}} event.path Path should end with the page to upload the file to
  * @param {{string}} event.body File contents and metadata to upload
@@ -44,9 +38,8 @@ const updateFile = async (
 export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
   try {
     const paths = event.path.split('/');
-    const nodeId = paths.at(-2);
-    const category = paths.at(-3);
-    const name = event.queryStringParameters?.name;
+    const nodeId = paths.at(-1);
+    const category = paths.at(-2);
 
     const user = await getUser(event);
     log.info(user, `Updating file ${nodeId} in ${category}`);
@@ -73,9 +66,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await updateFileRequestBuilder(event, headers)) as RequestInit;
+    const requestOptions = (await updateFileMetadataRequestBuilder(event, headers)) as RequestInit;
 
-    const result = await updateFile(requestOptions, nodeId, name);
+    const result = await updateFileMetadata(requestOptions, nodeId);
     log.info(user, `Updated file ${nodeId} in ${categoryData.alfrescoFolder}`);
     return {
       statusCode: 200,
