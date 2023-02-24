@@ -66,7 +66,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await updateFileMetadataRequestBuilder(event, headers)) as RequestInit;
+    const requestOptions = updateFileMetadataRequestBuilder(event, headers) as RequestInit;
 
     const result = await updateFileMetadata(requestOptions, nodeId);
     log.info(user, `Updated file ${nodeId} in ${categoryData.alfrescoFolder}`);
