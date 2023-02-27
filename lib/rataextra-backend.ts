@@ -249,6 +249,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/update-file-metadata.ts',
     });
 
+    const alfrescoDeleteFile = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-delete-file',
+      relativePath: '../packages/server/lambdas/alfresco/delete-file.ts',
+    });
+
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
@@ -315,6 +321,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/alfresco/file/*'],
         httpRequestMethods: ['PUT'],
         targetName: 'alfrescoUpdateFileMetadata',
+      },
+      {
+        lambda: alfrescoDeleteFile,
+        priority: 140,
+        path: ['/api/alfresco/file/*'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'alfrescoDeleteFile',
       },
       {
         lambda: dbGetPageContents,

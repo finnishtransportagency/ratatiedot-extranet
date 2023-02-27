@@ -1,8 +1,8 @@
 import { AlfrescoFileRequestBuilder } from './alfrescoRequestBuilder';
-import { FileDeleteRequest, FileDeleteRequestBody, FileStore } from './types';
+import { FileStore } from './types';
 import { ALBEvent } from 'aws-lambda';
 
-export const fileRequestBuilder = (event: ALBEvent, headers: HeadersInit, store?: FileStore) => {
+export const fileRequestBuilder = (event: ALBEvent, headers: HeadersInit, store = FileStore.ALFRESCO) => {
   switch (store) {
     case FileStore.ALFRESCO:
       const alfrescoRequestBuilder = new AlfrescoFileRequestBuilder();
@@ -11,7 +11,7 @@ export const fileRequestBuilder = (event: ALBEvent, headers: HeadersInit, store?
       break;
   }
 };
-export const updateFileRequestBuilder = (event: ALBEvent, headers: HeadersInit, store?: FileStore) => {
+export const updateFileRequestBuilder = (event: ALBEvent, headers: HeadersInit, store = FileStore.ALFRESCO) => {
   switch (store) {
     case FileStore.ALFRESCO:
       const alfrescoRequestBuilder = new AlfrescoFileRequestBuilder();
@@ -20,7 +20,7 @@ export const updateFileRequestBuilder = (event: ALBEvent, headers: HeadersInit, 
       break;
   }
 };
-export const updateFileMetadataRequestBuilder = (event: ALBEvent, headers: HeadersInit, store?: FileStore) => {
+export const updateFileMetadataRequestBuilder = (event: ALBEvent, headers: HeadersInit, store = FileStore.ALFRESCO) => {
   switch (store) {
     case FileStore.ALFRESCO:
       const alfrescoRequestBuilder = new AlfrescoFileRequestBuilder();
@@ -29,14 +29,11 @@ export const updateFileMetadataRequestBuilder = (event: ALBEvent, headers: Heade
       break;
   }
 };
-export const deleteFileRequestBuilder = (
-  request: FileDeleteRequestBody,
-  store?: FileStore,
-): FileDeleteRequest | undefined => {
+export const deleteFileRequestBuilder = (headers: HeadersInit, store = FileStore.ALFRESCO) => {
   switch (store) {
     case FileStore.ALFRESCO:
       const alfrescoRequestBuilder = new AlfrescoFileRequestBuilder();
-      return alfrescoRequestBuilder.deleteRequestBuilder(request);
+      return alfrescoRequestBuilder.deleteRequestBuilder(headers);
     default:
       break;
   }
