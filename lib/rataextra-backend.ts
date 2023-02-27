@@ -324,7 +324,7 @@ export class RataExtraBackendStack extends NestedStack {
       },
       {
         lambda: alfrescoDeleteFile,
-        priority: 134,
+        priority: 140,
         path: ['/api/alfresco/file/*'],
         httpRequestMethods: ['DELETE'],
         targetName: 'alfrescoDeleteFile',
