@@ -31,11 +31,14 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
 
 export class AlfrescoFileRequestBuilder {
   public async requestBuilder(event: ALBEvent, headers: HeadersInit) {
-    event.body = base64ToString(event.body as string);
-    const parsedForm = (await parseForm(event)) as ParsedFormDataOptions;
+    let parsedFormData = JSON.parse(event.body as string);
+    if (event.isBase64Encoded) {
+      event.body = base64ToString(event.body as string);
+      parsedFormData = (await parseForm(event)) as ParsedFormDataOptions;
+    }
     const options = {
       method: 'POST',
-      body: createForm(parsedForm),
+      body: createForm(parsedFormData),
       headers: headers,
     } as RequestInit;
     return options;
