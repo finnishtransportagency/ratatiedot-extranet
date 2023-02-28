@@ -68,7 +68,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
         {t('search:show_results', { files: fileList.length, total: totalFiles })}
       </Typography>
       {hasMoreItems && (
-        <ButtonWrapper color="primary" variant="outlined" onClick={loadMore}>
+        <ButtonWrapper variant="contained" onClick={loadMore}>
           {t('common:action.load_more')}
         </ButtonWrapper>
       )}
