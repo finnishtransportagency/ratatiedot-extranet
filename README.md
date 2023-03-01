@@ -184,7 +184,13 @@ DATABASE_URL="postgresql://root:root@docker.internal:5432/test_db?schema=public"
 
 > Here we use ´docker.internal´ as database IP. If you want to configure postgres parameters (e.g. port number) you can do it in ´docker.compose.yml´.
 
-run migration
+You can inspect/edit local database using [prisma studio](https://www.prisma.io/studio)
+
+```
+cd packages/server && npx prisma studio
+```
+
+run local database migration
 
 ```
 npm run local:db:migrate
@@ -192,13 +198,13 @@ npm run local:db:migrate
 
 If you get `sh: ./loadenv: Permission denied`, add execution rights to the file with `chmod 755 packages/server/loadenv`.
 
-run database population
+populate local database
 
 ```
 npm run local:db:populate
 ```
 
-run synth
+run cdk synth locally
 
 ```
 npm run local:synth
