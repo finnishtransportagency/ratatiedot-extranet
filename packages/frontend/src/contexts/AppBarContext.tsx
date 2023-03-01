@@ -10,7 +10,8 @@ export const AppBarContext = React.createContext({
   openEdit: false,
   toggleEdit: () => {},
   openToolbar: false,
-  toggleToolbar: () => {},
+  openToolbarHandler: () => {},
+  closeToolbarHandler: () => {},
 });
 
 export const AppBarContextProvider = (props: any) => {
@@ -37,9 +38,14 @@ export const AppBarContextProvider = (props: any) => {
     setOpenEdit(!openEdit);
   };
 
-  const toggleToolbar = () => {
-    toggleEdit();
-    setOpenToolbar(!openToolbar);
+  const openToolbarHandler = () => {
+    setOpenEdit(false);
+    setOpenToolbar(true);
+  };
+
+  const closeToolbarHandler = () => {
+    setOpenEdit(true);
+    setOpenToolbar(false);
   };
 
   return (
@@ -54,7 +60,8 @@ export const AppBarContextProvider = (props: any) => {
         openEdit: openEdit,
         toggleEdit: toggleEdit,
         openToolbar: openToolbar,
-        toggleToolbar: toggleToolbar,
+        openToolbarHandler: openToolbarHandler,
+        closeToolbarHandler: closeToolbarHandler,
       }}
     >
       {props.children}
