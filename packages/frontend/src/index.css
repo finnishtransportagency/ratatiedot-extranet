@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  font-family: 'Exo2-Regular', 'Exo2-Bold', 'Exo2-ExtraBold', 'Exo2-LightItalic', 'Arial', 'serif';
 }
 
 @font-face {
