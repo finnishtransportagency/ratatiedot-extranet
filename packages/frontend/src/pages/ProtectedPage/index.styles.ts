@@ -41,13 +41,13 @@ const openedToolbarContentMixin = (theme: Theme): CSSObject => ({
   marginTop: '180px',
 });
 
-export const ContentWrapper = styled(Box)<DrawerWrapperProps>(({ theme, openEdit, openToolbar }) => {
+export const ContentWrapper = styled(Box)<DrawerWrapperProps>(({ theme, openedit, opentoolbar }) => {
   return {
     width: '100%',
     [theme.breakpoints.up('desktop')]: {
-      ...((openEdit && { ...openedEditContentMixin(theme) }) as any),
-      ...((!openEdit && { ...closedContentMixin(theme) }) as any),
-      ...((openToolbar && { ...openedToolbarContentMixin(theme) }) as any),
+      ...((openedit && { ...openedEditContentMixin(theme) }) as any),
+      ...((!openedit && { ...closedContentMixin(theme) }) as any),
+      ...((opentoolbar && { ...openedToolbarContentMixin(theme) }) as any),
     },
   };
 });

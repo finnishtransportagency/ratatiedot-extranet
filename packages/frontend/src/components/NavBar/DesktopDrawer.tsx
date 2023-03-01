@@ -67,8 +67,8 @@ const closedMixin = (theme: Theme): CSSObject => ({
 
 export interface DrawerWrapperProps extends DrawerProps {
   open?: boolean;
-  openEdit?: boolean;
-  openToolbar?: boolean;
+  openedit?: boolean;
+  opentoolbar?: boolean;
 }
 export const DesktopDrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ theme, open }) => {
   return {

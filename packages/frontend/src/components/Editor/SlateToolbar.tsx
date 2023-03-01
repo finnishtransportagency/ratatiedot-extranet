@@ -17,6 +17,7 @@ import { ElementType, FontFormatType } from '../../utils/types';
 import { NotificationTypes } from './NotificationTypes';
 import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
+import { EditorContext } from '../../contexts/EditorContext';
 
 type MarkButtonProps = {
   format: FontFormatType;
@@ -61,7 +62,8 @@ const BlockButton = ({ format, icon }: BlockButtonProps) => {
 };
 
 export const SlateToolbar = () => {
-  const { toggleToolbar } = useContext(AppBarContext);
+  const { closeToolbarHandler } = useContext(AppBarContext);
+
   return (
     <ToolbarPaperWrapper elevation={2}>
       <ToggleButtonGroupWrapper size="small">
@@ -90,7 +92,7 @@ export const SlateToolbar = () => {
         sx={{ cursor: 'pointer', marginLeft: 'auto' }}
         src={CloseIcon}
         alt="close"
-        onClick={toggleToolbar}
+        onClick={closeToolbarHandler}
       />
     </ToolbarPaperWrapper>
   );

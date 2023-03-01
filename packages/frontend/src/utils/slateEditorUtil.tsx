@@ -1,5 +1,8 @@
-import { Link, List, ListItem, ListItemText, Typography } from '@mui/material';
-import { Node, Editor, Transforms } from 'slate';
+import { Link } from '@mui/material';
+import { isEmpty } from 'lodash';
+import { Node, Editor, Transforms, Descendant } from 'slate';
+import { TSlateNode } from '../contexts/EditorContext';
+
 import { ElementType, FontFormatType, IElement } from './types';
 
 interface IParagraphElement extends IElement {
@@ -25,48 +28,57 @@ type SlateElementProps = {
   children: any;
   element: IParagraphElement | IHeadingElement | IListElement | ILinkElement;
 };
+
 export const SlateElement = ({ attributes, children, element }: SlateElementProps) => {
   switch (element.type) {
     case ElementType.HEADING_ONE:
       return (
-        <Typography variant="subtitle1" {...attributes}>
+        <span {...attributes} style={{ fontFamily: 'Exo2-Bold', fontSize: '23px' }}>
           {children}
-        </Typography>
+        </span>
       );
     case ElementType.HEADING_TWO:
       return (
-        <Typography variant="subtitle2" {...attributes}>
+        <span {...attributes} style={{ fontFamily: 'Exo2-Bold', fontSize: '20px' }}>
           {children}
-        </Typography>
+        </span>
       );
     case ElementType.LIST_ITEM:
-      return (
-        <ListItem {...attributes}>
-          <ListItemText disableTypography>{children}</ListItemText>
-        </ListItem>
-      );
+      return <li {...attributes}>{children}</li>;
     case ElementType.BULLET_LIST:
-      return (
-        <List component="ul" {...attributes}>
-          {children}
-        </List>
-      );
+      return <ul {...attributes}>{children}</ul>;
     case ElementType.NUMBERED_LIST:
-      return (
-        <List component="ol" {...attributes}>
-          {children}
-        </List>
-      );
+      return <ol {...attributes}>{children}</ol>;
     case ElementType.LINK:
       return (
-        <Link href={element.url} target="_blank" rel="noopener noreferrer" {...attributes}>
+        <Link
+          href={element.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          {...attributes}
+          sx={{ textDecoration: 'none' }}
+        >
           {children}
         </Link>
       );
     case ElementType.PARAGRAPH:
     default:
-      return <Typography {...attributes}>{children}</Typography>;
+      return <span {...attributes}>{children}</span>;
   }
+};
+
+export const SlateLeaf = ({ attributes, children, leaf }: any) => {
+  if (leaf.bold) {
+    children = <span style={{ fontFamily: 'Exo2-Bold' }}>{children}</span>;
+  }
+  if (leaf.italic) {
+    children = <em>{children}</em>;
+  }
+  if (leaf.underlined) {
+    children = <u>{children}</u>;
+  }
+
+  return <span {...attributes}>{children}</span>;
 };
 
 export const isMarkActive = (editor: any, format: FontFormatType) => {
@@ -101,4 +113,8 @@ export const toggleBlock = (editor: any, format: ElementType) => {
     const block = { type: format, children: [] };
     Transforms.wrapNodes(editor, block);
   }
+};
+
+export const isSlateValueEmpty = (value: TSlateNode[]) => {
+  return value.every((node: TSlateNode) => !node.children[0].text);
 };

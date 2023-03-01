@@ -15,18 +15,12 @@ import { CustomBreadcrumbs } from '../Breadcrumbs';
 import { useTranslation } from 'react-i18next';
 import { ConfirmationAppBar } from '../Editor/ConfirmationAppBar';
 import { SlateToolbar } from '../Editor/SlateToolbar';
-
-const initialValue: Descendant[] = [
-  {
-    children: [{ text: 'A line of text in a paragraph.' }],
-  },
-];
+import { EditorContext } from '../../contexts/EditorContext';
 
 export const DesktopAppBar = () => {
   const { openDrawer, openEdit, toggleEdit, openToolbar } = useContext(AppBarContext);
+  const { editor, value } = useContext(EditorContext);
   const { t } = useTranslation(['common']);
-
-  const [editor] = useState(() => withReact(createEditor()));
 
   const MainAppBar = () => {
     return (
@@ -47,7 +41,7 @@ export const DesktopAppBar = () => {
   };
 
   return (
-    <DesktopAppBarWrapper color="transparent" open={openDrawer} openEdit={openEdit} openToolbar={openToolbar}>
+    <DesktopAppBarWrapper color="transparent" open={openDrawer} openedit={openEdit} opentoolbar={openToolbar}>
       {/* Following components <ConfirmationAppBar /> and <SlateToolbar /> are visible across devices */}
       {openEdit && (
         <Toolbar>
@@ -55,7 +49,7 @@ export const DesktopAppBar = () => {
         </Toolbar>
       )}
       {openToolbar && (
-        <Slate editor={editor} value={initialValue}>
+        <Slate editor={editor} value={JSON.parse(value)}>
           <SlateToolbar />
         </Slate>
       )}
@@ -85,7 +79,7 @@ const closedMixin = (theme: Theme): CSSObject => ({
   overflowX: 'hidden',
 });
 
-export const DesktopAppBarWrapper = styled(MuiAppBar)<DrawerWrapperProps>(({ theme, open, openEdit, openToolbar }) => {
+export const DesktopAppBarWrapper = styled(MuiAppBar)<DrawerWrapperProps>(({ theme, open, openedit, opentoolbar }) => {
   return {
     boxShadow: 'none',
     backgroundColor: Colors.white,
@@ -108,12 +102,12 @@ export const DesktopAppBarWrapper = styled(MuiAppBar)<DrawerWrapperProps>(({ the
         ...closedMixin(theme),
       }) as any),
       overflow: 'visible',
-      ...((openEdit || openToolbar) && {
+      ...((openedit || opentoolbar) && {
         '.MuiToolbar-root:nth-of-type(2)': {
           padding: '24px 40px',
         },
       }),
-      ...(!openEdit && {
+      ...(!openedit && {
         '.MuiToolbar-root:nth-of-type(1)': {
           padding: '24px 40px',
         },

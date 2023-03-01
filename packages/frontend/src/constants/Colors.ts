@@ -9,4 +9,5 @@ export const Colors = {
   extrablack: '#333333',
   black: '#242222',
   darkred: '#C73F00',
+  yellow: '#FFC300',
 };
