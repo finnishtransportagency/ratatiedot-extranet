@@ -7,33 +7,47 @@ import ConfirmIcon from '../../assets/icons/Add_vahvistus.svg';
 import styled from '@emotion/styled';
 import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
+import { EditorContext } from '../../contexts/EditorContext';
+import { ENotificationType } from '../../contexts/types';
 
 export const NotificationTypes = () => {
-  const { toggleToolbar } = useContext(AppBarContext);
+  const { openToolbarHandler } = useContext(AppBarContext);
+  const { kindHandler } = useContext(EditorContext);
+
+  const handleOpenToolbar = (kind: ENotificationType) => {
+    openToolbarHandler();
+    kindHandler(kind);
+  };
 
   return (
     <ContainerWrapper>
-      <Box component="img" sx={{ cursor: 'pointer' }} src={InfoIcon} alt="info" onClick={toggleToolbar} />
+      <Box
+        component="img"
+        sx={{ cursor: 'pointer' }}
+        src={InfoIcon}
+        alt="info"
+        onClick={() => handleOpenToolbar(ENotificationType.INFO)}
+      />
       <Box
         component="img"
         sx={{ cursor: 'pointer' }}
         src={WarningIcon}
         alt="warning"
-        onClick={() => console.log('Warning Icon')}
+        onClick={() => handleOpenToolbar(ENotificationType.WARNING)}
       />
       <Box
         component="img"
         sx={{ cursor: 'pointer' }}
         src={ErrorIcon}
         alt="error"
-        onClick={() => console.log('Error Icon')}
+        onClick={() => handleOpenToolbar(ENotificationType.ERROR)}
       />
       <Box
         component="img"
         sx={{ cursor: 'pointer' }}
         src={ConfirmIcon}
         alt="check"
-        onClick={() => console.log('Confirm Icon')}
+        onClick={() => handleOpenToolbar(ENotificationType.CONFIRMATION)}
       />
     </ContainerWrapper>
   );
