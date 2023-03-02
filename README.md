@@ -23,7 +23,7 @@ In Ratatiedot Extranet, we use:
 
 1. React for user interface
 2. Lambda for server-side implementation
-3. AWS services: Cognito, Lambda, IAM, CodePipeline, CodeBuild and CodeDeploy, CloudWatch _(To-do: other AWS services to be decided)_
+3. AWS services: Cognito, Lambda, S3, ALB, IAM, CodePipeline, CodeBuild and CodeDeploy, CloudWatch _(To-do: other AWS services to be decided)_
 4. [aws-cdk](https://github.com/aws/aws-cdk) for defining and managing infrastructure and CI/CD Pipeline
 5. Typescript to enforce type-checking
 
@@ -50,7 +50,7 @@ Remade API to be more awesome, but with breaking changes
 
 ### Pull request
 
-Feature branches are to be merged to `main` via Pull Requests. Use squash merging by default. If you need to retain intermittent commits for some reason, use regular merging in such case.
+Feature branches are to be merged to `main` via Pull Requests. Use squash merging by default. If you need to retain intermittent commits for some reason, use regular merging in such case. All PRs to `prod` should use merge commit.
 
 Naming: commit_type: PROJECT_CODE-ISSUE_NUMBER Description
 E.g. `feat: RTENU-12345 Awesome new feature`
