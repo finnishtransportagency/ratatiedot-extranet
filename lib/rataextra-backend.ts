@@ -261,6 +261,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/get-page-contents.ts',
     });
 
+    const dbEditPageContents = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-edit-page-contents',
+      relativePath: '../packages/server/lambdas/database/edit-page-contents.ts',
+    });
+
     const dbUpdatePageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-update-page-contents',
@@ -335,6 +341,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/page-contents/*'],
         httpRequestMethods: ['GET'],
         targetName: 'dbGetPageContents',
+      },
+      {
+        lambda: dbEditPageContents,
+        priority: 205,
+        path: ['/api/database/page-contents/*'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'dbEditPageContents',
       },
       {
         lambda: dbUpdatePageContents,
