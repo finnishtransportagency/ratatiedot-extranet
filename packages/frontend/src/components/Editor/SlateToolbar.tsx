@@ -63,13 +63,20 @@ const BlockButton = ({ format, icon }: BlockButtonProps) => {
 
 export const SlateToolbar = () => {
   const { closeToolbarHandler } = useContext(AppBarContext);
+  const { valueReset, kindHandler } = useContext(EditorContext);
+
+  const removeNotificationOrContentType = () => {
+    kindHandler('');
+    valueReset();
+  };
 
   return (
     <ToolbarPaperWrapper elevation={2}>
       <ToggleButtonGroupWrapper size="small">
-        {BlockButton({ format: ElementType.HEADING_ONE, icon: <FormatSizeIcon fontSize="large" /> })}
-        {BlockButton({ format: ElementType.HEADING_TWO, icon: <FormatSizeIcon fontSize="medium" /> })}
-        {BlockButton({ format: ElementType.PARAGRAPH, icon: <FormatSizeIcon fontSize="small" /> })}
+        {BlockButton({ format: ElementType.PARAGRAPH_TWO, icon: <FormatSizeIcon sx={{ fontSize: '16px' }} /> })}
+        {BlockButton({ format: ElementType.PARAGRAPH_ONE, icon: <FormatSizeIcon sx={{ fontSize: '18px' }} /> })}
+        {BlockButton({ format: ElementType.HEADING_TWO, icon: <FormatSizeIcon sx={{ fontSize: '20px' }} /> })}
+        {BlockButton({ format: ElementType.HEADING_ONE, icon: <FormatSizeIcon sx={{ fontSize: '23px' }} /> })}
         {MarkButton({ format: FontFormatType.BOLD, icon: <FormatBoldIcon fontSize="small" /> })}
         {MarkButton({ format: FontFormatType.ITALIC, icon: <FormatItalicIcon fontSize="small" /> })}
         {MarkButton({ format: FontFormatType.UNDERLINED, icon: <FormatUnderlinedIcon fontSize="small" /> })}
@@ -85,7 +92,7 @@ export const SlateToolbar = () => {
         sx={{ cursor: 'pointer' }}
         src={DeleteIcon}
         alt="delete"
-        onClick={() => console.log('//TODO:')}
+        onClick={removeNotificationOrContentType}
       />
       <Box
         component="img"

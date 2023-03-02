@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import { Box, Paper } from '@mui/material';
-import { useCallback, useContext, useState } from 'react';
+import { Paper } from '@mui/material';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Editable, Slate } from 'slate-react';
 
 import { Colors } from '../../constants/Colors';
@@ -13,8 +13,12 @@ import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import CheckIcon from '@mui/icons-material/Check';
 
 export const SlateInputField = () => {
-  const { editor, value, valueHandler, kind, kindHandler } = useContext(EditorContext);
+  const { editor, value, valueHandler, kind } = useContext(EditorContext);
   const [slateValue, setSlateValue] = useState(JSON.parse(value));
+
+  useEffect(() => {
+    setSlateValue(JSON.parse(value));
+  }, [value]);
 
   const KindIcon = () => {
     switch (kind) {
@@ -42,14 +46,14 @@ export const SlateInputField = () => {
       case ENotificationType.CONFIRMATION:
         return { backgroundColor: Colors.darkgreen, color: Colors.white };
       default:
-        return <></>;
+        return {};
     }
   };
 
   const renderElement = useCallback((props: any) => <SlateElement {...props} />, []);
   const renderLeaf = useCallback((props: any) => <SlateLeaf {...props} />, []);
 
-  return (
+  return kind ? (
     <SlateInputFieldPaperWrapper elevation={2} sx={{ ...paperStyleByKind() }}>
       <KindIcon />
       <Slate
@@ -63,6 +67,8 @@ export const SlateInputField = () => {
         <Editable renderLeaf={renderLeaf} renderElement={renderElement} />
       </Slate>
     </SlateInputFieldPaperWrapper>
+  ) : (
+    <></>
   );
 };
 
