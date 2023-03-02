@@ -4,7 +4,7 @@ import { findEndpoint } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateReadUser } from '../../utils/userService';
+import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 import { Prisma } from '@prisma/client';
 import { isEmpty } from 'lodash';
@@ -45,6 +45,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     if (!categoryData) {
       throw new RataExtraLambdaError('Category not found', 404);
     }
+
+    const writeRole = categoryData.writeRights;
+    validateWriteUser(user, writeRole);
 
     const whereClause = Prisma.validator<Prisma.CategoryDataContentsWhereInput>()({
       baseId: categoryData.id,
