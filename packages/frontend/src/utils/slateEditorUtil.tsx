@@ -1,12 +1,11 @@
 import { Link } from '@mui/material';
-import { isEmpty } from 'lodash';
-import { Node, Editor, Transforms, Descendant } from 'slate';
+import { Node, Editor, Transforms } from 'slate';
 import { TSlateNode } from '../contexts/EditorContext';
 
 import { ElementType, FontFormatType, IElement } from './types';
 
 interface IParagraphElement extends IElement {
-  type: ElementType.PARAGRAPH;
+  type: ElementType.PARAGRAPH_ONE | ElementType.PARAGRAPH_TWO;
 }
 
 interface IHeadingElement extends IElement {
@@ -61,7 +60,13 @@ export const SlateElement = ({ attributes, children, element }: SlateElementProp
           {children}
         </Link>
       );
-    case ElementType.PARAGRAPH:
+    case ElementType.PARAGRAPH_ONE:
+      return (
+        <span {...attributes} style={{ fontSize: '18px' }}>
+          {children}
+        </span>
+      );
+    case ElementType.PARAGRAPH_TWO:
     default:
       return <span {...attributes}>{children}</span>;
   }
@@ -106,7 +111,7 @@ export const toggleBlock = (editor: any, format: ElementType) => {
   });
 
   Transforms.setNodes(editor, {
-    type: isActive ? ElementType.PARAGRAPH : isList ? ElementType.LIST_ITEM : format,
+    type: isActive ? ElementType.PARAGRAPH_TWO : isList ? ElementType.LIST_ITEM : format,
   } as Partial<Node>);
 
   if (!isActive && isList) {

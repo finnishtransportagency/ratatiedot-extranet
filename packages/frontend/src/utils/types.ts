@@ -5,7 +5,8 @@ export enum FontFormatType {
 }
 
 export enum ElementType {
-  PARAGRAPH = 'paragraph',
+  PARAGRAPH_ONE = 'paragraph-one',
+  PARAGRAPH_TWO = 'paragraph-two',
   HEADING_ONE = 'heading-one',
   HEADING_TWO = 'heading-two',
   LIST_ITEM = 'list-item',
