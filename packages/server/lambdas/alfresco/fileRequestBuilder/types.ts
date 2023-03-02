@@ -23,7 +23,7 @@ export type FileRequest = {
 };
 
 export type FileDeleteRequestBody = {
-  fileName: string;
+  nodeId: string;
   category: string;
 };
 

@@ -1,12 +1,16 @@
-import { FileDeleteRequest, FileDeleteRequestBody } from './types';
 import { FormData } from 'formdata-node';
 import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
 import { ALBEvent } from 'aws-lambda';
 import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
 
-const base64ToBuffer = (base64string: string) => {
+const base64ToString = (base64string: string): string => {
   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
+  return buffer;
+};
+
+const base64ToBuffer = (base64string: string): Buffer => {
+  const buffer = Buffer.from(base64string, 'base64');
   return buffer;
 };
 
@@ -27,16 +31,40 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
 
 export class AlfrescoFileRequestBuilder {
   public async requestBuilder(event: ALBEvent, headers: HeadersInit) {
-    event.body = base64ToBuffer(event.body as string);
-    const parsedForm = (await parseForm(event)) as ParsedFormDataOptions;
+    let parsedFormData = JSON.parse(event.body as string);
+    if (event.isBase64Encoded) {
+      event.body = base64ToString(event.body as string);
+      parsedFormData = (await parseForm(event)) as ParsedFormDataOptions;
+    }
     const options = {
       method: 'POST',
-      body: createForm(parsedForm),
+      body: createForm(parsedFormData),
       headers: headers,
-    } as unknown as RequestInit;
+    } as RequestInit;
     return options;
   }
-  public deleteRequestBuilder(requestParameters: FileDeleteRequestBody): FileDeleteRequest {
-    throw new Error('Method not implemented.');
+  public async updateRequestBuilder(event: ALBEvent, headers: HeadersInit) {
+    const buffer = base64ToBuffer(event.body as string);
+    const options = {
+      method: 'PUT',
+      body: buffer,
+      headers: headers,
+    } as RequestInit;
+    return options;
+  }
+  public updateJsonRequestBuilder(event: ALBEvent, headers: HeadersInit) {
+    const options = {
+      method: 'PUT',
+      body: event.body,
+      headers: headers,
+    } as RequestInit;
+    return options;
+  }
+  public deleteRequestBuilder(headers: HeadersInit) {
+    const options = {
+      method: 'DELETE',
+      headers: headers,
+    };
+    return options;
   }
 }
