@@ -1,4 +1,4 @@
-import { CategoryDataBase, CategoryDataContents } from '@prisma/client';
+import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
 
@@ -7,7 +7,7 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 import { Prisma } from '@prisma/client';
-import { isEmpty, update } from 'lodash';
+import { isEmpty } from 'lodash';
 import { handlePrismaError } from './error/databaseError';
 
 const database = await DatabaseClient.build();
