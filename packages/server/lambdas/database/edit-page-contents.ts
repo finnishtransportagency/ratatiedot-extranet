@@ -8,7 +8,7 @@ import { getUser, validateReadUser, validateWriteUser } from '../../utils/userSe
 import { DatabaseClient } from './client';
 import { Prisma } from '@prisma/client';
 import { isEmpty } from 'lodash';
-import { handlePrismaError } from './error/databaseError';
+import { handlePrismaError, PrismaError } from './error/databaseError';
 
 const database = await DatabaseClient.build();
 
@@ -57,22 +57,25 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       fields: JSON.parse(event.body),
     });
 
-    const updatedContents = await database.categoryDataContents
-      .update({
-        where: whereClause,
-        data: dataClause,
-      })
-      .then((updatedContent) => updatedContent)
-      .catch((error) => {
-        handlePrismaError(error);
-      });
+    const updateContent = async () => {
+      try {
+        return await database.categoryDataContents.update({
+          where: whereClause,
+          data: dataClause,
+        });
+      } catch (error) {
+        handlePrismaError(error as PrismaError);
+      }
+    };
+
+    const updatedContent = await updateContent();
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(updatedContents?.fields),
+      body: JSON.stringify(updatedContent?.fields),
     };
   } catch (err) {
     log.error(err);
