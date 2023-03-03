@@ -23,7 +23,7 @@ In Ratatiedot Extranet, we use:
 
 1. React for user interface
 2. Lambda for server-side implementation
-3. AWS services: Cognito, Lambda, IAM, CodePipeline, CodeBuild and CodeDeploy, CloudWatch _(To-do: other AWS services to be decided)_
+3. AWS services: Cognito, Lambda, S3, ALB, IAM, CodePipeline, CodeBuild and CodeDeploy, CloudWatch _(To-do: other AWS services to be decided)_
 4. [aws-cdk](https://github.com/aws/aws-cdk) for defining and managing infrastructure and CI/CD Pipeline
 5. Typescript to enforce type-checking
 
@@ -50,7 +50,7 @@ Remade API to be more awesome, but with breaking changes
 
 ### Pull request
 
-Feature branches are to be merged to `main` via Pull Requests. Use squash merging by default. If you need to retain intermittent commits for some reason, use regular merging in such case.
+Feature branches are to be merged to `main` via Pull Requests. Use squash merging by default. If you need to retain intermittent commits for some reason, use regular merging in such case. All PRs to `prod` should use merge commit.
 
 Naming: commit_type: PROJECT_CODE-ISSUE_NUMBER Description
 E.g. `feat: RTENU-12345 Awesome new feature`
@@ -184,7 +184,13 @@ DATABASE_URL="postgresql://root:root@docker.internal:5432/test_db?schema=public"
 
 > Here we use ´docker.internal´ as database IP. If you want to configure postgres parameters (e.g. port number) you can do it in ´docker.compose.yml´.
 
-run migration
+You can inspect/edit local database using [prisma studio](https://www.prisma.io/studio)
+
+```
+cd packages/server && npx prisma studio
+```
+
+run local database migration
 
 ```
 npm run local:db:migrate
@@ -192,13 +198,13 @@ npm run local:db:migrate
 
 If you get `sh: ./loadenv: Permission denied`, add execution rights to the file with `chmod 755 packages/server/loadenv`.
 
-run database population
+populate local database
 
 ```
 npm run local:db:populate
 ```
 
-run synth
+run cdk synth locally
 
 ```
 npm run local:synth
