@@ -8,9 +8,11 @@ import FormatSizeIcon from '@mui/icons-material/FormatSize';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import { createEditor, Descendant } from 'slate';
+import { Slate, withReact } from 'slate-react';
+
 import DeleteIcon from '../../assets/icons/Delete.svg';
 import CloseIcon from '../../assets/icons/Close.svg';
-
 import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '../../utils/slateEditorUtil';
 import { Colors } from '../../constants/Colors';
 import { ElementType, FontFormatType } from '../../utils/types';
@@ -19,18 +21,15 @@ import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { EditorContext } from '../../contexts/EditorContext';
 
-type MarkButtonProps = {
-  format: FontFormatType;
-  icon: any;
-};
+type MarkButtonProps = { editor: any; format: FontFormatType; icon: any };
 
 type BlockButtonProps = {
+  editor: any;
   format: ElementType;
   icon: any;
 };
 
-const MarkButton = ({ format, icon }: MarkButtonProps) => {
-  const editor = useSlate();
+const MarkButton = ({ editor, format, icon }: MarkButtonProps) => {
   return (
     <ToggleButton
       value={format}
@@ -45,8 +44,7 @@ const MarkButton = ({ format, icon }: MarkButtonProps) => {
   );
 };
 
-const BlockButton = ({ format, icon }: BlockButtonProps) => {
-  const editor = useSlate();
+const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
   return (
     <ToggleButton
       value={format}
@@ -63,7 +61,7 @@ const BlockButton = ({ format, icon }: BlockButtonProps) => {
 
 export const SlateToolbar = () => {
   const { closeToolbarHandler } = useContext(AppBarContext);
-  const { valueReset, kindHandler } = useContext(EditorContext);
+  const { editor, value, valueReset, kindHandler } = useContext(EditorContext);
 
   const removeNotificationOrContentType = () => {
     kindHandler('');
@@ -71,37 +69,51 @@ export const SlateToolbar = () => {
   };
 
   return (
-    <ToolbarPaperWrapper elevation={2}>
-      <ToggleButtonGroupWrapper size="small">
-        {BlockButton({ format: ElementType.PARAGRAPH_TWO, icon: <FormatSizeIcon sx={{ fontSize: '16px' }} /> })}
-        {BlockButton({ format: ElementType.PARAGRAPH_ONE, icon: <FormatSizeIcon sx={{ fontSize: '18px' }} /> })}
-        {BlockButton({ format: ElementType.HEADING_TWO, icon: <FormatSizeIcon sx={{ fontSize: '20px' }} /> })}
-        {BlockButton({ format: ElementType.HEADING_ONE, icon: <FormatSizeIcon sx={{ fontSize: '23px' }} /> })}
-        {MarkButton({ format: FontFormatType.BOLD, icon: <FormatBoldIcon fontSize="small" /> })}
-        {MarkButton({ format: FontFormatType.ITALIC, icon: <FormatItalicIcon fontSize="small" /> })}
-        {MarkButton({ format: FontFormatType.UNDERLINED, icon: <FormatUnderlinedIcon fontSize="small" /> })}
-        {BlockButton({ format: ElementType.NUMBERED_LIST, icon: <FormatListNumberedIcon fontSize="small" /> })}
-        {BlockButton({ format: ElementType.BULLET_LIST, icon: <FormatListBulletedIcon fontSize="small" /> })}
-        {BlockButton({ format: ElementType.LINK, icon: <InsertLinkIcon fontSize="small" /> })}
-      </ToggleButtonGroupWrapper>
-      <DividerWrapper orientation="vertical" variant="middle" flexItem />
-      <NotificationTypes />
-      <DividerWrapper orientation="vertical" variant="middle" flexItem />
-      <Box
-        component="img"
-        sx={{ cursor: 'pointer' }}
-        src={DeleteIcon}
-        alt="delete"
-        onClick={removeNotificationOrContentType}
-      />
-      <Box
-        component="img"
-        sx={{ cursor: 'pointer', marginLeft: 'auto' }}
-        src={CloseIcon}
-        alt="close"
-        onClick={closeToolbarHandler}
-      />
-    </ToolbarPaperWrapper>
+    <Slate editor={editor} value={JSON.parse(value)}>
+      <ToolbarPaperWrapper elevation={2}>
+        <ToggleButtonGroupWrapper size="small">
+          {BlockButton({
+            editor,
+            format: ElementType.PARAGRAPH_TWO,
+            icon: <FormatSizeIcon sx={{ fontSize: '16px' }} />,
+          })}
+          {BlockButton({
+            editor,
+            format: ElementType.PARAGRAPH_ONE,
+            icon: <FormatSizeIcon sx={{ fontSize: '18px' }} />,
+          })}
+          {BlockButton({ editor, format: ElementType.HEADING_TWO, icon: <FormatSizeIcon sx={{ fontSize: '20px' }} /> })}
+          {BlockButton({ editor, format: ElementType.HEADING_ONE, icon: <FormatSizeIcon sx={{ fontSize: '23px' }} /> })}
+          {MarkButton({ editor, format: FontFormatType.BOLD, icon: <FormatBoldIcon fontSize="small" /> })}
+          {MarkButton({ editor, format: FontFormatType.ITALIC, icon: <FormatItalicIcon fontSize="small" /> })}
+          {MarkButton({ editor, format: FontFormatType.UNDERLINED, icon: <FormatUnderlinedIcon fontSize="small" /> })}
+          {BlockButton({
+            editor,
+            format: ElementType.NUMBERED_LIST,
+            icon: <FormatListNumberedIcon fontSize="small" />,
+          })}
+          {BlockButton({ editor, format: ElementType.BULLET_LIST, icon: <FormatListBulletedIcon fontSize="small" /> })}
+          {BlockButton({ editor, format: ElementType.LINK, icon: <InsertLinkIcon fontSize="small" /> })}
+        </ToggleButtonGroupWrapper>
+        <DividerWrapper orientation="vertical" variant="middle" flexItem />
+        <NotificationTypes />
+        <DividerWrapper orientation="vertical" variant="middle" flexItem />
+        <Box
+          component="img"
+          sx={{ cursor: 'pointer' }}
+          src={DeleteIcon}
+          alt="delete"
+          onClick={removeNotificationOrContentType}
+        />
+        <Box
+          component="img"
+          sx={{ cursor: 'pointer', marginLeft: 'auto' }}
+          src={CloseIcon}
+          alt="close"
+          onClick={closeToolbarHandler}
+        />
+      </ToolbarPaperWrapper>
+    </Slate>
   );
 };
 

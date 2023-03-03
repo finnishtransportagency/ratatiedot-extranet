@@ -2,24 +2,20 @@ import styled from '@emotion/styled';
 import MuiAppBar from '@mui/material/AppBar';
 import { Box, Toolbar, Theme, CSSObject, Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import { createEditor, Descendant } from 'slate';
-import { Slate, withReact } from 'slate-react';
 
 import { Colors } from '../../constants/Colors';
 import { Search } from '../Search';
 import { drawerWidth } from '../../constants/Viewports';
 import { DrawerWrapperProps } from './DesktopDrawer';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { CustomBreadcrumbs } from '../Breadcrumbs';
 import { useTranslation } from 'react-i18next';
 import { ConfirmationAppBar } from '../Editor/ConfirmationAppBar';
 import { SlateToolbar } from '../Editor/SlateToolbar';
-import { EditorContext } from '../../contexts/EditorContext';
 
 export const DesktopAppBar = () => {
   const { openDrawer, openEdit, toggleEdit, openToolbar } = useContext(AppBarContext);
-  const { editor, value } = useContext(EditorContext);
   const { t } = useTranslation(['common']);
 
   const MainAppBar = () => {
@@ -48,11 +44,7 @@ export const DesktopAppBar = () => {
           <ConfirmationAppBar />
         </Toolbar>
       )}
-      {openToolbar && (
-        <Slate editor={editor} value={JSON.parse(value)}>
-          <SlateToolbar />
-        </Slate>
-      )}
+      {openToolbar && <SlateToolbar />}
       <Toolbar>
         <MainAppBar />
       </Toolbar>
