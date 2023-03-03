@@ -75,7 +75,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(updatedContent?.fields),
+      body: JSON.stringify({ fields: updatedContent?.fields }),
     };
   } catch (err) {
     log.error(err);
