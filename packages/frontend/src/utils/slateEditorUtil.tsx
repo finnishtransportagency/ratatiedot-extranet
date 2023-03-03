@@ -120,6 +120,9 @@ export const toggleBlock = (editor: any, format: ElementType) => {
   }
 };
 
-export const isSlateValueEmpty = (value: TSlateNode[]) => {
-  return value.every((node: TSlateNode) => !node.children[0].text);
+export const isSlateValueEmpty = (value: TSlateNode[]): boolean => {
+  return value.every((node: TSlateNode) => {
+    if (typeof node.children[0].text !== 'undefined') return !node.children[0].text;
+    else if (typeof node.children[0].children !== 'undefined') return isSlateValueEmpty(node.children as TSlateNode[]);
+  });
 };

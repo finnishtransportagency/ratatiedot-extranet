@@ -11,7 +11,7 @@ export const EditorContext = React.createContext({
   kindHandler: (_: any) => {},
 });
 
-export type TSlateNode = { children: { text: string }[]; type?: string };
+export type TSlateNode = { children: { text?: string; children?: any }[]; type?: string };
 const initValue: TSlateNode[] = [{ children: [{ text: '' }] }];
 
 export const EditorContextProvider = (props: any) => {
