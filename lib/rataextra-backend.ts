@@ -267,12 +267,6 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/edit-page-contents.ts',
     });
 
-    const dbUpdatePageContents = this.createNodejsLambda({
-      ...prismaParameters,
-      name: 'db-update-page-contents',
-      relativePath: '../packages/server/lambdas/database/update-page-contents.ts',
-    });
-
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
@@ -348,13 +342,6 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/page-contents/*'],
         httpRequestMethods: ['PUT'],
         targetName: 'dbEditPageContents',
-      },
-      {
-        lambda: dbUpdatePageContents,
-        priority: 210,
-        path: ['/api/database/page-contents/*'],
-        httpRequestMethods: ['POST'],
-        targetName: 'dbUpdatePageContents',
       },
       { lambda: dummyFn, priority: 1000, path: ['/*'], httpRequestMethods: ['GET'], targetName: 'dummy' },
     ];
