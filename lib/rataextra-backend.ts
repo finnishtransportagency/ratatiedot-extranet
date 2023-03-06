@@ -261,10 +261,10 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/get-page-contents.ts',
     });
 
-    const dbUpdatePageContents = this.createNodejsLambda({
+    const dbEditPageContents = this.createNodejsLambda({
       ...prismaParameters,
-      name: 'db-update-page-contents',
-      relativePath: '../packages/server/lambdas/database/update-page-contents.ts',
+      name: 'db-edit-page-contents',
+      relativePath: '../packages/server/lambdas/database/edit-page-contents.ts',
     });
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
@@ -337,11 +337,11 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'dbGetPageContents',
       },
       {
-        lambda: dbUpdatePageContents,
-        priority: 210,
+        lambda: dbEditPageContents,
+        priority: 205,
         path: ['/api/database/page-contents/*'],
-        httpRequestMethods: ['POST'],
-        targetName: 'dbUpdatePageContents',
+        httpRequestMethods: ['PUT'],
+        targetName: 'dbEditPageContents',
       },
       { lambda: dummyFn, priority: 1000, path: ['/*'], httpRequestMethods: ['GET'], targetName: 'dummy' },
     ];
@@ -359,6 +359,7 @@ export class RataExtraBackendStack extends NestedStack {
         rataExtraEnv,
         albDns: alb.loadBalancerDnsName,
         databaseDns: databaseDomain,
+        stackId: rataExtraStackIdentifier,
       });
       Object.entries(tags).forEach(([key, value]) => Tags.of(bastionStack).add(key, value));
     }

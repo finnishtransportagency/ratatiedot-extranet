@@ -117,14 +117,14 @@ describe('Lucene Query Builder', () => {
         '+@cm\\:modified:[2020-01-01 TO 2021-12-31]+@cm\\:content.mimetype:"application/pdf"',
       );
     });
-    it('should return query for name', () => {
+    it('should return extended query (basic search query + content search query) as default', () => {
       const parameters: Array<SearchParameter> = [
         {
           parameterName: SearchParameterName.NAME,
           term: 'test',
         },
       ];
-      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+@cm\\:name:"test*"');
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+(TEXT:"test*" @cm\\:name:"test*")');
     });
     it('should return query for content search', () => {
       const parameters: Array<SearchParameter> = [
