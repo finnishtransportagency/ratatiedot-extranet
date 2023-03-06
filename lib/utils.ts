@@ -37,8 +37,8 @@ export const isLocalStack = (rataExtraEnv: RataExtraEnvironment) => rataExtraEnv
 export const isPermanentStack = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
   isDevelopmentMainStack(stackId, rataExtraEnv) || isProductionStack(stackId, rataExtraEnv);
 
-export const getVpcAttributes = (stackId: string, rataExtraEnv: RataExtraEnvironment) => {
-  return isProductionStack(stackId, rataExtraEnv)
+export const getVpcAttributes = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
+  isProductionStack(stackId, rataExtraEnv)
     ? {
         vpcId: 'vpc-0f7ce3c168bc01755',
         availabilityZones: ['eu-west-1a', 'eu-west-1b'],
@@ -49,7 +49,6 @@ export const getVpcAttributes = (stackId: string, rataExtraEnv: RataExtraEnviron
         availabilityZones: ['eu-west-1a', 'eu-west-1b'],
         privateSubnetIds: ['subnet-01c9e778cbb6cb767', 'subnet-03598efd60ee4b545'],
       };
-};
 
 export const getSecurityGroupId = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
   isProductionStack(stackId, rataExtraEnv) ? 'sg-0fa9cd225ca77951a' : 'sg-04a38c9d8b10a6bbd';
