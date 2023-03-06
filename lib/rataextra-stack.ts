@@ -35,14 +35,14 @@ export class RataExtraStack extends Stack {
     } = getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
-      ...getVpcAttributes(rataExtraEnv),
+      ...getVpcAttributes(stackId, rataExtraEnv),
     });
 
     // TODO: Fix import
     const securityGroup = SecurityGroup.fromSecurityGroupId(
       this,
       'rataextra-security-group',
-      getSecurityGroupId(rataExtraEnv),
+      getSecurityGroupId(stackId, rataExtraEnv),
     );
 
     const lambdaServiceRole = this.createServiceRole(

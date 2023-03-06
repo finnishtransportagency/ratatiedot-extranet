@@ -19,21 +19,22 @@ interface RataExtraBastionStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly albDns: string;
   readonly databaseDns?: string | undefined;
+  readonly stackId: string;
 }
 
 export class RataExtraBastionStack extends Stack {
   constructor(scope: Construct, id: string, props: RataExtraBastionStackProps) {
     super(scope, id, props);
-    const { rataExtraEnv, albDns, databaseDns } = props;
+    const { rataExtraEnv, albDns, databaseDns, stackId } = props;
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
-      ...getVpcAttributes(rataExtraEnv),
+      ...getVpcAttributes(stackId, rataExtraEnv),
     });
 
     const securityGroup = SecurityGroup.fromSecurityGroupId(
       this,
       'rataextra-security-group',
-      getSecurityGroupId(rataExtraEnv),
+      getSecurityGroupId(stackId, rataExtraEnv),
     );
 
     const bastionRole = new Role(this, 'ec2-bastion-role', {
