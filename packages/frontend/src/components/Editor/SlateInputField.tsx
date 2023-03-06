@@ -18,7 +18,7 @@ export const SlateInputField = () => {
 
   useEffect(() => {
     setSlateValue(JSON.parse(value));
-  }, [value]);
+  }, [value, kind]);
 
   const KindIcon = () => {
     switch (kind) {

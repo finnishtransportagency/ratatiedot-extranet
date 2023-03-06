@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { useSlate } from 'slate-react';
 import { Box, Divider, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
@@ -8,8 +7,7 @@ import FormatSizeIcon from '@mui/icons-material/FormatSize';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
-import { createEditor, Descendant } from 'slate';
-import { Slate, withReact } from 'slate-react';
+import { Slate } from 'slate-react';
 
 import DeleteIcon from '../../assets/icons/Delete.svg';
 import CloseIcon from '../../assets/icons/Close.svg';
