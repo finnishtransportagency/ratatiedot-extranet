@@ -21,12 +21,12 @@ export const ConfirmationAppBar = () => {
   };
 
   return (
-    <ContainerWrapper container>
-      <Grid item>
+    <ContainerWrapper container columns={{ desktop: 12 }}>
+      <Grid item desktop={8}>
         <ParagraphWrapper variant="body2">{t('common:edit.edit_content')}</ParagraphWrapper>
         <ParagraphWrapper variant="body1">{t('common:edit.edit_instruction')}</ParagraphWrapper>
       </Grid>
-      <Grid item>
+      <Grid item desktop={4}>
         <ParagraphWrapper variant="body1">{t('common:edit.save_changes_confirmation')}</ParagraphWrapper>
         <ButtonWrapper onClick={handleReject}>{t('common:action.reject')}</ButtonWrapper>
         <ButtonWrapper variant="contained">

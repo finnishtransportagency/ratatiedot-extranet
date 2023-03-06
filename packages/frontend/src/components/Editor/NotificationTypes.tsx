@@ -53,7 +53,10 @@ export const NotificationTypes = () => {
   );
 };
 
-const ContainerWrapper = styled('div')(() => ({
+const ContainerWrapper = styled('div')(({ theme }) => ({
   textAlign: 'center',
   marginTop: '5px',
+  [theme.breakpoints.only('desktop')]: {
+    marginTop: '20px',
+  },
 }));
