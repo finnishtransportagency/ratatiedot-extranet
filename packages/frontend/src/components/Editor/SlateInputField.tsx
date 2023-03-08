@@ -60,8 +60,11 @@ export const SlateInputField = () => {
         editor={editor}
         value={slateValue}
         onChange={(value: any) => {
-          setSlateValue(value);
-          valueHandler(JSON.stringify(value));
+          const isAstChange = editor.operations.some((op) => 'set_selection' !== op.type);
+          if (isAstChange) {
+            setSlateValue(value);
+            valueHandler(JSON.stringify(value));
+          }
         }}
       >
         <Editable renderLeaf={renderLeaf} renderElement={renderElement} />
@@ -83,6 +86,6 @@ const SlateInputFieldPaperWrapper = styled(Paper)(({ theme }) => ({
     margin: '0 32px',
   },
   [theme.breakpoints.only('desktop')]: {
-    margin: '30px 40px',
+    margin: '40px',
   },
 }));
