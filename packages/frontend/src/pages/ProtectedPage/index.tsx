@@ -26,7 +26,6 @@ export const ProtectedPage = ({ children }: Props) => {
     <ContainerWrapper>
       <NavBar />
       <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
-        {openEdit && <NotificationTypes />}
         {isEditorOpened && <SlateInputField />}
         {children}
         <Footer />
