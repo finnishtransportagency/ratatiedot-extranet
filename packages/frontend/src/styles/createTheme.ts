@@ -46,6 +46,10 @@ export const theme = createTheme({
       fontFamily: ['Exo2-Regular', ...DefaultFonts].join(','),
       fontSize: 16,
     },
+    body2: {
+      fontFamily: ['Exo2-Regular', ...DefaultFonts].join(','),
+      fontSize: 18,
+    },
     button: {
       fontFamily: ['Exo2-Regular', ...DefaultFonts].join(','),
       fontSize: 20,

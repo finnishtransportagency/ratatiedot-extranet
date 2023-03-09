@@ -4,6 +4,7 @@ import { Box, Toolbar, IconButton, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
+import EditIcon from '@mui/icons-material/Edit';
 
 import RataExtLogo from '../../assets/images/Logo_noText.png';
 
@@ -15,7 +16,8 @@ import { Link } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 
 export const MiniAppBar = () => {
-  const { openDrawer, toggleDrawer, openSearch, toggleSearch } = useContext(AppBarContext);
+  const { openDrawer, toggleDrawer, openSearch, toggleSearch, openEdit, toggleEdit, openToolbar } =
+    useContext(AppBarContext);
   const MainAppBar = () => {
     return (
       <>
@@ -35,6 +37,11 @@ export const MiniAppBar = () => {
           </Toolbar>
         </Link>
         <Box sx={{ flexGrow: 1 }} />
+        {!openEdit && !openToolbar && (
+          <IconButton size="large" edge="end" color="inherit" area-label="open edit" onClick={toggleEdit}>
+            <EditIcon fontSize="small" color="primary" />
+          </IconButton>
+        )}
         <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
           <SearchIcon color="primary" />
         </IconButton>

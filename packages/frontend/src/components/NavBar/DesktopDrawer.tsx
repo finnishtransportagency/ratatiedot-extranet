@@ -67,6 +67,8 @@ const closedMixin = (theme: Theme): CSSObject => ({
 
 export interface DrawerWrapperProps extends DrawerProps {
   open?: boolean;
+  openedit?: boolean;
+  opentoolbar?: boolean;
 }
 export const DesktopDrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ theme, open }) => {
   return {
@@ -93,8 +95,6 @@ export const DesktopDrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ the
       // Logout is the last list item
       '& li:last-child': {
         // TODO: Logout should always be placed in bottom
-        // position: 'fixed',
-        // bottom: '16px',
         width: open ? `${drawerWidth}px` : `calc(${theme.spacing(8)} + 1px)`,
         '& .MuiListItemIcon-root': {
           color: Colors.darkblue,

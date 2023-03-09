@@ -47,7 +47,7 @@ export const getVpcAttributes = (stackId: string, rataExtraEnv: RataExtraEnviron
     : {
         vpcId: 'vpc-092f1d064d39ca6a1',
         availabilityZones: ['eu-west-1a', 'eu-west-1b'],
-        privateSubnetIds: ['subnet-01c9e778cbb6cb767', 'subnet-03598efd60ee4b545'],
+        privateSubnetIds: ['subnet-05ba766fa5c0f0eb0', 'subnet-019cb289645adae50'],
       };
 
 export const getSecurityGroupId = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
