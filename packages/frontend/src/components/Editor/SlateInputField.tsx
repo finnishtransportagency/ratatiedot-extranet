@@ -97,6 +97,6 @@ const SlateInputFieldPaperWrapper = styled(Paper)<DrawerWrapperProps>(({ theme, 
     margin: '0 32px',
   },
   [theme.breakpoints.only('desktop')]: {
-    margin: '50px 40px',
+    margin: '60px 40px 0px 40px',
   },
 }));
