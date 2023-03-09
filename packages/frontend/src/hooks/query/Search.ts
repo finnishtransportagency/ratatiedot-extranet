@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
+import { QueryKeys } from '../../constants/QueryKeys';
 import { SortingParameters } from '../../contexts/SearchContext';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
 import { getRouterName } from '../../utils/helpers';
@@ -67,7 +68,7 @@ export const usePostAlfrescoSearch = (props: TAlfrescoSearchProps) => {
 
   return useQuery({
     enabled: Boolean(term),
-    queryKey: ['alfresco-search', props],
+    queryKey: [QueryKeys.ALFRESCO_SEARCH, props],
     queryFn: async () => {
       const body = getSearchBody(props);
       const response = await axios.post('/api/alfresco/search', body);

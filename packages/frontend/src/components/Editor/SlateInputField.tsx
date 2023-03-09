@@ -2,18 +2,23 @@ import styled from '@emotion/styled';
 import { Paper } from '@mui/material';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Editable, Slate } from 'slate-react';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 
 import { Colors } from '../../constants/Colors';
 import { EditorContext } from '../../contexts/EditorContext';
 import { ENotificationType } from '../../contexts/types';
 import { SlateElement, SlateLeaf } from '../../utils/slateEditorUtil';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
-import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import CheckIcon from '@mui/icons-material/Check';
+import { DrawerWrapperProps } from '../NavBar/DesktopDrawer';
+import { AppBarContext } from '../../contexts/AppBarContext';
+import { useTranslation } from 'react-i18next';
 
 export const SlateInputField = () => {
+  const { t } = useTranslation(['common']);
   const { editor, value, valueHandler, kind } = useContext(EditorContext);
+  const { openToolbar } = useContext(AppBarContext);
   const [slateValue, setSlateValue] = useState(JSON.parse(value));
 
   useEffect(() => {
@@ -54,17 +59,26 @@ export const SlateInputField = () => {
   const renderLeaf = useCallback((props: any) => <SlateLeaf {...props} />, []);
 
   return kind ? (
-    <SlateInputFieldPaperWrapper elevation={2} sx={{ ...paperStyleByKind() }}>
+    <SlateInputFieldPaperWrapper elevation={2} sx={{ ...paperStyleByKind() }} opentoolbar={openToolbar}>
       <KindIcon />
       <Slate
         editor={editor}
         value={slateValue}
         onChange={(value: any) => {
-          setSlateValue(value);
-          valueHandler(JSON.stringify(value));
+          const isAstChange = editor.operations.some((op) => 'set_selection' !== op.type);
+          if (isAstChange) {
+            setSlateValue(value);
+            valueHandler(JSON.stringify(value));
+          }
         }}
       >
-        <Editable renderLeaf={renderLeaf} renderElement={renderElement} />
+        <Editable
+          renderLeaf={renderLeaf}
+          renderElement={renderElement}
+          placeholder={t('common:edit.write_content')}
+          readOnly={!openToolbar}
+          style={{ cursor: openToolbar ? 'text' : 'default' }}
+        />
       </Slate>
     </SlateInputFieldPaperWrapper>
   ) : (
@@ -72,10 +86,10 @@ export const SlateInputField = () => {
   );
 };
 
-const SlateInputFieldPaperWrapper = styled(Paper)(({ theme }) => ({
+const SlateInputFieldPaperWrapper = styled(Paper)<DrawerWrapperProps>(({ theme, opentoolbar }) => ({
   padding: '10px',
   boxShadow: 'none',
-  border: `1px dashed ${Colors.darkblue}`,
+  border: opentoolbar ? `1px dashed ${Colors.darkblue}` : 'none',
   [theme.breakpoints.only('mobile')]: {
     margin: '0 15px',
   },
@@ -83,6 +97,6 @@ const SlateInputFieldPaperWrapper = styled(Paper)(({ theme }) => ({
     margin: '0 32px',
   },
   [theme.breakpoints.only('desktop')]: {
-    margin: '30px 40px',
+    margin: '60px 40px 0px 40px',
   },
 }));

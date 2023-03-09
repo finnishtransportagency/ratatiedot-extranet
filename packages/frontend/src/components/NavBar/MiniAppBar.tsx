@@ -16,7 +16,7 @@ import { Link } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 
 export const MiniAppBar = () => {
-  const { openDrawer, toggleDrawer, openSearch, toggleSearch, openEdit, toggleEdit, openToolbar } =
+  const { openDrawer, toggleDrawer, openSearch, toggleSearch, openEdit, openToolbar, openToolbarHandler } =
     useContext(AppBarContext);
   const MainAppBar = () => {
     return (
@@ -38,7 +38,7 @@ export const MiniAppBar = () => {
         </Link>
         <Box sx={{ flexGrow: 1 }} />
         {!openEdit && !openToolbar && (
-          <IconButton size="large" edge="end" color="inherit" area-label="open edit" onClick={toggleEdit}>
+          <IconButton size="large" edge="end" color="inherit" area-label="open edit" onClick={openToolbarHandler}>
             <EditIcon fontSize="small" color="primary" />
           </IconButton>
         )}
