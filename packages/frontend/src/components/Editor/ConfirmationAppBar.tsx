@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Button, Grid } from '@mui/material';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CheckIcon from '@mui/icons-material/Check';
 
@@ -8,16 +8,43 @@ import { Colors } from '../../constants/Colors';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { ParagraphWrapper } from '../../pages/Landing/index.styles';
 import { EditorContext } from '../../contexts/EditorContext';
+import { useLocation } from 'react-router-dom';
+import { useUpdatePageContents } from '../../hooks/mutations/UpdateCategoryPageContent';
+import { getRouterName } from '../../utils/helpers';
+import { isSlateValueEmpty } from '../../utils/slateEditorUtil';
+import { SnackbarAlert } from '../Notification/Snackbar';
 
 export const ConfirmationAppBar = () => {
+  const [isError, setIsError] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { toggleEdit } = useContext(AppBarContext);
-  const { valueReset } = useContext(EditorContext);
+  const { value, valueReset } = useContext(EditorContext);
+  const { pathname } = useLocation();
+  const categoryName = pathname.split('/').at(-1) || '';
 
   const { t } = useTranslation(['common']);
+
+  const mutatePageContents = useUpdatePageContents(getRouterName(categoryName));
+  const { error } = mutatePageContents;
 
   const handleReject = () => {
     toggleEdit();
     valueReset();
+  };
+
+  const handleSave = () => {
+    const bodyRequest = JSON.parse(value);
+    if (!isSlateValueEmpty(bodyRequest)) {
+      mutatePageContents.mutate(bodyRequest, {
+        onSuccess: () => {
+          toggleEdit();
+          setIsSuccess(true);
+        },
+        onError: () => setIsError(true),
+      });
+    } else {
+      setIsError(true);
+    }
   };
 
   return (
@@ -29,11 +56,23 @@ export const ConfirmationAppBar = () => {
       <Grid item desktop={4}>
         <ParagraphWrapper variant="body1">{t('common:edit.save_changes_confirmation')}</ParagraphWrapper>
         <ButtonWrapper onClick={handleReject}>{t('common:action.reject')}</ButtonWrapper>
-        <ButtonWrapper variant="contained">
+        <ButtonWrapper variant="contained" onClick={handleSave}>
           <CheckIcon fontSize="small" />
           {t('common:action.save')}
         </ButtonWrapper>
       </Grid>
+      <SnackbarAlert
+        open={isError}
+        onSnackbarClose={() => setIsError(false)}
+        color={Colors.darkred}
+        text={error ? (error as Error).message : 'Texts cannot be saved'}
+      ></SnackbarAlert>
+      <SnackbarAlert
+        open={isSuccess}
+        onSnackbarClose={() => setIsSuccess(false)}
+        color={Colors.black}
+        text="Texts are saved successfully"
+      ></SnackbarAlert>
     </ContainerWrapper>
   );
 };

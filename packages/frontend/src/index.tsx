@@ -10,7 +10,7 @@ import { theme } from './styles/createTheme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './i18n';
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
