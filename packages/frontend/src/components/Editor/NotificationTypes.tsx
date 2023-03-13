@@ -1,22 +1,21 @@
 import { Box } from '@mui/material';
+import styled from '@emotion/styled';
+import { useContext } from 'react';
 
 import InfoIcon from '../../assets/icons/Add_info.svg';
 import WarningIcon from '../../assets/icons/Add_varoitus.svg';
 import ErrorIcon from '../../assets/icons/Add_virhe.svg';
 import ConfirmIcon from '../../assets/icons/Add_vahvistus.svg';
-import styled from '@emotion/styled';
-import { useContext } from 'react';
-import { AppBarContext } from '../../contexts/AppBarContext';
 import { EditorContext } from '../../contexts/EditorContext';
-import { ENotificationType } from '../../contexts/types';
+import { ElementType } from '../../utils/types';
+import { toggleNotification } from '../../utils/slateEditorUtil';
 
 export const NotificationTypes = () => {
-  const { openToolbarHandler } = useContext(AppBarContext);
-  const { kindHandler } = useContext(EditorContext);
+  const { editor, notificationTypeHandler } = useContext(EditorContext);
 
-  const handleOpenToolbar = (kind: ENotificationType) => {
-    openToolbarHandler();
-    kindHandler(kind);
+  const handleOpenToolbar = (notificationType: ElementType) => {
+    toggleNotification(editor, notificationType);
+    notificationTypeHandler(notificationType);
   };
 
   return (
@@ -26,28 +25,28 @@ export const NotificationTypes = () => {
         sx={{ cursor: 'pointer' }}
         src={InfoIcon}
         alt="info"
-        onClick={() => handleOpenToolbar(ENotificationType.INFO)}
+        onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_INFO)}
       />
       <Box
         component="img"
         sx={{ cursor: 'pointer' }}
         src={WarningIcon}
         alt="warning"
-        onClick={() => handleOpenToolbar(ENotificationType.WARNING)}
+        onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_WARNING)}
       />
       <Box
         component="img"
         sx={{ cursor: 'pointer' }}
         src={ErrorIcon}
         alt="error"
-        onClick={() => handleOpenToolbar(ENotificationType.ERROR)}
+        onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_ERROR)}
       />
       <Box
         component="img"
         sx={{ cursor: 'pointer' }}
         src={ConfirmIcon}
         alt="check"
-        onClick={() => handleOpenToolbar(ENotificationType.CONFIRMATION)}
+        onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_CONFIRMATION)}
       />
     </ContainerWrapper>
   );

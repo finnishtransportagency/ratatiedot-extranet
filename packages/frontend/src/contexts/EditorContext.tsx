@@ -1,25 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { createEditor } from 'slate';
 import { withReact } from 'slate-react';
+import { useGetCategoryPageContent } from '../hooks/query/GetCategoryPageContent';
+import { getRouterName } from '../utils/helpers';
 
 export const EditorContext = React.createContext({
   editor: withReact(createEditor()),
   value: '',
   valueHandler: (_: any) => {},
   valueReset: () => {},
-  kind: '',
-  kindHandler: (_: any) => {},
+  notificationType: '',
+  notificationTypeHandler: (_: any) => {},
 });
 
 export type TSlateNode = { children: { text?: string; children?: any }[]; type?: string };
 const initValue: TSlateNode[] = [{ children: [{ text: '' }] }];
 
 export const EditorContextProvider = (props: any) => {
-  const [kind, setKind] = useState('');
-  const [editor, setEditor] = useState(() => withReact(createEditor()));
-  const [value, setValue] = useState(JSON.stringify(initValue));
+  const { pathname } = useLocation();
+  const categoryName = pathname.split('/').at(-1) || '';
+  const { data } = useGetCategoryPageContent(getRouterName(categoryName));
 
-  const kindHandler = (k: string) => setKind(k);
+  const [notificationType, setNotificationType] = useState('');
+  const [editor, setEditor] = useState(() => withReact(createEditor()));
+  const [value, setValue] = useState(() => {
+    return JSON.stringify(initValue);
+  });
+
+  useEffect(() => {
+    if (data) {
+      const dataResponse = data.fields.filter((field: any) => {
+        return field.type.indexOf('notification') !== -1;
+      });
+      setValue(JSON.stringify(dataResponse));
+    }
+  }, [data]);
+
+  const notificationTypeHandler = (k: string) => setNotificationType(k);
 
   const valueHandler = (v: any) => setValue(v);
 
@@ -35,8 +53,8 @@ export const EditorContextProvider = (props: any) => {
         value: value,
         valueHandler: valueHandler,
         valueReset: valueReset,
-        kind: kind,
-        kindHandler: kindHandler,
+        notificationType: notificationType,
+        notificationTypeHandler: notificationTypeHandler,
       }}
     >
       {props.children}

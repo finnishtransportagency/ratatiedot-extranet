@@ -13,6 +13,10 @@ export enum ElementType {
   BULLET_LIST = 'bulleted-list',
   NUMBERED_LIST = 'numbered-list',
   LINK = 'link',
+  NOTIFICATION_INFO = 'notification_info',
+  NOTIFICATION_WARNING = 'notification_warning',
+  NOTIFICATION_ERROR = 'notification_error',
+  NOTIFICATION_CONFIRMATION = 'notification_confirmation',
 }
 
 export interface IElement {

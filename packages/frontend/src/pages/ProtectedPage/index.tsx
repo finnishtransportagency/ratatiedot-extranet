@@ -3,7 +3,6 @@ import React, { useContext } from 'react';
 import { ContentWrapper, ContainerWrapper } from './index.styles';
 import { NavBar } from '../../components/NavBar';
 import { Footer } from '../../components/Footer';
-import { NotificationTypes } from '../../components/Editor/NotificationTypes';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { SlateInputField } from '../../components/Editor/SlateInputField';
 import { EditorContext } from '../../contexts/EditorContext';
@@ -20,7 +19,7 @@ export const ProtectedPage = ({ children }: Props) => {
   const { value } = useContext(EditorContext);
 
   const isEditorOpened =
-    openToolbar || openEdit || !isSlateValueEmpty(JSON.parse(value));
+    openToolbar || (openEdit && !isSlateValueEmpty(JSON.parse(value))) || !isSlateValueEmpty(JSON.parse(value));
 
   return (
     <ContainerWrapper>
