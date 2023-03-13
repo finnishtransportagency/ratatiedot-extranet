@@ -142,8 +142,6 @@ export const toggleNotification = (editor: any, format: ElementType) => {
     format === ElementType.NOTIFICATION_ERROR ||
     format === ElementType.NOTIFICATION_CONFIRMATION;
 
-  // console.log(isActive, isNotification);
-
   Transforms.unwrapNodes(editor, {
     match: (n: Node) =>
       (n as any).type === ElementType.NOTIFICATION_INFO ||
@@ -152,10 +150,6 @@ export const toggleNotification = (editor: any, format: ElementType) => {
       (n as any).type === ElementType.NOTIFICATION_CONFIRMATION,
     split: true,
   });
-
-  // Transforms.setNodes(editor, {
-  //   type: isActive ? ElementType.PARAGRAPH_TWO : isNotification ? ElementType.HEADING_ONE : format,
-  // } as Partial<Node>);
 
   if (!isActive && isNotification) {
     const block = { type: format, children: [] };
