@@ -64,7 +64,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
 
     const result = await postFile(requestOptions, categoryData.alfrescoFolder);
-    log.info(user, `Uploaded file ${result?.entry.name} to ${categoryData.alfrescoFolder}`);
+    log.info(user, `Uploaded file ${result?.entry.name} with id ${result?.entry.id} to ${categoryData.alfrescoFolder}`);
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
