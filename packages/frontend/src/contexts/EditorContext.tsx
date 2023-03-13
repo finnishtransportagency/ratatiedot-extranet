@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { createEditor } from 'slate';
@@ -29,11 +30,14 @@ export const EditorContextProvider = (props: any) => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && data.fields && !isEmpty(data.fields)) {
       const dataResponse = data.fields.filter((field: any) => {
         return field.type.indexOf('notification') !== -1;
       });
-      setValue(JSON.stringify(dataResponse));
+      // TODO: check if response data has slate editor's format
+      if (dataResponse && dataResponse.length) {
+        setValue(JSON.stringify(dataResponse));
+      }
     }
   }, [data]);
 
