@@ -1,5 +1,6 @@
 import { Link } from '@mui/material';
 import { Node, Editor, Transforms } from 'slate';
+import { NotificationEditorCard } from '../components/Cards/NotificationEditorCard';
 import { TSlateNode } from '../contexts/EditorContext';
 
 import { ElementType, FontFormatType, IElement } from './types';
@@ -22,14 +23,27 @@ interface ILinkElement extends IElement {
   url: string;
 }
 
-type SlateElementProps = {
+export interface INotificationElement extends IElement {
+  type:
+    | ElementType.NOTIFICATION_INFO
+    | ElementType.NOTIFICATION_WARNING
+    | ElementType.NOTIFICATION_ERROR
+    | ElementType.NOTIFICATION_CONFIRMATION;
+}
+
+export type SlateElementProps = {
   attributes: any;
   children: any;
-  element: IParagraphElement | IHeadingElement | IListElement | ILinkElement;
+  element: IParagraphElement | IHeadingElement | IListElement | ILinkElement | INotificationElement;
 };
 
 export const SlateElement = ({ attributes, children, element }: SlateElementProps) => {
   switch (element.type) {
+    case ElementType.NOTIFICATION_INFO:
+    case ElementType.NOTIFICATION_WARNING:
+    case ElementType.NOTIFICATION_ERROR:
+    case ElementType.NOTIFICATION_CONFIRMATION:
+      return <NotificationEditorCard attributes={attributes} children={children} element={element} />;
     case ElementType.HEADING_ONE:
       return (
         <span {...attributes} style={{ fontFamily: 'Exo2-Bold', fontSize: '23px' }}>
@@ -115,6 +129,35 @@ export const toggleBlock = (editor: any, format: ElementType) => {
   } as Partial<Node>);
 
   if (!isActive && isList) {
+    const block = { type: format, children: [] };
+    Transforms.wrapNodes(editor, block);
+  }
+};
+
+export const toggleNotification = (editor: any, format: ElementType) => {
+  const isActive = isBlockActive(editor, format);
+  const isNotification =
+    format === ElementType.NOTIFICATION_INFO ||
+    format === ElementType.NOTIFICATION_WARNING ||
+    format === ElementType.NOTIFICATION_ERROR ||
+    format === ElementType.NOTIFICATION_CONFIRMATION;
+
+  // console.log(isActive, isNotification);
+
+  Transforms.unwrapNodes(editor, {
+    match: (n: Node) =>
+      (n as any).type === ElementType.NOTIFICATION_INFO ||
+      (n as any).type === ElementType.NOTIFICATION_WARNING ||
+      (n as any).type === ElementType.NOTIFICATION_ERROR ||
+      (n as any).type === ElementType.NOTIFICATION_CONFIRMATION,
+    split: true,
+  });
+
+  // Transforms.setNodes(editor, {
+  //   type: isActive ? ElementType.PARAGRAPH_TWO : isNotification ? ElementType.HEADING_ONE : format,
+  // } as Partial<Node>);
+
+  if (!isActive && isNotification) {
     const block = { type: format, children: [] };
     Transforms.wrapNodes(editor, block);
   }

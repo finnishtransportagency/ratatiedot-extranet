@@ -8,7 +8,7 @@ export const useUpdatePageContents = (categoryName: string) => {
   return useMutation({
     mutationKey: ['page-content-update'],
     mutationFn: (slateValue: any) =>
-      axios.put(`http://localhost:3002/api/database/page-contents/${getRouterName(categoryName)}`, slateValue),
+      axios.put(`/api/database/page-contents/${getRouterName(categoryName)}`, slateValue),
     onMutate: async (slateValue: any) => {
       // Cancel any outgoing refetches
       // (so they don't overwrite our optimistic update)

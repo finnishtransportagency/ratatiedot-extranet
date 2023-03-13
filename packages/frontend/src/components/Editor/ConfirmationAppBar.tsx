@@ -37,10 +37,12 @@ export const ConfirmationAppBar = () => {
     if (!isSlateValueEmpty(bodyRequest)) {
       mutatePageContents.mutate(bodyRequest, {
         onSuccess: () => {
-          toggleEdit();
           setIsSuccess(true);
+          toggleEdit();
         },
-        onError: () => setIsError(true),
+        onError: () => {
+          setIsError(true);
+        },
       });
     } else {
       setIsError(true);
