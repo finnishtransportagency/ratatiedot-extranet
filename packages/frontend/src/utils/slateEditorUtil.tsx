@@ -157,6 +157,26 @@ export const toggleNotification = (editor: any, format: ElementType) => {
   }
 };
 
+export const deleteNotification = (editor: any, format: ElementType) => {
+  Transforms.unwrapNodes(editor, {
+    match: (n: Node) =>
+      (n as any).type === ElementType.NOTIFICATION_INFO ||
+      (n as any).type === ElementType.NOTIFICATION_WARNING ||
+      (n as any).type === ElementType.NOTIFICATION_ERROR ||
+      (n as any).type === ElementType.NOTIFICATION_CONFIRMATION,
+    split: true,
+  });
+};
+
+export const deleteEditor = (editor: any) => {
+  Transforms.delete(editor, {
+    at: {
+      anchor: Editor.start(editor, []),
+      focus: Editor.end(editor, []),
+    },
+  });
+};
+
 export const isSlateValueEmpty = (value: TSlateNode[]): boolean => {
   return value.every((node: TSlateNode) => {
     if (typeof node.children[0].text !== 'undefined') return !node.children[0].text;

@@ -11,7 +11,15 @@ import { Slate } from 'slate-react';
 
 import DeleteIcon from '../../assets/icons/Delete.svg';
 import CloseIcon from '../../assets/icons/Close.svg';
-import { isBlockActive, isMarkActive, toggleBlock, toggleMark } from '../../utils/slateEditorUtil';
+import {
+  deleteEditor,
+  deleteNotification,
+  isBlockActive,
+  isMarkActive,
+  toggleBlock,
+  toggleMark,
+  toggleNotification,
+} from '../../utils/slateEditorUtil';
 import { Colors } from '../../constants/Colors';
 import { ElementType, FontFormatType } from '../../utils/types';
 import { NotificationTypes } from './NotificationTypes';
@@ -59,11 +67,11 @@ const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
 
 export const SlateToolbar = () => {
   const { closeToolbarHandler } = useContext(AppBarContext);
-  const { editor, value, valueReset, kindHandler } = useContext(EditorContext);
+  const { editor, value, notificationType } = useContext(EditorContext);
 
   const removeNotificationOrContentType = () => {
-    kindHandler('');
-    valueReset();
+    deleteNotification(editor, notificationType as ElementType);
+    deleteEditor(editor);
   };
 
   return (
