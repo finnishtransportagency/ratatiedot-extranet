@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { Paper } from '@mui/material';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Editable, Slate } from 'slate-react';
+import { Editable, ReactEditor, Slate } from 'slate-react';
 
 import { Colors } from '../../constants/Colors';
 import { EditorContext } from '../../contexts/EditorContext';
@@ -24,7 +24,7 @@ export const SlateInputField = () => {
   const renderElement = useCallback((props: any) => <SlateElement {...props} />, []);
   const renderLeaf = useCallback((props: any) => <SlateLeaf {...props} />, []);
 
-  const isNotificationSlateOpened = openToolbar && !!value[0].type;
+  const isNotificationSlateOpened = openToolbar && ReactEditor.isFocused(editor);
 
   return (
     <SlateInputFieldPaperWrapper elevation={2} opentoolbar={isNotificationSlateOpened}>
