@@ -69,8 +69,7 @@ export const SlateToolbar = () => {
   const { editor, value } = useContext(EditorContext);
 
   const removeNotificationOrContentType = () => {
-    deleteNotification(editor, value[0].type);
-    deleteEditor(editor);
+    deleteNotification(editor, value[0].type, true);
   };
 
   return (

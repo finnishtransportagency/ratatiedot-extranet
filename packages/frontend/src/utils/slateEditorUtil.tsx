@@ -160,15 +160,21 @@ export const openNotification = (editor: any, format: ElementType) => {
   }
 };
 
-export const deleteNotification = (editor: any, format: ElementType) => {
-  Transforms.unwrapNodes(editor, {
-    match: (n: Node) =>
-      (n as any).type === ElementType.NOTIFICATION_INFO ||
-      (n as any).type === ElementType.NOTIFICATION_WARNING ||
-      (n as any).type === ElementType.NOTIFICATION_ERROR ||
-      (n as any).type === ElementType.NOTIFICATION_CONFIRMATION,
-    split: true,
-  });
+export const deleteNotification = (editor: any, format: ElementType, shouldDeleteEditor?: boolean) => {
+  const isActive = isBlockActive(editor, format);
+  if (isActive) {
+    Transforms.unwrapNodes(editor, {
+      match: (n: Node) =>
+        (n as any).type === ElementType.NOTIFICATION_INFO ||
+        (n as any).type === ElementType.NOTIFICATION_WARNING ||
+        (n as any).type === ElementType.NOTIFICATION_ERROR ||
+        (n as any).type === ElementType.NOTIFICATION_CONFIRMATION,
+      split: true,
+    });
+    if (shouldDeleteEditor) {
+      deleteEditor(editor);
+    }
+  }
 };
 
 export const deleteEditor = (editor: any) => {
