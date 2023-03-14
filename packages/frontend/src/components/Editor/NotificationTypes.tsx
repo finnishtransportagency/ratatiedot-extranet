@@ -11,11 +11,12 @@ import { ElementType } from '../../utils/types';
 import { toggleNotification } from '../../utils/slateEditorUtil';
 
 export const NotificationTypes = () => {
-  const { editor, notificationTypeHandler } = useContext(EditorContext);
+  const { editor, value, valueHandler } = useContext(EditorContext);
 
   const handleOpenToolbar = (notificationType: ElementType) => {
+    const newValue = [{ type: notificationType, ...value }];
+    valueHandler(newValue);
     toggleNotification(editor, notificationType);
-    notificationTypeHandler(notificationType);
   };
 
   return (
