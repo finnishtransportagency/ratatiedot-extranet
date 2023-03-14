@@ -33,9 +33,8 @@ export const ConfirmationAppBar = () => {
   };
 
   const handleSave = () => {
-    const bodyRequest = JSON.parse(value);
-    if (!isSlateValueEmpty(bodyRequest)) {
-      mutatePageContents.mutate(bodyRequest, {
+    if (!isSlateValueEmpty(value)) {
+      mutatePageContents.mutate(value, {
         onSuccess: () => {
           setIsSuccess(true);
           toggleEdit();

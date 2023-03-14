@@ -18,8 +18,7 @@ export const ProtectedPage = ({ children }: Props) => {
   const { openEdit, openToolbar } = useContext(AppBarContext);
   const { value } = useContext(EditorContext);
 
-  const isEditorOpened =
-    openToolbar || (openEdit && !isSlateValueEmpty(JSON.parse(value))) || !isSlateValueEmpty(JSON.parse(value));
+  const isEditorOpened = openToolbar || (openEdit && !isSlateValueEmpty(value)) || !isSlateValueEmpty(value);
 
   return (
     <ContainerWrapper>
