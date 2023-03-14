@@ -92,7 +92,7 @@ const OTHERS_ROUTES = [
   getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
 ];
 
-const routes: RouteObject[] = [
+export const routes: RouteObject[] = [
   HOME_ROUTE,
   SEARCH_ROUTE,
   ...DIAGRAMS_ROUTES,
