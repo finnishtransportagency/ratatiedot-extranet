@@ -8,14 +8,15 @@ import ErrorIcon from '../../assets/icons/Add_virhe.svg';
 import ConfirmIcon from '../../assets/icons/Add_vahvistus.svg';
 import { EditorContext } from '../../contexts/EditorContext';
 import { ElementType } from '../../utils/types';
-import { toggleNotification } from '../../utils/slateEditorUtil';
+import { openNotification } from '../../utils/slateEditorUtil';
 
 export const NotificationTypes = () => {
-  const { editor, notificationTypeHandler } = useContext(EditorContext);
+  const { editor, value, valueHandler } = useContext(EditorContext);
 
   const handleOpenToolbar = (notificationType: ElementType) => {
-    toggleNotification(editor, notificationType);
-    notificationTypeHandler(notificationType);
+    const newValue = [{ type: notificationType, ...value }];
+    valueHandler(newValue);
+    openNotification(editor, notificationType);
   };
 
   return (

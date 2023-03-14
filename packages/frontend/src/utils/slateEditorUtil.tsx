@@ -1,5 +1,6 @@
 import { Link } from '@mui/material';
 import { Node, Editor, Transforms } from 'slate';
+import { ReactEditor } from 'slate-react';
 import { NotificationEditorCard } from '../components/Cards/NotificationEditorCard';
 import { TSlateNode } from '../contexts/EditorContext';
 
@@ -134,8 +135,10 @@ export const toggleBlock = (editor: any, format: ElementType) => {
   }
 };
 
-export const toggleNotification = (editor: any, format: ElementType) => {
-  const isActive = isBlockActive(editor, format);
+export const openNotification = (editor: any, format: ElementType) => {
+  Transforms.select(editor, Editor.end(editor, []));
+  ReactEditor.focus(editor);
+
   const isNotification =
     format === ElementType.NOTIFICATION_INFO ||
     format === ElementType.NOTIFICATION_WARNING ||
@@ -151,21 +154,27 @@ export const toggleNotification = (editor: any, format: ElementType) => {
     split: true,
   });
 
-  if (!isActive && isNotification) {
+  if (isNotification) {
     const block = { type: format, children: [] };
     Transforms.wrapNodes(editor, block);
   }
 };
 
-export const deleteNotification = (editor: any, format: ElementType) => {
-  Transforms.unwrapNodes(editor, {
-    match: (n: Node) =>
-      (n as any).type === ElementType.NOTIFICATION_INFO ||
-      (n as any).type === ElementType.NOTIFICATION_WARNING ||
-      (n as any).type === ElementType.NOTIFICATION_ERROR ||
-      (n as any).type === ElementType.NOTIFICATION_CONFIRMATION,
-    split: true,
-  });
+export const deleteNotification = (editor: any, format: ElementType, shouldDeleteEditor?: boolean) => {
+  const isActive = isBlockActive(editor, format);
+  if (isActive) {
+    Transforms.unwrapNodes(editor, {
+      match: (n: Node) =>
+        (n as any).type === ElementType.NOTIFICATION_INFO ||
+        (n as any).type === ElementType.NOTIFICATION_WARNING ||
+        (n as any).type === ElementType.NOTIFICATION_ERROR ||
+        (n as any).type === ElementType.NOTIFICATION_CONFIRMATION,
+      split: true,
+    });
+    if (shouldDeleteEditor) {
+      deleteEditor(editor);
+    }
+  }
 };
 
 export const deleteEditor = (editor: any) => {
