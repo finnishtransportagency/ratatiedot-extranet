@@ -15,17 +15,19 @@ export const SlateInputField = () => {
   const { editor, value, valueHandler } = useContext(EditorContext);
   const { openToolbar } = useContext(AppBarContext);
 
-  const [slateValue, setSlateValue] = useState(JSON.parse(value));
+  const [slateValue, setSlateValue] = useState(value);
 
   useEffect(() => {
-    setSlateValue(JSON.parse(value));
+    setSlateValue(value);
   }, [value]);
 
   const renderElement = useCallback((props: any) => <SlateElement {...props} />, []);
   const renderLeaf = useCallback((props: any) => <SlateLeaf {...props} />, []);
 
+  const isNotificationSlateOpened = openToolbar && !!value[0].type;
+
   return (
-    <SlateInputFieldPaperWrapper elevation={2} opentoolbar={openToolbar}>
+    <SlateInputFieldPaperWrapper elevation={2} opentoolbar={isNotificationSlateOpened}>
       <Slate
         editor={editor}
         value={slateValue}
@@ -33,16 +35,17 @@ export const SlateInputField = () => {
           const isAstChange = editor.operations.some((op) => 'set_selection' !== op.type);
           if (isAstChange) {
             setSlateValue(value);
-            valueHandler(JSON.stringify(value));
+            valueHandler(value);
           }
         }}
       >
         <Editable
+          autoFocus={true}
           renderLeaf={renderLeaf}
           renderElement={renderElement}
-          placeholder={t('common:edit.write_content')}
-          readOnly={!openToolbar}
-          style={{ cursor: openToolbar ? 'text' : 'default' }}
+          placeholder={isNotificationSlateOpened ? t('common:edit.write_content') : ''}
+          readOnly={!isNotificationSlateOpened}
+          style={{ cursor: isNotificationSlateOpened ? 'text' : 'default' }}
         />
       </Slate>
     </SlateInputFieldPaperWrapper>
