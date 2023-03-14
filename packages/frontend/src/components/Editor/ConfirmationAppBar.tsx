@@ -33,19 +33,15 @@ export const ConfirmationAppBar = () => {
   };
 
   const handleSave = () => {
-    if (!isSlateValueEmpty(value)) {
-      mutatePageContents.mutate(value, {
-        onSuccess: () => {
-          setIsSuccess(true);
-          toggleEdit();
-        },
-        onError: () => {
-          setIsError(true);
-        },
-      });
-    } else {
-      setIsError(true);
-    }
+    mutatePageContents.mutate(value, {
+      onSuccess: () => {
+        setIsSuccess(true);
+        toggleEdit();
+      },
+      onError: () => {
+        setIsError(true);
+      },
+    });
   };
 
   return (
