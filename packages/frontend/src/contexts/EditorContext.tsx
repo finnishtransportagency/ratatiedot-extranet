@@ -5,7 +5,7 @@ import { createEditor } from 'slate';
 import { withReact } from 'slate-react';
 import { useGetCategoryPageContent } from '../hooks/query/GetCategoryPageContent';
 import { getRouterName } from '../utils/helpers';
-import { isSlateValueEmpty, toggleNotification } from '../utils/slateEditorUtil';
+import { isSlateValueEmpty, openNotification } from '../utils/slateEditorUtil';
 import { ElementType } from '../utils/types';
 
 export const EditorContext = React.createContext({
@@ -55,7 +55,7 @@ export const EditorContextProvider = (props: any) => {
       // Directly assign initial data from database to editor's children
       const dbNotificationType = dbValue[0].type;
       editor.children = dbValue as any;
-      toggleNotification(editor, dbNotificationType as ElementType);
+      openNotification(editor, dbNotificationType as ElementType);
     }
   };
 

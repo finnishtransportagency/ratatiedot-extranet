@@ -18,7 +18,6 @@ import {
   isMarkActive,
   toggleBlock,
   toggleMark,
-  toggleNotification,
 } from '../../utils/slateEditorUtil';
 import { Colors } from '../../constants/Colors';
 import { ElementType, FontFormatType } from '../../utils/types';
@@ -67,15 +66,15 @@ const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
 
 export const SlateToolbar = () => {
   const { closeToolbarHandler } = useContext(AppBarContext);
-  const { editor, value, notificationType } = useContext(EditorContext);
+  const { editor, value } = useContext(EditorContext);
 
   const removeNotificationOrContentType = () => {
-    deleteNotification(editor, notificationType as ElementType);
+    deleteNotification(editor, value[0].type);
     deleteEditor(editor);
   };
 
   return (
-    <Slate editor={editor} value={JSON.parse(value)}>
+    <Slate editor={editor} value={value}>
       <ToolbarPaperWrapper elevation={2}>
         <ToggleButtonGroupWrapper size="small">
           {BlockButton({
