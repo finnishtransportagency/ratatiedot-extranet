@@ -2,19 +2,21 @@ import { Box, ButtonProps } from '@mui/material';
 import { AxiosResponse } from 'axios';
 import { t } from 'i18next';
 import { FunctionComponent, useState } from 'react';
-import { FileUploadDialog } from '../../components/Files/FileUploadDialog';
 import { ButtonWrapper } from '../../styles/common';
+import { FileDeleteDialog } from './FileDeleteDialog';
 
 interface DialogButtonProps {
   categoryName: string;
+  nodeIds: string[];
   buttonProps?: ButtonProps;
-  onUpload: (response: AxiosResponse) => any;
+  onDelete: (response: AxiosResponse[]) => any;
 }
 
-export const FileUploadDialogButton: FunctionComponent<DialogButtonProps> = ({
-  buttonProps,
+export const FileDeleteDialogButton: FunctionComponent<DialogButtonProps> = ({
   categoryName,
-  onUpload,
+  buttonProps,
+  nodeIds,
+  onDelete,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -25,21 +27,23 @@ export const FileUploadDialogButton: FunctionComponent<DialogButtonProps> = ({
     setOpen(false);
   };
 
-  const handleUpload = (result: AxiosResponse) => {
-    onUpload(result);
+  const handleDelete = (result: AxiosResponse[]) => {
+    onDelete(result);
   };
 
   return (
     <Box>
       <ButtonWrapper {...buttonProps} onClick={handleOpen}>
-        {t('common:file.add_file')}
+        {t('common:file.delete_file')}
       </ButtonWrapper>
-      <FileUploadDialog
-        onClose={handleClose}
-        onUpload={handleUpload}
-        open={open}
+      <FileDeleteDialog
         categoryName={categoryName}
-      ></FileUploadDialog>
+        multiple={nodeIds.length > 1}
+        onClose={handleClose}
+        onDelete={handleDelete}
+        open={open}
+        nodeIds={nodeIds}
+      ></FileDeleteDialog>
     </Box>
   );
 };
