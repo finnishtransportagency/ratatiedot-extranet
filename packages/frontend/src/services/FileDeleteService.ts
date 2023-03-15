@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 export const deleteFile = (categoryName: string, fileId: string) => {
-  return axios(`http://localhost:3002/api/alfresco/file/${categoryName}/${fileId}`, { method: 'DELETE' });
+  return axios(`/api/alfresco/file/${categoryName}/${fileId}`, { method: 'DELETE' });
 };
 
 // multiple
