@@ -30,11 +30,17 @@
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
     "add_file": "Lisää tiedosto",
     "delete_file": "Poista tiedosto",
+    "delete_selected_files": "Poista valitut tiedostot",
     "description": "Selitysteksti",
     "more_actions": "Valinnaiset toiminnot",
+    "selected_files": "Valitut tiedostot",
     "file_not_selected": "Tiedostoa ei valittu",
     "file_not_uploaded": "Tiedostoa ei lähetetty",
-    "file_uploaded": "Tiedosto lähetetty"
+    "files_not_deleted": "Tiedostoja ei poistettu",
+    "file_uploaded": "Tiedosto lähetetty",
+    "files_deleted": "Tiedostot poistettu",
+    "file_delete_confirmation": "Haluatko varmasti poistaa",
+    "files": "tiedostoa"
   },
   "edit": {
     "edit_content": "Muokkaa sisältöä",

@@ -1,5 +1,5 @@
 import { NodeItem } from './File';
-import { getRouterName } from '../../utils/helpers';
+import { getRouteName, getRouterName } from '../../utils/helpers';
 import { ErrorMessage } from '../Notification/ErrorMessage';
 import { Spinner } from '../Spinner';
 import { useCallback, useEffect, useState } from 'react';
@@ -9,8 +9,9 @@ import { useTranslation } from 'react-i18next';
 import { TNode } from '../../types/types';
 import { Typography } from '@mui/material';
 import { Colors } from '../../constants/Colors';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { FileDeleteDialogButton } from './FileDeleteDialogButton';
+import { useLocation } from 'react-router-dom';
 
 type TCategoryFilesProps = {
   categoryName: string;
@@ -18,6 +19,7 @@ type TCategoryFilesProps = {
 
 export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   const { t } = useTranslation(['common', 'search']);
+  const location = useLocation();
   const [fileList, setFileList] = useState<TNode[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -80,7 +82,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
     <>
       {selectedFiles.length > 0 && (
         <FileDeleteDialogButton
-          categoryName={}
+          categoryName={getRouteName(location)}
           nodeIds={selectedFiles}
           onDelete={(e) => {
             console.log(e);

@@ -68,16 +68,18 @@ export const FileDeleteDialog = ({ categoryName, nodeIds, open, onClose, onDelet
       open={open}
       onSnackbarClose={handleSnackbarClose}
       handleClose={handleClose}
-      title={t('common:file.add_file')}
+      title={t('common:file.delete_file')}
       error={error}
       success={success}
       children={
         <Box component="form">
           <div className="additional-form">
-            <p>ASD</p>
+            <Typography variant="subtitle2">
+              {`${t('common:file.file_delete_confirmation')} ${nodeIds.length} ${t('common:file.files')}?`}
+            </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Typography variant="body1" sx={{ textTransform: 'uppercase' }}>
-                {t('common:file.more_actions')}
+                {t('common:file.selected_files')}
               </Typography>
               <IconButton
                 className={`expand-button ${expanded ? 'active' : ''}`}

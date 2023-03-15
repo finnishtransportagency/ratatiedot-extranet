@@ -32,9 +32,9 @@ export const FileDeleteDialogButton: FunctionComponent<DialogButtonProps> = ({
   };
 
   return (
-    <Box>
-      <ButtonWrapper {...buttonProps} onClick={handleOpen}>
-        {t('common:file.delete_file')}
+    <Box sx={{ display: 'flex' }}>
+      <ButtonWrapper sx={{ margin: '0px 0px 24px auto' }} {...buttonProps} onClick={handleOpen}>
+        {t('common:file.delete_selected_files')}
       </ButtonWrapper>
       <FileDeleteDialog
         categoryName={categoryName}
