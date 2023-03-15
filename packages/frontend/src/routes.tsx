@@ -92,15 +92,18 @@ const OTHERS_ROUTES = [
   getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
 ];
 
-export const routes: RouteObject[] = [
-  HOME_ROUTE,
-  SEARCH_ROUTE,
+export const categoryRoutes: RouteObject[] = [
   ...DIAGRAMS_ROUTES,
   ...OPERATION_ROUTES,
   ...SPECIALTY_STRUCTURES_ROUTES,
   ...SAFETY_EQUIPMENT_ROUTES,
   ...CONTACT_INFORMATION_ROUTES,
   ...OTHERS_ROUTES,
+];
+
+const routes: RouteObject[] = [
+  HOME_ROUTE,
+  SEARCH_ROUTE,
   {
     path: Routes.LOGOUT_REDIRECT,
     loader: () => {
@@ -116,4 +119,6 @@ export const routes: RouteObject[] = [
   },
 ];
 
-export const router = createBrowserRouter(routes);
+const combinedRoutes = routes.concat(categoryRoutes);
+
+export const router = createBrowserRouter(combinedRoutes);
