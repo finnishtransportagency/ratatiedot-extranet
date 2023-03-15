@@ -17,7 +17,8 @@
     "cancel": "Peruuta",
     "load_more": "Lataa lisää",
     "save": "Tallenna",
-    "reject": "Hylkää"
+    "reject": "Hylkää",
+    "delete": "Poista"
   },
   "error": {
     "500": "Jokin meni pieleen!"
@@ -28,6 +29,7 @@
   "file": {
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
     "add_file": "Lisää tiedosto",
+    "delete_file": "Poista tiedosto",
     "description": "Selitysteksti",
     "more_actions": "Valinnaiset toiminnot",
     "file_not_selected": "Tiedostoa ei valittu",
