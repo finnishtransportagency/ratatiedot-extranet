@@ -352,7 +352,7 @@ export class RataExtraBackendStack extends NestedStack {
       {
         lambda: checkUserRightOnPageContents,
         priority: 210,
-        path: ['/api/database/page-contents/*/user-right'],
+        path: ['/api/database/user-right'],
         httpRequestMethods: ['GET'],
         targetName: 'checkUserRightOnPageContents',
       },
