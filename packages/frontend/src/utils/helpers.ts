@@ -134,7 +134,7 @@ export const parseRouterName = (routerName: string) => {
  * @param location
  * @returns string
  */
-export const getRouteName = (location: Location) => {
+export const getCategoryRouteName = (location: Location) => {
   const routeMatch = matchRoutes(categoryRoutes, location);
   if (routeMatch) {
     const path = routeMatch[0].route.path as string;
