@@ -267,6 +267,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/edit-page-contents.ts',
     });
 
+    const checkUserRightOnPageContents = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'check-user-right',
+      relativePath: '../packages/server/lambdas/database/check-user-right.ts',
+    });
+
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
@@ -342,6 +348,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/page-contents/*'],
         httpRequestMethods: ['PUT'],
         targetName: 'dbEditPageContents',
+      },
+      {
+        lambda: checkUserRightOnPageContents,
+        priority: 210,
+        path: ['/api/database/page-contents/*/user-right'],
+        httpRequestMethods: ['GET'],
+        targetName: 'checkUserRightOnPageContents',
       },
       { lambda: dummyFn, priority: 1000, path: ['/*'], httpRequestMethods: ['GET'], targetName: 'dummy' },
     ];
