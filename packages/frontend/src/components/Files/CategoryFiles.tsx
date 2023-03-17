@@ -1,8 +1,8 @@
 import { NodeItem } from './File';
-import { getRouteName, getRouterName } from '../../utils/helpers';
+import { getCategoryRouteName, getRouterName } from '../../utils/helpers';
 import { ErrorMessage } from '../Notification/ErrorMessage';
 import { Spinner } from '../Spinner';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { ButtonWrapper, ProtectedContainerWrapper } from '../../styles/common';
 import { get } from 'lodash';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,7 @@ import { Colors } from '../../constants/Colors';
 import axios from 'axios';
 import { FileDeleteDialogButton } from './FileDeleteDialogButton';
 import { useLocation } from 'react-router-dom';
+import { AppBarContext } from '../../contexts/AppBarContext';
 
 type TCategoryFilesProps = {
   categoryName: string;
@@ -26,14 +27,16 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   const [error, setError] = useState();
   const [totalFiles, setTotalFiles] = useState(0);
   const [hasMoreItems, setHasMoreItems] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<TNode | undefined>(undefined);
+  const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
+
+  const { openEdit, openToolbar } = useContext(AppBarContext);
+
+  const isEditOpen = openEdit || openToolbar;
 
   const getCategoryFiles = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `http://localhost:3002/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`,
-      );
+      const response = await axios.get(`/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`);
       const data = response.data;
       const totalFiles = get(data, 'list.entries', []);
       const totalItems = get(data, 'list.pagination.totalItems', 0);
@@ -64,7 +67,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
 
   const handleNodeClick = (node: TNode) => {
     if (selectedFile?.entry.id === node.entry.id) {
-      setSelectedFile(undefined);
+      setSelectedFile(null);
     } else {
       setSelectedFile(node);
     }
@@ -74,18 +77,30 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
     return selectedFile?.entry.id === node.entry.id;
   };
 
+  const deleteDile = (node: TNode) => {
+    // find index of node and remove it from array
+    const index = fileList.findIndex((f) => f.entry.id === node.entry.id);
+    if (index > -1) {
+      const newList = [...fileList];
+      newList.splice(index, 1);
+      setFileList(newList);
+    }
+  };
+
   if (error) return <ErrorMessage error={error} />;
 
   return (
     <ProtectedContainerWrapper>
-      <FileDeleteDialogButton
-        categoryName={getRouteName(location)}
-        disabled={!selectedFile}
-        node={selectedFile}
-        onDelete={(e) => {
-          console.log(e);
-        }}
-      ></FileDeleteDialogButton>
+      {isEditOpen && (
+        <FileDeleteDialogButton
+          categoryName={getCategoryRouteName(location)}
+          disabled={!selectedFile}
+          node={selectedFile}
+          onDelete={(e) => {
+            deleteDile(e.node);
+          }}
+        ></FileDeleteDialogButton>
+      )}
 
       {fileList.map((node: TNode, index: number) => (
         <NodeItem

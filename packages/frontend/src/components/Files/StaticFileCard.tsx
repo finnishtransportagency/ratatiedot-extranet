@@ -1,4 +1,4 @@
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { get } from 'lodash';
@@ -15,7 +15,6 @@ import { DateFormat } from '../../constants/Formats';
 import { getLocaleByteUnit } from '../../utils/helpers';
 import { LocaleLang } from '../../constants/Units';
 import { TNode } from '../../types/types';
-import { theme } from '../../styles/createTheme';
 import { Styles } from '../../constants/Styles';
 
 const NodeTypes = {
@@ -31,12 +30,11 @@ const NodeTypes = {
 };
 
 type NodeItemProps = {
-  node?: TNode;
+  node: TNode;
 };
 
 export const StaticFileCard = ({ node }: NodeItemProps) => {
-  const { entry } = node;
-  const { id, name, modifiedAt, content } = node?.entry;
+  const { id, name, modifiedAt, content } = node.entry;
   const contentMimeType = get(content, 'mimeType', '');
   const contentSizeInBytes = get(content, 'sizeInBytes', 0);
 

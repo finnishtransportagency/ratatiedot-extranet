@@ -15,11 +15,16 @@ import { AxiosResponse } from 'axios';
 import { StaticFileCard } from './StaticFileCard';
 import { TNode } from '../../types/types';
 
+export interface FileDeleteResponse {
+  response: AxiosResponse;
+  node: TNode;
+}
+
 interface FileDeleteProps {
   categoryName: string;
-  node?: TNode | undefined;
+  node: TNode;
   onClose: (event?: Event) => void;
-  onDelete: (result: AxiosResponse) => any;
+  onDelete: (result: FileDeleteResponse) => any;
   open: boolean;
 }
 
@@ -43,7 +48,11 @@ export const FileDeleteDialog = ({ categoryName, node, open, onClose, onDelete }
           handleClose();
           setError(false);
           setSuccess(true);
-          onDelete(result);
+          const res = {
+            response: result,
+            node: node,
+          };
+          onDelete(res);
           return result;
         })
         .catch((error) => {
@@ -51,6 +60,7 @@ export const FileDeleteDialog = ({ categoryName, node, open, onClose, onDelete }
           setSuccess(false);
           setError(true);
         });
+    } else {
     }
   };
 
