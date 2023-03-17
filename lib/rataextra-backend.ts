@@ -14,7 +14,7 @@ import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-l
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { join } from 'path';
-import { isDevelopmentMainStack, isFeatOrLocalStack } from './utils';
+import { isPermanentStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 
@@ -367,7 +367,7 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroup,
     });
 
-    if (isDevelopmentMainStack(rataExtraStackIdentifier, rataExtraEnv)) {
+    if (isPermanentStack(rataExtraStackIdentifier, rataExtraEnv)) {
       const bastionStack = new RataExtraBastionStack(this, 'stack-bastion', {
         rataExtraEnv,
         albDns: alb.loadBalancerDnsName,
