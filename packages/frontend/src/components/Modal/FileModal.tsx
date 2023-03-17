@@ -1,7 +1,7 @@
 import { FunctionComponent, JSXElementConstructor, ReactElement } from 'react';
 
 import Close from '@mui/icons-material/Close';
-import { Snackbar, Box, IconButton, Modal, Alert } from '@mui/material';
+import { Box, IconButton, Modal } from '@mui/material';
 
 import { ModalContentWrapper } from '../../styles/common';
 import { HighlightedTitle } from '../Typography/HighlightedTitle';
@@ -59,13 +59,13 @@ export const FileModal: FunctionComponent<ModalProps> = ({
         open={error}
         onSnackbarClose={onSnackbarClose}
         color={Colors.darkred}
-        text={t('common:file.file_not_uploaded')}
+        text={t('common:file.files_not_deleted')}
       ></SnackbarAlert>
       <SnackbarAlert
         open={success}
         onSnackbarClose={onSnackbarClose}
         color={Colors.black}
-        text={t('common:file.file_uploaded')}
+        text={t('common:file.files_deleted')}
       ></SnackbarAlert>
     </>
   );
