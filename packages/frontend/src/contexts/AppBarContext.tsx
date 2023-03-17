@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useGetUserRightPageContent } from '../hooks/query/GetUserRightPageContent';
-import { getRouteName } from '../utils/helpers';
+import { getCategoryRouteName } from '../utils/helpers';
 
 export const AppBarContext = React.createContext({
   openDrawer: false,
@@ -30,7 +30,7 @@ export const AppBarContextProvider = (props: any) => {
   const [userRight, setUserRight] = useState<TUserRight>({ canRead: false, canWrite: false });
 
   const location = useLocation();
-  const categoryName = getRouteName(location);
+  const categoryName = getCategoryRouteName(location);
   const { data } = useGetUserRightPageContent(categoryName);
 
   useEffect(() => {
