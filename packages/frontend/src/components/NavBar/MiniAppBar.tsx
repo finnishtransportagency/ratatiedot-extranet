@@ -16,8 +16,12 @@ import { Link } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 
 export const MiniAppBar = () => {
-  const { openDrawer, toggleDrawer, openSearch, toggleSearch, openEdit, openToolbar, openToolbarHandler } =
+  const { openDrawer, toggleDrawer, openSearch, toggleSearch, openEdit, openToolbar, openToolbarHandler, userRight } =
     useContext(AppBarContext);
+
+  const userWriteRight = userRight.canWrite;
+  const shouldEdit = userWriteRight && !openEdit && !openToolbar;
+
   const MainAppBar = () => {
     return (
       <>
@@ -37,7 +41,7 @@ export const MiniAppBar = () => {
           </Toolbar>
         </Link>
         <Box sx={{ flexGrow: 1 }} />
-        {!openEdit && !openToolbar && (
+        {shouldEdit && (
           <IconButton size="large" edge="end" color="inherit" area-label="open edit" onClick={openToolbarHandler}>
             <EditIcon fontSize="small" color="primary" />
           </IconButton>
