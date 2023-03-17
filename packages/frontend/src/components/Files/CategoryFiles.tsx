@@ -3,7 +3,7 @@ import { getRouteName, getRouterName } from '../../utils/helpers';
 import { ErrorMessage } from '../Notification/ErrorMessage';
 import { Spinner } from '../Spinner';
 import { useCallback, useEffect, useState } from 'react';
-import { ButtonWrapper } from '../../styles/common';
+import { ButtonWrapper, ProtectedContainerWrapper } from '../../styles/common';
 import { get } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { TNode } from '../../types/types';
@@ -77,7 +77,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   if (error) return <ErrorMessage error={error} />;
 
   return (
-    <>
+    <ProtectedContainerWrapper>
       <FileDeleteDialogButton
         categoryName={getRouteName(location)}
         disabled={!selectedFile}
@@ -105,6 +105,6 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
           {t('common:action.load_more')}
         </ButtonWrapper>
       )}
-    </>
+    </ProtectedContainerWrapper>
   );
 };

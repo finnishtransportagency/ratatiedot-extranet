@@ -7,9 +7,10 @@ import { AppBarContext } from '../../contexts/AppBarContext';
 import { SlateInputField } from '../../components/Editor/SlateInputField';
 import { EditorContext } from '../../contexts/EditorContext';
 import { isSlateValueEmpty } from '../../utils/slateEditorUtil';
-import { getRouteName } from '../../utils/helpers';
+import { getCategoryRouteName } from '../../utils/helpers';
 import { FileUploadDialogButton } from '../../components/Files/FileUploadDialogButton';
 import { useLocation } from 'react-router-dom';
+import { CategoryFiles } from '../../components/Files/CategoryFiles';
 
 type Props = {
   children: React.ReactElement;
@@ -21,6 +22,7 @@ export const ProtectedPage = ({ children }: Props) => {
   const { openEdit, openToolbar } = useContext(AppBarContext);
   const { value } = useContext(EditorContext);
   const location = useLocation();
+  const categoryRouteName = getCategoryRouteName(location);
 
   const isEditorOpened = openToolbar || (openEdit && !isSlateValueEmpty(value)) || !isSlateValueEmpty(value);
 
@@ -29,8 +31,9 @@ export const ProtectedPage = ({ children }: Props) => {
       <NavBar />
       <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
         {isEditorOpened && <SlateInputField />}
-        {isEditorOpened && <FileUploadDialogButton categoryName={getRouteName(location)} />}
+        {isEditorOpened && <FileUploadDialogButton categoryName={categoryRouteName} />}
         {children}
+        {categoryRouteName && <CategoryFiles categoryName={categoryRouteName} />}
         <Footer />
       </ContentWrapper>
     </ContainerWrapper>

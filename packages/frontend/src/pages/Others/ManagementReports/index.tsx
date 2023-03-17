@@ -1,4 +1,3 @@
-import { CategoryFiles } from '../../../components/Files/CategoryFiles';
 import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
 import { getSubCategoryData } from '../../../utils/helpers';
 
@@ -8,7 +7,6 @@ export const ManagementReports = () => {
   return (
     <ProtectedContainerWrapper>
       <PageTitleWrapper>{categoryNames.MANAGEMENT_REPORTS}</PageTitleWrapper>
-      <CategoryFiles categoryName={categoryNames.MANAGEMENT_REPORTS} />
     </ProtectedContainerWrapper>
   );
 };
