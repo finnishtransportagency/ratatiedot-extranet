@@ -80,12 +80,12 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   };
 
   const deleteFile = (node: TNode) => {
-    // find index of node and remove it from array
     const index = fileList.findIndex((f) => f.entry.id === node.entry.id);
     if (index > -1) {
       const newList = [...fileList];
       newList.splice(index, 1);
       setFileList(newList);
+      setTotalFiles(totalFiles - 1);
     }
   };
 
