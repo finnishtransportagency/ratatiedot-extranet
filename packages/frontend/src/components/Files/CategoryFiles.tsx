@@ -36,7 +36,9 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   const getCategoryFiles = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`);
+      const response = await axios.get(
+        `http://localhost:3002/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`,
+      );
       const data = response.data;
       const totalFiles = get(data, 'list.entries', []);
       const totalItems = get(data, 'list.pagination.totalItems', 0);
@@ -77,7 +79,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
     return selectedFile?.entry.id === node.entry.id;
   };
 
-  const deleteDile = (node: TNode) => {
+  const deleteFile = (node: TNode) => {
     // find index of node and remove it from array
     const index = fileList.findIndex((f) => f.entry.id === node.entry.id);
     if (index > -1) {
@@ -97,7 +99,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
           disabled={!selectedFile}
           node={selectedFile}
           onDelete={(e) => {
-            deleteDile(e.node);
+            deleteFile(e.node);
           }}
         ></FileDeleteDialogButton>
       )}

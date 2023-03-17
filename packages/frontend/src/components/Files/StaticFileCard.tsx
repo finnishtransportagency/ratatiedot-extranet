@@ -3,31 +3,13 @@ import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { get } from 'lodash';
 
-import Other from '../../assets/icons/Other.svg';
-import Word from '../../assets/icons/Word.svg';
-import Excel from '../../assets/icons/Excel.svg';
-import PDF from '../../assets/icons/PDF.svg';
-import PlainText from '../../assets/icons/PlainText.svg';
-import Image from '../../assets/icons/Image.svg';
-import PPT from '../../assets/icons/PowerPoint.svg';
 import { Colors } from '../../constants/Colors';
 import { DateFormat } from '../../constants/Formats';
 import { getLocaleByteUnit } from '../../utils/helpers';
 import { LocaleLang } from '../../constants/Units';
 import { TNode } from '../../types/types';
 import { Styles } from '../../constants/Styles';
-
-const NodeTypes = {
-  other: Other,
-  document: Word,
-  msword: Word,
-  sheet: Excel,
-  pdf: PDF,
-  text: PlainText,
-  image: Image,
-  powerpoint: PPT,
-  ppt: PPT,
-};
+import { NodeTypes } from './File';
 
 type NodeItemProps = {
   node: TNode;

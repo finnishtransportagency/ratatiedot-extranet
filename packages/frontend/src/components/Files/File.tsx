@@ -18,7 +18,7 @@ import { TNode } from '../../types/types';
 import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
 
-const NodeTypes = {
+export const NodeTypes = {
   other: Other,
   document: Word,
   msword: Word,
