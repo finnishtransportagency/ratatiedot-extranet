@@ -367,7 +367,7 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroup,
     });
 
-    if (isPermanentStack(rataExtraStackIdentifier, rataExtraEnv)) {
+    if (isPermanentStack(stackId, rataExtraEnv)) {
       const bastionStack = new RataExtraBastionStack(this, 'stack-bastion', {
         rataExtraEnv,
         albDns: alb.loadBalancerDnsName,
