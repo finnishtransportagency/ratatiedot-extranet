@@ -15,8 +15,8 @@ import { DateFormat } from '../../constants/Formats';
 import { getLocaleByteUnit } from '../../utils/helpers';
 import { LocaleLang } from '../../constants/Units';
 import { TNode } from '../../types/types';
-import { useContext } from 'react';
-import { AppBarContext } from '../../contexts/AppBarContext';
+import { theme } from '../../styles/createTheme';
+import { Styles } from '../../constants/Styles';
 
 const NodeTypes = {
   other: Other,
@@ -31,83 +31,48 @@ const NodeTypes = {
 };
 
 type NodeItemProps = {
-  node: TNode;
-  row: number;
-  isSelected?: boolean;
-  isStatic?: boolean;
-  onFileClick?: (node: TNode) => void;
+  node?: TNode;
 };
 
-export const NodeItem = ({
-  node,
-  row,
-  onFileClick = () => {},
-  isSelected = false,
-  isStatic = false,
-}: NodeItemProps) => {
+export const StaticFileCard = ({ node }: NodeItemProps) => {
   const { entry } = node;
-  const { id, name, modifiedAt, content } = entry;
+  const { id, name, modifiedAt, content } = node?.entry;
   const contentMimeType = get(content, 'mimeType', '');
   const contentSizeInBytes = get(content, 'sizeInBytes', 0);
-  const { REACT_APP_ALFRESCO_DOWNLOAD_URL } = process.env;
-  const { openEdit, openToolbar } = useContext(AppBarContext);
-
-  const isEditOpen = openEdit || openToolbar;
-
-  const handleFileSelect = (node: TNode) => {
-    onFileClick(node);
-  };
 
   const matchMimeType = (mimeType: string) => {
     const foundMimeType = Object.entries(NodeTypes).find(([key]) => mimeType.indexOf(key) !== -1);
     return foundMimeType ? foundMimeType[1] : NodeTypes.other;
   };
 
-  const backgroundColor = (isSelected: boolean, row: number) => {
-    let color = row % 2 ? Colors.lightgrey : Colors.white;
-    if (isSelected) {
-      color = Colors.aliceblue;
-    }
-    return color;
-  };
-
   return (
-    <Grid
-      container
-      spacing={2}
+    <Box
       sx={{
-        paddingBottom: '18px',
-        backgroundColor: backgroundColor(isSelected, row),
-        cursor: isStatic ? 'pointer' : 'default',
+        display: 'flex',
+        backgroundColor: Colors.lightgrey,
         textDecoration: 'none',
+        margin: '8px 0',
+        gap: '8px',
+        padding: '8px',
+        alignItems: 'flex-start',
+        borderRadius: Styles.radius,
       }}
       component="a"
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={(e) => {
-        if (isEditOpen) {
-          e.preventDefault();
-          handleFileSelect(node);
-        }
-      }}
-      href={`${REACT_APP_ALFRESCO_DOWNLOAD_URL}/alfresco/versions/1/nodes/${id}/content?attachment=false`}
     >
-      <Grid item mobile={1} tablet={0.5} desktop={0.5}>
-        <Box component="img" src={matchMimeType(contentMimeType)} alt="Logo" />
-      </Grid>
-      <Grid item mobile={10} tablet={10.5} desktop={10.5}>
+      <Box sx={{ paddingTop: '4px' }} component="img" src={matchMimeType(contentMimeType)} alt="Logo" />
+      <div style={{ display: 'flex', flexDirection: 'column', color: Colors.darkgrey }}>
         <Typography variant="body1" sx={{ color: Colors.extrablack }}>
           {name}
         </Typography>
-        <div style={{ display: 'flex', color: Colors.darkgrey, paddingBottom: '18px' }}>
+        <Box sx={{ display: 'flex' }}>
           <Typography variant="body1" sx={{ marginRight: '8px' }}>
             {format(new Date(modifiedAt), DateFormat)}
           </Typography>
           <Typography variant="body1" sx={{ marginRight: '8px' }}>
             {getLocaleByteUnit(prettyBytes(contentSizeInBytes, { locale: 'fi' }), LocaleLang.FI)}
           </Typography>
-        </div>
-      </Grid>
-    </Grid>
+        </Box>
+      </div>
+    </Box>
   );
 };

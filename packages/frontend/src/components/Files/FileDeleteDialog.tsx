@@ -2,32 +2,30 @@ import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CheckIcon from '@mui/icons-material/CheckSharp';
-import { Box, Collapse, IconButton, Typography } from '@mui/material';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { Box, Typography } from '@mui/material';
 
-import { deleteFiles } from '../../services/FileDeleteService';
+import { deleteFile } from '../../services/FileDeleteService';
 import { ButtonWrapper } from '../../styles/common';
 
 import { FileModal } from '../Modal/FileModal';
 
 import { Colors } from '../../constants/Colors';
-import './styles.css';
 import { AxiosResponse } from 'axios';
+import { StaticFileCard } from './StaticFileCard';
+import { TNode } from '../../types/types';
 
-interface FileUploadProps {
+interface FileDeleteProps {
   categoryName: string;
-  nodeIds: string[];
+  node?: TNode | undefined;
   onClose: (event?: Event) => void;
-  onDelete: (result: AxiosResponse[]) => any;
+  onDelete: (result: AxiosResponse) => any;
   open: boolean;
-  multiple: boolean;
 }
 
-export const FileDeleteDialog = ({ categoryName, nodeIds, open, onClose, onDelete, multiple }: FileUploadProps) => {
+export const FileDeleteDialog = ({ categoryName, node, open, onClose, onDelete }: FileDeleteProps) => {
   const { t } = useTranslation(['common']);
 
-  const [expanded, setExpanded] = useState(false);
   const [error, setError] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,29 +36,27 @@ export const FileDeleteDialog = ({ categoryName, nodeIds, open, onClose, onDelet
 
   const handleFileDelete = async () => {
     setIsLoading(true);
-    await deleteFiles(categoryName, nodeIds)
-      .then((result) => {
-        setIsLoading(false);
-        handleClose();
-        setError(false);
-        setSuccess(true);
-        onDelete(result);
-        return result;
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        setSuccess(false);
-        setError(true);
-      });
+    if (node) {
+      await deleteFile(categoryName, node.entry.id)
+        .then((result) => {
+          setIsLoading(false);
+          handleClose();
+          setError(false);
+          setSuccess(true);
+          onDelete(result);
+          return result;
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          setSuccess(false);
+          setError(true);
+        });
+    }
   };
 
   const handleSnackbarClose = () => {
     setError(false);
     setSuccess(false);
-  };
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
   };
 
   return (
@@ -72,39 +68,16 @@ export const FileDeleteDialog = ({ categoryName, nodeIds, open, onClose, onDelet
       error={error}
       success={success}
       children={
-        <Box component="form">
-          <div className="additional-form">
-            <Typography variant="subtitle2">
-              {`${t('common:file.file_delete_confirmation')} ${nodeIds.length} ${t('common:file.files')}?`}
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="body1" sx={{ textTransform: 'uppercase' }}>
-                {t('common:file.selected_files')}
-              </Typography>
-              <IconButton
-                className={`expand-button ${expanded ? 'active' : ''}`}
-                edge="end"
-                size="small"
-                onClick={handleExpandClick}
-                aria-expanded={expanded}
-                aria-label={t('common:file.more_actions')}
-              >
-                <ExpandMoreIcon />
-              </IconButton>
-            </Box>
-            <Collapse sx={{ width: '100%' }} in={expanded} timeout="auto" unmountOnExit>
-              {nodeIds.map((nodeId: string) => (
-                <p>{nodeId}</p>
-              ))}
-            </Collapse>
-          </div>
+        <Box>
+          <Typography>{`${t('common:file.file_delete_confirmation')}?`}</Typography>
+          <StaticFileCard node={node}></StaticFileCard>
 
           <Box sx={{ display: 'flex' }}>
             <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={() => handleClose()}>
               {t('common:action.cancel')}
             </ButtonWrapper>
             <ButtonWrapper
-              color="primary"
+              color="error"
               variant="contained"
               disabled={isLoading}
               onClick={() => handleFileDelete()}
@@ -112,7 +85,7 @@ export const FileDeleteDialog = ({ categoryName, nodeIds, open, onClose, onDelet
                 isLoading ? (
                   <CircularProgress sx={{ color: Colors.darkgrey }} size="16px"></CircularProgress>
                 ) : (
-                  <CheckIcon></CheckIcon>
+                  <DeleteOutlineOutlinedIcon></DeleteOutlineOutlinedIcon>
                 )
               }
             >

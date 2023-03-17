@@ -30,7 +30,7 @@
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
     "add_file": "Lisää tiedosto",
     "delete_file": "Poista tiedosto",
-    "delete_selected_files": "Poista valitut tiedostot",
+    "delete_selected_file": "Poista valittu tiedosto",
     "description": "Selitysteksti",
     "more_actions": "Valinnaiset toiminnot",
     "selected_files": "Valitut tiedostot",
@@ -39,7 +39,7 @@
     "files_not_deleted": "Tiedostoja ei poistettu",
     "file_uploaded": "Tiedosto lähetetty",
     "files_deleted": "Tiedostot poistettu",
-    "file_delete_confirmation": "Haluatko varmasti poistaa",
+    "file_delete_confirmation": "Haluatko varmasti poistaa tiedoston",
     "files": "tiedostoa"
   },
   "edit": {

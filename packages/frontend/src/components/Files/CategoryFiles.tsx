@@ -26,12 +26,14 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   const [error, setError] = useState();
   const [totalFiles, setTotalFiles] = useState(0);
   const [hasMoreItems, setHasMoreItems] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  const [selectedFile, setSelectedFile] = useState<TNode | undefined>(undefined);
 
   const getCategoryFiles = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`);
+      const response = await axios.get(
+        `http://localhost:3002/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`,
+      );
       const data = response.data;
       const totalFiles = get(data, 'list.entries', []);
       const totalItems = get(data, 'list.pagination.totalItems', 0);
@@ -61,39 +63,37 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   const loadMore = () => setPage(page + 1);
 
   const handleNodeClick = (node: TNode) => {
-    const newSelectedFiles = selectedFiles;
-    if (newSelectedFiles.includes(node.entry.id)) {
-      newSelectedFiles.splice(selectedFiles.indexOf(node.entry.id), 1);
+    if (selectedFile?.entry.id === node.entry.id) {
+      setSelectedFile(undefined);
     } else {
-      newSelectedFiles.push(node.entry.id);
+      setSelectedFile(node);
     }
-    setSelectedFiles([...selectedFiles]);
   };
 
-  const isSelected = (nodeId: string): boolean => {
-    return selectedFiles.includes(nodeId);
+  const isSelected = (node: TNode) => {
+    return selectedFile?.entry.id === node.entry.id;
   };
 
   if (error) return <ErrorMessage error={error} />;
 
   return (
     <>
-      {selectedFiles.length > 0 && (
-        <FileDeleteDialogButton
-          categoryName={getRouteName(location)}
-          nodeIds={selectedFiles}
-          onDelete={(e) => {
-            console.log(e);
-          }}
-        ></FileDeleteDialogButton>
-      )}
+      <FileDeleteDialogButton
+        categoryName={getRouteName(location)}
+        disabled={!selectedFile}
+        node={selectedFile}
+        onDelete={(e) => {
+          console.log(e);
+        }}
+      ></FileDeleteDialogButton>
+
       {fileList.map((node: TNode, index: number) => (
         <NodeItem
           onFileClick={(node) => handleNodeClick(node)}
           key={index}
           row={index}
           node={node}
-          isSelected={isSelected(node.entry.id)}
+          isSelected={isSelected(node)}
         />
       ))}
       {loading && <Spinner />}
