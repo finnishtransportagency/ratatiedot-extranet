@@ -15,7 +15,9 @@
     "next": "Seuraava",
     "add": "Lisää",
     "cancel": "Peruuta",
-    "load_more": "Lataa lisää"
+    "load_more": "Lataa lisää",
+    "save": "Tallenna",
+    "reject": "Hylkää"
   },
   "error": {
     "500": "Jokin meni pieleen!"
@@ -31,5 +33,12 @@
     "file_not_selected": "Tiedostoa ei valittu",
     "file_not_uploaded": "Tiedostoa ei lähetetty",
     "file_uploaded": "Tiedosto lähetetty"
+  },
+  "edit": {
+    "edit_content": "Muokkaa sisältöä",
+    "edit_tool": "Muokkaustyökalu",
+    "edit_instruction": "Muokka sisältöä klikkaamalla suoraan kohteisiin tai lisää tiedostoa, tekstiä tai ilmoitusta.",
+    "save_changes_confirmation": "Haluatko tallentaa muutoksesi?",
+    "write_content": "Kirjoita sisältö"
   }
 }

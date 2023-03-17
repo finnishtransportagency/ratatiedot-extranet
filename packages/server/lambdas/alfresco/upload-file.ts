@@ -3,7 +3,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
 import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log } from '../../utils/logger';
+import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { fileRequestBuilder } from './fileRequestBuilder';
@@ -64,7 +64,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
 
     const result = await postFile(requestOptions, categoryData.alfrescoFolder);
-    log.info(user, `Uploaded file ${result?.entry.name} to ${categoryData.alfrescoFolder}`);
+    auditLog.info(
+      user,
+      `Uploaded file ${result?.entry.name} with id ${result?.entry.id} to ${categoryData.alfrescoFolder}`,
+    );
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },

@@ -30,10 +30,15 @@ import { MonitoringEquipment } from './pages/Others/MonitoringEquipment';
 import { DriverActivity } from './pages/Others/DriverActivity';
 import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
+import { AppContextProvider } from './contexts/AppContextProvider';
 
 const getProtectedRoute = (path: string, component: JSX.Element): RouteObject => ({
   path: path,
-  element: <ProtectedPage children={component} />,
+  element: (
+    <AppContextProvider>
+      <ProtectedPage children={component} />
+    </AppContextProvider>
+  ),
   errorElement: <RootBoundary />, // Send user here whenever error is thrown
   loader: async () => {
     // TODO: throw error if user has no permission
@@ -87,15 +92,18 @@ const OTHERS_ROUTES = [
   getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
 ];
 
-const routes: RouteObject[] = [
-  HOME_ROUTE,
-  SEARCH_ROUTE,
+export const categoryRoutes: RouteObject[] = [
   ...DIAGRAMS_ROUTES,
   ...OPERATION_ROUTES,
   ...SPECIALTY_STRUCTURES_ROUTES,
   ...SAFETY_EQUIPMENT_ROUTES,
   ...CONTACT_INFORMATION_ROUTES,
   ...OTHERS_ROUTES,
+];
+
+const routes: RouteObject[] = [
+  HOME_ROUTE,
+  SEARCH_ROUTE,
   {
     path: Routes.LOGOUT_REDIRECT,
     loader: () => {
@@ -111,4 +119,6 @@ const routes: RouteObject[] = [
   },
 ];
 
-export const router = createBrowserRouter(routes);
+const combinedRoutes = routes.concat(categoryRoutes);
+
+export const router = createBrowserRouter(combinedRoutes);

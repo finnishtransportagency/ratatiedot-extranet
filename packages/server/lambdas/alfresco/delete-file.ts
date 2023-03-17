@@ -2,7 +2,7 @@ import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log } from '../../utils/logger';
+import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { deleteFileRequestBuilder } from './fileRequestBuilder';
@@ -65,7 +65,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const requestOptions = deleteFileRequestBuilder(headers) as RequestInit;
 
     const result = await deleteFile(requestOptions, nodeId);
-    log.info(user, `Deleted file ${nodeId} in ${categoryData.alfrescoFolder}`);
+    auditLog.info(user, `Deleted file ${nodeId} in ${categoryData.alfrescoFolder}`);
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
