@@ -4,12 +4,12 @@ import axios from 'axios';
 import { QueryKeys } from '../../constants/QueryKeys';
 import { getRouterName } from '../../utils/helpers';
 
-export const useGetCategoryPageContent = (categoryName: string) => {
+export const useGetUserRightPageContent = (categoryName: string) => {
   return useQuery({
     enabled: Boolean(categoryName),
-    queryKey: [QueryKeys.GET_PAGE_CONTENTS_QUERY_KEY, categoryName],
+    queryKey: [QueryKeys.GET_USER_RIGHT_PAGE_CONTENT_QUERY_KEY, categoryName],
     queryFn: async () => {
-      const response = await axios.get(`/api/database/page-contents/${getRouterName(categoryName)}`);
+      const response = await axios.get(`/api/database/user-right?category=${getRouterName(categoryName)}`);
       return response.data;
     },
     onSuccess: (res) => res,
