@@ -63,7 +63,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
       const parentParameter: IParentSearchParameter = {
         parameterName: SearchParameterName.PARENT,
-        parent: categoryResponse?.alfrescoFolder || categoryParameter.categoryName, // if unable to find from db, let Alfresco handle (use case: category's sub-folders)
+        parent: categoryResponse?.alfrescoFolder || '',
       };
       searchParameters.push(parentParameter);
     }

@@ -43,7 +43,7 @@ const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 /**
- * Get the list of files embedded to given page
+ * Get the list of files embedded to given page. Example: /api/alfresco/files?category=linjakaaviot&subcategory=123-456-789
  * @param {ALBEvent} event
  * @param {{category: string, page?: number, language?: QueryLanguage }} event.queryStringParameters
  * @param {string} event.queryStringParameters.category Page to be searched for
@@ -54,7 +54,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     const params = event.queryStringParameters;
     const category = params?.category;
+    const subCategory = params?.subcategory;
     log.info(user, `Fetching files for for page ${category}`);
+    log.info(params);
     validateReadUser(user);
     if (!category) {
       throw new RataExtraLambdaError('Category missing', 400);
@@ -71,7 +73,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     if (!alfrescoParent) {
       throw new RataExtraLambdaError('Category not found', 404);
     }
-    const data = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
+    // if no sub-category id is given, take `alfrescoParent`
+    const data = await searchByTermWithParent(user.uid, subCategory || alfrescoParent, page, language);
     return {
       statusCode: 200,
       headers: {
