@@ -19,18 +19,14 @@ interface RataExtraBastionStackProps extends StackProps {
   readonly albDns: string;
   readonly databaseDns?: string | undefined;
   readonly stackId: string;
+  readonly vpc: IVpc;
+  readonly securityGroup?: ISecurityGroup;
 }
 
 export class RataExtraBastionStack extends Stack {
-  constructor(
-    scope: Construct,
-    id: string,
-    props: RataExtraBastionStackProps,
-    vpc: IVpc,
-    securityGroup?: ISecurityGroup,
-  ) {
+  constructor(scope: Construct, id: string, props: RataExtraBastionStackProps) {
     super(scope, id, props);
-    const { albDns, databaseDns } = props;
+    const { albDns, databaseDns, vpc, securityGroup } = props;
 
     const bastionRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),

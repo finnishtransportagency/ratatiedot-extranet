@@ -368,18 +368,14 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     if (isPermanentStack(stackId, rataExtraEnv)) {
-      const bastionStack = new RataExtraBastionStack(
-        this,
-        'stack-bastion',
-        {
-          rataExtraEnv,
-          albDns: alb.loadBalancerDnsName,
-          databaseDns: databaseDomain,
-          stackId: stackId,
-        },
-        applicationVpc,
-        securityGroup,
-      );
+      const bastionStack = new RataExtraBastionStack(this, 'stack-bastion', {
+        rataExtraEnv,
+        albDns: alb.loadBalancerDnsName,
+        databaseDns: databaseDomain,
+        stackId: stackId,
+        vpc: applicationVpc,
+        securityGroup: securityGroup,
+      });
       Object.entries(tags).forEach(([key, value]) => Tags.of(bastionStack).add(key, value));
     }
   }
