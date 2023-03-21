@@ -245,6 +245,20 @@ nohup sudo socat TCP4-LISTEN:LISTEN_PORT_TO_FIX,reuseaddr,fork TCP:DNS_TO_REDIRE
 
 where `LISTEN_PORT_TO_FIX` is the port you want to listen on (e.g. 80), `DNS_TO_REDIRECT` is where you want to redirect to and `PORT_TO_PIPE` is port in the receiving end. With ALB, port is 80 for poth and DNS is the DNS of the ALB (check AWS console). For database, port is 5432 for both and DNS can be checked from Parameter Store.
 
+### Database migration
+
+run ./bastion-database-pipe.sh script
+```
+./bastion-database-pipe.sh
+```
+
+Once pipeline is up, make sure you have correct env variable in ⁠packages/server.env 
+```
+DATABASE_URL="postgresql://...{production database connection URL}"
+```
+
+[follow guide on how to run prisma migration](https://www.prisma.io/docs/concepts/components/prisma-migrate/migrate-development-production#production-and-testing-environments)
+
 ### Build
 
 ### Pipeline
