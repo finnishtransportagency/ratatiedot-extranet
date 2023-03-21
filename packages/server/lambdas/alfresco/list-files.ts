@@ -15,6 +15,7 @@ import {
   QueryLanguage,
   SearchParameterName,
 } from './searchQueryBuilder/types';
+import { get } from 'lodash';
 
 export type TNode = {
   entry: {
@@ -50,9 +51,6 @@ const searchByTermWithParent = async (
       };
       searchParameters.push(folder);
     }
-
-    log.info('Search parameters: ');
-    console.log(searchParameters);
 
     const bodyRequest = searchQueryBuilder({
       searchParameters: searchParameters,
@@ -94,6 +92,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('Category missing', 400);
     }
     const page = params?.page ? parseInt(params?.page) : 0;
+    const categoryPage = subCategory ? 0 : page;
     const language = (params?.language as QueryLanguage) ?? QueryLanguage.LUCENE;
     if (!Object.values(QueryLanguage).includes(language)) {
       throw new RataExtraLambdaError('Invalid language', 400);
@@ -106,14 +105,25 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('Category not found', 404);
     }
 
-    const data = await searchByTermWithParent(user.uid, alfrescoParent, subCategory, page, language);
+    const categoryData = await searchByTermWithParent(user.uid, alfrescoParent, subCategory, categoryPage, language);
+    if (subCategory) {
+      const folderId = get(categoryData, 'list.entries[0].entry.id', -1);
+      const subCategoryData = await searchByTermWithParent(user.uid, folderId, '', page, language);
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(subCategoryData),
+      };
+    }
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(categoryData),
     };
   } catch (err) {
     log.error(err);

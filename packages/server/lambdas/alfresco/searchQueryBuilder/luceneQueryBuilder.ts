@@ -84,7 +84,7 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   }
 
   buildFolderQuery(parameter: IFolderSearchParameter) {
-    return `+@cm\\:name:"${parameter.name}"`;
+    return `+@cm\\:name:"${parameter.name}"+TYPE:\"cm:folder\"`;
   }
 
   public queryBuilder(searchParameters: Array<SearchParameter>): string {
