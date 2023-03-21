@@ -1,6 +1,7 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import axios from 'axios';
+import { get } from 'lodash';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
@@ -14,6 +15,19 @@ import {
   QueryLanguage,
   SearchParameterName,
 } from './searchQueryBuilder/types';
+
+export type TNode = {
+  entry: {
+    id: string;
+    name: string;
+    modifiedAt: string;
+    nodeType: string;
+    content: any;
+    parentId: string;
+    isFile: boolean;
+    isFolder: boolean;
+  };
+};
 
 const searchByTermWithParent = async (uid: string, alfrescoParent: string, page: number, language: QueryLanguage) => {
   try {
@@ -43,7 +57,7 @@ const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 /**
- * Get the list of files embedded to given page. Example: /api/alfresco/files?category=linjakaaviot&subcategory=123-456-789
+ * Get the list of files embedded to given page. Example: /api/alfresco/files?category=linjakaaviot&subcategory=kansio_nimi
  * @param {ALBEvent} event
  * @param {{category: string, page?: number, language?: QueryLanguage }} event.queryStringParameters
  * @param {string} event.queryStringParameters.category Page to be searched for
@@ -73,8 +87,20 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     if (!alfrescoParent) {
       throw new RataExtraLambdaError('Category not found', 404);
     }
-    // if no sub-category id is given, take `alfrescoParent`
-    const data = await searchByTermWithParent(user.uid, subCategory || alfrescoParent, page, language);
+
+    let data = null;
+    data = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
+
+    if (subCategory) {
+      const entries = get(data, 'list.entries', []);
+      const folder = entries.find((node: TNode) => {
+        const { entry } = node;
+        const { name, isFolder } = entry;
+        return name === subCategory && isFolder === true;
+      }) as TNode;
+      data = folder ? await searchByTermWithParent(user.uid, folder.entry.id, page, language) : null;
+    }
+
     return {
       statusCode: 200,
       headers: {
