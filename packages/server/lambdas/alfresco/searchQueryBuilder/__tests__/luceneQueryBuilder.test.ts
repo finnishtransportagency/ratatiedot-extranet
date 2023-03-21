@@ -145,6 +145,15 @@ describe('Lucene Query Builder', () => {
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+PARENT:"workspace\\://SpacesStore/testuuid"');
     });
+    it('should return query for folder', () => {
+      const parameters: Array<SearchParameter> = [
+        {
+          parameterName: SearchParameterName.FOLDER,
+          name: 'Vuosi 2023',
+        },
+      ];
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+@cm\\:name:"Vuosi 2023"+TYPE:"cm:folder"');
+    });
   });
   describe('lucenePagination', () => {
     it('should return default pagination if no page given', () => {
