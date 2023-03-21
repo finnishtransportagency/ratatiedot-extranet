@@ -1,8 +1,8 @@
 import { Stack, Fn } from 'aws-cdk-lib';
 import { StackProps } from 'aws-cdk-lib';
 import {
-  SecurityGroup,
-  Vpc,
+  ISecurityGroup,
+  IVpc,
   Instance,
   InstanceType,
   InstanceClass,
@@ -13,29 +13,20 @@ import {
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment } from './config';
-import { getSecurityGroupId, getVpcAttributes } from './utils';
 
 interface RataExtraBastionStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly albDns: string;
   readonly databaseDns?: string | undefined;
   readonly stackId: string;
+  readonly vpc: IVpc;
+  readonly securityGroup?: ISecurityGroup;
 }
 
 export class RataExtraBastionStack extends Stack {
   constructor(scope: Construct, id: string, props: RataExtraBastionStackProps) {
     super(scope, id, props);
-    const { rataExtraEnv, albDns, databaseDns, stackId } = props;
-
-    const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
-      ...getVpcAttributes(stackId, rataExtraEnv),
-    });
-
-    const securityGroup = SecurityGroup.fromSecurityGroupId(
-      this,
-      'rataextra-security-group',
-      getSecurityGroupId(stackId, rataExtraEnv),
-    );
+    const { albDns, databaseDns, vpc, securityGroup } = props;
 
     const bastionRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),

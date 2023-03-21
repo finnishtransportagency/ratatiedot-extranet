@@ -373,6 +373,8 @@ export class RataExtraBackendStack extends NestedStack {
         albDns: alb.loadBalancerDnsName,
         databaseDns: databaseDomain,
         stackId: stackId,
+        vpc: applicationVpc,
+        securityGroup: securityGroup,
       });
       Object.entries(tags).forEach(([key, value]) => Tags.of(bastionStack).add(key, value));
     }

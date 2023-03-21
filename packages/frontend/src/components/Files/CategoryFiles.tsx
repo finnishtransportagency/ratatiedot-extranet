@@ -36,9 +36,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   const getCategoryFiles = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `http://localhost:3002/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`,
-      );
+      const response = await axios.get(`/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`);
       const data = response.data;
       const totalFiles = get(data, 'list.entries', []);
       const totalItems = get(data, 'list.pagination.totalItems', 0);
