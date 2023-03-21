@@ -1,7 +1,6 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import axios from 'axios';
-import { get } from 'lodash';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
@@ -11,6 +10,7 @@ import { DatabaseClient } from '../database/client';
 import { searchQueryBuilder } from './searchQueryBuilder';
 import {
   AdditionalFields,
+  IFolderSearchParameter,
   IParentSearchParameter,
   QueryLanguage,
   SearchParameterName,
@@ -29,15 +29,33 @@ export type TNode = {
   };
 };
 
-const searchByTermWithParent = async (uid: string, alfrescoParent: string, page: number, language: QueryLanguage) => {
+const searchByTermWithParent = async (
+  uid: string,
+  alfrescoParent: string,
+  alfrescoFolder = '',
+  page: number,
+  language: QueryLanguage,
+) => {
   try {
+    const searchParameters = [];
     const parent: IParentSearchParameter = {
       parameterName: SearchParameterName.PARENT,
       parent: alfrescoParent,
     };
+    searchParameters.push(parent);
+    if (alfrescoFolder) {
+      const folder: IFolderSearchParameter = {
+        parameterName: SearchParameterName.FOLDER,
+        name: alfrescoFolder,
+      };
+      searchParameters.push(folder);
+    }
+
+    log.info('Search parameters: ');
+    console.log(searchParameters);
 
     const bodyRequest = searchQueryBuilder({
-      searchParameters: [parent],
+      searchParameters: searchParameters,
       page: page,
       language: language,
       additionalFields: [AdditionalFields.PROPERTIES],
@@ -88,38 +106,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('Category not found', 404);
     }
 
-    const categoryData = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
-    log.info('categoryData');
-    console.log(categoryData);
+    const data = await searchByTermWithParent(user.uid, alfrescoParent, subCategory, page, language);
 
-    if (subCategory) {
-      const entries = await get(categoryData, 'list.entries', []);
-      log.info('entries');
-      console.log(subCategory);
-      console.log(entries);
-      const folder = (await entries.find((node: TNode) => {
-        const { entry } = node;
-        const { name, isFolder } = entry;
-        return name === subCategory && isFolder === true;
-      })) as TNode;
-      log.info('folder:');
-      console.log(folder);
-      const subCategoryData = folder ? await searchByTermWithParent(user.uid, folder.entry.id, page, language) : null;
-
-      return {
-        statusCode: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(subCategoryData),
-      };
-    }
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(categoryData),
+      body: JSON.stringify(data),
     };
   } catch (err) {
     log.error(err);
