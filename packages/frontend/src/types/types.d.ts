@@ -104,6 +104,8 @@ type TNode = {
     nodeType: string;
     content: any;
     parentId: string;
+    isFile: boolean;
+    isFolder: boolean;
   };
 };
 
