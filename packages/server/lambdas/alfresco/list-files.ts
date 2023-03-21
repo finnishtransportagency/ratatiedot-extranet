@@ -68,9 +68,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     const params = event.queryStringParameters;
     const category = params?.category;
-    const subCategory = params?.subcategory;
-    log.info(user, `Fetching files for for page ${category}`);
-    log.info(params);
+    const subCategory = params?.subcategory ? decodeURI(params?.subcategory) : params?.subcategory;
+    log.info(user, `Fetching files for for page ${category} with folder ${subCategory} `);
+
     validateReadUser(user);
     if (!category) {
       throw new RataExtraLambdaError('Category missing', 400);
@@ -88,25 +88,38 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('Category not found', 404);
     }
 
-    let data = null;
-    data = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
+    const categoryData = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
+    log.info('categoryData');
+    console.log(categoryData);
 
     if (subCategory) {
-      const entries = get(data, 'list.entries', []);
-      const folder = entries.find((node: TNode) => {
+      const entries = await get(categoryData, 'list.entries', []);
+      log.info('entries');
+      console.log(subCategory);
+      console.log(entries);
+      const folder = (await entries.find((node: TNode) => {
         const { entry } = node;
         const { name, isFolder } = entry;
         return name === subCategory && isFolder === true;
-      }) as TNode;
-      data = folder ? await searchByTermWithParent(user.uid, folder.entry.id, page, language) : null;
-    }
+      })) as TNode;
+      log.info('folder:');
+      console.log(folder);
+      const subCategoryData = folder ? await searchByTermWithParent(user.uid, folder.entry.id, page, language) : null;
 
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(subCategoryData),
+      };
+    }
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(categoryData),
     };
   } catch (err) {
     log.error(err);
