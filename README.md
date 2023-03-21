@@ -259,6 +259,20 @@ DATABASE_URL="postgresql://...{production database connection URL}"
 
 [follow guide on how to run prisma migration](https://www.prisma.io/docs/concepts/components/prisma-migrate/migrate-development-production#production-and-testing-environments)
 
+You can inspect database using for example [psql](https://www.postgresql.org/docs/current/app-psql.html) or [Prisma Studio](https://www.prisma.io/blog/prisma-studio-3rtf78dg99fe)
+
+Prisma Studio
+```
+npx prisma studio
+```
+
+psql
+```
+psql [connection URL]
+rataextra=> \dt+
+```
+
+
 ### Build
 
 ### Pipeline
