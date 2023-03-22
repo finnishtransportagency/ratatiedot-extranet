@@ -66,9 +66,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           body: JSON.stringify(userRight),
         };
       }
-    } else {
-      log.error(err);
-      return { ...getRataExtraLambdaError(err), body: JSON.stringify(userRight) };
     }
+    log.error(err);
+    return { ...getRataExtraLambdaError(err), body: JSON.stringify(userRight) };
   }
 }
