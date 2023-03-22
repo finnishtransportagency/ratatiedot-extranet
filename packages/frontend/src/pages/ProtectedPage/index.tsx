@@ -33,7 +33,7 @@ export const ProtectedPage = ({ children }: Props) => {
         {isEditorOpened && <SlateInputField />}
         {isEditorOpened && <FileUploadDialogButton categoryName={categoryRouteName} />}
         {children}
-        {categoryRouteName && <CategoryFiles categoryName={categoryRouteName} />}
+        {categoryRouteName && <CategoryFiles />}
         <Footer />
       </ContentWrapper>
     </ContainerWrapper>

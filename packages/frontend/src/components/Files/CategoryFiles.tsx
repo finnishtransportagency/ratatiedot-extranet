@@ -15,10 +15,10 @@ import { useLocation } from 'react-router-dom';
 import { AppBarContext } from '../../contexts/AppBarContext';
 
 type TCategoryFilesProps = {
-  categoryName: string;
+  subCategory?: string;
 };
 
-export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
+export const CategoryFiles = ({ subCategory }: TCategoryFilesProps) => {
   const { t } = useTranslation(['common', 'search']);
   const location = useLocation();
   const [fileList, setFileList] = useState<TNode[]>([]);
@@ -28,6 +28,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   const [totalFiles, setTotalFiles] = useState(0);
   const [hasMoreItems, setHasMoreItems] = useState(false);
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
+  const categoryName = getCategoryRouteName(location);
 
   const { openEdit, openToolbar } = useContext(AppBarContext);
 
@@ -36,7 +37,8 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
   const getCategoryFiles = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`);
+      const subCategoryQuery = subCategory ? `&subcategory=${subCategory}` : '';
+      const response = await axios.get(`/api/alfresco/files?category=${categoryName}${subCategoryQuery}&page=${page}`);
       const data = response.data;
       const totalFiles = get(data, 'list.entries', []);
       const totalItems = get(data, 'list.pagination.totalItems', 0);
@@ -93,7 +95,7 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
     <ProtectedContainerWrapper>
       {isEditOpen && (
         <FileDeleteDialogButton
-          categoryName={getCategoryRouteName(location)}
+          categoryName={categoryName}
           disabled={!selectedFile}
           node={selectedFile}
           onDelete={(e) => {

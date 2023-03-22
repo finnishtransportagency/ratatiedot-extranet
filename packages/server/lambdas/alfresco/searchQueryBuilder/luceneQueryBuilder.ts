@@ -11,6 +11,7 @@ import {
   SearchParameterName,
   Sorting,
   SortingParameter,
+  IFolderSearchParameter,
 } from './types';
 
 const mimeTypesMapping = {
@@ -82,6 +83,10 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     return `+PARENT:\"workspace\\://SpacesStore/${parameter.parent}\"`;
   }
 
+  buildFolderQuery(parameter: IFolderSearchParameter) {
+    return `+@cm\\:name:"${parameter.name}"+TYPE:\"cm:folder\"`;
+  }
+
   public queryBuilder(searchParameters: Array<SearchParameter>): string {
     let query = '';
     searchParameters?.map((parameter) => {
@@ -98,6 +103,8 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
         case SearchParameterName.PARENT:
           query += this.buildParentQuery(parameter);
           break;
+        case SearchParameterName.FOLDER:
+          query += this.buildFolderQuery(parameter);
         default:
       }
     });
