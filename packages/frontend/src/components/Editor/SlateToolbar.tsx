@@ -25,6 +25,7 @@ import { NotificationTypes } from './NotificationTypes';
 import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { EditorContext } from '../../contexts/EditorContext';
+import { useTranslation } from 'react-i18next';
 
 type MarkButtonProps = { editor: any; format: FontFormatType; icon: any };
 
@@ -65,6 +66,7 @@ const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
 };
 
 export const SlateToolbar = () => {
+  const { t } = useTranslation(['common']);
   const { closeToolbarHandler } = useContext(AppBarContext);
   const { editor, value } = useContext(EditorContext);
 
@@ -73,7 +75,7 @@ export const SlateToolbar = () => {
   };
 
   const handleInsertLink = () => {
-    const url = prompt('Enter a URL');
+    const url = prompt(t('common:edit.enter_url'));
     if (!url) return;
     insertLink(editor, url);
   };

@@ -48,6 +48,7 @@
     "edit_instruction": "Muokka sisältöä klikkaamalla suoraan kohteisiin tai lisää tiedostoa, tekstiä tai ilmoitusta.",
     "save_changes_confirmation": "Haluatko tallentaa muutoksesi?",
     "write_content": "Kirjoita sisältö",
-    "new_link": "Uusi linkki"
+    "new_link": "Uusi linkki",
+    "enter_url": "Anna URL-osoite"
   }
 }
