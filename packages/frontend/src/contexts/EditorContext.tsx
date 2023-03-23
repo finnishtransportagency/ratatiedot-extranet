@@ -55,7 +55,7 @@ export const EditorContextProvider = (props: any) => {
   const valueReset = () => {
     if (isSlateValueEmpty(dbValue)) {
       setValue(nodeTemplate);
-      setEditor(withReact(createEditor()));
+      setEditor(createEditorWithPlugins(createEditor()));
     } else {
       // Directly assign initial data from database to editor's children
       const dbNotificationType = dbValue[0].type;
