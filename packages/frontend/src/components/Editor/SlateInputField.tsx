@@ -32,7 +32,7 @@ export const SlateInputField = () => {
         editor={editor}
         value={slateValue}
         onChange={(value: any) => {
-          const isAstChange = editor.operations.some((op) => 'set_selection' !== op.type);
+          const isAstChange = editor.operations.some((op: any) => 'set_selection' !== op.type);
           if (isAstChange) {
             setSlateValue(value);
             valueHandler(value);

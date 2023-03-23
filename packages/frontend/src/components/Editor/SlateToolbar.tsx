@@ -6,14 +6,14 @@ import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
 import FormatSizeIcon from '@mui/icons-material/FormatSize';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
-import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { Slate } from 'slate-react';
 
 import DeleteIcon from '../../assets/icons/Delete.svg';
 import CloseIcon from '../../assets/icons/Close.svg';
+import LinkIcon from '../../assets/icons/Link.svg';
 import {
-  deleteEditor,
   deleteNotification,
+  insertLink,
   isBlockActive,
   isMarkActive,
   toggleBlock,
@@ -72,6 +72,12 @@ export const SlateToolbar = () => {
     deleteNotification(editor, value[0].type, true);
   };
 
+  const handleInsertLink = () => {
+    const url = prompt('Enter a URL');
+    if (!url) return;
+    insertLink(editor, url);
+  };
+
   return (
     <Slate editor={editor} value={value}>
       <ToolbarPaperWrapper elevation={2}>
@@ -97,7 +103,13 @@ export const SlateToolbar = () => {
             icon: <FormatListNumberedIcon fontSize="small" />,
           })}
           {BlockButton({ editor, format: ElementType.BULLET_LIST, icon: <FormatListBulletedIcon fontSize="small" /> })}
-          {BlockButton({ editor, format: ElementType.LINK, icon: <InsertLinkIcon fontSize="small" /> })}
+          <Box
+            component="img"
+            sx={{ cursor: 'pointer', width: '25px' }}
+            src={LinkIcon}
+            alt="link"
+            onClick={handleInsertLink}
+          />
         </ToggleButtonGroupWrapper>
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <NotificationTypes />
