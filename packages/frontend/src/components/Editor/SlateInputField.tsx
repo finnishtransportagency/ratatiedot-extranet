@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import { Paper } from '@mui/material';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Editable, ReactEditor, Slate } from 'slate-react';
+import { Operation } from 'slate';
 
 import { Colors } from '../../constants/Colors';
 import { EditorContext } from '../../contexts/EditorContext';
@@ -32,7 +33,7 @@ export const SlateInputField = () => {
         editor={editor}
         value={slateValue}
         onChange={(value: any) => {
-          const isAstChange = editor.operations.some((op) => 'set_selection' !== op.type);
+          const isAstChange = editor.operations.some((op: Operation) => 'set_selection' !== op.type);
           if (isAstChange) {
             setSlateValue(value);
             valueHandler(value);

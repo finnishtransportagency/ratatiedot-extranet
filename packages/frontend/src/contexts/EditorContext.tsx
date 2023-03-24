@@ -3,13 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { createEditor } from 'slate';
 import { withReact } from 'slate-react';
+import pipe from 'lodash/fp/pipe';
+
 import { useGetCategoryPageContent } from '../hooks/query/GetCategoryPageContent';
 import { getRouterName } from '../utils/helpers';
 import { isSlateValueEmpty, openNotification } from '../utils/slateEditorUtil';
 import { ElementType } from '../utils/types';
+import withLinks from '../plugins/withLinks';
+
+const createEditorWithPlugins = pipe(withReact, withLinks);
 
 export const EditorContext = React.createContext({
-  editor: withReact(createEditor()),
+  editor: createEditorWithPlugins(createEditor()),
   value: [] as any,
   valueHandler: (_: any) => {},
   valueReset: () => {},
@@ -23,7 +28,7 @@ export const EditorContextProvider = (props: any) => {
   const categoryName = pathname.split('/').at(-1) || '';
   const { data } = useGetCategoryPageContent(getRouterName(categoryName));
 
-  const [editor, setEditor] = useState(withReact(createEditor()));
+  const [editor, setEditor] = useState(createEditorWithPlugins(createEditor()));
   const [dbValue, setDBValue] = useState(nodeTemplate);
   const [value, setValue] = useState(nodeTemplate);
 
@@ -50,7 +55,7 @@ export const EditorContextProvider = (props: any) => {
   const valueReset = () => {
     if (isSlateValueEmpty(dbValue)) {
       setValue(nodeTemplate);
-      setEditor(withReact(createEditor()));
+      setEditor(createEditorWithPlugins(createEditor()));
     } else {
       // Directly assign initial data from database to editor's children
       const dbNotificationType = dbValue[0].type;
