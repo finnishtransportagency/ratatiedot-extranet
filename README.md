@@ -57,6 +57,8 @@ E.g. `feat: RTENU-12345 Awesome new feature`
 
 ### Linting
 
+Prettier is used for automatic linter fixing for obvious cases. Otherwise, linter rules are defined in [.eslintrc](./.eslintrc)
+
 ## Getting started
 
 ### Prerequisites

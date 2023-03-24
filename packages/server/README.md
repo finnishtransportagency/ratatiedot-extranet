@@ -133,7 +133,7 @@ You can now remove generated logs.txt file
 
 Whenever you add new tables of columns to the database, try add some test data to the packages/server/populate-local-db.sh. Rerun migration first. Also check that the populate-script still works after the changes.
 
-#### Fixing socat problems
+### Fixing socat problems
 
 If for some reason socat is not working for a specific piping, you can set it up again by hand. Connect to the EC2 with SSM and run following after adding values as instructed below:
 
@@ -176,7 +176,7 @@ rataextra=> \dt+
 
 ### Build
 
-### Pipeline
+#### Pipeline
 
 Bootstrap CDK for the AWS account, if that has not been done yet: `ENVIRONMENT=dev BRANCH=main cdk bootstrap`. ENVIRONMENT and BRANCH don't really matter here, but the stack requires you to set them.
 
@@ -235,3 +235,7 @@ Use `utils/userService.ts` to first get `user` and then use an applicable role c
 #### Logging
 
 Use `utils/logger.ts`. Whenever possible, pass `user` to get the UID. A info-level log should be done with user attached after authorizing the user at the beginning of a lambda function. Use error-level for any catch-blocks. In these cases, you usually don't have user, but do log that if it's available. If any changes are made to the system/databases/etc., also add an `auditLog`-line describing the action from logger. These _must_ have the user. As these logs are mixed in with technical logs, they can be used in place of normal logging when logging changes made. Errors etc. should still use normal logging.
+
+### Tests
+
+Unit tests can be run with `npm run test:server`
