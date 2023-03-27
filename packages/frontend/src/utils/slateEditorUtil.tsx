@@ -1,7 +1,7 @@
 import { Node, Editor, Element, Transforms, Path, Range } from 'slate';
 import { ReactEditor } from 'slate-react';
-import { NotificationEditorCard } from '../components/Cards/NotificationEditorCard';
-import { LinkPopup } from '../components/Popup/LinkPopup';
+import { NotificationEditorCard } from '../components/Editor/Cards/NotificationEditorCard';
+import { LinkPopup } from '../components/Editor/Popup/LinkPopup';
 import { TSlateNode } from '../contexts/EditorContext';
 
 import { ElementType, FontFormatType, IElement } from './types';
@@ -97,6 +97,13 @@ export const SlateLeaf = ({ attributes, children, leaf }: any) => {
   if (leaf.underlined) {
     children = <u>{children}</u>;
   }
+  if (leaf.color) {
+    children = (
+      <span {...attributes} style={{ color: leaf.color }}>
+        {children}
+      </span>
+    );
+  }
 
   return <span {...attributes}>{children}</span>;
 };
@@ -109,6 +116,16 @@ export const isMarkActive = (editor: any, format: FontFormatType) => {
 export const toggleMark = (editor: any, format: FontFormatType) => {
   const isActive = isMarkActive(editor, format);
   return isActive ? Editor.removeMark(editor, format) : Editor.addMark(editor, format, true);
+};
+
+export const isColorActive = (editor: any, format: FontFormatType, color: string) => {
+  const marks = Editor.marks(editor) as any;
+  return marks && marks[format] && marks[format] === color;
+};
+
+export const toggleColor = (editor: any, format: FontFormatType, color: string) => {
+  const isActive = isColorActive(editor, format, color);
+  return isActive ? Editor.removeMark(editor, format) : Editor.addMark(editor, format, color);
 };
 
 export const isBlockActive = (editor: any, format: ElementType) => {
