@@ -3,11 +3,11 @@ import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import CheckIcon from '@mui/icons-material/Check';
 import styled from '@emotion/styled';
-import { DrawerWrapperProps } from '../NavBar/DesktopDrawer';
+import { DrawerWrapperProps } from '../../NavBar/DesktopDrawer';
 import { Paper } from '@mui/material';
-import { Colors } from '../../constants/Colors';
-import { SlateElementProps } from '../../utils/slateEditorUtil';
-import { ElementType } from '../../utils/types';
+import { Colors } from '../../../constants/Colors';
+import { SlateElementProps } from '../../../utils/slateEditorUtil';
+import { ElementType } from '../../../utils/types';
 
 export const NotificationEditorCard = ({ attributes, children, element }: SlateElementProps) => {
   const KindIcon = () => {
