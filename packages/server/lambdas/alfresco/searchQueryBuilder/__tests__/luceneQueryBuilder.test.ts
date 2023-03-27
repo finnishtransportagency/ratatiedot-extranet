@@ -124,7 +124,9 @@ describe('Lucene Query Builder', () => {
           term: 'test',
         },
       ];
-      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+(TEXT:"test*" @cm\\:name:"test*")');
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
+        '+(TEXT:"test*" @cm\\:name:"test*")+TYPE:"cm:content"',
+      );
     });
     it('should return query for content search', () => {
       const parameters: Array<SearchParameter> = [
@@ -134,7 +136,7 @@ describe('Lucene Query Builder', () => {
           contentSearch: true,
         },
       ];
-      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+TEXT:"test*"');
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+TEXT:"test*"+TYPE:"cm:content"');
     });
     it('should return query for parent', () => {
       const parameters: Array<SearchParameter> = [
