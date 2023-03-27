@@ -73,10 +73,11 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   }
 
   buildNameQuery(parameter: INameSearchParameter): string {
+    const fileType = '+TYPE:"cm:content"';
     const contentSearchQuery = `TEXT:"${parameter.term}*"`;
     const basicSearchQuery = `@cm\\:name:"${parameter.term}*"`;
     const extendedSearchQuery = `+(${contentSearchQuery} ${basicSearchQuery})`;
-    return parameter.contentSearch ? `+${contentSearchQuery}` : extendedSearchQuery;
+    return parameter.contentSearch ? `+${contentSearchQuery}${fileType}` : `${extendedSearchQuery}${fileType}`;
   }
 
   buildParentQuery(parameter: IParentSearchParameter) {
@@ -84,7 +85,8 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   }
 
   buildFolderQuery(parameter: IFolderSearchParameter) {
-    return `+@cm\\:name:"${parameter.name}"+TYPE:\"cm:folder\"`;
+    const folderType = '+TYPE:"cm:folder"';
+    return `+@cm\\:name:"${parameter.name}"${folderType}`;
   }
 
   public queryBuilder(searchParameters: Array<SearchParameter>): string {
