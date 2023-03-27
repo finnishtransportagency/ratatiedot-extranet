@@ -2,6 +2,7 @@ export enum FontFormatType {
   BOLD = 'bold',
   ITALIC = 'italic',
   UNDERLINED = 'underlined',
+  COLOR = 'color',
 }
 
 export enum ElementType {
