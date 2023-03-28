@@ -114,6 +114,7 @@ export const isMarkActive = (editor: any, format: FontFormatType) => {
 };
 
 export const toggleMark = (editor: any, format: FontFormatType) => {
+  ReactEditor.focus(editor);
   const isActive = isMarkActive(editor, format);
   return isActive ? Editor.removeMark(editor, format) : Editor.addMark(editor, format, true);
 };
@@ -124,6 +125,7 @@ export const isColorActive = (editor: any, format: FontFormatType, color: string
 };
 
 export const toggleColor = (editor: any, format: FontFormatType, color: string) => {
+  ReactEditor.focus(editor);
   const isActive = isColorActive(editor, format, color);
   return isActive ? Editor.removeMark(editor, format) : Editor.addMark(editor, format, color);
 };
@@ -134,6 +136,7 @@ export const isBlockActive = (editor: any, format: ElementType) => {
 };
 
 export const toggleBlock = (editor: any, format: ElementType) => {
+  ReactEditor.focus(editor);
   const isActive = isBlockActive(editor, format);
   const isList = format === ElementType.BULLET_LIST || format === ElementType.NUMBERED_LIST;
 
