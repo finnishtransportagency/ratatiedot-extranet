@@ -185,28 +185,10 @@ export class RataExtraBackendStack extends NestedStack {
       initialPolicy: [...prismaParameters.initialPolicy, ...alfrescoParameters.initialPolicy],
     };
 
-    const dummyFn = this.createNodejsLambda({
-      ...genericLambdaParameters,
-      name: 'dummy-handler',
-      relativePath: '../packages/server/lambdas/dummy.ts',
-    });
-
     const dummy2Fn = this.createNodejsLambda({
       ...genericLambdaParameters,
       name: 'dummy2-handler',
       relativePath: '../packages/server/lambdas/dummy2.ts',
-    });
-
-    const createUser = this.createNodejsLambda({
-      ...prismaParameters,
-      name: 'create-user',
-      relativePath: '../packages/server/lambdas/database/create-user.ts',
-    });
-
-    const listUsers = this.createNodejsLambda({
-      ...prismaParameters,
-      name: 'list-users',
-      relativePath: '../packages/server/lambdas/database/list-users.ts',
     });
 
     const returnLogin = this.createNodejsLambda({
@@ -277,14 +259,6 @@ export class RataExtraBackendStack extends NestedStack {
     // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
       { lambda: dummy2Fn, priority: 10, path: ['/api/test'], httpRequestMethods: ['GET'], targetName: 'dummy2' },
-      { lambda: listUsers, priority: 20, path: ['/api/users'], httpRequestMethods: ['GET'], targetName: 'listUsers' },
-      {
-        lambda: createUser,
-        priority: 30,
-        path: ['/api/create-user'],
-        httpRequestMethods: ['GET'],
-        targetName: 'createUser',
-      },
       {
         lambda: returnLogin,
         priority: 50,
@@ -356,7 +330,6 @@ export class RataExtraBackendStack extends NestedStack {
         httpRequestMethods: ['GET'],
         targetName: 'checkUserRightOnPageContents',
       },
-      { lambda: dummyFn, priority: 1000, path: ['/*'], httpRequestMethods: ['GET'], targetName: 'dummy' },
     ];
     // ALB for API
     const alb = this.createlAlb({
