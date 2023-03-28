@@ -39,3 +39,5 @@ screenshots/
 .cdk.staging
 cdk.out
 cdk.rataextra
+
+.vscode/

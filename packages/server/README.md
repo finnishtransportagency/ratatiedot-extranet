@@ -96,10 +96,10 @@ npm run local:db:migrate
 
 If you get `sh: ./loadenv: Permission denied`, add execution rights to the file with `chmod 755 packages/server/loadenv`.
 
-populate local database
+seed local database
 
 ```
-npm run local:db:populate
+npx prisma db seed
 ```
 
 run cdk synth locally
@@ -131,7 +131,7 @@ You can now remove generated logs.txt file
 
 #### Updating local database
 
-Whenever you add new tables of columns to the database, try add some test data to the packages/server/populate-local-db.sh. Rerun migration first. Also check that the populate-script still works after the changes.
+Whenever you add new tables of columns to the database, try add some test data to the packages/server/prisma/seed.ts. Rerun migration first. Also check that the eed-script still works after the changes.
 
 ### Fixing socat problems
 
