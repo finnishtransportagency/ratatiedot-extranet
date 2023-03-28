@@ -67,15 +67,18 @@ export const EditorColorPicker = () => {
   );
 };
 
-const PopupWrapper = styled('div')(() => ({
-  maxWidth: '345px',
-  width: '40%',
+const PopupWrapper = styled('div')(({ theme }) => ({
+  width: '80%',
   position: 'absolute',
   zIndex: 1000,
+  left: 20,
   top: '100px',
-  left: '40%',
   backgroundColor: 'white',
   padding: '12px',
   borderRadius: '12px',
   border: '1px solid lightgray',
+  [theme.breakpoints.up('tablet')]: {
+    width: '345px',
+    left: '40%',
+  },
 }));
