@@ -11,6 +11,7 @@ import { Slate } from 'slate-react';
 import DeleteIcon from '../../assets/icons/Delete.svg';
 import CloseIcon from '../../assets/icons/Close.svg';
 import LinkIcon from '../../assets/icons/Link.svg';
+import PaletteIcon from '../../assets/icons/Palette.svg';
 import {
   deleteNotification,
   insertLink,
@@ -22,10 +23,11 @@ import {
 import { Colors } from '../../constants/Colors';
 import { ElementType, FontFormatType } from '../../utils/types';
 import { NotificationTypes } from './NotificationTypes';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { EditorContext } from '../../contexts/EditorContext';
 import { useTranslation } from 'react-i18next';
+import { EditorColorPicker } from './Popup/EditorColorPicker';
 
 type MarkButtonProps = { editor: any; format: FontFormatType; icon: any };
 
@@ -69,6 +71,7 @@ export const SlateToolbar = () => {
   const { t } = useTranslation(['common']);
   const { closeToolbarHandler } = useContext(AppBarContext);
   const { editor, value } = useContext(EditorContext);
+  const [isColorOpened, setIsColorOpened] = useState(false);
 
   const removeNotificationOrContentType = () => {
     deleteNotification(editor, value[0].type, true);
@@ -99,20 +102,33 @@ export const SlateToolbar = () => {
           {MarkButton({ editor, format: FontFormatType.BOLD, icon: <FormatBoldIcon fontSize="small" /> })}
           {MarkButton({ editor, format: FontFormatType.ITALIC, icon: <FormatItalicIcon fontSize="small" /> })}
           {MarkButton({ editor, format: FontFormatType.UNDERLINED, icon: <FormatUnderlinedIcon fontSize="small" /> })}
+          <Box
+            component="img"
+            sx={{ cursor: 'pointer', width: '25px', padding: '7px' }}
+            src={LinkIcon}
+            alt="link"
+            onClick={handleInsertLink}
+          />
           {BlockButton({
             editor,
             format: ElementType.NUMBERED_LIST,
             icon: <FormatListNumberedIcon fontSize="small" />,
           })}
           {BlockButton({ editor, format: ElementType.BULLET_LIST, icon: <FormatListBulletedIcon fontSize="small" /> })}
-          <Box
-            component="img"
-            sx={{ cursor: 'pointer', width: '25px' }}
-            src={LinkIcon}
-            alt="link"
-            onClick={handleInsertLink}
-          />
         </ToggleButtonGroupWrapper>
+        <DividerWrapper orientation="vertical" variant="middle" flexItem />{' '}
+        <Box
+          component="img"
+          sx={{ cursor: 'pointer', width: '25px' }}
+          src={PaletteIcon}
+          alt="link"
+          onClick={() => setIsColorOpened(!isColorOpened)}
+        />
+        {isColorOpened && (
+          <ToggleButtonGroupWrapper size="small">
+            <EditorColorPicker />
+          </ToggleButtonGroupWrapper>
+        )}
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <NotificationTypes />
         <DividerWrapper orientation="vertical" variant="middle" flexItem />

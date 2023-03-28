@@ -44,11 +44,10 @@
   },
   "edit": {
     "edit_content": "Muokkaa sisältöä",
-    "edit_tool": "Muokkaustyökalu",
-    "edit_instruction": "Muokka sisältöä klikkaamalla suoraan kohteisiin tai lisää tiedostoa, tekstiä tai ilmoitusta.",
     "save_changes_confirmation": "Haluatko tallentaa muutoksesi?",
     "write_content": "Kirjoita sisältö",
     "new_link": "Uusi linkki",
-    "enter_url": "Anna URL-osoite"
+    "enter_url": "Anna URL-osoite",
+    "choose_color": "Valitse väri"
   }
 }
