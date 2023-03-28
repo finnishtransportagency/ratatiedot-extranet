@@ -1,81 +1,62 @@
 import styled from '@emotion/styled';
 import { Paper } from '@mui/material';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Editable, Slate } from 'slate-react';
+import { Editable, ReactEditor, Slate } from 'slate-react';
+import { Operation } from 'slate';
 
 import { Colors } from '../../constants/Colors';
 import { EditorContext } from '../../contexts/EditorContext';
-import { ENotificationType } from '../../contexts/types';
 import { SlateElement, SlateLeaf } from '../../utils/slateEditorUtil';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
-import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
-import CheckIcon from '@mui/icons-material/Check';
+import { DrawerWrapperProps } from '../NavBar/DesktopDrawer';
+import { AppBarContext } from '../../contexts/AppBarContext';
+import { useTranslation } from 'react-i18next';
 
 export const SlateInputField = () => {
-  const { editor, value, valueHandler, kind } = useContext(EditorContext);
-  const [slateValue, setSlateValue] = useState(JSON.parse(value));
+  const { t } = useTranslation(['common']);
+  const { editor, value, valueHandler } = useContext(EditorContext);
+  const { openToolbar } = useContext(AppBarContext);
+
+  const [slateValue, setSlateValue] = useState(value);
 
   useEffect(() => {
-    setSlateValue(JSON.parse(value));
-  }, [value, kind]);
-
-  const KindIcon = () => {
-    switch (kind) {
-      case ENotificationType.INFO:
-        return <InfoOutlinedIcon />;
-      case ENotificationType.WARNING:
-        return <WarningAmberOutlinedIcon />;
-      case ENotificationType.ERROR:
-        return <ErrorOutlineOutlinedIcon />;
-      case ENotificationType.CONFIRMATION:
-        return <CheckIcon />;
-      default:
-        return <></>;
-    }
-  };
-
-  const paperStyleByKind = () => {
-    switch (kind) {
-      case ENotificationType.INFO:
-        return { backgroundColor: Colors.darkblue, color: Colors.white };
-      case ENotificationType.WARNING:
-        return { backgroundColor: Colors.yellow, color: Colors.extrablack };
-      case ENotificationType.ERROR:
-        return { backgroundColor: Colors.darkred, color: Colors.white };
-      case ENotificationType.CONFIRMATION:
-        return { backgroundColor: Colors.darkgreen, color: Colors.white };
-      default:
-        return {};
-    }
-  };
+    setSlateValue(value);
+  }, [value]);
 
   const renderElement = useCallback((props: any) => <SlateElement {...props} />, []);
   const renderLeaf = useCallback((props: any) => <SlateLeaf {...props} />, []);
 
-  return kind ? (
-    <SlateInputFieldPaperWrapper elevation={2} sx={{ ...paperStyleByKind() }}>
-      <KindIcon />
+  const isNotificationSlateOpened = openToolbar && ReactEditor.isFocused(editor);
+
+  return (
+    <SlateInputFieldPaperWrapper elevation={2} opentoolbar={isNotificationSlateOpened}>
       <Slate
         editor={editor}
         value={slateValue}
         onChange={(value: any) => {
-          setSlateValue(value);
-          valueHandler(JSON.stringify(value));
+          const isAstChange = editor.operations.some((op: Operation) => 'set_selection' !== op.type);
+          if (isAstChange) {
+            setSlateValue(value);
+            valueHandler(value);
+          }
         }}
       >
-        <Editable renderLeaf={renderLeaf} renderElement={renderElement} />
+        <Editable
+          autoFocus={true}
+          renderLeaf={renderLeaf}
+          renderElement={renderElement}
+          placeholder={isNotificationSlateOpened ? t('common:edit.write_content') : ''}
+          readOnly={!isNotificationSlateOpened}
+          style={{ cursor: isNotificationSlateOpened ? 'text' : 'default' }}
+        />
       </Slate>
     </SlateInputFieldPaperWrapper>
-  ) : (
-    <></>
   );
 };
 
-const SlateInputFieldPaperWrapper = styled(Paper)(({ theme }) => ({
-  padding: '10px',
+const SlateInputFieldPaperWrapper = styled(Paper)<DrawerWrapperProps>(({ theme, opentoolbar }) => ({
   boxShadow: 'none',
-  border: `1px dashed ${Colors.darkblue}`,
+  border: opentoolbar ? `1px dashed ${Colors.darkblue}` : 'none',
+  padding: opentoolbar ? '10px' : 0,
   [theme.breakpoints.only('mobile')]: {
     margin: '0 15px',
   },
@@ -83,6 +64,6 @@ const SlateInputFieldPaperWrapper = styled(Paper)(({ theme }) => ({
     margin: '0 32px',
   },
   [theme.breakpoints.only('desktop')]: {
-    margin: '30px 40px',
+    margin: '60px 40px 0px 40px',
   },
 }));

@@ -4,6 +4,8 @@ import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
 import { Sorting } from '../contexts/SearchContext';
 import categoryData from '../assets/data/FinnishCategories.json';
 import { MainCategoryData, SubCategoryData } from '../types/types';
+import { matchRoutes, Location } from 'react-router-dom';
+import { categoryRoutes } from '../routes';
 
 /**
  * Generate range of years
@@ -125,4 +127,18 @@ export const getRouterName = (name: string) => {
 // TODO: should return original page's title
 export const parseRouterName = (routerName: string) => {
   return routerName.replace(/-/g, ' ');
+};
+
+/**
+ * Return router name based on page title's name
+ * @param location
+ * @returns string
+ */
+export const getCategoryRouteName = (location: Location) => {
+  const routeMatch = matchRoutes(categoryRoutes, location);
+  if (routeMatch) {
+    const path = routeMatch[0].route.path as string;
+    return path.split('/').pop() as string;
+  }
+  return '';
 };

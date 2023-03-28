@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useGetUserRightPageContent } from '../hooks/query/GetUserRightPageContent';
+import { getCategoryRouteName } from '../utils/helpers';
 
 export const AppBarContext = React.createContext({
   openDrawer: false,
@@ -12,7 +15,11 @@ export const AppBarContext = React.createContext({
   openToolbar: false,
   openToolbarHandler: () => {},
   closeToolbarHandler: () => {},
+  userRight: { canRead: false, canWrite: false },
+  userRightHandler: (_: TUserRight) => {},
 });
+
+export type TUserRight = { canRead: boolean; canWrite: boolean };
 
 export const AppBarContextProvider = (props: any) => {
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -20,6 +27,17 @@ export const AppBarContextProvider = (props: any) => {
   const [openFilter, setOpenFilter] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openToolbar, setOpenToolbar] = useState(false);
+  const [userRight, setUserRight] = useState<TUserRight>({ canRead: false, canWrite: false });
+
+  const location = useLocation();
+  const categoryName = getCategoryRouteName(location);
+  const { data } = useGetUserRightPageContent(categoryName);
+
+  useEffect(() => {
+    if (data) {
+      setUserRight(data);
+    }
+  }, [data]);
 
   const toggleDrawer = () => setOpenDrawer(!openDrawer);
   const toggleSearch = () => {
@@ -48,6 +66,10 @@ export const AppBarContextProvider = (props: any) => {
     setOpenToolbar(false);
   };
 
+  const userRightHandler = (userRight: TUserRight) => {
+    setUserRight(userRight);
+  };
+
   return (
     <AppBarContext.Provider
       value={{
@@ -62,6 +84,8 @@ export const AppBarContextProvider = (props: any) => {
         openToolbar: openToolbar,
         openToolbarHandler: openToolbarHandler,
         closeToolbarHandler: closeToolbarHandler,
+        userRight: userRight,
+        userRightHandler: userRightHandler,
       }}
     >
       {props.children}

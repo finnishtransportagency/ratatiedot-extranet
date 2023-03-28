@@ -14,7 +14,7 @@ import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-l
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { join } from 'path';
-import { isDevelopmentMainStack, isFeatOrLocalStack } from './utils';
+import { isPermanentStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 
@@ -249,6 +249,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/edit-page-contents.ts',
     });
 
+    const checkUserRightOnPageContents = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'check-user-right',
+      relativePath: '../packages/server/lambdas/database/check-user-right.ts',
+    });
+
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
@@ -317,6 +323,13 @@ export class RataExtraBackendStack extends NestedStack {
         httpRequestMethods: ['PUT'],
         targetName: 'dbEditPageContents',
       },
+      {
+        lambda: checkUserRightOnPageContents,
+        priority: 210,
+        path: ['/api/database/user-right'],
+        httpRequestMethods: ['GET'],
+        targetName: 'checkUserRightOnPageContents',
+      },
     ];
     // ALB for API
     const alb = this.createlAlb({
@@ -327,12 +340,14 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroup,
     });
 
-    if (isDevelopmentMainStack(rataExtraStackIdentifier, rataExtraEnv)) {
+    if (isPermanentStack(stackId, rataExtraEnv)) {
       const bastionStack = new RataExtraBastionStack(this, 'stack-bastion', {
         rataExtraEnv,
         albDns: alb.loadBalancerDnsName,
         databaseDns: databaseDomain,
-        stackId: rataExtraStackIdentifier,
+        stackId: stackId,
+        vpc: applicationVpc,
+        securityGroup: securityGroup,
       });
       Object.entries(tags).forEach(([key, value]) => Tags.of(bastionStack).add(key, value));
     }

@@ -124,7 +124,9 @@ describe('Lucene Query Builder', () => {
           term: 'test',
         },
       ];
-      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+(TEXT:"test*" @cm\\:name:"test*")');
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
+        '+(TEXT:"test*" @cm\\:name:"test*")+TYPE:"cm:content"',
+      );
     });
     it('should return query for content search', () => {
       const parameters: Array<SearchParameter> = [
@@ -134,7 +136,7 @@ describe('Lucene Query Builder', () => {
           contentSearch: true,
         },
       ];
-      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+TEXT:"test*"');
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+TEXT:"test*"+TYPE:"cm:content"');
     });
     it('should return query for parent', () => {
       const parameters: Array<SearchParameter> = [
@@ -144,6 +146,15 @@ describe('Lucene Query Builder', () => {
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+PARENT:"workspace\\://SpacesStore/testuuid"');
+    });
+    it('should return query for folder', () => {
+      const parameters: Array<SearchParameter> = [
+        {
+          parameterName: SearchParameterName.FOLDER,
+          name: 'Vuosi 2023',
+        },
+      ];
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+@cm\\:name:"Vuosi 2023"+TYPE:"cm:folder"');
     });
   });
   describe('lucenePagination', () => {

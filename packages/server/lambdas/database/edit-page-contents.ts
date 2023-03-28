@@ -3,7 +3,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log } from '../../utils/logger';
+import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 import { Prisma } from '@prisma/client';
@@ -69,6 +69,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     };
 
     const updatedContent = await updateContent();
+    auditLog.info(user, `Updated page contents: ${category}`);
 
     return {
       statusCode: 200,

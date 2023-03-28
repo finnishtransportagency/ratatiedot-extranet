@@ -8,7 +8,7 @@ import { ButtonWrapper } from '../../styles/common';
 interface DialogButtonProps {
   categoryName: string;
   buttonProps?: ButtonProps;
-  onUpload: (response: AxiosResponse) => any;
+  onUpload?: (response: AxiosResponse) => any;
 }
 
 export const FileUploadDialogButton: FunctionComponent<DialogButtonProps> = ({
@@ -26,8 +26,7 @@ export const FileUploadDialogButton: FunctionComponent<DialogButtonProps> = ({
   };
 
   const handleUpload = (result: AxiosResponse) => {
-    onUpload(result);
-    console.log(result);
+    if (onUpload) onUpload(result);
   };
 
   return (

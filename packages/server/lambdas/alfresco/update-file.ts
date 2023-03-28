@@ -3,7 +3,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
 import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log } from '../../utils/logger';
+import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { updateFileRequestBuilder } from './fileRequestBuilder';
@@ -76,7 +76,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const requestOptions = (await updateFileRequestBuilder(event, headers)) as RequestInit;
 
     const result = await updateFile(requestOptions, nodeId, name);
-    log.info(user, `Updated file ${nodeId} in ${categoryData.alfrescoFolder}`);
+    auditLog.info(user, `Updated file ${nodeId} in ${categoryData.alfrescoFolder}`);
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },

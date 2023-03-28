@@ -1,33 +1,44 @@
 import { NodeItem } from './File';
-import { getRouterName } from '../../utils/helpers';
+import { getCategoryRouteName, getRouterName } from '../../utils/helpers';
 import { ErrorMessage } from '../Notification/ErrorMessage';
 import { Spinner } from '../Spinner';
-import { useCallback, useEffect, useState } from 'react';
-import { ButtonWrapper } from '../../styles/common';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { ButtonWrapper, ProtectedContainerWrapper } from '../../styles/common';
 import { get } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { TNode } from '../../types/types';
 import { Typography } from '@mui/material';
 import { Colors } from '../../constants/Colors';
 import axios from 'axios';
+import { FileDeleteDialogButton } from './FileDeleteDialogButton';
+import { useLocation } from 'react-router-dom';
+import { AppBarContext } from '../../contexts/AppBarContext';
 
 type TCategoryFilesProps = {
-  categoryName: string;
+  subCategory?: string;
 };
 
-export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
+export const CategoryFiles = ({ subCategory }: TCategoryFilesProps) => {
   const { t } = useTranslation(['common', 'search']);
+  const location = useLocation();
   const [fileList, setFileList] = useState<TNode[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [totalFiles, setTotalFiles] = useState(0);
   const [hasMoreItems, setHasMoreItems] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
+  const categoryName = getCategoryRouteName(location);
+
+  const { openEdit, openToolbar } = useContext(AppBarContext);
+
+  const isEditOpen = openEdit || openToolbar;
 
   const getCategoryFiles = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/alfresco/files?category=${getRouterName(categoryName)}&page=${page}`);
+      const subCategoryQuery = subCategory ? `&subcategory=${subCategory}` : '';
+      const response = await axios.get(`/api/alfresco/files?category=${categoryName}${subCategoryQuery}&page=${page}`);
       const data = response.data;
       const totalFiles = get(data, 'list.entries', []);
       const totalItems = get(data, 'list.pagination.totalItems', 0);
@@ -56,12 +67,51 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
 
   const loadMore = () => setPage(page + 1);
 
+  const handleNodeClick = (node: TNode) => {
+    if (selectedFile?.entry.id === node.entry.id) {
+      setSelectedFile(null);
+    } else {
+      setSelectedFile(node);
+    }
+  };
+
+  const isSelected = (node: TNode) => {
+    return selectedFile?.entry.id === node.entry.id;
+  };
+
+  const deleteFile = (node: TNode) => {
+    const index = fileList.findIndex((f) => f.entry.id === node.entry.id);
+    if (index > -1) {
+      const newList = [...fileList];
+      newList.splice(index, 1);
+      setFileList(newList);
+      setTotalFiles(totalFiles - 1);
+    }
+  };
+
   if (error) return <ErrorMessage error={error} />;
 
   return (
-    <>
+    <ProtectedContainerWrapper>
+      {isEditOpen && (
+        <FileDeleteDialogButton
+          categoryName={categoryName}
+          disabled={!selectedFile}
+          node={selectedFile}
+          onDelete={(e) => {
+            deleteFile(e.node);
+          }}
+        ></FileDeleteDialogButton>
+      )}
+
       {fileList.map((node: TNode, index: number) => (
-        <NodeItem key={index} row={index} node={node} />
+        <NodeItem
+          onFileClick={(node) => handleNodeClick(node)}
+          key={index}
+          row={index}
+          node={node}
+          isSelected={isSelected(node)}
+        />
       ))}
       {loading && <Spinner />}
       <Typography sx={{ color: Colors.darkgrey }}>
@@ -72,6 +122,6 @@ export const CategoryFiles = ({ categoryName }: TCategoryFilesProps) => {
           {t('common:action.load_more')}
         </ButtonWrapper>
       )}
-    </>
+    </ProtectedContainerWrapper>
   );
 };

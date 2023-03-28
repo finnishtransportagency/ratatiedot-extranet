@@ -15,16 +15,19 @@ import { ConfirmationAppBar } from '../Editor/ConfirmationAppBar';
 import { SlateToolbar } from '../Editor/SlateToolbar';
 
 export const DesktopAppBar = () => {
-  const { openDrawer, openEdit, toggleEdit, openToolbar } = useContext(AppBarContext);
+  const { openDrawer, openEdit, openToolbar, openToolbarHandler, userRight } = useContext(AppBarContext);
   const { t } = useTranslation(['common']);
+
+  const userWriteRight = userRight.canWrite;
+  const shouldEdit = userWriteRight && !openEdit && !openToolbar;
 
   const MainAppBar = () => {
     return (
       <>
         <CustomBreadcrumbs />
         <Box sx={{ flexGrow: 1 }} />
-        {!openEdit && !openToolbar && (
-          <EditButtonWrapper size="large" color="primary" variant="contained" onClick={toggleEdit}>
+        {shouldEdit && (
+          <EditButtonWrapper size="large" color="primary" variant="contained" onClick={openToolbarHandler}>
             <EditIcon fontSize="small" />
             {t('common:edit.edit_content')}
           </EditButtonWrapper>
