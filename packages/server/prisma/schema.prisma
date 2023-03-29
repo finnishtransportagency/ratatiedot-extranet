@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
@@ -12,16 +12,42 @@ datasource db {
 }
 
 model CategoryDataBase {
-  id                   Int                   @id @default(autoincrement())
+  id                   String                @id @default(uuid())
   rataextraRequestPage String
-  alfrescoFolder       String
+  alfrescoFolder       String                @unique
   categoryDataContents CategoryDataContents?
+  categoryComponents   CategoryComponent[]
   writeRights          String
 }
 
 model CategoryDataContents {
-  id               Int              @id @default(autoincrement())
+  id               String           @id @default(uuid())
   categoryDataBase CategoryDataBase @relation(fields: [baseId], references: [id])
-  baseId           Int              @unique
+  baseId           String           @unique
   fields           Json
+}
+
+model CategoryComponent {
+  id               String           @id @default(uuid())
+  categoryDataBase CategoryDataBase @relation(fields: [categoryId], references: [id])
+  categoryId       String
+  node             Node?
+  card             Card?
+}
+
+model Node {
+  id                  String             @id @default(uuid())
+  title               String
+  type                String
+  alfrescoNodeId      String
+  CategoryComponent   CategoryComponent? @relation(fields: [categoryComponentId], references: [id])
+  categoryComponentId String             @unique
+}
+
+model Card {
+  id                  String             @id @default(uuid())
+  title               String
+  content             Json
+  CategoryComponent   CategoryComponent? @relation(fields: [categoryComponentId], references: [id])
+  categoryComponentId String             @unique
 }
