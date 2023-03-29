@@ -37,7 +37,7 @@ CREATE TABLE "Node" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "type" TEXT NOT NULL,
-    "nodeId" TEXT NOT NULL,
+    "alfrescoNodeId" TEXT NOT NULL,
     "categoryComponentId" TEXT NOT NULL,
 
     CONSTRAINT "Node_pkey" PRIMARY KEY ("id")

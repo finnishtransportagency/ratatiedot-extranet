@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 async function main() {
-  const hallintaraportit = await prisma.categoryDataBase.upsert({
+  await prisma.categoryDataBase.upsert({
     where: { alfrescoFolder: '6a1200cb-5fc9-4364-b9bb-645c64c9e31e' },
     update: {},
     create: {
@@ -31,7 +31,11 @@ async function main() {
         create: [
           {
             node: {
-              create: { type: 'File', title: 'File List Component', nodeId: '6bae6e4c-efd2-4d55-8560-cf2f2cc2ce8b' },
+              create: {
+                type: 'File',
+                title: 'File List Component',
+                alfrescoNodeId: '6bae6e4c-efd2-4d55-8560-cf2f2cc2ce8b',
+              },
             },
           },
           {
@@ -39,12 +43,14 @@ async function main() {
               create: {
                 type: 'Folder',
                 title: 'Folder List Component',
-                nodeId: '6a1200cb-5fc9-4364-b9bb-645c64c9e31e',
+                alfrescoNodeId: '6a1200cb-5fc9-4364-b9bb-645c64c9e31e',
               },
             },
           },
           {
-            node: { create: { type: 'Map', title: 'Map Component', nodeId: '6bae6e4c-efd2-4d55-8560-cf2f2cc2ce8b' } },
+            node: {
+              create: { type: 'Map', title: 'Map Component', alfrescoNodeId: '6bae6e4c-efd2-4d55-8560-cf2f2cc2ce8b' },
+            },
           },
           {
             card: {
