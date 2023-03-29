@@ -55,7 +55,18 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       },
       body: JSON.stringify(userRight),
     };
-  } catch (err) {
+  } catch (err: unknown) {
+    if (err instanceof RataExtraLambdaError) {
+      if (err.statusCode === 403 || err.statusCode === 401) {
+        return {
+          statusCode: 200,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userRight),
+        };
+      }
+    }
     log.error(err);
     return { ...getRataExtraLambdaError(err), body: JSON.stringify(userRight) };
   }

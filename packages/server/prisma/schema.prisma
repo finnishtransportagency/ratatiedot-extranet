@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
@@ -11,45 +11,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Test models
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String   @db.VarChar(255)
-  content   String?
-  published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
-}
-
-model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
-}
-
-model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
-  posts   Post[]
-  profile Profile?
-}
-
-// Real models
 model CategoryDataBase {
-  id                   Int                   @id @default(autoincrement())
+  id                   String                @id @default(uuid())
   rataextraRequestPage String
   alfrescoFolder       String
   categoryDataContents CategoryDataContents?
+  categoryComponents   CategoryComponent[]
   writeRights          String
 }
 
 model CategoryDataContents {
-  id               Int              @id @default(autoincrement())
+  id               String           @id @default(uuid())
   categoryDataBase CategoryDataBase @relation(fields: [baseId], references: [id])
-  baseId           Int              @unique
+  baseId           String           @unique
   fields           Json
+}
+
+model CategoryComponent {
+  id               String           @id @default(uuid())
+  categoryDataBase CategoryDataBase @relation(fields: [categoryId], references: [id])
+  categoryId       String
+  node             Node?
+  card             Card?
+}
+
+model Node {
+  id                  String             @id @default(uuid())
+  title               String
+  type                String
+  alfrescoNodeId      String
+  CategoryComponent   CategoryComponent? @relation(fields: [categoryComponentId], references: [id])
+  categoryComponentId String             @unique
+}
+
+model Card {
+  id                  String             @id @default(uuid())
+  title               String
+  content             Json
+  CategoryComponent   CategoryComponent? @relation(fields: [categoryComponentId], references: [id])
+  categoryComponentId String             @unique
 }
