@@ -65,8 +65,8 @@ async function main() {
       },
     },
   });
-  console.log({ hallintaraportit });
 }
+
 main()
   .then(async () => {
     await prisma.$disconnect();
