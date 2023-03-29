@@ -44,6 +44,6 @@
     "esm": true
   },
   "prisma": {
-    "seed": "ts-node --esm prisma/seed.ts && rm "
+    "seed": "ts-node --esm prisma/seed.ts"
   }
 }
