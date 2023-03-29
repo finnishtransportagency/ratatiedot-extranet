@@ -14,7 +14,7 @@ datasource db {
 model CategoryDataBase {
   id                   String                @id @default(uuid())
   rataextraRequestPage String
-  alfrescoFolder       String                @unique
+  alfrescoFolder       String
   categoryDataContents CategoryDataContents?
   categoryComponents   CategoryComponent[]
   writeRights          String
