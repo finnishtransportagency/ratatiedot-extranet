@@ -1,10 +1,12 @@
 import { PrismaClient } from '@prisma/client';
+
 const prisma = new PrismaClient();
 async function main() {
   await prisma.categoryDataBase.upsert({
-    where: { alfrescoFolder: '6a1200cb-5fc9-4364-b9bb-645c64c9e31e' },
+    where: { id: 'f0093c24-cece-11ed-afa1-0242ac120002' },
     update: {},
     create: {
+      id: 'f0093c24-cece-11ed-afa1-0242ac120002',
       rataextraRequestPage: 'hallintaraportit',
       alfrescoFolder: '6a1200cb-5fc9-4364-b9bb-645c64c9e31e',
       writeRights: 'Ratatieto_kirjoitus_hallintaraportit',
