@@ -1,5 +1,4 @@
 import { NodeItem } from './File';
-import { getCategoryRouteName, getRouterName } from '../../utils/helpers';
 import { ErrorMessage } from '../Notification/ErrorMessage';
 import { Spinner } from '../Spinner';
 import { useCallback, useContext, useEffect, useState } from 'react';
@@ -13,6 +12,7 @@ import axios from 'axios';
 import { FileDeleteDialogButton } from './FileDeleteDialogButton';
 import { useLocation } from 'react-router-dom';
 import { AppBarContext } from '../../contexts/AppBarContext';
+import { getCategoryRouteName } from '../../routes';
 
 type TCategoryFilesProps = {
   subCategory?: string;
