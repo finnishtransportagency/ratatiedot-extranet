@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import renderer, { act } from 'react-test-renderer';
-import { AppBarContextProvider } from '../../../contexts/AppBarContext';
 import { MenuContextProvider } from '../../../contexts/MenuContext';
 import { MenuList } from '../MenuList';
 
@@ -11,21 +10,11 @@ jest.mock('react-router-dom', () => ({
 }));
 
 test('MenuList renders properly', () => {
-  render(
-    <AppBarContextProvider openDrawer={true}>
-      <MenuList />
-    </AppBarContextProvider>,
-  );
+  render(<MenuList />);
 });
 
 test('MenuList matches snapshot', () => {
-  const menuList = renderer
-    .create(
-      <AppBarContextProvider openDrawer={false}>
-        <MenuList />
-      </AppBarContextProvider>,
-    )
-    .toJSON();
+  const menuList = renderer.create(<MenuList />).toJSON();
   expect(menuList).toMatchSnapshot();
 });
 
@@ -44,5 +33,5 @@ test('MenuList, open a menu and check that new item is visible', async () => {
   });
   const lineCharts = screen.getByText('Linjakaaviot').closest('a'); // eslint-disable-line testing-library/no-node-access
   expect(lineCharts).toBeVisible();
-  expect(lineCharts).toHaveAttribute('href', '/linjakaaviot');
+  expect(lineCharts).toHaveAttribute('href', '/kaaviot/linjakaaviot');
 });
