@@ -36,13 +36,18 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "npx react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!axios)/\""
     ]
   },
   "browserslist": {
