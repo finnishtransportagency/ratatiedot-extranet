@@ -60,7 +60,7 @@ export const EditorColorPicker = () => {
   );
 
   return (
-    <PopupWrapper>
+    <PopupWrapper aria-label="color">
       <HighlightedTitle>{t('common:edit.choose_color')}</HighlightedTitle>
       {colorPicker}
     </PopupWrapper>

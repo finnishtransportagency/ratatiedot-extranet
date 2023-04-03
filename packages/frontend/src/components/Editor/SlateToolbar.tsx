@@ -40,6 +40,7 @@ type BlockButtonProps = {
 const MarkButton = ({ editor, format, icon }: MarkButtonProps) => {
   return (
     <ToggleButton
+      aria-label={format}
       value={format}
       selected={isMarkActive(editor, format)}
       onMouseDown={(event: React.MouseEvent<HTMLElement>) => {
@@ -55,6 +56,7 @@ const MarkButton = ({ editor, format, icon }: MarkButtonProps) => {
 const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
   return (
     <ToggleButton
+      aria-label={format}
       value={format}
       selected={isBlockActive(editor, format)}
       onMouseDown={(event: React.MouseEvent<HTMLElement>) => {
@@ -118,6 +120,7 @@ export const SlateToolbar = () => {
         </ToggleButtonGroupWrapper>
         <DividerWrapper orientation="vertical" variant="middle" flexItem />{' '}
         <Box
+          aria-label="insert-link"
           component="img"
           sx={{ cursor: 'pointer', width: '25px' }}
           src={PaletteIcon}
@@ -133,6 +136,7 @@ export const SlateToolbar = () => {
         <NotificationTypes />
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <Box
+          aria-label="delete"
           component="img"
           sx={{ cursor: 'pointer' }}
           src={DeleteIcon}
@@ -140,6 +144,7 @@ export const SlateToolbar = () => {
           onClick={removeNotificationOrContentType}
         />
         <Box
+          aria-label="close"
           component="img"
           sx={{ cursor: 'pointer', marginLeft: 'auto' }}
           src={CloseIcon}

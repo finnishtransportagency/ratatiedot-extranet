@@ -11,7 +11,7 @@ import { isSlateValueEmpty, openNotification } from '../utils/slateEditorUtil';
 import { ElementType } from '../utils/types';
 import withLinks from '../plugins/withLinks';
 
-const createEditorWithPlugins = pipe(withReact, withLinks);
+export const createEditorWithPlugins = pipe(withReact, withLinks);
 
 export const EditorContext = React.createContext({
   editor: createEditorWithPlugins(createEditor()),

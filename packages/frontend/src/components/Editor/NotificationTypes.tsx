@@ -22,6 +22,7 @@ export const NotificationTypes = () => {
   return (
     <ContainerWrapper>
       <Box
+        aria-label="info"
         component="img"
         sx={{ cursor: 'pointer' }}
         src={InfoIcon}
@@ -29,6 +30,7 @@ export const NotificationTypes = () => {
         onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_INFO)}
       />
       <Box
+        aria-label="warning"
         component="img"
         sx={{ cursor: 'pointer' }}
         src={WarningIcon}
@@ -36,6 +38,7 @@ export const NotificationTypes = () => {
         onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_WARNING)}
       />
       <Box
+        aria-label="error"
         component="img"
         sx={{ cursor: 'pointer' }}
         src={ErrorIcon}
@@ -43,6 +46,7 @@ export const NotificationTypes = () => {
         onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_ERROR)}
       />
       <Box
+        aria-label="check"
         component="img"
         sx={{ cursor: 'pointer' }}
         src={ConfirmIcon}
