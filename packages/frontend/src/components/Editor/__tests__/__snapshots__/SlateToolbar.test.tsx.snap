@@ -2,6 +2,7 @@
 
 exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
 <div
+  aria-label="toolbar"
   className="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1qnc7df-MuiPaper-root"
 >
   <div
