@@ -3,6 +3,7 @@ import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
 import { ALBEvent } from 'aws-lambda';
 import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
+import { log } from '../../../utils/logger';
 
 const base64ToString = (base64string: string): string => {
   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
@@ -59,6 +60,36 @@ export class AlfrescoFileRequestBuilder {
     return options;
   }
   public deleteRequestBuilder(headers: HeadersInit) {
+    const options = {
+      method: 'DELETE',
+      headers: headers,
+    };
+    return options;
+  }
+}
+
+export class AlfrescoFolderRequestBuilder {
+  public async create(event: ALBEvent, headers: HeadersInit) {
+    const body = JSON.parse(event.body as string);
+    body.nodeType = 'cm:folder';
+
+    log.info('USER', '!!! ->', JSON.stringify(body));
+    const options = {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: headers,
+    } as RequestInit;
+    return options;
+  }
+  public async update(event: ALBEvent, headers: HeadersInit) {
+    const options = {
+      method: 'PUT',
+      body: event.body,
+      headers: headers,
+    } as RequestInit;
+    return options;
+  }
+  public delete(headers: HeadersInit) {
     const options = {
       method: 'DELETE',
       headers: headers,

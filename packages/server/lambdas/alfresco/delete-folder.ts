@@ -5,7 +5,7 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { deleteFileRequestBuilder } from './fileRequestBuilder';
+import { folderDeleteRequestBuilder } from './fileRequestBuilder';
 import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
@@ -14,10 +14,9 @@ const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const deleteFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined | string> => {
+const deleteFolder = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  console.log('URL: ', url);
   try {
     const res = await fetch(url, options);
     const result = (await res.json()) as AlfrescoResponse;
@@ -28,10 +27,10 @@ const deleteFile = async (options: RequestInit, nodeId: string): Promise<Alfresc
 };
 
 /**
- * Delete file. Example request: /api/alfresco/file/linjakaaviot/FOO-123-AAA
+ * Delete Alfresco node (in this case folder). Example: /api/alfresco/file/linjakaaviot/FOO-123-AAA
  * @param {ALBEvent} event
- * @param {{string}} event.path Path should include category and node id of the file to delete
- * @returns  {Promise<ALBResult>} JSON stringified object of deleted file
+ * @param {{string}} event.path Path should include category and node id of the folder to delete
+ * @returns  {Promise<ALBResult>} JSON stringified object of deleted folder
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
   try {
@@ -40,14 +39,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const category = paths.at(-2);
 
     const user = await getUser(event);
-    log.info(user, `Deleting file ${nodeId} in ${category}`);
+    log.info(user, `Deleting folder from ${category}`);
     validateReadUser(user);
 
     if (!category) {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
     if (!nodeId) {
-      throw new RataExtraLambdaError('Node ID missing from path', 400);
+      throw new RataExtraLambdaError('NodeId missing from path', 400);
     }
     if (!fileEndpointsCache.length) {
       fileEndpointsCache = await database.categoryDataBase.findMany();
@@ -61,10 +60,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = deleteFileRequestBuilder(headers) as RequestInit;
+    const requestOptions = folderDeleteRequestBuilder(headers) as RequestInit;
 
-    const result = await deleteFile(requestOptions, nodeId);
-    auditLog.info(user, `Deleted file ${nodeId} in ${categoryData.alfrescoFolder}`);
+    const result = await deleteFolder(requestOptions, nodeId);
+    auditLog.info(user, `Deleted folder ${nodeId} in ${categoryData.alfrescoFolder}`);
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
