@@ -87,7 +87,7 @@ export const SlateToolbar = () => {
 
   return (
     <Slate editor={editor} value={value}>
-      <ToolbarPaperWrapper elevation={2}>
+      <ToolbarPaperWrapper elevation={2} aria-label="toolbar">
         <ToggleButtonGroupWrapper size="small">
           {BlockButton({
             editor,
@@ -105,6 +105,7 @@ export const SlateToolbar = () => {
           {MarkButton({ editor, format: FontFormatType.ITALIC, icon: <FormatItalicIcon fontSize="small" /> })}
           {MarkButton({ editor, format: FontFormatType.UNDERLINED, icon: <FormatUnderlinedIcon fontSize="small" /> })}
           <Box
+            aria-label="insert-link"
             component="img"
             sx={{ cursor: 'pointer', width: '25px', padding: '7px' }}
             src={LinkIcon}
@@ -120,11 +121,11 @@ export const SlateToolbar = () => {
         </ToggleButtonGroupWrapper>
         <DividerWrapper orientation="vertical" variant="middle" flexItem />{' '}
         <Box
-          aria-label="insert-link"
+          aria-label="color"
           component="img"
           sx={{ cursor: 'pointer', width: '25px' }}
           src={PaletteIcon}
-          alt="link"
+          alt="color"
           onClick={() => setIsColorOpened(!isColorOpened)}
         />
         {isColorOpened && (

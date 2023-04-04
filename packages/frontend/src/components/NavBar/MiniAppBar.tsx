@@ -42,11 +42,11 @@ export const MiniAppBar = () => {
         </Link>
         <Box sx={{ flexGrow: 1 }} />
         {shouldEdit && (
-          <IconButton size="large" edge="end" color="inherit" area-label="open edit" onClick={openToolbarHandler}>
+          <IconButton size="large" edge="end" color="inherit" aria-label="open edit" onClick={openToolbarHandler}>
             <EditIcon fontSize="small" color="primary" />
           </IconButton>
         )}
-        <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
+        <IconButton size="large" edge="end" color="inherit" aria-label="open search" onClick={toggleSearch}>
           <SearchIcon color="primary" />
         </IconButton>
       </>

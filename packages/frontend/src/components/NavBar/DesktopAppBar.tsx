@@ -27,7 +27,13 @@ export const DesktopAppBar = () => {
         <CustomBreadcrumbs />
         <Box sx={{ flexGrow: 1 }} />
         {shouldEdit && (
-          <EditButtonWrapper size="large" color="primary" variant="contained" onClick={openToolbarHandler}>
+          <EditButtonWrapper
+            size="large"
+            color="primary"
+            variant="contained"
+            onClick={openToolbarHandler}
+            aria-label="open edit"
+          >
             <EditIcon fontSize="small" />
             {t('common:edit.edit_content')}
           </EditButtonWrapper>

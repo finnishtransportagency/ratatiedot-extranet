@@ -19,6 +19,7 @@ type ColorButtonProps = {
 export const ColorButton = ({ editor, format, color }: ColorButtonProps) => {
   return (
     <ToggleButton
+      aria-label={color}
       value={format}
       onMouseDown={(event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
@@ -60,7 +61,7 @@ export const EditorColorPicker = () => {
   );
 
   return (
-    <PopupWrapper aria-label="color">
+    <PopupWrapper aria-label="color-picker">
       <HighlightedTitle>{t('common:edit.choose_color')}</HighlightedTitle>
       {colorPicker}
     </PopupWrapper>
