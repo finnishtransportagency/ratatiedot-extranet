@@ -28,7 +28,7 @@ export const CustomBreadcrumbs = () => {
   });
   return (
     <Stack spacing={2}>
-      <Breadcrumbs separator=">" aria-label="breadcrumb">
+      <Breadcrumbs separator=">" aria-label={t('common:utils.breadcrumb')}>
         {breadcrumbs}
       </Breadcrumbs>
     </Stack>

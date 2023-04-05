@@ -87,7 +87,7 @@ export const SlateToolbar = () => {
 
   return (
     <Slate editor={editor} value={value}>
-      <ToolbarPaperWrapper elevation={2} aria-label="toolbar">
+      <ToolbarPaperWrapper elevation={2} aria-label={t('common:edit.toolbar')}>
         <ToggleButtonGroupWrapper size="small">
           {BlockButton({
             editor,
@@ -105,7 +105,7 @@ export const SlateToolbar = () => {
           {MarkButton({ editor, format: FontFormatType.ITALIC, icon: <FormatItalicIcon fontSize="small" /> })}
           {MarkButton({ editor, format: FontFormatType.UNDERLINED, icon: <FormatUnderlinedIcon fontSize="small" /> })}
           <Box
-            aria-label="insert-link"
+            aria-label={t('common:edit.insert_link')}
             component="img"
             sx={{ cursor: 'pointer', width: '25px', padding: '7px' }}
             src={LinkIcon}
@@ -121,7 +121,7 @@ export const SlateToolbar = () => {
         </ToggleButtonGroupWrapper>
         <DividerWrapper orientation="vertical" variant="middle" flexItem />{' '}
         <Box
-          aria-label="color"
+          aria-label={t('common:edit.color')}
           component="img"
           sx={{ cursor: 'pointer', width: '25px' }}
           src={PaletteIcon}
@@ -137,7 +137,7 @@ export const SlateToolbar = () => {
         <NotificationTypes />
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <Box
-          aria-label="delete"
+          aria-label={t('common:action.delete')}
           component="img"
           sx={{ cursor: 'pointer' }}
           src={DeleteIcon}
@@ -145,7 +145,7 @@ export const SlateToolbar = () => {
           onClick={removeNotificationOrContentType}
         />
         <Box
-          aria-label="close"
+          aria-label={t('common:action.close')}
           component="img"
           sx={{ cursor: 'pointer', marginLeft: 'auto' }}
           src={CloseIcon}
