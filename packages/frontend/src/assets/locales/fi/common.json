@@ -18,7 +18,12 @@
     "load_more": "Lataa lisää",
     "save": "Tallenna",
     "reject": "Hylkää",
-    "delete": "Poista"
+    "delete": "Poista",
+    "close": "Sulje",
+    "open_edit": "Avaa muokkausnäkymä",
+    "open_search": "Avaa hakunäkymä",
+    "search": "Hae",
+    "close_modal": "Sulje modaali"
   },
   "error": {
     "500": "Jokin meni pieleen!"
@@ -48,6 +53,38 @@
     "write_content": "Kirjoita sisältö",
     "new_link": "Uusi linkki",
     "enter_url": "Anna URL-osoite",
-    "choose_color": "Valitse väri"
+    "choose_color": "Valitse väri",
+    "color": "väri",
+    "insert_link": "Lisää linkki",
+    "color_picker": "värivalitsin",
+    "toolbar": "työkalupalkki"
+  },
+  "notification": {
+    "info": "info",
+    "warning": "varoitus",
+    "error": "virhe",
+    "check": "oikein-merkki"
+  },
+  "utils": {
+    "breadcrumb": "linkkipolku"
+  },
+  "colors": {
+    "darkblue": "tummansininen",
+    "midblue": "keskisininen",
+    "lightblue": "vaaleansininen",
+    "aliceblue": "haalea sininen",
+    "cyan": "sinivihreä",
+    "lightgrey": "vaaleanharmaa",
+    "darkgrey": "tummanharmaa",
+    "white": "valkoinen",
+    "darkgreen": "tummanvihreä",
+    "lightgreen": "vaaleanvihreä",
+    "extrablack": "erittäin musta",
+    "black": "musta",
+    "darkred": "tummanpunainen",
+    "lightred": "vaalea punainen",
+    "yellow": "keltainen",
+    "pink": "vaaleanpunainen",
+    "purple": "violetti"
   }
 }
