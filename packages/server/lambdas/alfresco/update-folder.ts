@@ -44,7 +44,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     log.info(user, `Updating new folder in page ${category}`);
     validateReadUser(user);
 
-    if (!category || paths.pop() !== 'file') {
+    if (!category) {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
     if (isEmpty(event.body)) {

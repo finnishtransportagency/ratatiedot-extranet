@@ -72,8 +72,6 @@ export class AlfrescoFolderRequestBuilder {
   public async create(event: ALBEvent, headers: HeadersInit) {
     const body = JSON.parse(event.body as string);
     body.nodeType = 'cm:folder';
-
-    log.info('USER', '!!! ->', JSON.stringify(body));
     const options = {
       method: 'POST',
       body: JSON.stringify(body),

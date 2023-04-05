@@ -1,0 +1,7 @@
+START RequestId: e118260e-35b0-471c-8aa6-17ea425320e8 Version: $LATEST
+{"level":"info","time":"2023-04-05T18:18:14.214Z","tag":"RATAEXTRA_BACKEND","uid":"LX284075","roles":["Ratatieto_luku","Ratatieto_kirjoitus"],"isMockUser":true,"msg":"Creating new folder in page hallintaraportit"}
+2023-04-05T18:18:17.070Z	e118260e-35b0-471c-8aa6-17ea425320e8	INFO	requestOptions {  method: 'POST',  body: '{"name":"test_folder_3","properties":{"cm:title":"test_folder","cm:description":"description"},"nodeType":"cm:folder"}',  headers: {    'X-API-Key': 'YBn6ybDDeD8Sn5TO5iKUK3CiWmfUyXk751hxMx22',    'OAM-REMOTE-USER': 'LX284075'  }}
+{"level":"info","time":"2023-04-05T18:18:19.192Z","tag":"RATAEXTRA_AUDIT","uid":"LX284075","roles":["Ratatieto_luku","Ratatieto_kirjoitus"],"isMockUser":true,"msg":"{\"id\":\"eb51c2bb-61d8-498d-8d42-b8899abe9cbd\",\"categoryId\":\"f0093c24-cece-11ed-afa1-0242ac120002\"}"}
+END RequestId: e118260e-35b0-471c-8aa6-17ea425320e8
+REPORT RequestId: e118260e-35b0-471c-8aa6-17ea425320e8	Init Duration: 1.26 ms	Duration: 12446.59 ms	Billed Duration: 12447 ms	Memory Size: 1024 MB	Max Memory Used: 1024 MB	
+{"statusCode":200,"headers":{"Content-Type:":"application/json"},"body":"{\"id\":\"eb51c2bb-61d8-498d-8d42-b8899abe9cbd\",\"categoryId\":\"f0093c24-cece-11ed-afa1-0242ac120002\"}"}

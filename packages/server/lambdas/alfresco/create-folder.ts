@@ -9,18 +9,19 @@ import { DatabaseClient } from '../database/client';
 import { folderCreateRequestBuilder } from './fileRequestBuilder';
 import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
-import { AlfrescoResponse } from './fileRequestBuilder/types';
+import { AlfrescoFolderResponse } from './fileRequestBuilder/types';
+import { createFolderComponent } from '../database/components/create-node-component';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const postFolder = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
+const postFolder = async (options: RequestInit, nodeId: string): Promise<AlfrescoFolderResponse | undefined> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
   try {
     const res = await fetch(url, options);
-    const result = (await res.json()) as AlfrescoResponse;
+    const result = (await res.json()) as AlfrescoFolderResponse;
     return result;
   } catch (err) {
     console.error('error:' + err);
@@ -61,17 +62,18 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    console.log('---');
-    console.log('headers', headers);
-    console.log('---');
-    console.log('event', event);
-    console.log('---');
-    console.log('---');
     const requestOptions = (await folderCreateRequestBuilder(event, headers)) as RequestInit;
     console.log('requestOptions', requestOptions);
 
-    const result = await postFolder(requestOptions, categoryData.alfrescoFolder);
+    const alfrescoResult = await postFolder(requestOptions, categoryData.alfrescoFolder);
+    if (!alfrescoResult) {
+      throw new RataExtraLambdaError('Error creating folder', 500);
+    }
+
+    const result = await createFolderComponent(categoryData.id, alfrescoResult);
+
     auditLog.info(user, JSON.stringify(result));
+
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
