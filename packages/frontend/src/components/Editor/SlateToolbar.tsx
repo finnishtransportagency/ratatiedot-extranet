@@ -38,9 +38,11 @@ type BlockButtonProps = {
 };
 
 const MarkButton = ({ editor, format, icon }: MarkButtonProps) => {
+  const { t } = useTranslation(['common']);
+
   return (
     <ToggleButton
-      aria-label={format}
+      aria-label={t(`common:font.${format}`)}
       value={format}
       selected={isMarkActive(editor, format)}
       onMouseDown={(event: React.MouseEvent<HTMLElement>) => {
@@ -54,9 +56,11 @@ const MarkButton = ({ editor, format, icon }: MarkButtonProps) => {
 };
 
 const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
+  const { t } = useTranslation(['common']);
+
   return (
     <ToggleButton
-      aria-label={format}
+      aria-label={t(`common:element.${format}`)}
       value={format}
       selected={isBlockActive(editor, format)}
       onMouseDown={(event: React.MouseEvent<HTMLElement>) => {

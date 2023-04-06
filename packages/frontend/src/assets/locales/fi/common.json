@@ -65,8 +65,20 @@
     "error": "virhe",
     "check": "oikein-merkki"
   },
-  "utils": {
-    "breadcrumb": "linkkipolku"
+  "element": {
+    "breadcrumb": "linkkipolku",
+    "bulleted-list": "numeroimaton lista",
+    "numbered-list": "numeroitu lista",
+    "heading-one": "H1-otsikko",
+    "heading-two": "H2-otsikko",
+    "list-item": "listan osio",
+    "paragraph-one": "kappale isommalla tekstikoolla",
+    "paragraph-two": "kappale normaalilla tekstikolla",
+    "link": "linkki",
+    "notification_info": "infoilmoitus",
+    "notification_warning": "varoitusilmoitus",
+    "notification_error": "virheilmoitus",
+    "notification_confirmation": "vahvistusilmoitus"
   },
   "colors": {
     "darkblue": "tummansininen",
@@ -86,5 +98,11 @@
     "yellow": "keltainen",
     "pink": "vaaleanpunainen",
     "purple": "violetti"
+  },
+  "font": {
+    "bold": "lihavoitu",
+    "italic": "kursivoitu",
+    "underlined": "alleviivattu",
+    "color": "väri"
   }
 }
