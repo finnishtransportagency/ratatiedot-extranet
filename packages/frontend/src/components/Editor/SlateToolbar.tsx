@@ -38,8 +38,11 @@ type BlockButtonProps = {
 };
 
 const MarkButton = ({ editor, format, icon }: MarkButtonProps) => {
+  const { t } = useTranslation(['common']);
+
   return (
     <ToggleButton
+      aria-label={t(`common:font.${format}`)}
       value={format}
       selected={isMarkActive(editor, format)}
       onMouseDown={(event: React.MouseEvent<HTMLElement>) => {
@@ -53,8 +56,11 @@ const MarkButton = ({ editor, format, icon }: MarkButtonProps) => {
 };
 
 const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
+  const { t } = useTranslation(['common']);
+
   return (
     <ToggleButton
+      aria-label={t(`common:element.${format}`)}
       value={format}
       selected={isBlockActive(editor, format)}
       onMouseDown={(event: React.MouseEvent<HTMLElement>) => {
@@ -85,7 +91,7 @@ export const SlateToolbar = () => {
 
   return (
     <Slate editor={editor} value={value}>
-      <ToolbarPaperWrapper elevation={2}>
+      <ToolbarPaperWrapper elevation={2} aria-label={t('common:edit.toolbar')}>
         <ToggleButtonGroupWrapper size="small">
           {BlockButton({
             editor,
@@ -103,6 +109,7 @@ export const SlateToolbar = () => {
           {MarkButton({ editor, format: FontFormatType.ITALIC, icon: <FormatItalicIcon fontSize="small" /> })}
           {MarkButton({ editor, format: FontFormatType.UNDERLINED, icon: <FormatUnderlinedIcon fontSize="small" /> })}
           <Box
+            aria-label={t('common:edit.insert_link')}
             component="img"
             sx={{ cursor: 'pointer', width: '25px', padding: '7px' }}
             src={LinkIcon}
@@ -118,10 +125,11 @@ export const SlateToolbar = () => {
         </ToggleButtonGroupWrapper>
         <DividerWrapper orientation="vertical" variant="middle" flexItem />{' '}
         <Box
+          aria-label={t('common:edit.color')}
           component="img"
           sx={{ cursor: 'pointer', width: '25px' }}
           src={PaletteIcon}
-          alt="link"
+          alt="color"
           onClick={() => setIsColorOpened(!isColorOpened)}
         />
         {isColorOpened && (
@@ -133,6 +141,7 @@ export const SlateToolbar = () => {
         <NotificationTypes />
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <Box
+          aria-label={t('common:action.delete')}
           component="img"
           sx={{ cursor: 'pointer' }}
           src={DeleteIcon}
@@ -140,6 +149,7 @@ export const SlateToolbar = () => {
           onClick={removeNotificationOrContentType}
         />
         <Box
+          aria-label={t('common:action.close')}
           component="img"
           sx={{ cursor: 'pointer', marginLeft: 'auto' }}
           src={CloseIcon}

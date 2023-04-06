@@ -4,7 +4,7 @@ import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
 import { Sorting } from '../contexts/SearchContext';
 import categoryData from '../assets/data/FinnishCategories.json';
 import { MainCategoryData, SubCategoryData } from '../types/types';
-import { matchRoutes, Location } from 'react-router-dom';
+import { matchRoutes } from 'react-router-dom';
 import { categoryRoutes } from '../routes';
 
 /**
@@ -86,7 +86,7 @@ type TranslatedCategoryData = { category: string; subCategories: string[] };
  * @returns Array
  */
 export const getTranslatedCategoryData = (categoryData: CategoryDataParameter[]): TranslatedCategoryData[] => {
-  return categoryData.map((item: CategoryDataParameter) => {
+  return (categoryData || []).map((item: CategoryDataParameter) => {
     const categoryName = Object.values(item.category)[0];
     const subCategoryNames = Object.values(item.subCategories);
     return { category: categoryName, subCategories: subCategoryNames };
@@ -98,7 +98,7 @@ export const getTranslatedCategoryData = (categoryData: CategoryDataParameter[])
  * @returns
  */
 export const getMainCategoryData = (): MainCategoryData => {
-  return categoryData.reduce((mainCategories: object, item: CategoryDataParameter) => {
+  return (categoryData || []).reduce((mainCategories: object, item: CategoryDataParameter) => {
     mainCategories = { ...mainCategories, ...item.category };
     return mainCategories;
   }, {}) as MainCategoryData;
@@ -109,7 +109,7 @@ export const getMainCategoryData = (): MainCategoryData => {
  * @returns object
  */
 export const getSubCategoryData = (): SubCategoryData => {
-  return categoryData.reduce((subCategories: object, item: CategoryDataParameter) => {
+  return (categoryData || []).reduce((subCategories: object, item: CategoryDataParameter) => {
     subCategories = { ...subCategories, ...item.subCategories };
     return subCategories;
   }, {}) as SubCategoryData;
@@ -120,25 +120,11 @@ export const getSubCategoryData = (): SubCategoryData => {
  * @param name
  * @returns
  */
-export const getRouterName = (name: string) => {
+export const getRouterName = (name: string = '') => {
   return name.replace(/\s/g, '-').replace(/[()]/g, '').toLowerCase().replace(/ä/g, 'a').replace(/ö/g, 'o');
 };
 
 // TODO: should return original page's title
-export const parseRouterName = (routerName: string) => {
+export const parseRouterName = (routerName: string = '') => {
   return routerName.replace(/-/g, ' ');
-};
-
-/**
- * Return router name based on page title's name
- * @param location
- * @returns string
- */
-export const getCategoryRouteName = (location: Location) => {
-  const routeMatch = matchRoutes(categoryRoutes, location);
-  if (routeMatch) {
-    const path = routeMatch[0].route.path as string;
-    return path.split('/').pop() as string;
-  }
-  return '';
 };

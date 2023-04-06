@@ -14,6 +14,7 @@ import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { Link } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
+import { useTranslation } from 'react-i18next';
 
 export const MiniAppBar = () => {
   const { openDrawer, toggleDrawer, openSearch, toggleSearch, openEdit, openToolbar, openToolbarHandler, userRight } =
@@ -21,6 +22,7 @@ export const MiniAppBar = () => {
 
   const userWriteRight = userRight.canWrite;
   const shouldEdit = userWriteRight && !openEdit && !openToolbar;
+  const { t } = useTranslation(['common']);
 
   const MainAppBar = () => {
     return (
@@ -42,11 +44,23 @@ export const MiniAppBar = () => {
         </Link>
         <Box sx={{ flexGrow: 1 }} />
         {shouldEdit && (
-          <IconButton size="large" edge="end" color="inherit" area-label="open edit" onClick={openToolbarHandler}>
+          <IconButton
+            size="large"
+            edge="end"
+            color="inherit"
+            aria-label={t('common:action.open_edit')}
+            onClick={openToolbarHandler}
+          >
             <EditIcon fontSize="small" color="primary" />
           </IconButton>
         )}
-        <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
+        <IconButton
+          size="large"
+          edge="end"
+          color="inherit"
+          aria-label={t('common:action.open_search')}
+          onClick={toggleSearch}
+        >
           <SearchIcon color="primary" />
         </IconButton>
       </>

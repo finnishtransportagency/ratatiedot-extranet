@@ -9,16 +9,19 @@ import { EditorContext } from '../../../contexts/EditorContext';
 import { toggleColor } from '../../../utils/slateEditorUtil';
 import { FontFormatType } from '../../../utils/types';
 import { HighlightedTitle } from '../../Typography/HighlightedTitle';
+import { palette } from '@mui/system';
 
 type ColorButtonProps = {
   editor: any;
   format: FontFormatType;
   color: string;
+  colorName: string;
 };
 
-export const ColorButton = ({ editor, format, color }: ColorButtonProps) => {
+export const ColorButton = ({ editor, format, color, colorName }: ColorButtonProps) => {
   return (
     <ToggleButton
+      aria-label={colorName}
       value={format}
       onMouseDown={(event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
@@ -50,17 +53,23 @@ const paletteCollection = [
 export const EditorColorPicker = () => {
   const { t } = useTranslation(['common']);
   const { editor } = useContext(EditorContext);
+  const translatedColors = t(`common:colors`, { returnObjects: true });
 
-  const colorPicker = paletteCollection.map((palette: string) =>
-    ColorButton({
+  const colorPicker = paletteCollection.map((palette: string) => {
+    const colorKey = Object.keys(Colors).find(
+      (key) => Colors[key as keyof typeof Colors] === palette,
+    ) as keyof typeof translatedColors;
+
+    return ColorButton({
       editor,
       format: FontFormatType.COLOR,
       color: palette,
-    }),
-  );
+      colorName: translatedColors[colorKey],
+    });
+  });
 
   return (
-    <PopupWrapper>
+    <PopupWrapper aria-label={t('common:edit.color_picker')}>
       <HighlightedTitle>{t('common:edit.choose_color')}</HighlightedTitle>
       {colorPicker}
     </PopupWrapper>

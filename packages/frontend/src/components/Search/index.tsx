@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { FilterSearch } from './FilterSearch';
 import { AppBarContext } from '../../contexts/AppBarContext';
+import { useTranslation } from 'react-i18next';
 
 type SearchProps = {
   isDesktop?: boolean;
@@ -26,6 +27,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
   const { query, queryHandler } = searchContext;
   const { openSearch, toggleSearch, openFilter, toggleFilter } = useContext(AppBarContext);
   const navigate = useNavigate();
+  const { t } = useTranslation(['common']);
 
   const closeSearch = () => {
     openSearch && toggleSearch();
@@ -82,7 +84,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
           inputRef={(input) => openSearch && input?.focus()}
           fullWidth={true}
           placeholder="Etsi sivustolta"
-          inputProps={{ 'aria-label': 'search' }}
+          inputProps={{ 'aria-label': t('common:action.search') }}
           value={query}
           onChange={(event) => queryHandler(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}

@@ -44,8 +44,7 @@ export const FileModal: FunctionComponent<ModalProps> = ({
               <IconButton
                 sx={{ color: Colors.extrablack, marginRight: '-10px' }}
                 edge="end"
-                size="small"
-                area-label="close-modal"
+                aria-label={t('common:action.close_modal')}
                 onClick={() => handleClose()}
               >
                 <Close></Close>

@@ -7,10 +7,10 @@ import { AppBarContext } from '../../contexts/AppBarContext';
 import { SlateInputField } from '../../components/Editor/SlateInputField';
 import { EditorContext } from '../../contexts/EditorContext';
 import { isSlateValueEmpty } from '../../utils/slateEditorUtil';
-import { getCategoryRouteName } from '../../utils/helpers';
 import { FileUploadDialogButton } from '../../components/Files/FileUploadDialogButton';
 import { useLocation } from 'react-router-dom';
 import { CategoryFiles } from '../../components/Files/CategoryFiles';
+import { getCategoryRouteName } from '../../routes';
 
 type Props = {
   children: React.ReactElement;
