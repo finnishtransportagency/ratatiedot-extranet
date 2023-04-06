@@ -9,9 +9,11 @@ import ConfirmIcon from '../../assets/icons/Add_vahvistus.svg';
 import { EditorContext } from '../../contexts/EditorContext';
 import { ElementType } from '../../utils/types';
 import { openNotification } from '../../utils/slateEditorUtil';
+import { useTranslation } from 'react-i18next';
 
 export const NotificationTypes = () => {
   const { editor, value, valueHandler } = useContext(EditorContext);
+  const { t } = useTranslation(['common']);
 
   const handleOpenToolbar = (notificationType: ElementType) => {
     const newValue = [{ type: notificationType, ...value }];
@@ -22,7 +24,7 @@ export const NotificationTypes = () => {
   return (
     <ContainerWrapper>
       <Box
-        aria-label="info"
+        aria-label={t('common:notification.info')}
         component="img"
         sx={{ cursor: 'pointer' }}
         src={InfoIcon}
@@ -30,7 +32,7 @@ export const NotificationTypes = () => {
         onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_INFO)}
       />
       <Box
-        aria-label="warning"
+        aria-label={t('common:notification.warning')}
         component="img"
         sx={{ cursor: 'pointer' }}
         src={WarningIcon}
@@ -38,7 +40,7 @@ export const NotificationTypes = () => {
         onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_WARNING)}
       />
       <Box
-        aria-label="error"
+        aria-label={t('common:notification.error')}
         component="img"
         sx={{ cursor: 'pointer' }}
         src={ErrorIcon}
@@ -46,7 +48,7 @@ export const NotificationTypes = () => {
         onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_ERROR)}
       />
       <Box
-        aria-label="check"
+        aria-label={t('common:notification.check')}
         component="img"
         sx={{ cursor: 'pointer' }}
         src={ConfirmIcon}

@@ -31,20 +31,22 @@ describe('SlateToolbar component', () => {
 
   test('SlateToolbar should have a list of control buttons', () => {
     render(component);
-    expect(screen.getByRole('button', { name: /paragraph-two/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /paragraph-one/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /heading-two/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /bold/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /italic/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /underlined/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /numbered-list/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /bulleted-list/i })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /insert-link/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /kappale normaalilla tekstikoolla/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /kappale isommalla tekstikoolla/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /pienempi otsikko/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /iso otsikko/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /lihavoitu/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /kursivoitu/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /alleviivattu/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /numeroitu lista/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /numeroimaton lista/i })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Lisää linkki/i })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /väri/i })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /info/i })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /warning/i })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /error/i })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /check/i })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /delete/i })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /close/i })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /varoitus/i })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /virhe/i })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /oikein-merkki/i })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Poista/i })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Sulje/i })).toBeInTheDocument();
   });
 });

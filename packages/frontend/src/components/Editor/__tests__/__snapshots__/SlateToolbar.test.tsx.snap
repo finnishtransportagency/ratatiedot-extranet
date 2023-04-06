@@ -2,7 +2,7 @@
 
 exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
 <div
-  aria-label="toolbar"
+  aria-label="työkalupalkki"
   className="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1qnc7df-MuiPaper-root"
 >
   <div
@@ -10,7 +10,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
     role="group"
   >
     <button
-      aria-label="paragraph-two"
+      aria-label="kappale normaalilla tekstikoolla"
       aria-pressed={false}
       className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
       disabled={false}
@@ -45,7 +45,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
       </svg>
     </button>
     <button
-      aria-label="paragraph-one"
+      aria-label="kappale isommalla tekstikoolla"
       aria-pressed={false}
       className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
       disabled={false}
@@ -80,7 +80,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
       </svg>
     </button>
     <button
-      aria-label="heading-two"
+      aria-label="pienempi otsikko"
       aria-pressed={false}
       className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
       disabled={false}
@@ -115,7 +115,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
       </svg>
     </button>
     <button
-      aria-label="heading-one"
+      aria-label="iso otsikko"
       aria-pressed={false}
       className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
       disabled={false}
@@ -150,7 +150,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
       </svg>
     </button>
     <button
-      aria-label="bold"
+      aria-label="lihavoitu"
       aria-pressed={null}
       className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
       disabled={false}
@@ -185,7 +185,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
       </svg>
     </button>
     <button
-      aria-label="italic"
+      aria-label="kursivoitu"
       aria-pressed={null}
       className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
       disabled={false}
@@ -220,7 +220,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
       </svg>
     </button>
     <button
-      aria-label="underlined"
+      aria-label="alleviivattu"
       aria-pressed={null}
       className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
       disabled={false}
@@ -256,7 +256,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
     </button>
     <img
       alt="link"
-      aria-label="insert-link"
+      aria-label="Lisää linkki"
       className="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiBox-root css-1xst3u4"
       disabled={false}
       fullWidth={false}
@@ -267,7 +267,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
       src="Link.svg"
     />
     <button
-      aria-label="numbered-list"
+      aria-label="numeroitu lista"
       aria-pressed={false}
       className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
       disabled={false}
@@ -302,7 +302,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
       </svg>
     </button>
     <button
-      aria-label="bulleted-list"
+      aria-label="numeroimaton lista"
       aria-pressed={false}
       className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
       disabled={false}
@@ -343,7 +343,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
    
   <img
     alt="color"
-    aria-label="color"
+    aria-label="väri"
     className="MuiBox-root css-us34y6"
     onClick={[Function]}
     src="Palette.svg"
@@ -363,21 +363,21 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
     />
     <img
       alt="warning"
-      aria-label="warning"
+      aria-label="varoitus"
       className="MuiBox-root css-4g6ai3"
       onClick={[Function]}
       src="Add_varoitus.svg"
     />
     <img
       alt="error"
-      aria-label="error"
+      aria-label="virhe"
       className="MuiBox-root css-4g6ai3"
       onClick={[Function]}
       src="Add_virhe.svg"
     />
     <img
       alt="check"
-      aria-label="check"
+      aria-label="oikein-merkki"
       className="MuiBox-root css-4g6ai3"
       onClick={[Function]}
       src="Add_vahvistus.svg"
@@ -388,14 +388,14 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
   />
   <img
     alt="delete"
-    aria-label="delete"
+    aria-label="Poista"
     className="MuiBox-root css-4g6ai3"
     onClick={[Function]}
     src="Delete.svg"
   />
   <img
     alt="close"
-    aria-label="close"
+    aria-label="Sulje"
     className="MuiBox-root css-1yceefw"
     onClick={[Function]}
     src="Close.svg"
