@@ -14,6 +14,7 @@ import {
   IParentSearchParameter,
   QueryLanguage,
   SearchParameterName,
+  SortingFieldParameter,
 } from './searchQueryBuilder/types';
 import { get } from 'lodash';
 
@@ -57,6 +58,7 @@ const searchByTermWithParent = async (
       page: page,
       language: language,
       additionalFields: [AdditionalFields.PROPERTIES],
+      sort: [{ field: SortingFieldParameter.name, ascending: true }],
     });
     const alfrescoSearchAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1/search`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });

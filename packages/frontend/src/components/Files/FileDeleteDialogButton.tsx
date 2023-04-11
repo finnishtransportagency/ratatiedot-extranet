@@ -1,4 +1,4 @@
-import { Box, ButtonProps } from '@mui/material';
+import { Box, Button, ButtonProps } from '@mui/material';
 import { t } from 'i18next';
 import { FunctionComponent, useState } from 'react';
 import { ButtonWrapper } from '../../styles/common';
@@ -35,9 +35,9 @@ export const FileDeleteDialogButton: FunctionComponent<DialogButtonProps> = ({
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <ButtonWrapper disabled={disabled} sx={{ margin: '0px 0px 24px auto' }} {...buttonProps} onClick={handleOpen}>
+      <Button disabled={disabled} sx={{ margin: '0px 0px 24px auto' }} {...buttonProps} onClick={handleOpen}>
         {t('common:file.delete_selected_file')}
-      </ButtonWrapper>
+      </Button>
       {node ? (
         <FileDeleteDialog
           categoryName={categoryName}
