@@ -22,7 +22,7 @@ export const queryClient = new QueryClient({
   },
 });
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const root = ReactDOM.createRoot(document.getElementById('root') || document.createElement('div')); // for testing purposes
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>

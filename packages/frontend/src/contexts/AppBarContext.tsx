@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useGetUserRightPageContent } from '../hooks/query/GetUserRightPageContent';
-import { getCategoryRouteName } from '../utils/helpers';
+import { getCategoryRouteName } from '../routes';
 
 export const AppBarContext = React.createContext({
   openDrawer: false,

@@ -23,7 +23,7 @@ export const resources = {
 i18next.use(initReactI18next).init({
   lng: 'fi', // override any language detector and use Finnish as default. Remove this if you need localization in the future.
   fallbackLng: 'fi',
-  debug: true,
+  debug: false, // turn off for running unit tests
   resources,
   defaultNS,
 });

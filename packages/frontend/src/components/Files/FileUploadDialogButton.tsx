@@ -1,9 +1,9 @@
-import { Box, ButtonProps } from '@mui/material';
+import { Button, ButtonProps } from '@mui/material';
 import { AxiosResponse } from 'axios';
 import { t } from 'i18next';
 import { FunctionComponent, useState } from 'react';
 import { FileUploadDialog } from '../../components/Files/FileUploadDialog';
-import { ButtonWrapper } from '../../styles/common';
+import { ProtectedContainerWrapper } from '../../styles/common';
 
 interface DialogButtonProps {
   categoryName: string;
@@ -30,16 +30,16 @@ export const FileUploadDialogButton: FunctionComponent<DialogButtonProps> = ({
   };
 
   return (
-    <Box>
-      <ButtonWrapper {...buttonProps} onClick={handleOpen}>
+    <ProtectedContainerWrapper>
+      <Button sx={{ padding: 0 }} {...buttonProps} onClick={handleOpen}>
         {t('common:file.add_file')}
-      </ButtonWrapper>
+      </Button>
       <FileUploadDialog
         onClose={handleClose}
         onUpload={handleUpload}
         open={open}
         categoryName={categoryName}
       ></FileUploadDialog>
-    </Box>
+    </ProtectedContainerWrapper>
   );
 };
