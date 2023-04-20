@@ -79,7 +79,7 @@ export const SlateToolbar = () => {
   };
 
   return (
-    <Slate editor={editor} value={value} onChange={() => {}}>
+    <Slate editor={editor} value={value}>
       <ToolbarPaperWrapper elevation={2} aria-label={t('common:edit.toolbar')}>
         <ToggleButtonGroupWrapper size="small">
           {BlockButton({

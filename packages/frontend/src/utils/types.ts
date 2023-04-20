@@ -32,7 +32,7 @@ export interface IParagraphElement extends IElement {
 }
 
 export interface IHeadingElement extends IElement {
-  type: ElementType.HEADING_ONE | ElementType.HEADING_TWO | ElementType.CARD_TITLE;
+  type: ElementType.HEADING_ONE | ElementType.HEADING_TWO;
   level: number;
   children: any;
 }
@@ -57,5 +57,5 @@ export interface INotificationElement extends IElement {
 }
 
 export interface ICardElement extends IElement {
-  type: ElementType.CARD;
+  type: ElementType.CARD | ElementType.CARD_TITLE;
 }

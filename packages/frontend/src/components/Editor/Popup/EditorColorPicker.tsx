@@ -9,7 +9,6 @@ import { EditorContext } from '../../../contexts/EditorContext';
 import { toggleColor } from '../../../utils/slateEditorUtil';
 import { FontFormatType } from '../../../utils/types';
 import { HighlightedTitle } from '../../Typography/HighlightedTitle';
-import { palette } from '@mui/system';
 
 type ColorButtonProps = {
   editor: any;
