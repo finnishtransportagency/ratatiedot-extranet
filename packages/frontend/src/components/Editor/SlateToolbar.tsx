@@ -28,6 +28,7 @@ import { AppBarContext } from '../../contexts/AppBarContext';
 import { EditorContext } from '../../contexts/EditorContext';
 import { useTranslation } from 'react-i18next';
 import { EditorColorPicker } from './Popup/EditorColorPicker';
+import { ContentTypes } from './ContentTypes';
 
 type MarkButtonProps = { editor: any; format: FontFormatType; icon: any };
 
@@ -90,7 +91,7 @@ export const SlateToolbar = () => {
   };
 
   return (
-    <Slate editor={editor} value={value}>
+    <Slate editor={editor} value={value} onChange={() => {}}>
       <ToolbarPaperWrapper elevation={2} aria-label={t('common:edit.toolbar')}>
         <ToggleButtonGroupWrapper size="small">
           {BlockButton({
@@ -139,6 +140,8 @@ export const SlateToolbar = () => {
         )}
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <NotificationTypes />
+        <DividerWrapper orientation="vertical" variant="middle" flexItem />
+        <ContentTypes />
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <Box
           aria-label={t('common:action.delete')}
