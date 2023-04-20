@@ -78,7 +78,9 @@
     "notification_info": "infoilmoitus",
     "notification_warning": "varoitusilmoitus",
     "notification_error": "virheilmoitus",
-    "notification_confirmation": "vahvistusilmoitus"
+    "notification_confirmation": "vahvistusilmoitus",
+    "card": "kortti",
+    "card_title": "kortin otsikko"
   },
   "colors": {
     "darkblue": "tummansininen",

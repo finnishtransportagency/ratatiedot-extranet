@@ -1,52 +1,29 @@
 import { Node, Editor, Element, Transforms, Path, Range } from 'slate';
 import { ReactEditor } from 'slate-react';
+
+import { ContactEditorCard } from '../components/Editor/Cards/ContactEditorCard';
 import { NotificationEditorCard } from '../components/Editor/Cards/NotificationEditorCard';
 import { LinkPopup } from '../components/Editor/Popup/LinkPopup';
+import { HighlightedTitle } from '../components/Typography/HighlightedTitle';
 import { TSlateNode } from '../contexts/EditorContext';
+import { createContactCardNode, createLinkNode } from './createSlateNode';
 
-import { ElementType, FontFormatType, IElement } from './types';
-
-interface IParagraphElement extends IElement {
-  type: ElementType.PARAGRAPH_ONE | ElementType.PARAGRAPH_TWO;
-  children: any;
-}
-
-interface IHeadingElement extends IElement {
-  type: ElementType.HEADING_ONE | ElementType.HEADING_TWO;
-  level: number;
-  children: any;
-}
-
-interface IListElement extends IElement {
-  type: ElementType.LIST_ITEM | ElementType.BULLET_LIST | ElementType.NUMBERED_LIST;
-  children: any;
-}
-
-export interface ILinkElement extends IElement {
-  type: ElementType.LINK;
-  href: string;
-  children: any;
-}
-
-export interface INotificationElement extends IElement {
-  type:
-    | ElementType.NOTIFICATION_INFO
-    | ElementType.NOTIFICATION_WARNING
-    | ElementType.NOTIFICATION_ERROR
-    | ElementType.NOTIFICATION_CONFIRMATION;
-}
+import {
+  ElementType,
+  FontFormatType,
+  ICardElement,
+  IHeadingElement,
+  ILinkElement,
+  IListElement,
+  INotificationElement,
+  IParagraphElement,
+} from './types';
 
 export type SlateElementProps = {
   attributes: any;
   children: any;
-  element: IParagraphElement | IHeadingElement | IListElement | ILinkElement | INotificationElement;
+  element: IParagraphElement | IHeadingElement | IListElement | ILinkElement | INotificationElement | ICardElement;
 };
-
-const createLinkNode = (href: string, text: string): ILinkElement => ({
-  type: ElementType.LINK,
-  href,
-  children: [{ text }],
-});
 
 export const SlateElement = ({ attributes, children, element }: SlateElementProps) => {
   switch (element.type) {
@@ -75,6 +52,10 @@ export const SlateElement = ({ attributes, children, element }: SlateElementProp
       return <ol {...attributes}>{children}</ol>;
     case ElementType.LINK:
       return <LinkPopup attributes={attributes} children={children} element={element} />;
+    case ElementType.CARD_TITLE:
+      return <HighlightedTitle {...attributes}>{children}</HighlightedTitle>;
+    case ElementType.CARD:
+      return <ContactEditorCard attributes={attributes} children={children} element={element} />;
     case ElementType.PARAGRAPH_ONE:
       return (
         <span {...attributes} style={{ fontSize: '18px' }}>
@@ -230,7 +211,7 @@ export const openNotification = (editor: any, format: ElementType) => {
 
   if (isNotification) {
     const block = { type: format, children: [] };
-    Transforms.wrapNodes(editor, block);
+    Transforms.insertNodes(editor, block, { at: [0] });
   }
 };
 
