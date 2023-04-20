@@ -22,7 +22,7 @@ export const NotificationTypes = () => {
   };
 
   return (
-    <ContainerWrapper>
+    <TypeContainerWrapper>
       <Box
         aria-label={t('common:notification.info')}
         component="img"
@@ -55,14 +55,9 @@ export const NotificationTypes = () => {
         alt="check"
         onClick={() => handleOpenToolbar(ElementType.NOTIFICATION_CONFIRMATION)}
       />
-    </ContainerWrapper>
+    </TypeContainerWrapper>
   );
 };
-
-const ContainerWrapper = styled('div')(({ theme }) => ({
-  textAlign: 'center',
-  marginTop: '5px',
-  [theme.breakpoints.only('desktop')]: {
-    marginTop: '20px',
-  },
+export const TypeContainerWrapper = styled('div')(() => ({
+  display: 'flex',
 }));

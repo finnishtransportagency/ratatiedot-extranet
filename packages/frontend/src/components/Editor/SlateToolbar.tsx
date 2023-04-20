@@ -8,18 +8,10 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import { Slate } from 'slate-react';
 
-import DeleteIcon from '../../assets/icons/Delete.svg';
 import CloseIcon from '../../assets/icons/Close.svg';
 import LinkIcon from '../../assets/icons/Link.svg';
 import PaletteIcon from '../../assets/icons/Palette.svg';
-import {
-  deleteNotification,
-  insertLink,
-  isBlockActive,
-  isMarkActive,
-  toggleBlock,
-  toggleMark,
-} from '../../utils/slateEditorUtil';
+import { insertLink, isBlockActive, isMarkActive, toggleBlock, toggleMark } from '../../utils/slateEditorUtil';
 import { Colors } from '../../constants/Colors';
 import { ElementType, FontFormatType } from '../../utils/types';
 import { NotificationTypes } from './NotificationTypes';
@@ -80,10 +72,6 @@ export const SlateToolbar = () => {
   const { editor, value } = useContext(EditorContext);
   const [isColorOpened, setIsColorOpened] = useState(false);
 
-  const removeNotificationOrContentType = () => {
-    deleteNotification(editor, value[0].type, true);
-  };
-
   const handleInsertLink = () => {
     const url = prompt(t('common:edit.enter_url'));
     if (!url) return;
@@ -143,14 +131,6 @@ export const SlateToolbar = () => {
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <ContentTypes />
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
-        <Box
-          aria-label={t('common:action.delete')}
-          component="img"
-          sx={{ cursor: 'pointer' }}
-          src={DeleteIcon}
-          alt="delete"
-          onClick={removeNotificationOrContentType}
-        />
         <Box
           aria-label={t('common:action.close')}
           component="img"

@@ -11,7 +11,6 @@ import { EditorContext } from '../../contexts/EditorContext';
 import { useLocation } from 'react-router-dom';
 import { useUpdatePageContents } from '../../hooks/mutations/UpdateCategoryPageContent';
 import { getRouterName } from '../../utils/helpers';
-import { isSlateValueEmpty } from '../../utils/slateEditorUtil';
 import { SnackbarAlert } from '../Notification/Snackbar';
 
 export const ConfirmationAppBar = () => {
