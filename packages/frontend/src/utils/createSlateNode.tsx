@@ -1,10 +1,20 @@
 import { Colors } from '../constants/Colors';
 import { ElementType, ILinkElement } from './types';
 
+export const createParagraphNode = () => ({
+  type: ElementType.PARAGRAPH_TWO,
+  children: [{ text: '' }],
+});
+
 export const createLinkNode = (href: string, text: string): ILinkElement => ({
   type: ElementType.LINK,
   href,
   children: [{ text }],
+});
+
+export const createNotificationNode = (notificationType: string) => ({
+  type: notificationType || ElementType.NOTIFICATION_INFO,
+  children: [{ text: '' }],
 });
 
 export const createContactCardNode = () => ({

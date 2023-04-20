@@ -6,7 +6,7 @@ import { NotificationEditorCard } from '../components/Editor/Cards/NotificationE
 import { LinkPopup } from '../components/Editor/Popup/LinkPopup';
 import { HighlightedTitle } from '../components/Typography/HighlightedTitle';
 import { TSlateNode } from '../contexts/EditorContext';
-import { createContactCardNode, createLinkNode } from './createSlateNode';
+import { createContactCardNode, createLinkNode, createNotificationNode, createParagraphNode } from './createSlateNode';
 
 import {
   ElementType,
@@ -210,25 +210,34 @@ export const openNotification = (editor: any, format: ElementType) => {
   });
 
   if (isNotification) {
-    const block = { type: format, children: [] };
-    Transforms.insertNodes(editor, block, { at: [0] });
+    Transforms.insertNodes(editor, createNotificationNode(format), { at: [0] });
   }
 };
 
-export const deleteNotification = (editor: any, format: ElementType, shouldDeleteEditor?: boolean) => {
-  const isActive = isBlockActive(editor, format);
-  if (isActive) {
-    Transforms.unwrapNodes(editor, {
-      match: (n: Node) =>
-        (n as any).type === ElementType.NOTIFICATION_INFO ||
-        (n as any).type === ElementType.NOTIFICATION_WARNING ||
-        (n as any).type === ElementType.NOTIFICATION_ERROR ||
-        (n as any).type === ElementType.NOTIFICATION_CONFIRMATION,
-      split: true,
-    });
-    if (shouldDeleteEditor) {
-      deleteEditor(editor);
-    }
+export const openText = (editor: any, format: ElementType) => {
+  Transforms.select(editor, Editor.end(editor, []));
+  ReactEditor.focus(editor);
+
+  const isText = format === ElementType.PARAGRAPH_TWO || format === ElementType.PARAGRAPH_ONE;
+  if (isText) {
+    const text = createParagraphNode();
+    Transforms.insertNodes(editor, text, { at: Editor.end(editor, []) });
+  }
+};
+
+export const openContactCard = (editor: any, format: ElementType) => {
+  Transforms.select(editor, Editor.end(editor, []));
+  ReactEditor.focus(editor);
+
+  const isCard = format === ElementType.CARD;
+
+  Transforms.unwrapNodes(editor, {
+    match: (n: Node) => (n as any).type === ElementType.CARD,
+    split: true,
+  });
+  if (isCard) {
+    const block = createContactCardNode();
+    Transforms.insertNodes(editor, block, { at: [editor.children.length - 1] });
   }
 };
 
