@@ -30,9 +30,9 @@ export const ProtectedPage = ({ children }: Props) => {
     <ContainerWrapper>
       <NavBar />
       <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
-        {isEditorOpened && <SlateInputField />}
         {isEditorOpened && <FileUploadDialogButton categoryName={categoryRouteName} />}
         {children}
+        {isEditorOpened && <SlateInputField />}
         {categoryRouteName && <CategoryFiles />}
         <Footer />
       </ContentWrapper>

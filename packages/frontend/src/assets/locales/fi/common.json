@@ -78,7 +78,11 @@
     "notification_info": "infoilmoitus",
     "notification_warning": "varoitusilmoitus",
     "notification_error": "virheilmoitus",
-    "notification_confirmation": "vahvistusilmoitus"
+    "notification_confirmation": "vahvistusilmoitus",
+    "card": "kortti",
+    "card_title": "kortin otsikko",
+    "text": "teksti",
+    "file": "tiedosto"
   },
   "colors": {
     "darkblue": "tummansininen",
@@ -104,5 +108,12 @@
     "italic": "kursivoitu",
     "underlined": "alleviivattu",
     "color": "väri"
+  },
+  "card": {
+    "contact_information": "Yhteystiedot",
+    "responsibility": "Vastuu",
+    "name": "Henkilö nimi",
+    "phone_number": "Puhelinnumero",
+    "email": "Sähköpostiosoite"
   }
 }

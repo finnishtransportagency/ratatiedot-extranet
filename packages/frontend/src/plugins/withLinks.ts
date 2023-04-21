@@ -1,5 +1,4 @@
-import { ILinkElement } from '../utils/slateEditorUtil';
-import { ElementType } from '../utils/types';
+import { ElementType, ILinkElement } from '../utils/types';
 
 const withLinks = (editor: any) => {
   const { isInline } = editor;

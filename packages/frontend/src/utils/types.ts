@@ -18,8 +18,44 @@ export enum ElementType {
   NOTIFICATION_WARNING = 'notification_warning',
   NOTIFICATION_ERROR = 'notification_error',
   NOTIFICATION_CONFIRMATION = 'notification_confirmation',
+  CARD_TITLE = 'card_title',
+  CARD = 'card',
 }
 
 export interface IElement {
   type: ElementType;
+}
+
+export interface IParagraphElement extends IElement {
+  type: ElementType.PARAGRAPH_ONE | ElementType.PARAGRAPH_TWO;
+  children: any;
+}
+
+export interface IHeadingElement extends IElement {
+  type: ElementType.HEADING_ONE | ElementType.HEADING_TWO;
+  level: number;
+  children: any;
+}
+
+export interface IListElement extends IElement {
+  type: ElementType.LIST_ITEM | ElementType.BULLET_LIST | ElementType.NUMBERED_LIST;
+  children: any;
+}
+
+export interface ILinkElement extends IElement {
+  type: ElementType.LINK;
+  href: string;
+  children: any;
+}
+
+export interface INotificationElement extends IElement {
+  type:
+    | ElementType.NOTIFICATION_INFO
+    | ElementType.NOTIFICATION_WARNING
+    | ElementType.NOTIFICATION_ERROR
+    | ElementType.NOTIFICATION_CONFIRMATION;
+}
+
+export interface ICardElement extends IElement {
+  type: ElementType.CARD | ElementType.CARD_TITLE;
 }
