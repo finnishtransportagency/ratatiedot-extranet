@@ -37,7 +37,7 @@ export const ContentTypes = () => {
         onClick={contactCardHandler}
       />
       <Box
-        aria-label="teksti"
+        aria-label={t('common:element.text')}
         component="img"
         sx={{ cursor: 'pointer' }}
         src={TextIcon}
@@ -45,7 +45,7 @@ export const ContentTypes = () => {
         onClick={paragraphHandler}
       />
       <Box
-        aria-label="tiedosto"
+        aria-label={t('common:element.file')}
         component="img"
         sx={{ cursor: 'pointer' }}
         src={FolderIcon}

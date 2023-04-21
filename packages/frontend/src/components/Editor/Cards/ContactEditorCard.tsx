@@ -14,7 +14,7 @@ const ContactEditorCardPaperWrapper = styled(Paper)<DrawerWrapperProps>(({ theme
   padding: '20px',
   display: 'inline-block',
   verticalAlign: 'top',
-  margin: '10px',
+  margin: '0 20px 20px 0',
   [theme.breakpoints.only('mobile')]: {
     width: '85%',
   },

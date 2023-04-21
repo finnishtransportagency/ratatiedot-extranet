@@ -1,3 +1,5 @@
+import i18n from '../i18n';
+
 import { Colors } from '../constants/Colors';
 import { ElementType, ILinkElement } from './types';
 
@@ -17,62 +19,64 @@ export const createNotificationNode = (notificationType: string) => ({
   children: [{ text: '' }],
 });
 
-export const createContactCardNode = () => ({
-  type: ElementType.CARD,
-  children: [
-    {
-      children: [{ type: ElementType.CARD_TITLE, children: [{ text: 'Yhteystiedot' }] }],
-    },
-    {
-      children: [{ text: '' }],
-    },
-    {
-      children: [{ text: 'Vastuullisuus 1', bold: true }],
-    },
-    {
-      children: [{ text: '' }],
-    },
-    {
-      children: [{ text: 'Henkilö nimi 1' }],
-    },
-    {
-      children: [{ text: '' }],
-    },
-    {
-      children: [{ text: 'Puhelin numero 1' }],
-    },
-    {
-      children: [{ text: '' }],
-    },
-    {
-      children: [{ text: 'test1@example.com', color: Colors.midblue }],
-    },
-    {
-      children: [{ text: '' }],
-    },
-    {
-      children: [{ text: '' }],
-    },
-    {
-      children: [{ text: 'Vastuullisuus 2', bold: true }],
-    },
-    {
-      children: [{ text: '' }],
-    },
-    {
-      children: [{ text: 'Henkilö nimi 2' }],
-    },
-    {
-      children: [{ text: '' }],
-    },
-    {
-      children: [{ text: 'Puhelin numero 2' }],
-    },
-    {
-      children: [{ text: '' }],
-    },
-    {
-      children: [{ text: 'test2@example.com', color: Colors.midblue }],
-    },
-  ],
-});
+export const createContactCardNode = () => {
+  return {
+    type: ElementType.CARD,
+    children: [
+      {
+        children: [{ type: ElementType.CARD_TITLE, children: [{ text: i18n.t('common:card.contact_information') }] }],
+      },
+      {
+        children: [{ text: '' }],
+      },
+      {
+        children: [{ text: i18n.t('common:card.responsibility'), bold: true }],
+      },
+      {
+        children: [{ text: '' }],
+      },
+      {
+        children: [{ text: i18n.t('common:card.name') }],
+      },
+      {
+        children: [{ text: '' }],
+      },
+      {
+        children: [{ text: i18n.t('common:card.phone_number') }],
+      },
+      {
+        children: [{ text: '' }],
+      },
+      {
+        children: [{ text: i18n.t('common:card.email'), color: Colors.midblue }],
+      },
+      {
+        children: [{ text: '' }],
+      },
+      {
+        children: [{ text: '' }],
+      },
+      {
+        children: [{ text: i18n.t('common:card.responsibility'), bold: true }],
+      },
+      {
+        children: [{ text: '' }],
+      },
+      {
+        children: [{ text: i18n.t('common:card.name') }],
+      },
+      {
+        children: [{ text: '' }],
+      },
+      {
+        children: [{ text: i18n.t('common:card.phone_number') }],
+      },
+      {
+        children: [{ text: '' }],
+      },
+      {
+        children: [{ text: i18n.t('common:card.email'), color: Colors.midblue }],
+      },
+    ],
+  };
+};
