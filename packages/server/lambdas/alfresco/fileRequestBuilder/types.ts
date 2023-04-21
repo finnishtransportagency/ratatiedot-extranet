@@ -66,32 +66,4 @@ export interface AlfrescoResponse {
   };
 }
 
-export interface AlfrescoFolderResponse {
-  entry: {
-    isFile: boolean;
-    createdByUser: {
-      id: string;
-      displayName: string;
-    };
-    modifiedAt: string;
-    nodeType: typeof CM_FOLDER;
-    content: {
-      mimeType: string;
-      mimeTypeName: string;
-      sizeInBytes: number;
-      encoding: string;
-    };
-    parentId: string;
-    aspectNames: string[];
-    createdAt: string;
-    isFolder: true;
-    modifiedByUser: {
-      id: string;
-      displayName: string;
-    };
-    name: string;
-    id: string;
-    properties: { 'cm:title': string; 'cm:versionLabel': string; 'cm:versionType': string };
-  };
-}
 // TODO: Unify any duplicate types/interfaces. See SearchParameter for example

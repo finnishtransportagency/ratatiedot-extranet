@@ -1,31 +1,16 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
-import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { folderUpdateRequestBuilder } from './fileRequestBuilder';
-import fetch from 'node-fetch';
-import { RequestInit } from 'node-fetch';
-import { AlfrescoResponse } from './fileRequestBuilder/types';
+import { updateFolderComponent } from '../database/components/update-node-component';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
-
-const updateFolder = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
-  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  try {
-    const res = await fetch(url, options);
-    const result = (await res.json()) as AlfrescoResponse;
-    return result;
-  } catch (err) {
-    console.error('error:' + err);
-  }
-};
 
 /**
  * Update Alfresco node metadata (in this case folder). Example request: /api/alfresco/folder/linjakaaviot/{NODE_ID}
@@ -37,7 +22,7 @@ const updateFolder = async (options: RequestInit, nodeId: string): Promise<Alfre
 export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
   try {
     const paths = event.path.split('/');
-    const nodeId = paths.at(-1) as string;
+    const componentId = paths.at(-1) as string;
     const category = paths.at(-2);
 
     const user = await getUser(event);
@@ -47,7 +32,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     if (!category) {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
-    if (isEmpty(event.body)) {
+    if (isEmpty(event.body) || !event.body) {
       throw new RataExtraLambdaError('Request body missing', 400);
     }
     if (!fileEndpointsCache.length) {
@@ -61,11 +46,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
 
-    const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderUpdateRequestBuilder(event, headers)) as RequestInit;
+    auditLog.info(user, `Updated folder ${componentId} metadata in ${categoryData.alfrescoFolder}`);
 
-    const result = await updateFolder(requestOptions, nodeId);
-    auditLog.info(user, `Updated folder ${nodeId} in ${categoryData.alfrescoFolder}`);
+    const result = await updateFolderComponent(componentId, JSON.parse(event.body));
+
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },

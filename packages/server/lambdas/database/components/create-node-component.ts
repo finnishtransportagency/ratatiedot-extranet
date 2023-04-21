@@ -25,7 +25,7 @@ export const createFolderComponent = async (categoryId: string, props: AlfrescoF
           create: {
             title: component.title,
             type: 'Folder',
-            alfrescoNodeId: categoryId,
+            alfrescoNodeId: component.id,
           },
         },
         categoryDataBase: {
