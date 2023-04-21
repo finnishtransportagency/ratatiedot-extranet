@@ -78,6 +78,8 @@ export const SlateToolbar = () => {
     insertLink(editor, url);
   };
 
+  const toggleColorPicker = () => setIsColorOpened(!isColorOpened);
+
   return (
     <Slate editor={editor} value={value}>
       <ToolbarPaperWrapper elevation={2} aria-label={t('common:edit.toolbar')}>
@@ -112,18 +114,18 @@ export const SlateToolbar = () => {
           })}
           {BlockButton({ editor, format: ElementType.BULLET_LIST, icon: <FormatListBulletedIcon fontSize="small" /> })}
         </ToggleButtonGroupWrapper>
-        <DividerWrapper orientation="vertical" variant="middle" flexItem />{' '}
+        <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <Box
           aria-label={t('common:edit.color')}
           component="img"
           sx={{ cursor: 'pointer', width: '25px' }}
           src={PaletteIcon}
           alt="color"
-          onClick={() => setIsColorOpened(!isColorOpened)}
+          onClick={toggleColorPicker}
         />
         {isColorOpened && (
           <ToggleButtonGroupWrapper size="small">
-            <EditorColorPicker />
+            <EditorColorPicker onClose={toggleColorPicker} />
           </ToggleButtonGroupWrapper>
         )}
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
