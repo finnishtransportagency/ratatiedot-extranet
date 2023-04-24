@@ -31,6 +31,7 @@ describe('SlateToolbar component', () => {
 
   test('SlateToolbar should have a list of control buttons', () => {
     render(component);
+    expect(screen.getByLabelText(/Valitse fontin koko/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Leipäteksti/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /lihavoitu/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /kursivoitu/i })).toBeInTheDocument();
