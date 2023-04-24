@@ -3,7 +3,6 @@ import { Box, Divider, Paper, ToggleButton, ToggleButtonGroup } from '@mui/mater
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
-import FormatSizeIcon from '@mui/icons-material/FormatSize';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import { Slate } from 'slate-react';
@@ -21,6 +20,7 @@ import { EditorContext } from '../../contexts/EditorContext';
 import { useTranslation } from 'react-i18next';
 import { EditorColorPicker } from './Popup/EditorColorPicker';
 import { ContentTypes } from './ContentTypes';
+import { FontSizeDropdown } from './Dropdown/FontSizeDropdown';
 
 type MarkButtonProps = { editor: any; format: FontFormatType; icon: any };
 
@@ -82,20 +82,9 @@ export const SlateToolbar = () => {
 
   return (
     <Slate editor={editor} value={value}>
-      <ToolbarPaperWrapper elevation={2} aria-label={t('common:edit.toolbar')}>
+      <ToolbarPaperWrapper>
+        <FontSizeDropdown />
         <ToggleButtonGroupWrapper size="small">
-          {BlockButton({
-            editor,
-            format: ElementType.PARAGRAPH_TWO,
-            icon: <FormatSizeIcon sx={{ fontSize: '16px' }} />,
-          })}
-          {BlockButton({
-            editor,
-            format: ElementType.PARAGRAPH_ONE,
-            icon: <FormatSizeIcon sx={{ fontSize: '18px' }} />,
-          })}
-          {BlockButton({ editor, format: ElementType.HEADING_TWO, icon: <FormatSizeIcon sx={{ fontSize: '20px' }} /> })}
-          {BlockButton({ editor, format: ElementType.HEADING_ONE, icon: <FormatSizeIcon sx={{ fontSize: '23px' }} /> })}
           {MarkButton({ editor, format: FontFormatType.BOLD, icon: <FormatBoldIcon fontSize="small" /> })}
           {MarkButton({ editor, format: FontFormatType.ITALIC, icon: <FormatItalicIcon fontSize="small" /> })}
           {MarkButton({ editor, format: FontFormatType.UNDERLINED, icon: <FormatUnderlinedIcon fontSize="small" /> })}
