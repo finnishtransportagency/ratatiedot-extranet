@@ -31,10 +31,7 @@ describe('SlateToolbar component', () => {
 
   test('SlateToolbar should have a list of control buttons', () => {
     render(component);
-    expect(screen.getByRole('button', { name: /kappale normaalilla tekstikoolla/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /kappale isommalla tekstikoolla/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /pienempi otsikko/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /iso otsikko/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Leipäteksti/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /lihavoitu/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /kursivoitu/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /alleviivattu/i })).toBeInTheDocument();
@@ -46,7 +43,6 @@ describe('SlateToolbar component', () => {
     expect(screen.getByRole('img', { name: /varoitus/i })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /virhe/i })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /oikein-merkki/i })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /Poista/i })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /Sulje/i })).toBeInTheDocument();
   });
 });

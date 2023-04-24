@@ -2,153 +2,63 @@
 
 exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
 <div
-  aria-label="työkalupalkki"
-  className="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1qnc7df-MuiPaper-root"
+  className="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-ia14m2-MuiPaper-root"
 >
+  <div
+    className="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary css-n0xngz-MuiInputBase-root-MuiOutlinedInput-root"
+    onClick={[Function]}
+  >
+    <div
+      aria-expanded="false"
+      aria-haspopup="listbox"
+      className="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+      onBlur={[Function]}
+      onFocus={[Function]}
+      onKeyDown={[Function]}
+      onMouseDown={[Function]}
+      role="button"
+      tabIndex={0}
+    >
+      Leipäteksti
+    </div>
+    <input
+      aria-hidden={true}
+      className="MuiSelect-nativeInput css-yf8vq0-MuiSelect-nativeInput"
+      onAnimationStart={[Function]}
+      onChange={[Function]}
+      tabIndex={-1}
+      value="paragraph-two"
+    />
+    <svg
+      aria-hidden={true}
+      className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rejtkv-MuiSvgIcon-root-MuiSelect-icon"
+      data-testid="ArrowDropDownIcon"
+      focusable="false"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M7 10l5 5 5-5z"
+      />
+    </svg>
+    <fieldset
+      aria-hidden={true}
+      className="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+    >
+      <legend
+        className="css-ihdtdm"
+      >
+        <span
+          className="notranslate"
+        >
+          ​
+        </span>
+      </legend>
+    </fieldset>
+  </div>
   <div
     className="MuiToggleButtonGroup-root css-4hldsh-MuiToggleButtonGroup-root"
     role="group"
   >
-    <button
-      aria-label="kappale normaalilla tekstikoolla"
-      aria-pressed={false}
-      className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
-      disabled={false}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onClick={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
-      type="button"
-      value="paragraph-two"
-    >
-      <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1dttty6-MuiSvgIcon-root"
-        data-testid="FormatSizeIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M9 4v3h5v12h3V7h5V4H9zm-6 8h3v7h3v-7h3V9H3v3z"
-        />
-      </svg>
-    </button>
-    <button
-      aria-label="kappale isommalla tekstikoolla"
-      aria-pressed={false}
-      className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
-      disabled={false}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onClick={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
-      type="button"
-      value="paragraph-one"
-    >
-      <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-wde5sp-MuiSvgIcon-root"
-        data-testid="FormatSizeIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M9 4v3h5v12h3V7h5V4H9zm-6 8h3v7h3v-7h3V9H3v3z"
-        />
-      </svg>
-    </button>
-    <button
-      aria-label="pienempi otsikko"
-      aria-pressed={false}
-      className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
-      disabled={false}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onClick={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
-      type="button"
-      value="heading-two"
-    >
-      <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1y543ej-MuiSvgIcon-root"
-        data-testid="FormatSizeIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M9 4v3h5v12h3V7h5V4H9zm-6 8h3v7h3v-7h3V9H3v3z"
-        />
-      </svg>
-    </button>
-    <button
-      aria-label="iso otsikko"
-      aria-pressed={false}
-      className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
-      disabled={false}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onClick={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
-      type="button"
-      value="heading-one"
-    >
-      <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-g7wpym-MuiSvgIcon-root"
-        data-testid="FormatSizeIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M9 4v3h5v12h3V7h5V4H9zm-6 8h3v7h3v-7h3V9H3v3z"
-        />
-      </svg>
-    </button>
     <button
       aria-label="lihavoitu"
       aria-pressed={null}
@@ -340,7 +250,6 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
   <hr
     className="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
   />
-   
   <img
     alt="color"
     aria-label="väri"
@@ -352,7 +261,7 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
     className="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
   />
   <div
-    className="css-2eparj"
+    className="css-k008qs"
   >
     <img
       alt="info"
@@ -386,12 +295,26 @@ exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
   <hr
     className="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
   />
-  <img
-    alt="delete"
-    aria-label="Poista"
-    className="MuiBox-root css-4g6ai3"
-    onClick={[Function]}
-    src="Delete.svg"
+  <div
+    className="css-k008qs"
+  >
+    <img
+      alt="card"
+      aria-label="kortti"
+      className="MuiBox-root css-4g6ai3"
+      onClick={[Function]}
+      src="Add_kortti.svg"
+    />
+    <img
+      alt="text"
+      aria-label="teksti"
+      className="MuiBox-root css-4g6ai3"
+      onClick={[Function]}
+      src="Add_teksti.svg"
+    />
+  </div>
+  <hr
+    className="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
   />
   <img
     alt="close"
