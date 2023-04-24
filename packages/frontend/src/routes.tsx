@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouteObject } from 'react-router-dom';
+import { createBrowserRouter, Location, matchRoutes, RouteObject } from 'react-router-dom';
 
 import { Landing } from './pages/Landing';
 import { Routes } from './constants/Routes';
@@ -31,6 +31,20 @@ import { DriverActivity } from './pages/Others/DriverActivity';
 import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
 import { AppContextProvider } from './contexts/AppContextProvider';
+
+/**
+ * Return router name based on page title's name
+ * @param location
+ * @returns string
+ */
+export const getCategoryRouteName = (location: Location) => {
+  const routeMatch = matchRoutes(categoryRoutes, location);
+  if (routeMatch) {
+    const path = routeMatch[0].route.path as string;
+    return path.split('/').pop() as string;
+  }
+  return '';
+};
 
 const getProtectedRoute = (path: string, component: JSX.Element): RouteObject => ({
   path: path,

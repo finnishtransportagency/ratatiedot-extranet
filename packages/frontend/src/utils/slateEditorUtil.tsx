@@ -1,52 +1,29 @@
 import { Node, Editor, Element, Transforms, Path, Range } from 'slate';
 import { ReactEditor } from 'slate-react';
+
+import { ContactEditorCard } from '../components/Editor/Cards/ContactEditorCard';
 import { NotificationEditorCard } from '../components/Editor/Cards/NotificationEditorCard';
 import { LinkPopup } from '../components/Editor/Popup/LinkPopup';
+import { HighlightedTitle } from '../components/Typography/HighlightedTitle';
 import { TSlateNode } from '../contexts/EditorContext';
+import { createContactCardNode, createLinkNode, createNotificationNode, createParagraphNode } from './createSlateNode';
 
-import { ElementType, FontFormatType, IElement } from './types';
-
-interface IParagraphElement extends IElement {
-  type: ElementType.PARAGRAPH_ONE | ElementType.PARAGRAPH_TWO;
-  children: any;
-}
-
-interface IHeadingElement extends IElement {
-  type: ElementType.HEADING_ONE | ElementType.HEADING_TWO;
-  level: number;
-  children: any;
-}
-
-interface IListElement extends IElement {
-  type: ElementType.LIST_ITEM | ElementType.BULLET_LIST | ElementType.NUMBERED_LIST;
-  children: any;
-}
-
-export interface ILinkElement extends IElement {
-  type: ElementType.LINK;
-  href: string;
-  children: any;
-}
-
-export interface INotificationElement extends IElement {
-  type:
-    | ElementType.NOTIFICATION_INFO
-    | ElementType.NOTIFICATION_WARNING
-    | ElementType.NOTIFICATION_ERROR
-    | ElementType.NOTIFICATION_CONFIRMATION;
-}
+import {
+  ElementType,
+  FontFormatType,
+  ICardElement,
+  IHeadingElement,
+  ILinkElement,
+  IListElement,
+  INotificationElement,
+  IParagraphElement,
+} from './types';
 
 export type SlateElementProps = {
   attributes: any;
   children: any;
-  element: IParagraphElement | IHeadingElement | IListElement | ILinkElement | INotificationElement;
+  element: IParagraphElement | IHeadingElement | IListElement | ILinkElement | INotificationElement | ICardElement;
 };
-
-const createLinkNode = (href: string, text: string): ILinkElement => ({
-  type: ElementType.LINK,
-  href,
-  children: [{ text }],
-});
 
 export const SlateElement = ({ attributes, children, element }: SlateElementProps) => {
   switch (element.type) {
@@ -75,6 +52,10 @@ export const SlateElement = ({ attributes, children, element }: SlateElementProp
       return <ol {...attributes}>{children}</ol>;
     case ElementType.LINK:
       return <LinkPopup attributes={attributes} children={children} element={element} />;
+    case ElementType.CARD_TITLE:
+      return <HighlightedTitle {...attributes}>{children}</HighlightedTitle>;
+    case ElementType.CARD:
+      return <ContactEditorCard attributes={attributes} children={children} element={element} />;
     case ElementType.PARAGRAPH_ONE:
       return (
         <span {...attributes} style={{ fontSize: '18px' }}>
@@ -210,14 +191,16 @@ export const insertLink = (editor: any, url: string) => {
 };
 
 export const openNotification = (editor: any, format: ElementType) => {
-  Transforms.select(editor, Editor.end(editor, []));
-  ReactEditor.focus(editor);
-
   const isNotification =
     format === ElementType.NOTIFICATION_INFO ||
     format === ElementType.NOTIFICATION_WARNING ||
     format === ElementType.NOTIFICATION_ERROR ||
     format === ElementType.NOTIFICATION_CONFIRMATION;
+
+  if (!format || !isNotification) return;
+
+  Transforms.select(editor, Editor.end(editor, []));
+  ReactEditor.focus(editor);
 
   Transforms.unwrapNodes(editor, {
     match: (n: Node) =>
@@ -228,27 +211,32 @@ export const openNotification = (editor: any, format: ElementType) => {
     split: true,
   });
 
-  if (isNotification) {
-    const block = { type: format, children: [] };
-    Transforms.wrapNodes(editor, block);
-  }
+  Transforms.insertNodes(editor, createNotificationNode(format), { at: Editor.start(editor, []) });
 };
 
-export const deleteNotification = (editor: any, format: ElementType, shouldDeleteEditor?: boolean) => {
-  const isActive = isBlockActive(editor, format);
-  if (isActive) {
-    Transforms.unwrapNodes(editor, {
-      match: (n: Node) =>
-        (n as any).type === ElementType.NOTIFICATION_INFO ||
-        (n as any).type === ElementType.NOTIFICATION_WARNING ||
-        (n as any).type === ElementType.NOTIFICATION_ERROR ||
-        (n as any).type === ElementType.NOTIFICATION_CONFIRMATION,
-      split: true,
-    });
-    if (shouldDeleteEditor) {
-      deleteEditor(editor);
-    }
-  }
+export const insertParagraph = (editor: any, format: ElementType) => {
+  const isText = format === ElementType.PARAGRAPH_TWO || format === ElementType.PARAGRAPH_ONE;
+  if (!format || !isText) return;
+  Transforms.select(editor, Editor.end(editor, []));
+  ReactEditor.focus(editor);
+
+  const text = createParagraphNode();
+  Transforms.insertNodes(editor, text, { at: Editor.end(editor, []) });
+};
+
+export const openContactCard = (editor: any, format: ElementType) => {
+  const isCard = format === ElementType.CARD;
+  if (!format || !isCard) return;
+
+  Transforms.select(editor, Editor.end(editor, []));
+  ReactEditor.focus(editor);
+
+  Transforms.unwrapNodes(editor, {
+    match: (n: Node) => (n as any).type === ElementType.CARD,
+    split: true,
+  });
+  const card = createContactCardNode();
+  Transforms.insertNodes(editor, card, { at: [editor.children.length - 1] });
 };
 
 export const deleteEditor = (editor: any) => {

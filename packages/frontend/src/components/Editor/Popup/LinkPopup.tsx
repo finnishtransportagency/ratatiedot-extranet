@@ -3,10 +3,11 @@ import { Box } from '@mui/material';
 import { useFocused, useSelected, useSlateStatic } from 'slate-react';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
-import { ILinkElement, removeLink, SlateElementProps } from '../../../utils/slateEditorUtil';
+import { removeLink, SlateElementProps } from '../../../utils/slateEditorUtil';
 import LinkOffIcon from '../../../assets/icons/LinkOff.svg';
 import { useContext } from 'react';
 import { AppBarContext } from '../../../contexts/AppBarContext';
+import { ILinkElement } from '../../../utils/types';
 
 interface LinkPopupProps extends SlateElementProps {}
 

@@ -10,8 +10,9 @@ import { getRouterName } from '../utils/helpers';
 import { isSlateValueEmpty, openNotification } from '../utils/slateEditorUtil';
 import { ElementType } from '../utils/types';
 import withLinks from '../plugins/withLinks';
+import { createParagraphNode } from '../utils/createSlateNode';
 
-const createEditorWithPlugins = pipe(withReact, withLinks);
+export const createEditorWithPlugins = pipe(withReact, withLinks);
 
 export const EditorContext = React.createContext({
   editor: createEditorWithPlugins(createEditor()),
@@ -21,7 +22,7 @@ export const EditorContext = React.createContext({
 });
 
 export type TSlateNode = { children: { text?: string; children?: any }[]; type?: string };
-const nodeTemplate: TSlateNode[] = [{ children: [{ text: '' }] }];
+export const nodeTemplate: TSlateNode[] = [createParagraphNode()];
 
 export const EditorContextProvider = (props: any) => {
   const { pathname } = useLocation();
@@ -43,9 +44,7 @@ export const EditorContextProvider = (props: any) => {
 
   const getNotificationData = () => {
     if (data && data.fields && !isEmpty(data.fields)) {
-      return data.fields.filter((field: any) => {
-        return field.type ? field.type.indexOf('notification') !== -1 : field;
-      });
+      return data.fields;
     }
     return nodeTemplate;
   };

@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { get } from 'lodash';
 
+import Folder from '../../assets/icons/Folder.svg';
 import Other from '../../assets/icons/Other.svg';
 import Word from '../../assets/icons/Word.svg';
 import Excel from '../../assets/icons/Excel.svg';
@@ -22,9 +23,10 @@ import { CategoryFiles } from './CategoryFiles';
 
 export const NodeTypes = {
   other: Other,
-  document: Word,
+  officedocument: Word,
   msword: Word,
   sheet: Excel,
+  excel: Excel,
   pdf: PDF,
   text: PlainText,
   image: Image,
@@ -110,7 +112,7 @@ export const NodeItem = ({
         }
       >
         <Grid item mobile={1} tablet={0.5} desktop={0.5}>
-          <Box component="img" src={matchMimeType(contentMimeType)} alt="Logo" />
+          <Box component="img" src={isFile ? matchMimeType(contentMimeType) : Folder} alt="Logo" />
         </Grid>
         <Grid item mobile={10} tablet={10.5} desktop={10.5}>
           <Typography variant="body1" sx={{ color: Colors.extrablack }}>
@@ -120,9 +122,11 @@ export const NodeItem = ({
             <Typography variant="body1" sx={{ marginRight: '8px' }}>
               {format(new Date(modifiedAt), DateFormat)}
             </Typography>
-            <Typography variant="body1" sx={{ marginRight: '8px' }}>
-              {getLocaleByteUnit(prettyBytes(contentSizeInBytes, { locale: 'fi' }), LocaleLang.FI)}
-            </Typography>
+            {isFile && (
+              <Typography variant="body1" sx={{ marginRight: '8px' }}>
+                {getLocaleByteUnit(prettyBytes(contentSizeInBytes, { locale: 'fi' }), LocaleLang.FI)}
+              </Typography>
+            )}
           </div>
         </Grid>
         {isFolder && (

@@ -28,7 +28,7 @@ export const SlateInputField = () => {
   const isNotificationSlateOpened = openToolbar && ReactEditor.isFocused(editor);
 
   return (
-    <SlateInputFieldPaperWrapper elevation={2} opentoolbar={isNotificationSlateOpened}>
+    <SlateInputFieldPaperWrapper data-testid="slate-editor" elevation={2} opentoolbar={isNotificationSlateOpened}>
       <Slate
         editor={editor}
         value={slateValue}
