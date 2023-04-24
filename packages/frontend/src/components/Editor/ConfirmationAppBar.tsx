@@ -1,9 +1,10 @@
 import styled from '@emotion/styled';
-import { Button, Grid } from '@mui/material';
+import { Box, Button, Grid } from '@mui/material';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CheckIcon from '@mui/icons-material/Check';
 
+import CloseIcon from '../../assets/icons/Close.svg';
 import { Colors } from '../../constants/Colors';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { ParagraphWrapper } from '../../pages/Landing/index.styles';
@@ -16,7 +17,7 @@ import { SnackbarAlert } from '../Notification/Snackbar';
 export const ConfirmationAppBar = () => {
   const [isError, setIsError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const { toggleEdit } = useContext(AppBarContext);
+  const { toggleEdit, openToolbarHandler } = useContext(AppBarContext);
   const { value, valueReset } = useContext(EditorContext);
   const { pathname } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
@@ -52,6 +53,16 @@ export const ConfirmationAppBar = () => {
           <CheckIcon fontSize="small" />
           {t('common:action.save')}
         </ButtonWrapper>
+      </Grid>
+      <Grid item>
+        <Box
+          aria-label={t('common:action.close')}
+          component="img"
+          sx={{ cursor: 'pointer', marginLeft: 'auto' }}
+          src={CloseIcon}
+          alt="close"
+          onClick={openToolbarHandler}
+        />
       </Grid>
       <SnackbarAlert
         open={isError}
