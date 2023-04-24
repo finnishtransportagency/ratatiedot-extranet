@@ -3,7 +3,6 @@ import { useContext } from 'react';
 
 import TextIcon from '../../assets/icons/Add_teksti.svg';
 import CardIcon from '../../assets/icons/Add_kortti.svg';
-import FolderIcon from '../../assets/icons/Add_tiedosto.svg';
 import { ElementType } from '../../utils/types';
 import { insertParagraph, openContactCard } from '../../utils/slateEditorUtil';
 import { useTranslation } from 'react-i18next';
@@ -43,14 +42,6 @@ export const ContentTypes = () => {
         src={TextIcon}
         alt="text"
         onClick={paragraphHandler}
-      />
-      <Box
-        aria-label={t('common:element.file')}
-        component="img"
-        sx={{ cursor: 'pointer' }}
-        src={FolderIcon}
-        alt="folder"
-        onClick={() => console.log('// TODO: Add folder')}
       />
     </TypeContainerWrapper>
   );
