@@ -20,6 +20,7 @@ export const FontSizeDropdown = () => {
 
   return (
     <SelectWrapper
+      aria-label={t('common:edit.choose_fontsize')}
       value={fontSize}
       onChange={(event) => {
         fontSizeHandler(event.target.value as ElementType);

@@ -82,7 +82,7 @@ export const SlateToolbar = () => {
 
   return (
     <Slate editor={editor} value={value}>
-      <ToolbarPaperWrapper>
+      <ToolbarPaperWrapper elevation={2} aria-label={t('common:edit.toolbar')}>
         <FontSizeDropdown />
         <ToggleButtonGroupWrapper size="small">
           {MarkButton({ editor, format: FontFormatType.BOLD, icon: <FormatBoldIcon fontSize="small" /> })}

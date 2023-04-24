@@ -57,7 +57,8 @@
     "color": "väri",
     "insert_link": "Lisää linkki",
     "color_picker": "värivalitsin",
-    "toolbar": "työkalupalkki"
+    "toolbar": "työkalupalkki",
+    "choose_fontsize": "Valitse fontin koko"
   },
   "notification": {
     "info": "info",

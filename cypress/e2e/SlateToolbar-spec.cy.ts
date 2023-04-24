@@ -49,9 +49,7 @@ describe('Slate Toobar', () => {
           cy.visit('/muut/hallintaraportit');
           cy.get('[aria-label="Avaa muokkausnäkymä"]').click({ multiple: true, force: true });
           cy.get('[aria-label="työkalupalkki"]').should('exist');
-          cy.get('[aria-label="kappale normaalilla tekstikoolla"]').should('exist');
-          cy.get('[aria-label="kappale isommalla tekstikoolla"]').should('exist');
-          cy.get('[aria-label="pienempi otsikko"]').should('exist');
+          cy.get('[aria-label="Valitse fontin koko"]').should('exist');
           cy.get('[aria-label="lihavoitu"]').should('exist');
           cy.get('[aria-label="kursivoitu"]').should('exist');
           cy.get('[aria-label="alleviivattu"]').should('exist');
@@ -63,7 +61,6 @@ describe('Slate Toobar', () => {
           cy.get('[aria-label="varoitus"]').should('exist');
           cy.get('[aria-label="virhe"]').should('exist');
           cy.get('[aria-label="oikein-merkki"]').should('exist');
-          cy.get('[aria-label="Poista"]').should('exist');
           cy.get('[aria-label="Sulje"]').should('exist');
         });
 
@@ -72,6 +69,20 @@ describe('Slate Toobar', () => {
           cy.visit('/muut/hallintaraportit');
           cy.get('[aria-label="Avaa muokkausnäkymä"]').click({ multiple: true, force: true });
           cy.get('[data-testid="slate-editor"] [contenteditable=false]').should('exist');
+        });
+
+        it('Hallintaraportit page: select font-size and display list of font-sizes', function () {
+          cy.viewport(viewport);
+          cy.visit('/muut/hallintaraportit');
+          cy.get('[aria-label="Avaa muokkausnäkymä"]').click({ multiple: true, force: true });
+          const typedText = 'Normal texts';
+          cy.get('[data-testid="slate-editor"] [contenteditable=true]').type(typedText).contains(typedText);
+          cy.get('[aria-label="Valitse fontin koko"]').click();
+          cy.get('[aria-label="Otsikko"]').should('exist');
+          cy.get('[aria-label="Pieni otsikko"]').should('exist');
+          cy.get('[aria-label="Iso leipäteksti"]').should('exist');
+          cy.get('[aria-label="Leipäteksti"]').should('exist');
+          cy.get('[aria-label="Otsikko"]').click();
         });
 
         it('Hallintaraportit page: open info notification and type', function () {
@@ -91,12 +102,10 @@ describe('Slate Toobar', () => {
           const typedText = 'Warning texts';
           cy.get('[data-testid="slate-editor"] [contenteditable=true]')
             .type(typedText)
-
             .type('{selectAll}')
             .contains(typedText);
           cy.get('[aria-label="lihavoitu"]').click();
           cy.get('[aria-label="kursivoitu"]').click();
-          cy.get('[aria-label="iso otsikko"]').click();
         });
 
         it('Hallintaraportit page: open error notification type and color texts', function () {
@@ -112,21 +121,7 @@ describe('Slate Toobar', () => {
           cy.get('[aria-label="väri"]').click();
           cy.get('[aria-label="värivalitsin"]').should('be.visible');
           cy.get(`[aria-label="tummanvihreä"]`).click();
-          cy.get('[aria-label="väri"]').click();
           cy.get('[aria-label="värivalitsin"]').should('not.exist');
-        });
-
-        it('Hallintaraportit page: remove notification', function () {
-          cy.viewport(viewport);
-          cy.visit('/muut/hallintaraportit');
-          cy.get('[aria-label="Avaa muokkausnäkymä"]').click({ multiple: true, force: true });
-          cy.get('[aria-label="info"]').click();
-          const typedText = 'Info teksti';
-          cy.get('[data-testid="slate-editor"] [contenteditable=true]')
-            .type(typedText)
-            .type('{selectAll}')
-            .contains(typedText);
-          cy.get('[aria-label="Poista"]').click();
         });
 
         it('Hallintaraportit page: exit editor', function () {
