@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { Paper } from '@mui/material';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Editable, ReactEditor, Slate } from 'slate-react';
-import { Operation } from 'slate';
+import { Editor, Operation, Transforms } from 'slate';
 
 import { Colors } from '../../constants/Colors';
 import { EditorContext } from '../../contexts/EditorContext';
@@ -17,6 +17,27 @@ export const SlateInputField = () => {
   const { openToolbar } = useContext(AppBarContext);
 
   const [slateValue, setSlateValue] = useState(value);
+  const [isEditorOpened, setIsEditorOpened] = useState(false);
+
+  useEffect(() => {
+    if (openToolbar) {
+      if (!ReactEditor.isFocused(editor)) {
+        refocusEditor(editor);
+      }
+    } else {
+      setIsEditorOpened(false);
+    }
+  }, [openToolbar]);
+
+  const refocusEditor = (editor: any) => {
+    ReactEditor.focus(editor);
+    Transforms.select(editor, Editor.end(editor, []));
+    if (ReactEditor.isFocused(editor)) {
+      setIsEditorOpened(true);
+    } else {
+      setIsEditorOpened(false);
+    }
+  };
 
   useEffect(() => {
     setSlateValue(value);
@@ -25,10 +46,8 @@ export const SlateInputField = () => {
   const renderElement = useCallback((props: any) => <SlateElement {...props} />, []);
   const renderLeaf = useCallback((props: any) => <SlateLeaf {...props} />, []);
 
-  const isNotificationSlateOpened = openToolbar && ReactEditor.isFocused(editor);
-
   return (
-    <SlateInputFieldPaperWrapper data-testid="slate-editor" elevation={2} opentoolbar={isNotificationSlateOpened}>
+    <SlateInputFieldPaperWrapper data-testid="slate-editor" elevation={2} opentoolbar={isEditorOpened}>
       <Slate
         editor={editor}
         value={slateValue}
@@ -44,9 +63,9 @@ export const SlateInputField = () => {
           autoFocus={true}
           renderLeaf={renderLeaf}
           renderElement={renderElement}
-          placeholder={isNotificationSlateOpened ? t('common:edit.write_content') : ''}
-          readOnly={!isNotificationSlateOpened}
-          style={{ cursor: isNotificationSlateOpened ? 'text' : 'default' }}
+          placeholder={isEditorOpened ? t('common:edit.write_content') : ''}
+          readOnly={!isEditorOpened}
+          style={{ cursor: isEditorOpened ? 'text' : 'default' }}
         />
       </Slate>
     </SlateInputFieldPaperWrapper>
