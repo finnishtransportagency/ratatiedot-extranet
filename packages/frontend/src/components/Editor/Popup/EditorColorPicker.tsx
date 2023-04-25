@@ -9,16 +9,16 @@ import { EditorContext } from '../../../contexts/EditorContext';
 import { toggleColor } from '../../../utils/slateEditorUtil';
 import { FontFormatType } from '../../../utils/types';
 import { HighlightedTitle } from '../../Typography/HighlightedTitle';
-import { palette } from '@mui/system';
 
 type ColorButtonProps = {
   editor: any;
   format: FontFormatType;
   color: string;
   colorName: string;
+  onClose: () => void;
 };
 
-export const ColorButton = ({ editor, format, color, colorName }: ColorButtonProps) => {
+export const ColorButton = ({ editor, format, color, colorName, onClose }: ColorButtonProps) => {
   return (
     <ToggleButton
       aria-label={colorName}
@@ -26,6 +26,7 @@ export const ColorButton = ({ editor, format, color, colorName }: ColorButtonPro
       onMouseDown={(event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();
         toggleColor(editor, format, color);
+        onClose();
       }}
     >
       <CircleIcon fontSize="small" sx={{ color, border: '2px black solid', borderRadius: '50%' }} />
@@ -50,7 +51,11 @@ const paletteCollection = [
   Colors.darkgrey,
 ];
 
-export const EditorColorPicker = () => {
+type EditorColorPickerProps = {
+  onClose: () => void;
+};
+
+export const EditorColorPicker = ({ onClose }: EditorColorPickerProps) => {
   const { t } = useTranslation(['common']);
   const { editor } = useContext(EditorContext);
   const translatedColors = t(`common:colors`, { returnObjects: true });
@@ -65,6 +70,7 @@ export const EditorColorPicker = () => {
       format: FontFormatType.COLOR,
       color: palette,
       colorName: translatedColors[colorKey],
+      onClose: onClose,
     });
   });
 
