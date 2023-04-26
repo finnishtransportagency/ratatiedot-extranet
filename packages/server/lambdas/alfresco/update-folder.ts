@@ -1,16 +1,32 @@
+import fetch from 'node-fetch';
+import { RequestInit } from 'node-fetch';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
-import { findEndpoint } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log, auditLog } from '../../utils/logger';
+import { log, auditLog, devLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { updateFolderComponent } from '../database/components/update-node-component';
+import { getAlfrescoId, updateFolderComponent } from '../database/components/update-node-component';
+import { folderUpdateRequestBuilder } from './fileRequestBuilder';
+import { AlfrescoResponse } from './fileRequestBuilder/types';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
+
+const updateFolder = async (nodeId: string, options: RequestInit): Promise<AlfrescoResponse | undefined> => {
+  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
+  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
+  try {
+    const res = await fetch(url, options);
+    const result = (await res.json()) as AlfrescoResponse;
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 /**
  * Update Alfresco node metadata (in this case folder). Example request: /api/alfresco/folder/linjakaaviot/{NODE_ID}
@@ -46,9 +62,18 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
 
-    auditLog.info(user, `Updated folder ${componentId} metadata in ${categoryData.alfrescoFolder}`);
+    const headers = (await getAlfrescoOptions(user.uid)).headers;
+    const requestOptions = (await folderUpdateRequestBuilder(event, headers)) as RequestInit;
 
-    const result = await updateFolderComponent(componentId, JSON.parse(event.body));
+    const alfrescoId = await getAlfrescoId(componentId);
+    if (!alfrescoId) {
+      throw new RataExtraLambdaError('Id did not mach any component', 404);
+    }
+
+    const result = await updateFolder(alfrescoId, requestOptions);
+    devLog.debug('FINALLY: \n' + JSON.stringify(result, null, 2));
+
+    auditLog.info(user, `Updated folder ${alfrescoId} metadata in ${categoryData.alfrescoFolder}`);
 
     return {
       statusCode: 200,

@@ -2,7 +2,6 @@
 // Might need renaming. Result depends on if upload and update use same fields or not
 
 const CM_CONTENT = 'cm:content';
-const CM_FOLDER = 'cm:folder';
 export interface IFileRequestBody {
   name: string;
   filedata: string;

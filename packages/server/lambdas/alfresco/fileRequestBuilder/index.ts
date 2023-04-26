@@ -1,4 +1,5 @@
-import { AlfrescoFileRequestBuilder, AlfrescoFolderRequestBuilder } from './alfrescoRequestBuilder';
+import { AlfrescoFileRequestBuilder } from './alfrescoRequestBuilder';
+import { AlfrescoFolderRequestBuilder } from './alfrescoRequestBuilder';
 import { FileStore } from './types';
 import { ALBEvent } from 'aws-lambda';
 
@@ -39,30 +40,14 @@ export const deleteFileRequestBuilder = (headers: HeadersInit, store = FileStore
   }
 };
 
-export const folderCreateRequestBuilder = (event: ALBEvent, headers: HeadersInit, store = FileStore.ALFRESCO) => {
-  switch (store) {
-    case FileStore.ALFRESCO:
-      const alfrescoRequestBuilder = new AlfrescoFolderRequestBuilder();
-      return alfrescoRequestBuilder.create(event, headers);
-    default:
-      break;
-  }
+export const folderCreateRequestBuilder = (event: ALBEvent, headers: HeadersInit) => {
+  const builder = new AlfrescoFolderRequestBuilder();
+  return builder.post(event, headers);
 };
-export const folderUpdateRequestBuilder = (event: ALBEvent, headers: HeadersInit, store = FileStore.ALFRESCO) => {
-  switch (store) {
-    case FileStore.ALFRESCO:
-      const alfrescoRequestBuilder = new AlfrescoFolderRequestBuilder();
-      return alfrescoRequestBuilder.update(event, headers);
-    default:
-      break;
-  }
+export const folderUpdateRequestBuilder = (event: ALBEvent, headers: HeadersInit) => {
+  const builder = new AlfrescoFolderRequestBuilder();
+  return builder.put(event, headers);
 };
-export const folderDeleteRequestBuilder = (headers: HeadersInit, store = FileStore.ALFRESCO) => {
-  switch (store) {
-    case FileStore.ALFRESCO:
-      const alfrescoRequestBuilder = new AlfrescoFolderRequestBuilder();
-      return alfrescoRequestBuilder.delete(headers);
-    default:
-      break;
-  }
+export const folderDeleteRequestBuilder = (headers: HeadersInit) => {
+  return new AlfrescoFolderRequestBuilder().delete(headers);
 };
