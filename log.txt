@@ -1,9 +1,0 @@
-START RequestId: b1088743-2bea-4101-9e03-e98f05364bda Version: $LATEST
-{"level":"info","time":"2023-04-11T12:38:55.750Z","tag":"RATAEXTRA_BACKEND","uid":"LX284075","roles":["Ratatieto_luku","Ratatieto_kirjoitus"],"isMockUser":true,"msg":"Updating new folder in page hallintaraportit"}
-{"level":"info","time":"2023-04-11T12:38:57.915Z","tag":"RATAEXTRA_AUDIT","uid":"LX284075","roles":["Ratatieto_luku","Ratatieto_kirjoitus"],"isMockUser":true,"msg":"Updated folder eb51c2bb-61d8-498d-8d42-b8899abe9cbd metadata in 42322630-6501-4f6a-be70-e570c5404bea"}
-2023-04-11T12:38:57.929Z	b1088743-2bea-4101-9e03-e98f05364bda	INFO	DATAasd -->> { type: 'Folder', title: 'TITLE123123' }
-2023-04-11T12:38:57.933Z	b1088743-2bea-4101-9e03-e98f05364bda	INFO	componentID -->> eb51c2bb-61d8-498d-8d42-b8899abe9cbd
-2023-04-11T12:38:59.125Z	b1088743-2bea-4101-9e03-e98f05364bda	INFO	{  id: 'eb51c2bb-61d8-498d-8d42-b8899abe9cbd',  categoryId: 'f0093c24-cece-11ed-afa1-0242ac120002'}
-END RequestId: b1088743-2bea-4101-9e03-e98f05364bda
-REPORT RequestId: b1088743-2bea-4101-9e03-e98f05364bda	Init Duration: 2.14 ms	Duration: 9859.23 ms	Billed Duration: 9860 ms	Memory Size: 1024 MB	Max Memory Used: 1024 MB	
-{"statusCode":200,"headers":{"Content-Type:":"application/json"},"body":"{\"id\":\"eb51c2bb-61d8-498d-8d42-b8899abe9cbd\",\"categoryId\":\"f0093c24-cece-11ed-afa1-0242ac120002\"}"}
