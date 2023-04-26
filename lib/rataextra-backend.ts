@@ -255,6 +255,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/delete-folder.ts',
     });
 
+    const getComponents = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'get-components',
+      relativePath: '../packages/server/lambdas/alfresco/list-components.ts',
+    });
+
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
@@ -347,6 +353,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/alfresco/folder/*'],
         httpRequestMethods: ['DELETE'],
         targetName: 'alfrescoDeleteFolder',
+      },
+      {
+        lambda: getComponents,
+        priority: 145,
+        path: ['/api/alfresco/folders/*'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getComponents',
       },
       {
         lambda: dbGetPageContents,

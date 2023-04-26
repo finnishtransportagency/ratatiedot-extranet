@@ -3,12 +3,12 @@ import { handlePrismaError, PrismaError } from '../error/databaseError';
 
 const database = await DatabaseClient.build();
 
-export const deleteComponent = async (componentId: string) => {
+export const getComponents = async (categoryId: string) => {
   let response = null;
   try {
-    response = await database.categoryComponent.delete({
+    response = await database.categoryDataBase.findFirst({
       where: {
-        id: componentId,
+        id: categoryId,
       },
     });
   } catch (error) {

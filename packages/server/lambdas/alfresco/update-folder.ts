@@ -5,10 +5,10 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
 import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log, auditLog, devLog } from '../../utils/logger';
+import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { getAlfrescoId, updateFolderComponent } from '../database/components/update-node-component';
+import { getAlfrescoId } from '../database/components/update-node-component';
 import { folderUpdateRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 
@@ -71,7 +71,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     }
 
     const result = await updateFolder(alfrescoId, requestOptions);
-    devLog.debug('FINALLY: \n' + JSON.stringify(result, null, 2));
 
     auditLog.info(user, `Updated folder ${alfrescoId} metadata in ${categoryData.alfrescoFolder}`);
 

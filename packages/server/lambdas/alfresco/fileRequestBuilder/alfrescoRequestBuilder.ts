@@ -3,7 +3,6 @@ import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
 import { ALBEvent } from 'aws-lambda';
 import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
-import { devLog } from '../../../utils/logger';
 
 const base64ToString = (base64string: string): string => {
   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
@@ -70,7 +69,6 @@ export class AlfrescoFileRequestBuilder {
 
 export class AlfrescoFolderRequestBuilder {
   public async post(event: ALBEvent, headers: HeadersInit) {
-    devLog.debug('EVENT.body \n' + JSON.stringify(event.body, null, 2));
     const options = {
       method: 'POST',
       body: event.body,
@@ -79,7 +77,6 @@ export class AlfrescoFolderRequestBuilder {
     return options;
   }
   public async put(event: ALBEvent, headers: HeadersInit) {
-    devLog.debug('PUT body: \n' + JSON.stringify(event.body, null, 2));
     const options = {
       method: 'PUT',
       body: event.body,

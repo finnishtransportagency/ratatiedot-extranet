@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { RequestInit } from 'node-fetch';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
@@ -8,7 +9,6 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderCreateRequestBuilder } from './fileRequestBuilder';
-import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { createFolderComponent } from '../database/components/create-node-component';
 

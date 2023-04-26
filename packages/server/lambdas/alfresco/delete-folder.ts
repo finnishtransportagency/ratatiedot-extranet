@@ -9,6 +9,7 @@ import { folderDeleteRequestBuilder } from './fileRequestBuilder';
 import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
+import { deleteComponent } from '../database/components/delete-node-component';
 
 const database = await DatabaseClient.build();
 
@@ -62,12 +63,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const headers = (await getAlfrescoOptions(user.uid)).headers;
     const requestOptions = folderDeleteRequestBuilder(headers) as RequestInit;
 
-    const result = await deleteFolder(requestOptions, nodeId);
+    const alfrescoResult = await deleteFolder(requestOptions, nodeId);
+    await deleteComponent(nodeId);
     auditLog.info(user, `Deleted folder ${nodeId} in ${categoryData.alfrescoFolder}`);
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
-      body: JSON.stringify(result),
+      body: JSON.stringify(alfrescoResult, null, 2),
     };
   } catch (err) {
     log.error(err);
