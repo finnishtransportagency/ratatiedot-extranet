@@ -5,7 +5,7 @@ const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY_NAME || '';
 const alfrescoAPIUrl = process.env.ALFRESCO_API_URL || '';
 const alfrescoAncestor = process.env.ALFRESCO_API_ANCESTOR || '';
 
-let alfrescoAPIKey = 'YBn6ybDDeD8Sn5TO5iKUK3CiWmfUyXk751hxMx22';
+let alfrescoAPIKey = '';
 
 export const getAlfrescoOptions = async (uid: string, headers?: Record<string, string>) => {
   if (!alfrescoAPIKey) {
