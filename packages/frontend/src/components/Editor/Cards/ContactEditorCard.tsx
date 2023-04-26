@@ -14,14 +14,15 @@ const ContactEditorCardPaperWrapper = styled(Paper)<DrawerWrapperProps>(({ theme
   padding: '20px',
   display: 'inline-block',
   verticalAlign: 'top',
-  margin: '0 20px 20px 0',
+  marginBottom: '20px',
   [theme.breakpoints.only('mobile')]: {
-    width: '85%',
-  },
-  [theme.breakpoints.only('tablet')]: {
     width: '90%',
   },
+  [theme.breakpoints.only('tablet')]: {
+    width: '95%',
+  },
   [theme.breakpoints.only('desktop')]: {
+    marginLeft: '20px',
     width: '40%',
   },
 }));

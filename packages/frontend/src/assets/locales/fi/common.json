@@ -57,7 +57,8 @@
     "color": "väri",
     "insert_link": "Lisää linkki",
     "color_picker": "värivalitsin",
-    "toolbar": "työkalupalkki"
+    "toolbar": "työkalupalkki",
+    "choose_fontsize": "Valitse fontin koko"
   },
   "notification": {
     "info": "info",
@@ -69,11 +70,11 @@
     "breadcrumb": "linkkipolku",
     "bulleted-list": "numeroimaton lista",
     "numbered-list": "numeroitu lista",
-    "heading-one": "iso otsikko",
-    "heading-two": "pienempi otsikko",
+    "heading-one": "Otsikko",
+    "heading-two": "Pieni otsikko",
     "list-item": "listan osio",
-    "paragraph-one": "kappale isommalla tekstikoolla",
-    "paragraph-two": "kappale normaalilla tekstikoolla",
+    "paragraph-one": "Iso leipäteksti",
+    "paragraph-two": "Leipäteksti",
     "link": "linkki",
     "notification_info": "infoilmoitus",
     "notification_warning": "varoitusilmoitus",
