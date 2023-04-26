@@ -2,6 +2,10 @@
   "headers": {
     "cookie": ""
   },
-  "httpMethod": "DELETE",
-  "path": "/api/alfresco/folder/hallintaraportit/058ab09a-9524-4f24-b121-eb33e6f96197"
+  "httpMethod": "POST",
+  "path": "/api/alfresco/search",
+  "queryStringParameters": {
+    "term": "tampere"
+  },
+  "body": "{\"searchParameters\":[{\"parameterName\": \"name\",\"fileName\": \"tampere\"},{  \"parameterName\": \"modified\",  \"from\": \"2019\",  \"to\": \"2021\"},{  \"parameterName\": \"mime\",  \"fileTypes\": [\"PDF\", \"EXCEL\"]}],\"language\": \"lucene\",\"page\": 0}"
 }
