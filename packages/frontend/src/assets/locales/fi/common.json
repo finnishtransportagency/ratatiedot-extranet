@@ -23,7 +23,10 @@
     "open_edit": "Avaa muokkausnäkymä",
     "open_search": "Avaa hakunäkymä",
     "search": "Hae",
-    "close_modal": "Sulje modaali"
+    "close_modal": "Sulje modaali",
+    "erase_query": "Tyhjennä haku",
+    "filter": "Suodata",
+    "search_site": "Etsi sivustolta"
   },
   "error": {
     "500": "Jokin meni pieleen!"
