@@ -3,12 +3,6 @@ import { handlePrismaError, PrismaError } from '../error/databaseError';
 
 const database = await DatabaseClient.build();
 
-// interface NodeComponent {
-//   id: string;
-//   name: string;
-//   title: string;
-// }
-
 export const createFolderComponent = async (categoryId: string, props: any) => {
   const component = {
     id: props.entry.id,
