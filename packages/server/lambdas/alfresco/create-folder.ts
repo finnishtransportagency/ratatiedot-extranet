@@ -5,7 +5,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
 import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log } from '../../utils/logger';
+import { auditLog, log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderCreateRequestBuilder } from './fileRequestBuilder';
@@ -71,7 +71,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const result = await createFolderComponent(categoryData.id, alfrescoResult);
 
-    log.info(user, `created folder with id: ${JSON.stringify(alfrescoResult?.entry.id)}`);
+    auditLog.info(user, `Created folder with id: ${JSON.stringify(alfrescoResult?.entry.id)}`);
 
     return {
       statusCode: 200,

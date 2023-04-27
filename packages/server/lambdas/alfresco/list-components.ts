@@ -35,6 +35,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const components = await getComponents(categoryData.id);
 
+    log.info(user, `Get components for page id ${categoryData.id}`);
+
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },

@@ -357,7 +357,7 @@ export class RataExtraBackendStack extends NestedStack {
       {
         lambda: getComponents,
         priority: 145,
-        path: ['/api/alfresco/folders/*'],
+        path: ['/api/alfresco/folder/*'],
         httpRequestMethods: ['GET'],
         targetName: 'getComponents',
       },
