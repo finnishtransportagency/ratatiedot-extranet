@@ -4,17 +4,24 @@ import { handlePrismaError, PrismaError } from '../error/databaseError';
 const database = await DatabaseClient.build();
 
 export const getComponents = async (categoryId: string) => {
-  let response = null;
+  let result = null;
   try {
-    response = await database.categoryDataBase.findFirst({
+    result = await database.categoryDataBase.findUnique({
       where: {
         id: categoryId,
       },
+      include: {
+        categoryComponents: {
+          include: {
+            node: true,
+          },
+        },
+      },
     });
+    result = result?.categoryComponents;
   } catch (error) {
     handlePrismaError(error as PrismaError);
-    response = error;
+    result = error;
   }
-
-  return response;
+  return result;
 };
