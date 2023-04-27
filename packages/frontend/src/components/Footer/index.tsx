@@ -12,7 +12,7 @@ import YoutubeIcon from '../../assets/icons/Youtube.svg';
 
 const FooterWrapper = styled(Box)(() => ({
   backgroundColor: Colors.lightgrey,
-  marginTop: '32px',
+  marginTop: 'auto',
   padding: '32px',
 }));
 
