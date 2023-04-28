@@ -321,7 +321,7 @@ export class RataExtraBackendStack extends NestedStack {
       },
       {
         lambda: alfrescoUpdateFile,
-        priority: 131,
+        priority: 130,
         path: ['/api/alfresco/file/*/content'],
         httpRequestMethods: ['PUT'],
         targetName: 'alfrescoUpdateFile',
