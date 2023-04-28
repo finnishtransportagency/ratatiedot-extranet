@@ -14,6 +14,7 @@ const FooterWrapper = styled(Box)(() => ({
   backgroundColor: Colors.lightgrey,
   marginTop: 'auto',
   padding: '32px',
+  width: 'calc(100% - 65px)',
 }));
 
 const LinkStyle = {

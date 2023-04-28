@@ -9,7 +9,6 @@ export const NavBar = () => {
     <Box>
       <MiniAppBar />
       <MiniDrawer />
-      <DesktopAppBar />
       <DesktopDrawer />
     </Box>
   );

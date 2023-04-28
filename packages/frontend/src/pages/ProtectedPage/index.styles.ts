@@ -4,10 +4,14 @@ import { DrawerWrapperProps } from '../../components/NavBar/DesktopDrawer';
 
 export const ContainerWrapper = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down('desktop')]: {
-    display: 'block',
+    display: 'flex',
+    flexDirection: 'row',
+    minHeight: '100vh',
   },
   [theme.breakpoints.up('desktop')]: {
     display: 'flex',
+    flexDirection: 'row',
+    minHeight: '100vh',
     '& .MuiToolbar-root': {
       padding: 0,
     },
@@ -43,10 +47,6 @@ const openedToolbarContentMixin = (theme: Theme): CSSObject => ({
 
 export const ContentWrapper = styled(Box)<DrawerWrapperProps>(({ theme, openedit, opentoolbar }) => {
   return {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: '100vh',
     [theme.breakpoints.up('desktop')]: {
       ...((openedit && { ...openedEditContentMixin(theme) }) as any),
       ...((!openedit && { ...closedContentMixin(theme) }) as any),
