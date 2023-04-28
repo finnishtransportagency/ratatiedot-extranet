@@ -1,4 +1,5 @@
 import { AlfrescoFileRequestBuilder } from './alfrescoRequestBuilder';
+import { AlfrescoFolderRequestBuilder } from './alfrescoRequestBuilder';
 import { FileStore } from './types';
 import { ALBEvent } from 'aws-lambda';
 
@@ -37,4 +38,16 @@ export const deleteFileRequestBuilder = (headers: HeadersInit, store = FileStore
     default:
       break;
   }
+};
+
+export const folderCreateRequestBuilder = (event: ALBEvent, headers: HeadersInit) => {
+  const builder = new AlfrescoFolderRequestBuilder();
+  return builder.post(event, headers);
+};
+export const folderUpdateRequestBuilder = (event: ALBEvent, headers: HeadersInit) => {
+  const builder = new AlfrescoFolderRequestBuilder();
+  return builder.put(event, headers);
+};
+export const folderDeleteRequestBuilder = (headers: HeadersInit) => {
+  return new AlfrescoFolderRequestBuilder().delete(headers);
 };

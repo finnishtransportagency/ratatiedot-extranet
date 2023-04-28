@@ -38,3 +38,8 @@ function getLogger(tag: string) {
 export const log = getLogger('RATAEXTRA_BACKEND');
 // To be used when someone makes changes
 export const auditLog = getLogger('RATAEXTRA_AUDIT');
+// Local development
+export const devLog = pino({
+  level: 'debug',
+  timestamp: () => `,"time":"${new Date(Date.now()).toISOString()}"`,
+});

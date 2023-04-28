@@ -237,6 +237,30 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/delete-file.ts',
     });
 
+    const alfrescoCreateFolder = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-create-folder',
+      relativePath: '../packages/server/lambdas/alfresco/create-folder.ts',
+    });
+
+    const alfrescoUpdateFolder = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-update-folder',
+      relativePath: '../packages/server/lambdas/alfresco/update-folder.ts',
+    });
+
+    const alfrescoDeleteFolder = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-delete-folder',
+      relativePath: '../packages/server/lambdas/alfresco/delete-folder.ts',
+    });
+
+    const getComponents = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'get-components',
+      relativePath: '../packages/server/lambdas/alfresco/list-components.ts',
+    });
+
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
@@ -289,6 +313,13 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'alfrescoUploadFile',
       },
       {
+        lambda: alfrescoCreateFolder,
+        priority: 142,
+        path: ['/api/alfresco/folder/*'],
+        httpRequestMethods: ['POST'],
+        targetName: 'alfrescoCreateFolder',
+      },
+      {
         lambda: alfrescoUpdateFile,
         priority: 130,
         path: ['/api/alfresco/file/*/content'],
@@ -303,11 +334,32 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'alfrescoUpdateFileMetadata',
       },
       {
+        lambda: alfrescoUpdateFolder,
+        priority: 134,
+        path: ['/api/alfresco/folder/*'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'alfrescoUpdateFolder',
+      },
+      {
         lambda: alfrescoDeleteFile,
         priority: 140,
         path: ['/api/alfresco/file/*'],
         httpRequestMethods: ['DELETE'],
         targetName: 'alfrescoDeleteFile',
+      },
+      {
+        lambda: alfrescoDeleteFolder,
+        priority: 142,
+        path: ['/api/alfresco/folder/*'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'alfrescoDeleteFolder',
+      },
+      {
+        lambda: getComponents,
+        priority: 145,
+        path: ['/api/alfresco/folder/*'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getComponents',
       },
       {
         lambda: dbGetPageContents,
