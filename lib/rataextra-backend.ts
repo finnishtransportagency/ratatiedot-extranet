@@ -314,7 +314,7 @@ export class RataExtraBackendStack extends NestedStack {
       },
       {
         lambda: alfrescoCreateFolder,
-        priority: 142,
+        priority: 125,
         path: ['/api/alfresco/folder/*'],
         httpRequestMethods: ['POST'],
         targetName: 'alfrescoCreateFolder',
