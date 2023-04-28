@@ -58,4 +58,6 @@ model FavoriteCategory {
   userId           String
   categoryDataBase CategoryDataBase @relation(fields: [categoryId], references: [id])
   categoryId       String
+
+  @@unique([userId, categoryId], name: "favoriteCategoryIdentifier") // compound unique constraint
 }
