@@ -18,6 +18,7 @@ model CategoryDataBase {
   categoryDataContents CategoryDataContents?
   categoryComponents   CategoryComponent[]
   writeRights          String
+  FavoriteCategory     FavoriteCategory[]
 }
 
 model CategoryDataContents {
@@ -50,4 +51,11 @@ model Card {
   content             Json
   CategoryComponent   CategoryComponent? @relation(fields: [categoryComponentId], references: [id])
   categoryComponentId String             @unique
+}
+
+model FavoriteCategory {
+  id               String           @id @default(uuid())
+  userId           String
+  categoryDataBase CategoryDataBase @relation(fields: [categoryId], references: [id])
+  categoryId       String
 }
