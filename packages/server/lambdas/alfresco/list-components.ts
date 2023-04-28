@@ -9,7 +9,7 @@ import { getComponents } from '../database/components/get-components';
 const database = await DatabaseClient.build();
 
 /**
- * Get page components. Example request: GET /api/alfresco/folders/linjakaaviot
+ * Get page components. Example request: GET /api/alfresco/folder/linjakaaviot
  * @param {ALBEvent} event
  * @param {{string}} event.path Path should end with the name of the alfresco folder
  * @returns  {Promise<ALBResult>} JSON stringified object of pages components
