@@ -8,7 +8,7 @@ import { DatabaseClient } from './client';
 const database = await DatabaseClient.build();
 
 /**
- * List user's all favorite pages. Example request: /api/database/favorites
+ * List user's all favorite pages. Example request: GET /api/database/favorites
  * @param {ALBEvent} event
  * @param {{string}} event.path Path should end with the page to get the custom content for
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
