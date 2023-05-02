@@ -1,7 +1,6 @@
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { ListItem, ListItemButton, ListItemIcon, ListItemText, styled } from '@mui/material';
 import { Fragment, useContext } from 'react';
-import { ListItemButtonProps } from '@mui/material/ListItemButton';
 import { Colors } from '../../constants/Colors';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { MenuContext } from '../../contexts/MenuContext';
@@ -10,10 +9,6 @@ import { useLocation } from 'react-router-dom';
 import { capitalize } from 'lodash';
 import { getRouterName } from '../../utils/helpers';
 import { theme } from '../../styles/createTheme';
-
-export interface StyledListItemButtonProps extends ListItemButtonProps {
-  href?: string;
-}
 
 export const MenuList = () => {
   const { openDrawer, toggleDrawer } = useContext(AppBarContext);
