@@ -8,10 +8,12 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import BrowserNotSupportedIcon from '@mui/icons-material/BrowserNotSupported';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 
-import { Routes } from '../../constants/Routes';
+import { matchRouteWithCategory, Routes } from '../../constants/Routes';
 import categoryData from '../../assets/data/FinnishCategories.json';
 import { getRouterName, getTranslatedCategoryData } from '../../utils/helpers';
+import axios from 'axios';
 
 export interface IMenuItem {
   key: string;
@@ -57,12 +59,45 @@ const fetchMaterialClass = (): IMenuItem[] => {
   });
 };
 
-export const MenuItems: IMenuItem[] = [
+const fetchFavoriteCategories = async (): Promise<IMenuItem> => {
+  const response = await axios.get('http://localhost:3002/api/database/favorites');
+  const categories = await response.data;
+
+  return categories
+    ? categories.map((category: any) => {
+        const { rataextraRequestPage } = category.categoryDataBase;
+        return {
+          key: category.id,
+          primary: rataextraRequestPage,
+          icon: '',
+          to: matchRouteWithCategory(rataextraRequestPage),
+        };
+      })
+    : [];
+
+  // return {
+  //   key: 'Favorite',
+  //   primary: 'Suosikki',
+  //   icon: <StarBorderIcon />,
+  //   children: await favorites,
+  // };
+};
+
+fetchFavoriteCategories().then((t) => console.log(t));
+
+export const MenuItems: any = [
   {
     key: 'Landing',
     primary: 'Etusivu',
     icon: <InfoIcon />,
     to: Routes.HOME,
+  },
+  // ...(fetchFavoriteCategories() as any),
+  {
+    key: 'Favorite',
+    primary: 'Suosikki',
+    icon: <StarBorderIcon />,
+    // children: fetchFavoriteCategories().then((t) => t),
   },
   ...fetchMaterialClass(),
   // Logout should always be the last menu item
