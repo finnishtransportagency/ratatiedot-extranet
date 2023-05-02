@@ -261,6 +261,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/list-components.ts',
     });
 
+    const getNodesById = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'get-nodes',
+      relativePath: '../packages/server/lambdas/alfresco/list-nodes.ts',
+    });
+
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
@@ -355,11 +361,11 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'alfrescoDeleteFolder',
       },
       {
-        lambda: getComponents,
-        priority: 145,
-        path: ['/api/alfresco/folder/*'],
+        lambda: getNodesById,
+        priority: 144,
+        path: ['/api/alfresco/nodes/*'],
         httpRequestMethods: ['GET'],
-        targetName: 'getComponents',
+        targetName: 'getNodesById',
       },
       {
         lambda: dbGetPageContents,
@@ -381,6 +387,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/user-right'],
         httpRequestMethods: ['GET'],
         targetName: 'checkUserRightOnPageContents',
+      },
+      {
+        lambda: getComponents,
+        priority: 220,
+        path: ['/api/database/components/*'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getComponents',
       },
     ];
     // ALB for API
