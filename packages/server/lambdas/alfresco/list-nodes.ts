@@ -1,12 +1,12 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import axios from 'axios';
-import { getAlfrescoUrlBase } from '../../utils/alfresco';
+import { getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { devLog, log } from '../../utils/logger';
-import { getUser, validateReadUser } from '../../utils/userService';
+import { getUser, RataExtraUser, validateReadUser } from '../../utils/userService';
 
-const getNodes = async (id: string, type?: string) => {
+const getNodes = async (id: string, user: RataExtraUser, type?: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   try {
     let queryParameter = '';
@@ -17,7 +17,10 @@ const getNodes = async (id: string, type?: string) => {
       queryParameter = `?where=(isFile=true)`;
     }
     devLog.debug(`URL: ${alfrescoCoreAPIUrl}/nodes/${id}/children${queryParameter}`);
-    return await axios.get(`${alfrescoCoreAPIUrl}/nodes/${id}/children${queryParameter}`);
+    const options = await getAlfrescoOptions(user.uid);
+    devLog.debug('options: ' + options);
+    const response = await axios.get(`${alfrescoCoreAPIUrl}/nodes/${id}/children${queryParameter}`, options);
+    return response;
   } catch (error) {
     return error;
   }
@@ -37,14 +40,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const params = event.queryStringParameters;
     const type = params?.type;
 
-    log.info(user, `Getting nodes for id ${nodeId} `);
+    log.info(user, `Getting nodes for id ${nodeId}`);
 
     validateReadUser(user);
     if (!nodeId) {
       throw new RataExtraLambdaError('node ID missing', 400);
     }
 
-    const categoryData = await getNodes(nodeId, type);
+    const categoryData = await getNodes(nodeId, user, type);
 
     return {
       statusCode: 200,
