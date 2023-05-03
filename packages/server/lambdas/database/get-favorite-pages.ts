@@ -25,7 +25,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       },
       select: {
         id: true,
-        userId: true, // TODO: Remove after testing
         categoryDataBase: {
           select: {
             rataextraRequestPage: true,
