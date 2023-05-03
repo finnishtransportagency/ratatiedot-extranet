@@ -11,6 +11,8 @@ import { FileUploadDialogButton } from '../../components/Files/FileUploadDialogB
 import { useLocation } from 'react-router-dom';
 import { CategoryFiles } from '../../components/Files/CategoryFiles';
 import { getCategoryRouteName } from '../../routes';
+import { DesktopAppBar } from '../../components/NavBar/DesktopAppBar';
+import { Box } from '@mui/material';
 
 type Props = {
   children: React.ReactElement;
@@ -29,13 +31,16 @@ export const ProtectedPage = ({ children }: Props) => {
   return (
     <ContainerWrapper>
       <NavBar />
-      <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
-        {isEditorOpened && <FileUploadDialogButton categoryName={categoryRouteName} />}
-        {children}
-        {isEditorOpened && <SlateInputField />}
-        {categoryRouteName && <CategoryFiles />}
+      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <DesktopAppBar />
+        <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
+          {isEditorOpened && <FileUploadDialogButton categoryName={categoryRouteName} />}
+          {children}
+          {isEditorOpened && <SlateInputField />}
+          {categoryRouteName && <CategoryFiles />}
+        </ContentWrapper>
         <Footer />
-      </ContentWrapper>
+      </Box>
     </ContainerWrapper>
   );
 };
