@@ -63,7 +63,9 @@
     "insert_link": "Lisää linkki",
     "color_picker": "värivalitsin",
     "toolbar": "työkalupalkki",
-    "choose_fontsize": "Valitse fontin koko"
+    "choose_fontsize": "Valitse fontin koko",
+    "saved_success": "Sisällön tallennus onnistui",
+    "saved_failure": "Sisällön tallennus epäonnistui"
   },
   "notification": {
     "info": "info",
