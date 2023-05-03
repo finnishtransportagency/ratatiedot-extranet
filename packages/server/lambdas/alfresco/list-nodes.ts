@@ -19,7 +19,7 @@ const getNodes = async (id: string, options: any, type?: string) => {
     const response = await axios.get(`${alfrescoCoreAPIUrl}/nodes/${id}/children${queryParameter}`, options);
     return response;
   } catch (error) {
-    return error;
+    devLog.debug('error: ' + error);
   }
 };
 
