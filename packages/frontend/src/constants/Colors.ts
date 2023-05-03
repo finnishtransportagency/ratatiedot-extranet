@@ -5,6 +5,7 @@ export const Colors = {
   aliceblue: '#EDFAFF',
   cyan: '#00B0CC',
   lightgrey: '#F8F8F8',
+  midgrey: '#E5E5E5',
   darkgrey: '#6C757D',
   white: '#FFFFFF',
   darkgreen: '#207A43',

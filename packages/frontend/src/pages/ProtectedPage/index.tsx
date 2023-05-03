@@ -3,6 +3,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Box } from '@mui/material';
 
 import { ContentWrapper, ContainerWrapper } from './index.styles';
 import { NavBar } from '../../components/NavBar';
@@ -18,6 +19,7 @@ import { getCategoryRouteName } from '../../routes';
 import { ButtonWrapper } from '../../styles/common';
 import { useTranslation } from 'react-i18next';
 import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
+import { DesktopAppBar } from '../../components/NavBar/DesktopAppBar';
 
 type Props = {
   children: React.ReactElement;
@@ -63,26 +65,29 @@ export const ProtectedPage = ({ children }: Props) => {
   return (
     <ContainerWrapper>
       <NavBar />
-      <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
-        {isEditorOpened && <FileUploadDialogButton categoryName={categoryRouteName} />}
-        {categoryRouteName ? isFavorite ? <RemoveFavoriteButton /> : <AddFavoriteButton /> : <></>}
-        {children}
-        {isEditorOpened && <SlateInputField />}
-        {categoryRouteName && <CategoryFiles />}
-        <ToastContainer
-          position="bottom-right"
-          autoClose={5000}
-          hideProgressBar={true}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
+      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <DesktopAppBar />
+        <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
+          {isEditorOpened && <FileUploadDialogButton categoryName={categoryRouteName} />}
+          {categoryRouteName ? isFavorite ? <RemoveFavoriteButton /> : <AddFavoriteButton /> : <></>}
+          {children}
+          {isEditorOpened && <SlateInputField />}
+          {categoryRouteName && <CategoryFiles />}
+          <ToastContainer
+            position="bottom-right"
+            autoClose={5000}
+            hideProgressBar={true}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
+        </ContentWrapper>
         <Footer />
-      </ContentWrapper>
+      </Box>
     </ContainerWrapper>
   );
 };

@@ -66,3 +66,29 @@ export class AlfrescoFileRequestBuilder {
     return options;
   }
 }
+
+export class AlfrescoFolderRequestBuilder {
+  public async post(event: ALBEvent, headers: HeadersInit) {
+    const options = {
+      method: 'POST',
+      body: event.body,
+      headers: headers,
+    } as RequestInit;
+    return options;
+  }
+  public async put(event: ALBEvent, headers: HeadersInit) {
+    const options = {
+      method: 'PUT',
+      body: event.body,
+      headers: headers,
+    } as RequestInit;
+    return options;
+  }
+  public async delete(headers: HeadersInit) {
+    const options = {
+      method: 'DELETE',
+      headers: headers,
+    } as RequestInit;
+    return options;
+  }
+}
