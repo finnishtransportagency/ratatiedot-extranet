@@ -3,7 +3,7 @@ import axios from 'axios';
 import { getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { devLog, log } from '../../utils/logger';
+import { log } from '../../utils/logger';
 import { getUser, RataExtraUser, validateReadUser } from '../../utils/userService';
 
 const getNodes = async (id: string, user: RataExtraUser, type?: string) => {
@@ -16,9 +16,7 @@ const getNodes = async (id: string, user: RataExtraUser, type?: string) => {
     if (type && type === 'file') {
       queryParameter = `?where=(isFile=true)`;
     }
-    devLog.debug(`URL: ${alfrescoCoreAPIUrl}/nodes/${id}/children${queryParameter}`);
     const options = await getAlfrescoOptions(user.uid);
-    devLog.debug('options: ' + options);
     const response = await axios.get(`${alfrescoCoreAPIUrl}/nodes/${id}/children${queryParameter}`, options);
     return response;
   } catch (error) {
