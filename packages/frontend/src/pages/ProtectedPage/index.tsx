@@ -13,6 +13,7 @@ import { CategoryFiles } from '../../components/Files/CategoryFiles';
 import { getCategoryRouteName } from '../../routes';
 import { DesktopAppBar } from '../../components/NavBar/DesktopAppBar';
 import { Box } from '@mui/material';
+import { Folders } from '../../components/FolderList/Folders';
 
 type Props = {
   children: React.ReactElement;

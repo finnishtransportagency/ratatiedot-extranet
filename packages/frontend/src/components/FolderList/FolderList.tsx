@@ -1,5 +1,6 @@
-import { Box } from "@mui/material";
-import axios from "axios";
+import { Box } from '@mui/material';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 interface Folder {
   id: string;
@@ -7,28 +8,30 @@ interface Folder {
 }
 
 interface FolderListProps {
-  folders: Folder[]
+  parentNodeId: string;
 }
 
-export const FolderList = ({ node }: FolderListProps) => {
-  const getFolders = () => {
+export const FolderList = ({ parentNodeId }: FolderListProps) => {
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const getFolders = async () => {
     try {
-      axios.get(`api/alfresco/files?category=${}`);
+      const response: Folder[] = await axios.get(`api/alfresco/files/${parentNodeId}?type=folder`);
+      console.log('nodes', response);
+      setFolders(response);
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
-    getComponents();
+    getFolders();
   }, []);
 
   return (
     <Box>
-      {
-        folders.map(folder => <div>{folder.id}</div>)
-      }
+      {folders.map((folder: Folder) => (
+        <div>{folder.id}</div>
+      ))}
     </Box>
   );
 };
-
