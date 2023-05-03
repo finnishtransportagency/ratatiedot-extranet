@@ -4,13 +4,11 @@ import { Fragment, useContext } from 'react';
 
 import { Colors } from '../../constants/Colors';
 import { AppBarContext } from '../../contexts/AppBarContext';
-import { MenuContext } from '../../contexts/MenuContext';
-
-import { IMenuItem, MenuItems } from './MenuItems';
+import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
 
 export const MenuList = () => {
   const { openDrawer, toggleDrawer } = useContext(AppBarContext);
-  const { menu, menuHandler } = useContext(MenuContext);
+  const { menu, menuItems, menuHandler } = useContext(MenuContext);
 
   const categoryHandler = (key: string) => {
     menuHandler(key);
@@ -21,7 +19,7 @@ export const MenuList = () => {
 
   return (
     <>
-      {MenuItems.map((item: IMenuItem) => {
+      {menuItems.map((item: IMenuItem) => {
         const { key, primary, icon, to, children } = item;
         return (
           <Fragment key={key}>

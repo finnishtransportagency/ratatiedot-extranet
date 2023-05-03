@@ -26,7 +26,9 @@
     "close_modal": "Sulje modaali",
     "erase_query": "Tyhjennä haku",
     "filter": "Suodata",
-    "search_site": "Etsi sivustolta"
+    "search_site": "Etsi sivustolta",
+    "add_favorite": "Lisää suosikkeihin",
+    "remove_favorite": "Poista suosikeista"
   },
   "error": {
     "500": "Jokin meni pieleen!"

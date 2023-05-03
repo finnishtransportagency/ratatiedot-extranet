@@ -66,7 +66,3 @@ export const Routes = {
     SubCategoryNames.RAILWAY_MONITORING_SERVICE,
   )}`,
 };
-
-export const matchRouteWithCategory = (categoryPage: string) => {
-  return Object.values(Routes).find((r) => r.indexOf(categoryPage) !== -1);
-};
