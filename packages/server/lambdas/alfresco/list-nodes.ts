@@ -45,14 +45,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('node ID missing', 400);
     }
 
-    const categoryData = await getNodes(nodeId, user, type);
+    const nodes = await getNodes(nodeId, user, type);
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(categoryData),
+      body: JSON.stringify(nodes),
     };
   } catch (err) {
     log.error(err);
