@@ -17,7 +17,7 @@ const getNodes = async (id: string, options: any, type?: string) => {
       queryParameter = `?where=(isFile=true)`;
     }
     const response = await axios.get(`${alfrescoCoreAPIUrl}/nodes/${id}/children${queryParameter}`, options);
-    return response;
+    return response.data;
   } catch (error) {
     devLog.debug('error: ' + error);
   }
