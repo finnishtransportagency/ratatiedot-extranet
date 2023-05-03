@@ -61,7 +61,7 @@ export const MenuList = () => {
                   sx={{
                     opacity: openDrawer ? 1 : 0,
                     '.MuiListItemText-primary': {
-                      fontWeight: selected ? 'bold' : 'normal',
+                      fontFamily: selected ? 'Exo2-Bold' : 'Exo2-Regular',
                     },
                   }}
                 />
@@ -94,7 +94,7 @@ export const MenuList = () => {
                       primary={child.primary}
                       sx={{
                         '.MuiListItemText-primary': {
-                          fontWeight: selected ? 'bold' : 'normal',
+                          fontFamily: selected ? 'Exo2-Bold' : 'Exo2-Regular',
                         },
                       }}
                     />
