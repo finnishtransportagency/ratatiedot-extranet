@@ -22,7 +22,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     const params = event.queryStringParameters;
     const category = params?.category;
-    log.info(user, 'Add favorite category page');
+    log.info(user, `Add favorite category page ${category}`);
     validateReadUser(user);
 
     if (!category) {
