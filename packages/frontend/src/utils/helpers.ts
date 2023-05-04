@@ -4,8 +4,7 @@ import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
 import { Sorting } from '../contexts/SearchContext';
 import categoryData from '../assets/data/FinnishCategories.json';
 import { MainCategoryData, SubCategoryData } from '../types/types';
-import { matchRoutes } from 'react-router-dom';
-import { categoryRoutes } from '../routes';
+import { capitalize } from 'lodash';
 
 /**
  * Generate range of years
@@ -126,5 +125,21 @@ export const getRouterName = (name: string = '') => {
 
 // TODO: should return original page's title
 export const parseRouterName = (routerName: string = '') => {
-  return routerName.replace(/-/g, ' ');
+  switch (routerName) {
+    // hard-coded cases
+    case 'rinf-rekisteri-eradis-tunnus':
+      return 'RINF-rekisteri (ERADIS-tunnus)';
+    case 'vak-ratapihat':
+      return 'VAK-ratapihat';
+    case 'siltojen-kiskotus--ja-kunnossapito-ohjeet':
+      return 'Siltojen kiskotus- ja kunnossapito-ohjeet';
+    case 'turvalaitteiden-huolto-ohjeet':
+      return 'Turvalaitteiden huolto-ohjeet';
+    default:
+      return capitalize(routerName.replace(/-/g, ' '));
+  }
+};
+
+export const matchRouteWithCategory = (routeList: any, categoryPage: string) => {
+  return Object.values(routeList).find((r: any) => r.indexOf(categoryPage) !== -1);
 };

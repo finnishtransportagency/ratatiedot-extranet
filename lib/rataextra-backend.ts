@@ -285,6 +285,24 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/check-user-right.ts',
     });
 
+    const dbGetFavoritePages = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-get-favorite-pages',
+      relativePath: '../packages/server/lambdas/database/get-favorite-pages.ts',
+    });
+
+    const dbPostFavoritePage = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-post-favorite-page',
+      relativePath: '../packages/server/lambdas/database/post-favorite-page.ts',
+    });
+
+    const dbDeleteFavoritePage = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-delete-favorite-page',
+      relativePath: '../packages/server/lambdas/database/delete-favorite-page.ts',
+    });
+
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
@@ -394,6 +412,27 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/components/*'],
         httpRequestMethods: ['GET'],
         targetName: 'getComponents',
+      },
+      {
+        lambda: dbGetFavoritePages,
+        priority: 230,
+        path: ['/api/database/favorites'],
+        httpRequestMethods: ['GET'],
+        targetName: 'dbGetFavoritePages',
+      },
+      {
+        lambda: dbPostFavoritePage,
+        priority: 235,
+        path: ['/api/database/favorites'],
+        httpRequestMethods: ['POST'],
+        targetName: 'dbPostFavoritePage',
+      },
+      {
+        lambda: dbDeleteFavoritePage,
+        priority: 240,
+        path: ['/api/database/favorites'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'dbDeleteFavoritePage',
       },
     ];
     // ALB for API
