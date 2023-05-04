@@ -11,7 +11,7 @@ export const CustomBreadcrumbs = () => {
 
   const BreadcrumbText = ({ routerName }: { routerName: string }) => {
     return (
-      <Typography sx={{ textTransform: 'capitalize', color: Colors.extrablack }}>
+      <Typography sx={{ color: Colors.extrablack }}>
         {parseRouterName(routerName) || t('common:page.frontpage')}
       </Typography>
     );

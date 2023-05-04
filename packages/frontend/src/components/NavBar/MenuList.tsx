@@ -1,18 +1,19 @@
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
-import { ListItem, ListItemButton, ListItemIcon, ListItemText, styled } from '@mui/material';
+import { ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { Fragment, useContext } from 'react';
 import { Colors } from '../../constants/Colors';
 import { AppBarContext } from '../../contexts/AppBarContext';
-import { MenuContext } from '../../contexts/MenuContext';
-import { IMenuItem, MenuItems } from './MenuItems';
+import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
 import { useLocation } from 'react-router-dom';
 import { capitalize } from 'lodash';
 import { getRouterName } from '../../utils/helpers';
 import { theme } from '../../styles/createTheme';
+import { useTranslation } from 'react-i18next';
 
 export const MenuList = () => {
+  const { t } = useTranslation(['common']);
   const { openDrawer, toggleDrawer } = useContext(AppBarContext);
-  const { menu, menuHandler } = useContext(MenuContext);
+  const { menu, menuItems, menuHandler } = useContext(MenuContext);
 
   const categoryHandler = (key: string) => {
     menuHandler(key);
@@ -25,12 +26,12 @@ export const MenuList = () => {
 
   return (
     <>
-      {MenuItems.map((item: IMenuItem) => {
+      {menuItems.map((item: IMenuItem) => {
         const { key, primary, icon, to, children } = item;
 
         const selected =
-          (key !== 'Logout' && capitalize(getRouterName(primary as string)) === capitalize(routeName)) ||
-          (key === 'Landing' && pathname === '/');
+          (key !== t('common:menu.logout') && capitalize(getRouterName(primary as string)) === capitalize(routeName)) ||
+          (key === t('common:menu.frontpage') && pathname === '/');
         return (
           <Fragment key={key}>
             <ListItem disablePadding alignItems="flex-start" onClick={() => categoryHandler(key)}>

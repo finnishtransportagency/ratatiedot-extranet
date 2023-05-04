@@ -26,13 +26,20 @@
     "close_modal": "Sulje modaali",
     "erase_query": "Tyhjennä haku",
     "filter": "Suodata",
-    "search_site": "Etsi sivustolta"
+    "search_site": "Etsi sivustolta",
+    "add_favorite": "Lisää suosikkeihin",
+    "remove_favorite": "Poista suosikeista"
   },
   "error": {
     "500": "Jokin meni pieleen!"
   },
   "loading": {
     "logging_out": "Kirjaudutaan ulos..."
+  },
+  "menu": {
+    "frontpage": "Etusivu",
+    "favorite": "Suosikki",
+    "logout": "Kirjaudu ulos"
   },
   "file": {
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
@@ -61,7 +68,9 @@
     "insert_link": "Lisää linkki",
     "color_picker": "värivalitsin",
     "toolbar": "työkalupalkki",
-    "choose_fontsize": "Valitse fontin koko"
+    "choose_fontsize": "Valitse fontin koko",
+    "saved_success": "Sisällön tallennus onnistui",
+    "saved_failure": "Sisällön tallennus epäonnistui"
   },
   "notification": {
     "info": "info",

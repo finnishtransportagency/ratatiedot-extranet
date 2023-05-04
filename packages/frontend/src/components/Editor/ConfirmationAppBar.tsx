@@ -1,8 +1,9 @@
 import styled from '@emotion/styled';
 import { Box, Button, Grid } from '@mui/material';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import CheckIcon from '@mui/icons-material/Check';
+import { toast } from 'react-toastify';
 
 import CloseIcon from '../../assets/icons/Close.svg';
 import { Colors } from '../../constants/Colors';
@@ -12,11 +13,8 @@ import { EditorContext } from '../../contexts/EditorContext';
 import { useLocation } from 'react-router-dom';
 import { useUpdatePageContents } from '../../hooks/mutations/UpdateCategoryPageContent';
 import { getRouterName } from '../../utils/helpers';
-import { SnackbarAlert } from '../Notification/Snackbar';
 
 export const ConfirmationAppBar = () => {
-  const [isError, setIsError] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const { toggleEdit, openToolbarHandler } = useContext(AppBarContext);
   const { value, valueReset } = useContext(EditorContext);
   const { pathname } = useLocation();
@@ -35,11 +33,11 @@ export const ConfirmationAppBar = () => {
   const handleSave = () => {
     mutatePageContents.mutate(value, {
       onSuccess: () => {
-        setIsSuccess(true);
+        toast(t('common:edit.saved_success'), { type: 'success' });
         toggleEdit();
       },
       onError: () => {
-        setIsError(true);
+        toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
       },
     });
   };
@@ -64,18 +62,6 @@ export const ConfirmationAppBar = () => {
           onClick={openToolbarHandler}
         />
       </Grid>
-      <SnackbarAlert
-        open={isError}
-        onSnackbarClose={() => setIsError(false)}
-        color={Colors.darkred}
-        text={error ? (error as Error).message : 'Texts cannot be saved'}
-      ></SnackbarAlert>
-      <SnackbarAlert
-        open={isSuccess}
-        onSnackbarClose={() => setIsSuccess(false)}
-        color={Colors.black}
-        text="Texts are saved successfully"
-      ></SnackbarAlert>
     </ContainerWrapper>
   );
 };
