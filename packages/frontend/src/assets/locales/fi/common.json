@@ -36,6 +36,11 @@
   "loading": {
     "logging_out": "Kirjaudutaan ulos..."
   },
+  "menu": {
+    "frontpage": "Etusivu",
+    "favorite": "Suosikki",
+    "logout": "Kirjaudu ulos"
+  },
   "file": {
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
     "add_file": "Lisää tiedosto",

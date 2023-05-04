@@ -17,6 +17,7 @@ import categoryData from '../assets/data/FinnishCategories.json';
 import { getRouterName, getTranslatedCategoryData, matchRouteWithCategory, parseRouterName } from '../utils/helpers';
 import axios from 'axios';
 import { get } from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 export interface IMenuItem {
   key: string;
@@ -54,7 +55,6 @@ const fetchMaterialClass = (): IMenuItem[] => {
         return {
           key: item,
           primary: item,
-          // TODO: Route names may be changed
           to: `/${getRouterName(data.category)}/${getRouterName(item)}`,
         };
       }),
@@ -116,6 +116,7 @@ export const MenuContext = React.createContext({
 });
 
 export const MenuContextProvider = (props: any) => {
+  const { t } = useTranslation(['common']);
   const [favoriteCategories, setFavoriteCategories] = useState<IMenuItem[]>([]);
 
   useEffect(() => {
@@ -129,22 +130,22 @@ export const MenuContextProvider = (props: any) => {
 
   const menuItems: any = [
     {
-      key: 'Landing',
-      primary: 'Etusivu',
+      key: t('common:menu.frontpage'),
+      primary: t('common:menu.frontpage'),
       icon: <InfoIcon />,
       to: Routes.HOME,
     },
     {
-      key: 'Favorite',
-      primary: 'Suosikki',
+      key: t('common:menu.favorite'),
+      primary: t('common:menu.favorite'),
       icon: <StarBorderIcon />,
       children: favoriteCategories,
     },
     ...fetchMaterialClass(),
     // Logout should always be the last menu item
     {
-      key: 'Logout',
-      primary: <Typography variant="subtitle2">Kirjaudu ulos</Typography>,
+      key: t('common:menu.logout'),
+      primary: <Typography variant="subtitle2">{t('common:menu.logout')}</Typography>,
       icon: <LogoutIcon />,
       to: `${window.location.origin}/sso/logout?auth=1`,
     },

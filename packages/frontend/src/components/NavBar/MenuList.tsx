@@ -8,8 +8,10 @@ import { useLocation } from 'react-router-dom';
 import { capitalize } from 'lodash';
 import { getRouterName } from '../../utils/helpers';
 import { theme } from '../../styles/createTheme';
+import { useTranslation } from 'react-i18next';
 
 export const MenuList = () => {
+  const { t } = useTranslation(['common']);
   const { openDrawer, toggleDrawer } = useContext(AppBarContext);
   const { menu, menuItems, menuHandler } = useContext(MenuContext);
 
@@ -28,8 +30,8 @@ export const MenuList = () => {
         const { key, primary, icon, to, children } = item;
 
         const selected =
-          (key !== 'Logout' && capitalize(getRouterName(primary as string)) === capitalize(routeName)) ||
-          (key === 'Landing' && pathname === '/');
+          (key !== t('common:menu.logout') && capitalize(getRouterName(primary as string)) === capitalize(routeName)) ||
+          (key === t('common:menu.frontpage') && pathname === '/');
         return (
           <Fragment key={key}>
             <ListItem disablePadding alignItems="flex-start" onClick={() => categoryHandler(key)}>
