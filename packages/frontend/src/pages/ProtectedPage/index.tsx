@@ -36,9 +36,9 @@ export const ProtectedPage = ({ children }: Props) => {
         <DesktopAppBar />
         <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
           {isEditorOpened && <FileUploadDialogButton categoryName={categoryRouteName} />}
-          <Folders />
           {children}
           {isEditorOpened && <SlateInputField />}
+          <Folders isEditing={openEdit} />
           {categoryRouteName && <CategoryFiles />}
         </ContentWrapper>
         <Footer />
