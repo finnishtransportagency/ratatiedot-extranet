@@ -5,6 +5,7 @@ const SubCategoryNames = getSubCategoryData();
 
 export const Routes = {
   HOME: '/',
+  ACCEPT_INSTRUCTIONS: '/hyvaksy-ohjeet',
   ACCESS_DENIED: '/paasy-kielletty',
   NOT_FOUND: '/*',
   SEARCH_RESULT: '/haku',
