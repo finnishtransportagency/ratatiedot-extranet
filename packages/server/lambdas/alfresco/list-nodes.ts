@@ -53,7 +53,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: 'asdasd',
+      body: JSON.stringify(nodes?.data),
     };
   } catch (err) {
     log.error(err);
