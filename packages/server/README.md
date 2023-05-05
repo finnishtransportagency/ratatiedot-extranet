@@ -250,3 +250,7 @@ $ npm run sam:invoke --handler=create-user --profile=myFavouriteAWSProfile | pin
 ### Tests
 
 Unit tests can be run with `npm run test:server`
+
+### Known issues
+
+Changing lambda priority id in already deployed stack causes endpoints to not work as intented. To fix issue: remove your stacks from CloudFormation and redeploy everything.
