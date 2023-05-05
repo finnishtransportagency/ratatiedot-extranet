@@ -16,7 +16,7 @@ export const FolderList = ({ parentNodeId, isEditing, title }: FolderListProps) 
   const getFolders = async () => {
     try {
       const response: any = await axios.get(`api/alfresco/nodes/${parentNodeId}?type=folder`);
-      console.log('nodes', response.data.list.entries);
+      console.log('nodes', JSON.stringify(response.data, null, 2));
       setFolders(response.data.list.entries);
     } catch (error) {
       console.log(error);
