@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material';
 
 import './index.css';
+import 'leaflet/dist/leaflet.css';
 import reportWebVitals from './reportWebVitals';
 import { router } from './routes';
 import { theme } from './styles/createTheme';
