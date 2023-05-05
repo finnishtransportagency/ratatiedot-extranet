@@ -8,8 +8,8 @@ import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { searchQueryBuilder } from './searchQueryBuilder';
 import {
+  IAncestorSearchParameter,
   ICategorySearchParameter,
-  IParentSearchParameter,
   QueryRequest,
   SearchParameter,
   SearchParameterName,
@@ -61,9 +61,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         },
       });
 
-      const parentParameter: IParentSearchParameter = {
-        parameterName: SearchParameterName.PARENT,
-        parent: categoryResponse?.alfrescoFolder || '',
+      const parentParameter: IAncestorSearchParameter = {
+        parameterName: SearchParameterName.ANCESTOR,
+        ancestor: categoryResponse?.alfrescoFolder || '',
       };
       searchParameters.push(parentParameter);
     }
