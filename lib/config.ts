@@ -40,6 +40,7 @@ export const SSM_ALFRESCO_API_URL = 'rataextra-alfresco-api-url';
 const SSM_ALFRESCO_DOWNLOAD_URL = 'rataextra-alfresco-download-url';
 const SSM_ALFRESCO_API_ANCESTOR = 'rataextra-alfresco-ancestor';
 const SSM_MOCK_UID = 'rataextra-static-test-user';
+const SSM_ALFRESCO_SITE_PATH = 'rataextra-alfresco-site-path';
 
 // Minified JS code that is used to make ES modules working
 // Also handles __dirname & import.meta.url
@@ -65,6 +66,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   alfrescoDownloadUrl: getSSMStringParameter(scope, SSM_ALFRESCO_DOWNLOAD_URL),
   alfrescoAncestor: getSSMStringParameter(scope, SSM_ALFRESCO_API_ANCESTOR),
   mockUid: getSSMStringParameter(scope, SSM_MOCK_UID),
+  alfrescoSitePath: getSSMStringParameter(scope, SSM_ALFRESCO_SITE_PATH),
 });
 
 // Runtime variables from SSM/Parameter Store
