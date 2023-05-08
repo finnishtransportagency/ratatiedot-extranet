@@ -11,7 +11,7 @@ export const searchQueryBuilder = ({
 }: QueryRequest): Query => {
   switch (language) {
     case QueryLanguage.LUCENE:
-      const luceneQueryBuilder = new LuceneQueryBuilder();
+      const luceneQueryBuilder = new LuceneQueryBuilder('/app:company_home/st:sites/cm:ratat-extra//*');
       return {
         query: {
           query: luceneQueryBuilder.queryBuilder(searchParameters),
