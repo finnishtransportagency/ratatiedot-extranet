@@ -12,6 +12,7 @@ import {
   Sorting,
   SortingParameter,
   IFolderSearchParameter,
+  IAncestorSearchParameter,
 } from './types';
 
 const mimeTypesMapping = {
@@ -84,6 +85,10 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     return `+PARENT:\"workspace\\://SpacesStore/${parameter.parent}\"`;
   }
 
+  buildAncestorQuery(parameter: IAncestorSearchParameter) {
+    return `+ANCESTOR:\"workspace\\://SpacesStore/${parameter.ancestor}\"`;
+  }
+
   buildFolderQuery(parameter: IFolderSearchParameter) {
     const folderType = '+TYPE:"cm:folder"';
     return `+@cm\\:name:"${parameter.name}"${folderType}`;
@@ -104,6 +109,9 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
           break;
         case SearchParameterName.PARENT:
           query += this.buildParentQuery(parameter);
+          break;
+        case SearchParameterName.ANCESTOR:
+          query += this.buildAncestorQuery(parameter);
           break;
         case SearchParameterName.FOLDER:
           query += this.buildFolderQuery(parameter);

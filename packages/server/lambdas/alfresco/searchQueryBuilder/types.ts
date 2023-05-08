@@ -17,6 +17,7 @@ export enum SearchParameterName {
   MIME = 'mime',
   NAME = 'name',
   PARENT = 'parent',
+  ANCESTOR = 'ancestor',
   CATEGORY = 'category', // aineistoluokka folder name
   FOLDER = 'folder',
 }
@@ -90,6 +91,11 @@ export interface IParentSearchParameter extends IBaseSearchParameter {
   parent: string;
 }
 
+export interface IAncestorSearchParameter extends IBaseSearchParameter {
+  parameterName: SearchParameterName.ANCESTOR;
+  ancestor: string;
+}
+
 export interface ICategorySearchParameter extends IBaseSearchParameter {
   parameterName: SearchParameterName.CATEGORY;
   categoryName: string;
@@ -105,5 +111,6 @@ export type SearchParameter =
   | IMimeSearchParameter
   | INameSearchParameter
   | IParentSearchParameter
+  | IAncestorSearchParameter
   | ICategorySearchParameter
   | IFolderSearchParameter;
