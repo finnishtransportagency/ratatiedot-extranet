@@ -61,11 +61,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         },
       });
 
-      const parentParameter: IAncestorSearchParameter = {
+      const ancestorParameter: IAncestorSearchParameter = {
         parameterName: SearchParameterName.ANCESTOR,
         ancestor: categoryResponse?.alfrescoFolder || '',
       };
-      searchParameters.push(parentParameter);
+      searchParameters.push(ancestorParameter);
     }
 
     const data = await searchByTerm(user.uid, parsedBody);
