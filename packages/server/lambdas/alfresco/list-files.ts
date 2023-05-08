@@ -53,7 +53,7 @@ const searchByTermWithParent = async (
       searchParameters.push(folder);
     }
 
-    const bodyRequest = searchQueryBuilder({
+    const bodyRequest = await searchQueryBuilder({
       searchParameters: searchParameters,
       page: page,
       language: language,
