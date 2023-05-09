@@ -1,50 +1,42 @@
+import { useEffect, useRef } from 'react';
+import L from 'leaflet';
 import styled from '@emotion/styled';
-import { MapContainer, Polyline, TileLayer } from 'react-leaflet';
-import locationTrackData from '../../assets/data/locationtracks_simplifiedLineWSG84.json';
 
-interface IMapData {
-  id: string;
-  from_lat: number;
-  from_long: number;
-  to_lat: number;
-  to_long: number;
-  color: string;
-  isDashed?: boolean;
-}
+import { loadGeoJson, polygonStyle } from '../../utils/mapUtil';
 
-type PolylineFinlandMapProps = {
-  coordinates: [number, number];
-  zoom: number;
-  // data: IMapData[];
-};
+export const PolylineFinlandMap = () => {
+  const mapRef = useRef<L.Map | null>(null);
 
-export const PolylineFinlandMap = (props: PolylineFinlandMapProps) => {
-  const { coordinates, zoom } = props;
+  useEffect(() => {
+    const initializeMap = async () => {
+      try {
+        if (!mapRef.current) {
+          const map = L.map('map').setView([65, 26], 5);
 
-  const polylines = locationTrackData.features.map((feature) => {
-    const coords = feature.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
-    const operating_ = feature.properties.operating_;
-    return {
-      coords,
-      operating_,
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          }).addTo(map);
+
+          mapRef.current = map;
+        }
+        const geoJSONUrl = '/ratatiedot_kunnossapitoalueet_WGS84.json';
+        const geoJsonData = await loadGeoJson(geoJSONUrl);
+
+        L.geoJSON(geoJsonData, {
+          style: polygonStyle as L.PathOptions,
+        }).addTo(mapRef.current);
+      } catch (error) {
+        console.log('Error initializing map:', error);
+      }
     };
-  });
 
-  const polylineComponents = polylines.map(({ coords, operating_ }: any, index: any) => (
-    <Polyline key={index} positions={coords} />
-  ));
-  return (
-    <MapContainerWrapper center={coordinates} zoom={zoom} scrollWheelZoom={false}>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      {polylineComponents}
-    </MapContainerWrapper>
-  );
+    initializeMap();
+  }, []);
+
+  return <MapContainerWrapper id="map" />;
 };
 
-const MapContainerWrapper = styled(MapContainer)(({ theme }) => ({
+const MapContainerWrapper = styled('div')(({ theme }) => ({
   height: '80vh',
   [theme.breakpoints.only('mobile')]: {
     width: '90%',
