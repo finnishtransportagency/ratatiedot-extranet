@@ -1,7 +1,6 @@
 import { log } from '../../../utils/logger';
 import { LuceneQueryBuilder } from './luceneQueryBuilder';
 import { QueryLanguage, Query, QueryRequest } from './types';
-import { getParameter } from '../../../utils/parameterStore';
 
 const alfrescoSitePathName = process.env.ALFRESCO_SITE_PATH || '';
 
@@ -14,10 +13,7 @@ export const searchQueryBuilder = ({
 }: QueryRequest): Query => {
   switch (language) {
     case QueryLanguage.LUCENE:
-      // const alfrescoSitePath = await getParameter(alfrescoSitePathName);
-      const luceneQueryBuilder = new LuceneQueryBuilder('/app:company_home/st:sites/cm:ratat-extra//*'); //TODO: must remove
-      log.info(alfrescoSitePathName, 'alfrescoSitePathName');
-      log.info(process.env, 'process.env');
+      const luceneQueryBuilder = new LuceneQueryBuilder(alfrescoSitePathName);
       return {
         query: {
           query: luceneQueryBuilder.queryBuilder(searchParameters),
