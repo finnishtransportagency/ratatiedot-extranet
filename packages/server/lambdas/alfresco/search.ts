@@ -17,7 +17,7 @@ import {
 
 const searchByTerm = async (uid: string, body: QueryRequest) => {
   try {
-    const bodyRequest = await searchQueryBuilder({
+    const bodyRequest = searchQueryBuilder({
       searchParameters: body.searchParameters,
       page: body.page,
       language: body.language,
