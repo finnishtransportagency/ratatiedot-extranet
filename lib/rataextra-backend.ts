@@ -103,7 +103,10 @@ export class RataExtraBackendStack extends NestedStack {
 
     const ssmAlfrescoParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoSitePath}`,
+      ],
     });
 
     const kmsDecryptPolicy = new PolicyStatement({
