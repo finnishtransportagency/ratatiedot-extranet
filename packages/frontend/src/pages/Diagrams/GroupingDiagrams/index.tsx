@@ -1,13 +1,10 @@
-import { PageTitleWrapper } from '../../../styles/common';
-import { getSubCategoryData } from '../../../utils/helpers';
+import { PolylineFinlandMap } from '../../../components/Map/PolylineFinlandMap';
 import { ProtectedContainerWrapper } from '../../../styles/common';
 
 export const GroupingDiagrams = () => {
-  const categoryNames = getSubCategoryData();
-
   return (
     <ProtectedContainerWrapper>
-      <PageTitleWrapper>{categoryNames.GROUPING_DIAGRAMS}</PageTitleWrapper>
+      <PolylineFinlandMap />
     </ProtectedContainerWrapper>
   );
 };
