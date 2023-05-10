@@ -61,6 +61,7 @@
     "add_list": "Lisää lista"
   },
   "edit": {
+    "edit": "Muokkaa",
     "edit_content": "Muokkaa sisältöä",
     "save_changes_confirmation": "Haluatko tallentaa muutoksesi?",
     "write_content": "Kirjoita sisältö",

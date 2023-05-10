@@ -13,6 +13,9 @@ export const updateFolderComponent = async (componentId: string, body: Partial<N
     if (body.alfrescoNodeId) {
       data.alfrescoNodeId = body.alfrescoNodeId;
     }
+    if (body.title) {
+      data.title = body.title;
+    }
     return data;
   };
 

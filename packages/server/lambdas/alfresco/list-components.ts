@@ -1,10 +1,12 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { findEndpoint } from '../../utils/alfresco';
+import axios from 'axios';
+import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { getComponents } from '../database/components/get-components';
+import { AlfrescoResponse } from './fileRequestBuilder/types';
 
 const database = await DatabaseClient.build();
 
