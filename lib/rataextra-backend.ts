@@ -33,6 +33,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly alfrescoAPIUrl: string;
   readonly alfrescoAncestor: string;
   readonly mockUid?: string;
+  readonly alfrescoSitePath: string;
 }
 
 type ListenerTargetLambdas = {
@@ -86,6 +87,7 @@ export class RataExtraBackendStack extends NestedStack {
       alfrescoAPIUrl,
       alfrescoAncestor,
       mockUid,
+      alfrescoSitePath,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -101,7 +103,10 @@ export class RataExtraBackendStack extends NestedStack {
 
     const ssmAlfrescoParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoSitePath}`,
+      ],
     });
 
     const kmsDecryptPolicy = new PolicyStatement({
@@ -171,6 +176,7 @@ export class RataExtraBackendStack extends NestedStack {
         ALFRESCO_API_KEY_NAME: alfrescoAPIKey,
         ALFRESCO_API_URL: alfrescoAPIUrl,
         ALFRESCO_ANCESTOR: alfrescoAncestor,
+        ALFRESCO_SITE_PATH: alfrescoSitePath,
       },
       initialPolicy: [ssmAlfrescoParameterPolicy, kmsDecryptPolicy],
     };

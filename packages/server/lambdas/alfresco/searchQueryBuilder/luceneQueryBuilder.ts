@@ -36,6 +36,12 @@ const YEAR = new RegExp(/^\d{4}$/);
 const onlyYear = (date: string) => YEAR.test(date);
 
 export class LuceneQueryBuilder implements SearchQueryBuilder {
+  defaultPath: string;
+
+  constructor(defaultPath: string) {
+    this.defaultPath = defaultPath;
+  }
+
   // Filters values that are not approved
   additionalFields(additionalFields: Array<AdditionalFields>): Array<AdditionalFields> {
     return additionalFields.filter((val) => Object.values(AdditionalFields).includes(val));
@@ -75,10 +81,13 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
 
   buildNameQuery(parameter: INameSearchParameter): string {
     const fileType = '+TYPE:"cm:content"';
+    const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
     const contentSearchQuery = `TEXT:"${parameter.term}*"`;
     const basicSearchQuery = `@cm\\:name:"${parameter.term}*"`;
     const extendedSearchQuery = `+(${contentSearchQuery} ${basicSearchQuery})`;
-    return parameter.contentSearch ? `+${contentSearchQuery}${fileType}` : `${extendedSearchQuery}${fileType}`;
+    return parameter.contentSearch
+      ? `+${contentSearchQuery}${fileType}${defaultPathQuery}`
+      : `${extendedSearchQuery}${fileType}${defaultPathQuery}`;
   }
 
   buildParentQuery(parameter: IParentSearchParameter) {
