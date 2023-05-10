@@ -18,8 +18,8 @@ export const loadGeoJson = async (geoJsonPath: string) => {
   }
 };
 
-export const getPolylineColor = (kpalue: number) => {
-  switch (kpalue) {
+export const getPolylineColor = (maintenanceArea: number) => {
+  switch (maintenanceArea) {
     case 1:
       return Colors.darkblue;
     case 2:
@@ -47,8 +47,8 @@ export const getPolylineColor = (kpalue: number) => {
   }
 };
 
-export const getPolylineDashArray = (kpalue: number) => {
-  return kpalue > 6 ? '5, 10' : null;
+export const getPolylineDashArray = (maintenanceArea: number) => {
+  return maintenanceArea > 6 ? '5, 10' : null;
 };
 
 export const polygonStyle = (feature: any) => {
