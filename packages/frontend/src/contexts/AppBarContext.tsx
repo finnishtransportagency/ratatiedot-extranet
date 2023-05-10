@@ -15,6 +15,7 @@ export const AppBarContext = React.createContext({
   openToolbar: false,
   openToolbarHandler: () => {},
   closeToolbarHandler: () => {},
+  closeToolbarWithoutSaveHandler: () => {},
   userRight: { canRead: false, canWrite: false },
   userRightHandler: (_: TUserRight) => {},
 });
@@ -66,6 +67,10 @@ export const AppBarContextProvider = (props: any) => {
     setOpenToolbar(false);
   };
 
+  const closeToolbarWithoutSaveHandler = () => {
+    setOpenToolbar(false);
+  };
+
   const userRightHandler = (userRight: TUserRight) => {
     setUserRight(userRight);
   };
@@ -84,6 +89,7 @@ export const AppBarContextProvider = (props: any) => {
         openToolbar: openToolbar,
         openToolbarHandler: openToolbarHandler,
         closeToolbarHandler: closeToolbarHandler,
+        closeToolbarWithoutSaveHandler: closeToolbarWithoutSaveHandler,
         userRight: userRight,
         userRightHandler: userRightHandler,
       }}
