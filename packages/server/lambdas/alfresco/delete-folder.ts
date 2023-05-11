@@ -17,10 +17,13 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 const deleteFolder = async (options: RequestInit, nodeId: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
+  devLog.debug('URL: ' + url);
+  devLog.debug('options: ' + options);
   try {
     const res = await fetch(url, options);
-    const response = await res.json();
-    devLog.debug('deleted fetch response: ' + response);
+    devLog.debug('deleted fetch response 1: ' + res);
+    const response = res.toString();
+    devLog.debug('deleted fetch response 2: ' + response);
     return response;
   } catch (err) {
     console.error('error:' + err);
