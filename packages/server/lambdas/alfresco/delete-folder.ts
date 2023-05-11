@@ -8,20 +8,19 @@ import { DatabaseClient } from '../database/client';
 import { folderDeleteRequestBuilder } from './fileRequestBuilder';
 import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
-import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { deleteComponent } from '../database/components/delete-node-component';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const deleteFolder = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
+const deleteFolder = async (options: RequestInit, nodeId: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
   try {
     const res = await fetch(url, options);
-    const result = (await res.json()) as AlfrescoResponse;
-    return result;
+    devLog.debug('deleted fetch response: ' + res);
+    return res;
   } catch (err) {
     console.error('error:' + err);
   }
@@ -63,19 +62,17 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const headers = (await getAlfrescoOptions(user.uid)).headers;
     const requestOptions = folderDeleteRequestBuilder(headers) as RequestInit;
 
-    const alfrescoResult = await deleteFolder(requestOptions, nodeId);
+    await deleteFolder(requestOptions, nodeId);
     const databaseResult = await deleteComponent(nodeId);
     if (!databaseResult) {
       throw new RataExtraLambdaError('Error deleting folder from database', 404);
     }
 
-    devLog.debug('delete result: ' + alfrescoResult);
     auditLog.info(user, `Deleted folder ${nodeId} in ${categoryData.alfrescoFolder}`);
 
     return {
-      statusCode: 200,
+      statusCode: 204,
       headers: { 'Content-Type:': 'application/json' },
-      body: JSON.stringify(alfrescoResult),
     };
   } catch (err) {
     log.error(err);
