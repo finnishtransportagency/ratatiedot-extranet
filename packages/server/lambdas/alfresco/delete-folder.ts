@@ -22,7 +22,7 @@ const deleteFolder = async (options: RequestInit, nodeId: string) => {
   try {
     const res = await fetch(url, options);
     devLog.debug('deleted fetch response 1: ' + res);
-    const response = res.toString();
+    const response = await res.json();
     devLog.debug('deleted fetch response 2: ' + response);
     return response;
   } catch (err) {
@@ -64,7 +64,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = folderDeleteRequestBuilder(headers) as RequestInit;
+    const requestOptions = (await folderDeleteRequestBuilder(headers)) as RequestInit;
 
     await deleteFolder(requestOptions, nodeId);
     const databaseResult = await deleteComponent(nodeId);
