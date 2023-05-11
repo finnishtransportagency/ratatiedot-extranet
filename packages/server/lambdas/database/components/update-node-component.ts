@@ -41,7 +41,7 @@ export const getAlfrescoId = async (componentId: string) => {
   try {
     response = await database.node.findUnique({
       where: {
-        id: componentId,
+        categoryComponentId: componentId,
       },
     });
   } catch (error) {
