@@ -2,7 +2,7 @@ import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log, auditLog } from '../../utils/logger';
+import { log, auditLog, devLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderDeleteRequestBuilder } from './fileRequestBuilder';
@@ -64,15 +64,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const requestOptions = folderDeleteRequestBuilder(headers) as RequestInit;
 
     const alfrescoResult = await deleteFolder(requestOptions, nodeId);
-    if (!alfrescoResult) {
-      throw new RataExtraLambdaError('Error deleting folder from Alfresco', 404);
-    }
-
     const databaseResult = await deleteComponent(nodeId);
     if (!databaseResult) {
       throw new RataExtraLambdaError('Error deleting folder from database', 404);
     }
 
+    devLog.debug('delete result: ' + alfrescoResult);
     auditLog.info(user, `Deleted folder ${nodeId} in ${categoryData.alfrescoFolder}`);
 
     return {
