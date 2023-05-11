@@ -30,9 +30,10 @@ export const updateFolderComponent = async (componentId: string, body: Partial<N
         categoryComponentId: componentId,
       },
       data: {
-        ...updatedData,
+        ...updatedData(),
       },
     });
+    devLog.debug('updateddata: ' + JSON.stringify(updatedData()));
   } catch (error) {
     handlePrismaError(error as PrismaError);
   }
