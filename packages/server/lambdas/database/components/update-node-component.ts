@@ -2,6 +2,7 @@
 import { DatabaseClient } from '../../database/client';
 import { handlePrismaError, PrismaError } from '../error/databaseError';
 import { Node } from '@prisma/client';
+import { devLog } from '../../../utils/logger';
 
 const database = await DatabaseClient.build();
 
@@ -18,6 +19,8 @@ export const updateFolderComponent = async (componentId: string, body: Partial<N
     }
     return data;
   };
+
+  devLog.debug('data: ' + updatedData());
 
   let response = null;
   try {
@@ -38,13 +41,16 @@ export const updateFolderComponent = async (componentId: string, body: Partial<N
 
 export const getAlfrescoId = async (componentId: string) => {
   let response = null;
+  devLog.debug('ID: ' + componentId);
   try {
     response = await database.node.findUnique({
       where: {
         categoryComponentId: componentId,
       },
     });
+    devLog.debug('response: ' + response);
   } catch (error) {
+    devLog.debug(error);
     handlePrismaError(error as PrismaError);
   }
 
