@@ -6,21 +6,25 @@ const database = await DatabaseClient.build();
 export const deleteComponent = async (alfrescoId: string) => {
   let response = null;
   try {
-    const component = await database.categoryComponent.findFirst({
+    const node = await database.node.findFirst({
       where: {
-        node: {
-          alfrescoNodeId: alfrescoId,
-        },
+        alfrescoNodeId: alfrescoId,
       },
     });
 
-    if (!component) {
+    if (!node) {
       return;
     }
 
+    response = await database.node.delete({
+      where: {
+        categoryComponentId: node?.categoryComponentId,
+      },
+    });
+
     response = await database.categoryComponent.delete({
       where: {
-        id: component?.id,
+        id: node?.categoryComponentId,
       },
     });
   } catch (error) {
