@@ -1,18 +1,18 @@
 import { isEmpty } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { createEditor } from 'slate';
+import { Transforms, createEditor } from 'slate';
 import { withReact } from 'slate-react';
 import pipe from 'lodash/fp/pipe';
 
 import { useGetCategoryPageContent } from '../hooks/query/GetCategoryPageContent';
 import { getRouterName } from '../utils/helpers';
 import { isSlateValueEmpty, openNotification } from '../utils/slateEditorUtil';
-import { ElementType } from '../utils/types';
 import withLinks from '../plugins/withLinks';
 import { createParagraphNode } from '../utils/createSlateNode';
+import { withHistory } from 'slate-history';
 
-export const createEditorWithPlugins = pipe(withReact, withLinks);
+export const createEditorWithPlugins = pipe(withReact, withHistory, withLinks);
 
 export const EditorContext = React.createContext({
   editor: createEditorWithPlugins(createEditor()),
@@ -56,10 +56,10 @@ export const EditorContextProvider = (props: any) => {
       setValue(nodeTemplate);
       setEditor(createEditorWithPlugins(createEditor()));
     } else {
-      // Directly assign initial data from database to editor's children
-      const dbNotificationType = dbValue[0].type;
+      editor.children.map(() => {
+        Transforms.delete(editor, { at: [0] });
+      });
       editor.children = dbValue as any;
-      openNotification(editor, dbNotificationType as ElementType);
     }
   };
 
