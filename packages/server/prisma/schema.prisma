@@ -19,7 +19,7 @@ model CategoryDataBase {
   categoryComponents   CategoryComponent[]
   writeRights          String
   FavoriteCategory     FavoriteCategory[]
-  hasClassifiedContent Boolean?           @default(false)
+  hasClassifiedContent Boolean           @default(false)
 }
 
 model CategoryDataContents {
