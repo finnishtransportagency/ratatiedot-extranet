@@ -123,7 +123,6 @@ export const getRouterName = (name: string = '') => {
   return name.replace(/\s/g, '-').replace(/[()]/g, '').toLowerCase().replace(/ä/g, 'a').replace(/ö/g, 'o');
 };
 
-// TODO: should return original page's title
 export const parseRouterName = (routerName: string = '') => {
   switch (routerName) {
     // hard-coded cases
