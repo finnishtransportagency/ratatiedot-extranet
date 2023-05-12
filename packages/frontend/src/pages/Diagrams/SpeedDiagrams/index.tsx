@@ -1,12 +1,10 @@
-import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
-import { getSubCategoryData } from '../../../utils/helpers';
+import { PolylineFinlandMap } from '../../../components/Map/PolylineFinlandMap';
+import { ProtectedContainerWrapper } from '../../../styles/common';
 
 export const SpeedDiagrams = () => {
-  const categoryNames = getSubCategoryData();
-
   return (
     <ProtectedContainerWrapper>
-      <PageTitleWrapper>{categoryNames.SPEED_DIAGRAMS}</PageTitleWrapper>
+      <PolylineFinlandMap />
     </ProtectedContainerWrapper>
   );
 };
