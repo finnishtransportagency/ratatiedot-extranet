@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useGetUserRightPageContent } from '../hooks/query/GetUserRightPageContent';
 import { getCategoryRouteName } from '../routes';
 
@@ -31,11 +31,15 @@ export const AppBarContextProvider = (props: any) => {
 
   const location = useLocation();
   const categoryName = getCategoryRouteName(location);
-  const { data } = useGetUserRightPageContent(categoryName);
+  const { area = '' } = useParams<{ area: string }>();
+  const { data } = useGetUserRightPageContent(!area ? categoryName : area);
 
   useEffect(() => {
     if (data) {
       setUserRight(data);
+    } else {
+      userRightHandler({ canRead: false, canWrite: false });
+      closeEdit();
     }
   }, [data]);
 
@@ -63,6 +67,11 @@ export const AppBarContextProvider = (props: any) => {
 
   const closeToolbarHandler = () => {
     setOpenEdit(true);
+    setOpenToolbar(false);
+  };
+
+  const closeEdit = () => {
+    setOpenEdit(false);
     setOpenToolbar(false);
   };
 
