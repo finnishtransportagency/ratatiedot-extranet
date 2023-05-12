@@ -1,12 +1,5 @@
-import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
-import { getSubCategoryData } from '../../../utils/helpers';
+import { ProtectedContainerWrapper } from '../../../styles/common';
 
 export const VAKRailDepot = () => {
-  const categoryNames = getSubCategoryData();
-
-  return (
-    <ProtectedContainerWrapper>
-      <PageTitleWrapper>{categoryNames.VAK_RAIL_DEPOT}</PageTitleWrapper>
-    </ProtectedContainerWrapper>
-  );
+  return <ProtectedContainerWrapper></ProtectedContainerWrapper>;
 };

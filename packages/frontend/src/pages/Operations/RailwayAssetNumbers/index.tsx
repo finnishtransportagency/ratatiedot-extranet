@@ -1,12 +1,5 @@
-import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
-import { getSubCategoryData } from '../../../utils/helpers';
+import { ProtectedContainerWrapper } from '../../../styles/common';
 
 export const RailwayAssetNumbers = () => {
-  const categoryNames = getSubCategoryData();
-
-  return (
-    <ProtectedContainerWrapper>
-      <PageTitleWrapper>{categoryNames.RAILWAY_ASSET_NUMBERS}</PageTitleWrapper>
-    </ProtectedContainerWrapper>
-  );
+  return <ProtectedContainerWrapper></ProtectedContainerWrapper>;
 };

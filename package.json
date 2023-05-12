@@ -46,7 +46,8 @@
     "constructs": "^10.0.0",
     "date-fns": "^2.29.3",
     "lodash": "^4.17.21",
-    "pretty-bytes": "^6.0.0"
+    "pretty-bytes": "^6.0.0",
+    "slate-history": "^0.93.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.191",

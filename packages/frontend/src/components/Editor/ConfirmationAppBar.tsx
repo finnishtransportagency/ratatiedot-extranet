@@ -79,7 +79,7 @@ const ContainerWrapper = styled(Grid)(({ theme }) => ({
   },
 }));
 
-const ButtonWrapper = styled(Button)({
+export const ButtonWrapper = styled(Button)({
   padding: '9px 24px',
   borderRadius: '100px',
 });
