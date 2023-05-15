@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { getCategoryRouteName } from '../../routes';
 import { ButtonWrapper } from '../../styles/common';
 import { theme } from '../../styles/createTheme';
-import { ListModal } from '../Modal/ListModal';
+import { Modal } from '../Modal/Modal';
 import { FolderList } from './FolderList';
 
 interface Component {
@@ -130,13 +130,15 @@ export const Folders = ({ isEditing }: FoldersProps) => {
         ></FolderList>
       ))}
       <Button onClick={() => openDialog()}>{t('common:list.add_list')}</Button>
-      <ListModal
+      <Modal
         open={open}
         onSnackbarClose={handleSnackbarClose}
         handleClose={handleClose}
         title={isNewList ? t('common:list.add_list') : t('common:list.edit_list')}
         success={success}
         error={error}
+        errorMessage={t('common:edit.saved_failure')}
+        successMessage={t('common:edit.saved_success')}
         children={
           <Box component="form">
             <Typography variant="body1">Otsikko</Typography>
@@ -162,7 +164,7 @@ export const Folders = ({ isEditing }: FoldersProps) => {
             </Box>
           </Box>
         }
-      ></ListModal>
+      ></Modal>
     </Box>
   );
 };
