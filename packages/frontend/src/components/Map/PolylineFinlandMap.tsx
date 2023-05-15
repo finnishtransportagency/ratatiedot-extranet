@@ -1,11 +1,15 @@
 import { useEffect, useRef } from 'react';
-import L from 'leaflet';
+import L, { Layer } from 'leaflet';
 import styled from '@emotion/styled';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import { loadGeoJson, polygonStyle } from '../../utils/mapUtil';
+import { loadGeoJson, matchAreaIdWithFolderName, polygonStyle } from '../../utils/mapUtil';
+import { FinlandMapFeature } from './types';
 
 export const PolylineFinlandMap = () => {
   const mapRef = useRef<L.Map | null>(null);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     const initializeMap = async () => {
@@ -13,6 +17,7 @@ export const PolylineFinlandMap = () => {
         if (!mapRef.current) {
           const map = L.map('map', {
             renderer: L.canvas({ tolerance: 6 }),
+            scrollWheelZoom: false,
           }).setView([65, 26], 5);
 
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -26,6 +31,11 @@ export const PolylineFinlandMap = () => {
 
         L.geoJSON(geoJsonData, {
           style: polygonStyle as L.PathOptions,
+          onEachFeature: (feature: FinlandMapFeature, layer: Layer) => {
+            layer.on('click', () => {
+              navigate(`${pathname}/${matchAreaIdWithFolderName(feature.properties.kpalue)}`);
+            });
+          },
         }).addTo(mapRef.current);
       } catch (error) {
         console.log('Error initializing map:', error);
