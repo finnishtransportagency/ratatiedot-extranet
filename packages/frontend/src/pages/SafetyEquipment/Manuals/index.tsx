@@ -1,12 +1,10 @@
-import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
-import { getSubCategoryData } from '../../../utils/helpers';
+import { PolylineFinlandMap } from '../../../components/Map/PolylineFinlandMap';
+import { ProtectedContainerWrapper } from '../../../styles/common';
 
 export const Manuals = () => {
-  const categoryNames = getSubCategoryData();
-
   return (
     <ProtectedContainerWrapper>
-      <PageTitleWrapper>{categoryNames.SAFETY_EQUIPMENT_MANUALS}</PageTitleWrapper>
+      <PolylineFinlandMap />
     </ProtectedContainerWrapper>
   );
 };

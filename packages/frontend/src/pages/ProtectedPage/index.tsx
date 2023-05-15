@@ -3,7 +3,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 
 import { ContentWrapper, ContainerWrapper } from './index.styles';
 import { NavBar } from '../../components/NavBar';
@@ -20,7 +20,8 @@ import { ButtonWrapper } from '../../styles/common';
 import { useTranslation } from 'react-i18next';
 import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
 import { DesktopAppBar } from '../../components/NavBar/DesktopAppBar';
-// import { Folders } from '../../components/FolderList/Folders';
+import { PageTitle } from '../../components/Typography/PageTitle';
+import { ProtectedContainerWrapper } from '../../styles/common';
 
 type Props = {
   children: React.ReactElement;
@@ -44,22 +45,23 @@ export const ProtectedPage = ({ children }: Props) => {
 
   const AddFavoriteButton = () => {
     return (
-      <ButtonWrapper sx={{ textTransform: 'none', padding: 0 }} onClick={() => addFavoriteHandler(categoryRouteName)}>
-        <AddCircleOutlineIcon fontSize="small" />
-        {t('common:action.add_favorite')}
-      </ButtonWrapper>
+      <ProtectedContainerWrapper>
+        <Button sx={{ textTransform: 'none', padding: 0 }} onClick={() => addFavoriteHandler(categoryRouteName)}>
+          <AddCircleOutlineIcon fontSize="small" />
+          {t('common:action.add_favorite')}
+        </Button>
+      </ProtectedContainerWrapper>
     );
   };
 
   const RemoveFavoriteButton = () => {
     return (
-      <ButtonWrapper
-        sx={{ textTransform: 'none', padding: 0 }}
-        onClick={() => removeFavoriteHandler(categoryRouteName)}
-      >
-        <RemoveCircleOutlineIcon fontSize="small" />
-        {t('common:action.remove_favorite')}
-      </ButtonWrapper>
+      <ProtectedContainerWrapper>
+        <Button sx={{ textTransform: 'none', padding: 0 }} onClick={() => removeFavoriteHandler(categoryRouteName)}>
+          <RemoveCircleOutlineIcon fontSize="small" />
+          {t('common:action.remove_favorite')}
+        </Button>
+      </ProtectedContainerWrapper>
     );
   };
 
@@ -70,10 +72,11 @@ export const ProtectedPage = ({ children }: Props) => {
         <DesktopAppBar />
         <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
           {isEditorOpened && <FileUploadDialogButton categoryName={categoryRouteName} />}
+          <PageTitle routerName={categoryRouteName} />
           {categoryRouteName ? isFavorite ? <RemoveFavoriteButton /> : <AddFavoriteButton /> : <></>}
-          {children}
           {isEditorOpened && <SlateInputField />}
           {/* <Folders isEditing={openEdit} /> */}
+          {children}
           {categoryRouteName && <CategoryFiles />}
           <ToastContainer
             position="bottom-right"

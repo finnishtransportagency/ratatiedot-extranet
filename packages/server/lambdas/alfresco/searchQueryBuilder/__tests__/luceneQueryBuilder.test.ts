@@ -1,7 +1,8 @@
 import { LuceneQueryBuilder, mimeTypesMappingForTests } from '../luceneQueryBuilder';
 import { FileType, AdditionalFields, SearchParameter, SearchParameterName, SortingFieldParameter } from '../types';
 
-const luceneQueryBuilder = new LuceneQueryBuilder();
+const examplePath = '/app:company_home/st:sites/cm:mysite//*';
+const luceneQueryBuilder = new LuceneQueryBuilder(examplePath);
 describe('Lucene Query Builder', () => {
   describe('luceneQueryBuilder', () => {
     it('should return query for pdf not in an array', () => {
@@ -117,7 +118,7 @@ describe('Lucene Query Builder', () => {
         '+@cm\\:modified:[2020-01-01 TO 2021-12-31]+@cm\\:content.mimetype:"application/pdf"',
       );
     });
-    it('should return extended query (basic search query + content search query) as default', () => {
+    it('should return extended query (basic search query + content search query) as default from "mysite" workspace ', () => {
       const parameters: Array<SearchParameter> = [
         {
           parameterName: SearchParameterName.NAME,
@@ -125,10 +126,10 @@ describe('Lucene Query Builder', () => {
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+(TEXT:"test*" @cm\\:name:"test*")+TYPE:"cm:content"',
+        '+(TEXT:"test*" @cm\\:name:"test*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
       );
     });
-    it('should return query for content search', () => {
+    it('should return query for content search from "mysite" workspace', () => {
       const parameters: Array<SearchParameter> = [
         {
           parameterName: SearchParameterName.NAME,
@@ -136,7 +137,9 @@ describe('Lucene Query Builder', () => {
           contentSearch: true,
         },
       ];
-      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual('+TEXT:"test*"+TYPE:"cm:content"');
+      expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
+        '+TEXT:"test*"+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
+      );
     });
     it('should return query for parent', () => {
       const parameters: Array<SearchParameter> = [

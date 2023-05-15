@@ -1,4 +1,4 @@
-import { createBrowserRouter, Location, matchRoutes, RouteObject } from 'react-router-dom';
+import { createBrowserRouter, Location, matchRoutes, redirect, RouteObject } from 'react-router-dom';
 
 import { Landing } from './pages/Landing';
 import { Routes } from './constants/Routes';
@@ -31,6 +31,7 @@ import { DriverActivity } from './pages/Others/DriverActivity';
 import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
 import { AppContextProvider } from './contexts/AppContextProvider';
+import { AcceptInstructions } from './pages/AcceptInstructions';
 
 /**
  * Return router name based on page title's name
@@ -55,12 +56,17 @@ const getProtectedRoute = (path: string, component: JSX.Element): RouteObject =>
   ),
   errorElement: <RootBoundary />, // Send user here whenever error is thrown
   loader: async () => {
-    // TODO: throw error if user has no permission
+    const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+    if (isFirstLogin === 'true') {
+      return redirect(Routes.ACCEPT_INSTRUCTIONS);
+    }
+    return null;
   },
   children: [],
 });
 
 const HOME_ROUTE = getProtectedRoute(Routes.HOME, <Landing />);
+const ACCEPT_INSTRUCTIONS: RouteObject = { path: Routes.ACCEPT_INSTRUCTIONS, element: <AcceptInstructions /> };
 const SEARCH_ROUTE = getProtectedRoute(Routes.SEARCH_RESULT, <SearchResult />);
 
 const DIAGRAMS_ROUTES = [
@@ -117,6 +123,7 @@ export const categoryRoutes: RouteObject[] = [
 
 const routes: RouteObject[] = [
   HOME_ROUTE,
+  ACCEPT_INSTRUCTIONS,
   SEARCH_ROUTE,
   {
     path: Routes.LOGOUT_REDIRECT,
