@@ -129,7 +129,7 @@ export const Folders = ({ isEditing }: FoldersProps) => {
           onEdit={(node) => openEditModal(node)}
         ></FolderList>
       ))}
-      <Button onClick={() => openDialog()}>Lisää lista</Button>
+      <Button onClick={() => openDialog()}>{t('common:list.add_list')}</Button>
       <ListModal
         open={open}
         onSnackbarClose={handleSnackbarClose}
@@ -143,7 +143,9 @@ export const Folders = ({ isEditing }: FoldersProps) => {
             <TextField fullWidth onChange={(e) => setTitle(e.target.value)} defaultValue={title}></TextField>
             <Box sx={{ display: 'flex' }}>
               {selectedComponent && !isNewList && (
-                <ButtonWrapper onClick={() => deleteComponent(selectedComponent)}>Poista</ButtonWrapper>
+                <ButtonWrapper onClick={() => deleteComponent(selectedComponent)}>
+                  {t('common:action.delete')}
+                </ButtonWrapper>
               )}
               <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={() => handleClose()}>
                 {t('common:action.cancel')}
@@ -154,7 +156,7 @@ export const Folders = ({ isEditing }: FoldersProps) => {
                 </ButtonWrapper>
               ) : (
                 <ButtonWrapper color="primary" variant="contained" onClick={() => editList(selectedComponent, title)}>
-                  muokkaa
+                  {t('common:edit.edit')}
                 </ButtonWrapper>
               )}
             </Box>
