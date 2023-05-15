@@ -32,6 +32,8 @@ import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
 import { AppContextProvider } from './contexts/AppContextProvider';
 import { AcceptInstructions } from './pages/AcceptInstructions';
+import { AreaPage } from './pages/ProtectedPage/AreaPage';
+import { ProtectedSubPage } from './pages/ProtectedPage/ProtectedSubPage';
 
 /**
  * Return router name based on page title's name
@@ -42,74 +44,90 @@ export const getCategoryRouteName = (location: Location) => {
   const routeMatch = matchRoutes(categoryRoutes, location);
   if (routeMatch) {
     const path = routeMatch[0].route.path as string;
-    return path.split('/').pop() as string;
+    return path.split('/').at(2) as string; // get second array item as main category name
   }
   return '';
 };
 
-const getProtectedRoute = (path: string, component: JSX.Element): RouteObject => ({
-  path: path,
-  element: (
-    <AppContextProvider>
-      <ProtectedPage children={component} />
-    </AppContextProvider>
-  ),
-  errorElement: <RootBoundary />, // Send user here whenever error is thrown
-  loader: async () => {
-    const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
-    if (isFirstLogin === 'true') {
-      return redirect(Routes.ACCEPT_INSTRUCTIONS);
-    }
-    return null;
-  },
-  children: [],
-});
+const getProtectedRoute = (path: string, component: JSX.Element, hasStaticAreas?: boolean): RouteObject[] => {
+  const baseRoute = {
+    path: path,
+    element: (
+      <AppContextProvider>
+        <ProtectedPage children={component} />
+      </AppContextProvider>
+    ),
+    errorElement: <RootBoundary />, // Send user here whenever error is thrown
+    loader: async () => {
+      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+      if (isFirstLogin === 'true') {
+        return redirect(Routes.ACCEPT_INSTRUCTIONS);
+      }
+      return null;
+    },
+    children: [],
+  };
+  if (hasStaticAreas) {
+    const areaRoute = {
+      ...baseRoute,
+      path: `${path}/:area`,
+      element: (
+        <AppContextProvider>
+          <ProtectedSubPage children={<AreaPage />} />
+        </AppContextProvider>
+      ),
+    };
+    return [baseRoute, areaRoute];
+  }
+
+  return [baseRoute];
+};
 
 const HOME_ROUTE = getProtectedRoute(Routes.HOME, <Landing />);
 const ACCEPT_INSTRUCTIONS: RouteObject = { path: Routes.ACCEPT_INSTRUCTIONS, element: <AcceptInstructions /> };
 const SEARCH_ROUTE = getProtectedRoute(Routes.SEARCH_RESULT, <SearchResult />);
 
 const DIAGRAMS_ROUTES = [
-  getProtectedRoute(Routes.LINE_DIAGRAMS, <LineDiagrams />),
-  getProtectedRoute(Routes.SPEED_DIAGRAMS, <SpeedDiagrams />),
-  getProtectedRoute(Routes.TRACK_DIAGRAMS, <TrackDiagrams />),
-  getProtectedRoute(Routes.GROUPING_DIAGRAMS, <GroupingDiagrams />),
+  ...getProtectedRoute(Routes.LINE_DIAGRAMS, <LineDiagrams />, true),
+  ...getProtectedRoute(Routes.SPEED_DIAGRAMS, <SpeedDiagrams />, true),
+  ...getProtectedRoute(Routes.TRACK_DIAGRAMS, <TrackDiagrams />, true),
+  ...getProtectedRoute(Routes.GROUPING_DIAGRAMS, <GroupingDiagrams />, true),
 ];
 
 const OPERATION_ROUTES = [
-  getProtectedRoute(Routes.INTERCHANGE_DECISIONS, <InterchangeDecisions />),
-  getProtectedRoute(Routes.RAILWAY_SIGNS, <RailwaySigns />),
-  getProtectedRoute(Routes.RAILWAY_ASSET_NUMBERS, <RailwayAssetNumbers />),
-  getProtectedRoute(Routes.RAILWAY_MAPS, <RailwayMaps />),
-  getProtectedRoute(Routes.RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS, <RailwayInterchangeDevelopmentNeeds />),
-  getProtectedRoute(Routes.ROUTE_DOCUMENTS, <RouteDocuments />),
-  getProtectedRoute(Routes.RINF_REGISTER, <RINFRegister />),
-  getProtectedRoute(Routes.VAK_RAIL_DEPOT, <VAKRailDepot />),
+  ...getProtectedRoute(Routes.INTERCHANGE_DECISIONS, <InterchangeDecisions />),
+  ...getProtectedRoute(Routes.RAILWAY_SIGNS, <RailwaySigns />),
+  ...getProtectedRoute(Routes.RAILWAY_ASSET_NUMBERS, <RailwayAssetNumbers />),
+  ...getProtectedRoute(Routes.RAILWAY_MAPS, <RailwayMaps />),
+  ...getProtectedRoute(Routes.RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS, <RailwayInterchangeDevelopmentNeeds />),
+  ...getProtectedRoute(Routes.ROUTE_DOCUMENTS, <RouteDocuments />, true),
+  ...getProtectedRoute(Routes.RINF_REGISTER, <RINFRegister />),
+  ...getProtectedRoute(Routes.VAK_RAIL_DEPOT, <VAKRailDepot />),
 ];
 
 const SPECIALTY_STRUCTURES_ROUTES = [
-  getProtectedRoute(Routes.BRIDGE_INSPECTIONS, <BridgeInspections />),
-  getProtectedRoute(Routes.BRIDGE_MAINTENANCE_INSTRUCTIONS, <BridgeMaintenanceInstructions />),
-  getProtectedRoute(Routes.TUNNELS, <Tunnels />),
-  getProtectedRoute(Routes.RAILWAY_TUNNEL_RESCUE_PLANS, <RailwayTunnelRescuePlans />),
+  ...getProtectedRoute(Routes.BRIDGE_INSPECTIONS, <BridgeInspections />, true),
+  ...getProtectedRoute(Routes.BRIDGE_MAINTENANCE_INSTRUCTIONS, <BridgeMaintenanceInstructions />),
+  ...getProtectedRoute(Routes.TUNNELS, <Tunnels />, true),
+  ...getProtectedRoute(Routes.RAILWAY_TUNNEL_RESCUE_PLANS, <RailwayTunnelRescuePlans />),
 ];
 
 const SAFETY_EQUIPMENT_ROUTES = [
-  getProtectedRoute(Routes.SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS, <MaintenanceInstructions />),
-  getProtectedRoute(Routes.SAFETY_EQUIPMENT_MANUALS, <Manuals />),
+  ...getProtectedRoute(Routes.SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS, <MaintenanceInstructions />),
+  ...getProtectedRoute(Routes.SAFETY_EQUIPMENT_MANUALS, <Manuals />, true),
 ];
 
 const CONTACT_INFORMATION_ROUTES = [
-  getProtectedRoute(Routes.INTERCHANGE_CONTACT_INFORMATION, <InterchangeContactInformation />),
-  getProtectedRoute(Routes.TRAFFIC_CONTROL_CONTACT_INFORMATION, <TrafficControl />),
+  ...getProtectedRoute(Routes.INTERCHANGE_CONTACT_INFORMATION, <InterchangeContactInformation />),
+  ...getProtectedRoute(Routes.TRAFFIC_CONTROL_CONTACT_INFORMATION, <TrafficControl />, true),
 ];
 
 const OTHERS_ROUTES = [
-  getProtectedRoute(Routes.MANAGEMENT_REPORTS, <ManagementReports />),
-  getProtectedRoute(Routes.MONITORING_EQUIPMENT, <MonitoringEquipment />),
-  getProtectedRoute(Routes.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY, <DriverActivity />),
-  getProtectedRoute(Routes.PLANNING_ARCHIVE, <PlanningArchive />),
-  getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
+  ...getProtectedRoute(Routes.MANAGEMENT_REPORTS, <ManagementReports />),
+  ...getProtectedRoute(Routes.MONITORING_EQUIPMENT, <MonitoringEquipment />),
+  ...getProtectedRoute(Routes.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY, <DriverActivity />),
+  ...getProtectedRoute(Routes.PLANNING_ARCHIVE, <PlanningArchive />),
+  ...getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
 ];
 
 export const categoryRoutes: RouteObject[] = [
@@ -122,9 +140,9 @@ export const categoryRoutes: RouteObject[] = [
 ];
 
 const routes: RouteObject[] = [
-  HOME_ROUTE,
+  ...HOME_ROUTE,
   ACCEPT_INSTRUCTIONS,
-  SEARCH_ROUTE,
+  ...SEARCH_ROUTE,
   {
     path: Routes.LOGOUT_REDIRECT,
     loader: () => {
