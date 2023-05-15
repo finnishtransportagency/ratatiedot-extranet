@@ -31,7 +31,7 @@ export const Folders = ({ isEditing }: FoldersProps) => {
 
   const getComponents = async () => {
     try {
-      const response: any = await axios.get(`api/database/components/${categoryName}`);
+      const response: any = await axios.get(`/api/database/components/${categoryName}`);
       setComponents(response.data.map((component: any) => component.node));
     } catch (error) {
       console.log(error);
