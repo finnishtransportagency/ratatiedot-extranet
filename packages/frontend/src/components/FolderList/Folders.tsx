@@ -8,7 +8,12 @@ import { ButtonWrapper } from '../../styles/common';
 import { theme } from '../../styles/createTheme';
 import { ListModal } from '../Modal/ListModal';
 import { FolderList } from './FolderList';
-import { Node } from './FolderList';
+
+interface Component {
+  categoryComponentId: string;
+  title: string;
+  alfrescoNodeId: string;
+}
 
 interface FoldersProps {
   isEditing: boolean;
@@ -17,8 +22,10 @@ interface FoldersProps {
 export const Folders = ({ isEditing }: FoldersProps) => {
   const [components, setComponents] = useState([]);
   const [open, setOpen] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
   const [title, setTitle] = useState('');
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [isNewList, setIsNewList] = useState(false);
   const categoryName = getCategoryRouteName(useLocation());
 
@@ -26,7 +33,6 @@ export const Folders = ({ isEditing }: FoldersProps) => {
     try {
       const response: any = await axios.get(`api/database/components/${categoryName}`);
       setComponents(response.data.map((component: any) => component.node));
-      console.log('components', response.data);
     } catch (error) {
       console.log(error);
     }
@@ -35,6 +41,8 @@ export const Folders = ({ isEditing }: FoldersProps) => {
   useEffect(() => {
     getComponents();
   }, []);
+
+  const resetState = () => {};
 
   const addList = async (title: string) => {
     try {
@@ -46,24 +54,46 @@ export const Folders = ({ isEditing }: FoldersProps) => {
           'cm:description': '',
         },
       });
+      setOpen(false);
+      setSuccess(true);
+      getComponents();
       return response;
     } catch (error) {
-      console.log('error: ', error);
+      setError(true);
     }
+    resetState();
   };
 
-  const editList = async (node: Node | null, title: string) => {
+  const editList = async (component: Component | null, title: string) => {
     try {
-      const response = await axios.put(`/api/alfresco/folder/${categoryName}/${node?.id}`, {
+      const response = await axios.put(`/api/alfresco/folder/${categoryName}/${component?.categoryComponentId}`, {
         name: title,
         properties: {
           'cm:title': title,
           'cm:description': '',
         },
       });
+      setOpen(false);
+      setSuccess(true);
+      getComponents();
       return response;
     } catch (error) {
-      console.log('error: ', error);
+      setError(true);
+    }
+  };
+
+  const deleteComponent = async (component: Component) => {
+    try {
+      const response = await axios.delete(`/api/alfresco/folder/${categoryName}/${component?.alfrescoNodeId}`);
+      if (response) {
+        setOpen(false);
+      }
+      setOpen(false);
+      setSuccess(true);
+      getComponents();
+      return response;
+    } catch (error) {
+      setError(true);
     }
   };
 
@@ -73,17 +103,19 @@ export const Folders = ({ isEditing }: FoldersProps) => {
     setOpen(true);
   };
 
-  const handleSnackbarClose = () => {};
+  const handleSnackbarClose = () => {
+    setError(false);
+    setSuccess(false);
+  };
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  const openEditModal = (node: Node) => {
-    console.log(node);
+  const openEditModal = (component: Component) => {
     setIsNewList(false);
-    setSelectedNode(node);
-    setTitle(node.title);
+    setSelectedComponent(component);
+    setTitle(component.title);
     setOpen(true);
   };
 
@@ -102,12 +134,17 @@ export const Folders = ({ isEditing }: FoldersProps) => {
         open={open}
         onSnackbarClose={handleSnackbarClose}
         handleClose={handleClose}
-        title={t('common:list.add_list')}
+        title={isNewList ? t('common:list.add_list') : t('common:list.edit_list')}
+        success={success}
+        error={error}
         children={
           <Box component="form">
             <Typography variant="body1">Otsikko</Typography>
             <TextField fullWidth onChange={(e) => setTitle(e.target.value)} defaultValue={title}></TextField>
             <Box sx={{ display: 'flex' }}>
+              {selectedComponent && !isNewList && (
+                <ButtonWrapper onClick={() => deleteComponent(selectedComponent)}>Poista</ButtonWrapper>
+              )}
               <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={() => handleClose()}>
                 {t('common:action.cancel')}
               </ButtonWrapper>
@@ -116,7 +153,7 @@ export const Folders = ({ isEditing }: FoldersProps) => {
                   {t('common:action.add')}
                 </ButtonWrapper>
               ) : (
-                <ButtonWrapper color="primary" variant="contained" onClick={() => editList(selectedNode, title)}>
+                <ButtonWrapper color="primary" variant="contained" onClick={() => editList(selectedComponent, title)}>
                   muokkaa
                 </ButtonWrapper>
               )}

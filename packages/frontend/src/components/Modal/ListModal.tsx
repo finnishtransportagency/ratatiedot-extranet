@@ -24,9 +24,9 @@ export const ListModal: FunctionComponent<ModalProps> = ({
   children,
   open,
   error,
+  success,
   handleClose,
   onSnackbarClose,
-  success,
 }) => {
   const { t } = useTranslation(['common']);
   return (
@@ -58,15 +58,14 @@ export const ListModal: FunctionComponent<ModalProps> = ({
         open={error}
         onSnackbarClose={onSnackbarClose}
         color={Colors.darkred}
-        text={t('common:file.files_not_deleted')}
+        text={t('common:edit.saved_failure')}
       ></SnackbarAlert>
       <SnackbarAlert
         open={success}
         onSnackbarClose={onSnackbarClose}
         color={Colors.black}
-        text={t('common:file.files_deleted')}
+        text={t('common:edit.saved_success')}
       ></SnackbarAlert>
     </>
   );
 };
-
