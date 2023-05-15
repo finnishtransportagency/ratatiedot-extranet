@@ -2,7 +2,7 @@ import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log, auditLog, devLog } from '../../utils/logger';
+import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderDeleteRequestBuilder } from './fileRequestBuilder';
@@ -17,13 +17,9 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 const deleteFolder = async (options: RequestInit, nodeId: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  devLog.debug('URL: ' + url);
-  devLog.debug('options: ' + options);
   try {
     const res = await fetch(url, options);
-    devLog.debug('deleted fetch response 1: ' + res);
     const response = await res.json();
-    devLog.debug('deleted fetch response 2: ' + response);
     return response;
   } catch (err) {
     console.error('error:' + err);
