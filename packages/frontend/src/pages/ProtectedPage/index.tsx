@@ -20,7 +20,7 @@ import { ButtonWrapper } from '../../styles/common';
 import { useTranslation } from 'react-i18next';
 import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
 import { DesktopAppBar } from '../../components/NavBar/DesktopAppBar';
-import { Folders } from '../../components/FolderList/Folders';
+// import { Folders } from '../../components/FolderList/Folders';
 
 type Props = {
   children: React.ReactElement;
@@ -73,7 +73,7 @@ export const ProtectedPage = ({ children }: Props) => {
           {categoryRouteName ? isFavorite ? <RemoveFavoriteButton /> : <AddFavoriteButton /> : <></>}
           {children}
           {isEditorOpened && <SlateInputField />}
-          <Folders isEditing={openEdit} />
+          {/* <Folders isEditing={openEdit} /> */}
           {categoryRouteName && <CategoryFiles />}
           <ToastContainer
             position="bottom-right"
