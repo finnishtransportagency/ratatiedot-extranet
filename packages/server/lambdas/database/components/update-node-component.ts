@@ -2,12 +2,10 @@
 import { DatabaseClient } from '../../database/client';
 import { handlePrismaError, PrismaError } from '../error/databaseError';
 import { Node } from '@prisma/client';
-import { devLog } from '../../../utils/logger';
 
 const database = await DatabaseClient.build();
 
 export const updateFolderComponent = async (componentId: string, body: Partial<Node>) => {
-  devLog.debug('body: ' + JSON.stringify(body));
   const updatedData = () => {
     const data: Partial<Node> = {
       type: 'Folder',
@@ -21,8 +19,6 @@ export const updateFolderComponent = async (componentId: string, body: Partial<N
     return data;
   };
 
-  devLog.debug('data: ' + JSON.stringify(updatedData()));
-
   let response = null;
   try {
     response = await database.node.update({
@@ -33,7 +29,6 @@ export const updateFolderComponent = async (componentId: string, body: Partial<N
         ...updatedData(),
       },
     });
-    devLog.debug('updateddata: ' + JSON.stringify(updatedData()));
   } catch (error) {
     handlePrismaError(error as PrismaError);
   }
@@ -43,16 +38,13 @@ export const updateFolderComponent = async (componentId: string, body: Partial<N
 
 export const getAlfrescoId = async (componentId: string) => {
   let response = null;
-  devLog.debug('ID: ' + componentId);
   try {
     response = await database.node.findUnique({
       where: {
         categoryComponentId: componentId,
       },
     });
-    devLog.debug('response: ' + JSON.stringify(response));
   } catch (error) {
-    devLog.debug(error);
     handlePrismaError(error as PrismaError);
   }
 
