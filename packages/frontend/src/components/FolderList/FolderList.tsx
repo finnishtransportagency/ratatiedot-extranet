@@ -70,7 +70,9 @@ export const FolderList = ({ parentNode, isEditing, title, onEdit }: FolderListP
             borderLeft: `8px solid ${Colors.lightgreen}`,
           }}
         >
-          <Link href={`/files?id=${folder.entry.id}`}>{folder.entry.name}</Link>
+          <Link sx={{ textDecoration: 'none' }} href={`/files?id=${folder.entry.id}`}>
+            {folder.entry.name}
+          </Link>
         </Box>
       ))}
     </Box>
