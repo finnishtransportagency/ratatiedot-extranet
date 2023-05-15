@@ -16,12 +16,13 @@ export const CustomBreadcrumbs = () => {
       </Typography>
     );
   };
-
+  let breadcrumbPath = '';
   const breadcrumbs = routerNames.map((routerName: string, index: number) => {
+    breadcrumbPath += '/' + routerName;
     return index === 0 ? (
       <BreadcrumbText key={index} routerName={routerName} />
     ) : (
-      <Link underline="hover" key={index} href={pathname}>
+      <Link underline="hover" key={index} href={breadcrumbPath}>
         <BreadcrumbText routerName={routerName} />
       </Link>
     );

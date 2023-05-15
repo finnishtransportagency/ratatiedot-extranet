@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { FinlandMapFeature } from '../components/Map/types';
 
 import { Colors } from '../constants/Colors';
 
@@ -51,9 +52,52 @@ export const getPolylineDashArray = (maintenanceArea: number) => {
   return maintenanceArea > 6 ? '5, 10' : null;
 };
 
-export const polygonStyle = (feature: any) => {
+export const polygonStyle = (feature: FinlandMapFeature) => {
   return {
     color: getPolylineColor(feature.properties.kpalue),
     dashArray: getPolylineDashArray(feature.properties.kpalue),
   };
+};
+
+export const matchAreaIdWithFolderName = (maintenanceArea: number) => {
+  let folderName = `alue_${maintenanceArea}_`;
+  switch (maintenanceArea) {
+    case 1:
+      folderName += 'uusimaa';
+      break;
+    case 2:
+      folderName += 'lounaisrannikko';
+      break;
+    case 3:
+      folderName += 'riihimaki-seinajoki';
+      break;
+    case 4:
+      folderName += 'rauma-pieksamaki';
+      break;
+    case 5:
+      folderName += 'haapamaen_tahti';
+      break;
+    case 6:
+      folderName += 'savon_rata';
+      break;
+    case 7:
+      folderName += 'karjalan_rata';
+      break;
+    case 8:
+      folderName += 'ylasavo';
+      break;
+    case 9:
+      folderName += 'pohjanmaan_rata';
+      break;
+    case 10:
+      folderName += 'keski-suomi';
+      break;
+    case 11:
+      folderName += 'kainuu-oulu';
+      break;
+    case 12:
+      folderName += 'oulu-lappi';
+      break;
+  }
+  return folderName;
 };
