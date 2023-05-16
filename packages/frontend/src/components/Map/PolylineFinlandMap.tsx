@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { loadGeoJson, matchAreaIdWithFolderName, polygonStyle } from '../../utils/mapUtil';
 import { FinlandMapFeature } from './types';
+import { StaticAreaFolderList } from '../Folders/StaticAreaFolderList';
 
 export const PolylineFinlandMap = () => {
   const mapRef = useRef<L.Map | null>(null);
@@ -45,7 +46,12 @@ export const PolylineFinlandMap = () => {
     initializeMap();
   }, []);
 
-  return <MapContainerWrapper id="map" />;
+  return (
+    <PolylineFinlandMapWrapper>
+      <MapContainerWrapper id="map" />
+      <StaticAreaFolderList />
+    </PolylineFinlandMapWrapper>
+  );
 };
 
 const MapContainerWrapper = styled('div')(({ theme }) => ({
@@ -57,6 +63,13 @@ const MapContainerWrapper = styled('div')(({ theme }) => ({
     width: '95%',
   },
   [theme.breakpoints.only('desktop')]: {
-    width: '40%',
+    width: '48%',
+  },
+}));
+
+const PolylineFinlandMapWrapper = styled('div')(({ theme }) => ({
+  [theme.breakpoints.only('desktop')]: {
+    display: 'flex',
+    justifyContent: 'space-between',
   },
 }));
