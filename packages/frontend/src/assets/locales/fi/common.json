@@ -133,5 +133,12 @@
     "name": "Henkilö nimi",
     "phone_number": "Puhelinnumero",
     "email": "Sähköpostiosoite"
+  },
+  "map": {
+    "south": "etelä",
+    "north": "pohjoinen",
+    "west": "länsi",
+    "east": "itä",
+    "area": "Alue"
   }
 }
