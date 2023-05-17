@@ -113,11 +113,14 @@ export const MenuContext = React.createContext({
   menuHandler: (_: string) => {},
   addFavoriteHandler: (_: string) => {},
   removeFavoriteHandler: (_: string) => {},
+  fileUploadDisabled: true,
+  fileUploadDisabledHandler: (_: boolean) => {},
 });
 
 export const MenuContextProvider = (props: any) => {
   const { t } = useTranslation(['common']);
   const [favoriteCategories, setFavoriteCategories] = useState<IMenuItem[]>([]);
+  const [fileUploadDisabled, setFileUploadDisabled] = useState(true);
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -194,6 +197,10 @@ export const MenuContextProvider = (props: any) => {
     }
   };
 
+  const fileUploadDisabledHandler = (isDisabled: boolean) => {
+    setFileUploadDisabled(isDisabled);
+  };
+
   return (
     <MenuContext.Provider
       value={{
@@ -204,6 +211,8 @@ export const MenuContextProvider = (props: any) => {
         menuHandler: menuHandler,
         addFavoriteHandler: addFavoriteHandler,
         removeFavoriteHandler: removeFavoriteHandler,
+        fileUploadDisabled: fileUploadDisabled,
+        fileUploadDisabledHandler: fileUploadDisabledHandler,
       }}
     >
       {props.children}

@@ -13,6 +13,7 @@ import { FileDeleteDialogButton } from './FileDeleteDialogButton';
 import { useLocation } from 'react-router-dom';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { getCategoryRouteName } from '../../routes';
+import { MenuContext } from '../../contexts/MenuContext';
 
 type TCategoryFilesProps = {
   subCategory?: string;
@@ -32,6 +33,7 @@ export const CategoryFiles = ({ subCategory }: TCategoryFilesProps) => {
   const [hasClassifiedContent, setHasClassifiedContent] = useState(true);
 
   const { openEdit, openToolbar } = useContext(AppBarContext);
+  const { fileUploadDisabledHandler } = useContext(MenuContext);
 
   const isEditOpen = openEdit || openToolbar;
 
@@ -46,6 +48,7 @@ export const CategoryFiles = ({ subCategory }: TCategoryFilesProps) => {
       const hasMoreItems = get(data, 'list.pagination.hasMoreItems', false);
 
       setHasClassifiedContent(hasClassifiedContent);
+      fileUploadDisabledHandler(hasClassifiedContent);
 
       setFileList((f) => {
         return page > 0 ? [...f, ...totalFiles] : [...totalFiles];
