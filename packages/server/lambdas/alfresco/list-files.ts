@@ -102,7 +102,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     if (!fileEndpointsCache.length) {
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
-    const alfrescoParent = findEndpoint(category, fileEndpointsCache)?.alfrescoFolder;
+    const endpoint = findEndpoint(category, fileEndpointsCache);
+    const alfrescoParent = endpoint?.alfrescoFolder;
+    const hasClassifiedContent = endpoint?.hasClassifiedContent;
+
     if (!alfrescoParent) {
       throw new RataExtraLambdaError('Category not found', 404);
     }
@@ -116,7 +119,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(subCategoryData),
+        body: JSON.stringify({ data: subCategoryData, hasClassifiedContent }),
       };
     }
 
@@ -125,7 +128,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(categoryData),
+      body: JSON.stringify({ data: categoryData, hasClassifiedContent }),
     };
   } catch (err) {
     log.error(err);
