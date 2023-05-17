@@ -16,13 +16,11 @@ import { FileUploadDialogButton } from '../../components/Files/FileUploadDialogB
 import { useLocation } from 'react-router-dom';
 import { CategoryFiles } from '../../components/Files/CategoryFiles';
 import { getCategoryRouteName } from '../../routes';
-import { ButtonWrapper } from '../../styles/common';
 import { useTranslation } from 'react-i18next';
 import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
 import { DesktopAppBar } from '../../components/NavBar/DesktopAppBar';
 import { PageTitle } from '../../components/Typography/PageTitle';
 import { ProtectedContainerWrapper } from '../../styles/common';
-import { Folders } from '../../components/FolderList/Folders';
 
 type Props = {
   children: React.ReactElement;
@@ -76,7 +74,6 @@ export const ProtectedPage = ({ children }: Props) => {
           <PageTitle routerName={categoryRouteName} />
           {categoryRouteName ? isFavorite ? <RemoveFavoriteButton /> : <AddFavoriteButton /> : <></>}
           {isEditorOpened && <SlateInputField />}
-          {<Folders isEditing={openEdit} />}
           {children}
           {categoryRouteName && <CategoryFiles />}
           <ToastContainer
