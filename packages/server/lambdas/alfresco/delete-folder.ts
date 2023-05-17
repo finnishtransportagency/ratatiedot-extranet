@@ -19,8 +19,7 @@ const deleteFolder = async (options: RequestInit, nodeId: string) => {
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
   try {
     const res = await fetch(url, options);
-    const response = await res.json();
-    return response;
+    return res;
   } catch (err) {
     console.error('error:' + err);
   }
