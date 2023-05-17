@@ -1,12 +1,12 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 
-const getNodes = async (id: string, options: any, type?: string) => {
+const getNodes = async (id: string, options: AxiosRequestConfig, type?: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   try {
     let queryParameter = '';

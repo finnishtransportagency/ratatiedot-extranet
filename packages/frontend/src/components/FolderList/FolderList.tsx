@@ -1,6 +1,6 @@
 import Edit from '@mui/icons-material/Edit';
 import { Box, IconButton, Link, Typography } from '@mui/material';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { t } from 'i18next';
 import { useEffect, useState } from 'react';
 import { Colors } from '../../constants/Colors';
@@ -24,10 +24,10 @@ interface FolderListProps {
 }
 
 export const FolderList = ({ parentNode, isEditing, title, onEdit }: FolderListProps) => {
-  const [folders, setFolders] = useState<any[]>([]);
+  const [folders, setFolders] = useState<Node[]>([]);
   const getFolders = async () => {
     try {
-      const response: any = await axios.get(`api/alfresco/nodes/${parentNode.alfrescoNodeId}?type=folder`);
+      const response: AxiosResponse = await axios.get(`api/alfresco/nodes/${parentNode.alfrescoNodeId}?type=folder`);
       setFolders(response.data.list.entries);
     } catch (error) {
       console.log(error);

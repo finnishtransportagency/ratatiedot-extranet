@@ -1,5 +1,5 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { t } from 'i18next';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -8,11 +8,10 @@ import { ButtonWrapper } from '../../styles/common';
 import { theme } from '../../styles/createTheme';
 import { Modal } from '../Modal/Modal';
 import { FolderList } from './FolderList';
+import { Node } from './FolderList';
 
 interface Component {
-  categoryComponentId: string;
-  title: string;
-  alfrescoNodeId: string;
+  node: Node;
 }
 
 interface FoldersProps {
@@ -25,14 +24,14 @@ export const Folders = ({ isEditing }: FoldersProps) => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
   const [title, setTitle] = useState('');
-  const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
+  const [selectedComponent, setSelectedComponent] = useState<Node | null>(null);
   const [isNewList, setIsNewList] = useState(false);
   const categoryName = getCategoryRouteName(useLocation());
 
   const getComponents = async () => {
     try {
-      const response: any = await axios.get(`/api/database/components/${categoryName}`);
-      setComponents(response.data.map((component: any) => component.node));
+      const response: AxiosResponse = await axios.get(`/api/database/components/${categoryName}`);
+      setComponents(response.data.map((component: Component) => component.node));
     } catch (error) {
       console.log(error);
     }
@@ -41,8 +40,6 @@ export const Folders = ({ isEditing }: FoldersProps) => {
   useEffect(() => {
     getComponents();
   }, []);
-
-  const resetState = () => {};
 
   const addList = async (title: string) => {
     try {
@@ -61,10 +58,9 @@ export const Folders = ({ isEditing }: FoldersProps) => {
     } catch (error) {
       setError(true);
     }
-    resetState();
   };
 
-  const editList = async (component: Component | null, title: string) => {
+  const editList = async (component: Node | null, title: string) => {
     try {
       const response = await axios.put(`/api/alfresco/folder/${categoryName}/${component?.categoryComponentId}`, {
         name: title,
@@ -82,7 +78,7 @@ export const Folders = ({ isEditing }: FoldersProps) => {
     }
   };
 
-  const deleteComponent = async (component: Component) => {
+  const deleteComponent = async (component: Node) => {
     try {
       const response = await axios.delete(`/api/alfresco/folder/${categoryName}/${component?.alfrescoNodeId}`);
       if (response) {
@@ -112,7 +108,7 @@ export const Folders = ({ isEditing }: FoldersProps) => {
     setOpen(false);
   };
 
-  const openEditModal = (component: Component) => {
+  const openEditModal = (component: Node) => {
     setIsNewList(false);
     setSelectedComponent(component);
     setTitle(component.title);
@@ -121,7 +117,7 @@ export const Folders = ({ isEditing }: FoldersProps) => {
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', width: '100%', marginLeft: theme.spacing(5) }}>
-      {components.map((component: any) => (
+      {components.map((component: Node) => (
         <FolderList
           title={component.title}
           isEditing={isEditing}
