@@ -10,8 +10,6 @@ import { DatabaseClient } from '../database/client';
 import { searchQueryBuilder } from './searchQueryBuilder';
 import {
   AdditionalFields,
-  IAncestorSearchParameter,
-  IFolderSearchParameter,
   IParentSearchParameter,
   QueryLanguage,
   SearchParameterName,
@@ -57,13 +55,15 @@ const searchByTermWithParent = async (uid: string, alfrescoParent: string, page:
   }
 };
 
-const getFolder = async (id: string) => {
+const getFolder = async (uid: string, nodeId: string) => {
   try {
     const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-    const url = `${alfrescoCoreAPIUrl}/nodes/${id}?where=(isFolder=true)&include=path`;
-    log.info(url, ' is getFolder URL');
-    const response = await axios.get(url);
-    return response;
+    const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}?where=(isFolder=true)&include=path`;
+    log.info(url, ' is Axios URL');
+    const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
+    log.info(options, ' is Axios options');
+    const response = await axios.get(url, options);
+    return response.data;
   } catch (err) {
     throw err;
   }
@@ -135,7 +135,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     if (!folderId) {
       responseBody.data = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
     } else {
-      const foundFolder = await getFolder(folderId);
+      const foundFolder = await getFolder(user.uid, folderId);
       log.info(foundFolder, ` is folder with id ${folderId}`);
       const folderPath = get(foundFolder, 'entry.path.name', '');
       const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
