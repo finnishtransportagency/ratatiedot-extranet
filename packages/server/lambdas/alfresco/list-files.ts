@@ -60,8 +60,10 @@ const searchByTermWithParent = async (uid: string, alfrescoParent: string, page:
 const getFolder = async (id: string) => {
   try {
     const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-    const response = await axios.get(`${alfrescoCoreAPIUrl}/nodes/${id}?where=(isFolder=true)&include=path`);
-    return response.data;
+    const url = `${alfrescoCoreAPIUrl}/nodes/${id}?where=(isFolder=true)&include=path`;
+    log.info(url, ' is getFolder URL');
+    const response = await axios.get(url);
+    return response;
   } catch (err) {
     throw err;
   }
@@ -92,7 +94,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const params = event.queryStringParameters;
     const category = params?.category;
     const folderId = params?.folderid;
-    log.info(user, `Fetching files for for page ${category} with folder ${folderId} `);
+    log.info(user, `Fetching files for for page ${category} with folder id ${folderId} `);
     const responseBody = {
       hasClassifiedContent: true,
       data: {
@@ -134,6 +136,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       responseBody.data = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
     } else {
       const foundFolder = await getFolder(folderId);
+      log.info(foundFolder, ` is folder with id ${folderId}`);
       const folderPath = get(foundFolder, 'entry.path.name', '');
       const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
       if (isFolderDescendantOfCategory) {
