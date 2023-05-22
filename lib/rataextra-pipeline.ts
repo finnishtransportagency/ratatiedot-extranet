@@ -26,18 +26,16 @@ export class RataExtraPipelineStack extends Stack {
       authentication: oauth,
     });
 
-    const synthStep = new ShellStep('Synth', {
-      input: github,
-      installCommands: ['npm run ci --user=root'],
-      commands: [
-        `REACT_APP_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} npm run build:frontend`,
-        `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
-      ],
-    });
-
     const pipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
       pipelineName: 'pr-rataextra-' + config.stackId,
-      synth: synthStep,
+      synth: new ShellStep('Synth', {
+        input: github,
+        installCommands: ['npm run ci --user=root'],
+        commands: [
+          `REACT_APP_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} npm run build:frontend`,
+          `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
+        ],
+      }),
       dockerEnabledForSynth: true,
       codeBuildDefaults: {
         cache: Cache.local(LocalCacheMode.DOCKER_LAYER, LocalCacheMode.SOURCE),
