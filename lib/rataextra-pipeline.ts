@@ -18,7 +18,7 @@ export class RataExtraPipelineStack extends Stack {
       },
       tags: config.tags,
     });
-    const { alfrescoDownloadUrl, sonarQubeUrl, sonarQubeToken } = getRataExtraStackConfig(this);
+    const { alfrescoDownloadUrl, sonarQubeUrl } = getRataExtraStackConfig(this);
 
     const oauth = SecretValue.secretsManager(config.authenticationToken);
 
@@ -78,6 +78,7 @@ export class RataExtraPipelineStack extends Stack {
 
     // TOOD: Only run on main
 
+    const sonarQubeToken = SecretValue.ssmSecure(config.sonarQubeToken);
     const sonarQube = new CodeBuildStep('Run scan', {
       input: synthStep,
       installCommands: [

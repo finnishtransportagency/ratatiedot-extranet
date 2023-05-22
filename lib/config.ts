@@ -1,7 +1,6 @@
 import { Construct } from 'constructs';
 import { StringParameter, StringListParameter } from 'aws-cdk-lib/aws-ssm';
 import { getEnvOrFail } from '../utils';
-import { SecretValue } from 'aws-cdk-lib';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
 // Returns token that resolves during deployment to SSM parameter value
@@ -11,8 +10,6 @@ const getSSMStringParameter = (scope: Construct, parameterName: string) =>
 // Returns token that resolves during deployment to SSM parameter value
 const getSSMStringListParameter = (scope: Construct, parameterName: string) =>
   StringListParameter.valueForTypedListParameter(scope, parameterName);
-
-const getSSMSecureStringParameter = (parameterName: string) => SecretValue.ssmSecure(parameterName);
 
 export type RataExtraEnvironment = typeof ENVIRONMENTS[keyof typeof ENVIRONMENTS];
 
@@ -73,7 +70,6 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   mockUid: getSSMStringParameter(scope, SSM_MOCK_UID),
   alfrescoSitePath: getSSMStringParameter(scope, SSM_ALFRESCO_SITE_PATH),
   sonarQubeUrl: getSSMStringParameter(scope, SSM_SONARQUBE_URL),
-  sonarQubeToken: getSSMSecureStringParameter(SSM_SONARQUBE_TOKEN),
 });
 
 // Runtime variables from SSM/Parameter Store
@@ -86,6 +82,7 @@ export const getPipelineConfig = () => {
       branch,
       stackId: getStackId(branch),
       authenticationToken: 'github-token',
+      sonarQubeToken: SSM_SONARQUBE_TOKEN,
       tags: {
         Environment: env,
         Project: 'Ratatiedon Extranet',
