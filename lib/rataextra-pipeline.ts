@@ -33,8 +33,6 @@ export class RataExtraPipelineStack extends Stack {
       ],
     });
 
-    const sonarQubeToken = SecretValue.ssmSecure(config.sonarQubeToken);
-
     const pipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
       pipelineName: 'pr-rataextra-' + config.stackId,
       synth: synthStep,
@@ -45,7 +43,7 @@ export class RataExtraPipelineStack extends Stack {
           buildImage: LinuxBuildImage.STANDARD_6_0,
           environmentVariables: {
             SONAR_TOKEN: {
-              value: sonarQubeToken,
+              value: config.sonarQubeToken,
               type: BuildEnvironmentVariableType.SECRETS_MANAGER,
             },
           },
