@@ -40,7 +40,7 @@ export const CategoryFiles = ({ subCategory }: TCategoryFilesProps) => {
   const getCategoryFiles = useCallback(async () => {
     try {
       setLoading(true);
-      const subCategoryQuery = subCategory ? `&subcategory=${subCategory}` : '';
+      const subCategoryQuery = subCategory ? `&folderid=${subCategory}` : '';
       const response = await axios.get(`/api/alfresco/files?category=${categoryName}${subCategoryQuery}&page=${page}`);
       const { data, hasClassifiedContent } = response.data;
       const totalFiles = get(data, 'list.entries', []);
