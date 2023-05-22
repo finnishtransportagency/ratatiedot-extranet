@@ -18,22 +18,24 @@ export class RataExtraPipelineStack extends Stack {
       },
       tags: config.tags,
     });
-    const { alfrescoDownloadUrl } = getRataExtraStackConfig(this);
+    const { alfrescoDownloadUrl, sonarQubeUrl, sonarQubeToken } = getRataExtraStackConfig(this);
 
     const oauth = SecretValue.secretsManager(config.authenticationToken);
 
+    const synthStep = new ShellStep('Synth', {
+      input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
+        authentication: oauth,
+      }),
+      installCommands: ['npm run ci --user=root'],
+      commands: [
+        `REACT_APP_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} npm run build:frontend`,
+        `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
+      ],
+    });
+
     const pipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
       pipelineName: 'pr-rataextra-' + config.stackId,
-      synth: new ShellStep('Synth', {
-        input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
-          authentication: oauth,
-        }),
-        installCommands: ['npm run ci --user=root'],
-        commands: [
-          `REACT_APP_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} npm run build:frontend`,
-          `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
-        ],
-      }),
+      synth: synthStep,
       dockerEnabledForSynth: true,
       codeBuildDefaults: {
         cache: Cache.local(LocalCacheMode.DOCKER_LAYER, LocalCacheMode.SOURCE),
@@ -72,6 +74,31 @@ export class RataExtraPipelineStack extends Stack {
 
     pipeline.addWave('BeforeStageDeploy', {
       pre: [strip],
+    });
+
+    // TOOD: Only run on main
+
+    const sonarQube = new CodeBuildStep('Run scan', {
+      input: synthStep,
+      installCommands: [
+        'export SONAR_SCANNER_VERSION=4.7.0.2747',
+        'export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux',
+        'curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip',
+        'unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/',
+        'export PATH=$SONAR_SCANNER_HOME/bin:$PATH',
+        'export SONAR_SCANNER_OPTS="-server"',
+        `export SONAR_TOKEN=${sonarQubeToken}`,
+      ],
+      commands: [
+        `sonar-scanner \
+          -Dsonar.projectKey=Ratatieto \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=${sonarQubeUrl}`,
+      ],
+    });
+
+    pipeline.addWave('SonarQube', {
+      pre: [sonarQube],
     });
 
     pipeline.addStage(

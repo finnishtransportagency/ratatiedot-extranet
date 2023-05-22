@@ -1,6 +1,7 @@
 import { Construct } from 'constructs';
 import { StringParameter, StringListParameter } from 'aws-cdk-lib/aws-ssm';
 import { getEnvOrFail } from '../utils';
+import { SecretValue } from 'aws-cdk-lib';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
 // Returns token that resolves during deployment to SSM parameter value
@@ -10,6 +11,8 @@ const getSSMStringParameter = (scope: Construct, parameterName: string) =>
 // Returns token that resolves during deployment to SSM parameter value
 const getSSMStringListParameter = (scope: Construct, parameterName: string) =>
   StringListParameter.valueForTypedListParameter(scope, parameterName);
+
+const getSSMSecureStringParameter = (parameterName: string) => SecretValue.ssmSecure(parameterName);
 
 export type RataExtraEnvironment = typeof ENVIRONMENTS[keyof typeof ENVIRONMENTS];
 
@@ -41,6 +44,8 @@ const SSM_ALFRESCO_DOWNLOAD_URL = 'rataextra-alfresco-download-url';
 const SSM_ALFRESCO_API_ANCESTOR = 'rataextra-alfresco-ancestor';
 const SSM_MOCK_UID = 'rataextra-static-test-user';
 const SSM_ALFRESCO_SITE_PATH = 'rataextra-alfresco-site-path';
+const SSM_SONARQUBE_URL = 'rataextra-sonarqube-url';
+const SSM_SONARQUBE_TOKEN = 'rataextra-sonarqube-token';
 
 // Minified JS code that is used to make ES modules working
 // Also handles __dirname & import.meta.url
@@ -67,6 +72,8 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   alfrescoAncestor: getSSMStringParameter(scope, SSM_ALFRESCO_API_ANCESTOR),
   mockUid: getSSMStringParameter(scope, SSM_MOCK_UID),
   alfrescoSitePath: getSSMStringParameter(scope, SSM_ALFRESCO_SITE_PATH),
+  sonarQubeUrl: getSSMStringParameter(scope, SSM_SONARQUBE_URL),
+  sonarQubeToken: getSSMSecureStringParameter(SSM_SONARQUBE_TOKEN),
 });
 
 // Runtime variables from SSM/Parameter Store
