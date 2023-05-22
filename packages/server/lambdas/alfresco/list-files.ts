@@ -1,6 +1,6 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
@@ -65,10 +65,14 @@ const getFolder = async (uid: string, nodeId: string) => {
     return response.data;
   } catch (error: any) {
     log.info(`Error ${JSON.stringify(error)} is stringified`);
-    log.info(`${error.status} or ${error.statusCode} is error status`);
-    // In case nodeId doesn't exist, Alfresco throws 404
-    if (error.status === 404 || error.statusCode === 404) {
-      return null;
+    log.info(`${error.response} is supposed to contain error status`);
+    if (error instanceof AxiosError) {
+      // In case nodeId doesn't exist, Alfresco throws 404
+      if (error.response && error.response.status === 404) {
+        return null;
+      } else {
+        throw error;
+      }
     } else {
       throw error;
     }
