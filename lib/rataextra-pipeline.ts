@@ -79,7 +79,9 @@ export class RataExtraPipelineStack extends Stack {
     // TOOD: Only run on main
 
     const sonarQube = new CodeBuildStep('Run scan', {
-      input: synthStep,
+      input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
+        authentication: oauth,
+      }),
       buildEnvironment: {
         environmentVariables: {
           SONAR_TOKEN: {
