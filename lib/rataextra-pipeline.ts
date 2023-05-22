@@ -1,6 +1,6 @@
 import { SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-import { Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
+import { BuildEnvironmentVariableType, Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
 import { getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';
@@ -33,6 +33,8 @@ export class RataExtraPipelineStack extends Stack {
       ],
     });
 
+    const sonarQubeToken = SecretValue.ssmSecure(config.sonarQubeToken);
+
     const pipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
       pipelineName: 'pr-rataextra-' + config.stackId,
       synth: synthStep,
@@ -41,6 +43,12 @@ export class RataExtraPipelineStack extends Stack {
         cache: Cache.local(LocalCacheMode.DOCKER_LAYER, LocalCacheMode.SOURCE),
         buildEnvironment: {
           buildImage: LinuxBuildImage.STANDARD_6_0,
+          environmentVariables: {
+            SONAR_TOKEN: {
+              value: sonarQubeToken,
+              type: BuildEnvironmentVariableType.SECRETS_MANAGER,
+            },
+          },
         },
       },
     });
@@ -78,7 +86,6 @@ export class RataExtraPipelineStack extends Stack {
 
     // TOOD: Only run on main
 
-    const sonarQubeToken = SecretValue.ssmSecure(config.sonarQubeToken);
     const sonarQube = new CodeBuildStep('Run scan', {
       input: synthStep,
       installCommands: [
@@ -88,7 +95,6 @@ export class RataExtraPipelineStack extends Stack {
         'unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/',
         'export PATH=$SONAR_SCANNER_HOME/bin:$PATH',
         'export SONAR_SCANNER_OPTS="-server"',
-        `export SONAR_TOKEN=${sonarQubeToken}`,
       ],
       commands: [
         `sonar-scanner \
