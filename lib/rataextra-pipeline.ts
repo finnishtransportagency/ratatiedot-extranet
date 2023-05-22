@@ -41,12 +41,6 @@ export class RataExtraPipelineStack extends Stack {
         cache: Cache.local(LocalCacheMode.DOCKER_LAYER, LocalCacheMode.SOURCE),
         buildEnvironment: {
           buildImage: LinuxBuildImage.STANDARD_6_0,
-          environmentVariables: {
-            SONAR_TOKEN: {
-              value: config.sonarQubeToken,
-              type: BuildEnvironmentVariableType.SECRETS_MANAGER,
-            },
-          },
         },
       },
     });
@@ -86,6 +80,14 @@ export class RataExtraPipelineStack extends Stack {
 
     const sonarQube = new CodeBuildStep('Run scan', {
       input: synthStep,
+      buildEnvironment: {
+        environmentVariables: {
+          SONAR_TOKEN: {
+            value: config.sonarQubeToken,
+            type: BuildEnvironmentVariableType.SECRETS_MANAGER,
+          },
+        },
+      },
       installCommands: [
         'export SONAR_SCANNER_VERSION=4.7.0.2747',
         'export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux',
