@@ -63,9 +63,12 @@ const getFolder = async (uid: string, nodeId: string) => {
     const response = await axios.get(url, options);
     return response.data;
   } catch (error: any) {
-    log.error(error);
     // In case nodeId doesn't exist, Alfresco throws 404
-    throw error;
+    if (error.status === 404) {
+      return null;
+    } else {
+      throw error;
+    }
   }
 };
 
@@ -95,6 +98,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const category = params?.category;
     const folderId = params?.folderid;
     log.info(user, `Fetching files for for page ${category} with folder id ${folderId} `);
+    // Default response
     const responseBody = {
       hasClassifiedContent: true,
       data: {
@@ -110,7 +114,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           entries: [],
         },
       },
-    }; // Default response
+    };
 
     validateReadUser(user);
     if (!category) {
