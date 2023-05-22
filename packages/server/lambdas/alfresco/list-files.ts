@@ -124,7 +124,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('Category missing', 400);
     }
     const page = params?.page ? parseInt(params?.page) : 0;
-    const categoryPage = folderId ? 0 : page;
     const language = (params?.language as QueryLanguage) ?? QueryLanguage.LUCENE;
     if (!Object.values(QueryLanguage).includes(language)) {
       throw new RataExtraLambdaError('Invalid language', 400);
@@ -146,7 +145,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       const folderPath = get(foundFolder, 'entry.path.name', '');
       const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
       if (isFolderDescendantOfCategory) {
-        responseBody.data = await searchByTermWithParent(user.uid, folderId, categoryPage, language);
+        responseBody.data = await searchByTermWithParent(user.uid, folderId, page, language);
       }
     }
 
