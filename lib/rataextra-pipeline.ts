@@ -22,10 +22,12 @@ export class RataExtraPipelineStack extends Stack {
 
     const oauth = SecretValue.secretsManager(config.authenticationToken);
 
+    const github = CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
+      authentication: oauth,
+    });
+
     const synthStep = new ShellStep('Synth', {
-      input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
-        authentication: oauth,
-      }),
+      input: github,
       installCommands: ['npm run ci --user=root'],
       commands: [
         `REACT_APP_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} npm run build:frontend`,
@@ -79,9 +81,7 @@ export class RataExtraPipelineStack extends Stack {
     // TOOD: Only run on main
 
     const sonarQube = new CodeBuildStep('Run scan', {
-      input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
-        authentication: oauth,
-      }),
+      input: github,
       buildEnvironment: {
         environmentVariables: {
           SONAR_TOKEN: {
