@@ -59,13 +59,13 @@ const getFolder = async (uid: string, nodeId: string) => {
   try {
     const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
     const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}?where=(isFolder=true)&include=path`;
-    log.info(url, ' is Axios URL');
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
-    log.info(options, ' is Axios options');
     const response = await axios.get(url, options);
     return response.data;
-  } catch (err) {
-    throw err;
+  } catch (error: any) {
+    log.error(error);
+    // In case nodeId doesn't exist, Alfresco throws 404
+    throw error;
   }
 };
 
