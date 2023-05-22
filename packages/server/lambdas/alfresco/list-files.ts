@@ -48,7 +48,7 @@ const searchByTermWithParent = async (uid: string, alfrescoParent: string, page:
     const alfrescoSearchAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1/search`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     log.info(alfrescoSearchAPIUrl, 'alfrescoSearchAPIUrl');
-    log.info(`bodyRequest ${bodyRequest} is stringified`);
+    log.info(bodyRequest, 'bodyRequest');
     const response = await axios.post(`${alfrescoSearchAPIUrl}`, bodyRequest, options);
     return response.data;
   } catch (err) {
@@ -65,8 +65,9 @@ const getFolder = async (uid: string, nodeId: string) => {
     return response.data;
   } catch (error: any) {
     log.info(`Error ${JSON.stringify(error)} is stringified`);
+    log.info(`${error.status} or ${error.statusCode} is error status`);
     // In case nodeId doesn't exist, Alfresco throws 404
-    if (error.err && (error.err.status === 404 || error.err.statusCode === 404)) {
+    if (error.status === 404 || error.statusCode === 404) {
       return null;
     } else {
       throw error;
