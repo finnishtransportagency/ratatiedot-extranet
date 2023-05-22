@@ -19,7 +19,7 @@ interface FoldersProps {
 }
 
 export const Folders = ({ isEditing }: FoldersProps) => {
-  const [components, setComponents] = useState([]);
+  const [nodes, setNodes] = useState([]);
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
@@ -31,7 +31,7 @@ export const Folders = ({ isEditing }: FoldersProps) => {
   const getComponents = async () => {
     try {
       const response: AxiosResponse = await axios.get(`/api/database/components/${categoryName}`);
-      setComponents(response.data.map((component: Component) => component.node));
+      setNodes(response.data.map((component: Component) => component.node));
     } catch (error) {
       console.log(error);
     }
@@ -60,9 +60,9 @@ export const Folders = ({ isEditing }: FoldersProps) => {
     }
   };
 
-  const editList = async (component: Node | null, title: string) => {
+  const editList = async (node: Node | null, title: string) => {
     try {
-      const response = await axios.put(`/api/alfresco/folder/${categoryName}/${component?.categoryComponentId}`, {
+      const response = await axios.put(`/api/alfresco/folder/${categoryName}/${node?.categoryComponentId}`, {
         name: title,
         properties: {
           'cm:title': title,
@@ -78,9 +78,9 @@ export const Folders = ({ isEditing }: FoldersProps) => {
     }
   };
 
-  const deleteComponent = async (component: Node) => {
+  const deleteComponent = async (node: Node) => {
     try {
-      const response = await axios.delete(`/api/alfresco/folder/${categoryName}/${component?.alfrescoNodeId}`);
+      const response = await axios.delete(`/api/alfresco/folder/${categoryName}/${node?.alfrescoNodeId}`);
       if (response) {
         setOpen(false);
       }
@@ -108,20 +108,20 @@ export const Folders = ({ isEditing }: FoldersProps) => {
     setOpen(false);
   };
 
-  const openEditModal = (component: Node) => {
+  const openEditModal = (node: Node) => {
     setIsNewList(false);
-    setSelectedComponent(component);
-    setTitle(component.title);
+    setSelectedComponent(node);
+    setTitle(node.title);
     setOpen(true);
   };
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', width: '100%', marginLeft: theme.spacing(5) }}>
-      {components.map((component: Node) => (
+      {nodes.map((node: Node) => (
         <FolderList
-          title={component.title}
+          title={node.title}
           isEditing={isEditing}
-          parentNode={component}
+          parentNode={node}
           onEdit={(node) => openEditModal(node)}
         ></FolderList>
       ))}
