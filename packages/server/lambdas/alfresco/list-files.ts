@@ -47,8 +47,6 @@ const searchByTermWithParent = async (uid: string, alfrescoParent: string, page:
     });
     const alfrescoSearchAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1/search`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
-    log.info(alfrescoSearchAPIUrl, 'alfrescoSearchAPIUrl');
-    log.info(bodyRequest, 'bodyRequest');
     const response = await axios.post(`${alfrescoSearchAPIUrl}`, bodyRequest, options);
     return response.data;
   } catch (err) {
@@ -64,18 +62,13 @@ const getFolder = async (uid: string, nodeId: string) => {
     const response = await axios.get(url, options);
     return response.data;
   } catch (error: any) {
-    log.info(`Error ${JSON.stringify(error)} is stringified`);
-    log.info(`${error.response} is supposed to contain error status`);
     if (error instanceof AxiosError) {
       // In case nodeId doesn't exist, Alfresco throws 404
-      if (error.response && error.response.status === 404) {
+      if (error.response?.status === 404) {
         return null;
-      } else {
-        throw error;
       }
-    } else {
-      throw error;
     }
+    throw error;
   }
 };
 
@@ -104,24 +97,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const params = event.queryStringParameters;
     const category = params?.category;
     const folderId = params?.folderid;
-    log.info(user, `Fetching files for for page ${category} with folder id ${folderId} `);
-    // Default response
-    const responseBody = {
-      hasClassifiedContent: true,
-      data: {
-        list: {
-          pagination: {
-            count: 0,
-            hasMoreItems: false,
-            totalItems: 0,
-            skipCount: 0,
-            maxItems: 25,
-          },
-          context: {},
-          entries: [],
-        },
-      },
-    };
+    log.info(user, `Fetching files for for page ${category} with folder id ${folderId}`);
 
     validateReadUser(user);
     if (!category) {
@@ -137,21 +113,39 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
     const endpoint = findEndpoint(category, fileEndpointsCache);
     const alfrescoParent = endpoint?.alfrescoFolder;
-    responseBody.hasClassifiedContent = endpoint?.hasClassifiedContent || true;
 
     if (!alfrescoParent) {
       throw new RataExtraLambdaError('Category not found', 404);
     }
+
+    let data;
     if (!folderId) {
-      responseBody.data = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
+      data = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
     } else {
       const foundFolder = await getFolder(user.uid, folderId);
       const folderPath = get(foundFolder, 'entry.path.name', '');
       const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
       if (isFolderDescendantOfCategory) {
-        responseBody.data = await searchByTermWithParent(user.uid, folderId, page, language);
+        data = await searchByTermWithParent(user.uid, folderId, page, language);
       }
     }
+
+    const responseBody = {
+      hasClassifiedContent: endpoint?.hasClassifiedContent || true,
+      data: data ?? {
+        list: {
+          pagination: {
+            count: 0,
+            hasMoreItems: false,
+            totalItems: 0,
+            skipCount: 0,
+            maxItems: 25,
+          },
+          context: {},
+          entries: [],
+        },
+      },
+    };
 
     return {
       statusCode: 200,
