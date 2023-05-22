@@ -55,6 +55,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       throw new RataExtraLambdaError('Category not found', 404);
     }
 
+    const hasClassifiedContent = categoryData.hasClassifiedContent;
+    if (hasClassifiedContent) {
+      throw new RataExtraLambdaError('Folder cannot be deleted', 403);
+    }
+
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
 

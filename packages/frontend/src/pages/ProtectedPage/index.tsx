@@ -32,7 +32,7 @@ export const ProtectedPage = ({ children }: Props) => {
   const { t } = useTranslation(['common']);
   const { openEdit, openToolbar } = useContext(AppBarContext);
   const { value } = useContext(EditorContext);
-  const { favoriteCategories, addFavoriteHandler, removeFavoriteHandler } = useContext(MenuContext);
+  const { favoriteCategories, addFavoriteHandler, removeFavoriteHandler, fileUploadDisabled } = useContext(MenuContext);
   const location = useLocation();
   const categoryRouteName = getCategoryRouteName(location);
 
@@ -70,7 +70,7 @@ export const ProtectedPage = ({ children }: Props) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         <DesktopAppBar />
         <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
-          {isEditorOpened && <FileUploadDialogButton categoryName={categoryRouteName} />}
+          {isEditorOpened && !fileUploadDisabled && <FileUploadDialogButton categoryName={categoryRouteName} />}
           <PageTitle routerName={categoryRouteName} />
           {categoryRouteName ? isFavorite ? <RemoveFavoriteButton /> : <AddFavoriteButton /> : <></>}
           {isEditorOpened && <SlateInputField />}
