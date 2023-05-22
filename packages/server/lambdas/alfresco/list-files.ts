@@ -63,12 +63,12 @@ const getFolder = async (uid: string, nodeId: string) => {
     const response = await axios.get(url, options);
     return response.data;
   } catch (error: any) {
-    log.info('Error: ', error);
+    log.info(error, 'Error');
     // In case nodeId doesn't exist, Alfresco throws 404
-    if (error.status === 404) {
+    if (error.status === 404 || error.statusCode === 404) {
       return null;
     } else {
-      return null;
+      throw error;
     }
   }
 };
@@ -141,7 +141,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       responseBody.data = await searchByTermWithParent(user.uid, alfrescoParent, page, language);
     } else {
       const foundFolder = await getFolder(user.uid, folderId);
-      log.info(foundFolder, ` is folder with id ${folderId}`);
       const folderPath = get(foundFolder, 'entry.path.name', '');
       const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
       if (isFolderDescendantOfCategory) {
