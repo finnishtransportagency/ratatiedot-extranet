@@ -15,7 +15,7 @@ import { ButtonWrapper } from '../../styles/common';
 import { getLocaleByteUnit, getRouterName } from '../../utils/helpers';
 
 import { FileInput } from '../FileInput/FileInput';
-import { FileModal } from '../Modal/FileModal';
+import { Modal } from '../Modal/Modal';
 
 import { Colors } from '../../constants/Colors';
 import './styles.css';
@@ -85,10 +85,12 @@ export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: File
   switch (dialogPhase) {
     case 1:
       return (
-        <FileModal
+        <Modal
           open={open}
           onSnackbarClose={handleSnackbarClose}
           handleClose={handleClose}
+          errorMessage={t('common:file.file_not_uploaded')}
+          successMessage={t('common:file.file_uploaded')}
           title={t('common:file.add_file')}
           children={
             <Box component="form">
@@ -106,16 +108,18 @@ export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: File
               </Box>
             </Box>
           }
-        ></FileModal>
+        ></Modal>
       );
     case 2:
       return (
-        <FileModal
+        <Modal
           open={open}
           onSnackbarClose={handleSnackbarClose}
           handleClose={handleClose}
           title={t('common:file.add_file')}
           error={error}
+          errorMessage={t('common:file.files_not_deleted')}
+          successMessage={t('common:file.files_deleted')}
           success={success}
           children={
             <Box component="form">
@@ -189,7 +193,7 @@ export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: File
               </Box>
             </Box>
           }
-        ></FileModal>
+        ></Modal>
       );
     default:
       return <div></div>;

@@ -8,7 +8,7 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { getAlfrescoId } from '../database/components/update-node-component';
+import { getAlfrescoId, updateFolderComponent } from '../database/components/update-node-component';
 import { folderUpdateRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 
@@ -71,6 +71,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     }
 
     const result = await updateFolder(alfrescoId, requestOptions);
+    await updateFolderComponent(componentId, { title: JSON.parse(event.body).name });
 
     auditLog.info(user, `Updated folder ${alfrescoId} metadata in ${categoryData.alfrescoFolder}`);
 

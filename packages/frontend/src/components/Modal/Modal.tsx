@@ -1,7 +1,7 @@
 import { FunctionComponent, JSXElementConstructor, ReactElement } from 'react';
 
 import Close from '@mui/icons-material/Close';
-import { Box, IconButton, Modal } from '@mui/material';
+import { Box, IconButton, Modal as MuiModal } from '@mui/material';
 
 import { ModalContentWrapper } from '../../styles/common';
 import { HighlightedTitle } from '../Typography/HighlightedTitle';
@@ -15,15 +15,19 @@ interface ModalProps {
   open: boolean;
   error?: boolean;
   success?: boolean;
+  errorMessage: string;
+  successMessage: string;
   handleClose: () => void;
   onSnackbarClose?: () => void;
 }
 
-export const FileModal: FunctionComponent<ModalProps> = ({
+export const Modal: FunctionComponent<ModalProps> = ({
   title,
   children,
   open,
   error,
+  errorMessage,
+  successMessage,
   handleClose,
   onSnackbarClose,
   success,
@@ -31,7 +35,7 @@ export const FileModal: FunctionComponent<ModalProps> = ({
   const { t } = useTranslation(['common']);
   return (
     <>
-      <Modal
+      <MuiModal
         open={open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
@@ -53,18 +57,18 @@ export const FileModal: FunctionComponent<ModalProps> = ({
             {children}
           </div>
         </ModalContentWrapper>
-      </Modal>
+      </MuiModal>
       <SnackbarAlert
         open={error}
         onSnackbarClose={onSnackbarClose}
         color={Colors.darkred}
-        text={t('common:file.files_not_deleted')}
+        text={errorMessage}
       ></SnackbarAlert>
       <SnackbarAlert
         open={success}
         onSnackbarClose={onSnackbarClose}
         color={Colors.black}
-        text={t('common:file.files_deleted')}
+        text={successMessage}
       ></SnackbarAlert>
     </>
   );

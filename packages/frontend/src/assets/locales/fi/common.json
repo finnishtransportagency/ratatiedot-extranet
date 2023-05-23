@@ -59,7 +59,12 @@
     "file_delete_confirmation": "Haluatko varmasti poistaa tiedoston",
     "files": "tiedostoa"
   },
+  "list": {
+    "add_list": "Lisää lista",
+    "edit_list": "Muokkaa listaa"
+  },
   "edit": {
+    "edit": "Muokkaa",
     "edit_content": "Muokkaa sisältöä",
     "save_changes_confirmation": "Haluatko tallentaa muutoksesi?",
     "write_content": "Kirjoita sisältö",
