@@ -16,10 +16,11 @@ import { getCategoryRouteName } from '../../routes';
 import { MenuContext } from '../../contexts/MenuContext';
 
 type TCategoryFilesProps = {
-  subCategory?: string;
+  childFolderName?: string;
+  nestedFolderId?: string;
 };
 
-export const CategoryFiles = ({ subCategory }: TCategoryFilesProps) => {
+export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFilesProps) => {
   const { t } = useTranslation(['common', 'search']);
   const location = useLocation();
   const [fileList, setFileList] = useState<TNode[]>([]);
@@ -40,8 +41,11 @@ export const CategoryFiles = ({ subCategory }: TCategoryFilesProps) => {
   const getCategoryFiles = useCallback(async () => {
     try {
       setLoading(true);
-      const subCategoryQuery = subCategory ? `&subcategory=${subCategory}` : '';
-      const response = await axios.get(`/api/alfresco/files?category=${categoryName}${subCategoryQuery}&page=${page}`);
+      const childFolderNameQuery = childFolderName ? `&childFolderName=${childFolderName}` : '';
+      const nestedFolderIdQuery = nestedFolderId ? `&nestedFolderId=${nestedFolderId}` : '';
+      const response = await axios.get(
+        `/api/alfresco/files?category=${categoryName}${childFolderNameQuery}${nestedFolderIdQuery}&page=${page}`,
+      );
       const { data, hasClassifiedContent } = response.data;
       const totalFiles = get(data, 'list.entries', []);
       const totalItems = get(data, 'list.pagination.totalItems', 0);
