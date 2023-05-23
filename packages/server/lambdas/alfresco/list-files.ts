@@ -93,7 +93,7 @@ const isFolderInCategory = async (folderPath: string, category: string) => {
   // Check if the parent folder name is among the path components
   // Adjust the index based on given path structure
   // e.g. /Company Home/Sites/ratat-extra/documentLibrary/hallintaraportit -> ['', 'Company Home', 'Sites', 'ratat-extra', 'documentLibrary', 'hallintaraportit']
-  return pathComponents[6] === category;
+  return pathComponents[5] === category;
 };
 
 const database = await DatabaseClient.build();
@@ -165,7 +165,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     if (childFolderName) {
-      data = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, page, language); // direct child folder name is given
+      // Check if the folder is a direct child of the category
+      const childFolder = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, page, language); // direct child folder name is given
+      const childFolderId = get(childFolder, 'list.entries[0].entry.id', -1);
+      data = await searchByTermWithParent(user.uid, childFolderId, '', page, language);
     }
 
     if (!nestedFolderId && !childFolderName) {
