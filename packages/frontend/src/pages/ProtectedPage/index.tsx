@@ -70,8 +70,8 @@ export const ProtectedPage = ({ children }: Props) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         <DesktopAppBar />
         <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
-          {isEditorOpened && !fileUploadDisabled && <FileUploadDialogButton categoryName={categoryRouteName} />}
           <PageTitle routerName={categoryRouteName} />
+          {isEditorOpened && !fileUploadDisabled && <FileUploadDialogButton categoryName={categoryRouteName} />}
           {categoryRouteName ? isFavorite ? <RemoveFavoriteButton /> : <AddFavoriteButton /> : <></>}
           {isEditorOpened && <SlateInputField />}
           {children}
