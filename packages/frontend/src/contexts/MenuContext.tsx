@@ -18,6 +18,7 @@ import { getRouterName, getTranslatedCategoryData, matchRouteWithCategory, parse
 import axios from 'axios';
 import { get } from 'lodash';
 import { useTranslation } from 'react-i18next';
+import { getErrorMessage } from '../utils/errorUtil';
 
 export interface IMenuItem {
   key: string;
@@ -89,7 +90,7 @@ const postFavoriteCategory = async (categoryRoute: string) => {
     const newCategory = await response.data;
     return newCategory;
   } catch (e: any) {
-    toast(e.message, { type: 'error' });
+    toast(getErrorMessage(e), { type: 'error' });
     throw e;
   }
 };
@@ -100,7 +101,7 @@ const deleteFavoriteCategory = async (categoryRoute: string) => {
     const newCategory = await response.data;
     return newCategory;
   } catch (e: any) {
-    toast(e.message, { type: 'error' });
+    toast(getErrorMessage(e), { type: 'error' });
     throw e;
   }
 };
