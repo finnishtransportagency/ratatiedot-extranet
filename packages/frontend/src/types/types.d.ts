@@ -109,6 +109,19 @@ type TNode = {
   };
 };
 
+export interface AlfrescoPaginatedResponse {
+  list: {
+    pagination: {
+      count: number;
+      hasMoreItems: boolean;
+      totalItems: number;
+      skipCount: number;
+      maxItems: number;
+    };
+    entries: AlfrescoResponse[];
+  };
+}
+
 interface AlfrescoResponse {
   entry: {
     isFile: boolean;

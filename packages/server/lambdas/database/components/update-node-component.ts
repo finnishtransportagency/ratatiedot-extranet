@@ -13,6 +13,9 @@ export const updateFolderComponent = async (componentId: string, body: Partial<N
     if (body.alfrescoNodeId) {
       data.alfrescoNodeId = body.alfrescoNodeId;
     }
+    if (body.title) {
+      data.title = body.title;
+    }
     return data;
   };
 
@@ -23,7 +26,7 @@ export const updateFolderComponent = async (componentId: string, body: Partial<N
         categoryComponentId: componentId,
       },
       data: {
-        ...updatedData,
+        ...updatedData(),
       },
     });
   } catch (error) {
@@ -38,7 +41,7 @@ export const getAlfrescoId = async (componentId: string) => {
   try {
     response = await database.node.findUnique({
       where: {
-        id: componentId,
+        categoryComponentId: componentId,
       },
     });
   } catch (error) {

@@ -1,12 +1,12 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import axios from 'axios';
-import { getAlfrescoUrlBase } from '../../utils/alfresco';
+import axios, { AxiosRequestConfig } from 'axios';
+import { getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 
-const getNodes = async (id: string, type?: string) => {
+const getNodes = async (id: string, options: AxiosRequestConfig, type?: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   try {
     let queryParameter = '';
@@ -16,9 +16,10 @@ const getNodes = async (id: string, type?: string) => {
     if (type && type === 'file') {
       queryParameter = `?where=(isFile=true)`;
     }
-    return await axios.get(`${alfrescoCoreAPIUrl}/nodes/${id}/children${queryParameter}`);
+    const response = await axios.get(`${alfrescoCoreAPIUrl}/nodes/${id}/children${queryParameter}`, options);
+    return response;
   } catch (error) {
-    return error;
+    log.error(error);
   }
 };
 
@@ -33,24 +34,26 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const paths = event.path.split('/');
     const nodeId = paths.pop();
     const user = await getUser(event);
-    const params = event.queryStringParameters;
-    const type = params?.type;
+    const type = event.queryStringParameters?.type;
 
-    log.info(user, `Getting nodes for id ${nodeId} `);
+    log.info(user, `Getting nodes for id ${nodeId}`);
 
     validateReadUser(user);
+
     if (!nodeId) {
       throw new RataExtraLambdaError('node ID missing', 400);
     }
 
-    const categoryData = await getNodes(nodeId, type);
+    const options = await getAlfrescoOptions(user.uid);
+    const nodes = await getNodes(nodeId, options, type);
+    log.info(user, `response: ${JSON.stringify(nodes?.data, null, 2)}`);
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(categoryData),
+      body: JSON.stringify(nodes?.data),
     };
   } catch (err) {
     log.error(err);
