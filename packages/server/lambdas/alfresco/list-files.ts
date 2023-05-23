@@ -118,7 +118,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     const params = event.queryStringParameters;
     // only listed parameters are accepted
-    validateQueryParameters(params, ['category', 'nestedFolderId', 'childFolderName']);
+    validateQueryParameters(params, ['category', 'nestedFolderId', 'childFolderName', 'page', 'language']);
     const category = params?.category;
     const nestedFolderId = params?.nestedFolderId;
     const childFolderName = params?.childFolderName;
