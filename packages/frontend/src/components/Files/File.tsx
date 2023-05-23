@@ -136,7 +136,7 @@ export const NodeItem = ({
         )}
       </Grid>
       <Collapse key={`${name}-Collapse`} in={folderOpen} timeout="auto" unmountOnExit>
-        <CategoryFiles subCategory={id} />
+        <CategoryFiles nestedFolderId={id} />
       </Collapse>
     </>
   );
