@@ -17,6 +17,7 @@ import {
   SortingFieldParameter,
 } from './searchQueryBuilder/types';
 import { get } from 'lodash';
+import { validateQueryParameters } from '../../utils/validation';
 
 export type TNode = {
   entry: {
@@ -116,6 +117,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
     const params = event.queryStringParameters;
+    // only listed parameters are accepted
+    validateQueryParameters(params, ['category', 'nestedFolderId', 'childFolderName']);
     const category = params?.category;
     const nestedFolderId = params?.nestedFolderId;
     const childFolderName = params?.childFolderName;
