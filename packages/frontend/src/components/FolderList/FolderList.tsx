@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Colors } from '../../constants/Colors';
 import { Styles } from '../../constants/Styles';
 import { theme } from '../../styles/createTheme';
+import { AlfrescoPaginatedResponse, AlfrescoResponse } from '../../types/types';
 
 export interface Node {
   id: string;
@@ -24,13 +25,16 @@ interface FolderListProps {
 }
 
 export const FolderList = ({ parentNode, isEditing, title, onEdit }: FolderListProps) => {
-  const [folders, setFolders] = useState<Node[]>([]);
+  const [folders, setFolders] = useState<AlfrescoResponse[]>([]);
   const getFolders = async () => {
     try {
-      const response: AxiosResponse = await axios.get(`api/alfresco/nodes/${parentNode.alfrescoNodeId}?type=folder`);
+      const response: AxiosResponse<AlfrescoPaginatedResponse> = await axios.get(
+        `api/alfresco/nodes/${parentNode.alfrescoNodeId}?type=folder`,
+      );
       setFolders(response.data.list.entries);
     } catch (error) {
       console.log(error);
+      return error;
     }
   };
 
@@ -60,7 +64,7 @@ export const FolderList = ({ parentNode, isEditing, title, onEdit }: FolderListP
           <Edit />
         </IconButton>
       </Box>
-      {folders.map((folder: any) => (
+      {folders.map((folder) => (
         <Box
           sx={{
             padding: theme.spacing(2),

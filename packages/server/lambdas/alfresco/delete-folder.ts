@@ -21,7 +21,7 @@ const deleteFolder = async (options: RequestInit, nodeId: string) => {
     const res = await fetch(url, options);
     return res;
   } catch (err) {
-    console.error('error:' + err);
+    log.error('error:' + err);
   }
 };
 
