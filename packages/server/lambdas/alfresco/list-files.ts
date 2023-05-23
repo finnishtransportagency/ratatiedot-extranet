@@ -91,7 +91,9 @@ const isFolderInCategory = async (folderPath: string, category: string) => {
   const pathComponents = folderPath.split('/');
 
   // Check if the parent folder name is among the path components
-  return pathComponents.includes(category);
+  // Adjust the index based on given path structure
+  // e.g. /Company Home/Sites/ratat-extra/documentLibrary/hallintaraportit -> ['', 'Company Home', 'Sites', 'ratat-extra', 'documentLibrary', 'hallintaraportit']
+  return pathComponents[6] === category;
 };
 
 const database = await DatabaseClient.build();
