@@ -41,6 +41,8 @@ const SSM_ALFRESCO_DOWNLOAD_URL = 'rataextra-alfresco-download-url';
 const SSM_ALFRESCO_API_ANCESTOR = 'rataextra-alfresco-ancestor';
 const SSM_MOCK_UID = 'rataextra-static-test-user';
 const SSM_ALFRESCO_SITE_PATH = 'rataextra-alfresco-site-path';
+const SSM_SONARQUBE_URL = 'rataextra-sonarqube-url';
+const SSM_SONARQUBE_TOKEN = 'rataextra-sonarqube-token';
 
 // Minified JS code that is used to make ES modules working
 // Also handles __dirname & import.meta.url
@@ -67,6 +69,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   alfrescoAncestor: getSSMStringParameter(scope, SSM_ALFRESCO_API_ANCESTOR),
   mockUid: getSSMStringParameter(scope, SSM_MOCK_UID),
   alfrescoSitePath: getSSMStringParameter(scope, SSM_ALFRESCO_SITE_PATH),
+  sonarQubeUrl: getSSMStringParameter(scope, SSM_SONARQUBE_URL),
 });
 
 // Runtime variables from SSM/Parameter Store
@@ -79,6 +82,7 @@ export const getPipelineConfig = () => {
       branch,
       stackId: getStackId(branch),
       authenticationToken: 'github-token',
+      sonarQubeToken: SSM_SONARQUBE_TOKEN,
       tags: {
         Environment: env,
         Project: 'Ratatiedon Extranet',
