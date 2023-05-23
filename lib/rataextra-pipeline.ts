@@ -77,7 +77,16 @@ export class RataExtraPipelineStack extends Stack {
       pre: [strip],
     });
 
-    // TOOD: Only run on main
+    pipeline.addStage(
+      new RataExtraApplication(this, 'RataExtra', {
+        stackId: config.stackId,
+        rataExtraEnv: config.env,
+        tags: config.tags,
+        env: {
+          region: 'eu-west-1',
+        },
+      }),
+    );
 
     const sonarQube = new CodeBuildStep('Scan', {
       input: github,
@@ -108,17 +117,6 @@ export class RataExtraPipelineStack extends Stack {
     pipeline.addWave('SonarQube', {
       pre: [sonarQube],
     });
-
-    pipeline.addStage(
-      new RataExtraApplication(this, 'RataExtra', {
-        stackId: config.stackId,
-        rataExtraEnv: config.env,
-        tags: config.tags,
-        env: {
-          region: 'eu-west-1',
-        },
-      }),
-    );
   }
 }
 interface RataExtraStageProps extends StageProps {
