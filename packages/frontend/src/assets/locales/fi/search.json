@@ -14,7 +14,7 @@
   "latest_first": "Uusin ensin",
   "last_searches": "VIIMEISET HAUT",
   "show_results": " Näytetään {{files}}/{{total}} tulosta",
-  "zero_result": "Hakusanalla \"{{query}}\" ei löytynyt tuloksia. Tarkista oikeinkirjoitus, kokeile toisella hakusanalla tai muokkaa valitsemiasi suodattimia. ",
+  "zero_result": "Hakusanalla \"{{query}}\" ei löytynyt tuloksia. Tarkista oikeinkirjoitus, kokeile toisella hakusanalla tai muokkaa valitsemiasi suodattimia.",
   "image": "Kuva",
   "action": {
     "update_results": "Päivitä tulokset",
