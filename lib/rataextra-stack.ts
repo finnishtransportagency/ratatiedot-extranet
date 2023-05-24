@@ -83,6 +83,7 @@ export class RataExtraStack extends Stack {
       autoDeleteObjects: autoDeleteObjects,
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       encryption: BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
     });
 
     if (isPermanentStack(stackId, rataExtraEnv)) {
