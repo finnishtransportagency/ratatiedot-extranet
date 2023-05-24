@@ -13,7 +13,7 @@ export class RataExtraLambdaError extends Error {
  * Returns error message to be returned to client
  */
 export const getClientErrorMessage = (err: unknown) =>
-  (err instanceof RataExtraLambdaError && err.message) || 'An error occurred processing the request.';
+  (err instanceof RataExtraLambdaError && err.message) || 'Pyynnön käsittelyssä tapahtui virhe.';
 
 /**
  * Returns error response object for RataExtra API requests

@@ -31,7 +31,9 @@
     "remove_favorite": "Poista suosikeista"
   },
   "error": {
-    "500": "Jokin meni pieleen!"
+    "500": "Jokin meni pieleen!",
+    "networkError": "Ei Internet-yhteyttä",
+    "badRequest": "Pyynnössä tapahtui virhe"
   },
   "loading": {
     "logging_out": "Kirjaudutaan ulos..."
