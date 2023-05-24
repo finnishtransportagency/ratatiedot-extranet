@@ -39,6 +39,7 @@ interface IFilterSearchItem extends IItem {
 }
 
 const FilterSearchItem = (props: IFilterSearchItem) => {
+  const { t } = useTranslation(['search']);
   const [open, setOpen] = useState(false);
   const { savedCheckboxes } = useContext(SearchContext);
 
@@ -55,6 +56,11 @@ const FilterSearchItem = (props: IFilterSearchItem) => {
   };
 
   const { name, type, items, handleCheckboxes, checkboxes } = props;
+
+  const getTranslatedItemText = (text: string) => {
+    if (text === EMimeType.Image) return t('search:image');
+    return text;
+  };
 
   return (
     <>
@@ -79,7 +85,7 @@ const FilterSearchItem = (props: IFilterSearchItem) => {
                   checked={isChecked(type, item)}
                   onChange={() => handleCheckboxes(type, item)}
                 />
-                <ListItemText primary={item} />
+                <ListItemText primary={getTranslatedItemText(item)} />
               </ListItem>
             );
           })}
