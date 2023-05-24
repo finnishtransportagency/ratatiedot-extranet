@@ -3,7 +3,7 @@ import { Errors } from '../constants/Errors';
 import { t } from 'i18next';
 
 export const getErrorMessage = (error: any): string => {
-  if (error.name === 'AxiosError') {
+  if (error instanceof AxiosError) {
     const axiosError = error as AxiosError;
     if (axiosError.code === Errors.ERR_NETWORK) {
       return t('common:error.networkError');
