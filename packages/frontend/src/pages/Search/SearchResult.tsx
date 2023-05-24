@@ -54,7 +54,7 @@ export const SearchResult = () => {
           <NodeItem key={index} row={index} node={node} />
         ))}
       </div>
-      {data.list.pagination.totalItems && (
+      {data.list.pagination.totalItems ? (
         <Pagination
           sx={{ justifyContent: 'center', display: 'flex' }}
           page={page + 1}
@@ -64,6 +64,10 @@ export const SearchResult = () => {
           color="primary"
           onChange={(_: React.ChangeEvent<unknown>, pageNumber: number) => pageHandler(pageNumber - 1)}
         />
+      ) : (
+        <Typography variant="body1" sx={{ margin: '24px 0px' }}>
+          {t('search:zero_result', { query: query })}
+        </Typography>
       )}
     </ProtectedContainerWrapper>
   );
