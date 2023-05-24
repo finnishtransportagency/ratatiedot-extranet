@@ -17,7 +17,7 @@
   "zero_result": "Hakusanalla \"{{query}}\" ei löytynyt tuloksia. Tarkista oikeinkirjoitus, kokeile toisella hakusanalla tai muokkaa valitsemiasi suodattimia.",
   "image": "Kuva",
   "format": "Muoto",
-  "material_class": "Aineistoluokka",
+  "category": "Aineistoluokka",
   "action": {
     "update_results": "Päivitä tulokset",
     "remove_filters": "Poista kaikki suodattimet"

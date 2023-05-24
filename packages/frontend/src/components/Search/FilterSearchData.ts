@@ -21,7 +21,7 @@ export const FilterSearchData: IItem[] = [
     items: FileFormats,
   },
   {
-    name: i18n.t('search:material_class'),
+    name: i18n.t('search:category'),
     type: SearchParameterName.CATEGORY,
     items: flatMapByKey(getTranslatedCategoryData(categoryData), 'subCategories'),
   },
