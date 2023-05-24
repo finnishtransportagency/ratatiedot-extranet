@@ -9,7 +9,8 @@ export const Landing = () => {
   return (
     <ProtectedContainerWrapper>
       <SubtitleWrapper variant="subtitle1">{t('landing:welcome.text')}</SubtitleWrapper>
-      <ParagraphWrapper variant="body1">{t('landing:welcome.description')}</ParagraphWrapper>
+      <ParagraphWrapper variant="body1">{t('landing:welcome.description_primary')}</ParagraphWrapper>
+      <ParagraphWrapper variant="body1">{t('landing:welcome.description_secondary')}</ParagraphWrapper>
     </ProtectedContainerWrapper>
   );
 };
