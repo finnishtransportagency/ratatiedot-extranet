@@ -14,7 +14,7 @@ export const Tags = () => {
     const fromYear = formatYear(years[0]);
     const toYear = formatYear(years[1]);
     if (fromYear) {
-      return fromYear < toYear && toYear ? `${fromYear} - ${toYear}` : fromYear;
+      return fromYear < toYear ? `${fromYear} - ${toYear}` : fromYear;
     }
     return '';
   };
