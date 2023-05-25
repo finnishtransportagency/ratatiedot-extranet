@@ -125,7 +125,7 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
       ))}
       {loading && <Spinner />}
       <Typography sx={{ color: Colors.darkgrey }}>
-        {t('search:show_results', { files: fileList.length, total: totalFiles })}
+        {!loading && t('search:show_results', { files: fileList.length, total: totalFiles })}
       </Typography>
       {hasMoreItems && (
         <ButtonWrapper color="primary" variant="outlined" onClick={loadMore}>
