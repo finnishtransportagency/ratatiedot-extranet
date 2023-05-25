@@ -1,12 +1,5 @@
-import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
-import { getSubCategoryData } from '../../../utils/helpers';
+import { ProtectedContainerWrapper } from '../../../styles/common';
 
 export const ManagementReports = () => {
-  const categoryNames = getSubCategoryData();
-
-  return (
-    <ProtectedContainerWrapper>
-      <PageTitleWrapper>{categoryNames.MANAGEMENT_REPORTS}</PageTitleWrapper>
-    </ProtectedContainerWrapper>
-  );
+  return <ProtectedContainerWrapper></ProtectedContainerWrapper>;
 };

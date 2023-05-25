@@ -11,17 +11,18 @@ export const CustomBreadcrumbs = () => {
 
   const BreadcrumbText = ({ routerName }: { routerName: string }) => {
     return (
-      <Typography sx={{ textTransform: 'capitalize', color: Colors.extrablack }}>
+      <Typography sx={{ color: Colors.extrablack }}>
         {parseRouterName(routerName) || t('common:page.frontpage')}
       </Typography>
     );
   };
-
+  let breadcrumbPath = '';
   const breadcrumbs = routerNames.map((routerName: string, index: number) => {
+    breadcrumbPath += '/' + routerName;
     return index === 0 ? (
       <BreadcrumbText key={index} routerName={routerName} />
     ) : (
-      <Link underline="hover" key={index} href={pathname}>
+      <Link underline="hover" key={index} href={breadcrumbPath}>
         <BreadcrumbText routerName={routerName} />
       </Link>
     );

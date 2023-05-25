@@ -1,12 +1,5 @@
-import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
-import { getSubCategoryData } from '../../../utils/helpers';
+import { ProtectedContainerWrapper } from '../../../styles/common';
 
 export const DriverActivity = () => {
-  const categoryNames = getSubCategoryData();
-
-  return (
-    <ProtectedContainerWrapper>
-      <PageTitleWrapper>{categoryNames.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY}</PageTitleWrapper>
-    </ProtectedContainerWrapper>
-  );
+  return <ProtectedContainerWrapper></ProtectedContainerWrapper>;
 };

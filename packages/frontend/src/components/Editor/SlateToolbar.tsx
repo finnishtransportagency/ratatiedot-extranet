@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Box, Divider, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Box, Button, Divider, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
@@ -7,6 +7,7 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import { Slate } from 'slate-react';
 
+import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '../../assets/icons/Close.svg';
 import LinkIcon from '../../assets/icons/Link.svg';
 import PaletteIcon from '../../assets/icons/Palette.svg';
@@ -14,13 +15,19 @@ import { insertLink, isBlockActive, isMarkActive, toggleBlock, toggleMark } from
 import { Colors } from '../../constants/Colors';
 import { ElementType, FontFormatType } from '../../utils/types';
 import { NotificationTypes } from './NotificationTypes';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { EditorContext } from '../../contexts/EditorContext';
 import { useTranslation } from 'react-i18next';
 import { EditorColorPicker } from './Popup/EditorColorPicker';
 import { ContentTypes } from './ContentTypes';
 import { FontSizeDropdown } from './Dropdown/FontSizeDropdown';
+import { ButtonWrapper } from './ConfirmationAppBar';
+import { useUpdatePageContents } from '../../hooks/mutations/UpdateCategoryPageContent';
+import { getRouterName } from '../../utils/helpers';
+import { useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { isEqual } from 'lodash';
 
 type MarkButtonProps = { editor: any; format: FontFormatType; icon: any };
 
@@ -68,10 +75,19 @@ const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
 
 export const SlateToolbar = () => {
   const { t } = useTranslation(['common']);
-  const { closeToolbarHandler } = useContext(AppBarContext);
-  const { editor, value } = useContext(EditorContext);
+  const { closeToolbarHandler, closeToolbarWithoutSaveHandler } = useContext(AppBarContext);
+  const { editor, value, valueReset } = useContext(EditorContext);
   const [isColorOpened, setIsColorOpened] = useState(false);
+  const [initialValue, setInitialValue] = useState([]);
+  const { pathname } = useLocation();
+  const categoryName = pathname.split('/').at(-1) || '';
 
+  const mutatePageContents = useUpdatePageContents(getRouterName(categoryName));
+  const { error } = mutatePageContents;
+
+  useEffect(() => {
+    setInitialValue(value);
+  }, []);
   const handleInsertLink = () => {
     const url = prompt(t('common:edit.enter_url'));
     if (!url) return;
@@ -79,6 +95,26 @@ export const SlateToolbar = () => {
   };
 
   const toggleColorPicker = () => setIsColorOpened(!isColorOpened);
+
+  const handleSave = () => {
+    mutatePageContents.mutate(value, {
+      onSuccess: () => {
+        toast(t('common:edit.saved_success'), { type: 'success' });
+        setInitialValue(value);
+      },
+      onError: () => {
+        toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+      },
+    });
+  };
+
+  const handleClose = () => {
+    if (isEqual(initialValue, value)) {
+      closeToolbarWithoutSaveHandler();
+    } else {
+      closeToolbarHandler();
+    }
+  };
 
   return (
     <Slate editor={editor} value={value}>
@@ -122,13 +158,18 @@ export const SlateToolbar = () => {
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <ContentTypes />
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
+        <ButtonWrapper onClick={valueReset}>{t('common:action.reject')}</ButtonWrapper>
+        <ButtonWrapper variant="contained" onClick={handleSave}>
+          <CheckIcon fontSize="small" />
+          {t('common:action.save')}
+        </ButtonWrapper>
         <Box
           aria-label={t('common:action.close')}
           component="img"
           sx={{ cursor: 'pointer', marginLeft: 'auto' }}
           src={CloseIcon}
           alt="close"
-          onClick={closeToolbarHandler}
+          onClick={handleClose}
         />
       </ToolbarPaperWrapper>
     </Slate>

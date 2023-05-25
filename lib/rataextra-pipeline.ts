@@ -1,10 +1,11 @@
 import { SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-import { Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
+import { BuildEnvironmentVariableType, Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
 import { getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';
 import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
+import { isDevelopmentMainStack } from './utils';
 
 /**
  * The stack that defines the application pipeline
@@ -18,16 +19,18 @@ export class RataExtraPipelineStack extends Stack {
       },
       tags: config.tags,
     });
-    const { alfrescoDownloadUrl } = getRataExtraStackConfig(this);
+    const { alfrescoDownloadUrl, sonarQubeUrl } = getRataExtraStackConfig(this);
 
     const oauth = SecretValue.secretsManager(config.authenticationToken);
+
+    const github = CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
+      authentication: oauth,
+    });
 
     const pipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
       pipelineName: 'pr-rataextra-' + config.stackId,
       synth: new ShellStep('Synth', {
-        input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
-          authentication: oauth,
-        }),
+        input: github,
         installCommands: ['npm run ci --user=root'],
         commands: [
           `REACT_APP_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} npm run build:frontend`,
@@ -84,6 +87,38 @@ export class RataExtraPipelineStack extends Stack {
         },
       }),
     );
+
+    if (isDevelopmentMainStack(config.stackId, config.env)) {
+      const sonarQube = new CodeBuildStep('Scan', {
+        input: github,
+        buildEnvironment: {
+          environmentVariables: {
+            SONAR_TOKEN: {
+              value: config.sonarQubeToken,
+              type: BuildEnvironmentVariableType.SECRETS_MANAGER,
+            },
+          },
+        },
+        installCommands: [
+          'export SONAR_SCANNER_VERSION=4.7.0.2747',
+          'export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux',
+          'curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip',
+          'unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/',
+          'export PATH=$SONAR_SCANNER_HOME/bin:$PATH',
+          'export SONAR_SCANNER_OPTS="-server"',
+        ],
+        commands: [
+          `sonar-scanner \
+            -Dsonar.projectKey=Ratatieto \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=${sonarQubeUrl}`,
+        ],
+      });
+
+      pipeline.addWave('SonarQube', {
+        pre: [sonarQube],
+      });
+    }
   }
 }
 interface RataExtraStageProps extends StageProps {

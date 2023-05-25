@@ -23,13 +23,25 @@
     "open_edit": "Avaa muokkausnäkymä",
     "open_search": "Avaa hakunäkymä",
     "search": "Hae",
-    "close_modal": "Sulje modaali"
+    "close_modal": "Sulje modaali",
+    "erase_query": "Tyhjennä haku",
+    "filter": "Suodata",
+    "search_site": "Etsi sivustolta",
+    "add_favorite": "Lisää suosikkeihin",
+    "remove_favorite": "Poista suosikeista"
   },
   "error": {
-    "500": "Jokin meni pieleen!"
+    "500": "Jokin meni pieleen!",
+    "networkError": "Ei Internet-yhteyttä",
+    "badRequest": "Pyynnössä tapahtui virhe"
   },
   "loading": {
     "logging_out": "Kirjaudutaan ulos..."
+  },
+  "menu": {
+    "frontpage": "Etusivu",
+    "favorite": "Suosikki",
+    "logout": "Kirjaudu ulos"
   },
   "file": {
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
@@ -47,7 +59,12 @@
     "file_delete_confirmation": "Haluatko varmasti poistaa tiedoston",
     "files": "tiedostoa"
   },
+  "list": {
+    "add_list": "Lisää lista",
+    "edit_list": "Muokkaa listaa"
+  },
   "edit": {
+    "edit": "Muokkaa",
     "edit_content": "Muokkaa sisältöä",
     "save_changes_confirmation": "Haluatko tallentaa muutoksesi?",
     "write_content": "Kirjoita sisältö",
@@ -58,7 +75,9 @@
     "insert_link": "Lisää linkki",
     "color_picker": "värivalitsin",
     "toolbar": "työkalupalkki",
-    "choose_fontsize": "Valitse fontin koko"
+    "choose_fontsize": "Valitse fontin koko",
+    "saved_success": "Sisällön tallennus onnistui",
+    "saved_failure": "Sisällön tallennus epäonnistui"
   },
   "notification": {
     "info": "info",
@@ -116,5 +135,12 @@
     "name": "Henkilö nimi",
     "phone_number": "Puhelinnumero",
     "email": "Sähköpostiosoite"
+  },
+  "map": {
+    "south": "etelä",
+    "north": "pohjoinen",
+    "west": "länsi",
+    "east": "itä",
+    "area": "Alue"
   }
 }

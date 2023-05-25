@@ -12,6 +12,7 @@ import {
   Sorting,
   SortingParameter,
   IFolderSearchParameter,
+  IAncestorSearchParameter,
 } from './types';
 
 const mimeTypesMapping = {
@@ -35,6 +36,12 @@ const YEAR = new RegExp(/^\d{4}$/);
 const onlyYear = (date: string) => YEAR.test(date);
 
 export class LuceneQueryBuilder implements SearchQueryBuilder {
+  defaultPath: string;
+
+  constructor(defaultPath: string) {
+    this.defaultPath = defaultPath;
+  }
+
   // Filters values that are not approved
   additionalFields(additionalFields: Array<AdditionalFields>): Array<AdditionalFields> {
     return additionalFields.filter((val) => Object.values(AdditionalFields).includes(val));
@@ -74,14 +81,21 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
 
   buildNameQuery(parameter: INameSearchParameter): string {
     const fileType = '+TYPE:"cm:content"';
+    const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
     const contentSearchQuery = `TEXT:"${parameter.term}*"`;
     const basicSearchQuery = `@cm\\:name:"${parameter.term}*"`;
     const extendedSearchQuery = `+(${contentSearchQuery} ${basicSearchQuery})`;
-    return parameter.contentSearch ? `+${contentSearchQuery}${fileType}` : `${extendedSearchQuery}${fileType}`;
+    return parameter.contentSearch
+      ? `+${contentSearchQuery}${fileType}${defaultPathQuery}`
+      : `${extendedSearchQuery}${fileType}${defaultPathQuery}`;
   }
 
   buildParentQuery(parameter: IParentSearchParameter) {
     return `+PARENT:\"workspace\\://SpacesStore/${parameter.parent}\"`;
+  }
+
+  buildAncestorQuery(parameter: IAncestorSearchParameter) {
+    return `+ANCESTOR:\"workspace\\://SpacesStore/${parameter.ancestor}\"`;
   }
 
   buildFolderQuery(parameter: IFolderSearchParameter) {
@@ -104,6 +118,9 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
           break;
         case SearchParameterName.PARENT:
           query += this.buildParentQuery(parameter);
+          break;
+        case SearchParameterName.ANCESTOR:
+          query += this.buildAncestorQuery(parameter);
           break;
         case SearchParameterName.FOLDER:
           query += this.buildFolderQuery(parameter);

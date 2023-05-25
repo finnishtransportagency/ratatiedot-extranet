@@ -1,12 +1,10 @@
-import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
-import { getSubCategoryData } from '../../../utils/helpers';
+import { PolylineFinlandMap } from '../../../components/Map/PolylineFinlandMap';
+import { ProtectedContainerWrapper } from '../../../styles/common';
 
 export const BridgeInspections = () => {
-  const categoryNames = getSubCategoryData();
-
   return (
     <ProtectedContainerWrapper>
-      <PageTitleWrapper>{categoryNames.BRIDGE_INSPECTIONS}</PageTitleWrapper>
+      <PolylineFinlandMap />
     </ProtectedContainerWrapper>
   );
 };

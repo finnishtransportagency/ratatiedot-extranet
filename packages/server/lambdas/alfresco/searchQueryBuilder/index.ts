@@ -2,6 +2,8 @@ import { log } from '../../../utils/logger';
 import { LuceneQueryBuilder } from './luceneQueryBuilder';
 import { QueryLanguage, Query, QueryRequest } from './types';
 
+const alfrescoSitePathName = process.env.ALFRESCO_SITE_PATH || '';
+
 export const searchQueryBuilder = ({
   searchParameters,
   page = 0,
@@ -11,7 +13,7 @@ export const searchQueryBuilder = ({
 }: QueryRequest): Query => {
   switch (language) {
     case QueryLanguage.LUCENE:
-      const luceneQueryBuilder = new LuceneQueryBuilder();
+      const luceneQueryBuilder = new LuceneQueryBuilder(alfrescoSitePathName);
       return {
         query: {
           query: luceneQueryBuilder.queryBuilder(searchParameters),

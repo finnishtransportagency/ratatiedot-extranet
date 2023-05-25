@@ -5,6 +5,7 @@ import { findEndpoint } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
+import { validateQueryParameters } from '../../utils/validation';
 import { DatabaseClient } from './client';
 
 const database = await DatabaseClient.build();
@@ -25,6 +26,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
   try {
     const params = event.queryStringParameters;
+    // only listed parameters are accepted
+    validateQueryParameters(params, ['category']);
     const category = params?.category;
 
     const user = await getUser(event);

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { InputBase, IconButton } from '@mui/material';
+import { InputBase, IconButton, InputAdornment } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import TuneIcon from '@mui/icons-material/Tune';
 import ArrayBackIcon from '@mui/icons-material/ArrowBack';
@@ -83,22 +83,33 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
         <InputBase
           inputRef={(input) => openSearch && input?.focus()}
           fullWidth={true}
-          placeholder="Etsi sivustolta"
+          placeholder={t('common:action.search_site')}
           inputProps={{ 'aria-label': t('common:action.search') }}
           value={query}
           onChange={(event) => queryHandler(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
           onBlur={closeRecentSearch}
+          endAdornment={
+            <>
+              <InputAdornment position="end" sx={{ visibility: query ? 'visible' : 'hidden' }}>
+                <IconButton
+                  size="large"
+                  edge="end"
+                  aria-label={t('common:action.erase_query')}
+                  onMouseDown={() => queryHandler('')}
+                >
+                  <CloseIcon color="primary" />
+                </IconButton>
+              </InputAdornment>
+              <InputAdornment position="end">
+                <IconButton size="large" edge="end" aria-label={t('common:action.filter')} onMouseDown={toggleFilter}>
+                  {openFilter ? <DisabledByDefaultIcon color="primary" /> : <TuneIcon color="primary" />}
+                </IconButton>
+              </InputAdornment>
+            </>
+          }
         />
-        {query && (
-          <IconButton size="large" edge="end" area-label="erase query" onMouseDown={() => queryHandler('')}>
-            <CloseIcon color="primary" />
-          </IconButton>
-        )}
-        <IconButton size="large" edge="end" area-label="filter" onMouseDown={toggleFilter}>
-          {openFilter ? <DisabledByDefaultIcon color="primary" /> : <TuneIcon color="primary" />}
-        </IconButton>
       </>
       {openSearch && !openFilter && <RecentSearch exitSearch={exitSearch} />}
       <FilterSearch />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useGetUserRightPageContent } from '../hooks/query/GetUserRightPageContent';
 import { getCategoryRouteName } from '../routes';
 
@@ -15,6 +15,7 @@ export const AppBarContext = React.createContext({
   openToolbar: false,
   openToolbarHandler: () => {},
   closeToolbarHandler: () => {},
+  closeToolbarWithoutSaveHandler: () => {},
   userRight: { canRead: false, canWrite: false },
   userRightHandler: (_: TUserRight) => {},
 });
@@ -31,11 +32,15 @@ export const AppBarContextProvider = (props: any) => {
 
   const location = useLocation();
   const categoryName = getCategoryRouteName(location);
-  const { data } = useGetUserRightPageContent(categoryName);
+  const { area = '' } = useParams<{ area: string }>();
+  const { data } = useGetUserRightPageContent(!area ? categoryName : area);
 
   useEffect(() => {
     if (data) {
       setUserRight(data);
+    } else {
+      userRightHandler({ canRead: false, canWrite: false });
+      closeEdit();
     }
   }, [data]);
 
@@ -66,6 +71,14 @@ export const AppBarContextProvider = (props: any) => {
     setOpenToolbar(false);
   };
 
+  const closeEdit = () => {
+    setOpenEdit(false);
+  };
+
+  const closeToolbarWithoutSaveHandler = () => {
+    setOpenToolbar(false);
+  };
+
   const userRightHandler = (userRight: TUserRight) => {
     setUserRight(userRight);
   };
@@ -84,6 +97,7 @@ export const AppBarContextProvider = (props: any) => {
         openToolbar: openToolbar,
         openToolbarHandler: openToolbarHandler,
         closeToolbarHandler: closeToolbarHandler,
+        closeToolbarWithoutSaveHandler: closeToolbarWithoutSaveHandler,
         userRight: userRight,
         userRightHandler: userRightHandler,
       }}

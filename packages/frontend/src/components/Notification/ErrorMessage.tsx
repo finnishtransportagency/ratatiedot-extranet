@@ -1,6 +1,6 @@
 import { Alert, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { ProtectedContainerWrapper } from '../../styles/common';
+import { getErrorMessage } from '../../utils/errorUtil';
 
 type TErrorMessageProps = {
   title?: string;
@@ -8,13 +8,12 @@ type TErrorMessageProps = {
 };
 
 export const ErrorMessage = (props: TErrorMessageProps) => {
-  const { t } = useTranslation(['common']);
   const { title, error } = props;
 
   return (
     <ProtectedContainerWrapper>
       <Typography variant="subtitle1">{title}</Typography>
-      <Alert severity="error">{error?.message || t('common:error.500')}</Alert>
+      <Alert severity="error">{getErrorMessage(error)}</Alert>
     </ProtectedContainerWrapper>
   );
 };

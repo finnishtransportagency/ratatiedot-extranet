@@ -13,12 +13,14 @@ import { FileDeleteDialogButton } from './FileDeleteDialogButton';
 import { useLocation } from 'react-router-dom';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { getCategoryRouteName } from '../../routes';
+import { MenuContext } from '../../contexts/MenuContext';
 
 type TCategoryFilesProps = {
-  subCategory?: string;
+  childFolderName?: string;
+  nestedFolderId?: string;
 };
 
-export const CategoryFiles = ({ subCategory }: TCategoryFilesProps) => {
+export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFilesProps) => {
   const { t } = useTranslation(['common', 'search']);
   const location = useLocation();
   const [fileList, setFileList] = useState<TNode[]>([]);
@@ -29,20 +31,28 @@ export const CategoryFiles = ({ subCategory }: TCategoryFilesProps) => {
   const [hasMoreItems, setHasMoreItems] = useState(false);
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
   const categoryName = getCategoryRouteName(location);
+  const [hasClassifiedContent, setHasClassifiedContent] = useState(true);
 
   const { openEdit, openToolbar } = useContext(AppBarContext);
+  const { fileUploadDisabledHandler } = useContext(MenuContext);
 
   const isEditOpen = openEdit || openToolbar;
 
   const getCategoryFiles = useCallback(async () => {
     try {
       setLoading(true);
-      const subCategoryQuery = subCategory ? `&subcategory=${subCategory}` : '';
-      const response = await axios.get(`/api/alfresco/files?category=${categoryName}${subCategoryQuery}&page=${page}`);
-      const data = response.data;
+      const childFolderNameQuery = childFolderName ? `&childFolderName=${childFolderName}` : '';
+      const nestedFolderIdQuery = nestedFolderId ? `&nestedFolderId=${nestedFolderId}` : '';
+      const response = await axios.get(
+        `/api/alfresco/files?category=${categoryName}${childFolderNameQuery}${nestedFolderIdQuery}&page=${page}`,
+      );
+      const { data, hasClassifiedContent } = response.data;
       const totalFiles = get(data, 'list.entries', []);
       const totalItems = get(data, 'list.pagination.totalItems', 0);
       const hasMoreItems = get(data, 'list.pagination.hasMoreItems', false);
+
+      setHasClassifiedContent(hasClassifiedContent);
+      fileUploadDisabledHandler(hasClassifiedContent);
 
       setFileList((f) => {
         return page > 0 ? [...f, ...totalFiles] : [...totalFiles];
@@ -93,7 +103,7 @@ export const CategoryFiles = ({ subCategory }: TCategoryFilesProps) => {
 
   return (
     <ProtectedContainerWrapper>
-      {isEditOpen && (
+      {isEditOpen && !hasClassifiedContent && (
         <FileDeleteDialogButton
           categoryName={categoryName}
           disabled={!selectedFile}

@@ -8,7 +8,7 @@ import { Box, Typography } from '@mui/material';
 import { deleteFile } from '../../services/FileDeleteService';
 import { ButtonWrapper } from '../../styles/common';
 
-import { FileModal } from '../Modal/FileModal';
+import { Modal } from '../Modal/Modal';
 
 import { Colors } from '../../constants/Colors';
 import { AxiosResponse } from 'axios';
@@ -70,13 +70,15 @@ export const FileDeleteDialog = ({ categoryName, node, open, onClose, onDelete }
   };
 
   return (
-    <FileModal
+    <Modal
       open={open}
       onSnackbarClose={handleSnackbarClose}
       handleClose={handleClose}
       title={t('common:file.delete_file')}
       error={error}
       success={success}
+      errorMessage={t('common:file.files_not_deleted')}
+      successMessage={t('common:file.files_deleted')}
       children={
         <Box>
           <Typography>{`${t('common:file.file_delete_confirmation')}?`}</Typography>
@@ -104,6 +106,6 @@ export const FileDeleteDialog = ({ categoryName, node, open, onClose, onDelete }
           </Box>
         </Box>
       }
-    ></FileModal>
+    ></Modal>
   );
 };

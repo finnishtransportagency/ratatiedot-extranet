@@ -33,6 +33,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly alfrescoAPIUrl: string;
   readonly alfrescoAncestor: string;
   readonly mockUid?: string;
+  readonly alfrescoSitePath: string;
 }
 
 type ListenerTargetLambdas = {
@@ -86,6 +87,7 @@ export class RataExtraBackendStack extends NestedStack {
       alfrescoAPIUrl,
       alfrescoAncestor,
       mockUid,
+      alfrescoSitePath,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -101,7 +103,10 @@ export class RataExtraBackendStack extends NestedStack {
 
     const ssmAlfrescoParameterPolicy = new PolicyStatement({
       actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
-      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoSitePath}`,
+      ],
     });
 
     const kmsDecryptPolicy = new PolicyStatement({
@@ -171,6 +176,7 @@ export class RataExtraBackendStack extends NestedStack {
         ALFRESCO_API_KEY_NAME: alfrescoAPIKey,
         ALFRESCO_API_URL: alfrescoAPIUrl,
         ALFRESCO_ANCESTOR: alfrescoAncestor,
+        ALFRESCO_SITE_PATH: alfrescoSitePath,
       },
       initialPolicy: [ssmAlfrescoParameterPolicy, kmsDecryptPolicy],
     };
@@ -237,6 +243,36 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/delete-file.ts',
     });
 
+    const alfrescoCreateFolder = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-create-folder',
+      relativePath: '../packages/server/lambdas/alfresco/create-folder.ts',
+    });
+
+    const alfrescoUpdateFolder = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-update-folder',
+      relativePath: '../packages/server/lambdas/alfresco/update-folder.ts',
+    });
+
+    const alfrescoDeleteFolder = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-delete-folder',
+      relativePath: '../packages/server/lambdas/alfresco/delete-folder.ts',
+    });
+
+    const getComponents = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'get-components',
+      relativePath: '../packages/server/lambdas/alfresco/list-components.ts',
+    });
+
+    const getNodesById = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'get-nodes',
+      relativePath: '../packages/server/lambdas/alfresco/list-nodes.ts',
+    });
+
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
@@ -253,6 +289,24 @@ export class RataExtraBackendStack extends NestedStack {
       ...prismaParameters,
       name: 'check-user-right',
       relativePath: '../packages/server/lambdas/database/check-user-right.ts',
+    });
+
+    const dbGetFavoritePages = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-get-favorite-pages',
+      relativePath: '../packages/server/lambdas/database/get-favorite-pages.ts',
+    });
+
+    const dbPostFavoritePage = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-post-favorite-page',
+      relativePath: '../packages/server/lambdas/database/post-favorite-page.ts',
+    });
+
+    const dbDeleteFavoritePage = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'db-delete-favorite-page',
+      relativePath: '../packages/server/lambdas/database/delete-favorite-page.ts',
     });
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
@@ -289,6 +343,13 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'alfrescoUploadFile',
       },
       {
+        lambda: alfrescoCreateFolder,
+        priority: 125,
+        path: ['/api/alfresco/folder/*'],
+        httpRequestMethods: ['POST'],
+        targetName: 'alfrescoCreateFolder',
+      },
+      {
         lambda: alfrescoUpdateFile,
         priority: 130,
         path: ['/api/alfresco/file/*/content'],
@@ -303,11 +364,32 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'alfrescoUpdateFileMetadata',
       },
       {
+        lambda: alfrescoUpdateFolder,
+        priority: 134,
+        path: ['/api/alfresco/folder/*'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'alfrescoUpdateFolder',
+      },
+      {
         lambda: alfrescoDeleteFile,
         priority: 140,
         path: ['/api/alfresco/file/*'],
         httpRequestMethods: ['DELETE'],
         targetName: 'alfrescoDeleteFile',
+      },
+      {
+        lambda: alfrescoDeleteFolder,
+        priority: 142,
+        path: ['/api/alfresco/folder/*'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'alfrescoDeleteFolder',
+      },
+      {
+        lambda: getNodesById,
+        priority: 144,
+        path: ['/api/alfresco/nodes/*'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getNodesById',
       },
       {
         lambda: dbGetPageContents,
@@ -329,6 +411,34 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/user-right'],
         httpRequestMethods: ['GET'],
         targetName: 'checkUserRightOnPageContents',
+      },
+      {
+        lambda: getComponents,
+        priority: 220,
+        path: ['/api/database/components/*'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getComponents',
+      },
+      {
+        lambda: dbGetFavoritePages,
+        priority: 230,
+        path: ['/api/database/favorites'],
+        httpRequestMethods: ['GET'],
+        targetName: 'dbGetFavoritePages',
+      },
+      {
+        lambda: dbPostFavoritePage,
+        priority: 235,
+        path: ['/api/database/favorites'],
+        httpRequestMethods: ['POST'],
+        targetName: 'dbPostFavoritePage',
+      },
+      {
+        lambda: dbDeleteFavoritePage,
+        priority: 240,
+        path: ['/api/database/favorites'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'dbDeleteFavoritePage',
       },
     ];
     // ALB for API
