@@ -88,7 +88,6 @@ export const SlateToolbar = () => {
   useEffect(() => {
     setInitialValue(value);
   }, []);
-
   const handleInsertLink = () => {
     const url = prompt(t('common:edit.enter_url'));
     if (!url) return;
