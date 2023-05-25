@@ -8,7 +8,8 @@ import { EMimeType } from '../../constants/Data';
 
 export const Tags = () => {
   const { t } = useTranslation(['search']);
-  const { years, savedCheckboxes, sort } = useContext(SearchContext);
+  const { years, yearsHandler, savedCheckboxes, savedCheckboxesHandler, sort, sortHandler, pageHandler } =
+    useContext(SearchContext);
 
   const getYearTagName = (): string => {
     const fromYear = formatYear(years[0]);
@@ -36,18 +37,43 @@ export const Tags = () => {
     return name;
   };
 
+  const removeSortingTag = () => {
+    sortHandler(sort[0] ?? '');
+    pageHandler(0);
+  };
+
+  const removeYearTag = () => {
+    yearsHandler(null, null);
+    pageHandler(0);
+  };
+
+  const removeCheckboxTag = (type: string, name: string) => {
+    savedCheckboxesHandler((prevData: any) => {
+      return {
+        ...prevData,
+        [type]: prevData[type].filter((item: string) => item !== name),
+      };
+    });
+    pageHandler(0);
+  };
+
   return (
     <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
       {/* Sorting by alphabet and date */}
-      {sort[0] && <Chip color="secondary" label={getSortingTagName(sort[0])} />}
+      {sort[0] && <Chip color="secondary" label={getSortingTagName(sort[0])} onDelete={removeSortingTag} />}
       {/* Select by year range */}
-      {getYearTagName() && <Chip color="secondary" label={getYearTagName()} />}
+      {getYearTagName() && <Chip color="secondary" label={getYearTagName()} onDelete={removeYearTag} />}
       {/* Select by mime format type and category name */}
-      {Object.values(savedCheckboxes)
-        .flat()
-        .map((name: any, index: number) => (
-          <Chip key={index} color="secondary" label={getGeneralTagName(name)} />
-        ))}
+      {Object.entries(savedCheckboxes).map(([type, names]) =>
+        names.map((name: string, index: number) => (
+          <Chip
+            key={`${type}-${index}`}
+            color="secondary"
+            label={getGeneralTagName(name)}
+            onDelete={() => removeCheckboxTag(type, name)}
+          />
+        )),
+      )}
     </Stack>
   );
 };
