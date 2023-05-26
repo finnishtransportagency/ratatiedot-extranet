@@ -86,7 +86,11 @@ const fetchFavoriteCategories = async (): Promise<IMenuItem[]> => {
 
 const postFavoriteCategory = async (categoryRoute: string) => {
   try {
-    const response = await axios.post(`/api/database/favorites?category=${categoryRoute}`);
+    const response = await axios.post(
+      `/api/database/favorites`,
+      { category: categoryRoute },
+      { headers: { 'Content-Type': 'application/json' } },
+    );
     const newCategory = await response.data;
     return newCategory;
   } catch (e: any) {
