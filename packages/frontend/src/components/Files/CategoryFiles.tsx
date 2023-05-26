@@ -123,10 +123,13 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
           isSelected={isSelected(node)}
         />
       ))}
-      {loading && <Spinner />}
-      <Typography sx={{ color: Colors.darkgrey }}>
-        {t('search:show_results', { files: fileList.length, total: totalFiles })}
-      </Typography>
+      {loading ? (
+        <Spinner />
+      ) : (
+        <Typography sx={{ color: Colors.darkgrey }}>
+          {t('search:show_results', { files: fileList.length, total: totalFiles })}
+        </Typography>
+      )}
       {hasMoreItems && (
         <ButtonWrapper color="primary" variant="outlined" onClick={loadMore}>
           {t('common:action.load_more')}
