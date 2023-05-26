@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { createEditor } from 'slate';
@@ -7,17 +8,23 @@ import { SlateInputField } from '../SlateInputField';
 import { theme } from '../../../styles/createTheme';
 import { AppBarContextProvider } from '../../../contexts/AppBarContext';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: '/',
-  }),
-}));
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...(actual as Record<string, unknown>),
+    useLocation: () => ({
+      pathname: '/',
+    }),
+  };
+});
 
-jest.mock('@tanstack/react-query', () => ({
-  ...jest.requireActual('@tanstack/react-query'),
-  useQuery: () => jest.fn(),
-}));
+vi.mock('@tanstack/react-query', async () => {
+  const actual = await vi.importActual('@tanstack/react-query');
+  return {
+    ...(actual as Record<string, unknown>),
+    useQuery: () => vi.fn(),
+  };
+});
 
 const customSlatInputFieldRender = (ui: any, { providerProps, ...renderOptions }: any) => {
   const { openToolbar = false } = providerProps;
