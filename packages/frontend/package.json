@@ -44,7 +44,7 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "npx react-scripts build",
+    "build": "tsc && vite build",
     "serve": "vite preview",
     "test": "vitest watch",
     "test:no-watch": "vitest run",
