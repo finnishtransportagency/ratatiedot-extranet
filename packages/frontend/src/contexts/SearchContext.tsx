@@ -24,13 +24,17 @@ export const SearchContext = React.createContext({
   contentSearchHandler: (_: boolean) => {},
 });
 
+export type TCheckBoxes = {
+  [name in SearchParameterName]: string[];
+};
+
 export const SearchContextProvider = (props: any) => {
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState<string>(() => {
     return searchParams.get('query') || '';
   });
   const [years, setYears] = useState<any[]>([]);
-  const [savedCheckboxes, setSavedCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>({
+  const [savedCheckboxes, setSavedCheckboxes] = useState<TCheckBoxes>({
     [SearchParameterName.MIME]: [],
     [SearchParameterName.CATEGORY]: [],
   });
@@ -57,7 +61,7 @@ export const SearchContextProvider = (props: any) => {
     setYears([from, to]);
   };
 
-  const savedCheckboxesHandler = (checkboxes: any) => {
+  const savedCheckboxesHandler = (checkboxes: TCheckBoxes) => {
     return setSavedCheckboxes(checkboxes);
   };
 
