@@ -2,9 +2,10 @@ import { Chip, Stack } from '@mui/material';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { SearchContext, Sorting } from '../../contexts/SearchContext';
+import { SearchContext, Sorting, TCheckBoxes } from '../../contexts/SearchContext';
 import { formatYear } from '../../utils/helpers';
 import { EMimeType } from '../../constants/Data';
+import { SearchParameterName } from '../Search/FilterSearchData';
 
 export const Tags = () => {
   const { t } = useTranslation(['search']);
@@ -47,8 +48,8 @@ export const Tags = () => {
     pageHandler(0);
   };
 
-  const removeCheckboxTag = (type: string, name: string) => {
-    savedCheckboxesHandler((prevData: any) => {
+  const removeCheckboxTag = (type: SearchParameterName, name: string) => {
+    savedCheckboxesHandler((prevData: TCheckBoxes) => {
       return {
         ...prevData,
         [type]: prevData[type].filter((item: string) => item !== name),
@@ -70,7 +71,7 @@ export const Tags = () => {
             key={`${type}-${index}`}
             color="secondary"
             label={getGeneralTagName(name)}
-            onDelete={() => removeCheckboxTag(type, name)}
+            onDelete={() => removeCheckboxTag(type as SearchParameterName, name as string)}
           />
         )),
       )}
