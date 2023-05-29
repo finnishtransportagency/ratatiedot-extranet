@@ -12,14 +12,15 @@ datasource db {
 }
 
 model CategoryDataBase {
-  id                   String                @id @default(uuid())
-  rataextraRequestPage String
-  alfrescoFolder       String
-  categoryDataContents CategoryDataContents?
-  categoryComponents   CategoryComponent[]
-  writeRights          String
-  FavoriteCategory     FavoriteCategory[]
-  hasClassifiedContent Boolean           @default(false)
+  id                     String                @id @default(uuid())
+  rataextraRequestPage   String
+  alfrescoFolder         String
+  categoryDataContents   CategoryDataContents?
+  categoryComponents     CategoryComponent[]
+  writeRights            String
+  FavoriteCategory       FavoriteCategory[]
+  hasClassifiedContent   Boolean               @default(false)
+  hasConfidentialContent Boolean               @default(false)
 }
 
 model CategoryDataContents {
