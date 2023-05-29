@@ -142,5 +142,8 @@
     "west": "länsi",
     "east": "itä",
     "area": "Alue"
+  },
+  "warning": {
+    "confidential": "Salassapidettävää sisältöä."
   }
 }
