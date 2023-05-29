@@ -18,7 +18,7 @@ export const PolylineFinlandMap = () => {
         if (!mapRef.current) {
           const map = L.map('map', {
             renderer: L.canvas({ tolerance: 6 }),
-            scrollWheelZoom: false,
+            scrollWheelZoom: true,
           }).setView([65, 26], 5);
 
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
