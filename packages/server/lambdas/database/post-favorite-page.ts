@@ -1,7 +1,7 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { findEndpoint } from '../../utils/alfresco';
 
+import { findEndpoint } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { auditLog, log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
@@ -12,16 +12,16 @@ const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 /**
- * User adds their favorite category page. Example request: POST /api/database/favorites?category=linjakaaviot
+ * User adds their favorite category page. Example request: POST /api/database/favorites
  * @param {ALBEvent} event
- * @param {{string}} event.path Path should end with the page to get the custom content for
+ * @param {{QueryRequest}} event.body JSON stringified QueryRequest: Category name to be added to favorite list
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    const params = event.queryStringParameters;
-    const category = params?.category;
+    const parsedBody: { category: string } = JSON.parse(event.body || '{}');
+    const category = parsedBody.category;
     log.info(user, `Add favorite category page ${category}`);
     validateReadUser(user);
 
