@@ -32,11 +32,11 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   const [hasMoreItems, setHasMoreItems] = useState(false);
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
   const categoryName = getCategoryRouteName(location);
-  const [hasClassifiedContent, setHasClassifiedContent] = useState(true);
 
   const { openEdit, openToolbar } = useContext(AppBarContext);
   const { fileUploadDisabledHandler } = useContext(MenuContext);
-  const { hasConfidentialContentHandler } = useContext(CategoryDataContext);
+  const { hasConfidentialContentHandler, hasClassifiedContentHandler, hasClassifiedContent } =
+    useContext(CategoryDataContext);
 
   const isEditOpen = openEdit || openToolbar;
 
@@ -53,8 +53,8 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
       const totalItems = get(data, 'list.pagination.totalItems', 0);
       const hasMoreItems = get(data, 'list.pagination.hasMoreItems', false);
 
-      setHasClassifiedContent(hasClassifiedContent);
       fileUploadDisabledHandler(hasClassifiedContent);
+      hasClassifiedContentHandler(hasClassifiedContent);
       hasConfidentialContentHandler(hasConfidentialContent);
 
       setFileList((f) => {
