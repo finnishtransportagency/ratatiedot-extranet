@@ -41,6 +41,12 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
     }
   };
 
+  const search = () => {
+    SearchStorage.add(KeyEnum.RECENT_SEARCHES, query);
+    closeSearch();
+    navigate(`${Routes.SEARCH_RESULT}?query=${query}`);
+  };
+
   const openRecentSearch = () => !openSearch && toggleSearch();
   const closeRecentSearch = () => openSearch && toggleSearch();
   const closeFilterSearch = () => openFilter && toggleFilter();
@@ -112,7 +118,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
         />
       </>
       {openSearch && !openFilter && <RecentSearch exitSearch={exitSearch} />}
-      <FilterSearch />
+      <FilterSearch filtersApplied={() => search()} />
     </>
   );
 };
