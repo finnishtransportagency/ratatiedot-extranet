@@ -35,9 +35,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
 
   const enterSearch = (event: React.KeyboardEvent) => {
     if (event.code === 'Enter' && query) {
-      SearchStorage.add(KeyEnum.RECENT_SEARCHES, query);
-      closeSearch();
-      navigate(`${Routes.SEARCH_RESULT}?query=${query}`);
+      search();
     }
   };
 
