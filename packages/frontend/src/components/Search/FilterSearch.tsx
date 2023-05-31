@@ -95,9 +95,14 @@ const FilterSearchItem = (props: IFilterSearchItem) => {
   );
 };
 
-export const FilterSearch = () => {
+interface FilterSearchProps {
+  filtersApplied: () => void;
+}
+
+export const FilterSearch = (props: FilterSearchProps) => {
   const { t } = useTranslation(['search']);
   const { openFilter, toggleFilter } = useContext(AppBarContext);
+  const { filtersApplied } = props;
 
   const {
     savedCheckboxes,
@@ -156,7 +161,14 @@ export const FilterSearch = () => {
   return (
     <DrawerWrapper anchor="right" open={openFilter} disableEnforceFocus>
       <Toolbar>
-        <ButtonWrapper color="primary" variant="contained" onClick={saveFilters}>
+        <ButtonWrapper
+          color="primary"
+          variant="contained"
+          onClick={() => {
+            saveFilters();
+            filtersApplied();
+          }}
+        >
           {t('search:action.update_results')}
         </ButtonWrapper>
         <Box sx={{ flexGrow: 1 }} />

@@ -14,6 +14,7 @@ import { useLocation } from 'react-router-dom';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { getCategoryRouteName } from '../../routes';
 import { MenuContext } from '../../contexts/MenuContext';
+import { CategoryDataContext } from '../../contexts/CategoryDataContext';
 
 type TCategoryFilesProps = {
   childFolderName?: string;
@@ -31,10 +32,11 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   const [hasMoreItems, setHasMoreItems] = useState(false);
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
   const categoryName = getCategoryRouteName(location);
-  const [hasClassifiedContent, setHasClassifiedContent] = useState(true);
 
   const { openEdit, openToolbar } = useContext(AppBarContext);
   const { fileUploadDisabledHandler } = useContext(MenuContext);
+  const { hasConfidentialContentHandler, hasClassifiedContentHandler, hasClassifiedContent } =
+    useContext(CategoryDataContext);
 
   const isEditOpen = openEdit || openToolbar;
 
@@ -46,13 +48,14 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
       const response = await axios.get(
         `/api/alfresco/files?category=${categoryName}${childFolderNameQuery}${nestedFolderIdQuery}&page=${page}`,
       );
-      const { data, hasClassifiedContent } = response.data;
+      const { data, hasClassifiedContent, hasConfidentialContent } = response.data;
       const totalFiles = get(data, 'list.entries', []);
       const totalItems = get(data, 'list.pagination.totalItems', 0);
       const hasMoreItems = get(data, 'list.pagination.hasMoreItems', false);
 
-      setHasClassifiedContent(hasClassifiedContent);
       fileUploadDisabledHandler(hasClassifiedContent);
+      hasClassifiedContentHandler(hasClassifiedContent);
+      hasConfidentialContentHandler(hasConfidentialContent);
 
       setFileList((f) => {
         return page > 0 ? [...f, ...totalFiles] : [...totalFiles];

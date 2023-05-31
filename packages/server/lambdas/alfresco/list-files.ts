@@ -180,6 +180,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const responseBody = {
       hasClassifiedContent: endpoint?.hasClassifiedContent,
+      hasConfidentialContent: endpoint?.hasConfidentialContent,
       data: data ?? {
         list: {
           pagination: {
