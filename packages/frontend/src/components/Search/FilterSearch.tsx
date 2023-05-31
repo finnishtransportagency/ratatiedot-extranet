@@ -165,8 +165,8 @@ export const FilterSearch = (props: FilterSearchProps) => {
           color="primary"
           variant="contained"
           onClick={() => {
-            filtersApplied();
             saveFilters();
+            filtersApplied();
           }}
         >
           {t('search:action.update_results')}

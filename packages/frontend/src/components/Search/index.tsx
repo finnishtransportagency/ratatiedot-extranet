@@ -116,7 +116,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
         />
       </>
       {openSearch && !openFilter && <RecentSearch exitSearch={exitSearch} />}
-      <FilterSearch filtersApplied={() => search()} />
+      <FilterSearch filtersApplied={() => {}} />
     </>
   );
 };
