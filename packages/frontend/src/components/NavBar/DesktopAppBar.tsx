@@ -105,7 +105,7 @@ export const DesktopAppBarWrapper = styled(MuiAppBar)<DrawerWrapperProps>(({ the
       overflow: 'visible',
       ...((openedit || opentoolbar) && {
         '.MuiToolbar-root:nth-of-type(2)': {
-          padding: '24px 40px',
+          padding: '12px 40px 0px 40px',
         },
       }),
       ...(!openedit && {
