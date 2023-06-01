@@ -44,14 +44,6 @@ export const SearchContextProvider = (props: any) => {
 
   useEffect(() => {
     queryHandler(searchParams.get('query') || '');
-    sortHandler('');
-    yearsHandler(null, null);
-    savedCheckboxesHandler({
-      [SearchParameterName.MIME]: [],
-      [SearchParameterName.CATEGORY]: [],
-    });
-    pageHandler(0);
-    contentSearchHandler(false);
   }, [searchParams]);
 
   const queryHandler = (query: string) => {
