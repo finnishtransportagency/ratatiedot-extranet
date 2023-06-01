@@ -85,7 +85,7 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const wildcardTerms = parameter.term
       .toLowerCase()
       .split(' ')
-      .map((word: string) => `*${word}*`);
+      .map((word: string) => `${word}*`);
 
     const contentSearchQuery = wildcardTerms.map((term: string) => `TEXT:"${term}"`).join(' AND ');
     const basicSearchQuery = wildcardTerms.map((term: string) => `@cm\\:name:"${term}"`).join(' AND ');
