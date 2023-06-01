@@ -122,23 +122,23 @@ describe('Lucene Query Builder', () => {
       const parameters: Array<SearchParameter> = [
         {
           parameterName: SearchParameterName.NAME,
-          term: 'test',
+          term: 'hello world',
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+(TEXT:"test*" @cm\\:name:"test*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
+        '+(TEXT:"*hello* *world*" @cm\\:name:"*hello* *world*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
       );
     });
     it('should return query for content search from "mysite" workspace', () => {
       const parameters: Array<SearchParameter> = [
         {
           parameterName: SearchParameterName.NAME,
-          term: 'test',
+          term: 'hello world',
           contentSearch: true,
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+TEXT:"test*"+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
+        '+TEXT:"*hello* *world*"+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
       );
     });
     it('should return query for parent', () => {

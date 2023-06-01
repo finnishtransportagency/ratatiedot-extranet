@@ -82,8 +82,13 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   buildNameQuery(parameter: INameSearchParameter): string {
     const fileType = '+TYPE:"cm:content"';
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
-    const contentSearchQuery = `TEXT:"${parameter.term}*"`;
-    const basicSearchQuery = `@cm\\:name:"${parameter.term}*"`;
+    const wildcardTerm = parameter.term
+      .split(' ')
+      .map((word: string) => `*${word}*`)
+      .join(' ');
+
+    const contentSearchQuery = `TEXT:"${wildcardTerm}"`;
+    const basicSearchQuery = `@cm\\:name:"${wildcardTerm}"`;
     const extendedSearchQuery = `+(${contentSearchQuery} ${basicSearchQuery})`;
     return parameter.contentSearch
       ? `+${contentSearchQuery}${fileType}${defaultPathQuery}`
