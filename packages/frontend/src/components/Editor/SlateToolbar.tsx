@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Box, Button, Divider, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Box, Divider, IconButton, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
@@ -7,6 +7,8 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import { Slate } from 'slate-react';
 
+import RedoIcon from '@mui/icons-material/Redo';
+import UndoIcon from '@mui/icons-material/Undo';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '../../assets/icons/Close.svg';
 import LinkIcon from '../../assets/icons/Link.svg';
@@ -28,6 +30,7 @@ import { getRouterName } from '../../utils/helpers';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { isEqual } from 'lodash';
+import { HistoryEditor } from 'slate-history';
 
 type MarkButtonProps = { editor: any; format: FontFormatType; icon: any };
 
@@ -120,6 +123,14 @@ export const SlateToolbar = () => {
     <Slate editor={editor} value={value}>
       <ToolbarPaperWrapper elevation={2} aria-label={t('common:edit.toolbar')}>
         <FontSizeDropdown />
+        <DividerWrapper orientation="vertical" variant="middle" flexItem />
+        <IconButton onClick={() => HistoryEditor.undo(editor)}>
+          <UndoIcon fontSize="small" />
+        </IconButton>
+        <IconButton onClick={() => HistoryEditor.redo(editor)}>
+          <RedoIcon fontSize="small" />
+        </IconButton>
+        <DividerWrapper orientation="vertical" variant="middle" flexItem />
         <ToggleButtonGroupWrapper size="small">
           {MarkButton({ editor, format: FontFormatType.BOLD, icon: <FormatBoldIcon fontSize="small" /> })}
           {MarkButton({ editor, format: FontFormatType.ITALIC, icon: <FormatItalicIcon fontSize="small" /> })}
