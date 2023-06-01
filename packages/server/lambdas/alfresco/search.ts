@@ -46,7 +46,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const { body } = event;
     const parsedBody: QueryRequest = body ? JSON.parse(body) : {};
     const { searchParameters } = parsedBody;
-    log.info(user, `Alfresco search: ${parsedBody}`);
+    log.info(user, `Alfresco search: ${body}`);
     validateReadUser(user);
 
     // Currently, only accept one category
