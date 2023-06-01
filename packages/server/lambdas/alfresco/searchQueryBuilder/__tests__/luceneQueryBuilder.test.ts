@@ -126,7 +126,7 @@ describe('Lucene Query Builder', () => {
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+(TEXT:"*hello*" AND TEXT:"*world*" OR @cm\\:name:"*hello*" AND @cm\\:name:"*world*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
+        '+(TEXT:"hello*" AND TEXT:"world*" OR @cm\\:name:"hello*" AND @cm\\:name:"world*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
       );
     });
     it('should return query for content search from "mysite" workspace', () => {
@@ -138,7 +138,7 @@ describe('Lucene Query Builder', () => {
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+(TEXT:"*hello*" AND TEXT:"*world*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
+        '+(TEXT:"hello*" AND TEXT:"world*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
       );
     });
     it('should return query for parent', () => {
