@@ -3,6 +3,7 @@ import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
 import { ALBEvent } from 'aws-lambda';
 import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
+import { devLog } from '../../../utils/logger';
 
 const base64ToString = (base64string: string): string => {
   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
@@ -20,6 +21,7 @@ const bufferToBlob = (buffer: Buffer) => {
 };
 
 const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
+  devLog.debug('requestFormData', requestFormData);
   const formData = new FormData();
   const fileData: Blob = bufferToBlob(requestFormData.filedata as Buffer);
   const fileInfo = requestFormData.fileinfo as FileInfo;
@@ -31,6 +33,8 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
 
 export class AlfrescoFileRequestBuilder {
   public async requestBuilder(event: ALBEvent, headers: HeadersInit) {
+    devLog.debug('event', event);
+    devLog.debug('headers', headers);
     if (event.isBase64Encoded) {
       event.body = base64ToString(event.body as string);
     }
