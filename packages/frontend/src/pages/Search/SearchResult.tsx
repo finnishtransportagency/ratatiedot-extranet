@@ -51,7 +51,7 @@ export const SearchResult = () => {
       </Typography>
       <div style={{ marginLeft: '18px' }}>
         {data.list.entries.map((node: TNode, index: number) => (
-          <NodeItem key={index} row={index} node={node} />
+          <NodeItem key={index} row={index} node={node} isStatic={node.entry.isFile || node.entry.isFolder} />
         ))}
       </div>
       {data.list.pagination.totalItems ? (
