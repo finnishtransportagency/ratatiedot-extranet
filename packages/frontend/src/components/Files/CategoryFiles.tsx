@@ -124,6 +124,7 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
           row={index}
           node={node}
           isSelected={isSelected(node)}
+          isStatic={node.entry.isFile || node.entry.isFolder}
         />
       ))}
       {loading ? (
