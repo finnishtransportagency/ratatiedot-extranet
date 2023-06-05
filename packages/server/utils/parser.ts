@@ -1,4 +1,4 @@
-import { ALBEvent } from 'aws-lambda';
+import { ALBEventHeaders } from 'aws-lambda';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
 
@@ -6,10 +6,10 @@ export interface ParsedFormDataOptions {
   [key: string]: string | Buffer | Readable | FileInfo;
 }
 
-export const parseForm = (event: ALBEvent) => {
+export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => {
   return new Promise<ParsedFormDataOptions>((resolve, reject) => {
     const form = {} as ParsedFormDataOptions;
-    const bb = busboy({ headers: event.headers });
+    const bb = busboy({ headers: headers });
 
     bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
       form.fieldname = fieldname;
@@ -31,6 +31,6 @@ export const parseForm = (event: ALBEvent) => {
       reject(err);
     });
 
-    bb.end(event.body);
+    bb.end(buffer);
   });
 };

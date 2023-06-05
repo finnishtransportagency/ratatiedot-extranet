@@ -1,18 +1,20 @@
 import { FormData } from 'formdata-node';
 import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
-import { ALBEvent } from 'aws-lambda';
+import { ALBEvent, ALBEventHeaders } from 'aws-lambda';
 import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
 import { devLog } from '../../../utils/logger';
 
-const base64ToString = (base64string: string): string => {
-  const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
-  devLog.debug('buffer: ' + JSON.stringify(buffer));
-  return buffer;
-};
+// const base64ToString = (base64string: string): string => {
+//   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
+//   devLog.debug('buffer: ' + JSON.stringify(buffer));
+//   return buffer;
+// };
 
 const base64ToBuffer = (base64string: string): Buffer => {
+  devLog.debug('base64ToBuffer: ', base64string);
   const buffer = Buffer.from(base64string, 'base64');
+  devLog.debug('buffer: ' + buffer);
   return buffer;
 };
 
@@ -36,16 +38,18 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
 };
 
 export class AlfrescoFileRequestBuilder {
-  public async requestBuilder(event: ALBEvent, headers: HeadersInit) {
+  public async requestBuilder(event: ALBEvent, headers: ALBEventHeaders) {
     devLog.debug('event' + JSON.stringify(event));
     devLog.debug('headers' + JSON.stringify(headers));
+    const body = event.body ?? '';
+    let buffer;
     if (event.isBase64Encoded) {
       devLog.debug('event.body: ' + JSON.stringify(event.body));
-      event.body = base64ToString(event.body as string);
+      buffer = base64ToBuffer(event.body as string);
     }
     const options = {
       method: 'POST',
-      body: createForm(await parseForm(event)),
+      body: createForm(await parseForm(buffer ?? body, headers)),
       headers: headers,
     } as RequestInit;
     return options;
