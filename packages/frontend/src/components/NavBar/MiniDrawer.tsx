@@ -9,9 +9,9 @@ import { AppBarContext } from '../../contexts/AppBarContext';
 import { MenuList } from './MenuList';
 
 export const MiniDrawer = () => {
-  const { openDrawer } = useContext(AppBarContext);
+  const { openMiniDrawer } = useContext(AppBarContext);
   return (
-    <MiniDrawerWrapper variant="persistent" anchor="left" open={openDrawer}>
+    <MiniDrawerWrapper variant="persistent" anchor="left" open={openMiniDrawer}>
       <Toolbar />
       <MenuList />
     </MiniDrawerWrapper>

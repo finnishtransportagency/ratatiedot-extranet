@@ -16,27 +16,29 @@ import { Link } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 
 export const DesktopDrawer = () => {
-  const { openDrawer, toggleDrawer } = useContext(AppBarContext);
+  const { openDesktopDrawer, toggleDesktopDrawer } = useContext(AppBarContext);
   const { resetMenu } = useContext(MenuContext);
 
-  const toggleDesktopDrawer = () => {
-    if (openDrawer) {
+  const toggleDesktopDrawerr = () => {
+    if (openDesktopDrawer) {
       resetMenu();
     }
-    toggleDrawer();
+    toggleDesktopDrawer();
   };
 
   return (
-    <DesktopDrawerWrapper variant="permanent" anchor="left" open={openDrawer}>
+    <DesktopDrawerWrapper variant="permanent" anchor="left" open={openDesktopDrawer}>
       <Link to={Routes.HOME} style={{ textDecoration: 'none', boxShadow: 'none', color: Colors.extrablack }}>
         <Toolbar>
           <Typography component="img" src={RataExtLogo} alt="Logo" sx={{ width: '65px', height: '65px' }} />
-          <Typography sx={{ fontSize: '18px', opacity: openDrawer ? 1 : 0 }}>RATATIET0</Typography>
+          <Typography sx={{ fontSize: '18px', opacity: openDesktopDrawer ? 1 : 0 }}>RATATIET0</Typography>
         </Toolbar>
       </Link>
-      <ListItem key={openDrawer ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDesktopDrawer}>
-        <ListItemButton area-label={openDrawer ? 'close desktop drawer' : 'open desktop drawer'}>
-          <ListItemIcon>{openDrawer ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}</ListItemIcon>
+      <ListItem key={openDesktopDrawer ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDesktopDrawerr}>
+        <ListItemButton area-label={openDesktopDrawer ? 'close desktop drawer' : 'open desktop drawer'}>
+          <ListItemIcon>
+            {openDesktopDrawer ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}
+          </ListItemIcon>
         </ListItemButton>
       </ListItem>
       <MenuList />
