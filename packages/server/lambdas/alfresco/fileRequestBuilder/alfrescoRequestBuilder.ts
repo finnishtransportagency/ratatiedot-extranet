@@ -16,7 +16,9 @@ const base64ToBuffer = (base64string: string): Buffer => {
 };
 
 const bufferToBlob = (buffer: Buffer) => {
+  devLog.debug('buffer: ' + JSON.stringify(buffer));
   const blob = new Blob([buffer]);
+  devLog.debug('blob: ' + JSON.stringify(blob));
   return blob;
 };
 
@@ -24,6 +26,7 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   devLog.debug('requestFormData' + JSON.stringify(requestFormData));
   const formData = new FormData();
   const fileData: Blob = bufferToBlob(requestFormData.filedata as Buffer);
+  devLog.debug('fileData: ' + JSON.stringify(fileData));
   const fileInfo = requestFormData.fileinfo as FileInfo;
   formData.append('filedata', fileData, fileInfo.filename);
   formData.append('name', fileInfo.filename);
