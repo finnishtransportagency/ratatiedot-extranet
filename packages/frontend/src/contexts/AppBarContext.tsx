@@ -47,11 +47,13 @@ export const AppBarContextProvider = (props: any) => {
     }
   }, [data]);
 
+  useEffect(() => {
+    localStorage.setItem('desktopDrawerOpen', String(openDesktopDrawer));
+  }, [openDesktopDrawer]);
+
   const toggleMiniDrawer = () => setOpenMiniDrawer(!openMiniDrawer);
-  const toggleDesktopDrawer = () => {
-    setOpenDesktopDrawer(!openDesktopDrawer);
-    localStorage.setItem('desktopDrawerOpen', String(!openDesktopDrawer));
-  };
+  const toggleDesktopDrawer = () => setOpenDesktopDrawer(!openDesktopDrawer);
+
   const toggleSearch = () => {
     setOpenMiniDrawer(false);
     setOpenEdit(false);

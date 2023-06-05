@@ -19,7 +19,7 @@ export const DesktopDrawer = () => {
   const { openDesktopDrawer, toggleDesktopDrawer } = useContext(AppBarContext);
   const { resetMenu } = useContext(MenuContext);
 
-  const toggleDesktopDrawerr = () => {
+  const resetMenuAndToggleDrawer = () => {
     if (openDesktopDrawer) {
       resetMenu();
     }
@@ -34,7 +34,11 @@ export const DesktopDrawer = () => {
           <Typography sx={{ fontSize: '18px', opacity: openDesktopDrawer ? 1 : 0 }}>RATATIET0</Typography>
         </Toolbar>
       </Link>
-      <ListItem key={openDesktopDrawer ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDesktopDrawerr}>
+      <ListItem
+        key={openDesktopDrawer ? 'Close drawer' : 'Open drawer'}
+        disablePadding
+        onClick={resetMenuAndToggleDrawer}
+      >
         <ListItemButton area-label={openDesktopDrawer ? 'close desktop drawer' : 'open desktop drawer'}>
           <ListItemIcon>
             {openDesktopDrawer ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}
