@@ -3,33 +3,26 @@ import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
 import { ALBEvent, ALBEventHeaders } from 'aws-lambda';
 import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
-import { devLog } from '../../../utils/logger';
 
+// Keeping this function here until file upload is confirmed to work in production
 // const base64ToString = (base64string: string): string => {
 //   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
-//   devLog.debug('buffer: ' + JSON.stringify(buffer));
 //   return buffer;
 // };
 
 const base64ToBuffer = (base64string: string): Buffer => {
-  devLog.debug('base64ToBuffer: ', base64string);
   const buffer = Buffer.from(base64string, 'base64');
-  devLog.debug('buffer: ' + buffer);
   return buffer;
 };
 
 const bufferToBlob = (buffer: Buffer) => {
-  devLog.debug('buffer: ' + JSON.stringify(buffer));
   const blob = new Blob([buffer]);
-  devLog.debug('blob: ' + JSON.stringify(blob));
   return blob;
 };
 
 const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
-  devLog.debug('requestFormData' + JSON.stringify(requestFormData));
   const formData = new FormData();
   const fileData: Blob = bufferToBlob(requestFormData.filedata as Buffer);
-  devLog.debug('fileData: ' + JSON.stringify(fileData));
   const fileInfo = requestFormData.fileinfo as FileInfo;
   formData.append('filedata', fileData, fileInfo.filename);
   formData.append('name', fileInfo.filename);
@@ -39,12 +32,9 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
 
 export class AlfrescoFileRequestBuilder {
   public async requestBuilder(event: ALBEvent, headers: ALBEventHeaders) {
-    devLog.debug('event' + JSON.stringify(event));
-    devLog.debug('headers' + JSON.stringify(headers));
     const body = event.body ?? '';
     let buffer;
     if (event.isBase64Encoded) {
-      devLog.debug('event.body: ' + JSON.stringify(event.body));
       buffer = base64ToBuffer(event.body as string);
     }
     const options = {

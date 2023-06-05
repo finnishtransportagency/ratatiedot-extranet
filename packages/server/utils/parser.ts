@@ -1,7 +1,6 @@
 import { ALBEventHeaders } from 'aws-lambda';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
-import { devLog } from './logger';
 
 export interface ParsedFormDataOptions {
   [key: string]: string | Buffer | Readable | FileInfo;
@@ -35,7 +34,6 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
         temp.fileinfo = fileinfo as FileInfo;
 
         form = { ...temp };
-        devLog.debug('form: ' + form);
         console.log('File parse finished');
       });
     });
