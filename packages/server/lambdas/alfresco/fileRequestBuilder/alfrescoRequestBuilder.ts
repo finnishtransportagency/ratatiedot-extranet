@@ -49,7 +49,7 @@ export class AlfrescoFileRequestBuilder {
     }
     const options = {
       method: 'POST',
-      body: createForm(await parseForm(buffer ?? body, headers)),
+      body: createForm(await parseForm(buffer ?? body, event.headers as ALBEventHeaders)),
       headers: headers,
     } as RequestInit;
     return options;
