@@ -7,6 +7,7 @@ import { devLog } from '../../../utils/logger';
 
 const base64ToString = (base64string: string): string => {
   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
+  devLog.debug('buffer: ' + JSON.stringify(buffer));
   return buffer;
 };
 
@@ -39,6 +40,7 @@ export class AlfrescoFileRequestBuilder {
     devLog.debug('event' + JSON.stringify(event));
     devLog.debug('headers' + JSON.stringify(headers));
     if (event.isBase64Encoded) {
+      devLog.debug('event.body: ' + JSON.stringify(event.body));
       event.body = base64ToString(event.body as string);
     }
     const options = {
