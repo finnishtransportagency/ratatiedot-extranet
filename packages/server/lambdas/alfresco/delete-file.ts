@@ -17,14 +17,9 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 const deleteFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined | string> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  console.log('URL: ', url);
-  try {
-    const res = await fetch(url, options);
-    const result = (await res.json()) as AlfrescoResponse;
-    return result;
-  } catch (err) {
-    console.error('error:' + err);
-  }
+  const res = await fetch(url, options);
+  const result = (await res.json()) as AlfrescoResponse;
+  return result;
 };
 
 /**

@@ -19,13 +19,9 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 const updateFolder = async (nodeId: string, options: RequestInit): Promise<AlfrescoResponse | undefined> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  try {
-    const res = await fetch(url, options);
-    const result = (await res.json()) as AlfrescoResponse;
-    return result;
-  } catch (err) {
-    console.log(err);
-  }
+  const res = await fetch(url, options);
+  const result = (await res.json()) as AlfrescoResponse;
+  return result;
 };
 
 /**

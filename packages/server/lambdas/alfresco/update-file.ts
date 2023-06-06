@@ -25,13 +25,9 @@ const updateFile = async (
   if (newFileName) {
     url.concat(`&name=${newFileName}`);
   }
-  try {
-    const res = await fetch(url, options);
-    const result = (await res.json()) as AlfrescoResponse;
-    return result;
-  } catch (err) {
-    console.error('error:' + err);
-  }
+  const res = await fetch(url, options);
+  const result = (await res.json()) as AlfrescoResponse;
+  return result;
 };
 
 /**

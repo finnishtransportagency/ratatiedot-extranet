@@ -9,6 +9,7 @@ import { folderDeleteRequestBuilder } from './fileRequestBuilder';
 import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
 import { deleteComponent } from '../database/components/delete-node-component';
+import { AlfrescoResponse } from './fileRequestBuilder/types';
 
 const database = await DatabaseClient.build();
 
@@ -17,12 +18,9 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 const deleteFolder = async (options: RequestInit, nodeId: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  try {
-    const res = await fetch(url, options);
-    return res;
-  } catch (err) {
-    log.error('error:' + err);
-  }
+  const res = await fetch(url, options);
+  const result = (await res.json()) as AlfrescoResponse;
+  return result;
 };
 
 /**
