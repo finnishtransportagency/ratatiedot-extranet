@@ -1,13 +1,14 @@
 import { FormData } from 'formdata-node';
 import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
-import { ALBEvent } from 'aws-lambda';
+import { ALBEvent, ALBEventHeaders } from 'aws-lambda';
 import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
 
-const base64ToString = (base64string: string): string => {
-  const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
-  return buffer;
-};
+// Keeping this function here until file upload is confirmed to work in production
+// const base64ToString = (base64string: string): string => {
+//   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
+//   return buffer;
+// };
 
 const base64ToBuffer = (base64string: string): Buffer => {
   const buffer = Buffer.from(base64string, 'base64');
@@ -30,13 +31,15 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
 };
 
 export class AlfrescoFileRequestBuilder {
-  public async requestBuilder(event: ALBEvent, headers: HeadersInit) {
+  public async requestBuilder(event: ALBEvent, headers: ALBEventHeaders) {
+    const body = event.body ?? '';
+    let buffer;
     if (event.isBase64Encoded) {
-      event.body = base64ToString(event.body as string);
+      buffer = base64ToBuffer(event.body as string);
     }
     const options = {
       method: 'POST',
-      body: createForm(await parseForm(event)),
+      body: createForm(await parseForm(buffer ?? body, event.headers as ALBEventHeaders)),
       headers: headers,
     } as RequestInit;
     return options;
