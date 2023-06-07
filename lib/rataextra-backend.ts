@@ -1,6 +1,14 @@
-import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, Tags } from 'aws-cdk-lib';
-import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
-import { Role, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import {
+  aws_elasticloadbalancingv2,
+  Duration,
+  NestedStack,
+  NestedStackProps,
+  Tags,
+  aws_autoscaling,
+  aws_elasticloadbalancing,
+} from 'aws-cdk-lib';
+import { IVpc, ISecurityGroup, InstanceClass, InstanceType, InstanceSize, MachineImage } from 'aws-cdk-lib/aws-ec2';
+import { Role, PolicyStatement, ServicePrincipal, ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
 import {
@@ -17,6 +25,7 @@ import { join } from 'path';
 import { isPermanentStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -528,7 +537,7 @@ export class RataExtraBackendStack extends NestedStack {
       defaultAction: ListenerAction.fixedResponse(404),
     });
 
-    const targets = listenerTargets.map((target) =>
+    listenerTargets.map((target) =>
       listener.addTargets(`Target-${target.targetName}`, {
         targets: [new LambdaTarget(target.lambda)],
         priority: target.priority,
@@ -538,6 +547,39 @@ export class RataExtraBackendStack extends NestedStack {
         ],
       }),
     );
+
+    const asg = this.createAsg({
+      vpc: vpc,
+    });
+
+    listener.addTargets('AsgTargetGroup', {
+      port: 80,
+      protocol: aws_elasticloadbalancingv2.ApplicationProtocol.HTTP,
+      targets: [asg],
+      healthCheck: {
+        path: '/',
+        port: '80',
+        healthyHttpCodes: '200',
+      },
+    });
+
     return alb;
+  }
+
+  private createAsg({ vpc }: { vpc: IVpc }) {
+    const asgRole = new Role(this, 'ec2-bastion-role', {
+      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
+      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
+    });
+
+    const autoScalingGroup = new aws_autoscaling.AutoScalingGroup(this, 'AutoScalingGroup', {
+      vpc,
+      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0b9b4e1a3d497aefa' }),
+      allowAllOutbound: true,
+      role: asgRole,
+      healthCheck: aws_autoscaling.HealthCheck.ec2(),
+    });
+    return autoScalingGroup;
   }
 }
