@@ -69,7 +69,7 @@ const searchByTermWithParent = async (
   }
 };
 
-const getFolder = async (uid: string, nodeId: string) => {
+export const getFolder = async (uid: string, nodeId: string) => {
   try {
     const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
     const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}?where=(isFolder=true)&include=path`;
@@ -87,7 +87,7 @@ const getFolder = async (uid: string, nodeId: string) => {
   }
 };
 
-const isFolderInCategory = async (folderPath: string, category: string) => {
+export const isFolderInCategory = async (folderPath: string, category: string) => {
   // Split the path into its components
   const pathComponents = folderPath.split('/');
 
