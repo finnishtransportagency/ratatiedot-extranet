@@ -3,7 +3,6 @@ import { CircularProgress } from '@mui/material';
 import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { useTranslation } from 'react-i18next';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckIcon from '@mui/icons-material/CheckSharp';
 import { Box, Collapse, IconButton, TextField, Typography } from '@mui/material';
@@ -13,22 +12,21 @@ import { DateFormat } from '../../constants/Formats';
 import { uploadFile } from '../../services/FileUploadService';
 import { ButtonWrapper } from '../../styles/common';
 import { getLocaleByteUnit, getRouterName } from '../../utils/helpers';
-
 import { FileInput } from '../FileInput/FileInput';
 import { Modal } from '../Modal/Modal';
-
 import { Colors } from '../../constants/Colors';
 import './styles.css';
 import { AxiosResponse } from 'axios';
 
 interface FileUploadProps {
   categoryName: string;
+  nestedFolderId?: string;
   onClose: (event?: Event) => void;
   onUpload: (result: AxiosResponse) => any;
   open: boolean;
 }
 
-export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: FileUploadProps) => {
+export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, onUpload }: FileUploadProps) => {
   const { t } = useTranslation(['common']);
 
   const [file, setFile] = useState<File>();
@@ -49,7 +47,8 @@ export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: File
     await uploadFile(file, {
       name,
       description,
-      parentNode: getRouterName(categoryName),
+      categoryName: getRouterName(categoryName),
+      nestedFolderId: nestedFolderId,
     })
       .then((result) => {
         setIsLoading(false);

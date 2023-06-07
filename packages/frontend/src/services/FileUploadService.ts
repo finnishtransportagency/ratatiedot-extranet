@@ -3,11 +3,12 @@ import axios, { AxiosResponse } from 'axios';
 export interface FileData {
   name: string;
   description: string;
-  parentNode: string;
+  categoryName: string;
+  nestedFolderId?: string;
 }
 
 export const uploadFile = async (file: File, fileData: FileData): Promise<AxiosResponse> => {
-  const { name, parentNode, description } = fileData;
+  const { name, categoryName, nestedFolderId, description } = fileData;
   let response = null;
   if (file) {
     const form = new FormData();
@@ -21,7 +22,10 @@ export const uploadFile = async (file: File, fileData: FileData): Promise<AxiosR
         'content-type': 'multipart/form-data',
       },
     };
-    response = await axios(`/api/alfresco/file/${parentNode}`, options);
+    response = await axios(
+      `/api/alfresco/file/${nestedFolderId ? `${categoryName}/${nestedFolderId}` : categoryName}`,
+      options,
+    );
   }
   return response as any;
 };
