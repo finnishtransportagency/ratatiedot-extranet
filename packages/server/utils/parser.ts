@@ -40,7 +40,7 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
         form = {
           ...form,
           fieldname,
-          file: Buffer.concat(chunks),
+          filedata: Buffer.concat(chunks),
           fileinfo: fileInfo,
         };
         console.log('File parse finished');
