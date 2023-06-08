@@ -1,16 +1,17 @@
 import { ALBEventHeaders } from 'aws-lambda';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
+import { log } from './logger';
 
 export interface ParsedFormDataOptions {
   [key: string]: string | Buffer | Readable | FileInfo;
 }
 
-interface FormData {
-  fieldname: string;
-  fileinfo?: FileInfo;
-  file: any;
-}
+// interface FormData {
+//   fieldname: string;
+//   fileinfo?: FileInfo;
+//   file: any;
+// }
 
 export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => {
   return new Promise<ParsedFormDataOptions>((resolve, reject) => {
@@ -23,17 +24,25 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
     let form = {} as ParsedFormDataOptions;
 
     bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
-      const temp: FormData = { file: [], fieldname: '' };
+      const { filename, encoding, mimeType } = fileinfo;
+      log.info('filename: ', filename);
+      log.info('encoding: ', encoding);
+      log.info('mimeType: ', mimeType);
+      const chunks: Buffer[] = [];
       file.on('data', (data: Buffer) => {
-        temp.file.push(data);
+        log.info(`Received ${data.length} bytes for field ${fieldname}`);
+        chunks.push(data);
       });
 
       file.on('end', () => {
-        temp.file = Buffer.concat(temp.file);
-        temp.fieldname = fieldname;
-        temp.fileinfo = fileinfo as FileInfo;
-
-        form = { ...temp };
+        const fileInfo: FileInfo = { filename, encoding, mimeType };
+        console.log(`Finished receiving file for field ${fieldname}, total size: ${chunks.length} bytes`);
+        form = {
+          ...form,
+          fieldname,
+          file: Buffer.concat(chunks),
+          fileinfo: fileInfo,
+        };
         console.log('File parse finished');
       });
     });
