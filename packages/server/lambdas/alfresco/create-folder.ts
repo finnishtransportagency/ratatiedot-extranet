@@ -1,9 +1,8 @@
-import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
-import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { auditLog, log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
@@ -19,13 +18,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 const postFolder = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
-  try {
-    const res = await fetch(url, options);
-    const result = (await res.json()) as AlfrescoResponse;
-    return result;
-  } catch (err) {
-    console.log(err);
-  }
+  return await alfrescoFetch(url, options);
 };
 
 /**
