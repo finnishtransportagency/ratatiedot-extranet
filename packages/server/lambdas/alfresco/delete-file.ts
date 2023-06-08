@@ -13,6 +13,7 @@ const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
+// TODO: this function is also used to delete folders, we should revise these functions and their use-cases
 const deleteFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined | string> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;

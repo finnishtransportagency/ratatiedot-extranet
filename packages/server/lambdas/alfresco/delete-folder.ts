@@ -13,6 +13,7 @@ const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
+// Instead of this function, we use delete-file for folders, since alfresco node deletion API works the same for folders and files.
 const deleteFolder = async (options: RequestInit, nodeId: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
