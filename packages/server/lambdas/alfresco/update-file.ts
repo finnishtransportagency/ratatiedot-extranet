@@ -1,13 +1,12 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
-import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { updateFileRequestBuilder } from './fileRequestBuilder';
-import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 
@@ -25,16 +24,7 @@ const updateFile = async (
   if (newFileName) {
     url.concat(`&name=${newFileName}`);
   }
-  const res = await fetch(url, options);
-  if (res.ok) {
-    const text = await res.text();
-    if (!text) return;
-    const result = JSON.parse(text);
-    return result as AlfrescoResponse;
-  } else {
-    console.error('HTTP error:', res.status, res.statusText);
-    throw new Error(`HTTP error: ${res.status} ${res.statusText}`);
-  }
+  return await alfrescoFetch(url, options);
 };
 
 /**
