@@ -1,15 +1,13 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderDeleteRequestBuilder } from './fileRequestBuilder';
-import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
 import { deleteComponent } from '../database/components/delete-node-component';
-import { AlfrescoResponse } from './fileRequestBuilder/types';
 
 const database = await DatabaseClient.build();
 
@@ -18,16 +16,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 const deleteFolder = async (options: RequestInit, nodeId: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  const res = await fetch(url, options);
-  if (res.ok) {
-    const text = await res.text();
-    if (!text) return;
-    const result = JSON.parse(text);
-    return result as AlfrescoResponse;
-  } else {
-    console.error('HTTP error:', res.status, res.statusText);
-    throw new Error(`HTTP error: ${res.status} ${res.statusText}`);
-  }
+  return await alfrescoFetch(url, options);
 };
 
 /**
