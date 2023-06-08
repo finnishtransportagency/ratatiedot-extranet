@@ -20,8 +20,15 @@ const postFolder = async (options: RequestInit, nodeId: string): Promise<Alfresc
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
   const res = await fetch(url, options);
-  const result = (await res.json()) as AlfrescoResponse;
-  return result;
+  if (res.ok) {
+    const text = await res.text();
+    if (!text) return;
+    const result = JSON.parse(text);
+    return result as AlfrescoResponse;
+  } else {
+    console.error('HTTP error:', res.status, res.statusText);
+    throw new Error(`HTTP error: ${res.status} ${res.statusText}`);
+  }
 };
 
 /**
