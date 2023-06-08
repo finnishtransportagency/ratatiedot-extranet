@@ -17,8 +17,16 @@ import { Routes } from '../../constants/Routes';
 import { useTranslation } from 'react-i18next';
 
 export const MiniAppBar = () => {
-  const { openDrawer, toggleDrawer, openSearch, toggleSearch, openEdit, openToolbar, openToolbarHandler, userRight } =
-    useContext(AppBarContext);
+  const {
+    openMiniDrawer,
+    toggleMiniDrawer,
+    openSearch,
+    toggleSearch,
+    openEdit,
+    openToolbar,
+    openToolbarHandler,
+    userRight,
+  } = useContext(AppBarContext);
 
   const userWriteRight = userRight.canWrite;
   const shouldEdit = userWriteRight && !openEdit && !openToolbar;
@@ -31,10 +39,10 @@ export const MiniAppBar = () => {
           size="large"
           edge="start"
           color="inherit"
-          area-label={openDrawer ? 'close drawer' : 'open drawer'}
-          onClick={toggleDrawer}
+          area-label={openMiniDrawer ? 'close drawer' : 'open drawer'}
+          onClick={toggleMiniDrawer}
         >
-          {openDrawer ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
+          {openMiniDrawer ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
         </IconButton>
         <Link to={Routes.HOME} style={{ textDecoration: 'none', boxShadow: 'none', color: Colors.extrablack }}>
           <Toolbar sx={{ padding: 0 }}>
@@ -68,7 +76,7 @@ export const MiniAppBar = () => {
   };
 
   return (
-    <MiniAppBarWrapper position="fixed" color="transparent" open={openDrawer}>
+    <MiniAppBarWrapper position="fixed" color="transparent" open={openMiniDrawer}>
       <Toolbar>{openSearch ? <Search /> : <MainAppBar />}</Toolbar>
     </MiniAppBarWrapper>
   );
