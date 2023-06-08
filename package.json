@@ -9,7 +9,7 @@
     "bootstrap": "npx lerna bootstrap --force-local",
     "build": "npx lerna run build",
     "build:frontend": "npm --prefix packages/frontend run build",
-    "ci": "npx lerna bootstrap --ci",
+    "ci": "npm ci",
     "dev-client": "cd packages/frontend && npm start",
     "dev-server": "cd packages/server && npm start",
     "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
