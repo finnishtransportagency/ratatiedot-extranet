@@ -20,19 +20,19 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
     bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
       const chunks: Buffer[] = [];
       file.on('data', (data: Buffer) => {
-        log.info(`Received ${data.length} bytes for field ${fieldname}`);
+        log.debug(`Received ${data.length} bytes for field ${fieldname}`);
         chunks.push(data);
       });
 
       file.on('end', () => {
-        log.info(`Finished receiving file for field ${fieldname}, total size: ${chunks.length} bytes`);
+        log.debug(`Finished receiving file for field ${fieldname}, total size: ${chunks.length} bytes`);
         form = {
           ...form,
           fieldname,
           filedata: Buffer.concat(chunks),
           fileinfo,
         };
-        console.log('File parse finished');
+        log.info('File parse finished');
       });
     });
 
