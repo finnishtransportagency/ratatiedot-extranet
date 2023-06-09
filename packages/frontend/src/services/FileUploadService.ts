@@ -22,10 +22,9 @@ export const uploadFile = async (file: File, fileData: FileData): Promise<AxiosR
         'content-type': 'multipart/form-data',
       },
     };
-    response = await axios(
-      `/api/alfresco/file/${nestedFolderId ? `${categoryName}/${nestedFolderId}` : categoryName}`,
-      options,
-    );
+    const originalUrl = `/api/alfresco/file/${categoryName}`;
+    const nestedFolderUrl = `/api/alfresco/file/${categoryName}/${nestedFolderId}`;
+    response = await axios(nestedFolderId ? nestedFolderUrl : originalUrl, options);
   }
   return response as any;
 };
