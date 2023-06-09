@@ -579,6 +579,8 @@ export class RataExtraBackendStack extends NestedStack {
       allowAllOutbound: true,
       role: asgRole,
       healthCheck: aws_autoscaling.HealthCheck.ec2(),
+      minCapacity: 1,
+      maxCapacity: 1,
     });
     return autoScalingGroup;
   }

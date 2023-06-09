@@ -82,5 +82,9 @@
   "workspaces": [
     "packages/frontend",
     "packages/server"
-  ]
+  ],
+  "directories": {
+    "lib": "lib"
+  },
+  "keywords": []
 }
