@@ -9,7 +9,7 @@ export interface ParsedFormDataOptions {
 interface FormData {
   fieldname: string;
   fileinfo?: FileInfo;
-  filedata: any;
+  file: any;
 }
 
 export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => {
@@ -23,13 +23,13 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
     let form = {} as ParsedFormDataOptions;
 
     bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
-      const temp: FormData = { filedata: [], fieldname: '' };
+      const temp: FormData = { file: [], fieldname: '' };
       file.on('data', (data: Buffer) => {
-        temp.filedata.push(data);
+        temp.file.push(data);
       });
 
       file.on('end', () => {
-        temp.filedata = Buffer.concat(temp.filedata);
+        temp.file = Buffer.concat(temp.file);
         temp.fieldname = fieldname;
         temp.fileinfo = fileinfo as FileInfo;
 
