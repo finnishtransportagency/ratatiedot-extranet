@@ -66,13 +66,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
 
-    const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
-
-    let result;
-    if (!nestedFolderId) {
-      result = await postFile(requestOptions, categoryData.alfrescoFolder);
-    } else {
+    let targetNode;
+    if (nestedFolderId) {
       const foundFolder = await getFolder(user.uid, nestedFolderId);
       const folderPath = get(foundFolder, 'entry.path.name', '');
       // Check if the nest folder is a descendant of the category
@@ -80,8 +75,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       if (isFolderDescendantOfCategory) {
         throw new RataExtraLambdaError('Folder cannot be found in category', 404);
       }
-      result = await postFile(requestOptions, nestedFolderId);
+      targetNode = nestedFolderId;
+    } else {
+      targetNode = categoryData.alfrescoFolder;
     }
+
+    const headers = (await getAlfrescoOptions(user.uid)).headers;
+    const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
+    const result = await postFile(requestOptions, targetNode);
     auditLog.info(
       user,
       `Uploaded file ${result?.entry.name} with id ${result?.entry.id} to ${categoryData.alfrescoFolder}`,
