@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "es2020",
+    "outDir": "dist",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src/**/*.ts", "../server/**/*.ts"],
+  "exclude": ["typings/*", "node_modules", "../../node_modules"]
+}
