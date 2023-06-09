@@ -81,8 +81,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       // Check if the nest folder is a descendant of the category
       const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
       if (isFolderDescendantOfCategory) {
-        result = await postFile(requestOptions, nestedFolderId);
+        throw new RataExtraLambdaError('Folder cannot be found in category', 404);
       }
+      result = await postFile(requestOptions, nestedFolderId);
     }
     auditLog.info(
       user,
