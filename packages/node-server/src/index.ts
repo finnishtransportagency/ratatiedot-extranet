@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
 import multer from 'multer';
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'tmp/' });
 
 const postFileToAlfresco = async (options: RequestInit, nodeId: string): Promise<any | undefined> => {
   const alfrescoUrl = 'https://localhost:3002/';
