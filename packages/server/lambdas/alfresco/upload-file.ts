@@ -1,6 +1,6 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
@@ -9,6 +9,7 @@ import { DatabaseClient } from '../database/client';
 import { fileRequestBuilder } from './fileRequestBuilder';
 import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
+import { getFolder, isFolderInCategory } from './list-files';
 
 const database = await DatabaseClient.build();
 
@@ -21,7 +22,7 @@ const postFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoR
 };
 
 /**
- * Upload custom content for page. Example request: /api/alfresco/file/linjakaaviot
+ * Upload custom content for page. Example request: /api/alfresco/file/linjakaaviot/{NODE_ID}
  * @param {ALBEvent} event
  * @param {{string}} event.path Path should end with the page to upload the file to
  * @param {{string}} event.body File contents and metadata to upload
@@ -30,13 +31,20 @@ const postFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoR
 export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
   try {
     const paths = event.path.split('/');
-    const category = paths.pop();
+    const category = paths.at(4);
+    const nestedFolderId = paths.at(5);
 
     const user = await getUser(event);
-    log.info(user, `Uploading files for page ${category}`);
+    log.info(
+      user,
+      `Uploading files for ${
+        nestedFolderId ? `nested folder id ${nestedFolderId} belonging to page ${category}` : `page ${category}`
+      }`,
+    );
+
     validateReadUser(user);
 
-    if (!category || paths.pop() !== 'file') {
+    if (!category || paths.at(3) !== 'file') {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
     if (isEmpty(event.body)) {
@@ -61,7 +69,19 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const headers = (await getAlfrescoOptions(user.uid)).headers;
     const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
 
-    const result = await postFile(requestOptions, categoryData.alfrescoFolder);
+    let result;
+    if (!nestedFolderId) {
+      result = await postFile(requestOptions, categoryData.alfrescoFolder);
+    } else {
+      const foundFolder = await getFolder(user.uid, nestedFolderId);
+      const folderPath = get(foundFolder, 'entry.path.name', '');
+      // Check if the nest folder is a descendant of the category
+      const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
+      if (isFolderDescendantOfCategory) {
+        throw new RataExtraLambdaError('Folder cannot be found in category', 404);
+      }
+      result = await postFile(requestOptions, nestedFolderId);
+    }
     auditLog.info(
       user,
       `Uploaded file ${result?.entry.name} with id ${result?.entry.id} to ${categoryData.alfrescoFolder}`,
