@@ -15,7 +15,7 @@ import { ConfirmationAppBar } from '../Editor/ConfirmationAppBar';
 import { SlateToolbar } from '../Editor/SlateToolbar';
 
 export const DesktopAppBar = () => {
-  const { openDrawer, openEdit, openToolbar, openToolbarHandler, userRight } = useContext(AppBarContext);
+  const { openEdit, openDesktopDrawer, openToolbar, openToolbarHandler, userRight } = useContext(AppBarContext);
   const { t } = useTranslation(['common']);
 
   const userWriteRight = userRight.canWrite;
@@ -46,7 +46,7 @@ export const DesktopAppBar = () => {
   };
 
   return (
-    <DesktopAppBarWrapper color="transparent" open={openDrawer} openedit={openEdit} opentoolbar={openToolbar}>
+    <DesktopAppBarWrapper color="transparent" open={openDesktopDrawer} openedit={openEdit} opentoolbar={openToolbar}>
       {/* Following components <ConfirmationAppBar /> and <SlateToolbar /> are visible across devices */}
       {openEdit && (
         <Toolbar>

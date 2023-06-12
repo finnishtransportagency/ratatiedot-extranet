@@ -1,12 +1,11 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderDeleteRequestBuilder } from './fileRequestBuilder';
-import fetch from 'node-fetch';
 import { RequestInit } from 'node-fetch';
 import { deleteComponent } from '../database/components/delete-node-component';
 
@@ -14,15 +13,11 @@ const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
+// Instead of this function, we use delete-file for folders, since alfresco node deletion API works the same for folders and files.
 const deleteFolder = async (options: RequestInit, nodeId: string) => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  try {
-    const res = await fetch(url, options);
-    return res;
-  } catch (err) {
-    log.error('error:' + err);
-  }
+  return await alfrescoFetch(url, options);
 };
 
 /**

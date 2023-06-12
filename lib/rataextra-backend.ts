@@ -231,7 +231,7 @@ export class RataExtraBackendStack extends NestedStack {
     const alfrescoUploadFile = this.createNodejsLambda({
       ...prismaAlfrescoCombinedParameters,
       name: 'alfresco-upload-file',
-      timeout: Duration.minutes(1),
+      timeout: Duration.minutes(2),
       relativePath: '../packages/server/lambdas/alfresco/upload-file.ts',
     });
 
@@ -481,7 +481,7 @@ export class RataExtraBackendStack extends NestedStack {
     vpc,
     securityGroups,
     memorySize = 1024,
-    timeout = Duration.seconds(15),
+    timeout = Duration.seconds(30),
     runtime = Runtime.NODEJS_16_X,
     logRetention = RetentionDays.SIX_MONTHS,
     handler = 'handleRequest',
