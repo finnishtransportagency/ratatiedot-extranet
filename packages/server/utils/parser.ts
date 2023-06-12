@@ -49,7 +49,6 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
       reject(err);
     });
 
-    bb.write(buffer);
-    bb.end();
+    bb.end(buffer);
   });
 };

@@ -17,7 +17,8 @@ const base64ToBuffer = (base64string: string): Buffer => {
 };
 
 const bufferToBlob = (buffer: Buffer) => {
-  const blob = new Blob([buffer]);
+  const unit8Array = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  const blob = new Blob([unit8Array]);
   return blob;
 };
 
@@ -26,6 +27,7 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   const fileData: Blob = bufferToBlob(requestFormData.filedata as Buffer);
   console.log('fileData: ', fileData);
   const fileInfo = requestFormData.fileinfo as FileInfo;
+  log.debug(`File data blob size: ${fileData.size}`);
   formData.append('filedata', fileData, fileInfo.filename);
   formData.append('name', fileInfo.filename);
   formData.append('nodeType', 'cm:content');
