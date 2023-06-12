@@ -3,6 +3,7 @@ import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
 import { ALBEvent, ALBEventHeaders } from 'aws-lambda';
 import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
+import { log } from '../../../utils/logger';
 
 // Keeping this function here until file upload is confirmed to work in production
 // const base64ToString = (base64string: string): string => {
@@ -23,6 +24,7 @@ const bufferToBlob = (buffer: Buffer) => {
 const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   const formData = new FormData();
   const fileData: Blob = bufferToBlob(requestFormData.filedata as Buffer);
+  log.debug(fileData);
   const fileInfo = requestFormData.fileinfo as FileInfo;
   formData.append('filedata', fileData, fileInfo.filename);
   formData.append('name', fileInfo.filename);
