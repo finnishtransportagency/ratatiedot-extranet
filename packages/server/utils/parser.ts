@@ -19,27 +19,25 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
 
     bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
       const chunks: Buffer[] = [];
-      return new Promise((resolve, reject) => {
-        file.on('data', (data: Buffer) => {
-          log.debug(`Received ${data.length} bytes for field ${fieldname}`);
-          chunks.push(data);
-        });
+      file.on('data', (data: Buffer) => {
+        log.debug(`Received ${data.length} bytes for field ${fieldname}`);
+        chunks.push(data);
+      });
 
-        file.on('end', () => {
-          log.debug(`Finished receiving file for field ${fieldname}, total size: ${chunks.length} bytes`);
-          form = {
-            ...form,
-            fieldname,
-            filedata: Buffer.concat(chunks),
-            fileinfo,
-          };
-          log.info('File parse finished');
-          resolve(form);
-        });
-
-        file.on('error', (err) => {
-          reject(err);
-        });
+      file.on('end', () => {
+        log.debug(
+          `Finished receiving file for field ${fieldname}, total size: ${chunks.reduce(
+            (acc, chunk) => acc + chunk.length,
+            0,
+          )} bytes`,
+        );
+        form = {
+          ...form,
+          fieldname,
+          filedata: Buffer.concat(chunks),
+          fileinfo,
+        };
+        log.info('File parse finished');
       });
     });
 
@@ -51,6 +49,7 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
       reject(err);
     });
 
-    bb.end(buffer);
+    bb.write(buffer);
+    bb.end();
   });
 };
