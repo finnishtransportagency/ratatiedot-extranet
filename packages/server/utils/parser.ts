@@ -14,6 +14,10 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
         ...headers,
         'content-type': headers['Content-Type'] || headers['content-type'],
       },
+      limits: {
+        files: 1,
+        fileSize: 1000000, // bytes = 1MB
+      },
     });
     let form = {} as ParsedFormDataOptions;
 
@@ -31,13 +35,23 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
             0,
           )} bytes`,
         );
+
         form = {
           ...form,
           fieldname,
           filedata: Buffer.concat(chunks),
           fileinfo,
         };
+        chunks.length = 0; // Clearing the chunks array
         log.info('File parse finished');
+      });
+
+      file.on('error', (err) => {
+        reject(err);
+      });
+
+      file.on('close', () => {
+        log.debug(`File stream for field ${fieldname} closed.`);
       });
     });
 

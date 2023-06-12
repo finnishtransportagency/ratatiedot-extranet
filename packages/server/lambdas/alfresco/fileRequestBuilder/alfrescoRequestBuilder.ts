@@ -22,11 +22,13 @@ const bufferToBlob = (buffer: Buffer) => {
   return blob;
 };
 
-const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
+const createForm = async (requestFormData: ParsedFormDataOptions): Promise<FormData> => {
   const formData = new FormData();
-  const fileData: Blob = bufferToBlob(requestFormData.filedata as Buffer);
+  console.log('Before creating Blob: ', process.memoryUsage());
+  const fileData: Blob = await bufferToBlob(requestFormData.filedata as Buffer);
+  console.log('After creating Blob: ', process.memoryUsage());
   console.log('fileData: ', fileData);
-  const fileInfo = requestFormData.fileinfo as FileInfo;
+  const fileInfo = (await requestFormData.fileinfo) as FileInfo;
   log.debug(`File data blob size: ${fileData.size}`);
   formData.append('filedata', fileData, fileInfo.filename);
   formData.append('name', fileInfo.filename);
@@ -43,7 +45,7 @@ export class AlfrescoFileRequestBuilder {
     }
     const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
     console.log('formData: ', formData);
-    const form = createForm(formData);
+    const form = await createForm(formData);
     const options = {
       method: 'POST',
       body: form,
