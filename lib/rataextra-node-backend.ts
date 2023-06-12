@@ -1,4 +1,4 @@
-import { Stack, Fn } from 'aws-cdk-lib';
+import { Stack, Fn, aws_codebuild, SecretValue } from 'aws-cdk-lib';
 import { StackProps } from 'aws-cdk-lib';
 import {
   ISecurityGroup,
@@ -12,9 +12,9 @@ import {
 } from 'aws-cdk-lib/aws-ec2';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
-import { RataExtraEnvironment } from './config';
+import { RataExtraEnvironment, getPipelineConfig } from './config';
 
-interface RataExtraBastionStackProps extends StackProps {
+interface RatatietoNodeBackendStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly albDns: string;
   readonly databaseDns?: string | undefined;
@@ -23,30 +23,40 @@ interface RataExtraBastionStackProps extends StackProps {
   readonly securityGroup?: ISecurityGroup;
 }
 
-export class RataExtraBastionStack extends Stack {
-  constructor(scope: Construct, id: string, props: RataExtraBastionStackProps) {
+export class RatatietoNodeBackendStack extends Stack {
+  constructor(scope: Construct, id: string, props: RatatietoNodeBackendStackProps) {
     super(scope, id, props);
     const { albDns, databaseDns, vpc, securityGroup } = props;
 
-    const bastionRole = new Role(this, 'ec2-bastion-role', {
+    const config = getPipelineConfig();
+    const githubAccessToken = SecretValue.secretsManager(config.authenticationToken);
+
+    const serviceRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
       managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
     });
 
-    const userData = UserData.forLinux();
-    const userDataCommands = [
-      'sudo yum update -y',
-      'sudo yum install socat -y',
-      `nohup socat TCP4-LISTEN:80,reuseaddr,fork TCP:${albDns}:80 &`,
-    ];
-    if (databaseDns) {
-      userDataCommands.push(
-        `nohup socat TCP4-LISTEN:5432,reuseaddr,fork TCP:${Fn.sub('${databaseDns}', {
-          databaseDns: databaseDns,
-        })}:5432 &`,
-      );
-    }
-    userData.addCommands(...userDataCommands);
+    // Set Github source access
+    new aws_codebuild.GitHubSourceCredentials(this, 'CodeBuildGitHubCreds', {
+      accessToken: githubAccessToken,
+    });
+
+    const buildProject = new aws_codebuild.Project(this, 'NodeBackendBuild', {
+      projectName: 'NodeBackend',
+      buildSpec: aws_codebuild.BuildSpec.fromSourceFilename('packages/node-server/buildspec.yml'),
+      description: 'Node + express backend, created by CDK.',
+      environment: {
+        buildImage: aws_codebuild.LinuxBuildImage.AMAZON_LINUX_2_3,
+        privileged: true,
+      },
+      source: aws_codebuild.Source.gitHub({ owner: 'finnishtransportagency', repo: 'ratatiedot-extranet' }),
+      role: serviceRole,
+    });
+
+    const bastionRole = new Role(this, 'ec2-node-backend-role', {
+      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
+      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
+    });
 
     const bastion = new Instance(this, 'ec2-bastion-instance', {
       vpc,
@@ -54,7 +64,6 @@ export class RataExtraBastionStack extends Stack {
       instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.SMALL),
       machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0b9b4e1a3d497aefa' }),
       role: bastionRole,
-      userData,
     });
   }
 }

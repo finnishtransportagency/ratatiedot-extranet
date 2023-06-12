@@ -5,7 +5,7 @@ import {
   NestedStackProps,
   Tags,
   aws_autoscaling,
-  aws_elasticloadbalancing,
+  aws_codebuild,
 } from 'aws-cdk-lib';
 import { IVpc, ISecurityGroup, InstanceClass, InstanceType, InstanceSize, MachineImage } from 'aws-cdk-lib/aws-ec2';
 import { Role, PolicyStatement, ServicePrincipal, ManagedPolicy } from 'aws-cdk-lib/aws-iam';
