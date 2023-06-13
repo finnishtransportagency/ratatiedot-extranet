@@ -12,6 +12,7 @@ alfrescoAxios.interceptors.response.use(
       const simplifiedError = {
         status: error.response?.status,
         message: error.message,
+        stack: error.stack,
       };
       if (error.response?.status === 404) {
         return null;
