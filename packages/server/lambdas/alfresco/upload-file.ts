@@ -1,7 +1,7 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { get, isEmpty } from 'lodash';
-import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
@@ -9,17 +9,17 @@ import { DatabaseClient } from '../database/client';
 import { fileRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { getFolder, isFolderInCategory } from './list-files';
-import axios, { AxiosRequestConfig } from 'axios';
+import { AxiosRequestConfig } from 'axios';
+import { alfrescoAxios } from '../../utils/axios';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 const postFile = async (options: AxiosRequestConfig, nodeId: string): Promise<AlfrescoResponse | undefined> => {
-  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
-  const response = await axios.post(url, options);
-  return response.data as AlfrescoResponse;
+  const url = `/alfresco/versions/1/nodes/${nodeId}/children`;
+  const response = await alfrescoAxios.post(url, options);
+  return response.data;
 };
 
 /**
