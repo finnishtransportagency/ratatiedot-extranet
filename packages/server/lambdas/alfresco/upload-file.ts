@@ -18,6 +18,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 const postFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
+  console.log('URL:', url, ', options:', options);
   return await alfrescoFetch(url, options);
 };
 
@@ -82,8 +83,18 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
     const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
-    console.log('requestOptions: ', requestOptions);
+
+    /**
+     * TESTING LOGS START
+     */
+    console.log('Sending request with body:', requestOptions.body?.toString());
+
     const result = await postFile(requestOptions, targetNode);
+    console.log('Result: ', result);
+    /**
+     * TESTING LOGS END
+     */
+
     auditLog.info(
       user,
       `Uploaded file ${result?.entry.name} with id ${result?.entry.id} to ${categoryData.alfrescoFolder}`,
