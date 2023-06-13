@@ -1,23 +1,27 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { deleteFileRequestBuilder } from './fileRequestBuilder';
-import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
+import { alfrescoAxios } from '../../utils/axios';
+import { AxiosRequestConfig } from 'axios';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 // TODO: this function is also used to delete folders, we should revise these functions and their use-cases
-const deleteFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined | string> => {
-  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  return await alfrescoFetch(url, options);
+const deleteFile = async (
+  options: AxiosRequestConfig,
+  nodeId: string,
+): Promise<AlfrescoResponse | undefined | string> => {
+  const url = `/alfresco/versions/1/nodes/${nodeId}`;
+  const response = await alfrescoAxios.delete(url, options);
+  return response.data as AlfrescoResponse;
 };
 
 /**
@@ -60,7 +64,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = deleteFileRequestBuilder(headers) as RequestInit;
+    const requestOptions = deleteFileRequestBuilder(headers) as AxiosRequestConfig;
 
     const result = await deleteFile(requestOptions, nodeId);
     auditLog.info(user, `Deleted file ${nodeId} in ${categoryData.alfrescoFolder}`);
