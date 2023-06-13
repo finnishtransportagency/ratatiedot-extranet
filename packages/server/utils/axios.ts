@@ -6,12 +6,17 @@ export const alfrescoAxios = axios.create({
 });
 
 alfrescoAxios.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response.data;
+  },
   (error) => {
     if (axios.isAxiosError(error)) {
       const errorCopy = { ...error };
       delete errorCopy.config?.headers?.['X-API-Key'];
       delete errorCopy.request?._redirectable?._options?.headers['X-API-Key'];
+      if (error.response?.status === 404) {
+        return null;
+      }
       throw errorCopy;
     }
     throw error;
