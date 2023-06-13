@@ -4,6 +4,16 @@ import { ALBEvent, ALBEventHeaders } from 'aws-lambda';
 import { FileInfo } from 'busboy';
 import { log } from '../../../utils/logger';
 
+// Keeping these functions here until file upload is confirmed to work in production
+// const base64ToString = (base64string: string): string => {
+//   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
+//   return buffer;
+// };
+// const bufferToBlob = (buffer: Buffer) => {
+//   const blob = new Blob([buffer]);
+//   return blob;
+// };
+
 const base64ToBuffer = (base64string: string): Buffer => {
   const buffer = Buffer.from(base64string, 'base64');
   return buffer;
