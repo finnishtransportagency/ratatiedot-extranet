@@ -1,28 +1,36 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { get, isEmpty } from 'lodash';
-import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { fileRequestBuilder } from './fileRequestBuilder';
-import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { getFolder, isFolderInCategory } from './list-files';
+import FormData from 'form-data';
+
+import axios from 'axios';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const postFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
+export interface AxiosRequestOptions {
+  method: string;
+  body: FormData;
+  headers: { [name: string]: string };
+}
+
+const postFile = async (options: AxiosRequestOptions, nodeId: string): Promise<AlfrescoResponse | undefined> => {
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
-  console.log('URL:', url, ', options:', options);
-  return await alfrescoFetch(url, {
-    ...options,
-    highWaterMark: 1024 * 1024, // ~1MB
-  });
+  const headers = {
+    ...options.headers,
+  };
+  const res = await axios.post(url, options.body, { headers });
+  return res.data;
 };
 
 /**
@@ -85,18 +93,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     }
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await fileRequestBuilder(event, headers)) as RequestInit;
-
-    /**
-     * TESTING LOGS START
-     */
-    console.log('Sending request with body:', requestOptions.body?.toString());
-
+    const requestOptions = (await fileRequestBuilder(event, headers)) as AxiosRequestOptions;
     const result = await postFile(requestOptions, targetNode);
-    console.log('Result: ', result);
-    /**
-     * TESTING LOGS END
-     */
 
     auditLog.info(
       user,

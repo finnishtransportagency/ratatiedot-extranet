@@ -1,33 +1,20 @@
-import { FormData } from 'formdata-node';
+import FormData from 'form-data';
 import { ParsedFormDataOptions, parseForm } from '../../../utils/parser';
 import { ALBEvent, ALBEventHeaders } from 'aws-lambda';
-import { Blob } from 'buffer';
 import { FileInfo } from 'busboy';
 import { log } from '../../../utils/logger';
-
-// Keeping this function here until file upload is confirmed to work in production
-// const base64ToString = (base64string: string): string => {
-//   const buffer = Buffer.from(base64string, 'base64').toString('utf-8').replace(/\r?\n/g, '\r\n');
-//   return buffer;
-// };
 
 const base64ToBuffer = (base64string: string): Buffer => {
   const buffer = Buffer.from(base64string, 'base64');
   return buffer;
 };
 
-const bufferToBlob = (buffer: Buffer) => {
-  const unit8Array = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-  const blob = new Blob([unit8Array]);
-  return blob;
-};
-
-const createForm = async (requestFormData: ParsedFormDataOptions): Promise<FormData> => {
+const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   const formData = new FormData();
-  const fileData: Blob = await bufferToBlob(requestFormData.filedata as Buffer);
-  const fileInfo = (await requestFormData.fileinfo) as FileInfo;
-  log.debug(`File data blob size: ${fileData.size}`);
-  formData.append('filedata', fileData, fileInfo.filename);
+  const fileData: Buffer = requestFormData.filedata as Buffer;
+  const fileInfo = requestFormData.fileinfo as FileInfo;
+  log.debug(`File data buffer size: ${fileData.length}`);
+  formData.append('filedata', fileData, { filename: fileInfo.filename });
   formData.append('name', fileInfo.filename);
   formData.append('nodeType', 'cm:content');
   return formData;
@@ -41,13 +28,15 @@ export class AlfrescoFileRequestBuilder {
       buffer = base64ToBuffer(event.body as string);
     }
     const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
-    const form = await createForm(formData);
+    const form = createForm(formData);
     const options = {
       method: 'POST',
       body: form,
-      headers: headers,
-    } as RequestInit;
-    console.log('requestBuilder options: ', options);
+      headers: {
+        ...headers,
+        ...form.getHeaders(),
+      },
+    };
     return options;
   }
   public async updateRequestBuilder(event: ALBEvent, headers: HeadersInit) {
