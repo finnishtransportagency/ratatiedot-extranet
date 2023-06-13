@@ -16,7 +16,7 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
       },
       limits: {
         files: 1,
-        fileSize: 1000000, // bytes = 1MB
+        // fileSize: 1000000, // bytes = 1MB
       },
     });
     let form = {} as ParsedFormDataOptions;
