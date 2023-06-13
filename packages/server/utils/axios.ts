@@ -9,13 +9,14 @@ alfrescoAxios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error)) {
-      const errorCopy = { ...error };
-      delete errorCopy.config?.headers?.['X-API-Key'];
-      delete errorCopy.request?._redirectable?._options?.headers['X-API-Key'];
+      const simplifiedError = {
+        status: error.response?.status,
+        message: error.message,
+      };
       if (error.response?.status === 404) {
         return null;
       }
-      throw errorCopy;
+      throw simplifiedError;
     }
     throw error;
   },
