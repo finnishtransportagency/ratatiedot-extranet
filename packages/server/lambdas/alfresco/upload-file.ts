@@ -19,7 +19,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 const postFile = async (options: AxiosRequestConfig, nodeId: string): Promise<AlfrescoResponse | undefined> => {
   const url = `/alfresco/versions/1/nodes/${nodeId}/children`;
-  const response = await alfrescoAxios(url, options);
+  const response = await alfrescoAxios.post(url, options);
   return response.data as AlfrescoResponse;
 };
 

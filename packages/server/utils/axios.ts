@@ -11,6 +11,7 @@ alfrescoAxios.interceptors.response.use(
     if (axios.isAxiosError(error)) {
       const errorCopy = { ...error };
       delete errorCopy.config?.headers?.['X-API-Key'];
+      delete errorCopy.request?._redirectable?._options?.headers['X-API-Key'];
       throw errorCopy;
     }
     throw error;
