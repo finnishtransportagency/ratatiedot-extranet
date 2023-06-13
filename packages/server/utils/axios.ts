@@ -6,9 +6,7 @@ export const alfrescoAxios = axios.create({
 });
 
 alfrescoAxios.interceptors.response.use(
-  (response) => {
-    return response.data;
-  },
+  (response) => response,
   (error) => {
     if (axios.isAxiosError(error)) {
       const errorCopy = { ...error };
