@@ -9,15 +9,16 @@ import { DatabaseClient } from '../database/client';
 import { updateFileMetadataRequestBuilder } from './fileRequestBuilder';
 import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
+import { alfrescoAxios } from '../../utils/axios';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 const updateFileMetadata = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
-  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  return await alfrescoFetch(url, options);
+  const url = `/alfresco/versions/1/nodes/${nodeId}`;
+  const response = await alfrescoAxios.put(url, options);
+  return response.data;
 };
 
 /**

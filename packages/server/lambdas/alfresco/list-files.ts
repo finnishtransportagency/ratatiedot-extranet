@@ -74,7 +74,7 @@ export const getFolder = async (uid: string, nodeId: string) => {
     const url = `/alfresco/versions/1/nodes/${nodeId}?where=(isFolder=true)&include=path`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
-    return response;
+    return response.data;
   } catch (error: any) {
     throw error;
   }

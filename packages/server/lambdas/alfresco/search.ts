@@ -1,6 +1,5 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import axios from 'axios';
-import { getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { getAlfrescoOptions } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
@@ -14,6 +13,7 @@ import {
   SearchParameter,
   SearchParameterName,
 } from './searchQueryBuilder/types';
+import { alfrescoAxios } from '../../utils/axios';
 
 const searchByTerm = async (uid: string, body: QueryRequest) => {
   try {
@@ -24,10 +24,10 @@ const searchByTerm = async (uid: string, body: QueryRequest) => {
       sort: body.sort,
     });
     log.debug(bodyRequest, 'Complete body request');
-    const alfrescoSearchAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1/search`;
+    const alfrescoSearchAPIUrl = '/search/versions/1/search';
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
 
-    const response = await axios.post(alfrescoSearchAPIUrl, bodyRequest, options);
+    const response = await alfrescoAxios.post(alfrescoSearchAPIUrl, bodyRequest, options);
     return response.data;
   } catch (err) {
     throw err;
