@@ -19,7 +19,10 @@ const postFile = async (options: RequestInit, nodeId: string): Promise<AlfrescoR
   const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
   console.log('URL:', url, ', options:', options);
-  return await alfrescoFetch(url, options);
+  return await alfrescoFetch(url, {
+    ...options,
+    highWaterMark: 1024 * 1024, // ~1MB
+  });
 };
 
 /**
