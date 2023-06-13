@@ -1,13 +1,12 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { get, isEmpty } from 'lodash';
-import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { fileRequestBuilder } from './fileRequestBuilder';
-import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { getFolder, isFolderInCategory } from './list-files';
 import axios, { AxiosRequestConfig } from 'axios';
@@ -84,6 +83,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
     const requestOptions = (await fileRequestBuilder(event, headers)) as AxiosRequestConfig;
+    console.log('Request Options: ', requestOptions);
     const result = await postFile(requestOptions, targetNode);
     auditLog.info(
       user,
