@@ -10,14 +10,14 @@ import { DatabaseClient } from '../database/client';
 import { getAlfrescoId, updateFolderComponent } from '../database/components/update-node-component';
 import { folderUpdateRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
-import { alfrescoAxios } from '../../utils/axios';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 const updateFolder = async (nodeId: string, options: RequestInit): Promise<AlfrescoResponse | undefined> => {
-  const url = `/alfresco/versions/1/nodes/${nodeId}`;
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}`;
   const response = await alfrescoAxios.put(url, options);
   return response.data;
 };

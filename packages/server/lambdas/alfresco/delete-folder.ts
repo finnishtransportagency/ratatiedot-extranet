@@ -7,7 +7,7 @@ import { getUser, validateReadUser, validateWriteUser } from '../../utils/userSe
 import { DatabaseClient } from '../database/client';
 import { folderDeleteRequestBuilder } from './fileRequestBuilder';
 import { deleteComponent } from '../database/components/delete-node-component';
-import { alfrescoAxios } from '../../utils/axios';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 
 const database = await DatabaseClient.build();
@@ -16,7 +16,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 // Instead of this function, we use delete-file for folders, since alfresco node deletion API works the same for folders and files.
 const deleteFolder = async (options: AxiosRequestConfig, nodeId: string) => {
-  const url = `/alfresco/versions/1/nodes/${nodeId}`;
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}`;
   const response = await alfrescoAxios.delete(url, options);
   return response.data;
 };

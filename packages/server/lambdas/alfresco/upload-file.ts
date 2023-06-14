@@ -11,7 +11,7 @@ import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { getFolder, isFolderInCategory } from './list-files';
 import FormData from 'form-data';
 
-import { alfrescoAxios } from '../../utils/axios';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 
 const database = await DatabaseClient.build();
 
@@ -24,7 +24,7 @@ export interface AxiosRequestOptions {
 }
 
 const postFile = async (options: AxiosRequestOptions, nodeId: string): Promise<AlfrescoResponse | undefined> => {
-  const url = `/alfresco/versions/1/nodes/${nodeId}/children`;
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}/children`;
   const headers = {
     ...options.headers,
   };

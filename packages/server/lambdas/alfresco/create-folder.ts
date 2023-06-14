@@ -1,4 +1,3 @@
-import { RequestInit } from 'node-fetch';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
@@ -10,7 +9,7 @@ import { DatabaseClient } from '../database/client';
 import { folderCreateRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { createFolderComponent } from '../database/components/create-node-component';
-import { alfrescoAxios } from '../../utils/axios';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 
 const database = await DatabaseClient.build();
@@ -18,7 +17,7 @@ const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 const postFolder = async (options: AxiosRequestConfig, nodeId: string): Promise<AlfrescoResponse | undefined> => {
-  const url = `/alfresco/versions/1/nodes/${nodeId}/children`;
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}/children`;
   const response = await alfrescoAxios.post(url, options);
   return response.data as AlfrescoResponse;
 };

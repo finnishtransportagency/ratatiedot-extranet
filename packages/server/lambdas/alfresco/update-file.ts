@@ -9,7 +9,7 @@ import { DatabaseClient } from '../database/client';
 import { updateFileRequestBuilder } from './fileRequestBuilder';
 import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
-import { alfrescoAxios } from '../../utils/axios';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 
 const database = await DatabaseClient.build();
 
@@ -20,7 +20,7 @@ const updateFile = async (
   nodeId: string,
   newFileName?: string,
 ): Promise<AlfrescoResponse | undefined> => {
-  const url = `/alfresco/versions/1/nodes/${nodeId}/content`;
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}/content`;
   if (newFileName) {
     url.concat(`&name=${newFileName}`);
   }

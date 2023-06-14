@@ -17,7 +17,7 @@ import {
 } from './searchQueryBuilder/types';
 import { get } from 'lodash';
 import { validateQueryParameters } from '../../utils/validation';
-import { alfrescoAxios } from '../../utils/axios';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 
 export type TNode = {
   entry: {
@@ -71,7 +71,7 @@ const searchByTermWithParent = async (
 
 export const getFolder = async (uid: string, nodeId: string) => {
   try {
-    const url = `/alfresco/versions/1/nodes/${nodeId}?where=(isFolder=true)&include=path`;
+    const url = `${alfrescoApiVersion}/nodes/${nodeId}?where=(isFolder=true)&include=path`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
     return response.data;

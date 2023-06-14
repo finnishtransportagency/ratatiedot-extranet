@@ -7,7 +7,7 @@ import { getUser, validateReadUser, validateWriteUser } from '../../utils/userSe
 import { DatabaseClient } from '../database/client';
 import { deleteFileRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
-import { alfrescoAxios } from '../../utils/axios';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 
 const database = await DatabaseClient.build();
@@ -19,7 +19,7 @@ const deleteFile = async (
   options: AxiosRequestConfig,
   nodeId: string,
 ): Promise<AlfrescoResponse | undefined | string> => {
-  const url = `/alfresco/versions/1/nodes/${nodeId}`;
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}`;
   const response = await alfrescoAxios.delete(url, options);
   return response.data as AlfrescoResponse;
 };
