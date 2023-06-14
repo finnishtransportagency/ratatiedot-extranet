@@ -1,7 +1,7 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
-import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
