@@ -18,6 +18,7 @@ import {
 import { get } from 'lodash';
 import { validateQueryParameters } from '../../utils/validation';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { AxiosError } from 'axios';
 
 export type TNode = {
   entry: {
@@ -76,6 +77,12 @@ export const getFolder = async (uid: string, nodeId: string) => {
     const response = await alfrescoAxios.get(url, options);
     return response.data;
   } catch (error: any) {
+    if (error instanceof AxiosError) {
+      // In case nodeId doesn't exist, Alfresco throws 404
+      if (error.response?.status === 404) {
+        return null;
+      }
+    }
     throw error;
   }
 };

@@ -16,9 +16,6 @@ alfrescoAxios.interceptors.response.use(
         message: error.message,
         stack: error.stack,
       };
-      if (error.response?.status === 404) {
-        return null;
-      }
       throw simplifiedError;
     }
     throw error;
