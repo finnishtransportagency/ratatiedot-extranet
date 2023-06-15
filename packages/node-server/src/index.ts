@@ -1,19 +1,8 @@
-import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
+import axios from 'axios';
 import multer from 'multer';
 import express, { Request, Response } from 'express';
-import axios from 'axios';
 
 const upload = multer({ dest: 'tmp/' });
-
-const client = new LambdaClient(config);
-const input = {
-  FunctionName: 'STRING_VALUE',
-  InvocationType: 'RequestResponse',
-  Payload: JSON.stringify({ test: 'test' }),
-  LogType: 'Tail', // Response includes execution logs. Switch to 'None' before merge to production!
-};
-const command = new InvokeCommand(input);
-const response = await client.send(command);
 
 const postFileToAlfresco = async (options: RequestInit, nodeId: string): Promise<any | undefined> => {
   const alfrescoUrl = 'https://localhost:3002/';

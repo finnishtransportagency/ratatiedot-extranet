@@ -6,18 +6,14 @@ import {
   InstanceSize,
   IVpc,
   CloudFormationInit,
-  InitConfig,
-  InitFile,
-  InitCommand,
   InitSource,
   UserData,
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
 import { AutoScalingGroup, HealthCheck, Signals } from 'aws-cdk-lib/aws-autoscaling';
-import { ApplicationProtocol, ApplicationListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { getPipelineConfig } from './config';
-import { readFileSync } from 'node:fs';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
   readonly vpc: IVpc;
@@ -62,12 +58,16 @@ export class RatatietoNodeBackendConstruct extends Construct {
       userData: userData,
     });
 
-    listener.addTargets('AsgTargetGroup', {
+    listener.addTargets('NodeBackendTarget', {
       port: 80,
       protocol: ApplicationProtocol.HTTP,
       targets: [autoScalingGroup],
+      conditions: [
+        ListenerCondition.pathPatterns(['/api/alfresco/file/*']),
+        ListenerCondition.httpRequestMethods(['POST']),
+      ],
       healthCheck: {
-        path: '/',
+        path: '/file-upload-health',
         port: '80',
         healthyHttpCodes: '200',
       },
