@@ -13,7 +13,7 @@ import {
   SearchParameter,
   SearchParameterName,
 } from './searchQueryBuilder/types';
-import { alfrescoAxios } from '../../utils/axios';
+import { alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
 
 const searchByTerm = async (uid: string, body: QueryRequest) => {
   try {
@@ -24,7 +24,7 @@ const searchByTerm = async (uid: string, body: QueryRequest) => {
       sort: body.sort,
     });
     log.debug(bodyRequest, 'Complete body request');
-    const alfrescoSearchAPIUrl = '/search/versions/1/search';
+    const alfrescoSearchAPIUrl = alfrescoSearchApiVersion;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
 
     const response = await alfrescoAxios.post(alfrescoSearchAPIUrl, bodyRequest, options);

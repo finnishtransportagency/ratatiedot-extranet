@@ -17,8 +17,7 @@ import {
 } from './searchQueryBuilder/types';
 import { get } from 'lodash';
 import { validateQueryParameters } from '../../utils/validation';
-import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
-import { AxiosError } from 'axios';
+import { alfrescoApiVersion, alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
 
 export type TNode = {
   entry: {
@@ -61,7 +60,7 @@ const searchByTermWithParent = async (
       additionalFields: [AdditionalFields.PROPERTIES],
       sort: [{ field: SortingFieldParameter.name, ascending: true }],
     });
-    const url = '/search/versions/1/search';
+    const url = alfrescoSearchApiVersion;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.post(url, bodyRequest, options);
     return response.data;

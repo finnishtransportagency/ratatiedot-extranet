@@ -2,6 +2,7 @@ import axios from 'axios';
 import { getAlfrescoUrlBase } from './alfresco';
 
 export const alfrescoApiVersion = '/alfresco/versions/1';
+export const alfrescoSearchApiVersion = '/search/versions/1/search';
 
 export const alfrescoAxios = axios.create({
   baseURL: getAlfrescoUrlBase(),
