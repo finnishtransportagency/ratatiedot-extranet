@@ -1,16 +1,50 @@
-import { Stack } from 'aws-cdk-lib';
 import { StackProps } from 'aws-cdk-lib';
-import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
+import { MachineImage, InstanceType, InstanceClass, InstanceSize, IVpc } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
+import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
+import { AutoScalingGroup, HealthCheck } from 'aws-cdk-lib/aws-autoscaling';
+import { ApplicationProtocol, ApplicationListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
-  readonly stackId: string;
   readonly vpc: IVpc;
-  readonly securityGroup: ISecurityGroup;
+  listener: ApplicationListener;
 }
 
-export class RatatietoNodeBackendStack extends Stack {
+export class RatatietoNodeBackendConstruct extends Construct {
   constructor(scope: Construct, id: string, props: RatatietoNodeBackendStackProps) {
-    super(scope, id, props);
+    super(scope, id);
+
+    const { vpc, listener } = props;
+
+    const asgRole = new Role(this, 'ec2-bastion-role', {
+      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
+      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
+    });
+
+    const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
+      vpc,
+      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0b9b4e1a3d497aefa' }),
+      allowAllOutbound: true,
+      role: asgRole,
+      healthCheck: HealthCheck.ec2(),
+      minCapacity: 1,
+      maxCapacity: 1,
+    });
+
+    listener.addTargets('AsgTargetGroup', {
+      port: 80,
+      protocol: ApplicationProtocol.HTTP,
+      targets: [autoScalingGroup],
+      healthCheck: {
+        path: '/',
+        port: '80',
+        healthyHttpCodes: '200',
+      },
+    });
+
+    autoScalingGroup.addUserData('echo "Hello World!!" > /var/www/html/index.html');
+
+    return autoScalingGroup;
   }
 }

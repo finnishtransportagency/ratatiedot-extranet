@@ -12,6 +12,7 @@ import { getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from
 import { RataExtraStack } from './rataextra-stack';
 import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { isDevelopmentMainStack } from './utils';
+import { RatatietoNodeBackendConstruct } from './rataextra-node-backend';
 
 /**
  * The stack that defines the application pipeline
@@ -82,8 +83,6 @@ export class RataExtraPipelineStack extends Stack {
     pipeline.addWave('BeforeStageDeploy', {
       pre: [strip],
     });
-
-    const nodeEnvironmentWave = pipeline.addWave('NodeEnvironment');
 
     pipeline.addStage(
       new RataExtraApplication(this, 'RataExtra', {

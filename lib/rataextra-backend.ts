@@ -1,14 +1,6 @@
-import {
-  aws_elasticloadbalancingv2,
-  Duration,
-  NestedStack,
-  NestedStackProps,
-  Tags,
-  aws_autoscaling,
-  aws_codebuild,
-} from 'aws-cdk-lib';
-import { IVpc, ISecurityGroup, InstanceClass, InstanceType, InstanceSize, MachineImage } from 'aws-cdk-lib/aws-ec2';
-import { Role, PolicyStatement, ServicePrincipal, ManagedPolicy } from 'aws-cdk-lib/aws-iam';
+import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, Tags } from 'aws-cdk-lib';
+import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
+import { Role, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
 import {
@@ -25,8 +17,8 @@ import { join } from 'path';
 import { isPermanentStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
-import { Project } from 'aws-cdk-lib/aws-codebuild';
+import { IAutoScalingGroup, AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
+import { RatatietoNodeBackendConstruct, RatatietoNodeBackendStack } from './rataextra-node-backend';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -452,6 +444,7 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'dbDeleteFavoritePage',
       },
     ];
+
     // ALB for API
     const alb = this.createlAlb({
       rataExtraStackIdentifier: rataExtraStackIdentifier,
@@ -461,10 +454,15 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroup,
     });
 
+    const nodeBackend = new RatatietoNodeBackendConstruct(this, 'NodeBackend', {
+      vpc: applicationVpc,
+      listener: alb.listener,
+    });
+
     if (isPermanentStack(stackId, rataExtraEnv)) {
       const bastionStack = new RataExtraBastionStack(this, 'stack-bastion', {
         rataExtraEnv,
-        albDns: alb.loadBalancerDnsName,
+        albDns: alb.alb.loadBalancerDnsName,
         databaseDns: databaseDomain,
         stackId: stackId,
         vpc: applicationVpc,
@@ -549,45 +547,6 @@ export class RataExtraBackendStack extends NestedStack {
       }),
     );
 
-    const asg = this.createAsg({
-      vpc: vpc,
-    });
-
-    asg.addUserData(
-      'crontab - l | { cat; echo "@reboot sudo pm2 start /usr/share/nginx/html/ecosystem.config.js -i 0 --name "node-app""; } | crontab -',
-    );
-    asg.addUserData('pm2 start /usr/share/nginx/html/ecosystem.config.js - i 0 --name "node-app"');
-
-    listener.addTargets('AsgTargetGroup', {
-      port: 80,
-      protocol: aws_elasticloadbalancingv2.ApplicationProtocol.HTTP,
-      targets: [asg],
-      healthCheck: {
-        path: '/',
-        port: '80',
-        healthyHttpCodes: '200',
-      },
-    });
-
-    return alb;
-  }
-
-  private createAsg({ vpc }: { vpc: IVpc }) {
-    const asgRole = new Role(this, 'ec2-bastion-role', {
-      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
-      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
-    });
-
-    const autoScalingGroup = new aws_autoscaling.AutoScalingGroup(this, 'AutoScalingGroup', {
-      vpc,
-      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0b9b4e1a3d497aefa' }),
-      allowAllOutbound: true,
-      role: asgRole,
-      healthCheck: aws_autoscaling.HealthCheck.ec2(),
-      minCapacity: 1,
-      maxCapacity: 1,
-    });
-    return autoScalingGroup;
+    return { alb, listener };
   }
 }
