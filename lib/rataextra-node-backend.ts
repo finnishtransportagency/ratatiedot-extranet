@@ -17,6 +17,7 @@ import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
 import { AutoScalingGroup, HealthCheck, Signals } from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { getPipelineConfig } from './config';
+import { readFileSync } from 'node:fs';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
   readonly vpc: IVpc;
@@ -58,6 +59,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       signals: Signals.waitForAll({
         timeout: Duration.minutes(10),
       }),
+      userData: userData,
     });
 
     listener.addTargets('AsgTargetGroup', {
