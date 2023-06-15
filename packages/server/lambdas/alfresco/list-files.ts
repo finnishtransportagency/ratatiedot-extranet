@@ -77,12 +77,6 @@ export const getFolder = async (uid: string, nodeId: string) => {
     const response = await alfrescoAxios.get(url, options);
     return response.data;
   } catch (error: any) {
-    if (error instanceof AxiosError) {
-      // In case nodeId doesn't exist, Alfresco throws 404
-      if (error.response?.status === 404) {
-        return null;
-      }
-    }
     throw error;
   }
 };

@@ -11,7 +11,13 @@ alfrescoAxios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error)) {
-      console.log('request url and method: ', error.config?.url, error.config?.method);
+      const listFilesEndpoint = /\/api\/nodes\/[A-Za-z0-9-]+\/where=\(isFolder=true\)&include=path/;
+      if (error.config?.url && listFilesEndpoint.test(error.config?.url)) {
+        // In case nodeId doesn't exist, Alfresco throws 404
+        if (error.response?.status === 404) {
+          return null;
+        }
+      }
       const simplifiedError = {
         status: error.response?.status,
         message: error.message,
