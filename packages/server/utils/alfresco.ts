@@ -1,7 +1,5 @@
 import { CategoryDataBase } from '@prisma/client';
 import { getSecuredStringParameter } from './parameterStore';
-import { AlfrescoResponse } from '../lambdas/alfresco/fileRequestBuilder/types';
-import fetch, { RequestInit } from 'node-fetch';
 
 const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY_NAME || '';
 const alfrescoAPIUrl = process.env.ALFRESCO_API_URL || '';

@@ -7,15 +7,18 @@ import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { updateFileMetadataRequestBuilder } from './fileRequestBuilder';
-import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { AxiosRequestConfig } from 'axios';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const updateFileMetadata = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
+const updateFileMetadata = async (
+  options: AxiosRequestConfig,
+  nodeId: string,
+): Promise<AlfrescoResponse | undefined> => {
   const url = `${alfrescoApiVersion}/nodes/${nodeId}`;
   const response = await alfrescoAxios.put(url, options);
   return response.data;
@@ -59,7 +62,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = updateFileMetadataRequestBuilder(event, headers) as RequestInit;
+    const requestOptions = updateFileMetadataRequestBuilder(event, headers) as AxiosRequestConfig;
 
     const result = await updateFileMetadata(requestOptions, nodeId);
     auditLog.info(user, `Updated file ${nodeId} in ${categoryData.alfrescoFolder}`);

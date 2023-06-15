@@ -7,16 +7,16 @@ import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { updateFileRequestBuilder } from './fileRequestBuilder';
-import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { AxiosRequestConfig } from 'axios';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 const updateFile = async (
-  options: RequestInit,
+  options: AxiosRequestConfig,
   nodeId: string,
   newFileName?: string,
 ): Promise<AlfrescoResponse | undefined> => {
@@ -67,7 +67,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await updateFileRequestBuilder(event, headers)) as RequestInit;
+    const requestOptions = (await updateFileRequestBuilder(event, headers)) as AxiosRequestConfig;
 
     const result = await updateFile(requestOptions, nodeId, name);
     auditLog.info(user, `Updated file ${nodeId} in ${categoryData.alfrescoFolder}`);
