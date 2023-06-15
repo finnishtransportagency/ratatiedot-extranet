@@ -12,17 +12,10 @@ alfrescoAxios.interceptors.response.use(
   (error) => {
     if (axios.isAxiosError(error)) {
       const listFilesEndpoint = /\/alfresco\/versions\/1\/nodes\/[A-Za-z0-9-]+\?where=\(isFolder=true\)&include=path/;
-      console.log('url: ', error.config?.url);
-
-      if (error.config?.url) {
-        console.log('regex test: ', listFilesEndpoint.test(error.config?.url));
-      }
       if (error.config?.url && listFilesEndpoint.test(error.config?.url)) {
-        console.log('list-files endpoint, check for 404');
         // In case nodeId doesn't exist, Alfresco throws 404
         if (error.response?.status === 404) {
-          console.log('404, return null');
-          return null;
+          return Promise.resolve(error.response);
         }
       }
       const simplifiedError = {
@@ -30,7 +23,6 @@ alfrescoAxios.interceptors.response.use(
         message: error.message,
         stack: error.stack,
       };
-      console.log('throw simplifiedError');
       throw simplifiedError;
     }
     throw error;
