@@ -31,7 +31,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
 
     const config = getPipelineConfig();
 
-    // Hack to make CloudFormation Init working
+    // Hack to make CloudFormation init working
     const amiInstallScript = `apt-get update -y`;
     const userData = UserData.forLinux();
     userData.addCommands(amiInstallScript);
@@ -55,7 +55,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
       healthCheck: HealthCheck.ec2(),
       minCapacity: 1,
       maxCapacity: 1,
-      userData: userData,
     });
 
     listener.addTargets('AsgTargetGroup', {
