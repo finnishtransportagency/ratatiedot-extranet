@@ -50,9 +50,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       healthCheck: HealthCheck.ec2(),
       minCapacity: 1,
       maxCapacity: 1,
-      signals: Signals.waitForAll({
-        timeout: Duration.minutes(10),
-      }),
+      signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(45) }),
       userData: userData,
     });
 
