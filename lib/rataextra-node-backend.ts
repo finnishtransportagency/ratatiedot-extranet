@@ -64,6 +64,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
         ListenerCondition.pathPatterns(['/api/alfresco/file/*']),
         ListenerCondition.httpRequestMethods(['POST']),
       ],
+      priority: 120,
       healthCheck: {
         path: '/file-upload-health',
         port: '80',
