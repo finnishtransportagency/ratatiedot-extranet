@@ -28,10 +28,8 @@ export class RatatietoNodeBackendConstruct extends Construct {
 
     const config = getPipelineConfig();
 
-    // Hack to make CloudFormation init working
-    const amiInstallScript = `apt-get update -y`;
     const userData = UserData.forLinux();
-    userData.addCommands(amiInstallScript);
+    userData.addExecuteFileCommand({ filePath: './node-environment-setup.sh' });
 
     const asgRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
