@@ -37,7 +37,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     });
 
     const init = CloudFormationInit.fromElements(
-      InitSource.fromGitHub('/testdir/code', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
+      InitSource.fromGitHub('/ratatieto-source/temp', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
     );
 
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {

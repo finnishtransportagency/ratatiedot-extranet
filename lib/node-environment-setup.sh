@@ -18,6 +18,14 @@ cat > /tmp/install_script.sh << EOF
       nvm alias default v20.3.0
       nvm install v20.3.0
       nvm use v20.3.0
+      npm install pm2 -g
+
+      # App build
+      cp -R ./ratatieto-source/temp/packages/node-server/* ./ratatieto-source
+      rm -R ./ratatieto-source/temp
+      cd ./ratatieto-source
+      npm run build
+      npm run start
 EOF
 
 # Runs the install script as the ec2-user.
