@@ -23,8 +23,7 @@ import { CategoryFiles } from './CategoryFiles';
 
 export const NodeTypes = {
   other: Other,
-  officedocument: Word,
-  msword: Word,
+  word: Word,
   sheet: Excel,
   excel: Excel,
   pdf: PDF,

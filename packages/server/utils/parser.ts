@@ -23,6 +23,9 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
 
     bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
       const chunks: Buffer[] = [];
+      // convert the filename to utf-8 since latin1 preserves individual bytes
+      fileinfo.filename = Buffer.from(fileinfo.filename, 'latin1').toString('utf8');
+
       file.on('data', (data: Buffer) => {
         log.debug(`Received ${data.length} bytes for field ${fieldname}`);
         chunks.push(data);
