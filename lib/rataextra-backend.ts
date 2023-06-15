@@ -17,8 +17,7 @@ import { join } from 'path';
 import { isPermanentStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { IAutoScalingGroup, AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
-import { RatatietoNodeBackendConstruct, RatatietoNodeBackendStack } from './rataextra-node-backend';
+import { RatatietoNodeBackendConstruct } from './rataextra-node-backend';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
