@@ -26,6 +26,7 @@ import { isPermanentStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling';
+import { Project } from 'aws-cdk-lib/aws-codebuild';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -551,6 +552,11 @@ export class RataExtraBackendStack extends NestedStack {
     const asg = this.createAsg({
       vpc: vpc,
     });
+
+    asg.addUserData(
+      'crontab - l | { cat; echo "@reboot sudo pm2 start /usr/share/nginx/html/ecosystem.config.js -i 0 --name "node-app""; } | crontab -',
+    );
+    asg.addUserData('pm2 start /usr/share/nginx/html/ecosystem.config.js - i 0 --name "node-app"');
 
     listener.addTargets('AsgTargetGroup', {
       port: 80,
