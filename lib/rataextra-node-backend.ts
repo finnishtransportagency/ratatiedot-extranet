@@ -1,4 +1,4 @@
-import { StackProps } from 'aws-cdk-lib';
+import { StackProps, Duration } from 'aws-cdk-lib';
 import {
   MachineImage,
   InstanceType,
@@ -14,7 +14,7 @@ import {
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
-import { AutoScalingGroup, HealthCheck } from 'aws-cdk-lib/aws-autoscaling';
+import { AutoScalingGroup, HealthCheck, Signals } from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { getPipelineConfig } from './config';
 
@@ -55,6 +55,9 @@ export class RatatietoNodeBackendConstruct extends Construct {
       healthCheck: HealthCheck.ec2(),
       minCapacity: 1,
       maxCapacity: 1,
+      signals: Signals.waitForAll({
+        timeout: Duration.minutes(10),
+      }),
     });
 
     listener.addTargets('AsgTargetGroup', {
