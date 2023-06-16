@@ -24,6 +24,11 @@ export const Landing = () => {
         </Link>
         .
       </ParagraphWrapper>
+      <SubtitleWrapper variant="subtitle1">Ajankohtaista</SubtitleWrapper>
+      <ParagraphWrapper variant="body1">
+        Yli 1 Mt tiedostojen tallentaminen järjestelmään ei välttämättä toimi ja virheen sattuessa pitää tiedosto
+        tallentaa suoraan Alfrescoon.
+      </ParagraphWrapper>
     </ProtectedContainerWrapper>
   );
 };
