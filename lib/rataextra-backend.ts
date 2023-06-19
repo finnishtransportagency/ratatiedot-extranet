@@ -522,7 +522,7 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     const nodeListener = alb.addListener('NodeListener', {
-      port: 3000,
+      port: 8080,
       defaultAction: ListenerAction.fixedResponse(404),
     });
 

@@ -55,7 +55,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     });
 
     listener.addTargets('NodeBackendTarget', {
-      port: 3000,
+      port: 8080,
       protocol: ApplicationProtocol.HTTP,
       targets: [autoScalingGroup],
       conditions: [
