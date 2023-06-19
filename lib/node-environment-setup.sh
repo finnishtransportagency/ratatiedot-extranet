@@ -30,6 +30,6 @@ cat > /home/ec2-user/install_script.sh << EOF
 EOF
 
 # Runs the install script as the ec2-user.
-chown ec2-user:ec2-user /home/ec2-user/install_script.sh && chown ec2-user:ec2-user /ratatieto-source && chmod a+x /home/ec2-user/install_script.sh
+chown ec2-user:ec2-user /home/ec2-user/install_script.sh && chown -R ec2-user:ec2-user /ratatieto-source && chmod a+x /home/ec2-user/install_script.sh
 sleep 1; su ec2-user -c "/home/ec2-user/install_script.sh"
 
