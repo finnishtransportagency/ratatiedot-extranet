@@ -21,7 +21,7 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
     });
     let form = {} as ParsedFormDataOptions;
 
-    bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo, properties: object) => {
+    bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
       const chunks: Buffer[] = [];
       // convert the filename to utf-8 since latin1 preserves individual bytes
       fileinfo.filename = Buffer.from(fileinfo.filename, 'latin1').toString('utf8');
@@ -44,7 +44,6 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
           fieldname,
           filedata: Buffer.concat(chunks),
           fileinfo,
-          properties,
         };
         chunks.length = 0; // Clearing the chunks array
         log.info('File parse finished');
@@ -57,6 +56,11 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
       file.on('close', () => {
         log.debug(`File stream for field ${fieldname} closed.`);
       });
+    });
+
+    bb.on('field', (fieldname, value) => {
+      console.log('fieldname: ', fieldname);
+      console.log('value: ', value);
     });
 
     bb.on('finish', () => {
