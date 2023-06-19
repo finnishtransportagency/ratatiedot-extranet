@@ -93,6 +93,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
     const requestOptions = (await fileRequestBuilder(event, headers)) as AxiosRequestOptions;
+    console.log('requestOptions: ', requestOptions);
     const result = await postFile(requestOptions, targetNode);
 
     auditLog.info(
