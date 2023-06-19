@@ -4,7 +4,7 @@ import { Readable } from 'stream';
 import { log } from './logger';
 
 export interface ParsedFormDataOptions {
-  [key: string]: string | Buffer | Readable | FileInfo;
+  [key: string]: string | Buffer | Readable | FileInfo | object;
 }
 
 export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => {
@@ -21,7 +21,7 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
     });
     let form = {} as ParsedFormDataOptions;
 
-    bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
+    bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo, properties: object) => {
       const chunks: Buffer[] = [];
       // convert the filename to utf-8 since latin1 preserves individual bytes
       fileinfo.filename = Buffer.from(fileinfo.filename, 'latin1').toString('utf8');
@@ -45,6 +45,7 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
           fieldname,
           filedata: Buffer.concat(chunks),
           fileinfo,
+          properties,
         };
         chunks.length = 0; // Clearing the chunks array
         log.info('File parse finished');
