@@ -15,6 +15,7 @@ export const uploadFile = async (file: File, fileData: FileData): Promise<AxiosR
     form.append('name', name);
     form.append('filedata', file);
     form.append('nodeType', 'cm:content');
+    form.append('properties', JSON.stringify({ 'cm:description': description }));
     const options = {
       method: 'POST',
       data: form,

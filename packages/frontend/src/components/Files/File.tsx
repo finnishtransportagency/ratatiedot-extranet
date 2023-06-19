@@ -52,6 +52,7 @@ export const NodeItem = ({
 
   const { entry } = node;
   const { id, name, modifiedAt, content, isFile, isFolder } = entry;
+  const description = entry.properties['cm:description'];
   const contentMimeType = get(content, 'mimeType', '');
   const contentSizeInBytes = get(content, 'sizeInBytes', 0);
   const { REACT_APP_ALFRESCO_DOWNLOAD_URL } = process.env;
@@ -120,6 +121,9 @@ export const NodeItem = ({
         <Grid item mobile={10} tablet={10.5} desktop={10.5}>
           <Typography variant="body1" sx={{ color: Colors.extrablack }}>
             {name}
+          </Typography>
+          <Typography variant="body1" sx={{ color: Colors.darkgrey }}>
+            {description}
           </Typography>
           <div style={{ display: 'flex', color: Colors.darkgrey, paddingBottom: '18px' }}>
             <Typography variant="body1" sx={{ marginRight: '8px' }}>
