@@ -23,8 +23,7 @@ import { CategoryFiles } from './CategoryFiles';
 
 export const NodeTypes = {
   other: Other,
-  officedocument: Word,
-  msword: Word,
+  word: Word,
   sheet: Excel,
   excel: Excel,
   pdf: PDF,
@@ -108,7 +107,11 @@ export const NodeItem = ({
           }
         }}
         href={
-          isFile ? `${REACT_APP_ALFRESCO_DOWNLOAD_URL}/alfresco/versions/1/nodes/${id}/content?attachment=false` : ''
+          isFile
+            ? `${REACT_APP_ALFRESCO_DOWNLOAD_URL}/alfresco/versions/1/nodes/${id}/content/${encodeURI(
+                name,
+              )}?attachment=false`
+            : ''
         }
       >
         <Grid item mobile={1} tablet={0.5} desktop={0.5}>

@@ -1,15 +1,10 @@
 import { ALBEventHeaders } from 'aws-lambda';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
+import { log } from './logger';
 
 export interface ParsedFormDataOptions {
   [key: string]: string | Buffer | Readable | FileInfo;
-}
-
-interface FormData {
-  fieldname: string;
-  fileinfo?: FileInfo;
-  file: any;
 }
 
 export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => {
@@ -19,22 +14,47 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
         ...headers,
         'content-type': headers['Content-Type'] || headers['content-type'],
       },
+      limits: {
+        files: 1,
+        // fileSize: 1000000, // bytes = 1MB
+      },
     });
     let form = {} as ParsedFormDataOptions;
 
     bb.on('file', (fieldname: string, file: Readable, fileinfo: FileInfo) => {
-      const temp: FormData = { file: [], fieldname: '' };
+      const chunks: Buffer[] = [];
+      // convert the filename to utf-8 since latin1 preserves individual bytes
+      fileinfo.filename = Buffer.from(fileinfo.filename, 'latin1').toString('utf8');
+
       file.on('data', (data: Buffer) => {
-        temp.file.push(data);
+        log.debug(`Received ${data.length} bytes for field ${fieldname}`);
+        chunks.push(data);
       });
 
       file.on('end', () => {
-        temp.file = Buffer.concat(temp.file);
-        temp.fieldname = fieldname;
-        temp.fileinfo = fileinfo as FileInfo;
+        log.debug(
+          `Finished receiving file for field ${fieldname}, total size: ${chunks.reduce(
+            (acc, chunk) => acc + chunk.length,
+            0,
+          )} bytes`,
+        );
 
-        form = { ...temp };
-        console.log('File parse finished');
+        form = {
+          ...form,
+          fieldname,
+          filedata: Buffer.concat(chunks),
+          fileinfo,
+        };
+        chunks.length = 0; // Clearing the chunks array
+        log.info('File parse finished');
+      });
+
+      file.on('error', (err) => {
+        reject(err);
+      });
+
+      file.on('close', () => {
+        log.debug(`File stream for field ${fieldname} closed.`);
       });
     });
 
