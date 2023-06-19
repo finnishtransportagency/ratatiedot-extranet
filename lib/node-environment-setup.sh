@@ -7,7 +7,7 @@ yum -y update
 yum install -y aws-cfn-bootstrap
 
 # preparing ec2 host machine
-sudo cat > /home/ec2-user/install_script.sh << EOF
+cat > /home/ec2-user/install_script.sh << EOF
       # START
       echo "Setting up NodeJS Environment"
       curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
@@ -22,7 +22,7 @@ sudo cat > /home/ec2-user/install_script.sh << EOF
 
       # App build
       cp -R /ratatieto-source/temp/packages/node-server/* /ratatieto-source
-      rm -R /ratatieto-source/temp
+      rm -rf /ratatieto-source/temp
       cd /ratatieto-source
       npm ci
       npm run build
@@ -30,7 +30,6 @@ sudo cat > /home/ec2-user/install_script.sh << EOF
 EOF
 
 # Runs the install script as the ec2-user.
-sudo chown ec2-user:ec2-user /home/ec2-user/install_script.sh && sudo chmod a+x /home/ec2-user/install_script.sh
-sudo chown ec2-user:ec2-user /ratatieto-source
-sleep 1; sudo su ec2-user -c "/home/ec2-user/install_script.sh"
+chown ec2-user:ec2-user /home/ec2-user/install_script.sh && chown ec2-user:ec2-user /ratatieto-source && chmod a+x /home/ec2-user/install_script.sh
+sleep 1; su ec2-user -c "/home/ec2-user/install_script.sh"
 
