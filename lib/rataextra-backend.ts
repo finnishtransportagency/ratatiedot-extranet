@@ -441,7 +441,7 @@ export class RataExtraBackendStack extends NestedStack {
 
     const nodeBackend = new RatatietoNodeBackendConstruct(this, 'NodeBackend', {
       vpc: applicationVpc,
-      listener: alb.listener,
+      listener: alb.nodeListener,
     });
 
     if (isPermanentStack(stackId, rataExtraEnv)) {
@@ -521,6 +521,11 @@ export class RataExtraBackendStack extends NestedStack {
       defaultAction: ListenerAction.fixedResponse(404),
     });
 
+    const nodeListener = alb.addListener('NodeListener', {
+      port: 3000,
+      defaultAction: ListenerAction.fixedResponse(404),
+    });
+
     listenerTargets.map((target) =>
       listener.addTargets(`Target-${target.targetName}`, {
         targets: [new LambdaTarget(target.lambda)],
@@ -532,6 +537,6 @@ export class RataExtraBackendStack extends NestedStack {
       }),
     );
 
-    return { alb, listener };
+    return { alb, listener, nodeListener };
   }
 }
