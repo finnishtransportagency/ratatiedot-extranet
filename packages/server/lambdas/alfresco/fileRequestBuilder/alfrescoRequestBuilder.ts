@@ -29,7 +29,7 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   formData.append('filedata', fileData, { filename: fileInfo.filename });
   formData.append('name', fileInfo.filename);
   formData.append('nodeType', 'cm:content');
-  formData.append('properties', properties);
+  formData.append('properties', JSON.stringify(properties));
   return formData;
 };
 
@@ -42,6 +42,7 @@ export class AlfrescoFileRequestBuilder {
     }
     const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
     const form = createForm(formData);
+    console.log('form in requestBuilder: ', form);
     const options = {
       method: 'POST',
       body: form,
