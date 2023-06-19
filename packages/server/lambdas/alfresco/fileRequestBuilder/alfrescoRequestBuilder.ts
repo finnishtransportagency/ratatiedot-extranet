@@ -40,6 +40,10 @@ export class AlfrescoFileRequestBuilder {
     if (event.isBase64Encoded) {
       buffer = base64ToBuffer(event.body as string);
     }
+
+    console.log('body: ', body);
+    console.log('buffer: ', buffer);
+
     const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
     const form = createForm(formData);
     const options = {
