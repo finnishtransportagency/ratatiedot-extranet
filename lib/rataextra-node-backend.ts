@@ -40,7 +40,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       'nvm install v16.20.0',
       'nvm use v16.20.0',
       'npm install pm2 -g',
-      'chown ec2-user:ec2-user /home/ec2-user/install_script.sh && chown -R ec2-user:ec2-user /ratatieto-source && chmod a+x /home/ec2-user/install_script.sh',
+      'chown -R ec2-user:ec2-user /ratatieto-source',
       'cp -R /ratatieto-source/temp/packages/node-server/* /ratatieto-source',
       'rm -rf /ratatieto-source/temp',
       'cd /ratatieto-source',
