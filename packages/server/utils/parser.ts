@@ -59,8 +59,9 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
     });
 
     bb.on('field', (fieldname, value) => {
-      console.log('fieldname: ', fieldname);
-      console.log('value: ', value);
+      if (fieldname === 'properties') {
+        form.properties = JSON.parse(value);
+      }
     });
 
     bb.on('finish', () => {

@@ -23,11 +23,13 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   const formData = new FormData();
   const fileData: Buffer = requestFormData.filedata as Buffer;
   const fileInfo = requestFormData.fileinfo as FileInfo;
+  const properties = requestFormData.properties;
   console.log('requestFormData: ', requestFormData);
   log.debug(`File data buffer size: ${fileData.length}`);
   formData.append('filedata', fileData, { filename: fileInfo.filename });
   formData.append('name', fileInfo.filename);
   formData.append('nodeType', 'cm:content');
+  formData.append('properties', properties);
   return formData;
 };
 
@@ -38,9 +40,6 @@ export class AlfrescoFileRequestBuilder {
     if (event.isBase64Encoded) {
       buffer = base64ToBuffer(event.body as string);
     }
-
-    console.log('body: ', body);
-
     const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
     const form = createForm(formData);
     const options = {
