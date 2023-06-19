@@ -51,7 +51,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
       minCapacity: 1,
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(45) }),
-      userData: userData,
     });
 
     listener.addTargets('NodeBackendTarget', {
