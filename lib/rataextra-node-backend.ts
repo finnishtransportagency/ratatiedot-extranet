@@ -50,11 +50,12 @@ export class RatatietoNodeBackendConstruct extends Construct {
       healthCheck: HealthCheck.ec2(),
       minCapacity: 1,
       maxCapacity: 1,
-      signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(45) }),
+      signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
+      userData: userData,
     });
 
     listener.addTargets('NodeBackendTarget', {
-      port: 80,
+      port: 3000,
       protocol: ApplicationProtocol.HTTP,
       targets: [autoScalingGroup],
       conditions: [
@@ -62,11 +63,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
         ListenerCondition.httpRequestMethods(['POST']),
       ],
       priority: 120,
-      healthCheck: {
-        path: '/file-upload-health',
-        port: '80',
-        healthyHttpCodes: '200',
-      },
     });
 
     return autoScalingGroup;
