@@ -29,7 +29,25 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const config = getPipelineConfig();
 
     const userData = UserData.forLinux();
-    userData.addExecuteFileCommand({ filePath: './node-environment-setup.sh' });
+    userData.addCommands(
+      'exec > /tmp/userdata.log 2>&1',
+      'yum -y update',
+      'yum install -y aws-cfn-bootstrap',
+      'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash',
+      '. /home/ec2-user/.nvm/nvm.sh',
+      '. /home/ec2-user/.bashrc',
+      'nvm alias default v16.20.0',
+      'nvm install v16.20.0',
+      'nvm use v16.20.0',
+      'npm install pm2 -g',
+      'chown ec2-user:ec2-user /home/ec2-user/install_script.sh && chown -R ec2-user:ec2-user /ratatieto-source && chmod a+x /home/ec2-user/install_script.sh',
+      'cp -R /ratatieto-source/temp/packages/node-server/* /ratatieto-source',
+      'rm -rf /ratatieto-source/temp',
+      'cd /ratatieto-source',
+      'npm ci',
+      'npm run build',
+      'npm run start',
+    );
 
     const asgRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),

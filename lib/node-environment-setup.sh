@@ -1,5 +1,9 @@
 #!/bin/bash
 set -e
+
+# send script output to /tmp so we can debug boot failures
+exec > /tmp/userdata.log 2>&1
+
 # Update all packages
 yum -y update
 
