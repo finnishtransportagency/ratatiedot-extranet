@@ -21,9 +21,9 @@ cat > /home/ec2-user/install_script.sh << EOF
       npm install pm2 -g
 
       # App build
-      cp -R /ratatieto-source/temp/packages/node-server/* /ratatieto-source
-      rm -rf /ratatieto-source/temp
-      cd /ratatieto-source
+      # cp -R /ratatieto-source/temp/packages/node-server/* /ratatieto-source
+      # rm -rf /ratatieto-source/temp
+      cd /ratatieto-source/temp/packages/node-server
       npm ci
       npm run build
       npm run start
