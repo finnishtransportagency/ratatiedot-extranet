@@ -51,9 +51,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
       managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
     });
 
+    // InitCommand.shellCommand('cd /source/packages/node-server && npm ci && npm run build && npm run start'),
     const init = CloudFormationInit.fromElements(
       InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
-      InitCommand.shellCommand('cd /source/packages/node-server && npm ci && npm run build && npm run start'),
+      InitCommand.shellCommand('echo Hello world!'),
     );
 
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
