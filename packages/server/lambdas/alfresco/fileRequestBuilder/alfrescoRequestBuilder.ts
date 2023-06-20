@@ -24,7 +24,6 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   const fileData: Buffer = requestFormData.filedata as Buffer;
   const fileInfo = requestFormData.fileinfo as FileInfo;
   const description = requestFormData['cm:description'];
-  console.log('requestFormData: ', requestFormData);
   log.debug(`File data buffer size: ${fileData.length}`);
   formData.append('filedata', fileData, { filename: fileInfo.filename });
   formData.append('name', fileInfo.filename);
@@ -42,7 +41,6 @@ export class AlfrescoFileRequestBuilder {
     }
     const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
     const form = createForm(formData);
-    console.log('form in requestBuilder: ', form);
     const options = {
       method: 'POST',
       body: form,

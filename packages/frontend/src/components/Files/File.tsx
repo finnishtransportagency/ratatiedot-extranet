@@ -52,7 +52,7 @@ export const NodeItem = ({
 
   const { entry } = node;
   const { id, name, modifiedAt, content, isFile, isFolder } = entry;
-  const description = entry.properties['cm:description'];
+  const description = entry.properties?.['cm:description'];
   const contentMimeType = get(content, 'mimeType', '');
   const contentSizeInBytes = get(content, 'sizeInBytes', 0);
   const { REACT_APP_ALFRESCO_DOWNLOAD_URL } = process.env;
