@@ -31,7 +31,8 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const config = getPipelineConfig();
 
     const userData = UserData.forLinux();
-    userData.addCommands(
+
+    const commands = [
       'exec > /tmp/userdata.log 2>&1',
       'yum -y update',
       'yum install -y aws-cfn-bootstrap',
@@ -41,7 +42,9 @@ export class RatatietoNodeBackendConstruct extends Construct {
       'nvm install v16.20.0',
       'nvm use v16.20.0',
       'npm install pm2 -g',
-    );
+    ];
+
+    userData.addCommands(...commands.map((command: string) => command));
 
     const asgRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
@@ -58,6 +61,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
         getSource: new InitConfig([
           InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
         ]),
+        nodeInstall: new InitConfig([...commands.map((command: string) => InitCommand.shellCommand(command))]),
         nodeBuild: new InitConfig([InitCommand.shellCommand('echo hello!')]),
       },
     });
@@ -77,7 +81,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       minCapacity: 1,
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
-      userData: userData,
+      // userData: userData,
     });
 
     listener.addTargets('NodeBackendTarget', {
