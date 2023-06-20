@@ -1,31 +1,27 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
-import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { updateFileMetadataRequestBuilder } from './fileRequestBuilder';
-import fetch from 'node-fetch';
-import { RequestInit } from 'node-fetch';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { AxiosRequestConfig } from 'axios';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const updateFileMetadata = async (options: RequestInit, nodeId: string): Promise<AlfrescoResponse | undefined> => {
-  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-
-  try {
-    const res = await fetch(url, options);
-    const result = (await res.json()) as AlfrescoResponse;
-    return result;
-  } catch (err) {
-    console.error('error:' + err);
-  }
+const updateFileMetadata = async (
+  options: AxiosRequestConfig,
+  nodeId: string,
+): Promise<AlfrescoResponse | undefined> => {
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}`;
+  const response = await alfrescoAxios.put(url, options);
+  return response.data;
 };
 
 /**
@@ -66,7 +62,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = updateFileMetadataRequestBuilder(event, headers) as RequestInit;
+    const requestOptions = updateFileMetadataRequestBuilder(event, headers) as AxiosRequestConfig;
 
     const result = await updateFileMetadata(requestOptions, nodeId);
     auditLog.info(user, `Updated file ${nodeId} in ${categoryData.alfrescoFolder}`);
