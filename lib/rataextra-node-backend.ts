@@ -8,6 +8,7 @@ import {
   CloudFormationInit,
   InitSource,
   UserData,
+  InitCommand,
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
@@ -43,14 +44,16 @@ export class RatatietoNodeBackendConstruct extends Construct {
       'nvm alias default v16.20.0',
       'nvm use v16.20.0',
       'npm install pm2 -g',
-      'ls -la',
+    );
+
+    const npmCommands = [
       'cp -R /ratatieto-source/temp/packages/node-server/* /ratatieto-source',
       'rm -rf /ratatieto-source/temp',
       'cd /ratatieto-source',
       'npm ci',
       'npm run build',
       'npm run start',
-    );
+    ];
 
     const asgRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
@@ -59,6 +62,9 @@ export class RatatietoNodeBackendConstruct extends Construct {
 
     const init = CloudFormationInit.fromElements(
       InitSource.fromGitHub('/ratatieto-source/temp', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
+      ...npmCommands.map((command: string) => {
+        return InitCommand.shellCommand(command);
+      }),
     );
 
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
