@@ -4,7 +4,7 @@ import { Readable } from 'stream';
 import { log } from './logger';
 
 export interface ParsedFormDataOptions {
-  [key: string]: string | Buffer | Readable | FileInfo | object;
+  [key: string]: string | Buffer | Readable | FileInfo;
 }
 
 export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => {
