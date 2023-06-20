@@ -69,6 +69,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
       vpc,
       init,
+      initOptions: {
+        // Optional, which configsets to activate (['default'] by default)
+        configSets: ['default'],
+      },
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
       machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0b9b4e1a3d497aefa' }),
       allowAllOutbound: true,
