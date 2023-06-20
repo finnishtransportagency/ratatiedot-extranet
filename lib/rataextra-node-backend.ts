@@ -46,14 +46,12 @@ export class RatatietoNodeBackendConstruct extends Construct {
       'npm install pm2 -g',
     );
 
-    const npmCommands = [
-      'cp -R /ratatieto-source/temp/packages/node-server/* /ratatieto-source',
-      'rm -rf /ratatieto-source/temp',
-      'cd /ratatieto-source',
-      'npm ci',
-      'npm run build',
-      'npm run start',
-    ];
+    const npmCommands = () => {
+      const commands = ['cd /ratatieto-source/packages/node-server', 'npm ci', 'npm run build', 'npm run start'];
+      return commands.map((command: string) => {
+        return InitCommand.shellCommand(command);
+      });
+    };
 
     const asgRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
@@ -62,9 +60,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
 
     const init = CloudFormationInit.fromElements(
       InitSource.fromGitHub('/ratatieto-source/temp', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
-      ...npmCommands.map((command: string) => {
-        return InitCommand.shellCommand(command);
-      }),
+      ...npmCommands(),
     );
 
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
