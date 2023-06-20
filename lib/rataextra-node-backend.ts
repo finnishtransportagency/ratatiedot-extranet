@@ -35,14 +35,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
       'exec > /tmp/userdata.log 2>&1',
       'yum -y update',
       'yum install -y aws-cfn-bootstrap',
+      'touch ~/.bashrc',
       'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash',
-      'export NVM_DIR="$HOME/.nvm"',
-      '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"',
-      '. /home/ec2-user/.nvm/nvm.sh',
-      '. /home/ec2-user/.bash_profile',
-      '. /home/ec2-user/.bashrc',
+      'source ~/.bashrc',
       'nvm install v16.20.0',
-      'nvm alias default v16.20.0',
       'nvm use v16.20.0',
       'npm install pm2 -g',
     );
@@ -56,7 +52,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const init = CloudFormationInit.fromConfigSets({
       configSets: {
         // Applies the configs below in this order
-        default: ['getSource', 'nodeBuild'],
+        default: ['getSource', 'nodeInstall', 'nodeBuild'],
       },
       configs: {
         getSource: new InitConfig([
