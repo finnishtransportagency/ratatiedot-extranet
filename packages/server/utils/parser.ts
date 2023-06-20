@@ -59,7 +59,7 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
     });
 
     bb.on('field', (fieldname, value) => {
-      if (fieldname === 'properties') {
+      if (fieldname === 'cm:description') {
         form['cm:description'] = value;
       }
     });
