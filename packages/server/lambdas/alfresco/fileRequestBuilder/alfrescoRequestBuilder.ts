@@ -28,7 +28,7 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   formData.append('filedata', fileData, { filename: fileInfo.filename });
   formData.append('name', fileInfo.filename);
   formData.append('nodeType', 'cm:content');
-  formData.append('cm:description', description);
+  if (description) formData.append('cm:description', description);
   return formData;
 };
 
