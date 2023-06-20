@@ -43,6 +43,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       'nvm alias default v16.20.0',
       'nvm use v16.20.0',
       'npm install pm2 -g',
+      'ls -la',
       'cp -R /ratatieto-source/temp/packages/node-server/* /ratatieto-source',
       'rm -rf /ratatieto-source/temp',
       'cd /ratatieto-source',
