@@ -52,6 +52,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
     });
 
+    // InitCommand.shellCommand('cd /source/packages/node-server && npm ci && npm run build && npm run start'),
     const init = CloudFormationInit.fromConfigSets({
       configSets: {
         // Applies the configs below in this order
@@ -61,9 +62,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
         getSource: new InitConfig([
           InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
         ]),
-        nodeBuild: new InitConfig([
-          InitCommand.shellCommand('cd /source/packages/node-server && npm ci && npm run build && npm run start'),
-        ]),
+        nodeBuild: new InitConfig([InitCommand.shellCommand('echo hello!')]),
       },
     });
 
