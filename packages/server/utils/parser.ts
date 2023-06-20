@@ -60,7 +60,7 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
 
     bb.on('field', (fieldname, value) => {
       if (fieldname === 'properties') {
-        form.properties = JSON.stringify(value);
+        form['cm:description'] = value;
       }
     });
 
