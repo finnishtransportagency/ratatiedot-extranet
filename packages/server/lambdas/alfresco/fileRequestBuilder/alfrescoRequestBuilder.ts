@@ -29,7 +29,7 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   formData.append('filedata', fileData, { filename: fileInfo.filename });
   formData.append('name', fileInfo.filename);
   formData.append('nodeType', 'cm:content');
-  formData.append('properties', JSON.stringify(properties));
+  formData.append('properties', properties);
   return formData;
 };
 
