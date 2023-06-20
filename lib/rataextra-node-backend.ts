@@ -46,13 +46,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
       'npm install pm2 -g',
     );
 
-    const npmCommands = () => {
-      const commands = ['cd /source/packages/node-server', 'npm ci', 'npm run build', 'npm run start'];
-      return commands.map((command: string) => {
-        return InitCommand.shellCommand(command);
-      });
-    };
-
     const asgRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
       managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
@@ -60,7 +53,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
 
     const init = CloudFormationInit.fromElements(
       InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
-      ...npmCommands(),
+      InitCommand.shellCommand('cd /source/packages/node-server && npm ci && npm run build && npm run start'),
     );
 
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
