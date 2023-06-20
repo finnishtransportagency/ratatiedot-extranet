@@ -23,7 +23,7 @@
     "sam:invoke": "ENVIRONMENT=local sam local invoke -t ./cdk.rataextra/rataextra.template.json $npm_config_handler --profile $npm_config_profile",
     "sam:synthinvoke": "npm run local:synth && npm run sam:invoke",
     "pipeline:synth": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk synth",
-    "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk deploy stack-pipeline-rataextra-$npm_config_stackid",
+    "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk deploy stack-pipeline-rataextra-$npm_config_stackid --no-rollback",
     "prisma:format": "prisma format --schema packages/server/prisma/schema.prisma",
     "prisma:generate": "prisma generate --schema packages/server/prisma/schema.prisma",
     "local:db:migrate": "cd packages/server && npm run loadenv && prisma migrate dev --name init --schema prisma/schema.prisma",
