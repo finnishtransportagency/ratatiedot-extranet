@@ -47,7 +47,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     );
 
     const npmCommands = () => {
-      const commands = ['cd /ratatieto-source/packages/node-server', 'npm ci', 'npm run build', 'npm run start'];
+      const commands = ['cd /source/packages/node-server', 'npm ci', 'npm run build', 'npm run start'];
       return commands.map((command: string) => {
         return InitCommand.shellCommand(command);
       });
@@ -59,7 +59,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     });
 
     const init = CloudFormationInit.fromElements(
-      InitSource.fromGitHub('/ratatieto-source/temp', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
+      InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
       ...npmCommands(),
     );
 
