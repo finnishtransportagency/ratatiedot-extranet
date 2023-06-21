@@ -36,7 +36,7 @@ export class RataExtraPipelineStack extends Stack {
 
     const pipeline = new Pipeline(this, 'pipeline', {
       artifactBucket: artifactBucket,
-      pipelineName: `cpl-rataextra-${config.stackId}`,
+      pipelineName: `pr-rataextra-${config.stackId}`,
     });
 
     // Can't start build process otherwise
@@ -50,7 +50,6 @@ export class RataExtraPipelineStack extends Stack {
 
     const codePipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
       codePipeline: pipeline,
-      pipelineName: `pr-rataextra-${config.stackId}`,
       synth: new ShellStep('Synth', {
         input: github,
         installCommands: ['npm run ci --user=root'],
