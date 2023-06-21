@@ -24,6 +24,7 @@ export class RatatietoNodeBackendStack extends Stack {
       cluster,
       desiredCount: 1,
       assignPublicIp: false,
+      publicLoadBalancer: false,
       listenerPort: 3000,
       taskImageOptions: {
         image: ContainerImage.fromAsset(__dirname + '/../packages/node-server'),
