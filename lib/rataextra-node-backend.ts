@@ -35,13 +35,17 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const commands = [
       'exec > /tmp/userdata.log 2>&1',
       'yum -y update',
-      'yum install -y aws-cfn-bootstrap',
-      'touch ~/.bashrc',
+      'yum install -y aws-cfn-bootstrap git',
       'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash',
-      'source ~/.bashrc',
+      'cat <<EOF >> /home/ec2-user/.bashrc; export NVM_DIR="/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; EOF',
       'nvm install v16.20.0',
       'nvm use v16.20.0',
-      'npm install pm2 -g',
+      'nvm -v',
+      'node -v',
+      'npm -v',
+      // 'npm install pm2 -g',
+      'pwd',
+      'ls -la',
     ];
 
     userData.addCommands(...commands.map((command: string) => command));
@@ -52,27 +56,9 @@ export class RatatietoNodeBackendConstruct extends Construct {
     });
 
     // InitCommand.shellCommand('cd /source/packages/node-server && npm ci && npm run build && npm run start'),
-    const init = CloudFormationInit.fromConfigSets({
-      configSets: {
-        // Applies the configs below in this order
-        default: ['getSource', 'nodeInstall', 'nodeBuild'],
-      },
-      configs: {
-        getSource: new InitConfig([
-          InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
-        ]),
-        nodeInstall: new InitConfig([...commands.map((command: string) => InitCommand.shellCommand(command))]),
-        nodeBuild: new InitConfig([InitCommand.shellCommand('echo hello!')]),
-      },
-    });
 
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
       vpc,
-      init,
-      initOptions: {
-        // Optional, which configsets to activate (['default'] by default)
-        configSets: ['default'],
-      },
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
       machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0b9b4e1a3d497aefa' }),
       allowAllOutbound: true,
@@ -81,7 +67,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       minCapacity: 1,
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
-      // userData: userData,
+      userData: userData,
     });
 
     listener.addTargets('NodeBackendTarget', {
