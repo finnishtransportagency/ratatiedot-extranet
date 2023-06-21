@@ -17,7 +17,7 @@ import { join } from 'path';
 import { isPermanentStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { RatatietoNodeBackendConstruct } from './rataextra-node-backend';
+import { RatatietoNodeBackendStack } from './rataextra-node-backend';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -439,7 +439,7 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroup,
     });
 
-    const nodeBackend = new RatatietoNodeBackendConstruct(this, 'NodeBackend', {
+    const nodeBackend = new RatatietoNodeBackendStack(this, 'NodeBackend', {
       vpc: applicationVpc,
       listener: alb.nodeListener,
     });

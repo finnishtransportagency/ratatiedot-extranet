@@ -1,29 +1,27 @@
-import { StackProps, Duration } from 'aws-cdk-lib';
-import {
-  MachineImage,
-  InstanceType,
-  InstanceClass,
-  InstanceSize,
-  IVpc,
-  CloudFormationInit,
-  InitSource,
-  UserData,
-  InitCommand,
-  InitConfig,
-  InitFile,
-} from 'aws-cdk-lib/aws-ec2';
+import { StackProps, Duration, SecretValue, Stack } from 'aws-cdk-lib';
+import { MachineImage, InstanceType, InstanceClass, InstanceSize, IVpc, SecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
-import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
-import { AutoScalingGroup, HealthCheck, Signals, UpdatePolicy } from 'aws-cdk-lib/aws-autoscaling';
+import { ManagedPolicy, ServicePrincipal, Role, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { getPipelineConfig } from './config';
+import { Repository } from 'aws-cdk-lib/aws-ecr';
+import { Cluster, FargateTaskDefinition, ContainerImage, LogDrivers, FargateService } from 'aws-cdk-lib/aws-ecs';
+import {
+  PipelineProject,
+  LinuxBuildImage,
+  Source,
+  FilterGroup,
+  EventAction,
+  Project,
+  BuildSpec,
+} from 'aws-cdk-lib/aws-codebuild';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
   readonly vpc: IVpc;
   listener: ApplicationListener;
 }
 
-export class RatatietoNodeBackendConstruct extends Construct {
+export class RatatietoNodeBackendStack extends Stack {
   constructor(scope: Construct, id: string, props: RatatietoNodeBackendStackProps) {
     super(scope, id);
 
@@ -31,53 +29,61 @@ export class RatatietoNodeBackendConstruct extends Construct {
 
     const config = getPipelineConfig();
 
-    const asgRole = new Role(this, 'ec2-bastion-role', {
-      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
-      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
+    const repository = new Repository(this, 'node-backend', {
+      repositoryName: 'node-backend',
     });
 
-    // InitCommand.shellCommand('cd /source/packages/node-server && npm ci && npm run build && npm run start'),
-    const init = CloudFormationInit.fromConfigSets({
-      configSets: {
-        // Applies the configs below in this order
-        default: ['getSource', 'nodeInstall', 'nodeBuild'],
-      },
-      configs: {
-        getSource: new InitConfig([
-          InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
-        ]),
-        nodeInstall: new InitConfig([
-          InitFile.fromFileInline('/source/userdata.sh', './lib/userdata.sh'),
-          InitCommand.shellCommand('chmod +x /source/userdata.sh'),
-          InitCommand.shellCommand('cd /source/ && ./userdata.sh'),
-        ]),
-        nodeBuild: new InitConfig([InitCommand.shellCommand('echo hello!')]),
+    const cluster = new Cluster(this, 'NodeBackendCluster', {
+      vpc: vpc,
+    });
+
+    const executionRolePolicy = new PolicyStatement({
+      effect: Effect.ALLOW,
+      resources: ['*'],
+      actions: [
+        'ecr:GetAuthorizationToken',
+        'ecr:BatchCheckLayerAvailability',
+        'ecr:GetDownloadUrlForLayer',
+        'ecr:BatchGetImage',
+        'logs:CreateLogStream',
+        'logs:PutLogEvents',
+      ],
+    });
+
+    const fargateTaskDefinition = new FargateTaskDefinition(this, 'ApiTaskDefinition', {
+      memoryLimitMiB: 512,
+      cpu: 256,
+    });
+
+    fargateTaskDefinition.addToExecutionRolePolicy(executionRolePolicy);
+
+    const container = fargateTaskDefinition.addContainer('backend', {
+      // Use an image from Amazon ECR
+      image: ContainerImage.fromAsset(__dirname + '/../packages/node-backend'),
+      logging: LogDrivers.awsLogs({ streamPrefix: 'node-backend' }),
+      environment: {
+        APP_ID: 'my-app',
       },
     });
 
-    const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
-      vpc,
-      init,
-      initOptions: {
-        // Optional, which configsets to activate (['default'] by default)
-        configSets: ['default'],
-        ignoreFailures: true,
-      },
-      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0b9b4e1a3d497aefa' }),
-      allowAllOutbound: true,
-      role: asgRole,
-      healthCheck: HealthCheck.ec2(),
-      minCapacity: 1,
-      maxCapacity: 1,
-      signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
-      updatePolicy: UpdatePolicy.replacingUpdate(),
+    container.addPortMappings({
+      containerPort: 3000,
+    });
+
+    const sg_service = new SecurityGroup(this, 'MySGService', { vpc: vpc });
+
+    const service = new FargateService(this, 'Service', {
+      cluster,
+      taskDefinition: fargateTaskDefinition,
+      desiredCount: 1,
+      assignPublicIp: false,
+      securityGroups: [sg_service],
     });
 
     listener.addTargets('NodeBackendTarget', {
-      port: 8080,
+      port: 3000,
       protocol: ApplicationProtocol.HTTP,
-      targets: [autoScalingGroup],
+      targets: [service],
       conditions: [
         ListenerCondition.pathPatterns(['/api/alfresco/file/*']),
         ListenerCondition.httpRequestMethods(['POST']),
@@ -85,6 +91,62 @@ export class RatatietoNodeBackendConstruct extends Construct {
       priority: 120,
     });
 
-    return autoScalingGroup;
+    const gitHubSource = Source.gitHub({
+      owner: 'finnishtransportagency',
+      repo: 'ratatiedot-extranet',
+      webhook: true, // optional, default: true if `webhookfilteres` were provided, false otherwise
+      webhookFilters: [FilterGroup.inEventOf(EventAction.PUSH).andBranchIs(config.branch)], // optional, by default all pushes and pull requests will trigger a build
+    });
+
+    const project = new Project(this, 'myProject', {
+      projectName: `${this.stackName}`,
+      source: gitHubSource,
+      environment: {
+        buildImage: LinuxBuildImage.AMAZON_LINUX_2_2,
+        privileged: true,
+      },
+      environmentVariables: {
+        cluster_name: {
+          value: `${cluster.clusterName}`,
+        },
+        ecr_repo_uri: {
+          value: `${repository.repositoryUri}`,
+        },
+      },
+      badge: true,
+      buildSpec: BuildSpec.fromObject({
+        version: '0.2',
+        phases: {
+          pre_build: {
+            /*
+            commands: [
+              'env',
+              'export tag=${CODEBUILD_RESOLVED_SOURCE_VERSION}'
+            ]
+            */
+            commands: ['env', 'export tag=latest'],
+          },
+          build: {
+            commands: [
+              'cd packages/node-backend',
+              `docker build -t $ecr_repo_uri:$tag .`,
+              '$(aws ecr get-login --no-include-email)',
+              'docker push $ecr_repo_uri:$tag',
+            ],
+          },
+          post_build: {
+            commands: [
+              'echo "in post-build stage"',
+              'cd ..',
+              'printf \'[{"name":"flask-app","imageUri":"%s"}]\' $ecr_repo_uri:$tag > imagedefinitions.json',
+              'pwd; ls -al; cat imagedefinitions.json',
+            ],
+          },
+        },
+        artifacts: {
+          files: ['imagedefinitions.json'],
+        },
+      }),
+    });
   }
 }
