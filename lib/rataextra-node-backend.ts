@@ -30,8 +30,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
 
     const config = getPipelineConfig();
 
-    const userData = UserData.forLinux();
-
     const commands = [
       'exec > /tmp/userdata.log 2>&1',
       'yum -y update',
@@ -45,8 +43,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
       'npm install pm2 -g',
       'ls -la',
     ];
-
-    userData.addCommands(...commands.map((command: string) => command));
 
     const asgRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
@@ -84,7 +80,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
       minCapacity: 1,
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
-      // userData: userData,
     });
 
     listener.addTargets('NodeBackendTarget', {
