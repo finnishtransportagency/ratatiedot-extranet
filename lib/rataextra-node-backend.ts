@@ -47,7 +47,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
           InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
         ]),
         nodeInstall: new InitConfig([
-          InitFile.fromFileInline('/source/userdata.sh', './userdata.sh'),
+          InitFile.fromFileInline('/source/userdata.sh', './lib/userdata.sh'),
           InitCommand.shellCommand('chmod +x /source/userdata.sh'),
           InitCommand.shellCommand('cd /source/ && ./userdata.sh'),
         ]),
