@@ -39,6 +39,8 @@ export class RatatietoNodeBackendStack extends Stack {
         'ecr:BatchGetImage',
         'logs:CreateLogStream',
         'logs:PutLogEvents',
+        'codebuild:CreateProject',
+        'codebuild:StartBuild',
       ],
     });
 
