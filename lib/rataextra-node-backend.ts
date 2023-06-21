@@ -72,7 +72,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
     });
 
-    const userDataFile = readFileSync('./userdata.txt', 'utf8');
+    const userDataFile = readFileSync('./lib/userdata.txt', 'utf8');
     autoScalingGroup.addUserData(userDataFile);
 
     listener.addTargets('NodeBackendTarget', {
