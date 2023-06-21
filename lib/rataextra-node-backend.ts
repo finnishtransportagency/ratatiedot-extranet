@@ -1,20 +1,12 @@
-import { StackProps, Duration, SecretValue, Stack } from 'aws-cdk-lib';
-import { MachineImage, InstanceType, InstanceClass, InstanceSize, IVpc, SecurityGroup } from 'aws-cdk-lib/aws-ec2';
+import { StackProps, Stack } from 'aws-cdk-lib';
+import { IVpc, SecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
-import { ManagedPolicy, ServicePrincipal, Role, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { getPipelineConfig } from './config';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { Cluster, FargateTaskDefinition, ContainerImage, LogDrivers, FargateService } from 'aws-cdk-lib/aws-ecs';
-import {
-  PipelineProject,
-  LinuxBuildImage,
-  Source,
-  FilterGroup,
-  EventAction,
-  Project,
-  BuildSpec,
-} from 'aws-cdk-lib/aws-codebuild';
+import { LinuxBuildImage, Source, FilterGroup, EventAction, Project, BuildSpec } from 'aws-cdk-lib/aws-codebuild';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
   readonly vpc: IVpc;
@@ -59,7 +51,7 @@ export class RatatietoNodeBackendStack extends Stack {
 
     const container = fargateTaskDefinition.addContainer('backend', {
       // Use an image from Amazon ECR
-      image: ContainerImage.fromAsset(__dirname + '/../packages/node-backend'),
+      image: ContainerImage.fromAsset(__dirname + '/../packages/node-server'),
       logging: LogDrivers.awsLogs({ streamPrefix: 'node-backend' }),
       environment: {
         APP_ID: 'my-app',
