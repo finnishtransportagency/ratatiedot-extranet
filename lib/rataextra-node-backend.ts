@@ -10,6 +10,7 @@ import {
   UserData,
   InitCommand,
   InitConfig,
+  InitFile,
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
@@ -30,20 +31,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
 
     const config = getPipelineConfig();
 
-    const commands = [
-      'exec > /tmp/userdata.log 2>&1',
-      'yum -y update',
-      'yum install -y aws-cfn-bootstrap',
-      'touch ~/.bashrc',
-      'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash',
-      'source ~/.bashrc',
-      'cat <<EOF >> /home/ec2-user/.bashrc; export NVM_DIR="/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; EOF',
-      'nvm install v16.20.0',
-      'nvm use v16.20.0',
-      'npm install pm2 -g',
-      'ls -la',
-    ];
-
     const asgRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
       managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
@@ -59,7 +46,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
         getSource: new InitConfig([
           InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
         ]),
-        nodeInstall: new InitConfig([...commands.map((command: string) => InitCommand.shellCommand(command))]),
+        nodeInstall: new InitConfig([
+          InitFile.fromFileInline('/etc/userdata.sh', './lib/userdata.sh'),
+          InitCommand.shellCommand('chmod +x /etc/userdata.sh'),
+        ]),
         nodeBuild: new InitConfig([InitCommand.shellCommand('echo hello!')]),
       },
     });
