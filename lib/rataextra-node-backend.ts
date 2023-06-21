@@ -14,7 +14,7 @@ import {
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
-import { AutoScalingGroup, HealthCheck, Signals } from 'aws-cdk-lib/aws-autoscaling';
+import { AutoScalingGroup, HealthCheck, Signals, UpdatePolicy } from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { getPipelineConfig } from './config';
 
@@ -47,8 +47,9 @@ export class RatatietoNodeBackendConstruct extends Construct {
           InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
         ]),
         nodeInstall: new InitConfig([
-          InitFile.fromFileInline('/etc/userdata.sh', './lib/userdata.sh'),
-          InitCommand.shellCommand('chmod +x /etc/userdata.sh'),
+          InitFile.fromFileInline('/source/userdata.sh', './userdata.sh'),
+          InitCommand.shellCommand('chmod +x /source/userdata.sh'),
+          InitCommand.shellCommand('cd /source/ && ./userdata.sh'),
         ]),
         nodeBuild: new InitConfig([InitCommand.shellCommand('echo hello!')]),
       },
@@ -70,6 +71,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       minCapacity: 1,
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
+      updatePolicy: UpdatePolicy.replacingUpdate(),
     });
 
     listener.addTargets('NodeBackendTarget', {

@@ -1,8 +1,8 @@
 #!/bin/bash
+set -e
 exec > /tmp/userdata.log 2>&1
 yum -y update
 yum install -y aws-cfn-bootstrap
-
 
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
