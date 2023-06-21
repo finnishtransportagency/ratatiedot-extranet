@@ -1,0 +1,43 @@
+Content-Type: multipart/mixed; boundary="//"
+MIME-Version: 1.0
+
+--//
+Content-Type: text/cloud-config; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="cloud-config.txt"
+
+#cloud-config
+cloud_final_modules:
+- [scripts-user, always]
+
+--//
+Content-Type: text/x-shellscript; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="userdata.txt"
+
+#!/bin/bash
+exec > /tmp/userdata.log 2>&1
+yum -y update
+yum install -y aws-cfn-bootstrap git
+git config --global user.email "santeri.pigg@nordcloud.com"; git config --global user.name "saneDG"
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+
+cat <<EOF >> /home/ec2-user/.bashrc
+  export NVM_DIR="/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+EOF
+
+nvm install v16.20.0
+nvm use v16.20.0
+nvm -v
+node -v
+npm -v
+pwd
+ls -la
+mkdir source
+cd source
+git clone https://github.com/finnishtransportagency/ratatiedot-extranet.git
+ls -la
+--//--

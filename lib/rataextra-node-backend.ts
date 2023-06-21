@@ -16,6 +16,7 @@ import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
 import { AutoScalingGroup, HealthCheck, Signals } from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { getPipelineConfig } from './config';
+import { readFileSync } from 'node:fs';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
   readonly vpc: IVpc;
@@ -36,6 +37,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       'exec > /tmp/userdata.log 2>&1',
       'yum -y update',
       'yum install -y aws-cfn-bootstrap git',
+      'git config --global user.email "santeri.pigg@nordcloud.com"; git config --global user.name "saneDG"',
       'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash',
       'cat <<EOF >> /home/ec2-user/.bashrc; export NVM_DIR="/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; EOF',
       'nvm install v16.20.0',
@@ -46,9 +48,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
       // 'npm install pm2 -g',
       'pwd',
       'ls -la',
+      'mkdir source && cd /source; git clone https://github.com/finnishtransportagency/ratatiedot-extranet.git',
     ];
 
-    userData.addCommands(...commands.map((command: string) => command));
+    // userData.addCommands(...commands.map((command: string) => command));
 
     const asgRole = new Role(this, 'ec2-bastion-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
@@ -67,8 +70,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
       minCapacity: 1,
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
-      userData: userData,
     });
+
+    const userDataFile = readFileSync('./userdata.txt', 'utf8');
+    autoScalingGroup.addUserData(userDataFile);
 
     listener.addTargets('NodeBackendTarget', {
       port: 8080,
