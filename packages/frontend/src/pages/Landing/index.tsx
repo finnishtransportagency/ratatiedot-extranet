@@ -25,9 +25,14 @@ export const Landing = () => {
         .
       </ParagraphWrapper>
       <SubtitleWrapper variant="subtitle1">Ajankohtaista</SubtitleWrapper>
+      <SubtitleWrapper variant="subtitle2">Tiedostojen tallentaminen</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
         Yli 1 Mt tiedostojen tallentaminen järjestelmään ei välttämättä toimi ja virheen sattuessa pitää tiedosto
         tallentaa suoraan Alfrescoon.
+      </ParagraphWrapper>
+      <SubtitleWrapper variant="subtitle2">Tiedostojen päivämäärät</SubtitleWrapper>
+      <ParagraphWrapper variant="body1">
+        Mikäli päivämäärän tilalla on viiva, tarkoittaa se, että aineisto on siirretty vanhasta järjestelmästä massana.
       </ParagraphWrapper>
     </ProtectedContainerWrapper>
   );
