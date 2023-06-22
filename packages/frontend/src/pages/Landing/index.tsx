@@ -35,7 +35,11 @@ export const Landing = () => {
         Järjestelmämuutoksen (Ratatiedon extranet-&gt;Ratatieto) yhteydessä siirrettiin aineisto uuteen palveluun
         sellaisenaan. Kunkin siirretyn tiedoston alkuperäinen luontiajankohta ei ole enää nähtävillä. Jos tiedoston alla
         on pelkkä viiva, tarkoittaa se, että tiedosto on luotu ennen huhtikuuta 2023. Jos tuolla kohdalla on päivämäärä,
-        ilmoittaa se ajankohtaa jolloin tiedosto on luotu tai päivitetty massa-aineistosiirron jälkeen.'
+        ilmoittaa se ajankohtaa jolloin tiedosto on luotu tai päivitetty massa-aineistosiirron jälkeen.
+      </ParagraphWrapper>
+      <SubtitleWrapper variant="subtitle2">Tunnus- ja oikeuspyyntöjen käsittely</SubtitleWrapper>
+      <ParagraphWrapper variant="body1">
+        HUOM! Heinäkuussa RATATIEDOn tunnus- ja oikeuspyyntöjä käsitellään viiveellä, noin viikon välein.
       </ParagraphWrapper>
     </ProtectedContainerWrapper>
   );
