@@ -1,5 +1,5 @@
 import { Box, Collapse, Grid, Typography } from '@mui/material';
-import { format } from 'date-fns';
+import { format, isAfter } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { get } from 'lodash';
 
@@ -126,8 +126,9 @@ export const NodeItem = ({
             {description}
           </Typography>
           <div style={{ display: 'flex', color: Colors.darkgrey, paddingBottom: '18px' }}>
+            {/* Show dash as the date if file was part of the bulk upload */}
             <Typography variant="body1" sx={{ marginRight: '8px' }}>
-              {format(new Date(modifiedAt), DateFormat)}
+              {isAfter(new Date(modifiedAt), new Date(2023, 3, 25)) ? format(new Date(modifiedAt), DateFormat) : '-'}
             </Typography>
             {isFile && (
               <Typography variant="body1" sx={{ marginRight: '8px' }}>
