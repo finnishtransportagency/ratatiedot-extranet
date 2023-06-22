@@ -181,7 +181,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
             hasMoreItems: false,
             totalItems: 0,
             skipCount: 0,
-            maxItems: 25,
+            maxItems: 50,
           },
           context: {},
           entries: [],
