@@ -28,7 +28,7 @@ export const AppBarContextProvider = (props: any) => {
   const [openMiniDrawer, setOpenMiniDrawer] = useState(false);
   const [openDesktopDrawer, setOpenDesktopDrawer] = useState(() => {
     const storedValue = localStorage.getItem('desktopDrawerOpen');
-    return storedValue !== null ? JSON.parse(storedValue) : true;
+    return storedValue !== null ? storedValue === 'true' : true;
   });
 
   const [openSearch, setOpenSearch] = useState(false);
