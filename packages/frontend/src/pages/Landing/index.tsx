@@ -32,7 +32,10 @@ export const Landing = () => {
       </ParagraphWrapper>
       <SubtitleWrapper variant="subtitle2">Tiedostojen päivämäärät</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
-        Mikäli päivämäärän tilalla on viiva, tarkoittaa se, että aineisto on siirretty vanhasta järjestelmästä massana.
+        Järjestelmämuutoksen (Ratatiedon extranet-&gt;Ratatieto) yhteydessä siirrettiin aineisto uuteen palveluun
+        sellaisenaan. Kunkin siirretyn tiedoston alkuperäinen luontiajankohta ei ole enää nähtävillä. Jos tiedoston alla
+        on pelkkä viiva, tarkoittaa se, että tiedosto on luotu ennen huhtikuuta 2023. Jos tuolla kohdalla on päivämäärä,
+        ilmoittaa se ajankohtaa jolloin tiedosto on luotu tai päivitetty massa-aineistosiirron jälkeen.'
       </ParagraphWrapper>
     </ProtectedContainerWrapper>
   );
