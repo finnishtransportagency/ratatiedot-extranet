@@ -36,7 +36,7 @@ export class RataExtraPipelineStack extends Stack {
 
     const pipeline = new Pipeline(this, 'pipeline', {
       artifactBucket: artifactBucket,
-      pipelineName: `pr-rataextra-${config.stackId}`,
+      pipelineName: `cpl-rataextra-${config.stackId}`,
     });
 
     // Can't start build process otherwise
