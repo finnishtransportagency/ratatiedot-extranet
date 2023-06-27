@@ -49,7 +49,8 @@ export class RatatietoNodeBackendConstruct extends Construct {
         nodeInstall: new InitConfig([
           InitFile.fromFileInline('/source/userdata.sh', './lib/userdata.sh'),
           InitCommand.shellCommand('chmod +x /source/userdata.sh'),
-          InitCommand.shellCommand('bash /source/userdata.sh'),
+          InitCommand.shellCommand('cd /source'),
+          InitCommand.shellCommand('./userdata.sh'),
         ]),
         nodeBuild: new InitConfig([InitCommand.shellCommand('echo hello!')]),
       },
