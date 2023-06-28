@@ -3,6 +3,9 @@ set -e
 exec > /tmp/userdata.log 2>&1
 # yum -y update
 
+current_date_time=$(date)
+echo "Current date and time: $current_date_time"
+
 export HOME=/home/ec2-user
 
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
