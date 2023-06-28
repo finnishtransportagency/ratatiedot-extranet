@@ -53,10 +53,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
           ),
         ]),
         nodeInstall: new InitConfig([
-          InitFile.fromFileInline('home/ec2-user/source/userdata.sh', './lib/userdata.sh'),
-          InitCommand.shellCommand('chmod +x home/ec2-user/source/userdata.sh'),
+          InitFile.fromFileInline('/home/ec2-user/source/userdata.sh', './lib/userdata.sh'),
+          InitCommand.shellCommand('chmod +x /home/ec2-user/source/userdata.sh'),
           InitCommand.shellCommand('pwd'),
-          InitCommand.shellCommand('ls -la; cd home/ec2-user/source; ls -la; cat userdata.sh'),
+          InitCommand.shellCommand('ls -la; cd /home/ec2-user/source; ls -la; cat userdata.sh'),
           InitService.systemdConfigFile('nodeserver', {
             command: '/home/ec2-user/source/userdata.sh',
             afterNetwork: true,
