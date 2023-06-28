@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 exec > /tmp/userdata.log 2>&1
-yum -y update
-yum install -y aws-cfn-bootstrap
+# yum -y update
 
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
@@ -18,10 +17,11 @@ nvm use v16.20.0
 nvm -v
 node -v
 npm -v
+
+cd /source/packages/node-server/
 pwd
 ls -la
 
-cd /source/
 npm install
 npm run build
 npm run start
