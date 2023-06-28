@@ -11,6 +11,7 @@ import {
   InitConfig,
   InitFile,
   InitService,
+  ServiceManager,
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
@@ -57,6 +58,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
             user: 'ec2-user',
             group: 'ec2-user',
             keepRunning: true,
+            description: 'Ratatieto nodejs backend server',
+          }),
+          InitService.enable('nodeserver', {
+            serviceManager: ServiceManager.SYSTEMD,
           }),
         ]),
         nodeBuild: new InitConfig([InitCommand.shellCommand('echo hello!')]),
