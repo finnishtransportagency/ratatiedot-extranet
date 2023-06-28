@@ -7,10 +7,10 @@ import {
   IVpc,
   CloudFormationInit,
   InitSource,
-  UserData,
   InitCommand,
   InitConfig,
   InitFile,
+  InitService,
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
@@ -50,8 +50,14 @@ export class RatatietoNodeBackendConstruct extends Construct {
           InitFile.fromFileInline('/source/userdata.sh', './lib/userdata.sh'),
           InitCommand.shellCommand('chmod +x /source/userdata.sh'),
           InitCommand.shellCommand('pwd'),
-          InitCommand.shellCommand('cd /source'),
-          InitCommand.shellCommand('ls -la; cd /source; ls -la; ./userdata.sh'),
+          InitCommand.shellCommand('ls -la; cd /source; ls -la; cat userdata.sh'),
+          InitService.systemdConfigFile('nodeserver', {
+            command: '/source/userdata.sh',
+            afterNetwork: true,
+            user: 'ec2-user',
+            group: 'ec2-user',
+            keepRunning: true,
+          }),
         ]),
         nodeBuild: new InitConfig([InitCommand.shellCommand('echo hello!')]),
       },
