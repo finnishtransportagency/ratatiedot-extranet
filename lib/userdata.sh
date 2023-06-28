@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
+
+# Remove logging in production??
+# Every node app console.log will be written in this file!
+# At least make sure to keep file size reasonable.
 exec > /tmp/userdata.log 2>&1
+
 # yum -y update
 
 current_date_time=$(date)
@@ -18,10 +23,10 @@ nvm -v
 node -v
 npm -v
 
-cd /source/packages/node-server/
+cd home/ec2-user/source/packages/node-server
 pwd
 ls -la
 
-npm install
+npm ci
 npm run build
 npm run start

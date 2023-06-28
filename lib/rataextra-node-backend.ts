@@ -45,18 +45,21 @@ export class RatatietoNodeBackendConstruct extends Construct {
       },
       configs: {
         getSource: new InitConfig([
-          InitSource.fromGitHub('/source', 'finnishtransportagency', 'ratatiedot-extranet', config.branch),
+          InitSource.fromGitHub(
+            '/home/ec2-user/source',
+            'finnishtransportagency',
+            'ratatiedot-extranet',
+            config.branch,
+          ),
         ]),
         nodeInstall: new InitConfig([
-          InitFile.fromFileInline('/source/userdata.sh', './lib/userdata.sh'),
-          InitCommand.shellCommand('chmod +x /source/userdata.sh'),
+          InitFile.fromFileInline('home/ec2-user/source/userdata.sh', './lib/userdata.sh'),
+          InitCommand.shellCommand('chmod +x home/ec2-user/source/userdata.sh'),
           InitCommand.shellCommand('pwd'),
-          InitCommand.shellCommand('ls -la; cd /source; ls -la; cat userdata.sh'),
+          InitCommand.shellCommand('ls -la; cd home/ec2-user/source; ls -la; cat userdata.sh'),
           InitService.systemdConfigFile('nodeserver', {
-            command: '/source/userdata.sh',
+            command: '/home/ec2-user/source/userdata.sh',
             afterNetwork: true,
-            user: 'ec2-user',
-            group: 'ec2-user',
             keepRunning: true,
             description: 'Ratatieto nodejs backend server',
           }),
