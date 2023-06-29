@@ -38,7 +38,7 @@ const handleRequest = async (event: any): Promise<any> => {
 };
 
 const app = express();
-const port = 3000;
+const port = 8080;
 
 const uploadFile = (req: Request, res: Response) => {
   console.log(req.body);
@@ -46,7 +46,12 @@ const uploadFile = (req: Request, res: Response) => {
   res.json({ message: 'Successfully uploaded files' });
 };
 
+const test = () => {
+  console.log('HELLO!!');
+};
+
 app.post('/api/file/hallintaraportit', upload.single('filedata'), uploadFile);
+app.post('/api/upload', test);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
