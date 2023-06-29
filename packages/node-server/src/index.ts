@@ -51,7 +51,7 @@ const test = () => {
 };
 
 app.post('/api/file/hallintaraportit', upload.single('filedata'), uploadFile);
-app.post('/api/upload', test);
+app.get('/api/file/test', test);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
