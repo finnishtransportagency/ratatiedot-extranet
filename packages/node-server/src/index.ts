@@ -50,8 +50,11 @@ const test = () => {
   console.log('HELLO!!');
 };
 
-app.post('/api/file/hallintaraportit', upload.single('filedata'), uploadFile);
+app.post('/api/alfresco/file/hallintaraportit', upload.single('filedata'), uploadFile);
 app.get('/api/file/test', test);
+app.get('/', (req, res) => {
+  res.send('OK');
+});
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
