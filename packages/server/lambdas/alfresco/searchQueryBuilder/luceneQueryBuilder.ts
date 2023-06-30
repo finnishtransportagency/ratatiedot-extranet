@@ -139,8 +139,8 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
 
   public pagination(page?: number): Paging {
     return {
-      maxItems: 25,
-      skipCount: Math.max(page ?? 0, 0) * 25, // skip number of items
+      maxItems: 50,
+      skipCount: Math.max(page ?? 0, 0) * 50, // skip number of items
     };
   }
 
