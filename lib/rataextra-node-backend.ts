@@ -12,6 +12,7 @@ import {
   InitFile,
   InitService,
   ServiceManager,
+  ISecurityGroup,
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
@@ -22,6 +23,7 @@ import { getPipelineConfig } from './config';
 interface RatatietoNodeBackendStackProps extends StackProps {
   readonly vpc: IVpc;
   listener: ApplicationListener;
+  securityGroups?: ISecurityGroup[];
 }
 
 export class RatatietoNodeBackendConstruct extends Construct {
