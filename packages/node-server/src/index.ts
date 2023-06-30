@@ -46,12 +46,13 @@ const uploadFile = (req: Request, res: Response) => {
   res.json({ message: 'Successfully uploaded files' });
 };
 
-const test = () => {
+const test = (req, res) => {
   console.log('HELLO!!');
+  res.send('pong');
 };
 
 app.post('/api/alfresco/file/hallintaraportit', upload.single('filedata'), uploadFile);
-app.get('/api/file/test', test);
+app.get('/api/ping', test);
 app.get('/', (req, res) => {
   res.sendStatus(200);
 });
