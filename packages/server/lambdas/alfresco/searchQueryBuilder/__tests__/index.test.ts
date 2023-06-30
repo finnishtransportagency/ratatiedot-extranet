@@ -16,7 +16,7 @@ describe('searchQueryBuilder', () => {
         query: '',
       },
       paging: {
-        maxItems: 25,
+        maxItems: 50,
         skipCount: 0,
       },
       sort: [{ type: 'FIELD', field: 'cm:name', ascending: true }],

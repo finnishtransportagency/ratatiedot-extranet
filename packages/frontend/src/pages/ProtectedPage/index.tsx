@@ -15,7 +15,7 @@ import { EditorContext } from '../../contexts/EditorContext';
 import { isSlateValueEmpty } from '../../utils/slateEditorUtil';
 import { CategoryFiles } from '../../components/Files/CategoryFiles';
 import { getCategoryRouteName } from '../../routes';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
 import { DesktopAppBar } from '../../components/NavBar/DesktopAppBar';
 import { PageTitle } from '../../components/Typography/PageTitle';
@@ -75,9 +75,13 @@ export const ProtectedPage = ({ children }: Props) => {
           {hasConfidentialContent && (
             <ProtectedContainerWrapper>
               <Alert severity="warning">
-                {t('common:warning.confidential')}
-                {/* TODO: add a link to data handling instructions when available*/}
-                {/* <Link href="https://example.fi/" target="_blank" rel="noopener noreferrer"></Link> */}
+                <Trans
+                  i18nKey="common:warning.confidential"
+                  t={t}
+                  components={[
+                    <a href="https://www.finlex.fi/fi/laki/ajantasa/1999/19990621" target="_blank" rel="noreferrer" />,
+                  ]}
+                />
               </Alert>
             </ProtectedContainerWrapper>
           )}

@@ -1,23 +1,24 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderDeleteRequestBuilder } from './fileRequestBuilder';
-import { RequestInit } from 'node-fetch';
 import { deleteComponent } from '../database/components/delete-node-component';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { AxiosRequestConfig } from 'axios';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 // Instead of this function, we use delete-file for folders, since alfresco node deletion API works the same for folders and files.
-const deleteFolder = async (options: RequestInit, nodeId: string) => {
-  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  return await alfrescoFetch(url, options);
+const deleteFolder = async (options: AxiosRequestConfig, nodeId: string) => {
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}`;
+  const response = await alfrescoAxios.delete(url, options);
+  return response.data;
 };
 
 /**
@@ -59,7 +60,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderDeleteRequestBuilder(headers)) as RequestInit;
+    const requestOptions = (await folderDeleteRequestBuilder(headers)) as AxiosRequestConfig;
 
     const alfrescoResult = await deleteFolder(requestOptions, nodeId);
     if (!alfrescoResult) {

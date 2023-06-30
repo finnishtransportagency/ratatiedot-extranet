@@ -1,7 +1,7 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { get, isEmpty } from 'lodash';
-import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
@@ -11,7 +11,7 @@ import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { getFolder, isFolderInCategory } from './list-files';
 import FormData from 'form-data';
 
-import axios from 'axios';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 
 const database = await DatabaseClient.build();
 
@@ -24,12 +24,11 @@ export interface AxiosRequestOptions {
 }
 
 const postFile = async (options: AxiosRequestOptions, nodeId: string): Promise<AlfrescoResponse | undefined> => {
-  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}/children`;
   const headers = {
     ...options.headers,
   };
-  const res = await axios.post(url, options.body, { headers });
+  const res = await alfrescoAxios.post(url, options.body, { headers });
   return res.data;
 };
 

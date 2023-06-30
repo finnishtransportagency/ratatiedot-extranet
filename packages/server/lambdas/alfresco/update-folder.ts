@@ -1,8 +1,7 @@
-import { RequestInit } from 'node-fetch';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
-import { alfrescoFetch, findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
@@ -10,15 +9,17 @@ import { DatabaseClient } from '../database/client';
 import { getAlfrescoId, updateFolderComponent } from '../database/components/update-node-component';
 import { folderUpdateRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { AxiosRequestConfig } from 'axios';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const updateFolder = async (nodeId: string, options: RequestInit): Promise<AlfrescoResponse | undefined> => {
-  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}`;
-  return await alfrescoFetch(url, options);
+const updateFolder = async (nodeId: string, options: AxiosRequestConfig): Promise<AlfrescoResponse | undefined> => {
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}`;
+  const response = await alfrescoAxios.put(url, options);
+  return response.data;
 };
 
 /**
@@ -56,7 +57,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderUpdateRequestBuilder(event, headers)) as RequestInit;
+    const requestOptions = (await folderUpdateRequestBuilder(event, headers)) as AxiosRequestConfig;
 
     const alfrescoId = await getAlfrescoId(componentId);
     if (!alfrescoId) {

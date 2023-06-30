@@ -26,7 +26,11 @@ export type TUserRight = { canRead: boolean; canWrite: boolean };
 
 export const AppBarContextProvider = (props: any) => {
   const [openMiniDrawer, setOpenMiniDrawer] = useState(false);
-  const [openDesktopDrawer, setOpenDesktopDrawer] = useState(localStorage.getItem('desktopDrawerOpen') === 'true');
+  const [openDesktopDrawer, setOpenDesktopDrawer] = useState(() => {
+    const storedValue = localStorage.getItem('desktopDrawerOpen');
+    return storedValue !== null ? storedValue === 'true' : true;
+  });
+
   const [openSearch, setOpenSearch] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
