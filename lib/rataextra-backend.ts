@@ -442,7 +442,7 @@ export class RataExtraBackendStack extends NestedStack {
     const nodeBackend = new RatatietoNodeBackendConstruct(this, 'NodeBackend', {
       vpc: applicationVpc,
       listener: alb.listener,
-      securityGroups,
+      securityGroup,
     });
 
     if (isPermanentStack(stackId, rataExtraEnv)) {

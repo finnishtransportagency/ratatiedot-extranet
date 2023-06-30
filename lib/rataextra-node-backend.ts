@@ -23,14 +23,14 @@ import { getPipelineConfig } from './config';
 interface RatatietoNodeBackendStackProps extends StackProps {
   readonly vpc: IVpc;
   listener: ApplicationListener;
-  securityGroups?: ISecurityGroup[];
+  securityGroup?: ISecurityGroup;
 }
 
 export class RatatietoNodeBackendConstruct extends Construct {
   constructor(scope: Construct, id: string, props: RatatietoNodeBackendStackProps) {
     super(scope, id);
 
-    const { vpc, listener } = props;
+    const { vpc, listener, securityGroup } = props;
 
     const config = getPipelineConfig();
 
@@ -90,6 +90,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
       updatePolicy: UpdatePolicy.rollingUpdate(),
+      securityGroup: securityGroup,
     });
 
     listener.addTargets('NodeBackendTarget', {
