@@ -53,7 +53,7 @@ const test = () => {
 app.post('/api/alfresco/file/hallintaraportit', upload.single('filedata'), uploadFile);
 app.get('/api/file/test', test);
 app.get('/', (req, res) => {
-  res.send('OK');
+  res.sendStatus(200);
 });
 
 app.listen(port, () => {
