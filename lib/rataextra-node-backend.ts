@@ -81,7 +81,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
         ignoreFailures: true,
       },
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-047aad752a426ed48' }),
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-09c13919869e4af37' }),
       allowAllOutbound: true,
       role: asgRole,
       healthCheck: HealthCheck.ec2(),
