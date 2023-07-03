@@ -121,8 +121,7 @@ export const NodeItem = ({
         </Grid>
         <Grid item mobile={10} tablet={10.5} desktop={10.5}>
           <Typography variant="body1" sx={{ color: Colors.extrablack }}>
-            {/* TODO: Proper concat */}
-            {name + title}
+            {`${name}${title ? ` (${title})` : ''}`}
           </Typography>
           <Typography variant="body1" sx={{ color: Colors.darkgrey }}>
             {description}

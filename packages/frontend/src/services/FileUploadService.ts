@@ -5,7 +5,7 @@ export interface FileData {
   description: string;
   categoryName: string;
   nestedFolderId?: string;
-  title: string;
+  title?: string;
 }
 
 export const uploadFile = async (file: File, fileData: FileData): Promise<AxiosResponse> => {

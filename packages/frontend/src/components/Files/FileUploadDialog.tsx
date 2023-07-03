@@ -31,7 +31,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
 
   const [file, setFile] = useState<File>();
   const [name, setName] = useState<string>('');
-  const [title, setTitle] = useState<string>('');
+  // TODO: Add title
   const [description, setDescription] = useState<string>('');
   const [dialogPhase, setPhase] = useState<number>(1);
   const [expanded, setExpanded] = useState(false);
@@ -48,7 +48,6 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
     await uploadFile(file, {
       name,
       description,
-      title,
       categoryName: getRouterName(categoryName),
       nestedFolderId: nestedFolderId,
     })
@@ -158,7 +157,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
                       sx={{ margin: '4px 0 26px 0' }}
                       fullWidth
                       defaultValue={file.name}
-                      onChange={(e) => setTitle(e.target.value)}
+                      onChange={(e) => setName(e.target.value)}
                     ></TextField>
                     <Typography variant="body1">{t('common:file.description')}</Typography>
                     <TextField
