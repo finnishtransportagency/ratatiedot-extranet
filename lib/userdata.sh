@@ -6,7 +6,7 @@ set -e
 # At least make sure to keep file size reasonable.
 exec > /tmp/userdata.log 2>&1
 
-# yum -y update
+yum -y update
 
 current_date_time=$(date)
 echo "Current date and time: $current_date_time"

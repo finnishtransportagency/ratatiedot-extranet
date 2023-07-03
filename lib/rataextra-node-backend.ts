@@ -69,7 +69,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
             serviceManager: ServiceManager.SYSTEMD,
           }),
         ]),
-        nodeBuild: new InitConfig([InitCommand.shellCommand('echo hello!')]),
       },
     });
 
