@@ -108,6 +108,7 @@ type TNode = {
     isFolder: boolean;
     properties: {
       'cm:description': string;
+      'cm:title': string;
     };
   };
 };

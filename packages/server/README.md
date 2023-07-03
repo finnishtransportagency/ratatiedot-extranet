@@ -141,7 +141,7 @@ If for some reason socat is not working for a specific piping, you can set it up
 nohup sudo socat TCP4-LISTEN:LISTEN_PORT_TO_FIX,reuseaddr,fork TCP:DNS_TO_REDIRECT:PORT_TO_PIPE &
 ```
 
-where `LISTEN_PORT_TO_FIX` is the port you want to listen on (e.g. 80), `DNS_TO_REDIRECT` is where you want to redirect to and `PORT_TO_PIPE` is port in the receiving end. With ALB, port is 80 for poth and DNS is the DNS of the ALB (check AWS console). For database, port is 5432 for both and DNS can be checked from Parameter Store.
+where `LISTEN_PORT_TO_FIX` is the port you want to listen on (e.g. 80), `DNS_TO_REDIRECT` is where you want to redirect to and `PORT_TO_PIPE` is port in the receiving end. With ALB, port is 80 for both and DNS is the DNS of the ALB (check AWS console). For database, port is 5432 for both and DNS can be checked from Parameter Store.
 
 ### Database migration
 
@@ -201,6 +201,7 @@ The script will deploy CodePipeline, which will automatically set up the environ
 If you update the `pipeline:synth`-script name, you need to have the old script available for at least one commit in the followed branch or you have to rerun the deployment script by hand.
 
 Note! A valid GitHub token with the scopes `admin:repo_hook, public_repo, repo:status, repo_deployment` is required to be had in AWS Secrets Manager. Set the token as plaintext value. New expired date is set in the next 1 year. In order to give sufficient permission to your Github token, you may need to edit your pipeline in AWS CodePipeline (e.g. stage Source), connect and grant the authorization right of your Github account.
+Note! If you only update the value of the github token in Secrets Manager, you have to reconnect Github with the CodePipeline. AWS CodePipeline -> Pipeline -> {name_of_pipeline} -> edit pipeline : Edit Source stage -> Connect to GitHub and follow the instructions. Afterwards, Retry won't probably work and you need to press Release Change.
 
 Note! You need Docker installed on your computer for synth and deploy to work.
 
@@ -239,10 +240,13 @@ Use `utils/logger.ts`. Whenever possible, pass `user` to get the UID. A info-lev
 #### Logging in development
 
 Use [pino-pretty](https://github.com/pinojs/pino-pretty) to make output easier to read
+
 ```
 $ npm install -g pino-pretty
 ```
+
 To use pino-pretty you can for example pass it after invoking lambda function
+
 ```
 $ npm run sam:invoke --handler=create-user --profile=myFavouriteAWSProfile | pino pretty
 ```
