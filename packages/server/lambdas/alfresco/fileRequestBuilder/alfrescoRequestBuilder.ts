@@ -24,11 +24,13 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   const fileData: Buffer = requestFormData.filedata as Buffer;
   const fileInfo = requestFormData.fileinfo as FileInfo;
   const description = requestFormData['cm:description'];
+  const title = requestFormData['cm:title'];
   log.debug(`File data buffer size: ${fileData.length}`);
   formData.append('filedata', fileData, { filename: fileInfo.filename });
   formData.append('name', fileInfo.filename);
   formData.append('nodeType', 'cm:content');
   if (description) formData.append('cm:description', description);
+  if (title) formData.append('cm:title', title);
   return formData;
 };
 
