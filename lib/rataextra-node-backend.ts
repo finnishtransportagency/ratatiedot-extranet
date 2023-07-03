@@ -96,6 +96,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       port: 8080,
       protocol: ApplicationProtocol.HTTP,
       targets: [autoScalingGroup],
+      // Also documented in rataextra-backend
       conditions: [
         ListenerCondition.pathPatterns(['/api/alfresco/file/*']),
         ListenerCondition.httpRequestMethods(['POST']),
