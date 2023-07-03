@@ -48,6 +48,7 @@
     "add_file": "Lisää tiedosto",
     "delete_file": "Poista tiedosto",
     "delete_selected_file": "Poista valittu tiedosto",
+    "name": "Nimi",
     "description": "Selitysteksti",
     "more_actions": "Valinnaiset toiminnot",
     "selected_files": "Valitut tiedostot",
