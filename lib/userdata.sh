@@ -1,12 +1,6 @@
 #!/bin/bash
 set -e
 
-# Remove logging in production??
-# Every node app console.log will be written in this file!
-# At least make sure to keep file size reasonable.
-exec > /tmp/userdata.log 2>&1
-whoami
-
 yum -y update
 
 # Must match port used in express
@@ -28,8 +22,6 @@ node -v
 npm -v
 
 cd $HOME/source/packages/node-server
-pwd
-ls -la
 
 npm ci
 npm run build

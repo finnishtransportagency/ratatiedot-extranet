@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import { log } from './utils/logger.js';
 import uploadFileHandler from './services/alfresco/upload-file.js';
 
-const upload = multer().single('fileData');
+const upload = multer().single('filedata');
 
 const uploadFile = async (req: Request, res: Response) => {
   try {

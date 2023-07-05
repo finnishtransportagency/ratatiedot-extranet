@@ -5,7 +5,6 @@ import { isFeatOrLocalStack, RataExtraEnvironment } from './lib.js';
 import { log } from './logger.js';
 
 const ISSUER = process.env.JWT_TOKEN_ISSUER;
-const STACK_ID = process.env.STACK_ID || '';
 const ENVIRONMENT = process.env.ENVIRONMENT || '';
 const MOCK_UID = process.env.MOCK_UID || '';
 
@@ -73,8 +72,8 @@ const isAdmin = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.admin
 const isWriteUser = (user: RataExtraUser, writeRole: string) => user.roles?.includes(writeRole);
 
 export const getUser = async (event: Request): Promise<RataExtraUser> => {
-  if (!STACK_ID || !ENVIRONMENT) {
-    log.error('STACK_ID or ENVIRONMENT missing!');
+  if (!ENVIRONMENT) {
+    log.error('ENVIRONMENT missing!');
     throw new RataExtraEC2Error('Error', 500);
   }
   if (isFeatOrLocalStack(ENVIRONMENT as RataExtraEnvironment)) {
