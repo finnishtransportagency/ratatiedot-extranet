@@ -9,6 +9,7 @@ whoami
 
 yum -y update
 
+# Must match port used in express
 iptables -A INPUT -p tcp --dport 8080 -m state --state NEW -j ACCEPT
 
 current_date_time=$(date)

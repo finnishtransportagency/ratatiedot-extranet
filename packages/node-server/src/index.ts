@@ -1,58 +1,28 @@
-import axios from 'axios';
 import multer from 'multer';
 import express, { Request, Response } from 'express';
+import { log } from './utils/logger.js';
+import uploadFileHandler from './services/alfresco/upload-file.js';
 
-const upload = multer({ dest: 'tmp/' });
+const upload = multer().single('fileData');
 
-const postFileToAlfresco = async (options: RequestInit, nodeId: string): Promise<any | undefined> => {
-  const alfrescoUrl = 'https://localhost:3002/';
-  const alfrescoCoreAPIUrl = `${alfrescoUrl}/alfresco/versions/1`;
-  const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}/children`;
-  const res = await axios.post(url, options);
-  return res;
-};
-
-const getRequestData = (request) => {
-  const requestData = { user: 'LX123123' };
-  return requestData;
-};
-
-function uploadFiles(req) {
-  console.log(req);
-}
-
-const handleRequest = async (event: any): Promise<any> => {
+const uploadFile = async (req: Request, res: Response) => {
   try {
-    const paths = event.path.split('/');
-    const category = paths.pop();
-
-    const result = await postFileToAlfresco({}, 'foo-123');
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type:': 'application/json' },
-      body: JSON.stringify(result),
-    };
+    const result = await uploadFileHandler(req);
+    res.send(result);
   } catch (err) {
-    return err;
+    log.error(err);
+    if (err.status) {
+      res.sendStatus(err.status);
+    } else {
+      res.sendStatus(500);
+    }
   }
 };
 
 const app = express();
 const port = 8080;
 
-const uploadFile = (req: Request, res: Response) => {
-  console.log(req.body);
-  console.log(req.file);
-  res.json({ message: 'Successfully uploaded files' });
-};
-
-const test = (req, res) => {
-  console.log('HELLO!!');
-  res.send('pong');
-};
-
-app.post('/api/alfresco/file/hallintaraportit', upload.single('filedata'), uploadFile);
-app.get('/api/ping', test);
+app.post('/api/alfresco/file/:category', upload, uploadFile);
 app.get('/', (req, res) => {
   res.sendStatus(200);
 });
