@@ -18,13 +18,17 @@ import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
 import { AutoScalingGroup, HealthCheck, Signals, UpdatePolicy } from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import { RataExtraEnvironment, getPipelineConfig } from './config';
+import {
+  RataExtraEnvironment,
+  getPipelineConfig,
+  SSM_DATABASE_DOMAIN,
+  SSM_DATABASE_NAME,
+  SSM_DATABASE_PASSWORD,
+} from './config';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
-  readonly rataExtraStackIdentifier: string;
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly stackId: string;
-  readonly databaseDomain?: string;
   readonly jwtTokenIssuer: string;
   readonly alfrescoAPIKey: string;
   readonly alfrescoAPIUrl: string;
@@ -43,11 +47,9 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const {
       rataExtraEnv,
       stackId,
-      rataExtraStackIdentifier,
       vpc,
       listener,
       securityGroup,
-      databaseDomain,
       jwtTokenIssuer,
       alfrescoAPIKey,
       alfrescoAPIUrl,
@@ -80,13 +82,17 @@ export class RatatietoNodeBackendConstruct extends Construct {
         nodeInstall: new InitConfig([
           InitFile.fromFileInline('/home/ec2-user/source/userdata.sh', './lib/userdata.sh'),
           InitCommand.shellCommand('chmod +x /home/ec2-user/source/userdata.sh'),
-          // Hack to replace old instance by modifying asg init configuration file.
-          InitCommand.shellCommand(`echo instance created at: ${new Date()}`),
+          InitCommand.shellCommand('mkdir /etc/systemd/system/nodeserver.service.d'),
+          InitCommand.shellCommand('touch /etc/systemd/system/nodeserver.service.d/loca.conf'),
+          InitCommand.shellCommand('echo [Service] >> /etc/systemd/system/nodeserver.service.d'),
+          InitCommand.shellCommand(
+            `echo Environment="ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "STACK_ID=${stackId}" "MOCK_UID=${mockUid}" >> /etc/systemd/system/nodeserver.service.d`,
+          ),
           InitService.systemdConfigFile('nodeserver', {
             command: '/home/ec2-user/source/userdata.sh',
             afterNetwork: true,
             keepRunning: true,
-            // TODO: user
+            // user: 'ec2-user',
             description: 'Ratatieto nodejs backend server',
           }),
           InitService.enable('nodeserver', {
@@ -102,12 +108,14 @@ export class RatatietoNodeBackendConstruct extends Construct {
       initOptions: {
         // Optional, which configsets to activate (['default'] by default)
         configSets: ['default'],
+        // TODO: Remove once ready
         ignoreFailures: true,
       },
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
       machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-09c13919869e4af37' }),
       allowAllOutbound: true,
       role: asgRole,
+      // TODO: elb-healthcheck
       healthCheck: HealthCheck.ec2(),
       minCapacity: 1,
       maxCapacity: 1,
@@ -127,6 +135,8 @@ export class RatatietoNodeBackendConstruct extends Construct {
       ],
       priority: 120,
     });
+    // Hack to replace old instance by modifying asg init configuration file.
+    autoScalingGroup.addUserData(`# instance created at: ${new Date()}`);
 
     return autoScalingGroup;
   }

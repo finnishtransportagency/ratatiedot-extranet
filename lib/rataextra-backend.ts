@@ -444,13 +444,11 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     const nodeBackend = new RatatietoNodeBackendConstruct(this, 'NodeBackend', {
-      rataExtraStackIdentifier,
       rataExtraEnv,
       stackId,
       vpc: applicationVpc,
       listener: alb.listener,
       securityGroup,
-      databaseDomain,
       jwtTokenIssuer,
       alfrescoAPIKey,
       alfrescoAPIUrl,
