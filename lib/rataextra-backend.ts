@@ -444,10 +444,20 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     const nodeBackend = new RatatietoNodeBackendConstruct(this, 'NodeBackend', {
+      rataExtraStackIdentifier,
+      rataExtraEnv,
+      stackId,
       vpc: applicationVpc,
       listener: alb.listener,
       securityGroup,
+      databaseDomain,
+      jwtTokenIssuer,
+      alfrescoAPIKey,
+      alfrescoAPIUrl,
+      alfrescoAncestor,
+      mockUid: mockUid,
     });
+    Object.entries(tags).forEach(([key, value]) => Tags.of(nodeBackend).add(key, value));
 
     if (isPermanentStack(stackId, rataExtraEnv)) {
       const bastionStack = new RataExtraBastionStack(this, 'stack-bastion', {

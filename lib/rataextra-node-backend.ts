@@ -18,19 +18,42 @@ import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
 import { AutoScalingGroup, HealthCheck, Signals, UpdatePolicy } from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import { getPipelineConfig } from './config';
+import { RataExtraEnvironment, getPipelineConfig } from './config';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
+  readonly rataExtraStackIdentifier: string;
+  readonly rataExtraEnv: RataExtraEnvironment;
+  readonly stackId: string;
+  readonly databaseDomain?: string;
+  readonly jwtTokenIssuer: string;
+  readonly alfrescoAPIKey: string;
+  readonly alfrescoAPIUrl: string;
+  readonly alfrescoAncestor: string;
+  readonly mockUid?: string;
   readonly vpc: IVpc;
   listener: ApplicationListener;
-  securityGroup?: ISecurityGroup;
+  readonly securityGroup?: ISecurityGroup;
 }
 
+// TODO: env parameters
 export class RatatietoNodeBackendConstruct extends Construct {
   constructor(scope: Construct, id: string, props: RatatietoNodeBackendStackProps) {
     super(scope, id);
 
-    const { vpc, listener, securityGroup } = props;
+    const {
+      rataExtraEnv,
+      stackId,
+      rataExtraStackIdentifier,
+      vpc,
+      listener,
+      securityGroup,
+      databaseDomain,
+      jwtTokenIssuer,
+      alfrescoAPIKey,
+      alfrescoAPIUrl,
+      alfrescoAncestor,
+      mockUid,
+    } = props;
 
     const config = getPipelineConfig();
 
@@ -43,7 +66,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const init = CloudFormationInit.fromConfigSets({
       configSets: {
         // Applies the configs below in this order
-        default: ['getSource', 'nodeInstall', 'nodeBuild'],
+        default: ['getSource', 'nodeInstall'],
       },
       configs: {
         getSource: new InitConfig([
@@ -57,12 +80,13 @@ export class RatatietoNodeBackendConstruct extends Construct {
         nodeInstall: new InitConfig([
           InitFile.fromFileInline('/home/ec2-user/source/userdata.sh', './lib/userdata.sh'),
           InitCommand.shellCommand('chmod +x /home/ec2-user/source/userdata.sh'),
-          InitCommand.shellCommand('pwd'),
-          InitCommand.shellCommand('ls -la; cd /home/ec2-user/source; ls -la; cat userdata.sh'),
+          // Hack to replace old instance by modifying asg init configuration file.
+          InitCommand.shellCommand(`echo instance created at: ${new Date()}`),
           InitService.systemdConfigFile('nodeserver', {
             command: '/home/ec2-user/source/userdata.sh',
             afterNetwork: true,
             keepRunning: true,
+            // TODO: user
             description: 'Ratatieto nodejs backend server',
           }),
           InitService.enable('nodeserver', {
@@ -103,9 +127,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
       ],
       priority: 120,
     });
-
-    // Hack to replace old instance by modifying asg init configuration file.
-    autoScalingGroup.addUserData(`# instance created at: ${new Date()}`);
 
     return autoScalingGroup;
   }
