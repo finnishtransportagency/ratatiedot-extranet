@@ -83,10 +83,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
           InitFile.fromFileInline('/home/ec2-user/source/userdata.sh', './lib/userdata.sh'),
           InitCommand.shellCommand('chmod +x /home/ec2-user/source/userdata.sh'),
           InitCommand.shellCommand('mkdir /etc/systemd/system/nodeserver.service.d'),
-          InitCommand.shellCommand('touch /etc/systemd/system/nodeserver.service.d/loca.conf'),
-          InitCommand.shellCommand('echo [Service] >> /etc/systemd/system/nodeserver.service.d'),
+          InitCommand.shellCommand('touch /etc/systemd/system/nodeserver.service.d/local.conf'),
+          InitCommand.shellCommand('echo [Service] >> /etc/systemd/system/nodeserver.service.d/local.conf'),
           InitCommand.shellCommand(
-            `echo Environment="ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "STACK_ID=${stackId}" "MOCK_UID=${mockUid}" >> /etc/systemd/system/nodeserver.service.d`,
+            `echo Environment="ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "STACK_ID=${stackId}" "MOCK_UID=${mockUid}" >> /etc/systemd/system/nodeserver.service.d/local.conf`,
           ),
           InitService.systemdConfigFile('nodeserver', {
             command: '/home/ec2-user/source/userdata.sh',
