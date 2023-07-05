@@ -1,4 +1,4 @@
-import { StackProps, Duration, NestedStack } from 'aws-cdk-lib';
+import { StackProps, Duration } from 'aws-cdk-lib';
 import {
   MachineImage,
   InstanceType,
@@ -36,7 +36,7 @@ interface RatatietoNodeBackendStackProps extends StackProps {
 }
 
 // TODO: env parameters
-export class RatatietoNodeBackendConstruct extends NestedStack {
+export class RatatietoNodeBackendConstruct extends Construct {
   constructor(scope: Construct, id: string, props: RatatietoNodeBackendStackProps) {
     super(scope, id);
 
