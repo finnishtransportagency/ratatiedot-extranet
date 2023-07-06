@@ -112,8 +112,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-09c13919869e4af37' }),
       allowAllOutbound: true,
       role: asgRole,
-      // TODO: elb-healthcheck
-      healthCheck: HealthCheck.ec2(),
+      healthCheck: HealthCheck.elb({ grace: Duration.minutes(6) }),
       minCapacity: 1,
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
@@ -131,6 +130,9 @@ export class RatatietoNodeBackendConstruct extends Construct {
         ListenerCondition.httpRequestMethods(['POST']),
       ],
       priority: 120,
+      healthCheck: {
+        healthyThresholdCount: 2,
+      },
     });
     // Hack to replace old instance by modifying asg init configuration file.
     autoScalingGroup.addUserData(`# instance created at: ${new Date()}`);
