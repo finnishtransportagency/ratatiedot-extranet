@@ -90,7 +90,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
             command: '/home/ec2-user/source/userdata.sh',
             afterNetwork: true,
             keepRunning: true,
-            user: 'ec2-user',
             description: 'Ratatieto nodejs backend server',
           }),
           InitService.enable('nodeserver', {
