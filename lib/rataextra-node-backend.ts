@@ -83,8 +83,8 @@ export class RatatietoNodeBackendConstruct extends Construct {
           ),
         ]),
         nodeInstall: new InitConfig([
-          InitFile.fromFileInline('/home/ec2-user/source/userdata.sh', './lib/userdata.sh'),
-          InitCommand.shellCommand('chmod +x /home/ec2-user/source/userdata.sh'),
+          InitFile.fromFileInline('/home/ec2-user/userdata.sh', './lib/userdata.sh'),
+          InitCommand.shellCommand('chmod +x /home/ec2-user/userdata.sh'),
           InitFile.fromString(
             '/home/ec2-user/cloudwatch-agent-config.json',
             `{"logs":{"logs_collected":{"files":{"collect_list":[{"file_path":"/var/log/nodeserver/logs.log","log_group_name":"/aws/ec2/${rataExtraStackIdentifier}-${rataExtraEnv}-${stackId}-node-server","log_stream_name":"{instance_id}","timezone":"UTC","retention_in_days":180}]}},"log_stream_name":"logs"}}`,
@@ -92,7 +92,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
           InitCommand.shellCommand(
             `export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "MOCK_UID=${mockUid}"`,
           ),
-          InitCommand.shellCommand('cd /home/ec2-user/source && ./userdata.sh'),
+          InitCommand.shellCommand('cd /home/ec2-user && ./userdata.sh'),
         ]),
       },
     });
