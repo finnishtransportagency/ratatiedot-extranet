@@ -30,7 +30,7 @@ interface RatatietoNodeBackendStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
   readonly stackId: string;
   readonly region: string;
-  readonly parentStackArn: string;
+  readonly parentStackName: string;
   readonly jwtTokenIssuer: string;
   readonly alfrescoAPIKey: string;
   readonly alfrescoAPIUrl: string;
@@ -54,7 +54,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       listener,
       securityGroup,
       region,
-      parentStackArn,
+      parentStackName,
       jwtTokenIssuer,
       alfrescoAPIKey,
       alfrescoAPIUrl,
@@ -95,7 +95,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const init = CloudFormationInit.fromConfigSets({
       configSets: {
         // Applies the configs below in this order
-        default: ['getSource', 'nodeInstall', 'signalSuccess'],
+        default: ['getSource', 'loggingSetup', 'nodeInstall', 'signalSuccess'],
       },
       configs: {
         getSource: new InitConfig([
@@ -106,13 +106,19 @@ export class RatatietoNodeBackendConstruct extends Construct {
             config.branch,
           ),
         ]),
-        nodeInstall: new InitConfig([
-          InitFile.fromString('/home/ec2-user/userdata.sh', userDataScript),
-          InitCommand.shellCommand('chmod +x /home/ec2-user/userdata.sh'),
+        loggingSetup: new InitConfig([
           InitFile.fromString(
             '/home/ec2-user/cloudwatch-agent-config.json',
             `{"logs":{"logs_collected":{"files":{"collect_list":[{"file_path":"/var/log/nodeserver/logs.log","log_group_name":"${logGroupName}","log_stream_name":"{instance_id}","timezone":"UTC","retention_in_days":180}]}},"log_stream_name":"logs"}}`,
           ),
+          InitCommand.shellCommand('yum install -y amazon-cloudwatch-agent'),
+          InitCommand.shellCommand(
+            'sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/home/ec2-user/cloudwatch-agent-config.json',
+          ),
+        ]),
+        nodeInstall: new InitConfig([
+          InitFile.fromString('/home/ec2-user/userdata.sh', userDataScript),
+          InitCommand.shellCommand('chmod +x /home/ec2-user/userdata.sh'),
           InitCommand.shellCommand(
             `export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "MOCK_UID=${mockUid}"`,
           ),
@@ -120,7 +126,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
         ]),
         signalSuccess: new InitConfig([
           InitCommand.shellCommand(
-            `/opt/aws/bin/cfn-signal -e 0 --stack ${parentStackArn} --resource ${stackId} --region ${region}`,
+            `/opt/aws/bin/cfn-signal -e 0 --stack ${parentStackName} --resource ${stackId} --region ${region}`,
           ),
         ]),
       },
