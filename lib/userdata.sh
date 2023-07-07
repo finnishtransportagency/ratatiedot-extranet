@@ -2,8 +2,10 @@
 set -e
 # TODO: Log rotation, check logrotate
 if ! [ -d "/var/log/nodeserver" ]; then
-  mkdir "/var/log/nodeserver"
+  echo "Creating /var/log/nodeserver/"
+  mkdir /var/log/nodeserver/
 fi
+echo Environment: $ENVIRONMENT
 exec > /var/log/nodeserver/logs.log 2>&1
 
 yum -y update
