@@ -451,7 +451,7 @@ export class RataExtraBackendStack extends NestedStack {
       listener: alb.listener,
       securityGroup,
       region: this.region,
-      parentStackArn: id,
+      parentStackArn: this.stackId,
       jwtTokenIssuer,
       alfrescoAPIKey,
       alfrescoAPIUrl,
