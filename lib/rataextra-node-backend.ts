@@ -123,7 +123,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
         ]),
         signalSuccess: new InitConfig([
           InitCommand.shellCommand(
-            `/opt/aws/bin/cfn-signal -e 0 --stack ${parentStackName} --resource ${stackId} --region ${region}`,
+            `/opt/aws/bin/cfn-signal -e 0 --stack ${parentStackName} --resource EC2Instance --region ${region}`,
           ),
         ]),
       },
