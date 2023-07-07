@@ -13,7 +13,7 @@ import {
   ISecurityGroup,
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
-import { ManagedPolicy, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
+import { ManagedPolicy, ServicePrincipal, Role, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { AutoScalingGroup, HealthCheck, Signals, UpdatePolicy } from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import {
@@ -67,7 +67,16 @@ export class RatatietoNodeBackendConstruct extends Construct {
         ManagedPolicy.fromAwsManagedPolicyName('CloudWatchAgentServerPolicy'),
       ],
     });
-    const userDataScript = readFileSync('./userdata.sh', 'utf8')
+    const logGroupName = `/aws/ec2/${rataExtraStackIdentifier}-${rataExtraEnv}-${stackId}-node-server`;
+
+    asgRole.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: [`arn:aws:logs:::log-group:${logGroupName}`],
+        actions: ['logs:PutRetentionPolicy'],
+      }),
+    );
+    const userDataScript = readFileSync('./lib/userdata.sh', 'utf8')
       .replace('{rataExtraEnv}', rataExtraEnv)
       .replace('{SSM_DATABASE_NAME}', SSM_DATABASE_NAME)
       .replace('{SSM_DATABASE_DOMAIN}', SSM_DATABASE_DOMAIN)
@@ -98,7 +107,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
           InitCommand.shellCommand('chmod +x /home/ec2-user/userdata.sh'),
           InitFile.fromString(
             '/home/ec2-user/cloudwatch-agent-config.json',
-            `{"logs":{"logs_collected":{"files":{"collect_list":[{"file_path":"/var/log/nodeserver/logs.log","log_group_name":"/aws/ec2/${rataExtraStackIdentifier}-${rataExtraEnv}-${stackId}-node-server","log_stream_name":"{instance_id}","timezone":"UTC","retention_in_days":180}]}},"log_stream_name":"logs"}}`,
+            `{"logs":{"logs_collected":{"files":{"collect_list":[{"file_path":"/var/log/nodeserver/logs.log","log_group_name":"${logGroupName}","log_stream_name":"{instance_id}","timezone":"UTC","retention_in_days":180}]}},"log_stream_name":"logs"}}`,
           ),
           InitCommand.shellCommand(
             `export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "MOCK_UID=${mockUid}"`,
