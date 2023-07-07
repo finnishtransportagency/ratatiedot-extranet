@@ -7,10 +7,8 @@ if ! [ -d "/var/log/nodeserver" ]; then
 fi
 exec > /var/log/nodeserver/logs.log 2>&1
 export "ENVIRONMENT={rataExtraEnv}" "SSM_DATABASE_NAME_ID={SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="{SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID={SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME={alfrescoAPIKey}" "ALFRESCO_API_URL={alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR={alfrescoAncestor}" "JWT_TOKEN_ISSUER={jwtTokenIssuer}" "MOCK_UID={mockUid}"
-echo Environment: $ENVIRONMENT
 
-yum -y update
-
+# Possibly move this to a separate init step
 yum install -y amazon-cloudwatch-agent
 
 # Must match port used in express
@@ -20,8 +18,6 @@ current_date_time=$(date)
 echo "Current date and time: $current_date_time"
 
 export HOME=/home/ec2-user
-
-sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:$HOME/cloudwatch-agent-config.json
 
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
