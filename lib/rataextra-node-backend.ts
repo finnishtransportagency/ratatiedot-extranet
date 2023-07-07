@@ -14,7 +14,7 @@ import {
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
-import { AutoScalingGroup, HealthCheck, Signals, UpdatePolicy } from 'aws-cdk-lib/aws-autoscaling';
+import { AutoScalingGroup, CfnAutoScalingGroup, HealthCheck, Signals, UpdatePolicy } from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import {
   RataExtraEnvironment,
@@ -104,6 +104,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       updatePolicy: UpdatePolicy.rollingUpdate(),
       securityGroup: securityGroup,
     });
+    const autoScalingGroupCfn = <CfnAutoScalingGroup>autoScalingGroup.node.tryFindChild('ASG');
 
     const init = CloudFormationInit.fromConfigSets({
       configSets: {
@@ -136,8 +137,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
         ]),
         signalSuccess: new InitConfig([
           InitCommand.shellCommand(
-            // NodeBackendAutoScalingGroupASGCCF1EB26
-            `/opt/aws/bin/cfn-signal -e 0 --stack ${parentStackName} --resource ${autoScalingGroup.autoScalingGroupName} --region ${region}`,
+            `sudo /opt/aws/bin/cfn-signal -e 0 --stack ${parentStackName} --resource ${autoScalingGroupCfn.logicalId} --region ${region}`,
           ),
         ]),
       },
