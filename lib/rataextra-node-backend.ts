@@ -91,7 +91,20 @@ export class RatatietoNodeBackendConstruct extends Construct {
       .replace('{jwtTokenIssuer}', jwtTokenIssuer)
       .replace('{mockUid}', mockUid || '');
 
-    // InitCommand.shellCommand('cd /source/packages/node-server && npm ci && npm run build && npm run start'),
+    const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
+      vpc,
+      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-09c13919869e4af37' }),
+      allowAllOutbound: true,
+      role: asgRole,
+      healthCheck: HealthCheck.elb({ grace: Duration.minutes(10) }),
+      minCapacity: 1,
+      maxCapacity: 1,
+      signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
+      updatePolicy: UpdatePolicy.rollingUpdate(),
+      securityGroup: securityGroup,
+    });
+
     const init = CloudFormationInit.fromConfigSets({
       configSets: {
         // Applies the configs below in this order
@@ -123,31 +136,18 @@ export class RatatietoNodeBackendConstruct extends Construct {
         ]),
         signalSuccess: new InitConfig([
           InitCommand.shellCommand(
-            `/opt/aws/bin/cfn-signal -e 0 --stack ${parentStackName} --resource EC2Instance --region ${region}`,
+            // NodeBackendAutoScalingGroupASGCCF1EB26
+            `/opt/aws/bin/cfn-signal -e 0 --stack ${parentStackName} --resource ${autoScalingGroup.autoScalingGroupName} --region ${region}`,
           ),
         ]),
       },
     });
 
-    const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
-      vpc,
-      init,
-      initOptions: {
-        // Optional, which configsets to activate (['default'] by default)
-        configSets: ['default'],
-        // TODO: Remove once ready
-        ignoreFailures: true,
-      },
-      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-09c13919869e4af37' }),
-      allowAllOutbound: true,
-      role: asgRole,
-      healthCheck: HealthCheck.elb({ grace: Duration.minutes(10) }),
-      minCapacity: 1,
-      maxCapacity: 1,
-      signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
-      updatePolicy: UpdatePolicy.rollingUpdate(),
-      securityGroup: securityGroup,
+    autoScalingGroup.applyCloudFormationInit(init, {
+      // Optional, which configsets to activate (['default'] by default)
+      configSets: ['default'],
+      // TODO: Remove once ready
+      ignoreFailures: true,
     });
 
     listener.addTargets('NodeBackendTarget', {
