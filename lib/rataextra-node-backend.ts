@@ -167,10 +167,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
     });
     // Hack to replace old instance by modifying asg init configuration file.
     autoScalingGroup.addUserData(`# instance created at: ${new Date()}`);
-    // TODO: Triple-redundant
-    autoScalingGroup.addUserData(
-      `/opt/aws/bin/cfn-signal -e 0 --stack ${parentStackName} --resource ${autoScalingGroupCfn.logicalId} --region ${region}`,
-    );
 
     return autoScalingGroup;
   }

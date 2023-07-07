@@ -33,4 +33,5 @@ cd $HOME/source/packages/node-server
 
 npm ci
 npm run build
-npm run start
+npm run start &
+echo npm running
