@@ -23,6 +23,7 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
 } from './config';
+import { readFileSync } from 'fs';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
   readonly rataExtraStackIdentifier: string;
@@ -66,6 +67,16 @@ export class RatatietoNodeBackendConstruct extends Construct {
         ManagedPolicy.fromAwsManagedPolicyName('CloudWatchAgentServerPolicy'),
       ],
     });
+    const userDataScript = readFileSync('./userdata.sh', 'utf8')
+      .replace('{rataExtraEnv}', rataExtraEnv)
+      .replace('{SSM_DATABASE_NAME}', SSM_DATABASE_NAME)
+      .replace('{SSM_DATABASE_DOMAIN}', SSM_DATABASE_DOMAIN)
+      .replace('{SSM_DATABASE_PASSWORD}', SSM_DATABASE_PASSWORD)
+      .replace('{alfrescoAPIKey}', alfrescoAPIKey)
+      .replace('{alfrescoAPIUrl}', alfrescoAPIUrl)
+      .replace('{alfrescoAncestor}', alfrescoAncestor)
+      .replace('{jwtTokenIssuer}', jwtTokenIssuer)
+      .replace('{mockUid}', mockUid || '');
 
     // InitCommand.shellCommand('cd /source/packages/node-server && npm ci && npm run build && npm run start'),
     const init = CloudFormationInit.fromConfigSets({
@@ -83,7 +94,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
           ),
         ]),
         nodeInstall: new InitConfig([
-          InitFile.fromFileInline('/home/ec2-user/userdata.sh', './lib/userdata.sh'),
+          InitFile.fromString('/home/ec2-user/userdata.sh', userDataScript),
           InitCommand.shellCommand('chmod +x /home/ec2-user/userdata.sh'),
           InitFile.fromString(
             '/home/ec2-user/cloudwatch-agent-config.json',
