@@ -10,8 +10,6 @@ import {
   InitCommand,
   InitConfig,
   InitFile,
-  InitService,
-  ServiceManager,
   ISecurityGroup,
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
@@ -27,7 +25,9 @@ import {
 } from './config';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
+  readonly rataExtraStackIdentifier: string;
   readonly rataExtraEnv: RataExtraEnvironment;
+  readonly stackId: string;
   readonly jwtTokenIssuer: string;
   readonly alfrescoAPIKey: string;
   readonly alfrescoAPIUrl: string;
@@ -45,6 +45,8 @@ export class RatatietoNodeBackendConstruct extends Construct {
 
     const {
       rataExtraEnv,
+      rataExtraStackIdentifier,
+      stackId,
       vpc,
       listener,
       securityGroup,
@@ -57,9 +59,12 @@ export class RatatietoNodeBackendConstruct extends Construct {
 
     const config = getPipelineConfig();
 
-    const asgRole = new Role(this, 'ec2-bastion-role', {
+    const asgRole = new Role(this, 'ec2-nodeserver-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
-      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')],
+      managedPolicies: [
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
+        ManagedPolicy.fromAwsManagedPolicyName('CloudWatchAgentServerPolicy'),
+      ],
     });
 
     // InitCommand.shellCommand('cd /source/packages/node-server && npm ci && npm run build && npm run start'),
@@ -80,21 +85,14 @@ export class RatatietoNodeBackendConstruct extends Construct {
         nodeInstall: new InitConfig([
           InitFile.fromFileInline('/home/ec2-user/source/userdata.sh', './lib/userdata.sh'),
           InitCommand.shellCommand('chmod +x /home/ec2-user/source/userdata.sh'),
-          InitCommand.shellCommand('mkdir /etc/systemd/system/nodeserver.service.d'),
-          InitCommand.shellCommand('touch /etc/systemd/system/nodeserver.service.d/local.conf'),
-          InitCommand.shellCommand('echo [Service] >> /etc/systemd/system/nodeserver.service.d/local.conf'),
-          InitCommand.shellCommand(
-            `echo Environment="ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "MOCK_UID=${mockUid}" >> /etc/systemd/system/nodeserver.service.d/local.conf`,
+          InitFile.fromString(
+            '/home/ec2-user/cloudwatch-agent-config.json',
+            `{"logs":{"logs_collected":{"files":{"collect_list":[{"file_path":"/var/log/nodeserver/logs.log","log_group_name":"/aws/ec2/${rataExtraStackIdentifier}-${rataExtraEnv}-${stackId}-node-server","log_stream_name":"{instance_id}","timezone":"UTC","retention_in_days":180}]}},"log_stream_name":"logs"}}`,
           ),
-          InitService.systemdConfigFile('nodeserver', {
-            command: '/home/ec2-user/source/userdata.sh',
-            afterNetwork: true,
-            keepRunning: true,
-            description: 'Ratatieto nodejs backend server',
-          }),
-          InitService.enable('nodeserver', {
-            serviceManager: ServiceManager.SYSTEMD,
-          }),
+          InitCommand.shellCommand(
+            `export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "MOCK_UID=${mockUid}"`,
+          ),
+          InitCommand.shellCommand('cd /home/ec2-user/source && ./userdata.sh'),
         ]),
       },
     });

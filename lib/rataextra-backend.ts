@@ -445,6 +445,8 @@ export class RataExtraBackendStack extends NestedStack {
 
     const nodeBackend = new RatatietoNodeBackendConstruct(this, 'NodeBackend', {
       rataExtraEnv,
+      stackId,
+      rataExtraStackIdentifier,
       vpc: applicationVpc,
       listener: alb.listener,
       securityGroup,
