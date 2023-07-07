@@ -119,9 +119,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
         nodeInstall: new InitConfig([
           InitFile.fromString('/home/ec2-user/userdata.sh', userDataScript),
           InitCommand.shellCommand('chmod +x /home/ec2-user/userdata.sh'),
-          InitCommand.shellCommand(
-            `export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "MOCK_UID=${mockUid}"`,
-          ),
           InitCommand.shellCommand('cd /home/ec2-user && ./userdata.sh'),
         ]),
         signalSuccess: new InitConfig([
