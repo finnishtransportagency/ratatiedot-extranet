@@ -130,7 +130,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-09c13919869e4af37' }),
       allowAllOutbound: true,
       role: asgRole,
-      healthCheck: HealthCheck.elb({ grace: Duration.minutes(6) }),
+      healthCheck: HealthCheck.elb({ grace: Duration.minutes(10) }),
       minCapacity: 1,
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
