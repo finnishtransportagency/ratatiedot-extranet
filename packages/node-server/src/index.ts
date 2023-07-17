@@ -8,7 +8,7 @@ const upload = multer().single('filedata');
 const uploadFile = async (req: Request, res: Response) => {
   try {
     const result = await uploadFileHandler(req);
-    res.json(result);
+    res.send(result);
   } catch (err) {
     log.error(err);
     if (err.status) {
