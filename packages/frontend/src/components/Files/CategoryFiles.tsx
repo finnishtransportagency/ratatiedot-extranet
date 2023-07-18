@@ -119,7 +119,7 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
             categoryName={categoryName}
             nestedFolderId={nestedFolderId}
             onUpload={(response: AxiosResponse) => {
-              const node = response.data;
+              const node = response.data.body;
               addFile(node);
             }}
           />

@@ -17,6 +17,7 @@ import { join } from 'path';
 import { isPermanentStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { RatatietoNodeBackendConstruct } from './rataextra-node-backend';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -219,13 +220,6 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/list-files.ts',
     });
 
-    const alfrescoUploadFile = this.createNodejsLambda({
-      ...prismaAlfrescoCombinedParameters,
-      name: 'alfresco-upload-file',
-      timeout: Duration.minutes(2),
-      relativePath: '../packages/server/lambdas/alfresco/upload-file.ts',
-    });
-
     const alfrescoUpdateFile = this.createNodejsLambda({
       ...prismaAlfrescoCombinedParameters,
       name: 'alfresco-update-file',
@@ -336,13 +330,10 @@ export class RataExtraBackendStack extends NestedStack {
         httpRequestMethods: ['GET'],
         targetName: 'alfrescoListFiles',
       },
-      {
-        lambda: alfrescoUploadFile,
-        priority: 120,
-        path: ['/api/alfresco/file/*'],
-        httpRequestMethods: ['POST'],
-        targetName: 'alfrescoUploadFile',
-      },
+      // nodebackend
+      // priority: 120
+      // path: ['/api/alfresco/file/*'],
+      // httpRequestMethods: ['POST'],
       {
         lambda: alfrescoCreateFolder,
         priority: 125,
@@ -442,6 +433,7 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'dbDeleteFavoritePage',
       },
     ];
+
     // ALB for API
     const alb = this.createlAlb({
       rataExtraStackIdentifier: rataExtraStackIdentifier,
@@ -451,10 +443,27 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroup,
     });
 
+    const nodeBackend = new RatatietoNodeBackendConstruct(this, 'NodeBackend', {
+      rataExtraEnv,
+      stackId,
+      rataExtraStackIdentifier,
+      vpc: applicationVpc,
+      listener: alb.listener,
+      securityGroup,
+      region: this.region,
+      parentStackName: this.stackName,
+      jwtTokenIssuer,
+      alfrescoAPIKey,
+      alfrescoAPIUrl,
+      alfrescoAncestor,
+      mockUid: mockUid,
+    });
+    Object.entries(tags).forEach(([key, value]) => Tags.of(nodeBackend).add(key, value));
+
     if (isPermanentStack(stackId, rataExtraEnv)) {
       const bastionStack = new RataExtraBastionStack(this, 'stack-bastion', {
         rataExtraEnv,
-        albDns: alb.loadBalancerDnsName,
+        albDns: alb.alb.loadBalancerDnsName,
         databaseDns: databaseDomain,
         stackId: stackId,
         vpc: applicationVpc,
@@ -528,7 +537,7 @@ export class RataExtraBackendStack extends NestedStack {
       defaultAction: ListenerAction.fixedResponse(404),
     });
 
-    const targets = listenerTargets.map((target) =>
+    listenerTargets.map((target) =>
       listener.addTargets(`Target-${target.targetName}`, {
         targets: [new LambdaTarget(target.lambda)],
         priority: target.priority,
@@ -538,6 +547,7 @@ export class RataExtraBackendStack extends NestedStack {
         ],
       }),
     );
-    return alb;
+
+    return { alb, listener };
   }
 }
