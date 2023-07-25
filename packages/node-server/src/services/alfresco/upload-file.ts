@@ -51,7 +51,7 @@ const postFile = async (options: AxiosRequestOptions, nodeId: string): Promise<A
   const headers = {
     ...options.headers,
   };
-  const res = await alfrescoAxios.post(url, options.body, { headers });
+  const res = await alfrescoAxios.post(url, options.body, { headers, timeout: 60000 });
   return res.data;
 };
 
