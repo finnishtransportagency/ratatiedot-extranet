@@ -71,7 +71,7 @@ type UploadResponse = {
 export async function handleRequest(req: Request): Promise<UploadResponse | undefined> {
   const paths = req.path.split('/');
   const category = req.params.category;
-  const nestedFolderId = req.query.nestedFolderId as string;
+  const nestedFolderId = req.params.nestedFolderId as string;
 
   const user = await getUser(req);
   log.info(
