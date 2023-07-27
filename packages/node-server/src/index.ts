@@ -22,7 +22,7 @@ const uploadFile = async (req: Request, res: Response) => {
 const app = express();
 const port = 8080;
 
-app.post('/api/alfresco/file/:category', upload, uploadFile);
+app.post('/api/alfresco/file/:category/:nestedFolderId?', upload, uploadFile);
 app.get('/', (req, res) => {
   res.sendStatus(200);
 });
