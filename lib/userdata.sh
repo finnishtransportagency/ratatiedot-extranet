@@ -5,7 +5,7 @@ if ! [ -d "/var/log/nodeserver" ]; then
   echo "Creating /var/log/nodeserver/"
   mkdir /var/log/nodeserver/
 fi
-#exec > /var/log/nodeserver/logs.log 2>&1
+exec >> /var/log/nodeserver/logs.log 2>&1
 #export "ENVIRONMENT={rataExtraEnv}" "SSM_DATABASE_NAME_ID={SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="{SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID={SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME={alfrescoAPIKey}" "ALFRESCO_API_URL={alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR={alfrescoAncestor}" "JWT_TOKEN_ISSUER={jwtTokenIssuer}" "MOCK_UID={mockUid}"
 
 # Possibly move this to a separate init step
@@ -33,5 +33,6 @@ cd $HOME/source/packages/node-server
 
 npm ci
 npm run build
-#npm run start &
-#echo npm running
+sudo -u ec2-user whoami 
+npm run start &
+echo npm running
