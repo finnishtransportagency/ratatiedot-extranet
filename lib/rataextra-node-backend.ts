@@ -130,11 +130,11 @@ export class RatatietoNodeBackendConstruct extends Construct {
             'sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/home/ec2-user/cloudwatch-agent-config.json',
           ),
         ]),
-        nodeInstall: new InitConfig([
+        /* nodeInstall: new InitConfig([
           InitFile.fromString('/home/ec2-user/userdata.sh', userDataScript),
           InitCommand.shellCommand('chmod +x /home/ec2-user/userdata.sh'),
           InitCommand.shellCommand('cd /home/ec2-user && ./userdata.sh'),
-        ]),
+        ]), */
         // TODO: Should be redundant, but this or the other isn't running
         signalSuccess: new InitConfig([
           InitCommand.shellCommand(
@@ -167,14 +167,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     });
     // Hack to replace old instance by modifying asg init configuration file.
     autoScalingGroup.userData.addCommands(`# instance created at: ${new Date()}`);
-    autoScalingGroup.userData.addCommands(
-      'whoami',
-      'export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "MOCK_UID=${mockUid}"',
-      'exec >> /var/log/nodeserver/logs.log 2>&1',
-      'cd $HOME/source/packages/node-server',
-      'npm run start',
-      'echo "npm running"',
-    );
+    autoScalingGroup.addUserData(userDataScript);
 
     return autoScalingGroup;
   }
