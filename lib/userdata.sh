@@ -31,6 +31,7 @@ npm -v
 
 cd $HOME/source/packages/node-server
 
+whoami
 npm ci
 npm run build
 npm run start &
