@@ -31,9 +31,12 @@ npm -v
 
 cd $HOME/source/packages/node-server
 
-whoami
+sudo -u ec2-user -i <<'EOF'
 
+whoami
 npm ci
 npm run build
 npm run start &
 echo npm running
+
+EOF
