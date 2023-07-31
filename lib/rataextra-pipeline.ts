@@ -1,6 +1,12 @@
 import { SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-import { BuildEnvironmentVariableType, Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
+import {
+  BuildEnvironmentVariableType,
+  Cache,
+  LinuxBuildImage,
+  LocalCacheMode,
+  Project,
+} from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
 import { getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';

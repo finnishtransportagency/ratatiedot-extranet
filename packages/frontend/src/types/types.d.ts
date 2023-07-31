@@ -106,6 +106,10 @@ type TNode = {
     parentId: string;
     isFile: boolean;
     isFolder: boolean;
+    properties: {
+      'cm:description': string;
+      'cm:title': string;
+    };
   };
 };
 

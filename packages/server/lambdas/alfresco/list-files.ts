@@ -1,10 +1,9 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import axios, { AxiosError } from 'axios';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { findEndpoint, getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { searchQueryBuilder } from './searchQueryBuilder';
@@ -18,6 +17,7 @@ import {
 } from './searchQueryBuilder/types';
 import { get } from 'lodash';
 import { validateQueryParameters } from '../../utils/validation';
+import { alfrescoApiVersion, alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
 
 export type TNode = {
   entry: {
@@ -60,34 +60,27 @@ const searchByTermWithParent = async (
       additionalFields: [AdditionalFields.PROPERTIES],
       sort: [{ field: SortingFieldParameter.name, ascending: true }],
     });
-    const alfrescoSearchAPIUrl = `${getAlfrescoUrlBase()}/search/versions/1/search`;
+    const url = alfrescoSearchApiVersion;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
-    const response = await axios.post(`${alfrescoSearchAPIUrl}`, bodyRequest, options);
+    const response = await alfrescoAxios.post(url, bodyRequest, options);
     return response.data;
   } catch (err) {
     throw err;
   }
 };
 
-const getFolder = async (uid: string, nodeId: string) => {
+export const getFolder = async (uid: string, nodeId: string) => {
   try {
-    const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
-    const url = `${alfrescoCoreAPIUrl}/nodes/${nodeId}?where=(isFolder=true)&include=path`;
+    const url = `${alfrescoApiVersion}/nodes/${nodeId}?where=(isFolder=true)&include=path`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
-    const response = await axios.get(url, options);
+    const response = await alfrescoAxios.get(url, options);
     return response.data;
   } catch (error: any) {
-    if (error instanceof AxiosError) {
-      // In case nodeId doesn't exist, Alfresco throws 404
-      if (error.response?.status === 404) {
-        return null;
-      }
-    }
     throw error;
   }
 };
 
-const isFolderInCategory = async (folderPath: string, category: string) => {
+export const isFolderInCategory = async (folderPath: string, category: string) => {
   // Split the path into its components
   const pathComponents = folderPath.split('/');
 
@@ -169,7 +162,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     if (childFolderName) {
       // Check if the folder is a direct child of the category
-      const childFolder = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, page, language); // direct child folder name is given
+      const childFolder = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, 0, language); // direct child folder name is given, default page should be 0
       const childFolderId = get(childFolder, 'list.entries[0].entry.id', -1);
       data = await searchByTermWithParent(user.uid, childFolderId, '', page, language);
     }
@@ -180,6 +173,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const responseBody = {
       hasClassifiedContent: endpoint?.hasClassifiedContent,
+      hasConfidentialContent: endpoint?.hasConfidentialContent,
       data: data ?? {
         list: {
           pagination: {
@@ -187,7 +181,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
             hasMoreItems: false,
             totalItems: 0,
             skipCount: 0,
-            maxItems: 25,
+            maxItems: 50,
           },
           context: {},
           entries: [],

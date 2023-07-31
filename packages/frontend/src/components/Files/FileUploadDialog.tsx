@@ -3,7 +3,6 @@ import { CircularProgress } from '@mui/material';
 import { format } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { useTranslation } from 'react-i18next';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckIcon from '@mui/icons-material/CheckSharp';
 import { Box, Collapse, IconButton, TextField, Typography } from '@mui/material';
@@ -13,26 +12,26 @@ import { DateFormat } from '../../constants/Formats';
 import { uploadFile } from '../../services/FileUploadService';
 import { ButtonWrapper } from '../../styles/common';
 import { getLocaleByteUnit, getRouterName } from '../../utils/helpers';
-
 import { FileInput } from '../FileInput/FileInput';
 import { Modal } from '../Modal/Modal';
-
 import { Colors } from '../../constants/Colors';
 import './styles.css';
 import { AxiosResponse } from 'axios';
 
 interface FileUploadProps {
   categoryName: string;
+  nestedFolderId?: string;
   onClose: (event?: Event) => void;
   onUpload: (result: AxiosResponse) => any;
   open: boolean;
 }
 
-export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: FileUploadProps) => {
+export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, onUpload }: FileUploadProps) => {
   const { t } = useTranslation(['common']);
 
   const [file, setFile] = useState<File>();
   const [name, setName] = useState<string>('');
+  // TODO: Add title
   const [description, setDescription] = useState<string>('');
   const [dialogPhase, setPhase] = useState<number>(1);
   const [expanded, setExpanded] = useState(false);
@@ -49,7 +48,8 @@ export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: File
     await uploadFile(file, {
       name,
       description,
-      parentNode: getRouterName(categoryName),
+      categoryName: getRouterName(categoryName),
+      nestedFolderId: nestedFolderId,
     })
       .then((result) => {
         setIsLoading(false);
@@ -118,8 +118,8 @@ export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: File
           handleClose={handleClose}
           title={t('common:file.add_file')}
           error={error}
-          errorMessage={t('common:file.files_not_deleted')}
-          successMessage={t('common:file.files_deleted')}
+          errorMessage={t('common:file.file_not_uploaded')}
+          successMessage={t('common:file.file_uploaded')}
           success={success}
           children={
             <Box component="form">
@@ -152,7 +152,7 @@ export const FileUploadDialog = ({ categoryName, open, onClose, onUpload }: File
                     </IconButton>
                   </Box>
                   <Collapse sx={{ width: '100%' }} in={expanded} timeout="auto" unmountOnExit>
-                    <Typography variant="body1">Nimi</Typography>
+                    <Typography variant="body1">{t('common:file.name')}</Typography>
                     <TextField
                       sx={{ margin: '4px 0 26px 0' }}
                       fullWidth

@@ -31,6 +31,8 @@
     "remove_favorite": "Poista suosikeista"
   },
   "error": {
+    "401": "Puutteelliset käyttöoikeudet",
+    "403": "Pääsy estetty",
     "500": "Jokin meni pieleen!",
     "networkError": "Ei Internet-yhteyttä",
     "badRequest": "Pyynnössä tapahtui virhe"
@@ -40,7 +42,7 @@
   },
   "menu": {
     "frontpage": "Etusivu",
-    "favorite": "Suosikki",
+    "favorite": "Suosikit",
     "logout": "Kirjaudu ulos"
   },
   "file": {
@@ -48,6 +50,7 @@
     "add_file": "Lisää tiedosto",
     "delete_file": "Poista tiedosto",
     "delete_selected_file": "Poista valittu tiedosto",
+    "name": "Nimi",
     "description": "Selitysteksti",
     "more_actions": "Valinnaiset toiminnot",
     "selected_files": "Valitut tiedostot",
@@ -142,5 +145,8 @@
     "west": "länsi",
     "east": "itä",
     "area": "Alue"
+  },
+  "warning": {
+    "confidential": "Näkymä sisältää salassapidettävää tietoa. Älä jaa tietoja eteenpäin. Laki viranomaisten toiminnan julkisuudesta: <0>https://www.finlex.fi/fi/laki/ajantasa/1999/19990621</0> Salassapito: 24§, kohta 7."
   }
 }

@@ -2,7 +2,8 @@
   "welcome": {
     "text": "Tervetuloa uudistuneeseen Ratatieto-palveluun",
     "description_primary": "Tarkista ajankohtaiset ilmoitukset, viimeksi muokatut tiedostot ja omat suosikit suoraan tältä sivulta. Voit siirtyä myös muihin aineistoihin navigaation tai haun kautta.",
-    "description_secondary": "Sivustolla näkyvä päivämäärä tarkoittaa aineiston tallennuspäivää Ratatietoon eikä välttämättä ole sama kuin aineiston muodostuspäivä"
+    "description_secondary": "Sivustolla näkyvä päivämäärä tarkoittaa aineiston tallennuspäivää Ratatietoon eikä välttämättä ole sama kuin aineiston muodostuspäivä.",
+    "contact": "Palautteet ja lisätietoja: "
   },
   "first_login": {
     "title": "Käyttöohjeet: Ratatieto",

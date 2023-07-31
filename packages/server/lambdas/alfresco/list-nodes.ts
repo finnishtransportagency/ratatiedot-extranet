@@ -1,13 +1,13 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import axios, { AxiosRequestConfig } from 'axios';
-import { getAlfrescoOptions, getAlfrescoUrlBase } from '../../utils/alfresco';
+import { AxiosRequestConfig } from 'axios';
+import { getAlfrescoOptions } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 
 const getNodes = async (id: string, options: AxiosRequestConfig, type?: string) => {
-  const alfrescoCoreAPIUrl = `${getAlfrescoUrlBase()}/alfresco/versions/1`;
   try {
     let queryParameter = '';
     if (type && type === 'folder') {
@@ -16,7 +16,7 @@ const getNodes = async (id: string, options: AxiosRequestConfig, type?: string) 
     if (type && type === 'file') {
       queryParameter = `?where=(isFile=true)`;
     }
-    const response = await axios.get(`${alfrescoCoreAPIUrl}/nodes/${id}/children${queryParameter}`, options);
+    const response = await alfrescoAxios.get(`${alfrescoApiVersion}/nodes/${id}/children${queryParameter}`, options);
     return response;
   } catch (error) {
     log.error(error);

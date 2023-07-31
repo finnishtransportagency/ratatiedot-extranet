@@ -1,5 +1,5 @@
 import { Box, Collapse, Grid, Typography } from '@mui/material';
-import { format } from 'date-fns';
+import { format, isAfter } from 'date-fns';
 import prettyBytes from 'pretty-bytes';
 import { get } from 'lodash';
 
@@ -23,8 +23,7 @@ import { CategoryFiles } from './CategoryFiles';
 
 export const NodeTypes = {
   other: Other,
-  officedocument: Word,
-  msword: Word,
+  word: Word,
   sheet: Excel,
   excel: Excel,
   pdf: PDF,
@@ -53,6 +52,8 @@ export const NodeItem = ({
 
   const { entry } = node;
   const { id, name, modifiedAt, content, isFile, isFolder } = entry;
+  const description = entry.properties?.['cm:description'];
+  const title = entry.properties?.['cm:title'];
   const contentMimeType = get(content, 'mimeType', '');
   const contentSizeInBytes = get(content, 'sizeInBytes', 0);
   const { REACT_APP_ALFRESCO_DOWNLOAD_URL } = process.env;
@@ -108,7 +109,11 @@ export const NodeItem = ({
           }
         }}
         href={
-          isFile ? `${REACT_APP_ALFRESCO_DOWNLOAD_URL}/alfresco/versions/1/nodes/${id}/content?attachment=false` : ''
+          isFile
+            ? `${REACT_APP_ALFRESCO_DOWNLOAD_URL}/alfresco/versions/1/nodes/${id}/content/${encodeURI(
+                name,
+              )}?attachment=false`
+            : ''
         }
       >
         <Grid item mobile={1} tablet={0.5} desktop={0.5}>
@@ -116,11 +121,15 @@ export const NodeItem = ({
         </Grid>
         <Grid item mobile={10} tablet={10.5} desktop={10.5}>
           <Typography variant="body1" sx={{ color: Colors.extrablack }}>
-            {name}
+            {`${name}${title ? ` (${title})` : ''}`}
+          </Typography>
+          <Typography variant="body1" sx={{ color: Colors.darkgrey }}>
+            {description}
           </Typography>
           <div style={{ display: 'flex', color: Colors.darkgrey, paddingBottom: '18px' }}>
+            {/* Show dash as the date if file was part of the bulk upload */}
             <Typography variant="body1" sx={{ marginRight: '8px' }}>
-              {format(new Date(modifiedAt), DateFormat)}
+              {isAfter(new Date(modifiedAt), new Date(2023, 3, 25)) ? format(new Date(modifiedAt), DateFormat) : '-'}
             </Typography>
             {isFile && (
               <Typography variant="body1" sx={{ marginRight: '8px' }}>

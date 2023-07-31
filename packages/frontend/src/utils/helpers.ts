@@ -126,6 +126,8 @@ export const getRouterName = (name: string = '') => {
 export const parseRouterName = (routerName: string = '') => {
   switch (routerName) {
     // hard-coded cases
+    case 'liikennepaikkapaatokset':
+      return 'Liikennepaikkapäätökset';
     case 'rinf-rekisteri-eradis-tunnus':
       return 'RINF-rekisteri (ERADIS-tunnus)';
     case 'vak-ratapihat':
@@ -134,6 +136,8 @@ export const parseRouterName = (routerName: string = '') => {
       return 'Siltojen kiskotus- ja kunnossapito-ohjeet';
     case 'turvalaitteiden-huolto-ohjeet':
       return 'Turvalaitteiden huolto-ohjeet';
+    case 'turvalaitteiden-kayttoohjeet':
+      return 'Turvalaitteiden käyttöohjeet';
     default:
       return capitalize(routerName.replace(/-/g, ' '));
   }

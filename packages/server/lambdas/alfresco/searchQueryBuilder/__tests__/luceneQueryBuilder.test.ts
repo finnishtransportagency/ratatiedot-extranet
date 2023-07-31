@@ -122,23 +122,23 @@ describe('Lucene Query Builder', () => {
       const parameters: Array<SearchParameter> = [
         {
           parameterName: SearchParameterName.NAME,
-          term: 'test',
+          term: 'hello world',
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+(TEXT:"test*" @cm\\:name:"test*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
+        '+(TEXT:"hello*" AND TEXT:"world*" OR @cm\\:name:"hello*" AND @cm\\:name:"world*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
       );
     });
     it('should return query for content search from "mysite" workspace', () => {
       const parameters: Array<SearchParameter> = [
         {
           parameterName: SearchParameterName.NAME,
-          term: 'test',
+          term: 'hello world',
           contentSearch: true,
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+TEXT:"test*"+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
+        '+(TEXT:"hello*" AND TEXT:"world*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
       );
     });
     it('should return query for parent', () => {
@@ -162,13 +162,13 @@ describe('Lucene Query Builder', () => {
   });
   describe('lucenePagination', () => {
     it('should return default pagination if no page given', () => {
-      expect(luceneQueryBuilder.pagination()).toEqual({ maxItems: 25, skipCount: 0 });
+      expect(luceneQueryBuilder.pagination()).toEqual({ maxItems: 50, skipCount: 0 });
     });
     it('should return given positive pagination page', () => {
-      expect(luceneQueryBuilder.pagination(5)).toEqual({ maxItems: 25, skipCount: 5 * 25 });
+      expect(luceneQueryBuilder.pagination(5)).toEqual({ maxItems: 50, skipCount: 5 * 50 });
     });
     it('should return zero given negative pagination page', () => {
-      expect(luceneQueryBuilder.pagination(-4)).toEqual({ maxItems: 25, skipCount: 0 });
+      expect(luceneQueryBuilder.pagination(-4)).toEqual({ maxItems: 50, skipCount: 0 });
     });
   });
   describe('luceneSorting', () => {

@@ -4,8 +4,10 @@ import { useGetUserRightPageContent } from '../hooks/query/GetUserRightPageConte
 import { getCategoryRouteName } from '../routes';
 
 export const AppBarContext = React.createContext({
-  openDrawer: false,
-  toggleDrawer: () => {},
+  openMiniDrawer: false,
+  openDesktopDrawer: false,
+  toggleMiniDrawer: () => {},
+  toggleDesktopDrawer: () => {},
   openSearch: false,
   toggleSearch: () => {},
   openFilter: false,
@@ -23,7 +25,12 @@ export const AppBarContext = React.createContext({
 export type TUserRight = { canRead: boolean; canWrite: boolean };
 
 export const AppBarContextProvider = (props: any) => {
-  const [openDrawer, setOpenDrawer] = useState(false);
+  const [openMiniDrawer, setOpenMiniDrawer] = useState(false);
+  const [openDesktopDrawer, setOpenDesktopDrawer] = useState(() => {
+    const storedValue = localStorage.getItem('desktopDrawerOpen');
+    return storedValue !== null ? storedValue === 'true' : true;
+  });
+
   const [openSearch, setOpenSearch] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -44,20 +51,26 @@ export const AppBarContextProvider = (props: any) => {
     }
   }, [data]);
 
-  const toggleDrawer = () => setOpenDrawer(!openDrawer);
+  useEffect(() => {
+    localStorage.setItem('desktopDrawerOpen', String(openDesktopDrawer));
+  }, [openDesktopDrawer]);
+
+  const toggleMiniDrawer = () => setOpenMiniDrawer(!openMiniDrawer);
+  const toggleDesktopDrawer = () => setOpenDesktopDrawer(!openDesktopDrawer);
+
   const toggleSearch = () => {
-    setOpenDrawer(false);
+    setOpenMiniDrawer(false);
     setOpenEdit(false);
     setOpenSearch(!openSearch);
   };
   const toggleFilter = () => {
-    setOpenDrawer(false);
+    setOpenMiniDrawer(false);
     setOpenEdit(false);
     setOpenFilter(!openFilter);
   };
 
   const toggleEdit = () => {
-    setOpenDrawer(false);
+    setOpenMiniDrawer(false);
     setOpenEdit(!openEdit);
   };
 
@@ -86,8 +99,10 @@ export const AppBarContextProvider = (props: any) => {
   return (
     <AppBarContext.Provider
       value={{
-        openDrawer: openDrawer,
-        toggleDrawer: toggleDrawer,
+        openMiniDrawer: openMiniDrawer,
+        toggleMiniDrawer: toggleMiniDrawer,
+        openDesktopDrawer: openDesktopDrawer,
+        toggleDesktopDrawer: toggleDesktopDrawer,
         openSearch: openSearch,
         toggleSearch: toggleSearch,
         openFilter: openFilter,

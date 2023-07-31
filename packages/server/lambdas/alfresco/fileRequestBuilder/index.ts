@@ -1,9 +1,9 @@
 import { AlfrescoFileRequestBuilder } from './alfrescoRequestBuilder';
 import { AlfrescoFolderRequestBuilder } from './alfrescoRequestBuilder';
 import { FileStore } from './types';
-import { ALBEvent } from 'aws-lambda';
+import { ALBEvent, ALBEventHeaders } from 'aws-lambda';
 
-export const fileRequestBuilder = (event: ALBEvent, headers: HeadersInit, store = FileStore.ALFRESCO) => {
+export const fileRequestBuilder = (event: ALBEvent, headers: ALBEventHeaders, store = FileStore.ALFRESCO) => {
   switch (store) {
     case FileStore.ALFRESCO:
       const alfrescoRequestBuilder = new AlfrescoFileRequestBuilder();

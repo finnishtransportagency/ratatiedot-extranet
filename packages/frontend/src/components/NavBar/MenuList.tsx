@@ -12,13 +12,13 @@ import { useTranslation } from 'react-i18next';
 
 export const MenuList = () => {
   const { t } = useTranslation(['common']);
-  const { openDrawer, toggleDrawer } = useContext(AppBarContext);
+  const { openMiniDrawer, toggleDesktopDrawer, openDesktopDrawer } = useContext(AppBarContext);
   const { menu, menuItems, menuHandler } = useContext(MenuContext);
 
   const categoryHandler = (key: string) => {
     menuHandler(key);
-    if (!openDrawer) {
-      toggleDrawer();
+    if (!openDesktopDrawer) {
+      toggleDesktopDrawer();
     }
   };
   const { pathname } = useLocation();
@@ -60,7 +60,7 @@ export const MenuList = () => {
                 <ListItemText
                   primary={primary}
                   sx={{
-                    opacity: openDrawer ? 1 : 0,
+                    opacity: openDesktopDrawer || openMiniDrawer ? 1 : 0,
                     '.MuiListItemText-primary': {
                       fontFamily: selected ? 'Exo2-Bold' : 'Exo2-Regular',
                     },

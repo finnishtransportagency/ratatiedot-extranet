@@ -35,10 +35,14 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
 
   const enterSearch = (event: React.KeyboardEvent) => {
     if (event.code === 'Enter' && query) {
-      SearchStorage.add(KeyEnum.RECENT_SEARCHES, query);
-      closeSearch();
-      navigate(`${Routes.SEARCH_RESULT}?query=${query}`);
+      search();
     }
+  };
+
+  const search = () => {
+    SearchStorage.add(KeyEnum.RECENT_SEARCHES, query);
+    closeSearch();
+    navigate(`${Routes.SEARCH_RESULT}?query=${query}`);
   };
 
   const openRecentSearch = () => !openSearch && toggleSearch();
@@ -112,7 +116,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
         />
       </>
       {openSearch && !openFilter && <RecentSearch exitSearch={exitSearch} />}
-      <FilterSearch />
+      <FilterSearch filtersApplied={() => search()} />
     </>
   );
 };

@@ -3,7 +3,8 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Box, Button } from '@mui/material';
+import { Alert, Box, Button } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 
 import { ContentWrapper, ContainerWrapper } from './index.styles';
 import { NavBar } from '../../components/NavBar';
@@ -12,15 +13,14 @@ import { AppBarContext } from '../../contexts/AppBarContext';
 import { SlateInputField } from '../../components/Editor/SlateInputField';
 import { EditorContext } from '../../contexts/EditorContext';
 import { isSlateValueEmpty } from '../../utils/slateEditorUtil';
-import { FileUploadDialogButton } from '../../components/Files/FileUploadDialogButton';
-import { useLocation } from 'react-router-dom';
 import { CategoryFiles } from '../../components/Files/CategoryFiles';
 import { getCategoryRouteName } from '../../routes';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
 import { DesktopAppBar } from '../../components/NavBar/DesktopAppBar';
 import { PageTitle } from '../../components/Typography/PageTitle';
 import { ProtectedContainerWrapper } from '../../styles/common';
+import { CategoryDataContext } from '../../contexts/CategoryDataContext';
 
 type Props = {
   children: React.ReactElement;
@@ -32,7 +32,8 @@ export const ProtectedPage = ({ children }: Props) => {
   const { t } = useTranslation(['common']);
   const { openEdit, openToolbar } = useContext(AppBarContext);
   const { value } = useContext(EditorContext);
-  const { favoriteCategories, addFavoriteHandler, removeFavoriteHandler, fileUploadDisabled } = useContext(MenuContext);
+  const { favoriteCategories, addFavoriteHandler, removeFavoriteHandler } = useContext(MenuContext);
+  const { hasConfidentialContent } = useContext(CategoryDataContext);
   const location = useLocation();
   const categoryRouteName = getCategoryRouteName(location);
 
@@ -71,7 +72,19 @@ export const ProtectedPage = ({ children }: Props) => {
         <DesktopAppBar />
         <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
           <PageTitle routerName={categoryRouteName} />
-          {isEditorOpened && !fileUploadDisabled && <FileUploadDialogButton categoryName={categoryRouteName} />}
+          {hasConfidentialContent && (
+            <ProtectedContainerWrapper>
+              <Alert severity="warning">
+                <Trans
+                  i18nKey="common:warning.confidential"
+                  t={t}
+                  components={[
+                    <a href="https://www.finlex.fi/fi/laki/ajantasa/1999/19990621" target="_blank" rel="noreferrer" />,
+                  ]}
+                />
+              </Alert>
+            </ProtectedContainerWrapper>
+          )}
           {categoryRouteName ? isFavorite ? <RemoveFavoriteButton /> : <AddFavoriteButton /> : <></>}
           {isEditorOpened && <SlateInputField />}
           {children}

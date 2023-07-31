@@ -8,12 +8,15 @@ import { useTranslation } from 'react-i18next';
 import { TNode } from '../../types/types';
 import { Typography } from '@mui/material';
 import { Colors } from '../../constants/Colors';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { FileDeleteDialogButton } from './FileDeleteDialogButton';
 import { useLocation } from 'react-router-dom';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { getCategoryRouteName } from '../../routes';
 import { MenuContext } from '../../contexts/MenuContext';
+import { CategoryDataContext } from '../../contexts/CategoryDataContext';
+import { FileUploadDialogButton } from './FileUploadDialogButton';
+import styled from '@emotion/styled';
 
 type TCategoryFilesProps = {
   childFolderName?: string;
@@ -31,10 +34,11 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   const [hasMoreItems, setHasMoreItems] = useState(false);
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
   const categoryName = getCategoryRouteName(location);
-  const [hasClassifiedContent, setHasClassifiedContent] = useState(true);
 
   const { openEdit, openToolbar } = useContext(AppBarContext);
-  const { fileUploadDisabledHandler } = useContext(MenuContext);
+  const { fileUploadDisabled, fileUploadDisabledHandler } = useContext(MenuContext);
+  const { hasConfidentialContentHandler, hasClassifiedContentHandler, hasClassifiedContent } =
+    useContext(CategoryDataContext);
 
   const isEditOpen = openEdit || openToolbar;
 
@@ -46,13 +50,14 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
       const response = await axios.get(
         `/api/alfresco/files?category=${categoryName}${childFolderNameQuery}${nestedFolderIdQuery}&page=${page}`,
       );
-      const { data, hasClassifiedContent } = response.data;
+      const { data, hasClassifiedContent, hasConfidentialContent } = response.data;
       const totalFiles = get(data, 'list.entries', []);
       const totalItems = get(data, 'list.pagination.totalItems', 0);
       const hasMoreItems = get(data, 'list.pagination.hasMoreItems', false);
 
-      setHasClassifiedContent(hasClassifiedContent);
       fileUploadDisabledHandler(hasClassifiedContent);
+      hasClassifiedContentHandler(hasClassifiedContent);
+      hasConfidentialContentHandler(hasConfidentialContent);
 
       setFileList((f) => {
         return page > 0 ? [...f, ...totalFiles] : [...totalFiles];
@@ -99,28 +104,48 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
     }
   };
 
+  const addFile = (node: TNode) => {
+    setFileList((currentFileList) => [...currentFileList, node]);
+    setTotalFiles((currentTotalFiles) => currentTotalFiles + 1);
+  };
+
   if (error) return <ErrorMessage error={error} />;
 
   return (
     <ProtectedContainerWrapper>
-      {isEditOpen && !hasClassifiedContent && (
-        <FileDeleteDialogButton
-          categoryName={categoryName}
-          disabled={!selectedFile}
-          node={selectedFile}
-          onDelete={(e) => {
-            deleteFile(e.node);
-          }}
-        ></FileDeleteDialogButton>
-      )}
+      <GroupedFileButtonsWrapper>
+        {isEditOpen && !fileUploadDisabled && (
+          <FileUploadDialogButton
+            categoryName={categoryName}
+            nestedFolderId={nestedFolderId}
+            onUpload={(response: AxiosResponse) => {
+              const node = response.data.body;
+              addFile(node);
+            }}
+          />
+        )}
+        {isEditOpen && !hasClassifiedContent && (
+          <FileDeleteDialogButton
+            categoryName={categoryName}
+            disabled={!selectedFile}
+            node={selectedFile}
+            onDelete={(e) => {
+              deleteFile(e.node);
+            }}
+          ></FileDeleteDialogButton>
+        )}
+      </GroupedFileButtonsWrapper>
 
       {fileList.map((node: TNode, index: number) => (
         <NodeItem
-          onFileClick={(node) => handleNodeClick(node)}
+          onFileClick={(node) => {
+            handleNodeClick(node);
+          }}
           key={index}
           row={index}
           node={node}
           isSelected={isSelected(node)}
+          isStatic={node.entry.isFile || node.entry.isFolder}
         />
       ))}
       {loading ? (
@@ -138,3 +163,9 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
     </ProtectedContainerWrapper>
   );
 };
+
+const GroupedFileButtonsWrapper = styled('div')(() => ({
+  display: 'flex',
+  marginBottom: '30px',
+  justifyContent: 'space-between',
+}));
