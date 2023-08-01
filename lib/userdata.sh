@@ -29,6 +29,9 @@ nvm -v
 node -v
 npm -v
 
+sudo ln -s /home/ec2-user/.nvm/versions/node/v16.20.0/bin/node /usr/bin/node
+sudo ln -s /home/ec2-user/.nvm/versions/node/v16.20.0/bin/npm /usr/bin/npm
+
 cd $HOME/source/packages/node-server
 
 npm ci
