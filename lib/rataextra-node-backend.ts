@@ -100,7 +100,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const init = CloudFormationInit.fromConfigSets({
       configSets: {
         // Applies the configs below in this order
-        default: ['getSource', 'loggingSetup', 'nodeInstall', 'signalSuccess'],
+        default: ['getSource', 'loggingSetup', 'signalSuccess'],
       },
       configs: {
         getSource: new InitConfig([
@@ -121,11 +121,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
             'sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/home/ec2-user/cloudwatch-agent-config.json',
           ),
         ]),
-        /* nodeInstall: new InitConfig([
-          InitFile.fromString('/home/ec2-user/userdata.sh', userDataScript),
-          InitCommand.shellCommand('chmod +x /home/ec2-user/userdata.sh'),
-          InitCommand.shellCommand('cd /home/ec2-user && ./userdata.sh'),
-        ]), */
         // TODO: Should be redundant, but this or the other isn't running
         signalSuccess: new InitConfig([
           InitCommand.shellCommand(
