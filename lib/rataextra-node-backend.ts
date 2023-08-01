@@ -166,7 +166,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       },
     });
     // Hack to replace old instance by modifying asg init configuration file.
-    autoScalingGroup.userData.addCommands(`# instance created at: ${new Date()}`);
+    autoScalingGroup.addUserData(`# instance created at: ${new Date()}`);
     autoScalingGroup.addUserData(userDataScript);
 
     return autoScalingGroup;
