@@ -33,4 +33,5 @@ cd $HOME/source/packages/node-server
 
 npm ci
 npm run build
-su -u ec2-user npm run start & echo npm running
+sudo -u ec2-user which nvm
+sudo -u ec2-user npm run start & echo npm running
