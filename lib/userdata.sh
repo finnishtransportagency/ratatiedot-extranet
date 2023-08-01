@@ -36,5 +36,5 @@ cd $HOME/source/packages/node-server
 
 npm ci
 npm run build
-sudo -u ec2-user npm run start &
+sudo -u ec2-user npm run start --verbose
 echo npm running
