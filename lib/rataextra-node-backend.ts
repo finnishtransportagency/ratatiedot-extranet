@@ -80,16 +80,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
         actions: ['logs:PutRetentionPolicy'],
       }),
     );
-    const userDataScript = readFileSync('./lib/userdata.sh', 'utf8')
-      .replace('{rataExtraEnv}', rataExtraEnv)
-      .replace('{SSM_DATABASE_NAME}', SSM_DATABASE_NAME)
-      .replace('{SSM_DATABASE_DOMAIN}', SSM_DATABASE_DOMAIN)
-      .replace('{SSM_DATABASE_PASSWORD}', SSM_DATABASE_PASSWORD)
-      .replace('{alfrescoAPIKey}', alfrescoAPIKey)
-      .replace('{alfrescoAPIUrl}', alfrescoAPIUrl)
-      .replace('{alfrescoAncestor}', alfrescoAncestor)
-      .replace('{jwtTokenIssuer}', jwtTokenIssuer)
-      .replace('{mockUid}', mockUid || '');
+    const userDataScript = readFileSync('./lib/userdata.sh', 'utf8');
 
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
       vpc,
@@ -165,9 +156,11 @@ export class RatatietoNodeBackendConstruct extends Construct {
         healthyThresholdCount: 2,
       },
     });
+
+    autoScalingGroup.addUserData(userDataScript);
+
     // Hack to replace old instance by modifying asg init configuration file.
     autoScalingGroup.addUserData(`# instance created at: ${new Date()}`);
-    autoScalingGroup.addUserData(userDataScript);
 
     return autoScalingGroup;
   }
