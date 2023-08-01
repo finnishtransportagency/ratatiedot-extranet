@@ -19,19 +19,19 @@ echo "Current date and time: $current_date_time"
 
 export HOME=/home/ec2-user
 
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+sudo -u ec2-user curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/nvm.sh" ] && sudo -u ec2-user \. "$NVM_DIR/nvm.sh"
 
-nvm install v16.20.0
-nvm use v16.20.0
-nvm -v
-node -v
-npm -v
+sudo -u ec2-user nvm install v16.20.0
+sudo -u ec2-user nvm use v16.20.0
+sudo -u ec2-user nvm -v
+sudo -u ec2-user node -v
+sudo -u ec2-user npm -v
 
 cd $HOME/source/packages/node-server
 
-npm ci
-npm run build
+sudo -u ec2-user npm ci
+sudo -u ec2-user npm run build
 sudo -u ec2-user which nvm
 sudo -u ec2-user npm run start & echo npm running
