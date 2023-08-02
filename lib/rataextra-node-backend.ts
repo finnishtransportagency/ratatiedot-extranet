@@ -166,7 +166,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v16.20.0/bin/node /usr/bin/node');
     autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v16.20.0/bin/npm /usr/bin/npm');
     autoScalingGroup.addUserData('exec >> /var/log/nodeserver/logs.log 2>&1');
-    autoScalingGroup.addUserData('cd /home/ec2-user/source/packages/node-server && npm run start');
+    autoScalingGroup.addUserData('cd /home/ec2-user/source/packages/node-server && sudo -u ec2-user npm run start');
 
     return autoScalingGroup;
   }
