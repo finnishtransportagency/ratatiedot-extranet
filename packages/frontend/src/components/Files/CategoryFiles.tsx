@@ -72,11 +72,6 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   }, [categoryName, page]);
 
   useEffect(() => {
-    setPage(0); // Reset page to 0 for saving file in development
-    getCategoryFiles();
-  }, []);
-
-  useEffect(() => {
     getCategoryFiles();
   }, [page]);
 
