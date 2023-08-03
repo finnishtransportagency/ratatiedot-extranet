@@ -56,7 +56,7 @@ export const NodeItem = ({
   const title = entry.properties?.['cm:title'];
   const contentMimeType = get(content, 'mimeType', '');
   const contentSizeInBytes = get(content, 'sizeInBytes', 0);
-  const { REACT_APP_ALFRESCO_DOWNLOAD_URL } = process.env;
+  const { REACT_APP_ALFRESCO_DOWNLOAD_URL } = import.meta.env;
   const { openEdit, openToolbar } = useContext(AppBarContext);
 
   const isEditOpen = openEdit || openToolbar;
