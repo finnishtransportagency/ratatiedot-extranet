@@ -80,16 +80,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
         actions: ['logs:PutRetentionPolicy'],
       }),
     );
-    const userDataScript = readFileSync('./lib/userdata.sh', 'utf8')
-      .replace('{rataExtraEnv}', rataExtraEnv)
-      .replace('{SSM_DATABASE_NAME}', SSM_DATABASE_NAME)
-      .replace('{SSM_DATABASE_DOMAIN}', SSM_DATABASE_DOMAIN)
-      .replace('{SSM_DATABASE_PASSWORD}', SSM_DATABASE_PASSWORD)
-      .replace('{alfrescoAPIKey}', alfrescoAPIKey)
-      .replace('{alfrescoAPIUrl}', alfrescoAPIUrl)
-      .replace('{alfrescoAncestor}', alfrescoAncestor)
-      .replace('{jwtTokenIssuer}', jwtTokenIssuer)
-      .replace('{mockUid}', mockUid || '');
+    const userDataScript = readFileSync('./lib/userdata.sh', 'utf8');
 
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
       vpc,
@@ -167,6 +158,13 @@ export class RatatietoNodeBackendConstruct extends Construct {
     });
     // Hack to replace old instance by modifying asg init configuration file.
     autoScalingGroup.addUserData(`# instance created at: ${new Date()}`);
+    autoScalingGroup.addUserData(
+      `export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "MOCK_UID=${mockUid}"`,
+    );
+    autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v16.20.0/bin/node /usr/bin/node');
+    autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v16.20.0/bin/npm /usr/bin/npm');
+    autoScalingGroup.addUserData('exec >> /var/log/nodeserver/logs.log 2>&1');
+    autoScalingGroup.addUserData('cd /home/ec2-user/source/packages/node-server && su ec2-user -c "npm run start"');
 
     return autoScalingGroup;
   }
