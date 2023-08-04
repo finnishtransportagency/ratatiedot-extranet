@@ -88,9 +88,10 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
       .map((word: string) => `${word}*`);
 
     const contentSearchQuery = wildcardTerms.map((term: string) => `TEXT:"${term}"`).join(' AND ');
-    const basicSearchQuery = wildcardTerms.map((term: string) => `@cm\\:name:"${term}"`).join(' AND ');
+    const fileNameSearchQuery = wildcardTerms.map((term: string) => `@cm\\:name:"${term}"`).join(' AND ');
+    const fileTitleSearchQuery = wildcardTerms.map((term: string) => `@cm\\:title:"${term}"`).join(' AND ');
 
-    const extendedSearchQuery = `+(${contentSearchQuery} OR ${basicSearchQuery})`;
+    const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
 
     return parameter.contentSearch
       ? `+(${contentSearchQuery})${fileType}${defaultPathQuery}`
