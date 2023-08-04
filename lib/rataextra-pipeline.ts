@@ -39,7 +39,7 @@ export class RataExtraPipelineStack extends Stack {
         input: github,
         installCommands: ['npm run ci --user=root'],
         commands: [
-          `REACT_APP_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} npm run build:frontend`,
+          `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} npm run build:frontend`,
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
         ],
       }),
