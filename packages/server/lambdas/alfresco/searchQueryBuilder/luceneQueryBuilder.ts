@@ -1,4 +1,5 @@
 import { format, set } from 'date-fns';
+import { devLog } from '../../../utils/logger';
 import { SearchQueryBuilder } from './searchQueryBuilder';
 import {
   IMimeSearchParameter,
@@ -82,16 +83,16 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   buildNameQuery(parameter: INameSearchParameter): string {
     const fileType = '+TYPE:"cm:content"';
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
-    const wildcardTerms = parameter.term
-      .toLowerCase()
-      .split(' ')
-      .map((word: string) => `${word}*`);
+    const terms = parameter.term.toLowerCase().split(' ');
+    const wildcardTerms = terms.map((word: string) => `${word}*`);
 
     const contentSearchQuery = wildcardTerms.map((term: string) => `TEXT:"${term}"`).join(' AND ');
     const fileNameSearchQuery = wildcardTerms.map((term: string) => `@cm\\:name:"${term}"`).join(' AND ');
     const fileTitleSearchQuery = wildcardTerms.map((term: string) => `@cm\\:title:"${term}"`).join(' AND ');
 
     const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
+    devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
+    devLog.debug(`PARAMETER: ${parameter}`);
 
     return parameter.contentSearch
       ? `+(${contentSearchQuery})${fileType}${defaultPathQuery}`
