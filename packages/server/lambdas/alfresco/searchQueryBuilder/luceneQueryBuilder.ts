@@ -84,11 +84,17 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const fileType = '+TYPE:"cm:content"';
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
     const terms = parameter.term.toLowerCase().split(' ');
-    const wildcardTerms = terms.map((word: string) => `${word}*`);
 
-    const contentSearchQuery = `TEXT:(${wildcardTerms.join(' AND ')})`;
-    const fileNameSearchQuery = `@cm\\:name:(${wildcardTerms.join(' AND ')})`;
-    const fileTitleSearchQuery = `@cm\\:title:(${wildcardTerms.join(' AND ')})`;
+    let contentSearchQuery = `TEXT:(${terms.join(' AND ')})`;
+    let fileNameSearchQuery = `@cm\\:name:(${terms.join(' AND ')})`;
+    let fileTitleSearchQuery = `@cm\\:title:(${terms.join(' AND ')})`;
+
+    // Use wildcard if term has only one word
+    if (terms.length === 1) {
+      contentSearchQuery = `TEXT:"${terms[0]}*"`;
+      fileNameSearchQuery = `@cm\\:name:"${terms[0]}*"`;
+      fileTitleSearchQuery = `@cm\\:title:"${terms[0]}*"`;
+    }
 
     const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
     devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
