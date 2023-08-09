@@ -46,6 +46,7 @@ export type Paging = {
 };
 
 export enum AdditionalFields {
+  TITLE = 'cm:title',
   PROPERTIES = 'properties',
 }
 
