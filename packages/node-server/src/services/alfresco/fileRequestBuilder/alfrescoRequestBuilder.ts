@@ -18,23 +18,21 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   formData.append('filedata', fileData, { filename: fileInfo.filename });
   formData.append('name', fileInfo.filename);
   formData.append('nodeType', 'cm:content');
-  console.log('fileInfo.filename: ', fileInfo.filename);
-  console.log('requestFormData: ', requestFormData);
   if (description) formData.append('cm:description', description);
   if (title) formData.append('cm:title', title);
   return formData;
 };
 
 const parseForm = (reqFile: Express.Multer.File, body: Record<string, string | undefined>): ParsedFormDataOptions => {
-  console.log('body.name: ', body.name);
-  console.log('reqFile.name: ', reqFile.originalname);
   // convert the filename to utf-8 since latin1 preserves individual bytes
   const filename = Buffer.from(body.name, 'latin1').toString('utf8');
+  const originalname = Buffer.from(reqFile.originalname, 'latin1').toString('utf8');
+
   const form = {
     filedata: reqFile.buffer,
     fieldname: reqFile.fieldname,
     fileinfo: {
-      filename,
+      filename: originalname,
       encoding: reqFile.encoding,
       mimeType: reqFile.mimetype,
     },
@@ -46,6 +44,16 @@ const parseForm = (reqFile: Express.Multer.File, body: Record<string, string | u
   }
   if (title) {
     form['cm:title'] = title;
+  }
+  // User has changed the filename, check if file extension is intact and append it if needed
+  if (filename !== originalname) {
+    const fileExtension = originalname.substring(originalname.lastIndexOf('.'));
+    const dotIndex = filename.lastIndexOf('.');
+    if (dotIndex !== -1) {
+      form.fileinfo.filename = filename.substring(0, dotIndex).trim() + fileExtension;
+    } else {
+      form.fileinfo.filename = filename.trim() + fileExtension;
+    }
   }
   return form;
 };
