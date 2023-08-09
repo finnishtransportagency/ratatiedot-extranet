@@ -23,7 +23,7 @@ const searchByTerm = async (uid: string, body: QueryRequest) => {
       page: body.page,
       language: body.language,
       sort: body.sort,
-      additionalFields: [AdditionalFields.TITLE],
+      additionalFields: [AdditionalFields.PROPERTIES],
     });
     log.debug(bodyRequest, 'Complete body request');
     const alfrescoSearchAPIUrl = alfrescoSearchApiVersion;
