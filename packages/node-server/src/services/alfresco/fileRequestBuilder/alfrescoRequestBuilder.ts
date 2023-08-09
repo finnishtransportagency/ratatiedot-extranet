@@ -20,22 +20,21 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   formData.append('nodeType', 'cm:content');
   console.log('fileInfo.filename: ', fileInfo.filename);
   console.log('requestFormData: ', requestFormData);
-  console.log('requestFormData.name: ', requestFormData.name);
   if (description) formData.append('cm:description', description);
   if (title) formData.append('cm:title', title);
   return formData;
 };
 
 const parseForm = (reqFile: Express.Multer.File, body: Record<string, string | undefined>): ParsedFormDataOptions => {
+  console.log('body.name: ', body.name);
+  console.log('reqFile.name: ', reqFile.originalname);
   // convert the filename to utf-8 since latin1 preserves individual bytes
-  reqFile.originalname = Buffer.from(reqFile.originalname, 'latin1').toString('utf8');
-  console.log('reqFile: ', reqFile);
-  console.log('reqFile.name: ', reqFile.name);
+  const filename = Buffer.from(body.name, 'latin1').toString('utf8');
   const form = {
     filedata: reqFile.buffer,
     fieldname: reqFile.fieldname,
     fileinfo: {
-      filename: reqFile.originalname,
+      filename,
       encoding: reqFile.encoding,
       mimeType: reqFile.mimetype,
     },
