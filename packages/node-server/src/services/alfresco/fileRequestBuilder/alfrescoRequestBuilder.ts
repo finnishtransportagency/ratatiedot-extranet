@@ -25,11 +25,11 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
 
 const parseForm = (reqFile: Express.Multer.File, body: Record<string, string | undefined>): ParsedFormDataOptions => {
   // convert the filename to utf-8 since latin1 preserves individual bytes
-  const filename = Buffer.from(body.name, 'latin1').toString('utf8');
+  const filename = body.name;
   const originalname = Buffer.from(reqFile.originalname, 'latin1').toString('utf8');
 
   console.log('originalname utf8: ', originalname);
-  console.log('filename utf8: ', filename);
+  console.log('filename: ', filename);
 
   const form = {
     filedata: reqFile.buffer,
