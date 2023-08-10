@@ -88,11 +88,11 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     // relevance level of matching documents based on the terms found
     // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
     // https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Boosting%20a%20Term
-    const relevanceBoost = { text: 1, name: 1.5, title: 1.5 };
+    const relevanceBoost = { text: 1, name: 4, title: 4 };
 
-    const contentSearchQuery = `TEXT:("${searchTerm}"~20)^${relevanceBoost.text}`;
-    const fileNameSearchQuery = `@cm\\:name:("${searchTerm}"~20)^${relevanceBoost.name}`;
-    const fileTitleSearchQuery = `@cm\\:title:("${searchTerm}~20)^${relevanceBoost.title}`;
+    const contentSearchQuery = `TEXT:(*${searchTerm}*~2)^${relevanceBoost.text}`;
+    const fileNameSearchQuery = `@cm\\:name:(*${searchTerm.split(' ').join('*')}*~6)^${relevanceBoost.name}`;
+    const fileTitleSearchQuery = `@cm\\:title:(*${searchTerm.split(' ').join('*')}*~6)^${relevanceBoost.title}`;
 
     const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
     devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
