@@ -83,16 +83,16 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   buildNameQuery(parameter: INameSearchParameter): string {
     const fileType = '+TYPE:"cm:content"';
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
-    const terms = parameter.term.toLowerCase().split(' ');
+    const searchTerm = parameter.term;
 
     // relevance level of matching documents based on the terms found
     // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
     // https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Boosting%20a%20Term
     const relevanceBoost = { text: 1, name: 1.5, title: 1.5 };
 
-    const contentSearchQuery = `TEXT:(*${terms.join('~*')}~*)^${relevanceBoost.text}`;
-    const fileNameSearchQuery = `@cm\\:name:(*${terms.join('~*')}~*)^${relevanceBoost.name}`;
-    const fileTitleSearchQuery = `@cm\\:title:(*${terms.join('~*')}~*)^${relevanceBoost.title}`;
+    const contentSearchQuery = `TEXT:("${searchTerm}"~20)^${relevanceBoost.text}`;
+    const fileNameSearchQuery = `@cm\\:name:("${searchTerm}"~20)^${relevanceBoost.name}`;
+    const fileTitleSearchQuery = `@cm\\:title:("${searchTerm}~20)^${relevanceBoost.title}`;
 
     const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
     devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
