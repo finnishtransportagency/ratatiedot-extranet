@@ -85,16 +85,14 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
     const terms = parameter.term.toLowerCase().split(' ');
 
-    let contentSearchQuery = `TEXT:(${terms.join(' AND ')})`;
-    let fileNameSearchQuery = `@cm\\:name:(${terms.join(' AND ')})`;
-    let fileTitleSearchQuery = `@cm\\:title:(${terms.join(' AND ')})`;
+    // relevance level of matching documents based on the terms found
+    // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
+    // https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Boosting%20a%20Term
+    const relevanceBoost = { text: 1, name: 1.5, title: 1.5 };
 
-    // Use wildcard if term has only one word
-    if (terms.length === 1) {
-      contentSearchQuery = `TEXT:"${terms[0]}*"`;
-      fileNameSearchQuery = `@cm\\:name:"${terms[0]}*"`;
-      fileTitleSearchQuery = `@cm\\:title:"${terms[0]}*"`;
-    }
+    const contentSearchQuery = `TEXT:(*${terms.join('~*')}~*)^${relevanceBoost.text}`;
+    const fileNameSearchQuery = `@cm\\:name:(*${terms.join('~*')}~*)^${relevanceBoost.name}`;
+    const fileTitleSearchQuery = `@cm\\:title:(*${terms.join('~*')}~*)^${relevanceBoost.title}`;
 
     const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
     devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
