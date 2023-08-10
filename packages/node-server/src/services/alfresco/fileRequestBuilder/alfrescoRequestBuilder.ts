@@ -29,6 +29,7 @@ const parseForm = (reqFile: Express.Multer.File, body: Record<string, string | u
   const originalname = Buffer.from(reqFile.originalname, 'latin1').toString('utf8');
 
   console.log('originalname utf8: ', originalname);
+  console.log('filename utf8: ', filename);
 
   const form = {
     filedata: reqFile.buffer,
@@ -40,7 +41,6 @@ const parseForm = (reqFile: Express.Multer.File, body: Record<string, string | u
     },
   };
 
-  console.log('form.fileinfo.filename: ', form.fileinfo.filename);
   const description = body['cm:description'];
   const title = body['cm:title'];
   if (description) {
@@ -55,12 +55,16 @@ const parseForm = (reqFile: Express.Multer.File, body: Record<string, string | u
     const dotIndex = filename.lastIndexOf('.');
     if (dotIndex !== -1) {
       const newFileName = filename.substring(0, dotIndex).trim() + fileExtension;
-      form.fileinfo.filename = Buffer.from(newFileName, 'latin1').toString('utf8');
+      console.log('newFilename: ', newFileName);
+      form.fileinfo.filename = newFileName;
     } else {
       const newFileName = filename.trim() + fileExtension;
-      form.fileinfo.filename = Buffer.from(newFileName, 'latin1').toString('utf8');
+      console.log('newFilename: ', newFileName);
+      form.fileinfo.filename = newFileName;
     }
   }
+
+  console.log('form: ', form);
   return form;
 };
 
