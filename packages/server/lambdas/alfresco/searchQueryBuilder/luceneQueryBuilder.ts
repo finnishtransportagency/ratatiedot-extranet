@@ -91,8 +91,8 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const relevanceBoost = { text: 1, name: 4, title: 4 };
 
     const contentSearchQuery = `TEXT:(*${searchTerm}*~2)^${relevanceBoost.text}`;
-    const fileNameSearchQuery = `@cm\\:name:(*${searchTerm.split(' ').join('*')}*~6)^${relevanceBoost.name}`;
-    const fileTitleSearchQuery = `@cm\\:title:(*${searchTerm.split(' ').join('*')}*~6)^${relevanceBoost.title}`;
+    const fileNameSearchQuery = `@cm\\:name:(*${searchTerm}*~6)^${relevanceBoost.name}`;
+    const fileTitleSearchQuery = `@cm\\:title:(*${searchTerm}*~6)^${relevanceBoost.title}`;
 
     const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
     devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
