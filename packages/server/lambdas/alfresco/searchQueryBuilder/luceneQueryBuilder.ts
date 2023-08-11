@@ -90,9 +90,9 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     // https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Boosting%20a%20Term
     const relevanceBoost = { text: 1, name: 4, title: 4 };
 
-    const contentSearchQuery = `TEXT:(*${searchTerm}*~2)^${relevanceBoost.text}`;
-    const fileNameSearchQuery = `@cm\\:name:(*${searchTerm}*~6)^${relevanceBoost.name}`;
-    const fileTitleSearchQuery = `@cm\\:title:(*${searchTerm}*~6)^${relevanceBoost.title}`;
+    const contentSearchQuery = `TEXT:(${searchTerm}~6)^${relevanceBoost.text}`;
+    const fileNameSearchQuery = `@cm\\:name:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.name}`;
+    const fileTitleSearchQuery = `@cm\\:title:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.title}`;
 
     const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
     devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
