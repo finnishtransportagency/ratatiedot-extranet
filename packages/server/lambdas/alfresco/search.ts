@@ -7,6 +7,7 @@ import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { searchQueryBuilder } from './searchQueryBuilder';
 import {
+  AdditionalFields,
   IAncestorSearchParameter,
   ICategorySearchParameter,
   QueryRequest,
@@ -22,6 +23,7 @@ const searchByTerm = async (uid: string, body: QueryRequest) => {
       page: body.page,
       language: body.language,
       sort: body.sort,
+      additionalFields: [AdditionalFields.PROPERTIES],
     });
     log.debug(bodyRequest, 'Complete body request');
     const alfrescoSearchAPIUrl = alfrescoSearchApiVersion;

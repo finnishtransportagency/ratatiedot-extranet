@@ -1,4 +1,5 @@
 import { format, set } from 'date-fns';
+import { devLog } from '../../../utils/logger';
 import { SearchQueryBuilder } from './searchQueryBuilder';
 import {
   IMimeSearchParameter,
@@ -82,15 +83,20 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   buildNameQuery(parameter: INameSearchParameter): string {
     const fileType = '+TYPE:"cm:content"';
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
-    const wildcardTerms = parameter.term
-      .toLowerCase()
-      .split(' ')
-      .map((word: string) => `${word}*`);
+    const searchTerm = parameter.term;
 
-    const contentSearchQuery = wildcardTerms.map((term: string) => `TEXT:"${term}"`).join(' AND ');
-    const basicSearchQuery = wildcardTerms.map((term: string) => `@cm\\:name:"${term}"`).join(' AND ');
+    // relevance level of matching documents based on the terms found
+    // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
+    // https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Boosting%20a%20Term
+    const relevanceBoost = { text: 1, name: 4, title: 4 };
 
-    const extendedSearchQuery = `+(${contentSearchQuery} OR ${basicSearchQuery})`;
+    const contentSearchQuery = `TEXT:(${searchTerm}~6)^${relevanceBoost.text}`;
+    const fileNameSearchQuery = `@cm\\:name:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.name}`;
+    const fileTitleSearchQuery = `@cm\\:title:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.title}`;
+
+    const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
+    devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
+    devLog.debug(`PARAMETER: ${parameter}`);
 
     return parameter.contentSearch
       ? `+(${contentSearchQuery})${fileType}${defaultPathQuery}`
