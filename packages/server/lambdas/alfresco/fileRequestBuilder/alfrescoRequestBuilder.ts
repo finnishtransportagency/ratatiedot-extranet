@@ -34,6 +34,7 @@ const createForm = (requestFormData: ParsedFormDataOptions): FormData => {
   return formData;
 };
 
+// TODO: implements requestBuilder
 export class AlfrescoFileRequestBuilder {
   public async requestBuilder(event: ALBEvent, headers: ALBEventHeaders) {
     const body = event.body ?? '';

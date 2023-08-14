@@ -31,6 +31,8 @@
     "remove_favorite": "Poista suosikeista"
   },
   "error": {
+    "401": "Puutteelliset käyttöoikeudet",
+    "403": "Pääsy estetty",
     "500": "Jokin meni pieleen!",
     "networkError": "Ei Internet-yhteyttä",
     "badRequest": "Pyynnössä tapahtui virhe"

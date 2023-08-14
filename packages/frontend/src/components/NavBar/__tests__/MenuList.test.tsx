@@ -1,13 +1,17 @@
+import { vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import renderer, { act } from 'react-test-renderer';
 import { MenuContextProvider } from '../../../contexts/MenuContext';
 import { MenuList } from '../MenuList';
 
-const mockedUsedNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedUsedNavigate,
-}));
+const mockedUsedNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...(actual as Record<string, unknown>),
+    useNavigate: () => mockedUsedNavigate,
+  };
+});
 
 test('MenuList renders properly', () => {
   render(<MenuList />);

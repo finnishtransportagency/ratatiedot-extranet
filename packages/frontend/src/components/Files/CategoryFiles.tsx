@@ -72,11 +72,6 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   }, [categoryName, page]);
 
   useEffect(() => {
-    setPage(0); // Reset page to 0 for saving file in development
-    getCategoryFiles();
-  }, []);
-
-  useEffect(() => {
     getCategoryFiles();
   }, [page]);
 
@@ -119,7 +114,7 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
             categoryName={categoryName}
             nestedFolderId={nestedFolderId}
             onUpload={(response: AxiosResponse) => {
-              const node = response.data;
+              const node = response.data.body;
               addFile(node);
             }}
           />

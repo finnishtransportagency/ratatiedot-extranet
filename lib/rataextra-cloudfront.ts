@@ -1,4 +1,4 @@
-import { NestedStack, StackProps } from 'aws-cdk-lib';
+import { Duration, NestedStack, StackProps } from 'aws-cdk-lib';
 import {
   Function,
   OriginAccessIdentity,
@@ -54,7 +54,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
     );
 
     const backendProxyBehavior: BehaviorOptions = {
-      origin: new HttpOrigin(dmzApiEndpoint),
+      origin: new HttpOrigin(dmzApiEndpoint, { readTimeout: Duration.seconds(60) }),
       cachePolicy: CachePolicy.CACHING_DISABLED,
       originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
       allowedMethods: AllowedMethods.ALLOW_ALL,
