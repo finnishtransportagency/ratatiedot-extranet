@@ -41,6 +41,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     log.info(user, `Creating new folder in page ${category}`);
     validateReadUser(user);
 
+    console.log('event.body: ', event.body);
+
     if (!category) {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
