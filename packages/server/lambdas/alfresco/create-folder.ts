@@ -15,9 +15,18 @@ const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const postFolder = async (options: AxiosRequestConfig, nodeId: string): Promise<AlfrescoResponse | undefined> => {
+export interface AxiosRequestOptions extends AxiosRequestConfig {
+  body: {
+    [key: string]: any;
+  };
+}
+
+const postFolder = async (options: AxiosRequestOptions, nodeId: string): Promise<AlfrescoResponse | undefined> => {
   const url = `${alfrescoApiVersion}/nodes/${nodeId}/children`;
-  const response = await alfrescoAxios.post(url, options);
+  const headers = {
+    ...options.headers,
+  };
+  const response = await alfrescoAxios.post(url, options.body, { headers });
   return response.data as AlfrescoResponse;
 };
 
@@ -60,7 +69,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateWriteUser(user, writeRole);
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderCreateRequestBuilder(event, headers)) as AxiosRequestConfig;
+    const requestOptions = (await folderCreateRequestBuilder(event, headers)) as AxiosRequestOptions;
 
     const alfrescoResult = await postFolder(requestOptions, categoryData.alfrescoFolder);
     if (!alfrescoResult) {
