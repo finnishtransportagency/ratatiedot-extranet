@@ -67,10 +67,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       throw new RataExtraLambdaError('Error deleting folder from Alfresco', 404);
     }
 
-    const databaseResult = await deleteComponent(nodeId);
+    // TODO at some later time
+    /* const databaseResult = await deleteComponent(nodeId);
     if (!databaseResult) {
       throw new RataExtraLambdaError('Error deleting folder from database', 404);
-    }
+    } */
 
     auditLog.info(user, `Deleted folder ${nodeId} in ${categoryData.alfrescoFolder}`);
 
