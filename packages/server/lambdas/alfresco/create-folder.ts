@@ -8,7 +8,6 @@ import { getUser, validateReadUser, validateWriteUser } from '../../utils/userSe
 import { DatabaseClient } from '../database/client';
 import { folderCreateRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
-import { createFolderComponent } from '../database/components/create-node-component';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 
@@ -18,10 +17,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 const postFolder = async (options: AxiosRequestConfig, nodeId: string): Promise<AlfrescoResponse | undefined> => {
   const url = `${alfrescoApiVersion}/nodes/${nodeId}/children`;
-  const headers = {
-    ...options.headers,
-  };
-  const response = await alfrescoAxios.post(url, options.data, { headers });
+  const response = await alfrescoAxios.post(url, options);
   return response.data as AlfrescoResponse;
 };
 
@@ -40,8 +36,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const user = await getUser(event);
     log.info(user, `Creating new folder in page ${category}`);
     validateReadUser(user);
-
-    console.log('event.body: ', event.body);
 
     if (!category) {
       throw new RataExtraLambdaError('Category missing from path', 400);
@@ -73,14 +67,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       throw new RataExtraLambdaError('Error creating folder', 500);
     }
 
-    const result = await createFolderComponent(categoryData.id, alfrescoResult);
+    // TODO at some later time
+    //const result = await createFolderComponent(categoryData.id, alfrescoResult);
 
     auditLog.info(user, `Created folder with id: ${JSON.stringify(alfrescoResult?.entry.id)}`);
 
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
-      body: JSON.stringify(result),
+      body: JSON.stringify(alfrescoResult),
     };
   } catch (err) {
     log.error(err);
