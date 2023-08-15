@@ -62,24 +62,20 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
     const requestOptions = (await folderCreateRequestBuilder(event, headers)) as AxiosRequestConfig;
-    console.log('requestOptions: ', requestOptions);
-    console.log('categoryData.alfrescoFolder: ', categoryData.alfrescoFolder);
 
     const alfrescoResult = await postFolder(requestOptions, categoryData.alfrescoFolder);
     if (!alfrescoResult) {
       throw new RataExtraLambdaError('Error creating folder', 500);
     }
 
-    console.log('alfrescoResult from folder post: ', alfrescoResult);
-
-    //const result = await createFolderComponent(categoryData.id, alfrescoResult);
+    const result = await createFolderComponent(categoryData.id, alfrescoResult);
 
     auditLog.info(user, `Created folder with id: ${JSON.stringify(alfrescoResult?.entry.id)}`);
 
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
-      body: JSON.stringify(alfrescoResult),
+      body: JSON.stringify(result),
     };
   } catch (err) {
     log.error(err);
