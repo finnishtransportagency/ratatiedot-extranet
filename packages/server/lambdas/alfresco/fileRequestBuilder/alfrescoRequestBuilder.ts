@@ -84,7 +84,7 @@ export class AlfrescoFolderRequestBuilder {
   public async post(event: ALBEvent, headers: HeadersInit) {
     const options = {
       method: 'POST',
-      body: event.body,
+      data: event.body,
       headers: headers,
     } as RequestInit;
     return options;
