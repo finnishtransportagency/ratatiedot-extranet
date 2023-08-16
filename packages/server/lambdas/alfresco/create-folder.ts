@@ -1,6 +1,6 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { auditLog, log } from '../../utils/logger';
@@ -10,6 +10,7 @@ import { folderCreateRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
+import { getFolder, isFolderInCategory } from './list-files';
 
 const database = await DatabaseClient.build();
 
@@ -40,10 +41,16 @@ const postFolder = async (options: AxiosRequestOptions, nodeId: string): Promise
 export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
   try {
     const paths = event.path.split('/');
-    const category = paths.pop();
+    const category = paths.at(4);
+    const nestedFolderId = paths.at(5);
 
     const user = await getUser(event);
-    log.info(user, `Creating new folder in page ${category}`);
+    log.info(
+      user,
+      `Creating a new folder to ${
+        nestedFolderId ? `nested folder id ${nestedFolderId} belonging to page ${category}` : `page ${category}`
+      }`,
+    );
     validateReadUser(user);
 
     if (!category) {
@@ -67,6 +74,20 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
+
+    let targetNode;
+    if (nestedFolderId) {
+      const foundFolder = await getFolder(user.uid, nestedFolderId);
+      const folderPath = get(foundFolder, 'entry.path.name', '');
+      // Check if the nest folder is a descendant of the category
+      const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
+      if (!isFolderDescendantOfCategory) {
+        throw new RataExtraLambdaError('Folder cannot be found in category', 404);
+      }
+      targetNode = nestedFolderId;
+    } else {
+      targetNode = categoryData.alfrescoFolder;
+    }
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
     const requestOptions = (await folderCreateRequestBuilder(event, headers)) as AxiosRequestOptions;
