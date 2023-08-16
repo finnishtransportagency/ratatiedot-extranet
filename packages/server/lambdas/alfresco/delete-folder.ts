@@ -65,9 +65,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const requestOptions = (await folderDeleteRequestBuilder(options.headers)) as AxiosRequestConfig;
 
-    console.log('nodes found for folder: ', JSON.stringify(nodes?.data));
-
-    const alfrescoResult = await deleteFolder(requestOptions, nodeId);
+    let alfrescoResult;
+    // If folder contains nodes, it cannot be deleted
+    if (nodes?.data.list.entries.length === 0) {
+      alfrescoResult = await deleteFolder(requestOptions, nodeId);
+    } else {
+      throw new RataExtraLambdaError('Only empty folders can be deleted', 400);
+    }
 
     // TODO at some later time
     /* const databaseResult = await deleteComponent(nodeId);
