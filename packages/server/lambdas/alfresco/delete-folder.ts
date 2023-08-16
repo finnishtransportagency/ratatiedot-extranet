@@ -58,7 +58,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       throw new RataExtraLambdaError('Folder cannot be deleted', 403);
     }
 
-    const nodes = await getNodes(nodeId, options, SearchParameterName.FOLDER);
+    const nodes = await getNodes(nodeId, options);
 
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
