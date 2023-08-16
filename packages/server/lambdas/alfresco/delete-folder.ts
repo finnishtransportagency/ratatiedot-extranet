@@ -6,7 +6,6 @@ import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderDeleteRequestBuilder } from './fileRequestBuilder';
-import { deleteComponent } from '../database/components/delete-node-component';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 
@@ -63,9 +62,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const requestOptions = (await folderDeleteRequestBuilder(headers)) as AxiosRequestConfig;
 
     const alfrescoResult = await deleteFolder(requestOptions, nodeId);
-    if (!alfrescoResult) {
-      throw new RataExtraLambdaError('Error deleting folder from Alfresco', 404);
-    }
 
     // TODO at some later time
     /* const databaseResult = await deleteComponent(nodeId);
@@ -78,6 +74,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     return {
       statusCode: 204,
       headers: { 'Content-Type:': 'application/json' },
+      body: JSON.stringify(alfrescoResult),
     };
   } catch (err) {
     log.error(err);
