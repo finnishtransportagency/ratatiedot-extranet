@@ -92,7 +92,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const headers = (await getAlfrescoOptions(user.uid)).headers;
     const requestOptions = (await folderCreateRequestBuilder(event, headers)) as AxiosRequestOptions;
 
-    const alfrescoResult = await postFolder(requestOptions, categoryData.alfrescoFolder);
+    const alfrescoResult = await postFolder(requestOptions, targetNode);
     if (!alfrescoResult) {
       throw new RataExtraLambdaError('Error creating folder', 500);
     }
