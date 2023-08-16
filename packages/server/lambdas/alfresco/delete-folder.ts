@@ -8,6 +8,8 @@ import { DatabaseClient } from '../database/client';
 import { folderDeleteRequestBuilder } from './fileRequestBuilder';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
+import { getNodes } from './list-nodes';
+import { SearchParameterName } from './searchQueryBuilder/types';
 
 const database = await DatabaseClient.build();
 
@@ -33,6 +35,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const category = paths.at(-2);
 
     const user = await getUser(event);
+    const options = await getAlfrescoOptions(user.uid);
     log.info(user, `Deleting folder from ${category}`);
     validateReadUser(user);
 
@@ -55,11 +58,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       throw new RataExtraLambdaError('Folder cannot be deleted', 403);
     }
 
+    const nodes = await getNodes(nodeId, options, SearchParameterName.FOLDER);
+
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
 
-    const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderDeleteRequestBuilder(headers)) as AxiosRequestConfig;
+    const requestOptions = (await folderDeleteRequestBuilder(options.headers)) as AxiosRequestConfig;
+
+    console.log('nodes found for folder: ', JSON.stringify(nodes?.data));
 
     const alfrescoResult = await deleteFolder(requestOptions, nodeId);
 

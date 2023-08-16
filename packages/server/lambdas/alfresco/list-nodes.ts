@@ -7,7 +7,7 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 
-const getNodes = async (id: string, options: AxiosRequestConfig, type?: string) => {
+export const getNodes = async (id: string, options: AxiosRequestConfig, type?: string) => {
   try {
     let queryParameter = '';
     if (type && type === 'folder') {
