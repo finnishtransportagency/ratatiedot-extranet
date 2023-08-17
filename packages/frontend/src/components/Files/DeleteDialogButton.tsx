@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { TNode } from '../../types/types';
 import { FileDeleteDialog, FileDeleteResponse } from './FileDeleteDialog';
+import { FolderDeleteDialog } from './FolderDeleteDialog';
 
 interface DialogButtonProps {
   categoryName: string;
@@ -15,7 +16,7 @@ interface DialogButtonProps {
   disabled?: boolean;
 }
 
-export const FileDeleteDialogButton: FunctionComponent<DialogButtonProps> = ({
+export const DeleteDialogButton: FunctionComponent<DialogButtonProps> = ({
   categoryName,
   buttonProps,
   node,
@@ -40,7 +41,15 @@ export const FileDeleteDialogButton: FunctionComponent<DialogButtonProps> = ({
       <Button disabled={disabled} variant="contained" startIcon={<DeleteIcon />} {...buttonProps} onClick={handleOpen}>
         {t('common:file.delete_selected_file')}
       </Button>
-      {node ? (
+      {node?.entry.isFolder ? (
+        <FolderDeleteDialog
+          categoryName={categoryName}
+          onClose={handleClose}
+          onDelete={handleDelete}
+          open={open}
+          node={node}
+        ></FolderDeleteDialog>
+      ) : node?.entry.isFile ? (
         <FileDeleteDialog
           categoryName={categoryName}
           onClose={handleClose}
