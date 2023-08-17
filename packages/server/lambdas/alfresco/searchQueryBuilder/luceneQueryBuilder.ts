@@ -94,13 +94,24 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const fileNameSearchQuery = `@cm\\:name:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.name}`;
     const fileTitleSearchQuery = `@cm\\:title:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.title}`;
 
-    const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
+    const extendedSearchQuery = `${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery}`;
     devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
     devLog.debug(`PARAMETER: ${parameter}`);
 
-    return parameter.contentSearch
-      ? `+(${contentSearchQuery})${fileType}${defaultPathQuery}`
-      : `${extendedSearchQuery}${fileType}${defaultPathQuery}`;
+    let searchQuery = '';
+
+    if (parameter.contentSearch) {
+      searchQuery = contentSearchQuery;
+      `+(${contentSearchQuery})${fileType}${defaultPathQuery}`;
+    } else if (parameter.nameSearch) {
+      searchQuery = fileNameSearchQuery;
+    } else if (parameter.titleSearch) {
+      searchQuery = fileTitleSearchQuery;
+    } else {
+      searchQuery = extendedSearchQuery;
+    }
+
+    return `+(${searchQuery})${fileType}${defaultPathQuery}`;
   }
 
   buildParentQuery(parameter: IParentSearchParameter) {
