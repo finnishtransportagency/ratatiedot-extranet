@@ -29,7 +29,8 @@
     "filter": "Suodata",
     "search_site": "Etsi sivustolta",
     "add_favorite": "Lisää suosikkeihin",
-    "remove_favorite": "Poista suosikeista"
+    "remove_favorite": "Poista suosikeista",
+    "delete_selected": "Poista valittu"
   },
   "error": {
     "401": "Puutteelliset käyttöoikeudet",
@@ -50,7 +51,7 @@
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
     "add_file": "Lisää tiedosto",
     "delete_file": "Poista tiedosto",
-    "delete_selected_file": "Poista valittu",
+    "delete_selected_file": "Poista valittu tiedosto",
     "name": "Nimi",
     "description": "Selitysteksti",
     "more_actions": "Valinnaiset toiminnot",
@@ -68,7 +69,7 @@
     "add_folder": "Lisää kansio",
     "create_folder": "Luo uusi kansio",
     "delete_folder": "Poista kansio",
-    "delete_selected_folder": "Poista valittu",
+    "delete_selected_folder": "Poista valittu kansio",
     "name": "Nimi",
     "description": "Selitysteksti",
     "more_actions": "Valinnaiset toiminnot",

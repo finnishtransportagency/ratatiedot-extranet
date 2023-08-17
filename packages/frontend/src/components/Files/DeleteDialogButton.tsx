@@ -39,7 +39,7 @@ export const DeleteDialogButton: FunctionComponent<DialogButtonProps> = ({
   return (
     <>
       <Button disabled={disabled} variant="contained" startIcon={<DeleteIcon />} {...buttonProps} onClick={handleOpen}>
-        {t('common:file.delete_selected_file')}
+        {t('common:action.delete_selected')}
       </Button>
       {node?.entry.isFolder ? (
         <FolderDeleteDialog
