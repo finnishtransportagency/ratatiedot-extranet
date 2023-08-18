@@ -121,6 +121,9 @@ export const FilterSearch = (props: FilterSearchProps) => {
   const [sortType, setSortType] = useState<string>(() => mapSortTypeToValue(sort[0]));
   const [checkboxes, setCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>(savedCheckboxes);
   const [isContentSearched, setIsContentSearched] = useState(contentSearch);
+  const [isNameSearched, setIsNameSearched] = useState(nameSearch);
+  const [isTitleSearched, setIsTitleSearched] = useState(titleSearch);
+  const [isDescriptionSearched, setIsDescriptionSearched] = useState(descriptionSearch);
 
   const clearFilters = () => {
     setFrom(null);
@@ -197,6 +200,31 @@ export const FilterSearch = (props: FilterSearchProps) => {
           />
           <ListItemText primary={t('search:content_search_checkbox')} />
         </ListItem>
+        <ListItem>
+          <Checkbox
+            defaultChecked={false}
+            checked={isNameSearched}
+            onChange={() => setIsNameSearched(!isNameSearched)}
+          />
+          <ListItemText primary={t('search:name_search_checkbox')} />
+        </ListItem>
+        <ListItem>
+          <Checkbox
+            defaultChecked={false}
+            checked={isTitleSearched}
+            onChange={() => setIsTitleSearched(!isTitleSearched)}
+          />
+          <ListItemText primary={t('search:title_search_checkbox')} />
+        </ListItem>
+        <ListItem>
+          <Checkbox
+            defaultChecked={false}
+            checked={isDescriptionSearched}
+            onChange={() => setIsDescriptionSearched(!isDescriptionSearched)}
+          />
+          <ListItemText primary={t('search:description_search_checkbox')} />
+        </ListItem>
+
         <ListItem>
           <ListItemText disableTypography>
             <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
