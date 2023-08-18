@@ -9,13 +9,13 @@ import { TNode } from '../../types/types';
 import { Typography } from '@mui/material';
 import { Colors } from '../../constants/Colors';
 import axios, { AxiosResponse } from 'axios';
-import { FileDeleteDialogButton } from './FileDeleteDialogButton';
+import { DeleteDialogButton } from './DeleteDialogButton';
 import { useLocation } from 'react-router-dom';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { getCategoryRouteName } from '../../routes';
 import { MenuContext } from '../../contexts/MenuContext';
 import { CategoryDataContext } from '../../contexts/CategoryDataContext';
-import { FileUploadDialogButton } from './FileUploadDialogButton';
+import { UploadDialogButton } from './UploadDialogButton';
 import styled from '@emotion/styled';
 
 type TCategoryFilesProps = {
@@ -110,24 +110,24 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
     <ProtectedContainerWrapper>
       <GroupedFileButtonsWrapper>
         {isEditOpen && !fileUploadDisabled && (
-          <FileUploadDialogButton
+          <UploadDialogButton
             categoryName={categoryName}
             nestedFolderId={nestedFolderId}
             onUpload={(response: AxiosResponse) => {
-              const node = response.data.body;
+              const node = response.data.body || response.data;
               addFile(node);
             }}
           />
         )}
         {isEditOpen && !hasClassifiedContent && (
-          <FileDeleteDialogButton
+          <DeleteDialogButton
             categoryName={categoryName}
             disabled={!selectedFile}
             node={selectedFile}
             onDelete={(e) => {
               deleteFile(e.node);
             }}
-          ></FileDeleteDialogButton>
+          ></DeleteDialogButton>
         )}
       </GroupedFileButtonsWrapper>
 

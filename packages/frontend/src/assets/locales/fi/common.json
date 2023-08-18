@@ -14,6 +14,7 @@
     "go_home": "Siirry etusivulle",
     "next": "Seuraava",
     "add": "Lisää",
+    "add_new": "Lisää uusi",
     "cancel": "Peruuta",
     "load_more": "Lataa lisää",
     "save": "Tallenna",
@@ -28,7 +29,8 @@
     "filter": "Suodata",
     "search_site": "Etsi sivustolta",
     "add_favorite": "Lisää suosikkeihin",
-    "remove_favorite": "Poista suosikeista"
+    "remove_favorite": "Poista suosikeista",
+    "delete_selected": "Poista valittu"
   },
   "error": {
     "401": "Puutteelliset käyttöoikeudet",
@@ -61,6 +63,23 @@
     "files_deleted": "Tiedostot poistettu",
     "file_delete_confirmation": "Haluatko varmasti poistaa tiedoston",
     "files": "tiedostoa"
+  },
+  "folder": {
+    "select_folder_title": "Valitse kansio.",
+    "add_folder": "Lisää kansio",
+    "create_folder": "Luo uusi kansio",
+    "delete_folder": "Poista kansio",
+    "delete_selected_folder": "Poista valittu kansio",
+    "name": "Nimi",
+    "description": "Selitysteksti",
+    "more_actions": "Valinnaiset toiminnot",
+    "selected_folder": "Valittu kansio",
+    "folder_not_selected": "Kansiota ei valittu",
+    "folder_not_uploaded": "Kansiota ei lähetetty",
+    "folder_not_deleted": "Kansiota ei poistettu",
+    "folder_uploaded": "Kansio lähetetty",
+    "folder_deleted": "Kansio poistettu",
+    "folder_delete_confirmation": "Haluatko varmasti poistaa kansion"
   },
   "list": {
     "add_list": "Lisää lista",

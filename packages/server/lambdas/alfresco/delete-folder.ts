@@ -6,9 +6,10 @@ import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderDeleteRequestBuilder } from './fileRequestBuilder';
-import { deleteComponent } from '../database/components/delete-node-component';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
+import { getNodes } from './list-nodes';
+import { SearchParameterName } from './searchQueryBuilder/types';
 
 const database = await DatabaseClient.build();
 
@@ -34,6 +35,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const category = paths.at(-2);
 
     const user = await getUser(event);
+    const options = await getAlfrescoOptions(user.uid);
     log.info(user, `Deleting folder from ${category}`);
     validateReadUser(user);
 
@@ -56,27 +58,33 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       throw new RataExtraLambdaError('Folder cannot be deleted', 403);
     }
 
+    const nodes = await getNodes(nodeId, options);
+
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
 
-    const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderDeleteRequestBuilder(headers)) as AxiosRequestConfig;
+    const requestOptions = (await folderDeleteRequestBuilder(options.headers)) as AxiosRequestConfig;
 
-    const alfrescoResult = await deleteFolder(requestOptions, nodeId);
-    if (!alfrescoResult) {
-      throw new RataExtraLambdaError('Error deleting folder from Alfresco', 404);
+    let alfrescoResult;
+    // If folder contains nodes, it cannot be deleted
+    if (nodes?.data.list.entries.length === 0) {
+      alfrescoResult = await deleteFolder(requestOptions, nodeId);
+    } else {
+      throw new RataExtraLambdaError('Only empty folders can be deleted', 400);
     }
 
-    const databaseResult = await deleteComponent(nodeId);
+    // TODO at some later time
+    /* const databaseResult = await deleteComponent(nodeId);
     if (!databaseResult) {
       throw new RataExtraLambdaError('Error deleting folder from database', 404);
-    }
+    } */
 
     auditLog.info(user, `Deleted folder ${nodeId} in ${categoryData.alfrescoFolder}`);
 
     return {
       statusCode: 204,
       headers: { 'Content-Type:': 'application/json' },
+      body: JSON.stringify(alfrescoResult),
     };
   } catch (err) {
     log.error(err);
