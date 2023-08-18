@@ -1,6 +1,6 @@
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { auditLog, log } from '../../utils/logger';
@@ -8,17 +8,26 @@ import { getUser, validateReadUser, validateWriteUser } from '../../utils/userSe
 import { DatabaseClient } from '../database/client';
 import { folderCreateRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
-import { createFolderComponent } from '../database/components/create-node-component';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
+import { getFolder, isFolderInCategory } from './list-files';
 
 const database = await DatabaseClient.build();
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
-const postFolder = async (options: AxiosRequestConfig, nodeId: string): Promise<AlfrescoResponse | undefined> => {
+export interface AxiosRequestOptions extends AxiosRequestConfig {
+  body: {
+    [key: string]: any;
+  };
+}
+
+const postFolder = async (options: AxiosRequestOptions, nodeId: string): Promise<AlfrescoResponse | undefined> => {
   const url = `${alfrescoApiVersion}/nodes/${nodeId}/children`;
-  const response = await alfrescoAxios.post(url, options);
+  const headers = {
+    ...options.headers,
+  };
+  const response = await alfrescoAxios.post(url, options.body, { headers });
   return response.data as AlfrescoResponse;
 };
 
@@ -32,10 +41,16 @@ const postFolder = async (options: AxiosRequestConfig, nodeId: string): Promise<
 export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
   try {
     const paths = event.path.split('/');
-    const category = paths.pop();
+    const category = paths.at(4);
+    const nestedFolderId = paths.at(5);
 
     const user = await getUser(event);
-    log.info(user, `Creating new folder in page ${category}`);
+    log.info(
+      user,
+      `Creating a new folder to ${
+        nestedFolderId ? `nested folder id ${nestedFolderId} belonging to page ${category}` : `page ${category}`
+      }`,
+    );
     validateReadUser(user);
 
     if (!category) {
@@ -60,22 +75,37 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
 
-    const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderCreateRequestBuilder(event, headers)) as AxiosRequestConfig;
+    let targetNode;
+    if (nestedFolderId) {
+      const foundFolder = await getFolder(user.uid, nestedFolderId);
+      const folderPath = get(foundFolder, 'entry.path.name', '');
+      // Check if the nest folder is a descendant of the category
+      const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
+      if (!isFolderDescendantOfCategory) {
+        throw new RataExtraLambdaError('Folder cannot be found in category', 404);
+      }
+      targetNode = nestedFolderId;
+    } else {
+      targetNode = categoryData.alfrescoFolder;
+    }
 
-    const alfrescoResult = await postFolder(requestOptions, categoryData.alfrescoFolder);
+    const headers = (await getAlfrescoOptions(user.uid)).headers;
+    const requestOptions = (await folderCreateRequestBuilder(event, headers)) as AxiosRequestOptions;
+
+    const alfrescoResult = await postFolder(requestOptions, targetNode);
     if (!alfrescoResult) {
       throw new RataExtraLambdaError('Error creating folder', 500);
     }
 
-    const result = await createFolderComponent(categoryData.id, alfrescoResult);
+    // TODO at some later time
+    //const result = await createFolderComponent(categoryData.id, alfrescoResult);
 
     auditLog.info(user, `Created folder with id: ${JSON.stringify(alfrescoResult?.entry.id)}`);
 
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
-      body: JSON.stringify(result),
+      body: JSON.stringify(alfrescoResult),
     };
   } catch (err) {
     log.error(err);
