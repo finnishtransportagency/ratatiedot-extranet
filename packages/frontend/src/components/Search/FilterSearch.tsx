@@ -113,7 +113,13 @@ export const FilterSearch = (props: FilterSearchProps) => {
     sortHandler,
     pageHandler,
     contentSearch,
+    nameSearch,
+    titleSearch,
+    descriptionSearch,
     contentSearchHandler,
+    nameSearchHandler,
+    titleSearchHandler,
+    descriptionSearchHandler,
   } = useContext(SearchContext);
   const [from, setFrom] = useState<Date | null>(years[0] ? years[0] : null);
   const [to, setTo] = useState<Date | null>(years[1] ? years[1] : null);
@@ -156,6 +162,9 @@ export const FilterSearch = (props: FilterSearchProps) => {
     yearsHandler(from, to);
     sortHandler(sortType);
     contentSearchHandler(isContentSearched);
+    nameSearchHandler(isNameSearched);
+    titleSearchHandler(isTitleSearched);
+    descriptionSearchHandler(isDescriptionSearched);
     // reset pagination
     pageHandler(0);
     toggleFilter();
