@@ -97,7 +97,7 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
 
     const extendedSearchQuery = `${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery}`;
     devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
-    devLog.debug(`PARAMETER: ${JSON.stringify(parameter)}`);
+    devLog.debug('Parameter: ', parameter);
 
     let searchQuery = '';
 
