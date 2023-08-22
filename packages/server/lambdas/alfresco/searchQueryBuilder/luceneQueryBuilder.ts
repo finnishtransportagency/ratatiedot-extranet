@@ -96,7 +96,6 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const descriptionSearchQuery = `@cm\\:description:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.description}`;
 
     const extendedSearchQuery = `${fileNameSearchQuery} OR ${fileTitleSearchQuery} OR ${descriptionSearchQuery} OR ${contentSearchQuery}`;
-    devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
     devLog.debug(parameter);
 
     const searchQuery = [];
@@ -114,7 +113,14 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
       searchQuery.push(descriptionSearchQuery);
     }
 
-    return `+(${searchQuery.join(' OR ')})${fileType}${defaultPathQuery}`;
+    if (searchQuery.length > 0) {
+      searchQuery.join(' OR ');
+      devLog.debug(`QUERY: +(${searchQuery}${fileType}${defaultPathQuery})`);
+      return `+(${searchQuery})${fileType}${defaultPathQuery}`;
+    }
+
+    devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
+    return `+(${extendedSearchQuery})${fileType}${defaultPathQuery}`;
   }
 
   buildParentQuery(parameter: IParentSearchParameter) {
