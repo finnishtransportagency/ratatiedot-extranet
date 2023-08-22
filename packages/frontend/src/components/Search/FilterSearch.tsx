@@ -140,6 +140,9 @@ export const FilterSearch = (props: FilterSearchProps) => {
       [SearchParameterName.CATEGORY]: [],
     });
     setIsContentSearched(false);
+    setIsNameSearched(false);
+    setIsTitleSearched(false);
+    setIsDescriptionSearched(false);
   };
 
   const handleCheckboxes = (name: SearchParameterName, value: EMimeType) => {
