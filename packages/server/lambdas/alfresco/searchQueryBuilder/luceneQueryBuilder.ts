@@ -1,5 +1,4 @@
 import { format, set } from 'date-fns';
-import { devLog } from '../../../utils/logger';
 import { SearchQueryBuilder } from './searchQueryBuilder';
 import {
   IMimeSearchParameter,
@@ -96,7 +95,6 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const descriptionSearchQuery = `@cm\\:description:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.description}`;
 
     const extendedSearchQuery = `${fileNameSearchQuery} OR ${fileTitleSearchQuery} OR ${descriptionSearchQuery} OR ${contentSearchQuery}`;
-    devLog.debug(parameter);
 
     const searchQuery = [];
 
@@ -115,11 +113,9 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
 
     if (searchQuery.length > 0) {
       searchQuery.join(' OR ');
-      devLog.debug(`QUERY: +(${searchQuery}${fileType}${defaultPathQuery})`);
       return `+(${searchQuery})${fileType}${defaultPathQuery}`;
     }
 
-    devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
     return `+(${extendedSearchQuery})${fileType}${defaultPathQuery}`;
   }
 

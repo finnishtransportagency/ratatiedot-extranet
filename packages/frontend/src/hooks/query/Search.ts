@@ -35,7 +35,6 @@ const getSearchBody = ({
   titleSearch,
   descriptionSearch,
 }: TAlfrescoSearchProps) => {
-  console.log('nameSEarch', nameSearch);
   let body: { searchParameters: TSearchParameterBody[]; page?: number; sort?: SortingParameters } = {
     searchParameters: [],
     page: page,
