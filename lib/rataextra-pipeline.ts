@@ -1,4 +1,4 @@
-import { SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
+import { RemovalPolicy, SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import {
   BuildEnvironmentVariableType,
@@ -12,6 +12,8 @@ import { getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from
 import { RataExtraStack } from './rataextra-stack';
 import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { isDevelopmentMainStack } from './utils';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { Pipeline } from 'aws-cdk-lib/aws-codepipeline';
 
 /**
  * The stack that defines the application pipeline
@@ -33,8 +35,27 @@ export class RataExtraPipelineStack extends Stack {
       authentication: oauth,
     });
 
-    const pipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
-      pipelineName: 'pr-rataextra-' + config.stackId,
+    const artifactBucket = new Bucket(this, `s3-rataextra-pipeline-${config.stackId}`, {
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+
+    const pipeline = new Pipeline(this, 'pipeline', {
+      artifactBucket: artifactBucket,
+      pipelineName: `cpl-rataextra-${config.stackId}`,
+    });
+
+    // Can't start build process otherwise
+    pipeline.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['codebuild:StartBuild'],
+        resources: ['*'],
+      }),
+    );
+
+    const codePipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
+      codePipeline: pipeline,
       synth: new ShellStep('Synth', {
         input: github,
         installCommands: ['npm run ci --user=root'],
@@ -53,7 +74,7 @@ export class RataExtraPipelineStack extends Stack {
     });
 
     const strip = new CodeBuildStep('StripAssetsFromAssembly', {
-      input: pipeline.cloudAssemblyFileSet,
+      input: codePipeline.cloudAssemblyFileSet,
       commands: [
         "cross_region_replication_buckets=$(grep BucketName cross-region-stack-* | awk -F 'BucketName' '{print $2}' | tr -d ': ' | tr -d '\"' | tr -d ',')",
         'S3_PATH=${CODEBUILD_SOURCE_VERSION#"arn:aws:s3:::"}',
@@ -79,11 +100,11 @@ export class RataExtraPipelineStack extends Stack {
       ],
     });
 
-    pipeline.addWave('BeforeStageDeploy', {
+    codePipeline.addWave('BeforeStageDeploy', {
       pre: [strip],
     });
 
-    pipeline.addStage(
+    codePipeline.addStage(
       new RataExtraApplication(this, 'RataExtra', {
         stackId: config.stackId,
         rataExtraEnv: config.env,
@@ -121,7 +142,7 @@ export class RataExtraPipelineStack extends Stack {
         ],
       });
 
-      pipeline.addWave('SonarQube', {
+      codePipeline.addWave('SonarQube', {
         pre: [sonarQube],
       });
     }
