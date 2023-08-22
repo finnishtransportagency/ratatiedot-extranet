@@ -103,7 +103,6 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
 
     if (parameter.contentSearch) {
       searchQuery = contentSearchQuery;
-      `+(${contentSearchQuery})${fileType}${defaultPathQuery}`;
     } else if (parameter.nameSearch) {
       searchQuery = fileNameSearchQuery;
     } else if (parameter.titleSearch) {
