@@ -79,10 +79,14 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     return query;
   }
 
+  removeSpecialCharacters(sentence: string) {
+    return sentence.match(/[a-ö]|[0-9]|[-]|\s/gi)?.join('');
+  }
+
   buildNameQuery(parameter: INameSearchParameter): string {
     const fileType = '+TYPE:"cm:content"';
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
-    const searchTerm = parameter.term;
+    const searchTerm = this.removeSpecialCharacters(parameter.term);
 
     // relevance level of matching documents based on the terms found
     // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
