@@ -80,20 +80,32 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   }
 
   removeSpecialCharacters(sentence: string) {
-    return sentence.match(/[a-ö]|[0-9]|[-]|\s/gi)?.join('');
+    // Replace any special character (!?,._ etc.) with "?".
+    // The ?-character is single character wildcad rather than * that could fill multiple characters.
+    return sentence.match(/[a-ö]|[0-9]|[-]|\s/gi)?.join('?');
+  }
+
+  addWildcard(sentence: string) {
+    let parsedSentence = sentence;
+
+    parsedSentence = sentence.split(' ').join('* *');
+    parsedSentence = `*${parsedSentence}*`;
+
+    return parsedSentence;
   }
 
   buildNameQuery(parameter: INameSearchParameter): string {
     const fileType = '+TYPE:"cm:content"';
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
-    const searchTerm = this.removeSpecialCharacters(parameter.term);
+    let searchTerm = this.removeSpecialCharacters(parameter.term);
+    searchTerm = this.addWildcard(searchTerm as string);
 
     // relevance level of matching documents based on the terms found
     // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
     // https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Boosting%20a%20Term
     const relevanceBoost = { text: 1, name: 4, title: 4, description: 2 };
 
-    const contentSearchQuery = `TEXT:(${searchTerm}~6)^${relevanceBoost.text}`;
+    const contentSearchQuery = `TEXT:\"${searchTerm}\"~6^${relevanceBoost.text}`;
     const fileNameSearchQuery = `@cm\\:name:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.name}`;
     const fileTitleSearchQuery = `@cm\\:title:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.title}`;
     const descriptionSearchQuery = `@cm\\:description:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.description}`;
