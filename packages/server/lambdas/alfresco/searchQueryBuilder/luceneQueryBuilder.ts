@@ -82,13 +82,13 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   removeSpecialCharacters(sentence: string) {
     // Replace any special character (!?,._ etc.) with "?".
     // The ?-character is single character wildcad rather than * that could fill multiple characters.
-    return sentence.match(/[a-ö]|[0-9]|[-]|\s/gi)?.join('');
+    return sentence.match(/[a-ö]|[0-9]|[-]|\s/gi)?.join(' ');
   }
 
   addWildcard(sentence: string) {
     let parsedSentence = sentence;
 
-    parsedSentence = sentence.split(' ').join('* *');
+    parsedSentence = sentence.split(' ').join('*');
     parsedSentence = `*${parsedSentence}*`;
 
     return parsedSentence;
