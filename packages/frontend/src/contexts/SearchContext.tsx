@@ -21,7 +21,13 @@ export const SearchContext = React.createContext({
   sort: [null],
   sortHandler: (_: string) => {},
   contentSearch: false,
+  nameSearch: false,
+  titleSearch: false,
+  descriptionSearch: false,
   contentSearchHandler: (_: boolean) => {},
+  nameSearchHandler: (_: boolean) => {},
+  titleSearchHandler: (_: boolean) => {},
+  descriptionSearchHandler: (_: boolean) => {},
 });
 
 export type TCheckBoxes = {
@@ -41,6 +47,9 @@ export const SearchContextProvider = (props: any) => {
   const [page, setPage] = useState<number>(0);
   const [sort, setSort] = useState<any[]>([]);
   const [contentSearch, setContentSearch] = useState(false);
+  const [nameSearch, setNameSearch] = useState(false);
+  const [titleSearch, setTitleSearch] = useState(false);
+  const [descriptionSearch, setDescriptionSearch] = useState(false);
 
   useEffect(() => {
     queryHandler(searchParams.get('query') || '');
@@ -84,6 +93,9 @@ export const SearchContextProvider = (props: any) => {
   };
 
   const contentSearchHandler = (contentSearch: boolean) => setContentSearch(contentSearch);
+  const nameSearchHandler = (nameSearch: boolean) => setNameSearch(nameSearch);
+  const titleSearchHandler = (titleSearch: boolean) => setTitleSearch(titleSearch);
+  const descriptionSearchHandler = (descriptionSearch: boolean) => setDescriptionSearch(descriptionSearch);
 
   return (
     <SearchContext.Provider
@@ -99,7 +111,13 @@ export const SearchContextProvider = (props: any) => {
         sort: sort,
         sortHandler: sortHandler,
         contentSearch: contentSearch,
+        nameSearch: nameSearch,
+        titleSearch: titleSearch,
+        descriptionSearch: descriptionSearch,
         contentSearchHandler: contentSearchHandler,
+        nameSearchHandler: nameSearchHandler,
+        titleSearchHandler: titleSearchHandler,
+        descriptionSearchHandler: descriptionSearchHandler,
       }}
     >
       {props.children}

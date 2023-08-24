@@ -17,6 +17,9 @@ export type TAlfrescoSearchProps = {
   page?: number;
   sort?: SortingParameters;
   contentSearch?: boolean;
+  nameSearch?: boolean;
+  titleSearch?: boolean;
+  descriptionSearch?: boolean;
 };
 
 const getSearchBody = ({
@@ -28,6 +31,9 @@ const getSearchBody = ({
   page = 0,
   sort = [],
   contentSearch,
+  nameSearch,
+  titleSearch,
+  descriptionSearch,
 }: TAlfrescoSearchProps) => {
   let body: { searchParameters: TSearchParameterBody[]; page?: number; sort?: SortingParameters } = {
     searchParameters: [],
@@ -39,6 +45,9 @@ const getSearchBody = ({
       parameterName: ExtendedSearchParameterName.NAME,
       term: term,
       contentSearch: contentSearch,
+      nameSearch: nameSearch,
+      titleSearch: titleSearch,
+      descriptionSearch: descriptionSearch,
     });
   }
   if (from) {

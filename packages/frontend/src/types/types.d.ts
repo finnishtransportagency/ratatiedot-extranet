@@ -35,6 +35,9 @@ type TNameSearchParameter = {
   parameterName: ExtendedSearchParameterName.NAME;
   term: string;
   contentSearch?: boolean;
+  nameSearch?: boolean;
+  titleSearch?: boolean;
+  descriptionSearch?: boolean;
 };
 
 type TModifiedSearchParameter = {
