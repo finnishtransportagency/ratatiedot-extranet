@@ -97,8 +97,8 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
   buildNameQuery(parameter: INameSearchParameter): string {
     const fileType = '+TYPE:"cm:content"';
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
-    let searchTerm = this.removeSpecialCharacters(parameter.term);
-    searchTerm = this.addWildcard(searchTerm as string);
+    const searchTerm = this.removeSpecialCharacters(parameter.term);
+    const searchTermWildCard = this.addWildcard(searchTerm as string);
 
     // relevance level of matching documents based on the terms found
     // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
@@ -106,9 +106,9 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const relevanceBoost = { text: 1, name: 4, title: 4, description: 2 };
 
     const contentSearchQuery = `TEXT:\"${searchTerm}\"~6^${relevanceBoost.text}`;
-    const fileNameSearchQuery = `@cm\\:name:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.name}`;
-    const fileTitleSearchQuery = `@cm\\:title:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.title}`;
-    const descriptionSearchQuery = `@cm\\:description:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.description}`;
+    const fileNameSearchQuery = `@cm\\:name:(${searchTermWildCard} OR ${searchTerm}~6)^${relevanceBoost.name}`;
+    const fileTitleSearchQuery = `@cm\\:title:(${searchTermWildCard} OR ${searchTerm}~6)^${relevanceBoost.title}`;
+    const descriptionSearchQuery = `@cm\\:description:(${searchTermWildCard} OR ${searchTerm}~6)^${relevanceBoost.description}`;
 
     const extendedSearchQuery = `${fileNameSearchQuery} OR ${fileTitleSearchQuery} OR ${descriptionSearchQuery} OR ${contentSearchQuery}`;
 
