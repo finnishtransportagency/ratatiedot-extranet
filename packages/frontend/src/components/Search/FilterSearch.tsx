@@ -276,7 +276,6 @@ export const FilterSearch = (props: FilterSearchProps) => {
               maxDate={new Date()}
               value={from}
               onChange={(newValue) => setFrom(newValue)}
-              renderInput={(params) => <TextField {...params} helperText={null} />}
             />
             <DatePicker
               views={['year']}
@@ -286,7 +285,6 @@ export const FilterSearch = (props: FilterSearchProps) => {
               value={to}
               shouldDisableYear={(year: any) => (from ? year < from : true)}
               onChange={(newValue) => setTo(newValue)}
-              renderInput={(params) => <TextField {...params} helperText={null} />}
             />
           </LocalizationProvider>
         </ListItem>

@@ -120,7 +120,7 @@ export const SlateToolbar = () => {
   };
 
   return (
-    <Slate editor={editor} value={value}>
+    <Slate editor={editor} initialValue={value}>
       <ToolbarPaperWrapper elevation={2} aria-label={t('common:edit.toolbar')}>
         <FontSizeDropdown />
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
