@@ -1,4 +1,5 @@
 import { format, set } from 'date-fns';
+import { devLog } from '../../../utils/logger';
 import { SearchQueryBuilder } from './searchQueryBuilder';
 import {
   IMimeSearchParameter,
@@ -128,6 +129,7 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     }
 
     if (searchQuery.length > 0) {
+      devLog.debug(`+(${searchQuery.join(' OR ')})${fileType}${defaultPathQuery}`);
       return `+(${searchQuery.join(' OR ')})${fileType}${defaultPathQuery}`;
     }
 
