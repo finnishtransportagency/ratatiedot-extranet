@@ -128,8 +128,7 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     }
 
     if (searchQuery.length > 0) {
-      searchQuery.join(' OR ');
-      return `+(${searchQuery})${fileType}${defaultPathQuery}`;
+      return `+(${searchQuery.join(' OR ')})${fileType}${defaultPathQuery}`;
     }
 
     return `+(${extendedSearchQuery})${fileType}${defaultPathQuery}`;
