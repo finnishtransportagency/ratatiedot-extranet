@@ -113,9 +113,9 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const relevanceBoost = { text: 1, name: 4, title: 4, description: 2 };
 
     const contentSearchQuery = `TEXT:\"${searchTerm}\"${searchProximity}^${relevanceBoost.text}`;
-    const fileNameSearchQuery = `@cm\\:name:(${searchTermWildCard} OR ${searchTerm}${searchProximity})^${relevanceBoost.name}`;
-    const fileTitleSearchQuery = `@cm\\:title:(${searchTermWildCard} OR ${searchTerm}${searchProximity})^${relevanceBoost.title}`;
-    const descriptionSearchQuery = `@cm\\:description:(${searchTermWildCard} OR ${searchTerm}${searchProximity})^${relevanceBoost.description}`;
+    const fileNameSearchQuery = `@cm\\:name:(\"${searchTermWildCard}\" OR \"${searchTerm}\"${searchProximity})^${relevanceBoost.name}`;
+    const fileTitleSearchQuery = `@cm\\:title:(\"${searchTermWildCard}\" OR \"${searchTerm}\"${searchProximity})^${relevanceBoost.title}`;
+    const descriptionSearchQuery = `@cm\\:description:(\"${searchTermWildCard}\" OR \"${searchTerm}\"${searchProximity})^${relevanceBoost.description}`;
 
     const extendedSearchQuery = `${fileNameSearchQuery} OR ${fileTitleSearchQuery} OR ${descriptionSearchQuery} OR ${contentSearchQuery}`;
 
