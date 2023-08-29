@@ -80,16 +80,18 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     return query;
   }
 
+  searchStringToArray(sentence: string) {
+    return sentence.split(' ');
+  }
+
   removeSpecialCharacters(sentence: string) {
     // Replace any special character (!?,._ etc.) with "?".
     // The ?-character is single character wildcad rather than * that could fill multiple characters.
     return sentence.match(/[a-ö]|[0-9]|[-]|\s/gi)?.join('');
   }
 
-  addWildcard(sentence: string) {
-    let parsedSentence = sentence;
-
-    parsedSentence = sentence.split(' ').join('*');
+  addWildcard(searchTerms: string[]) {
+    let parsedSentence = searchTerms.join('*');
     parsedSentence = `*${parsedSentence}*`;
 
     return parsedSentence;
@@ -99,7 +101,7 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const fileType = '+TYPE:"cm:content"';
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
     const searchTerm = this.removeSpecialCharacters(parameter.term);
-    const searchTermWildCard = this.addWildcard(searchTerm as string);
+    const searchTermWildCard = this.addWildcard(this.searchStringToArray(searchTerm as string));
 
     // relevance level of matching documents based on the terms found
     // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
