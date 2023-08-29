@@ -103,15 +103,19 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     const searchTerm = this.removeSpecialCharacters(parameter.term);
     const searchTermWildCard = this.addWildcard(this.searchStringToArray(searchTerm as string));
 
+    const searchTermAmount = this.searchStringToArray(searchTerm as string).length;
+    // cannot use Lucene search proximity when querying only one word.
+    const searchProximity = searchTermAmount ? `~` : `~3`;
+
     // relevance level of matching documents based on the terms found
     // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
     // https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Boosting%20a%20Term
     const relevanceBoost = { text: 1, name: 4, title: 4, description: 2 };
 
-    const contentSearchQuery = `TEXT:\"${searchTerm}\"~6^${relevanceBoost.text}`;
-    const fileNameSearchQuery = `@cm\\:name:(${searchTermWildCard} OR ${searchTerm}~6)^${relevanceBoost.name}`;
-    const fileTitleSearchQuery = `@cm\\:title:(${searchTermWildCard} OR ${searchTerm}~6)^${relevanceBoost.title}`;
-    const descriptionSearchQuery = `@cm\\:description:(${searchTermWildCard} OR ${searchTerm}~6)^${relevanceBoost.description}`;
+    const contentSearchQuery = `TEXT:\"${searchTerm}\"${searchProximity}^${relevanceBoost.text}`;
+    const fileNameSearchQuery = `@cm\\:name:(${searchTermWildCard} OR ${searchTerm}${searchProximity})^${relevanceBoost.name}`;
+    const fileTitleSearchQuery = `@cm\\:title:(${searchTermWildCard} OR ${searchTerm}${searchProximity})^${relevanceBoost.title}`;
+    const descriptionSearchQuery = `@cm\\:description:(${searchTermWildCard} OR ${searchTerm}${searchProximity})^${relevanceBoost.description}`;
 
     const extendedSearchQuery = `${fileNameSearchQuery} OR ${fileTitleSearchQuery} OR ${descriptionSearchQuery} OR ${contentSearchQuery}`;
 
