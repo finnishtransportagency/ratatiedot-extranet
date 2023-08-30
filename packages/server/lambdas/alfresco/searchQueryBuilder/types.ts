@@ -84,6 +84,9 @@ export interface INameSearchParameter extends IBaseSearchParameter {
   parameterName: SearchParameterName.NAME;
   term: string;
   contentSearch?: boolean;
+  nameSearch?: boolean;
+  titleSearch?: boolean;
+  descriptionSearch?: boolean;
 }
 
 export interface IParentSearchParameter extends IBaseSearchParameter {

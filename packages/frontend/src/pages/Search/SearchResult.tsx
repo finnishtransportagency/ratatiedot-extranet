@@ -19,7 +19,17 @@ export const SearchResult = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('query');
   const searchContext = useContext(SearchContext);
-  const { years, savedCheckboxes, page, pageHandler, sort = [], contentSearch = false } = searchContext;
+  const {
+    years,
+    savedCheckboxes,
+    page,
+    pageHandler,
+    sort = [],
+    contentSearch = false,
+    nameSearch = false,
+    titleSearch = false,
+    descriptionSearch = false,
+  } = searchContext;
   const searchParameter: TAlfrescoSearchProps = {
     term: query,
     from: formatYear(years[0]),
@@ -32,6 +42,9 @@ export const SearchResult = () => {
     page: page,
     sort: sort as SortingParameters,
     contentSearch: contentSearch,
+    nameSearch: nameSearch,
+    titleSearch: titleSearch,
+    descriptionSearch: descriptionSearch,
   };
 
   const { isLoading, isError, error, data } = usePostAlfrescoSearch(searchParameter);

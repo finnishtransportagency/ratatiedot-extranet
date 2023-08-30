@@ -50,7 +50,7 @@ export const SlateInputField = () => {
     <SlateInputFieldPaperWrapper data-testid="slate-editor" elevation={2} opentoolbar={isEditorOpened}>
       <Slate
         editor={editor}
-        value={slateValue}
+        initialValue={slateValue}
         onChange={(value: any) => {
           const isAstChange = editor.operations.some((op: Operation) => 'set_selection' !== op.type);
           if (isAstChange) {

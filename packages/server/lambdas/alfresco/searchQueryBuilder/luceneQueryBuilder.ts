@@ -1,5 +1,4 @@
 import { format, set } from 'date-fns';
-import { devLog } from '../../../utils/logger';
 import { SearchQueryBuilder } from './searchQueryBuilder';
 import {
   IMimeSearchParameter,
@@ -80,27 +79,65 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     return query;
   }
 
+  searchStringToArray(sentence: string) {
+    return sentence.split(' ');
+  }
+
+  removeSpecialCharacters(sentence: string) {
+    // Replace any special character (!?,._ etc.) with "?".
+    // The ?-character is single character wildcad rather than * that could fill multiple characters.
+    return sentence.match(/[a-ö]|[0-9]|[-]|\s/gi)?.join('');
+  }
+
+  addWildcard(searchTerms: string[]) {
+    let parsedSentence = searchTerms.join('*');
+    parsedSentence = `*${parsedSentence}*`;
+
+    return parsedSentence;
+  }
+
   buildNameQuery(parameter: INameSearchParameter): string {
     const fileType = '+TYPE:"cm:content"';
     const defaultPathQuery = this.defaultPath ? `+PATH:\"${this.defaultPath}\"` : '';
-    const searchTerm = parameter.term;
+    const searchTerm = this.removeSpecialCharacters(parameter.term);
+    const searchTermWildCard = this.addWildcard(this.searchStringToArray(searchTerm as string));
+
+    const searchTermAmount = this.searchStringToArray(searchTerm as string).length;
+    // cannot use Lucene search proximity when querying only one word.
+    const searchProximity = searchTermAmount > 1 ? `~3` : `~`;
 
     // relevance level of matching documents based on the terms found
     // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
     // https://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Boosting%20a%20Term
-    const relevanceBoost = { text: 1, name: 4, title: 4 };
+    const relevanceBoost = { text: 1, name: 4, title: 4, description: 2 };
 
-    const contentSearchQuery = `TEXT:(${searchTerm}~6)^${relevanceBoost.text}`;
-    const fileNameSearchQuery = `@cm\\:name:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.name}`;
-    const fileTitleSearchQuery = `@cm\\:title:(${searchTerm} OR ${searchTerm}~6)^${relevanceBoost.title}`;
+    const contentSearchQuery = `TEXT:\"${searchTerm}\"${searchProximity}^${relevanceBoost.text}`;
+    const fileNameSearchQuery = `@cm\\:name:(\"${searchTermWildCard}\" OR \"${searchTerm}\"${searchProximity})^${relevanceBoost.name}`;
+    const fileTitleSearchQuery = `@cm\\:title:(\"${searchTermWildCard}\" OR \"${searchTerm}\"${searchProximity})^${relevanceBoost.title}`;
+    const descriptionSearchQuery = `@cm\\:description:(\"${searchTermWildCard}\" OR \"${searchTerm}\"${searchProximity})^${relevanceBoost.description}`;
 
-    const extendedSearchQuery = `+(${contentSearchQuery} OR ${fileNameSearchQuery} OR ${fileTitleSearchQuery})`;
-    devLog.debug(`QUERY: ${extendedSearchQuery}${fileType}${defaultPathQuery}`);
-    devLog.debug(`PARAMETER: ${parameter}`);
+    const extendedSearchQuery = `${fileNameSearchQuery} OR ${fileTitleSearchQuery} OR ${descriptionSearchQuery} OR ${contentSearchQuery}`;
 
-    return parameter.contentSearch
-      ? `+(${contentSearchQuery})${fileType}${defaultPathQuery}`
-      : `${extendedSearchQuery}${fileType}${defaultPathQuery}`;
+    const searchQuery = [];
+
+    if (parameter.contentSearch) {
+      searchQuery.push(contentSearchQuery);
+    }
+    if (parameter.nameSearch) {
+      searchQuery.push(fileNameSearchQuery);
+    }
+    if (parameter.titleSearch) {
+      searchQuery.push(fileTitleSearchQuery);
+    }
+    if (parameter.descriptionSearch) {
+      searchQuery.push(descriptionSearchQuery);
+    }
+
+    if (searchQuery.length > 0) {
+      return `+(${searchQuery.join(' OR ')})${fileType}${defaultPathQuery}`;
+    }
+
+    return `+(${extendedSearchQuery})${fileType}${defaultPathQuery}`;
   }
 
   buildParentQuery(parameter: IParentSearchParameter) {

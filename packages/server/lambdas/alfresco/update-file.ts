@@ -20,9 +20,9 @@ const updateFile = async (
   nodeId: string,
   newFileName?: string,
 ): Promise<AlfrescoResponse | undefined> => {
-  const url = `${alfrescoApiVersion}/nodes/${nodeId}/content`;
+  let url = `${alfrescoApiVersion}/nodes/${nodeId}/content`;
   if (newFileName) {
-    url.concat(`&name=${newFileName}`);
+    url = url.concat(`&name=${newFileName}`);
   }
   const response = await alfrescoAxios.put(url, options);
   return response.data;

@@ -113,7 +113,13 @@ export const FilterSearch = (props: FilterSearchProps) => {
     sortHandler,
     pageHandler,
     contentSearch,
+    nameSearch,
+    titleSearch,
+    descriptionSearch,
     contentSearchHandler,
+    nameSearchHandler,
+    titleSearchHandler,
+    descriptionSearchHandler,
   } = useContext(SearchContext);
   const [from, setFrom] = useState<Date | null>(years[0] ? years[0] : null);
   const [to, setTo] = useState<Date | null>(years[1] ? years[1] : null);
@@ -121,6 +127,9 @@ export const FilterSearch = (props: FilterSearchProps) => {
   const [sortType, setSortType] = useState<string>(() => mapSortTypeToValue(sort[0]));
   const [checkboxes, setCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>(savedCheckboxes);
   const [isContentSearched, setIsContentSearched] = useState(contentSearch);
+  const [isNameSearched, setIsNameSearched] = useState(nameSearch);
+  const [isTitleSearched, setIsTitleSearched] = useState(titleSearch);
+  const [isDescriptionSearched, setIsDescriptionSearched] = useState(descriptionSearch);
 
   const clearFilters = () => {
     setFrom(null);
@@ -131,6 +140,9 @@ export const FilterSearch = (props: FilterSearchProps) => {
       [SearchParameterName.CATEGORY]: [],
     });
     setIsContentSearched(false);
+    setIsNameSearched(false);
+    setIsTitleSearched(false);
+    setIsDescriptionSearched(false);
   };
 
   const handleCheckboxes = (name: SearchParameterName, value: EMimeType) => {
@@ -153,6 +165,9 @@ export const FilterSearch = (props: FilterSearchProps) => {
     yearsHandler(from, to);
     sortHandler(sortType);
     contentSearchHandler(isContentSearched);
+    nameSearchHandler(isNameSearched);
+    titleSearchHandler(isTitleSearched);
+    descriptionSearchHandler(isDescriptionSearched);
     // reset pagination
     pageHandler(0);
     toggleFilter();
@@ -198,6 +213,31 @@ export const FilterSearch = (props: FilterSearchProps) => {
           <ListItemText primary={t('search:content_search_checkbox')} />
         </ListItem>
         <ListItem>
+          <Checkbox
+            defaultChecked={false}
+            checked={isNameSearched}
+            onChange={() => setIsNameSearched(!isNameSearched)}
+          />
+          <ListItemText primary={t('search:name_search_checkbox')} />
+        </ListItem>
+        <ListItem>
+          <Checkbox
+            defaultChecked={false}
+            checked={isTitleSearched}
+            onChange={() => setIsTitleSearched(!isTitleSearched)}
+          />
+          <ListItemText primary={t('search:title_search_checkbox')} />
+        </ListItem>
+        <ListItem>
+          <Checkbox
+            defaultChecked={false}
+            checked={isDescriptionSearched}
+            onChange={() => setIsDescriptionSearched(!isDescriptionSearched)}
+          />
+          <ListItemText primary={t('search:description_search_checkbox')} />
+        </ListItem>
+
+        <ListItem>
           <ListItemText disableTypography>
             <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
               {t('search:sort_results')}
@@ -236,7 +276,6 @@ export const FilterSearch = (props: FilterSearchProps) => {
               maxDate={new Date()}
               value={from}
               onChange={(newValue) => setFrom(newValue)}
-              renderInput={(params) => <TextField {...params} helperText={null} />}
             />
             <DatePicker
               views={['year']}
@@ -246,7 +285,6 @@ export const FilterSearch = (props: FilterSearchProps) => {
               value={to}
               shouldDisableYear={(year: any) => (from ? year < from : true)}
               onChange={(newValue) => setTo(newValue)}
-              renderInput={(params) => <TextField {...params} helperText={null} />}
             />
           </LocalizationProvider>
         </ListItem>
