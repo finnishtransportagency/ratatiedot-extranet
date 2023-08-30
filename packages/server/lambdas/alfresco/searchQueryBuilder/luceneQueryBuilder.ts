@@ -105,7 +105,7 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
 
     const searchTermAmount = this.searchStringToArray(searchTerm as string).length;
     // cannot use Lucene search proximity when querying only one word.
-    const searchProximity = searchTermAmount > 1 ? `~` : `~3`;
+    const searchProximity = searchTermAmount > 1 ? `~3` : `~`;
 
     // relevance level of matching documents based on the terms found
     // By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1
