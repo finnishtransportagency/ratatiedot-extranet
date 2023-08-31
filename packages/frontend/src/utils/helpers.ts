@@ -138,6 +138,8 @@ export const parseRouterName = (routerName: string = '') => {
       return 'Turvalaitteiden huolto-ohjeet';
     case 'turvalaitteiden-kayttoohjeet':
       return 'Turvalaitteiden käyttöohjeet';
+    case 'liikennointi':
+      return 'Liikennöinti';
     default:
       return capitalize(routerName.replace(/-/g, ' '));
   }
