@@ -26,7 +26,7 @@ export const getErrorMessage = (error: any): string => {
 
   const errorTranslationKey = error.errorTranslationKey;
   if (errorTranslationKey) {
-    return t(`apiErrors:${errorTranslationKey}`);
+    return t(`apiErrors:${errorTranslationKey}` as any);
   }
   return error?.message || t('common:error.500');
 };
