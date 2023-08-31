@@ -84,6 +84,8 @@ export const NodeItem = ({
     }
   };
 
+  const nodeTitle = isFolder && title ? title : `${name}${title ? ` (${title})` : ''}`;
+
   return (
     <>
       <Grid
@@ -121,7 +123,7 @@ export const NodeItem = ({
         </Grid>
         <Grid item mobile={10} tablet={10.5} desktop={10.5}>
           <Typography variant="body1" sx={{ color: Colors.extrablack }}>
-            {`${name}${title ? ` (${title})` : ''}`}
+            {nodeTitle}
           </Typography>
           <Typography variant="body1" sx={{ color: Colors.darkgrey }}>
             {description}
