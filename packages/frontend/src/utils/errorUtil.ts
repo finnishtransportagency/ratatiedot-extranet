@@ -23,5 +23,10 @@ export const getErrorMessage = (error: any): string => {
         return t('common:error.networkError');
     }
   }
+
+  const errorTranslationKey = error.errorTranslationKey;
+  if (errorTranslationKey) {
+    return t(`apiErrors:${errorTranslationKey}`);
+  }
   return error?.message || t('common:error.500');
 };
