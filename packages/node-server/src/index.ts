@@ -14,7 +14,7 @@ const uploadFile = async (req: Request, res: Response) => {
     log.error(err);
     if (err.status) {
       if (err.status === 409) {
-        const rataExtraEC2Error = new RataExtraEC2Error('File already exists', 409, 'fileAlreadyExists');
+        const rataExtraEC2Error = new RataExtraEC2Error('File already exists', 409, 'nodeAlreadyExists');
         return res
           .status(rataExtraEC2Error.statusCode)
           .json({ errorTranslationKey: rataExtraEC2Error.errorTranslationKey });

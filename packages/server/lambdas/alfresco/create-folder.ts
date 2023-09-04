@@ -90,7 +90,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     }
 
     const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderCreateRequestBuilder(event, headers)) as AxiosRequestOptions;
+    const requestOptions = (await folderCreateRequestBuilder(event, headers)) as unknown as AxiosRequestOptions;
 
     const alfrescoResult = await postFolder(requestOptions, targetNode);
     if (!alfrescoResult) {
