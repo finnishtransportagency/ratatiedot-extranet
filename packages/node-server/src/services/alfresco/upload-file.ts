@@ -58,7 +58,7 @@ const postFile = async (options: AxiosRequestOptions, nodeId: string): Promise<A
 type UploadResponse = {
   statusCode: number;
   headers: Record<string, string | undefined>;
-  body: string | undefined;
+  body: AlfrescoResponse | string;
 };
 
 /**
@@ -127,7 +127,7 @@ export async function handleRequest(req: Request): Promise<UploadResponse | unde
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
-      body: JSON.stringify(result),
+      body: result,
     };
   } catch (err) {
     log.error(err);
