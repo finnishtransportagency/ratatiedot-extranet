@@ -18,7 +18,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 export interface AxiosRequestOptions extends AxiosRequestConfig {
   body: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -109,6 +109,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     };
   } catch (err) {
     log.error(err);
+    if (err instanceof RataExtraLambdaError)
+      if (err.statusCode === 409) {
+        throw new RataExtraLambdaError('Folder already exists', 409, 'nodeAlreadyExists');
+      }
     return getRataExtraLambdaError(err);
   }
 }
