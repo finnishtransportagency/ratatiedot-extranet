@@ -131,7 +131,7 @@ export async function handleRequest(req: Request): Promise<UploadResponse | unde
     };
   } catch (err) {
     log.error(err);
-    if (err.statusCode === 409) {
+    if (err.status === 409) {
       throw new RataExtraEC2Error('File already exists', 409, 'fileAlreadyExists');
     }
     return getRataExtraEC2Error(err);
