@@ -9,7 +9,7 @@ import { DatabaseClient } from '../database/client';
 import { folderCreateRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
-import { AxiosError, AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { getFolder, isFolderInCategory } from './list-files';
 
 const database = await DatabaseClient.build();
@@ -107,10 +107,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       headers: { 'Content-Type:': 'application/json' },
       body: JSON.stringify(alfrescoResult),
     };
-  } catch (err) {
+  } catch (err: unknown) {
     log.error(err);
-    if (err instanceof AxiosError) {
-      if (err.response?.status === 409) {
+    if (axios.isAxiosError(err)) {
+      if (err.status === 409) {
         throw new RataExtraLambdaError('Folder already exists', 409, 'nodeAlreadyExists');
       }
     }
