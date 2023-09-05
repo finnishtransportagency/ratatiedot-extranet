@@ -109,6 +109,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     };
   } catch (err: unknown) {
     log.error(err);
+    console.log('ERR: ', err);
     if (axios.isAxiosError(err)) {
       if (err.status === 409) {
         throw new RataExtraLambdaError('Folder already exists', 409, 'nodeAlreadyExists');
