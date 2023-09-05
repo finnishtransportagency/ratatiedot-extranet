@@ -10,6 +10,7 @@ import { Colors } from '../../constants/Colors';
 import './styles.css';
 import { AxiosResponse } from 'axios';
 import { createEmptyFolder } from '../../services/FolderUploadService';
+import { getErrorMessage } from '../../utils/errorUtil';
 
 interface FolderUploadProps {
   categoryName: string;
@@ -27,6 +28,7 @@ export const NewFolderDialog = ({ categoryName, nestedFolderId, open, onClose, o
   const [error, setError] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleClose = () => {
     onClose();
@@ -52,6 +54,7 @@ export const NewFolderDialog = ({ categoryName, nestedFolderId, open, onClose, o
         setIsLoading(false);
         setSuccess(false);
         setError(true);
+        setErrorMessage(getErrorMessage(error));
       });
   };
 
@@ -67,7 +70,7 @@ export const NewFolderDialog = ({ categoryName, nestedFolderId, open, onClose, o
       handleClose={handleClose}
       title={t('common:folder.add_folder')}
       error={error}
-      errorMessage={t('common:folder.folder_not_uploaded')}
+      errorMessage={errorMessage || t('common:folder.folder_not_uploaded')}
       successMessage={t('common:folder.folder_uploaded')}
       success={success}
       children={

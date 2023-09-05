@@ -10,6 +10,7 @@ import { AxiosResponse } from 'axios';
 import { StaticFileCard } from './StaticFileCard';
 import { TNode } from '../../types/types';
 import { deleteFolder } from '../../services/FolderDeleteService';
+import { getErrorMessage } from '../../utils/errorUtil';
 
 export interface FolderDeleteResponse {
   response: AxiosResponse;
@@ -28,6 +29,7 @@ export const FolderDeleteDialog = ({ categoryName, node, open, onClose, onDelete
   const { t } = useTranslation(['common']);
 
   const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [success, setSuccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -55,6 +57,7 @@ export const FolderDeleteDialog = ({ categoryName, node, open, onClose, onDelete
           setIsLoading(false);
           setSuccess(false);
           setError(true);
+          setErrorMessage(getErrorMessage(error));
         });
     } else {
     }
@@ -73,7 +76,7 @@ export const FolderDeleteDialog = ({ categoryName, node, open, onClose, onDelete
       title={t('common:folder.delete_folder')}
       error={error}
       success={success}
-      errorMessage={t('common:folder.folder_not_deleted')}
+      errorMessage={errorMessage || t('common:folder.folder_not_deleted')}
       successMessage={t('common:folder.folder_deleted')}
       children={
         <Box>

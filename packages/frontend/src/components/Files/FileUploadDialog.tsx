@@ -17,6 +17,7 @@ import { Modal } from '../Modal/Modal';
 import { Colors } from '../../constants/Colors';
 import './styles.css';
 import { AxiosResponse } from 'axios';
+import { getErrorMessage } from '../../utils/errorUtil';
 
 interface FileUploadProps {
   categoryName: string;
@@ -38,6 +39,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
   const [error, setError] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleClose = () => {
     onClose();
@@ -63,6 +65,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
         setIsLoading(false);
         setSuccess(false);
         setError(true);
+        setErrorMessage(getErrorMessage(error));
       });
   };
 
@@ -89,7 +92,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
           open={open}
           onSnackbarClose={handleSnackbarClose}
           handleClose={handleClose}
-          errorMessage={t('common:file.file_not_uploaded')}
+          errorMessage={errorMessage || t('common:file.file_not_uploaded')}
           successMessage={t('common:file.file_uploaded')}
           title={t('common:file.add_file')}
           children={
@@ -118,7 +121,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
           handleClose={handleClose}
           title={t('common:file.add_file')}
           error={error}
-          errorMessage={t('common:file.file_not_uploaded')}
+          errorMessage={errorMessage || t('common:file.file_not_uploaded')}
           successMessage={t('common:file.file_uploaded')}
           success={success}
           children={
