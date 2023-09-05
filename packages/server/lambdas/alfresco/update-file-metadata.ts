@@ -3,7 +3,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { isEmpty } from 'lodash';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log, auditLog } from '../../utils/logger';
+import { log, auditLog, devLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { updateFileMetadataRequestBuilder } from './fileRequestBuilder';
@@ -19,6 +19,8 @@ const updateFileMetadata = async (
   options: AxiosRequestConfig,
   nodeId: string,
 ): Promise<AlfrescoResponse | undefined> => {
+  devLog.info(options);
+  devLog.info(nodeId);
   const url = `${alfrescoApiVersion}/nodes/${nodeId}`;
   const response = await alfrescoAxios.put(url, options);
   return response.data;
