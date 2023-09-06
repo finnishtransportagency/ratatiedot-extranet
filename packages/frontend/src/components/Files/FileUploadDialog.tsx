@@ -31,7 +31,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
 
   const [file, setFile] = useState<File>();
   const [name, setName] = useState<string>('');
-  // TODO: Add title
+  const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [dialogPhase, setPhase] = useState<number>(1);
   const [expanded, setExpanded] = useState(false);
@@ -47,6 +47,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
     setIsLoading(true);
     await uploadFile(file, {
       name,
+      title,
       description,
       categoryName: getRouterName(categoryName),
       nestedFolderId: nestedFolderId,
@@ -154,10 +155,17 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
                   <Collapse sx={{ width: '100%' }} in={expanded} timeout="auto" unmountOnExit>
                     <Typography variant="body1">{t('common:file.name')}</Typography>
                     <TextField
-                      sx={{ margin: '4px 0 26px 0' }}
+                      sx={{ margin: '4px 0 8px 0' }}
                       fullWidth
                       defaultValue={file.name}
                       onChange={(e) => setName(e.target.value)}
+                    ></TextField>
+                    <Typography variant="body1">{t('common:file.title')}</Typography>
+                    <TextField
+                      sx={{ margin: '4px 0 8px 0' }}
+                      className="form-text-field"
+                      onChange={(e) => setTitle(e.target.value)}
+                      fullWidth
                     ></TextField>
                     <Typography variant="body1">{t('common:file.description')}</Typography>
                     <TextField
