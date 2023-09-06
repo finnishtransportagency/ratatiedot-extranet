@@ -99,11 +99,16 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const nodeAlreadyExists = nodes?.data.list.entries.some((node: AlfrescoEntry) => node.name === folderName);
 
+    console.log('folderName: ', folderName);
+    console.log('nodeAlreadyExists', nodeAlreadyExists);
+    let alfrescoResult;
+
     if (nodeAlreadyExists) {
       throw new RataExtraLambdaError('Folder already exists', 409, 'nodeAlreadyExists');
+    } else {
+      alfrescoResult = await postFolder(requestOptions, targetNode);
     }
 
-    const alfrescoResult = await postFolder(requestOptions, targetNode);
     if (!alfrescoResult) {
       throw new RataExtraLambdaError('Error creating folder', 500);
     }
