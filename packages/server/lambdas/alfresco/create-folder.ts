@@ -97,7 +97,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const folderName = JSON.parse(event.body).name;
     const nodes = await getNodes(targetNode, options);
 
-    console.log(nodes?.data.entries);
+    console.log(nodes?.data.list.entries);
 
     const nodeAlreadyExists = nodes?.data.list.entries.some((node: AlfrescoEntry) => node.name === folderName);
 
