@@ -9,8 +9,9 @@ import { DatabaseClient } from '../database/client';
 import { folderCreateRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
-import axios, { AxiosRequestConfig } from 'axios';
+import { AxiosRequestConfig } from 'axios';
 import { getFolder, isFolderInCategory } from './list-files';
+import { getNodes } from './list-nodes';
 
 const database = await DatabaseClient.build();
 
@@ -89,13 +90,17 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       targetNode = categoryData.alfrescoFolder;
     }
 
-    const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderCreateRequestBuilder(event, headers)) as unknown as AxiosRequestOptions;
+    const options = await getAlfrescoOptions(user.uid);
+    const requestOptions = (await folderCreateRequestBuilder(event, options.headers)) as unknown as AxiosRequestOptions;
 
     const alfrescoResult = await postFolder(requestOptions, targetNode);
     if (!alfrescoResult) {
       throw new RataExtraLambdaError('Error creating folder', 500);
     }
+
+    const nodes = getNodes(targetNode, options);
+
+    console.log('node: ', nodes);
 
     // TODO at some later time
     //const result = await createFolderComponent(categoryData.id, alfrescoResult);
@@ -109,13 +114,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     };
   } catch (err: unknown) {
     log.error(err);
-    if (axios.isAxiosError(err)) {
-      console.log('is axios error: ', err);
-      if (err.status === 409) {
-        throw new RataExtraLambdaError('Folder already exists', 409, 'nodeAlreadyExists');
-      }
-    }
-    console.log('not axios error');
     return getRataExtraLambdaError(err);
   }
 }
