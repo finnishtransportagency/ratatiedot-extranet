@@ -14,9 +14,19 @@ export class RataExtraLambdaError extends Error {
 /**
  * Returns error translation key that gets translated on client
  */
-export const getClientErrorTranslationKey = (err: unknown) =>
-  (err instanceof RataExtraLambdaError && err.errorTranslationKey) || 'genericError';
-
+export const getClientErrorTranslationKey = (err: unknown) => {
+  if (err instanceof RataExtraLambdaError) {
+    if (err.errorTranslationKey) {
+      return {
+        errorTranslationKey: err.errorTranslationKey,
+        message: err.message,
+      };
+    } else {
+      return err.message;
+    }
+  }
+  return 'genericError';
+};
 /**
  * Returns error response object for RataExtra API requests
  */
