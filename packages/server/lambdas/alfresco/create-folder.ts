@@ -43,6 +43,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const paths = event.path.split('/');
     const category = paths.at(4);
     const nestedFolderId = paths.at(5);
+    console.log('body: ', event.body);
 
     const user = await getUser(event);
     log.info(
@@ -89,8 +90,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       targetNode = categoryData.alfrescoFolder;
     }
 
-    const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderCreateRequestBuilder(event, headers)) as unknown as AxiosRequestOptions;
+    const options = await getAlfrescoOptions(user.uid);
+    const requestOptions = (await folderCreateRequestBuilder(event, options.headers)) as unknown as AxiosRequestOptions;
 
     const alfrescoResult = await postFolder(requestOptions, targetNode);
     if (!alfrescoResult) {
@@ -107,13 +108,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       headers: { 'Content-Type:': 'application/json' },
       body: JSON.stringify(alfrescoResult),
     };
-  } catch (err) {
+  } catch (err: unknown) {
     log.error(err);
-    if (err.status) {
-      if (err.status === 409) {
-        throw new RataExtraLambdaError('Folder already exists', 409, 'nodeAlreadyExists');
-      }
-    }
     return getRataExtraLambdaError(err);
   }
 }
