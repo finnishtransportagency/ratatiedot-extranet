@@ -7,10 +7,11 @@ import { auditLog, log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderCreateRequestBuilder } from './fileRequestBuilder';
-import { AlfrescoResponse } from './fileRequestBuilder/types';
+import { AlfrescoEntry, AlfrescoResponse } from './fileRequestBuilder/types';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 import { getFolder, isFolderInCategory } from './list-files';
+import { getNodes } from './list-nodes';
 
 const database = await DatabaseClient.build();
 
@@ -43,7 +44,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const paths = event.path.split('/');
     const category = paths.at(4);
     const nestedFolderId = paths.at(5);
-    console.log('body: ', event.body);
 
     const user = await getUser(event);
     log.info(
@@ -57,9 +57,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     if (!category) {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
-    if (isEmpty(event.body)) {
+    if (isEmpty(event.body) || !event.body) {
       throw new RataExtraLambdaError('Request body missing', 400);
     }
+
     if (!fileEndpointsCache.length) {
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
@@ -92,6 +93,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const options = await getAlfrescoOptions(user.uid);
     const requestOptions = (await folderCreateRequestBuilder(event, options.headers)) as unknown as AxiosRequestOptions;
+
+    const folderName = JSON.parse(event.body).name;
+    const nodes = await getNodes(targetNode, options);
+
+    const nodeAlreadyExists = nodes?.data.list.entries.some((node: AlfrescoEntry) => node.name === folderName);
+
+    if (nodeAlreadyExists) {
+      throw new RataExtraLambdaError('Folder already exists', 409, 'nodeAlreadyExists');
+    }
 
     const alfrescoResult = await postFolder(requestOptions, targetNode);
     if (!alfrescoResult) {
