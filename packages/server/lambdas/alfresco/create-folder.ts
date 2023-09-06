@@ -93,7 +93,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const options = await getAlfrescoOptions(user.uid);
     const requestOptions = (await folderCreateRequestBuilder(event, options.headers)) as unknown as AxiosRequestOptions;
 
-    const nodes = getNodes(targetNode, options);
+    const nodes = await getNodes(targetNode, options);
 
     console.log('node: ', nodes);
 
