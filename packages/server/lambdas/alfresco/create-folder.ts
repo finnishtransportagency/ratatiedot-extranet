@@ -11,7 +11,6 @@ import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 import { getFolder, isFolderInCategory } from './list-files';
-import { getNodes } from './list-nodes';
 
 const database = await DatabaseClient.build();
 
@@ -90,12 +89,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       targetNode = categoryData.alfrescoFolder;
     }
 
-    const options = await getAlfrescoOptions(user.uid);
-    const requestOptions = (await folderCreateRequestBuilder(event, options.headers)) as unknown as AxiosRequestOptions;
-
-    const nodes = await getNodes(targetNode, options);
-
-    console.log('node: ', nodes);
+    const headers = (await getAlfrescoOptions(user.uid)).headers;
+    const requestOptions = (await folderCreateRequestBuilder(event, headers)) as unknown as AxiosRequestOptions;
 
     const alfrescoResult = await postFolder(requestOptions, targetNode);
     if (!alfrescoResult) {
@@ -112,8 +107,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       headers: { 'Content-Type:': 'application/json' },
       body: JSON.stringify(alfrescoResult),
     };
-  } catch (err: unknown) {
+  } catch (err) {
     log.error(err);
+    if (err.status) {
+      if (err.status === 409) {
+        throw new RataExtraLambdaError('Folder already exists', 409, 'nodeAlreadyExists');
+      }
+    }
     return getRataExtraLambdaError(err);
   }
 }
