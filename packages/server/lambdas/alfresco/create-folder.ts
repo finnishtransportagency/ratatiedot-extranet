@@ -7,7 +7,7 @@ import { auditLog, log } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { folderCreateRequestBuilder } from './fileRequestBuilder';
-import { AlfrescoEntry, AlfrescoResponse } from './fileRequestBuilder/types';
+import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 import { getFolder, isFolderInCategory } from './list-files';
@@ -97,12 +97,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const folderName = JSON.parse(event.body).name;
     const nodes = await getNodes(targetNode, options);
 
-    console.log(nodes?.data.list.entries);
+    const nodeAlreadyExists = nodes?.data.list.entries.some((node: AlfrescoResponse) => node.entry.name === folderName);
 
-    const nodeAlreadyExists = nodes?.data.list.entries.some((node: AlfrescoEntry) => node.name === folderName);
-
-    console.log('folderName: ', folderName);
-    console.log('nodeAlreadyExists', nodeAlreadyExists);
     let alfrescoResult;
 
     if (nodeAlreadyExists) {
