@@ -254,3 +254,23 @@ $ npm run sam:invoke --handler=create-user --profile=myFavouriteAWSProfile | pin
 ### Tests
 
 Unit tests can be run with `npm run test:server`
+
+### Translation
+
+Error messages support translations client-side. You can throw an `RataExtraLambdaError` and give it a `errorTranslationKey` parameter and translate that in the client with i18next.
+
+Example:
+
+```javascript
+if (error) {
+  throw new RataExtraLambdaError('Error occurred.', 500, 'errorOccurredKey');
+}
+```
+
+In client you must have the corresponding translation in `apiErrors.json` file.
+
+```json
+{
+  "errorOccurredKey": "Jokin meni pieleen!"
+}
+```
