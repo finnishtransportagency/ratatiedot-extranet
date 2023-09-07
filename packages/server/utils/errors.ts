@@ -18,6 +18,12 @@ export const getClientErrorTranslationKey = (err: unknown) =>
   (err instanceof RataExtraLambdaError && err.errorTranslationKey) || 'genericError';
 
 /**
+ * Returns error message to client
+ */
+export const getClientErrorMessage = (err: unknown) =>
+  (err instanceof RataExtraLambdaError && err.message) || 'Pyynnössä tapahtui virhe.';
+
+/**
  * Returns error response object for RataExtra API requests
  */
 export const getRataExtraLambdaError = (err: unknown) => ({
@@ -25,5 +31,9 @@ export const getRataExtraLambdaError = (err: unknown) => ({
   headers: {
     'Content-Type': 'application/json',
   },
-  body: JSON.stringify({ errorTranslationKey: getClientErrorTranslationKey(err) }, null, 2),
+  body: JSON.stringify(
+    { errorTranslationKey: getClientErrorTranslationKey(err), message: getClientErrorMessage(err) },
+    null,
+    2,
+  ),
 });
