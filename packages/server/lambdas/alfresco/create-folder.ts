@@ -57,7 +57,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     if (!category) {
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
-    if (isEmpty(event.body) || !event.body) {
+    if (isEmpty(event.body)) {
       throw new RataExtraLambdaError('Request body missing', 400);
     }
 
