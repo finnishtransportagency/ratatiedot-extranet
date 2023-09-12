@@ -25,6 +25,10 @@ export const Landing = () => {
         .
       </ParagraphWrapper>
       <SubtitleWrapper variant="subtitle1">Ajankohtaista</SubtitleWrapper>
+      <SubtitleWrapper variant="subtitle2">Ke 13.9. käyttökatko</SubtitleWrapper>
+      <ParagraphWrapper variant="body1">
+        Ratatiedon palvelimia päivitetään Keskiviikkona 13.9. klo 16-19. Päivitys saattaa aiheuttaa käyttökatkoja.
+      </ParagraphWrapper>
       <SubtitleWrapper variant="subtitle2">Tiedostojen päivämäärät</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
         Järjestelmämuutoksen (Ratatiedon extranet-&gt;Ratatieto) yhteydessä siirrettiin aineisto uuteen palveluun
