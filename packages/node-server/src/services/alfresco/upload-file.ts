@@ -19,7 +19,7 @@ export const getFolder = async (uid: string, nodeId: string) => {
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw error;
   }
 };

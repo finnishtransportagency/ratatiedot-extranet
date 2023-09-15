@@ -4,8 +4,13 @@ import { t } from 'i18next';
 
 export const getErrorMessage = (error: any): string => {
   if (error instanceof AxiosError) {
-    const axiosError = error as AxiosError;
-    switch (axiosError.response?.status) {
+    const errorTranslationKey = error.response?.data?.errorTranslationKey;
+
+    if (errorTranslationKey) {
+      return t(`apiErrors:${errorTranslationKey}` as any);
+    }
+
+    switch (error.response?.status) {
       case 401:
         return t('common:error.401');
       case 403:
@@ -14,7 +19,7 @@ export const getErrorMessage = (error: any): string => {
         return t('common:error.500');
     }
 
-    switch (axiosError.code) {
+    switch (error.code) {
       case Errors.ERR_BAD_REQUEST:
         return t('common:error.badRequest');
       case Errors.ERR_BAD_RESPONSE:
@@ -23,5 +28,6 @@ export const getErrorMessage = (error: any): string => {
         return t('common:error.networkError');
     }
   }
+
   return error?.message || t('common:error.500');
 };

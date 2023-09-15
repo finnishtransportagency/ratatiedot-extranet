@@ -11,6 +11,7 @@ import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 import { getFolder, isFolderInCategory } from './list-files';
+import { getNodes } from './list-nodes';
 
 const database = await DatabaseClient.build();
 
@@ -18,7 +19,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 export interface AxiosRequestOptions extends AxiosRequestConfig {
   body: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -59,6 +60,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     if (isEmpty(event.body)) {
       throw new RataExtraLambdaError('Request body missing', 400);
     }
+
     if (!fileEndpointsCache.length) {
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
@@ -89,10 +91,22 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       targetNode = categoryData.alfrescoFolder;
     }
 
-    const headers = (await getAlfrescoOptions(user.uid)).headers;
-    const requestOptions = (await folderCreateRequestBuilder(event, headers)) as AxiosRequestOptions;
+    const options = await getAlfrescoOptions(user.uid);
+    const requestOptions = (await folderCreateRequestBuilder(event, options.headers)) as unknown as AxiosRequestOptions;
 
-    const alfrescoResult = await postFolder(requestOptions, targetNode);
+    const folderName = JSON.parse(event.body).name;
+    const nodes = await getNodes(targetNode, options);
+
+    const nodeAlreadyExists = nodes?.data.list.entries.some((node: AlfrescoResponse) => node.entry.name === folderName);
+
+    let alfrescoResult;
+
+    if (nodeAlreadyExists) {
+      throw new RataExtraLambdaError('Folder already exists', 409, 'nodeAlreadyExists');
+    } else {
+      alfrescoResult = await postFolder(requestOptions, targetNode);
+    }
+
     if (!alfrescoResult) {
       throw new RataExtraLambdaError('Error creating folder', 500);
     }
@@ -107,7 +121,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       headers: { 'Content-Type:': 'application/json' },
       body: JSON.stringify(alfrescoResult),
     };
-  } catch (err) {
+  } catch (err: unknown) {
     log.error(err);
     return getRataExtraLambdaError(err);
   }

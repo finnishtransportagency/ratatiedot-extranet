@@ -1,0 +1,5 @@
+{
+  "folderNotEmpty": "Kansion poisto epäonnistui. Vain tyhjän kansion voi poistaa.",
+  "genericError": "Jokin meni pieleen!",
+  "nodeAlreadyExists": "Tiedosto tai kansio on jo olemassa."
+}

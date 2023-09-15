@@ -80,6 +80,12 @@ Using `eslint-plugin-jsx-a11y` library to catch accessibility issues early on.
 
 It is highly recommended to install and run accessibility tests using axe (https://www.deque.com/axe/) browser extension.
 
+## Translation
+
+i18next is used for translations. See their docs for more instructions at https://www.i18next.com/
+
+For API error translation, see - [server README](../server/README.md#translation)
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
