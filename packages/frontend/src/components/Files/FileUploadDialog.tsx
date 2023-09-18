@@ -18,6 +18,7 @@ import { Colors } from '../../constants/Colors';
 import './styles.css';
 import { AxiosResponse } from 'axios';
 import { getErrorMessage } from '../../utils/errorUtil';
+import { FileMaxSizeInBytes } from '../../constants/Data';
 
 interface FileUploadProps {
   categoryName: string;
@@ -84,6 +85,14 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
     const selectedFiles = files as FileList;
     setFile(selectedFiles?.[0]);
     setName(selectedFiles?.[0].name);
+
+    console.log('selectedFile: ', selectedFiles?.[0]);
+
+    if (file && file.size > FileMaxSizeInBytes) {
+      console.log('File too large');
+      setFile(undefined);
+      setName('');
+    }
   };
 
   switch (dialogPhase) {
@@ -106,7 +115,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
                 <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={() => handleClose()}>
                   {t('common:action.cancel')}
                 </ButtonWrapper>
-                <ButtonWrapper color="primary" variant="contained" onClick={() => setPhase(2)}>
+                <ButtonWrapper color="primary" variant="contained" onClick={() => handleFirstPhase()}>
                   {t('common:action.next')}
                 </ButtonWrapper>
               </Box>

@@ -24,3 +24,5 @@ export const SortDataType = {
   DESC_MODIFIED: 'DESC_MODIFIED',
   NONE: 'NONE',
 };
+
+export const FileMaxSizeInBytes = 50000000;
