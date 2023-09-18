@@ -63,7 +63,8 @@
     "file_uploaded": "Tiedosto lähetetty",
     "files_deleted": "Tiedostot poistettu",
     "file_delete_confirmation": "Haluatko varmasti poistaa tiedoston",
-    "files": "tiedostoa"
+    "files": "tiedostoa",
+    "file_too_large": "Tiedosto on liian suuri. Tiedoston enimmäiskoko on 50 MB."
   },
   "folder": {
     "select_folder_title": "Valitse kansio.",
