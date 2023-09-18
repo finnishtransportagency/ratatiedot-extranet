@@ -115,7 +115,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
                 <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={() => handleClose()}>
                   {t('common:action.cancel')}
                 </ButtonWrapper>
-                <ButtonWrapper color="primary" variant="contained" onClick={() => handleFirstPhase()}>
+                <ButtonWrapper color="primary" variant="contained" onClick={() => setPhase(2)}>
                   {t('common:action.next')}
                 </ButtonWrapper>
               </Box>
