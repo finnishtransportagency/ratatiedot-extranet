@@ -15,6 +15,7 @@ export const getAlfrescoOptions = async (uid: string, headers?: Record<string, s
     headers: {
       ...headers,
       'X-API-Key': alfrescoAPIKey,
+      'Cache-Control': 'no-cache',
       'OAM-REMOTE-USER': uid,
     },
   };
