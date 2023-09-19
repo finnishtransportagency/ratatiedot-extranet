@@ -25,7 +25,7 @@ export type TNode = {
     name: string;
     modifiedAt: string;
     nodeType: string;
-    content: any;
+    content: unknown;
     parentId: string;
     isFile: boolean;
     isFolder: boolean;
@@ -75,7 +75,7 @@ export const getFolder = async (uid: string, nodeId: string) => {
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw error;
   }
 };
@@ -188,6 +188,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         },
       },
     };
+
+    console.log('number of files returned from Alfresco: ', responseBody.data?.list.entries.length);
 
     return {
       statusCode: 200,
