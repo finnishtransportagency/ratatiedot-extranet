@@ -17,6 +17,9 @@ import { Modal } from '../Modal/Modal';
 import { Colors } from '../../constants/Colors';
 import './styles.css';
 import { AxiosResponse } from 'axios';
+import { getErrorMessage } from '../../utils/errorUtil';
+import { FileMaxSizeInBytes } from '../../constants/Data';
+import { toast } from 'react-toastify';
 
 interface FileUploadProps {
   categoryName: string;
@@ -38,6 +41,8 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
   const [error, setError] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [disableNext, setDisableNext] = useState<boolean>(false);
 
   const handleClose = () => {
     onClose();
@@ -58,12 +63,16 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
         setError(false);
         setSuccess(true);
         onUpload(result);
+        setFile(undefined);
+        setName(' ');
+        setPhase(1);
         return result;
       })
       .catch((error) => {
         setIsLoading(false);
         setSuccess(false);
         setError(true);
+        setErrorMessage(getErrorMessage(error));
       });
   };
 
@@ -81,6 +90,15 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
     const selectedFiles = files as FileList;
     setFile(selectedFiles?.[0]);
     setName(selectedFiles?.[0].name);
+    setDisableNext(false);
+
+    if (selectedFiles?.[0].size > FileMaxSizeInBytes) {
+      toast(t('common:file.file_too_large'), { type: 'error' });
+      setFile(undefined);
+      setName('');
+      setPhase(1);
+      setDisableNext(true);
+    }
   };
 
   switch (dialogPhase) {
@@ -90,7 +108,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
           open={open}
           onSnackbarClose={handleSnackbarClose}
           handleClose={handleClose}
-          errorMessage={t('common:file.file_not_uploaded')}
+          errorMessage={errorMessage || t('common:file.file_not_uploaded')}
           successMessage={t('common:file.file_uploaded')}
           title={t('common:file.add_file')}
           children={
@@ -103,7 +121,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
                 <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={() => handleClose()}>
                   {t('common:action.cancel')}
                 </ButtonWrapper>
-                <ButtonWrapper color="primary" variant="contained" onClick={() => setPhase(2)}>
+                <ButtonWrapper color="primary" variant="contained" disabled={disableNext} onClick={() => setPhase(2)}>
                   {t('common:action.next')}
                 </ButtonWrapper>
               </Box>
@@ -119,7 +137,7 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
           handleClose={handleClose}
           title={t('common:file.add_file')}
           error={error}
-          errorMessage={t('common:file.file_not_uploaded')}
+          errorMessage={errorMessage || t('common:file.file_not_uploaded')}
           successMessage={t('common:file.file_uploaded')}
           success={success}
           children={

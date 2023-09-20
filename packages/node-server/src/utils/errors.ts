@@ -3,17 +3,19 @@
  */
 export class RataExtraEC2Error extends Error {
   statusCode: number;
-  constructor(message: string, statusCode: number) {
+  errorTranslationKey?: string;
+  constructor(message: string, statusCode: number, errorTranslationKey?: string) {
     super(message);
     this.statusCode = statusCode;
+    this.errorTranslationKey = errorTranslationKey;
   }
 }
 
 /**
- * Returns error message to be returned to client
+ * Returns error translation key that gets translated on client
  */
-export const getClientErrorMessage = (err: unknown) =>
-  (err instanceof RataExtraEC2Error && err.message) || 'Pyynnön käsittelyssä tapahtui virhe.';
+export const getClientErrorTranslationKey = (err: unknown) =>
+  (err instanceof RataExtraEC2Error && err.errorTranslationKey) || 'genericError';
 
 /**
  * Returns error response object for RataExtra API requests
@@ -23,5 +25,5 @@ export const getRataExtraEC2Error = (err: unknown) => ({
   headers: {
     'Content-Type': 'application/json',
   },
-  body: JSON.stringify({ message: getClientErrorMessage(err) }, null, 2),
+  body: JSON.stringify({ errorTranslationKey: getClientErrorTranslationKey(err) }, null, 2),
 });

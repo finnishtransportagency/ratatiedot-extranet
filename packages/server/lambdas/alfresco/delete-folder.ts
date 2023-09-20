@@ -9,7 +9,6 @@ import { folderDeleteRequestBuilder } from './fileRequestBuilder';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 import { getNodes } from './list-nodes';
-import { SearchParameterName } from './searchQueryBuilder/types';
 
 const database = await DatabaseClient.build();
 
@@ -70,7 +69,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     if (nodes?.data.list.entries.length === 0) {
       alfrescoResult = await deleteFolder(requestOptions, nodeId);
     } else {
-      throw new RataExtraLambdaError('Only empty folders can be deleted', 400);
+      throw new RataExtraLambdaError('Only empty folders can be deleted', 400, 'folderNotEmpty');
     }
 
     // TODO at some later time

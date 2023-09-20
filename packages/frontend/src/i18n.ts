@@ -8,6 +8,7 @@ import landing from './assets/locales/fi/landing.json';
 import search from './assets/locales/fi/search.json';
 import accessDenied from './assets/locales/fi/accessDenied.json';
 import notFound from './assets/locales/fi/notFound.json';
+import apiErrors from './assets/locales/fi/apiErrors.json';
 
 export const defaultNS = 'common';
 export const resources = {
@@ -17,6 +18,7 @@ export const resources = {
     search,
     accessDenied,
     notFound,
+    apiErrors,
   },
 };
 
