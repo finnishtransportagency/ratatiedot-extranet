@@ -4,6 +4,8 @@ import DiscardOrSave from '../../../assets/images/instructions/discard_save.png'
 import TextEditing from '../../../assets/images/instructions/text_editing.png';
 import Notifications from '../../../assets/images/instructions/notifications.png';
 import ToolBar from '../../../assets/images/instructions/toolbar.png';
+import TextFieldCard from '../../../assets/images/instructions/card_textfield.png';
+import AddFile from '../../../assets/images/instructions/add_file.png';
 import { SubtitleWrapper } from '../index.styles';
 import { ParagraphWrapper } from '../../Landing/index.styles';
 import { Box, List, ListItem, ListItemText } from '@mui/material';
@@ -121,20 +123,44 @@ export const EditToolInstructions = () => {
       />
       <SubtitleWrapper variant="subtitle1">6. Uuden kortin, tekstikentän tai tiedoston lisääminen</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
-        Sivun yläosalla löytyy 4 eri ilmoituspainiketta, josta voit lisätä uuden ilmoituksen. Haluamasi ilmoitustyypin
-        mukaan valitse: sininen info-ilmoitus (ympyrä), keltainen varoitus (kolmio), punainen virhe/kriittinen
-        (kahdeksankulmio) tai vihreä korjattu/vahvistus (valintamerkki).
+        Jokaisella sivulla ilmestyy muokkausmoodissa painikkeet kortin, tekstikentän tai tiedoston lisäämiseksi uuteen
+        sivunosaan.
       </ParagraphWrapper>
       <ParagraphWrapper variant="body1">
-        Voit myös muokata olemassa olevaa ilmoitusta. Klikkaa ensin ilmoituksen, jonka haluat muokata, ja sitten voit
-        vapaasti muokata sen tekstin, ilmoitustyypin tai poistaa koko ilmoitus (roskakori-ikoni).
+        <strong>Lisää kortti -painike</strong> on rivin vasemmalla oleva painike. Klikkaamalla sitä pääset valitsemaan
+        lisättävän kortin ja sitten muokkaamaan kortin sisältöä.
+      </ParagraphWrapper>
+      <ParagraphWrapper variant="body1">
+        <strong>Lisää tekstikenttä -painike</strong> on keskellä ja sitä klikkaamalla avautuu tekstikentän, johon voit
+        vapaasti kirjoittaa. Myös tekstin muokkaustyökalu ilmestyy sitten yläpalkkiin.
       </ParagraphWrapper>
       <Box
-        sx={{ maxWidth: '100%', height: 'auto', padding: 0, margin: 0 }}
+        sx={{ maxWidth: '100%', height: 'auto', padding: 0, marginBottom: '20px' }}
         component="img"
-        src={Notifications}
+        src={TextFieldCard}
         alt="Logo"
       />
+      <ParagraphWrapper variant="body1">
+        <strong>Lisää tiedosto -painike</strong> on tiedostolistan vasemmassa laidassa. Klikkaamalla avautuu
+        ponnahdusikkuna, josta pääset lisäämään tiedoston tai kansion ja sen jälkeen halutessasi muokkaamaan tiedoston
+        nimen sekä lisäämään selitystekstiä.
+      </ParagraphWrapper>
+      <Box
+        sx={{ maxWidth: '100%', height: 'auto', padding: 0, marginBottom: '20px' }}
+        component="img"
+        src={AddFile}
+        alt="Logo"
+      />
+      <Box style={{ borderRadius: '12px', borderColor: Colors.yellow, borderStyle: 'solid', borderWidth: '1px' }}>
+        <Box p={2}>
+          <HighlightedTitle>Huom!</HighlightedTitle>
+          <ParagraphWrapper variant="body1">
+            Mikäli tiedosto täytyy korvata, on vanha tiedosto ensin poistettava. Järjestelmä ei tue samannimisten
+            tiedostojen lisäämistä.
+          </ParagraphWrapper>
+          <ParagraphWrapper variant="body1">Tiedostojen maksimikoko on 50 MB.</ParagraphWrapper>
+        </Box>
+      </Box>
     </ProtectedContainerWrapper>
   );
 };
