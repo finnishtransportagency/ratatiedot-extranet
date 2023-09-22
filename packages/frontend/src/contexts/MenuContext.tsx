@@ -19,6 +19,7 @@ import axios from 'axios';
 import { get } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { getErrorMessage } from '../utils/errorUtil';
+import HelpIcon from '@mui/icons-material/Help';
 
 export interface IMenuItem {
   key: string;
@@ -43,6 +44,8 @@ const fetchMaterialClass = (): IMenuItem[] => {
         return <AlternateEmailIcon />;
       case 'Muut':
         return <WidgetsIcon />;
+      case 'Käyttöohjeet':
+        return <HelpIcon />;
       default:
         return <BrowserNotSupportedIcon />;
     }

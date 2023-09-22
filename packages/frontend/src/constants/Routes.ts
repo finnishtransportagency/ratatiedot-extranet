@@ -66,4 +66,13 @@ export const Routes = {
   RAILWAY_MONITORING_SERVICE: `/${getRouterName(MainCategoryNames.OTHERS)}/${getRouterName(
     SubCategoryNames.RAILWAY_MONITORING_SERVICE,
   )}`,
+  INSTRUCTIONS: '/kayttoohjeet',
+  SEARCH_AND_FILTERS: `/${getRouterName(MainCategoryNames.INSTRUCTIONS)}/${getRouterName(
+    SubCategoryNames.SEARCH_AND_FILTERS,
+  )}`,
+  FAVORITES: `/${getRouterName(MainCategoryNames.INSTRUCTIONS)}/${getRouterName(SubCategoryNames.FAVORITES)}`,
+  LOGIN_AND_PERMISSIONS: `/${getRouterName(MainCategoryNames.INSTRUCTIONS)}/${getRouterName(
+    SubCategoryNames.LOGIN_AND_PERMISSIONS,
+  )}`,
+  EDIT_TOOL: `/${getRouterName(MainCategoryNames.INSTRUCTIONS)}/${getRouterName(SubCategoryNames.EDIT_TOOL)}`,
 };
