@@ -154,7 +154,7 @@ export class RataExtraBackendStack extends NestedStack {
           beforeInstall(inputDir: string, outputDir: string) {
             return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
           },
-          beforeBundling(_inputDir: string, _outputDir: string) {
+          beforeBundling() {
             return [];
           },
           afterBundling(_inputDir: string, outputDir: string) {
@@ -537,7 +537,7 @@ export class RataExtraBackendStack extends NestedStack {
       defaultAction: ListenerAction.fixedResponse(404),
     });
 
-    listenerTargets.map((target) =>
+    listenerTargets.forEach((target) =>
       listener.addTargets(`Target-${target.targetName}`, {
         targets: [new LambdaTarget(target.lambda)],
         priority: target.priority,
