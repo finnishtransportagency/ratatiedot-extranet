@@ -2,8 +2,6 @@ import { ProtectedContainerWrapper } from '../../../styles/common';
 import Filters from '../../../assets/images/instructions/filters.png';
 import { ParagraphWrapper, SubtitleWrapper } from '../index.styles';
 import { Box } from '@mui/material';
-import { Colors } from '../../../constants/Colors';
-import { HighlightedTitle } from '../../../components/Typography/HighlightedTitle';
 
 export const SearchAndFiltersInstructions = () => {
   return (

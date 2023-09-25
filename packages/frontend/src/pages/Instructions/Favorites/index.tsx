@@ -4,7 +4,6 @@ import AddFavorite from '../../../assets/images/instructions/add_favorite.png';
 import RemoveFavorite from '../../../assets/images/instructions/remove_favorite.png';
 import { ParagraphWrapper, SubtitleWrapper } from '../index.styles';
 import { Box } from '@mui/material';
-import { Colors } from '../../../constants/Colors';
 
 export const FavoritesInstructions = () => {
   return (

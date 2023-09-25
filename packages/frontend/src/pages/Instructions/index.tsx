@@ -1,10 +1,5 @@
-import { SubtitleWrapper, ParagraphWrapper } from './index.styles';
+import { SubtitleWrapper } from './index.styles';
 import { ProtectedContainerWrapper } from '../../styles/common';
-import { Box, Grid, List, ListItem, ListItemText, Paper } from '@mui/material';
-import SearchImage from '../../assets/images/instructions/search.png';
-import EditImage from '../../assets/images/instructions/edit_mode.png';
-import { StaticAreaFolder } from '../../components/Folders/StaticAreaFolder';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Link } from 'react-router-dom';
 
 export const Instructions = () => {

@@ -1,10 +1,5 @@
 import { ProtectedContainerWrapper } from '../../../styles/common';
-import SearchImage from '../../assets/images/instructions/search.png';
-import EditImage from '../../assets/images/instructions/edit_mode.png';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { Link } from 'react-router-dom';
-import { SubtitleWrapper } from '../index.styles';
-import { ContactEditorCard, ContactEditorCardPaperWrapper } from '../../../components/Editor/Cards/ContactEditorCard';
+import { ContactEditorCardPaperWrapper } from '../../../components/Editor/Cards/ContactEditorCard';
 import { HighlightedTitle } from '../../../components/Typography/HighlightedTitle';
 import { ParagraphWrapper } from '../../Landing/index.styles';
 import { Typography } from '@mui/material';
