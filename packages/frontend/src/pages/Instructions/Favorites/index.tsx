@@ -17,7 +17,7 @@ export const FavoritesInstructions = () => {
         sx={{ maxWidth: '100%', height: 'auto', padding: 0, margin: 0 }}
         component="img"
         src={Favorites}
-        alt="Logo"
+        alt="Suosikit"
       />
       <SubtitleWrapper variant="subtitle1">1. Lisää kohde suosikkeihin</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
@@ -29,7 +29,7 @@ export const FavoritesInstructions = () => {
         sx={{ maxWidth: '100%', height: 'auto', padding: 0, margin: 0 }}
         component="img"
         src={AddFavorite}
-        alt="Logo"
+        alt="Lisää suosikki"
       />
       <SubtitleWrapper variant="subtitle1">2. Poista kohde suosikeista</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
@@ -40,7 +40,7 @@ export const FavoritesInstructions = () => {
         sx={{ maxWidth: '100%', height: 'auto', padding: 0, margin: 0 }}
         component="img"
         src={RemoveFavorite}
-        alt="Logo"
+        alt="Poista suosikki"
       />
     </ProtectedContainerWrapper>
   );

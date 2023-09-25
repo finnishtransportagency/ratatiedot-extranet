@@ -28,14 +28,19 @@ export const EditToolInstructions = () => {
         sx={{ maxWidth: '100%', height: 'auto', padding: 0, margin: 0 }}
         component="img"
         src={ActivateEditMode}
-        alt="Logo"
+        alt="Muokkaustilan aktivointipainike"
       />
       <SubtitleWrapper variant="subtitle1">2. Muokkaustilan käyttö</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
         Kun muokkaustila on aktivoitu, voit vapaasti valita sivun sisällöstä muokattavan osan. Valinnan jälkeen
         aktivoituu osaan kuuluvat työkalut sivun ylälaidassa.
       </ParagraphWrapper>
-      <Box sx={{ maxWidth: '100%', height: 'auto', padding: 0, margin: 0 }} component="img" src={ToolBar} alt="Logo" />
+      <Box
+        sx={{ maxWidth: '100%', height: 'auto', padding: 0, margin: 0 }}
+        component="img"
+        src={ToolBar}
+        alt="Sivun yläosan työkalupalkki"
+      />
       <SubtitleWrapper variant="subtitle1">3. Tallenna tai hylkää muutokset</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
         Kun olet tehnyt muutoksen, voit sulkea sen työkalupalkin painamalla X-painiketta. Sen jälkeen olet taas
@@ -59,7 +64,7 @@ export const EditToolInstructions = () => {
         sx={{ maxWidth: '100%', height: 'auto', padding: 0, marginBottom: 4 }}
         component="img"
         src={DiscardOrSave}
-        alt="Logo"
+        alt="Hylkää tai tallenna muutokset"
       />
       <Box
         style={{
@@ -103,7 +108,7 @@ export const EditToolInstructions = () => {
         sx={{ maxWidth: '100%', height: 'auto', padding: 0, margin: 0 }}
         component="img"
         src={TextEditing}
-        alt="Logo"
+        alt="Tekstin muokkaustyökalut"
       />
       <SubtitleWrapper variant="subtitle1">5. Ilmoituksen lisääminen tai muokkaus</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
@@ -119,7 +124,7 @@ export const EditToolInstructions = () => {
         sx={{ maxWidth: '100%', height: 'auto', padding: 0, margin: 0 }}
         component="img"
         src={Notifications}
-        alt="Logo"
+        alt="Ilmoitusasetukset"
       />
       <SubtitleWrapper variant="subtitle1">6. Uuden kortin, tekstikentän tai tiedoston lisääminen</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
@@ -135,10 +140,10 @@ export const EditToolInstructions = () => {
         vapaasti kirjoittaa. Myös tekstin muokkaustyökalu ilmestyy sitten yläpalkkiin.
       </ParagraphWrapper>
       <Box
-        sx={{ maxWidth: '100%', height: 'auto', padding: 0, marginBottom: '20px' }}
+        sx={{ maxWidth: '100%', height: 'auto', padding: 0, marginBottom: '16px' }}
         component="img"
         src={TextFieldCard}
-        alt="Logo"
+        alt="Tekstikentän tai kortin lisääminen"
       />
       <ParagraphWrapper variant="body1">
         <strong>Lisää tiedosto -painike</strong> on tiedostolistan vasemmassa laidassa. Klikkaamalla avautuu
@@ -146,10 +151,10 @@ export const EditToolInstructions = () => {
         nimen sekä lisäämään selitystekstiä.
       </ParagraphWrapper>
       <Box
-        sx={{ maxWidth: '100%', height: 'auto', padding: 0, marginBottom: '20px' }}
+        sx={{ maxWidth: '100%', height: 'auto', padding: 0, marginBottom: '16px' }}
         component="img"
         src={AddFile}
-        alt="Logo"
+        alt="Tiedoston lisääminen"
       />
       <Box style={{ borderRadius: '12px', borderColor: Colors.yellow, borderStyle: 'solid', borderWidth: '1px' }}>
         <Box p={2}>

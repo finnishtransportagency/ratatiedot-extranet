@@ -14,14 +14,6 @@ export const SearchAndFiltersInstructions = () => {
         oikealta yläkulmalta. Kirjoita hakusanasi hakukentälle, kun olet valmis, paina enter-näppäintä ja tulokset-sivu
         latautuu.
       </ParagraphWrapper>
-      <Box style={{ borderRadius: '12px', borderColor: Colors.midgrey, borderStyle: 'solid', borderWidth: '1px' }}>
-        <Box p={2}>
-          <HighlightedTitle>Vinkki haun käyttöön</HighlightedTitle>
-          <ParagraphWrapper variant="body1">
-            Käytä “+”-merkkiä hakukentässä ja hae esim. tiedoston nimi + vuosi + aineistoluokka + sisältösana.
-          </ParagraphWrapper>
-        </Box>
-      </Box>
       <SubtitleWrapper variant="subtitle1">2. Suodattimet</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
         Haun suodattimet löytyvät hakukentän oikeasta reunasta suodatin-kuvakkeen takaa. Suodatin-kuvakkeen painallus
@@ -29,7 +21,12 @@ export const SearchAndFiltersInstructions = () => {
         -nappia ja tuloksesi päivittyvät suodattimien mukaisesti. Näet myös hakutuloksen sivulta, millaiset suodattimet
         ovat käytössä. Ne on listattu pienissä mustissa laatikoissa sivun yläosassa.
       </ParagraphWrapper>
-      <Box sx={{ maxWidth: '100%', height: 'auto', padding: 0, margin: 0 }} component="img" src={Filters} alt="Logo" />
+      <Box
+        sx={{ maxWidth: '100%', padding: 0, flex: 1, marginBottom: '16px' }}
+        component="img"
+        src={Filters}
+        alt="Suodatinpainikke löytyy hakupalkin oikeasta laidasta"
+      />
       <ParagraphWrapper variant="body1">
         Jos haluat poistaa suodattimet, avaa uudestaan suodatin-valikkoa ja klikkaa yläosassa olevaa Poista kaikki
         suodattimet -painiketta. Voit myös poistaa valintasi yksittäin jokaisesta suodatinkohteesta, jos haluat poistaa
