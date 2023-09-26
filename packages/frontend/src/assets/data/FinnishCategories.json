@@ -57,5 +57,14 @@
       "PLANNING_ARCHIVE": "Piirustusarkisto",
       "RAILWAY_MONITORING_SERVICE": "Ratakuvapalvelu"
     }
+  },
+  {
+    "category": { "INSTRUCTIONS": "Käyttöohjeet" },
+    "subCategories": {
+      "SEARCH_AND_FILTERS": "Haku ja suodattimet",
+      "FAVORITES": "Suosikit",
+      "LOGIN_AND_PERMISSIONS": "Kirjautuminen ja käyttöoikeudet",
+      "EDIT_TOOL": "Muokkaustyökalu"
+    }
   }
 ]

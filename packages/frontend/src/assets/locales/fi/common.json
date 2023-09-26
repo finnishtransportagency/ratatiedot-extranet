@@ -45,7 +45,8 @@
   "menu": {
     "frontpage": "Etusivu",
     "favorite": "Suosikit",
-    "logout": "Kirjaudu ulos"
+    "logout": "Kirjaudu ulos",
+    "instructions": "Käyttöohjeet"
   },
   "file": {
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",

@@ -34,6 +34,11 @@ import { AppContextProvider } from './contexts/AppContextProvider';
 import { AcceptInstructions } from './pages/AcceptInstructions';
 import { AreaPage } from './pages/ProtectedPage/AreaPage';
 import { ProtectedSubPage } from './pages/ProtectedPage/ProtectedSubPage';
+import { Instructions } from './pages/Instructions';
+import { SearchAndFiltersInstructions } from './pages/Instructions/SearchAndFilters';
+import { FavoritesInstructions } from './pages/Instructions/Favorites';
+import { LoginAndPermissionsInstructions } from './pages/Instructions/LoginAndPermissions';
+import { EditToolInstructions } from './pages/Instructions/EditTool';
 
 /**
  * Return router name based on page title's name
@@ -86,6 +91,7 @@ const getProtectedRoute = (path: string, component: JSX.Element, hasStaticAreas?
 const HOME_ROUTE = getProtectedRoute(Routes.HOME, <Landing />);
 const ACCEPT_INSTRUCTIONS: RouteObject = { path: Routes.ACCEPT_INSTRUCTIONS, element: <AcceptInstructions /> };
 const SEARCH_ROUTE = getProtectedRoute(Routes.SEARCH_RESULT, <SearchResult />);
+const INSTRUCTIONS_ROUTE = getProtectedRoute(Routes.INSTRUCTIONS, <Instructions />);
 
 const DIAGRAMS_ROUTES = [
   ...getProtectedRoute(Routes.LINE_DIAGRAMS, <LineDiagrams />, true),
@@ -130,6 +136,13 @@ const OTHERS_ROUTES = [
   ...getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
 ];
 
+const INSTRUCTIONS_ROUTES = [
+  ...getProtectedRoute(Routes.SEARCH_AND_FILTERS, <SearchAndFiltersInstructions />),
+  ...getProtectedRoute(Routes.FAVORITES, <FavoritesInstructions />),
+  ...getProtectedRoute(Routes.LOGIN_AND_PERMISSIONS, <LoginAndPermissionsInstructions />),
+  ...getProtectedRoute(Routes.EDIT_TOOL, <EditToolInstructions />),
+];
+
 export const categoryRoutes: RouteObject[] = [
   ...DIAGRAMS_ROUTES,
   ...OPERATION_ROUTES,
@@ -137,12 +150,14 @@ export const categoryRoutes: RouteObject[] = [
   ...SAFETY_EQUIPMENT_ROUTES,
   ...CONTACT_INFORMATION_ROUTES,
   ...OTHERS_ROUTES,
+  ...INSTRUCTIONS_ROUTES,
 ];
 
 const routes: RouteObject[] = [
   ...HOME_ROUTE,
   ACCEPT_INSTRUCTIONS,
   ...SEARCH_ROUTE,
+  ...INSTRUCTIONS_ROUTE,
   {
     path: Routes.LOGOUT_REDIRECT,
     loader: () => {
