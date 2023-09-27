@@ -3,11 +3,12 @@ import axios from 'axios';
 
 import { QueryKeys } from '../../constants/QueryKeys';
 import { getRouterName } from '../../utils/helpers';
-import { STATIC_ROUTES } from '../../constants/Routes';
+import { Routes, STATIC_ROUTES } from '../../constants/Routes';
 
 export const useGetCategoryPageContent = (categoryName: string) => {
   return useQuery({
-    enabled: Boolean(categoryName) && !STATIC_ROUTES.includes(categoryName),
+    enabled:
+      Boolean(categoryName) && !STATIC_ROUTES.includes(categoryName) && categoryName !== Routes.SEARCH_RESULT.slice(1),
     queryKey: [QueryKeys.GET_PAGE_CONTENTS_QUERY_KEY, categoryName],
     queryFn: async () => {
       const response = await axios.get(`/api/database/page-contents/${getRouterName(categoryName)}`);
