@@ -10,6 +10,9 @@ import { router } from './routes';
 import { theme } from './styles/createTheme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './i18n';
+import axios from 'axios';
+
+axios.defaults.baseURL = 'http://localhost:3002';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
