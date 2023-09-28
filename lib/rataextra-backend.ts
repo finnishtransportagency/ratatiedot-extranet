@@ -269,7 +269,7 @@ export class RataExtraBackendStack extends NestedStack {
     });
 
     const alfrescoListActivities = this.createNodejsLambda({
-      ...prismaParameters,
+      ...prismaAlfrescoCombinedParameters,
       name: 'list-activities',
       relativePath: '../packages/server/lambdas/alfresco/list-activities.ts',
     });
