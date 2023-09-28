@@ -93,8 +93,7 @@ export const EditToolInstructions = () => {
       </ParagraphWrapper>
       <ParagraphWrapper variant="body1">
         Seuraavaksi löydät formaattityökalut: Lihavoitu (B), kursivoitu (I), alleviivattu (U), tekstin väri (ympyrä),
-        linkki (linkki-ikoni), bulletlista, numeroitu lista, ja työpöytäversiossa vielä sarakepainikkeet: yksi sarake
-        tai kaksi saraketta.
+        linkki (linkki-ikoni), bulletlista sekä numeroitu lista.
       </ParagraphWrapper>
       <ParagraphWrapper variant="body1">
         Jos kyseessä on alasivu-kohde, niin työkalupalkista löytyy myös värivalikko (paletti-ikoni) sekä uuden
@@ -126,10 +125,12 @@ export const EditToolInstructions = () => {
         src={Notifications}
         alt="Ilmoitusasetukset"
       />
-      <SubtitleWrapper variant="subtitle1">6. Uuden kortin, tekstikentän tai tiedoston lisääminen</SubtitleWrapper>
+      <SubtitleWrapper variant="subtitle1">
+        6. Uuden kortin, tekstikentän, tiedoston tai kansion lisääminen
+      </SubtitleWrapper>
       <ParagraphWrapper variant="body1">
-        Jokaisella sivulla ilmestyy muokkausmoodissa painikkeet kortin, tekstikentän tai tiedoston lisäämiseksi uuteen
-        sivunosaan.
+        Jokaisella sivulla ilmestyy muokkausmoodissa painikkeet kortin, tekstikentän, tiedoston tai kansion lisäämiseksi
+        uuteen sivunosaan.
       </ParagraphWrapper>
       <ParagraphWrapper variant="body1">
         <strong>Lisää kortti -painike</strong> on rivin vasemmalla oleva painike. Klikkaamalla sitä pääset valitsemaan
@@ -146,7 +147,7 @@ export const EditToolInstructions = () => {
         alt="Tekstikentän tai kortin lisääminen"
       />
       <ParagraphWrapper variant="body1">
-        <strong>Lisää tiedosto -painike</strong> on tiedostolistan vasemmassa laidassa. Klikkaamalla avautuu
+        <strong>Lisää uusi -painike</strong> on tiedostolistan vasemmassa laidassa. Klikkaamalla avautuu
         ponnahdusikkuna, josta pääset lisäämään tiedoston tai kansion ja sen jälkeen halutessasi muokkaamaan tiedoston
         nimen sekä lisäämään selitystekstiä.
       </ParagraphWrapper>
@@ -164,6 +165,7 @@ export const EditToolInstructions = () => {
             tiedostojen lisäämistä.
           </ParagraphWrapper>
           <ParagraphWrapper variant="body1">Tiedostojen maksimikoko on 50 MB.</ParagraphWrapper>
+          <ParagraphWrapper variant="body1">Vain tyhjiä kansioita voi poistaa.</ParagraphWrapper>
         </Box>
       </Box>
     </ProtectedContainerWrapper>

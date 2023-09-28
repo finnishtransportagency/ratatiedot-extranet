@@ -39,6 +39,7 @@ import { SearchAndFiltersInstructions } from './pages/Instructions/SearchAndFilt
 import { FavoritesInstructions } from './pages/Instructions/Favorites';
 import { LoginAndPermissionsInstructions } from './pages/Instructions/LoginAndPermissions';
 import { EditToolInstructions } from './pages/Instructions/EditTool';
+import { ProtectedStaticPage } from './pages/ProtectedPage/ProtectedStaticPage';
 
 /**
  * Return router name based on page title's name
@@ -85,6 +86,27 @@ const getProtectedRoute = (path: string, component: JSX.Element, hasStaticAreas?
     return [baseRoute, areaRoute];
   }
 
+  return [baseRoute];
+};
+
+const getProtectedStaticRoute = (path: string, component: JSX.Element): RouteObject[] => {
+  const baseRoute = {
+    path: path,
+    element: (
+      <AppContextProvider>
+        <ProtectedStaticPage children={component} />
+      </AppContextProvider>
+    ),
+    errorElement: <RootBoundary />, // Send user here whenever error is thrown
+    loader: async () => {
+      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+      if (isFirstLogin === 'true') {
+        return redirect(Routes.ACCEPT_INSTRUCTIONS);
+      }
+      return null;
+    },
+    children: [],
+  };
   return [baseRoute];
 };
 
@@ -137,10 +159,10 @@ const OTHERS_ROUTES = [
 ];
 
 const INSTRUCTIONS_ROUTES = [
-  ...getProtectedRoute(Routes.SEARCH_AND_FILTERS, <SearchAndFiltersInstructions />),
-  ...getProtectedRoute(Routes.FAVORITES, <FavoritesInstructions />),
-  ...getProtectedRoute(Routes.LOGIN_AND_PERMISSIONS, <LoginAndPermissionsInstructions />),
-  ...getProtectedRoute(Routes.EDIT_TOOL, <EditToolInstructions />),
+  ...getProtectedStaticRoute(Routes.SEARCH_AND_FILTERS, <SearchAndFiltersInstructions />),
+  ...getProtectedStaticRoute(Routes.FAVORITES, <FavoritesInstructions />),
+  ...getProtectedStaticRoute(Routes.LOGIN_AND_PERMISSIONS, <LoginAndPermissionsInstructions />),
+  ...getProtectedStaticRoute(Routes.EDIT_TOOL, <EditToolInstructions />),
 ];
 
 export const categoryRoutes: RouteObject[] = [

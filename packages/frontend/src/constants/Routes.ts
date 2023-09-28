@@ -76,3 +76,10 @@ export const Routes = {
   )}`,
   EDIT_TOOL: `/${getRouterName(MainCategoryNames.INSTRUCTIONS)}/${getRouterName(SubCategoryNames.EDIT_TOOL)}`,
 };
+
+export const STATIC_ROUTES = [
+  getRouterName(SubCategoryNames.SEARCH_AND_FILTERS),
+  getRouterName(SubCategoryNames.FAVORITES),
+  getRouterName(SubCategoryNames.LOGIN_AND_PERMISSIONS),
+  getRouterName(SubCategoryNames.EDIT_TOOL),
+];
