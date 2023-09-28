@@ -6,18 +6,10 @@ import { log } from '../../utils/logger';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { searchQueryBuilder } from './searchQueryBuilder';
-import {
-  AdditionalFields,
-  IFolderSearchParameter,
-  IParentSearchParameter,
-  QueryLanguage,
-  SearchParameterName,
-  SortingFieldParameter,
-} from './searchQueryBuilder/types';
+import { QueryLanguage } from './searchQueryBuilder/types';
 import { get } from 'lodash';
 import { validateQueryParameters } from '../../utils/validation';
-import { alfrescoApiVersion, alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 
 export type TNode = {
   entry: {
@@ -32,15 +24,9 @@ export type TNode = {
   };
 };
 
-const searchByTermWithParent = async (
-  uid: string,
-  alfrescoParent: string,
-  alfrescoChildFolder = '',
-  page: number,
-  language: QueryLanguage,
-) => {
+const searchByTermWithParent = async (uid: string, alfrescoParent: string, alfrescoChildFolder = '', page: number) => {
   try {
-    const searchParameters = [];
+    /* const searchParameters = [];
     const parent: IParentSearchParameter = {
       parameterName: SearchParameterName.PARENT,
       parent: alfrescoParent,
@@ -63,6 +49,17 @@ const searchByTermWithParent = async (
     const url = alfrescoSearchApiVersion;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.post(url, bodyRequest, options);
+    return response.data; */
+    let url = '';
+    const skipCount = Math.max(page ?? 0, 0) * 50;
+    if (alfrescoChildFolder) {
+      url = `${alfrescoApiVersion}/nodes/${alfrescoChildFolder}/children?skipCount=${skipCount}&maxItems=50`;
+    } else {
+      url = `${alfrescoApiVersion}/nodes/${alfrescoParent}/children?skipCount=${skipCount}&maxItems=50`;
+    }
+
+    const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
+    const response = await alfrescoAxios.get(url, options);
     return response.data;
   } catch (err) {
     throw err;
@@ -156,19 +153,19 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       // Check if the nest folder is a descendant of the category
       const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
       if (isFolderDescendantOfCategory) {
-        data = await searchByTermWithParent(user.uid, nestedFolderId, '', page, language); // '' as no child folder given
+        data = await searchByTermWithParent(user.uid, nestedFolderId, '', page); // '' as no child folder given
       }
     }
 
     if (childFolderName) {
       // Check if the folder is a direct child of the category
-      const childFolder = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, 0, language); // direct child folder name is given, default page should be 0
+      const childFolder = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, 0); // direct child folder name is given, default page should be 0
       const childFolderId = get(childFolder, 'list.entries[0].entry.id', -1);
-      data = await searchByTermWithParent(user.uid, childFolderId, '', page, language);
+      data = await searchByTermWithParent(user.uid, childFolderId, '', page);
     }
 
     if (!nestedFolderId && !childFolderName) {
-      data = await searchByTermWithParent(user.uid, alfrescoParent, '', page, language); // '' as no child folder given
+      data = await searchByTermWithParent(user.uid, alfrescoParent, '', page); // '' as no child folder given
     }
 
     const responseBody = {
