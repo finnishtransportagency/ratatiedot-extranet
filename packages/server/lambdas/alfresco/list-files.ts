@@ -35,8 +35,7 @@ export type TNode = {
 const listFiles = async (uid: string, nodeId: string, page: number) => {
   try {
     const skipCount = Math.max(page ?? 0, 0) * 50;
-    const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?skipCount=${skipCount}&maxItems=50&include=${AdditionalFields.PROPERTIES}`;
-
+    const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?skipCount=${skipCount}&maxItems=50&include=${AdditionalFields.PROPERTIES}&orderBy=name ASC`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
     return response.data;
@@ -131,7 +130,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(
       user,
-      `Fetching files for for page ${category} ${nestedFolderId ? `, nested folder id ${nestedFolderId}` : ''} ${
+      `Fetching files for page ${category} ${nestedFolderId ? `, nested folder id ${nestedFolderId}` : ''} ${
         childFolderName ? `, category's child folder name ${childFolderName}` : ''
       }`,
     );
@@ -176,9 +175,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     if (childFolderName) {
       // Check if the folder is a direct child of the category
       const childFolder = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, 0, language); // direct child folder name is given, default page should be 0
-      console.log('childFolder: ', childFolder);
       const childFolderId = get(childFolder, 'list.entries[0].entry.id');
-      console.log('ChildFolderId is: ', childFolderId);
       if (childFolderId) {
         data = await listFiles(user.uid, childFolderId, page);
       }
@@ -205,8 +202,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         },
       },
     };
-
-    console.log('number of files returned from Alfresco: ', responseBody.data?.list.entries.length);
 
     return {
       statusCode: 200,
