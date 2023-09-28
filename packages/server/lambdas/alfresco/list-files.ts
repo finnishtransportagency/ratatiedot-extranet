@@ -35,7 +35,7 @@ export type TNode = {
 const listFiles = async (uid: string, nodeId: string, page: number) => {
   try {
     const skipCount = Math.max(page ?? 0, 0) * 50;
-    const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?skipCount=${skipCount}&maxItems=50`;
+    const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?skipCount=${skipCount}&maxItems=50&include=${AdditionalFields.PROPERTIES}`;
 
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
