@@ -268,6 +268,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/list-nodes.ts',
     });
 
+    const alfrescoListActivities = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'list-activities',
+      relativePath: '../packages/server/lambdas/alfresco/list-activities.ts',
+    });
+
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
@@ -382,6 +388,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/alfresco/nodes/*'],
         httpRequestMethods: ['GET'],
         targetName: 'getNodesById',
+      },
+      {
+        lambda: alfrescoListActivities,
+        priority: 146,
+        path: ['/api/alfresco/activities'],
+        httpRequestMethods: ['GET'],
+        targetName: 'alfrescoListActivities',
       },
       {
         lambda: dbGetPageContents,
