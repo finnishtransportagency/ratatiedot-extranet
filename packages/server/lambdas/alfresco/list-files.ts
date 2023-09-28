@@ -177,9 +177,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       // Check if the folder is a direct child of the category
       const childFolder = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, 0, language); // direct child folder name is given, default page should be 0
       console.log('childFolder: ', childFolder);
-      const childFolderId = get(childFolder, 'list.entries[0].entry.id', -1);
+      const childFolderId = get(childFolder, 'list.entries[0].entry.id');
       console.log('ChildFolderId is: ', childFolderId);
-      data = await listFiles(user.uid, childFolderId, page);
+      if (childFolderId) {
+        data = await listFiles(user.uid, childFolderId, page);
+      }
     }
 
     if (!nestedFolderId && !childFolderName) {
