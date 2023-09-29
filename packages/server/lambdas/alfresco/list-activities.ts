@@ -6,6 +6,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { getNodes } from './list-nodes';
 
 export const getActivities = async (options: AxiosRequestConfig) => {
   try {
@@ -34,14 +35,49 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const options = await getAlfrescoOptions(user.uid);
     const activityList = await getActivities(options);
+
+    const combinedData = [];
+    const parentNodePromises = [];
+
+    for (const child of activityList) {
+      const parentNodePromise = await getNodes(child.activitySummary.parentObjectId, options).then((parent) => {
+        if (parent) {
+          const combinedItem = {
+            ...child,
+            parentNodeCategory: parent.name,
+          };
+          combinedData.push(combinedItem);
+        }
+      });
+      parentNodePromises.push(parentNodePromise);
+    }
+
+    const response = await Promise.all(parentNodePromises);
+
     log.info(user, `response: ${JSON.stringify(activityList, null, 2)}`);
+
+    const responseBody = {
+      data: response ?? {
+        list: {
+          pagination: {
+            count: 0,
+            hasMoreItems: false,
+            totalItems: 0,
+            skipCount: 0,
+            maxItems: 5,
+          },
+          context: {},
+          entries: [],
+        },
+      },
+    };
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(activityList),
+      body: JSON.stringify(responseBody),
     };
   } catch (err) {
     log.error(err);
