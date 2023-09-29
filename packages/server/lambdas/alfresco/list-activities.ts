@@ -6,7 +6,6 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
-import { getNodes } from './list-nodes';
 
 export interface AlfrescoActivityResponse {
   entry: {
@@ -39,6 +38,15 @@ export const getActivities = async (options: AxiosRequestConfig) => {
   }
 };
 
+export const getNode = async (nodeId: string, options: AxiosRequestConfig) => {
+  try {
+    const response = await alfrescoAxios.get(`${alfrescoApiVersion}/nodes/${nodeId}`, options);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 async function combineChildWithParent(childData: AlfrescoActivityResponse[], options: AxiosRequestConfig) {
   const combinedData: AlfrescoActivityResponse[] = [];
   const parentPromises = [];
@@ -46,12 +54,12 @@ async function combineChildWithParent(childData: AlfrescoActivityResponse[], opt
   for (const child of childData) {
     const parentId = child.entry.activitySummary.parentObjectId;
 
-    const parentPromise = getNodes(parentId, options).then((parent) => {
-      console.log('parent: ', parent?.data);
+    const parentPromise = getNode(parentId, options).then((parent) => {
+      console.log('parent: ', parent.entry);
       if (parent) {
         const combinedItem = {
           ...child,
-          parent: parent.data.list.entries[0],
+          parentName: parent.entry.name,
         };
         combinedData.push(combinedItem);
       }
