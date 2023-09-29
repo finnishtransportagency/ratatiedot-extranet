@@ -43,7 +43,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     for (const child of activityEntries) {
       console.log('child: ', child);
-      const parentNodePromise = await getNodes(child.activitySummary.parentObjectId, options).then((parent) => {
+      const parentNodePromise = await getNodes(child.entry.activitySummary.parentObjectId, options).then((parent) => {
         if (parent) {
           const combinedItem = {
             ...child,
