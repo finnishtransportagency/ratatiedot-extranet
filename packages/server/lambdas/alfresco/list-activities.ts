@@ -47,11 +47,11 @@ async function combineChildWithParent(childData: AlfrescoActivityResponse[], opt
     const parentId = child.entry.activitySummary.parentObjectId;
 
     const parentPromise = getNodes(parentId, options).then((parent) => {
-      console.log('parent: ', parent);
+      console.log('parent: ', parent?.data);
       if (parent) {
         const combinedItem = {
           ...child,
-          parent,
+          parent: parent.data.list.entries[0],
         };
         combinedData.push(combinedItem);
       }
