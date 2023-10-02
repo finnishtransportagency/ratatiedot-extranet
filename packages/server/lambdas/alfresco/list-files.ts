@@ -6,7 +6,6 @@ import { log } from '../../utils/logger';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { searchQueryBuilder } from './searchQueryBuilder';
 import {
   AdditionalFields,
   IFolderSearchParameter,
@@ -18,6 +17,7 @@ import {
 import { get } from 'lodash';
 import { validateQueryParameters } from '../../utils/validation';
 import { alfrescoApiVersion, alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
+import { searchQueryBuilder } from './searchQueryBuilder';
 
 export type TNode = {
   entry: {
@@ -25,11 +25,23 @@ export type TNode = {
     name: string;
     modifiedAt: string;
     nodeType: string;
-    content: any;
+    content: unknown;
     parentId: string;
     isFile: boolean;
     isFolder: boolean;
   };
+};
+
+const listFiles = async (uid: string, nodeId: string, page: number) => {
+  try {
+    const skipCount = Math.max(page ?? 0, 0) * 50;
+    const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?skipCount=${skipCount}&maxItems=50&include=${AdditionalFields.PROPERTIES}&orderBy=name ASC`;
+    const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
+    const response = await alfrescoAxios.get(url, options);
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
 };
 
 const searchByTermWithParent = async (
@@ -75,7 +87,7 @@ export const getFolder = async (uid: string, nodeId: string) => {
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw error;
   }
 };
@@ -118,7 +130,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(
       user,
-      `Fetching files for for page ${category} ${nestedFolderId ? `, nested folder id ${nestedFolderId}` : ''} ${
+      `Fetching files for page ${category} ${nestedFolderId ? `, nested folder id ${nestedFolderId}` : ''} ${
         childFolderName ? `, category's child folder name ${childFolderName}` : ''
       }`,
     );
@@ -156,19 +168,21 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       // Check if the nest folder is a descendant of the category
       const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
       if (isFolderDescendantOfCategory) {
-        data = await searchByTermWithParent(user.uid, nestedFolderId, '', page, language); // '' as no child folder given
+        data = await listFiles(user.uid, nestedFolderId, page);
       }
     }
 
     if (childFolderName) {
       // Check if the folder is a direct child of the category
       const childFolder = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, 0, language); // direct child folder name is given, default page should be 0
-      const childFolderId = get(childFolder, 'list.entries[0].entry.id', -1);
-      data = await searchByTermWithParent(user.uid, childFolderId, '', page, language);
+      const childFolderId = get(childFolder, 'list.entries[0].entry.id');
+      if (childFolderId) {
+        data = await listFiles(user.uid, childFolderId, page);
+      }
     }
 
     if (!nestedFolderId && !childFolderName) {
-      data = await searchByTermWithParent(user.uid, alfrescoParent, '', page, language); // '' as no child folder given
+      data = await listFiles(user.uid, alfrescoParent, page);
     }
 
     const responseBody = {
