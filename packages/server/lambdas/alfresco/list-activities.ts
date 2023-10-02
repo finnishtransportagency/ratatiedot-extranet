@@ -38,38 +38,44 @@ export const getActivities = async (options: AxiosRequestConfig) => {
   }
 };
 
-export const getNode = async (nodeId: string, options: AxiosRequestConfig) => {
+export const getNode = async (nodeId: string, options: AxiosRequestConfig, include: string[]) => {
   try {
-    const response = await alfrescoAxios.get(`${alfrescoApiVersion}/nodes/${nodeId}`, options);
+    let queryParameter = '';
+    if (include.length) {
+      queryParameter = `?include=${include.join(',')}`;
+    }
+    const response = await alfrescoAxios.get(`${alfrescoApiVersion}/nodes/${nodeId}${queryParameter}`, options);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-async function combineChildWithParent(childData: AlfrescoActivityResponse[], options: AxiosRequestConfig) {
+async function combineData(childData: AlfrescoActivityResponse[], options: AxiosRequestConfig) {
   const combinedData: AlfrescoActivityResponse[] = [];
-  const parentPromises = [];
+  const nodePromises = [];
 
   for (const child of childData) {
-    const parentId = child.entry.activitySummary.parentObjectId;
+    const nodeId = child.entry.activitySummary.objectId;
 
-    const parentPromise = getNode(parentId, options).then((parent) => {
-      console.log('parent: ', parent.entry);
-      if (parent) {
+    // get the contents of the node to determine its category
+    const nodePromise = getNode(nodeId, options, ['path']).then((node) => {
+      // eg. "/Company Home/Sites/site/root/category1"
+      // where category1 is the actual categoryName we want to know
+      const categoryname = node.entry.path.elements[4]?.name;
+      // If node has a category and category is not the root page
+      if (categoryname && categoryname !== 'documentLibrary') {
         const combinedItem = {
           ...child,
-          parentName: parent.entry.name,
+          categoryname,
         };
         combinedData.push(combinedItem);
       }
     });
-
-    parentPromises.push(parentPromise);
+    nodePromises.push(nodePromise);
   }
 
-  await Promise.all(parentPromises);
-
+  await Promise.all(nodePromises);
   return combinedData;
 }
 
@@ -90,11 +96,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const activityList = await getActivities(options);
 
     const activityEntries = activityList.list.entries;
-
-    const combinedData = await combineChildWithParent(activityEntries, options);
-
-    console.log('combinedData: ', combinedData);
-    log.info(user, `response: ${JSON.stringify(activityList, null, 2)}`);
+    const combinedData = await combineData(activityEntries, options);
 
     const responseBody = {
       data: combinedData ?? {
