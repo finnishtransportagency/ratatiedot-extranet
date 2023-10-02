@@ -6,6 +6,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { AlfrescoResponse } from './fileRequestBuilder/types';
 
 export interface AlfrescoActivityResponse {
   entry: {
@@ -52,7 +53,8 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
 };
 
 async function combineData(childData: AlfrescoActivityResponse[], options: AxiosRequestConfig) {
-  const combinedData: AlfrescoActivityResponse[] = [];
+  const combinedData: { activityEntry: AlfrescoActivityResponse; nodeEntry: AlfrescoResponse; categoryName: string }[] =
+    [];
   const nodePromises = [];
 
   for (const child of childData) {
@@ -62,12 +64,13 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
     const nodePromise = getNode(nodeId, options, ['path']).then((node) => {
       // eg. "/Company Home/Sites/site/root/category1"
       // where category1 is the actual categoryName we want to know
-      const categoryname = node.entry.path.elements[4]?.name;
+      const categoryname: string = node.entry.path.elements[4]?.name;
       // If node has a category and category is not the root page
       if (categoryname && categoryname !== 'documentLibrary') {
         const combinedItem = {
-          ...child,
-          categoryname,
+          activityEntry: child,
+          nodeEntry: node,
+          categoryName: categoryname,
         };
         combinedData.push(combinedItem);
       }
