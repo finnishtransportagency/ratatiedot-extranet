@@ -6,7 +6,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
-import { AlfrescoResponse } from './fileRequestBuilder/types';
+import { AlfrescoEntry } from './fileRequestBuilder/types';
 
 export interface AlfrescoActivityResponse {
   entry: {
@@ -25,6 +25,21 @@ export interface AlfrescoActivityResponse {
     activityType: string;
     parent: unknown;
   };
+}
+
+interface AlfrescoCombinedResponse {
+  activityEntry: {
+    postedAt: string;
+    feedPersonId: string;
+    postPersonId: string;
+    siteId: string;
+    activitySummary: { firstName: string; lastName: string; parentObjectId: string; title: string; objectId: string };
+    id: string;
+    activityType: string;
+    parent: unknown;
+  };
+  nodeEntry: AlfrescoEntry;
+  categoryName: string;
 }
 
 export const getActivities = async (options: AxiosRequestConfig) => {
@@ -53,8 +68,7 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
 };
 
 async function combineData(childData: AlfrescoActivityResponse[], options: AxiosRequestConfig) {
-  const combinedData: { activityEntry: AlfrescoActivityResponse; nodeEntry: AlfrescoResponse; categoryName: string }[] =
-    [];
+  const combinedData: AlfrescoCombinedResponse[] = [];
   const nodePromises = [];
 
   for (const child of childData) {
@@ -68,8 +82,8 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
       // If node has a category and category is not the root page
       if (categoryname && categoryname !== 'documentLibrary') {
         const combinedItem = {
-          activityEntry: child,
-          nodeEntry: node,
+          activityEntry: child.entry,
+          nodeEntry: node.entry,
           categoryName: categoryname,
         };
         combinedData.push(combinedItem);
