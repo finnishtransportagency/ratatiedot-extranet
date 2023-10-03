@@ -71,7 +71,13 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
   const combinedData: AlfrescoCombinedResponse[] = [];
   const nodePromises = [];
 
-  for (const child of childData) {
+  const filteredChildData = childData.filter(
+    (child) =>
+      child.entry.activityType !== 'org.alfresco.documentlibrary.file-downloaded' ||
+      child.entry.activityType !== 'org.alfresco.documentlibrary.folder-downloaded',
+  );
+
+  for (const child of filteredChildData) {
     const nodeId = child.entry.activitySummary.objectId;
 
     // get the contents of the node to determine its category
