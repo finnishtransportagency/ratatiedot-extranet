@@ -13,14 +13,11 @@ import Image from '../../assets/icons/Image.svg';
 import PPT from '../../assets/icons/PowerPoint.svg';
 import { Colors } from '../../constants/Colors';
 import { DateFormat } from '../../constants/Formats';
-import { getLocaleByteUnit, getRouterName, matchRouteWithCategory, parseRouterName } from '../../utils/helpers';
+import { getLocaleByteUnit, matchRouteWithCategory, parseRouterName } from '../../utils/helpers';
 import { LocaleLang } from '../../constants/Units';
-import { AlfrescoCombinedResponse, TNode } from '../../types/types';
-import { useTranslation } from 'react-i18next';
-import { ActivityTypes } from '../../constants/ActivityTypes';
-import categoryData from '../../assets/data/FinnishCategories.json';
+import { AlfrescoCombinedResponse } from '../../types/types';
 import { Routes } from '../../constants/Routes';
-import { useNavigate, useNavigation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export const NodeTypes = {
   other: Other,
@@ -50,12 +47,7 @@ export const ActivityItem = ({ node, row, onFileClick = () => {}, isSelected = f
   const contentSizeInBytes = get(content, 'sizeInBytes', 0);
   const { title } = activitySummary;
   const { VITE_ALFRESCO_DOWNLOAD_URL } = import.meta.env;
-  const { t } = useTranslation(['common']);
   const navigate = useNavigate();
-
-  const activityTypetranslationKey = Object.keys(ActivityTypes).find(
-    (key) => ActivityTypes[key as keyof typeof ActivityTypes] === activityType,
-  );
 
   const handleFileSelect = (node: AlfrescoCombinedResponse['nodeEntry']) => {
     onFileClick(node);
@@ -118,7 +110,6 @@ export const ActivityItem = ({ node, row, onFileClick = () => {}, isSelected = f
             {parseRouterName(categoryName)}
           </Typography>
           <Typography variant="body1" sx={{ color: Colors.extrablack }}>
-            {/*`${firstName} ${lastName} ${t(`common:activityTypes.${activityTypetranslationKey}`)} ${title}`*/}
             {title}
           </Typography>
           <div style={{ display: 'flex', color: Colors.darkgrey, paddingBottom: '18px' }}>
