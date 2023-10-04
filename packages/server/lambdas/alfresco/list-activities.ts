@@ -73,7 +73,7 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
 
   const filteredChildData = childData.filter(
     (child) =>
-      child.entry.activityType !== 'org.alfresco.documentlibrary.file-downloaded' ||
+      child.entry.activityType !== 'org.alfresco.documentlibrary.file-downloaded' &&
       child.entry.activityType !== 'org.alfresco.documentlibrary.folder-downloaded',
   );
 
