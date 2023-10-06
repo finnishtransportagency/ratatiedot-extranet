@@ -72,7 +72,8 @@ const isReadUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.re
 
 const isAdmin = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.admin);
 
-const isWriteUser = (user: RataExtraUser, writeRole: string) => user.roles?.includes(writeRole);
+const isWriteUser = (user: RataExtraUser, writeRole: string) =>
+  user.roles?.includes(writeRole) || user.roles?.includes(STATIC_ROLES.write);
 
 export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
   if (!STACK_ID || !ENVIRONMENT) {
