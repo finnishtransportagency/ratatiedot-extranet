@@ -10,7 +10,8 @@ const MOCK_UID = process.env.MOCK_UID || '';
 
 const STATIC_ROLES = {
   read: 'Ratatieto_luku',
-  admin: 'Ratatieto_kirjoitus',
+  write: 'Ratatieto_kirjoitus',
+  admin: 'Ratatieto_admin',
 };
 
 export type RataExtraUser = {
