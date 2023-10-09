@@ -8,7 +8,7 @@ export const ContactEditorCard = ({ attributes, children, element }: SlateElemen
   return <ContactEditorCardPaperWrapper {...attributes}>{children}</ContactEditorCardPaperWrapper>;
 };
 
-const ContactEditorCardPaperWrapper = styled(Paper)<DrawerWrapperProps>(({ theme }) => ({
+export const ContactEditorCardPaperWrapper = styled(Paper)<DrawerWrapperProps>(({ theme }) => ({
   backgroundColor: Colors.lightgrey,
   minHeight: '100px',
   padding: '20px',
