@@ -36,12 +36,14 @@ export const ActivityList = () => {
   useEffect(() => {
     getActivityList();
   }, []);
+
+  if (error) return <ErrorMessage error={error}></ErrorMessage>;
+
   return (
     <Card sx={{ minWidth: 275 }}>
       <CardContent>
         <HighlightedTitle>Viimeksi muokatut</HighlightedTitle>
-        {error && <ErrorMessage error={error} />}
-        {!modifiedFiles.length && !isLoading && !error && <Typography>Ei viimeaikaisia muutoksia</Typography>}
+        {!modifiedFiles.length && !isLoading && <Typography>Ei viimeaikaisia muutoksia</Typography>}
         {isLoading ? (
           <Spinner />
         ) : (
