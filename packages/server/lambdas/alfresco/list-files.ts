@@ -2,7 +2,7 @@ import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { log } from '../../utils/logger';
+import { devLog, log } from '../../utils/logger';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
@@ -25,7 +25,7 @@ export type TNode = {
     name: string;
     modifiedAt: string;
     nodeType: string;
-    content: any;
+    content: unknown;
     parentId: string;
     isFile: boolean;
     isFolder: boolean;
@@ -75,7 +75,7 @@ export const getFolder = async (uid: string, nodeId: string) => {
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     throw error;
   }
 };
@@ -188,6 +188,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         },
       },
     };
+    devLog.info(responseBody);
 
     return {
       statusCode: 200,

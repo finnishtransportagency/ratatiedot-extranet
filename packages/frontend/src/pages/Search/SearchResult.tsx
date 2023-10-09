@@ -4,50 +4,37 @@ import { useTranslation } from 'react-i18next';
 import { Tags } from '../../components/Tags';
 import { ProtectedContainerWrapper } from '../../styles/common';
 import { NodeItem } from '../../components/Files/File';
-import { TAlfrescoSearchProps, usePostAlfrescoSearch } from '../../hooks/query/Search';
-import { useContext } from 'react';
-import { SearchContext, SortingParameters } from '../../contexts/SearchContext';
-import { formatYear } from '../../utils/helpers';
+import { usePostAlfrescoSearch } from '../../hooks/query/Search';
 import { useSearchParams } from 'react-router-dom';
-import { mimeNamesMapping } from '../../constants/Data';
 import { Spinner } from '../../components/Spinner';
 import { ErrorMessage } from '../../components/Notification/ErrorMessage';
 import { TNode } from '../../types/types';
+import { useFiltersStore } from '../../components/Search/filterStore';
 
 export const SearchResult = () => {
   const { t } = useTranslation(['search', 'common']);
   const [searchParams] = useSearchParams();
   const query = searchParams.get('query');
-  const searchContext = useContext(SearchContext);
-  const {
-    years,
-    savedCheckboxes,
-    page,
-    pageHandler,
-    sort = [],
-    contentSearch = false,
-    nameSearch = false,
-    titleSearch = false,
-    descriptionSearch = false,
-  } = searchContext;
-  const searchParameter: TAlfrescoSearchProps = {
-    term: query,
-    from: formatYear(years[0]),
-    to: formatYear(years[1]),
-    fileTypes: savedCheckboxes.mime.map(
-      (mimeType: string) => mimeNamesMapping[mimeType as keyof typeof mimeNamesMapping],
-    ),
-    // TODO: multiple ainestoluokka/category
-    categoryName: savedCheckboxes.category[0],
-    page: page,
-    sort: sort as SortingParameters,
-    contentSearch: contentSearch,
-    nameSearch: nameSearch,
-    titleSearch: titleSearch,
-    descriptionSearch: descriptionSearch,
-  };
 
-  const { isLoading, isError, error, data } = usePostAlfrescoSearch(searchParameter);
+  const filters = useFiltersStore(
+    useShallow((state: any) => ({
+      searchString: state.searchString,
+      from: state.from,
+      to: state.to,
+      mimeTypes: state.mimeTypes,
+      category: state.category,
+      page: state.page,
+      sort: state.sort,
+      contentSearch: state.contentSearch,
+      nameSearch: state.nameSearch,
+      titleSearch: state.titleSearch,
+      descriptionSearch: state.descriptionSearch,
+    })),
+  );
+
+  console.log('FILTERS', filters);
+
+  const { isLoading, isError, error, data } = usePostAlfrescoSearch(filters);
 
   if (isLoading) return <Spinner />;
 

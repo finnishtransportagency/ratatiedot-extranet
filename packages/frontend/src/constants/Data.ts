@@ -8,6 +8,7 @@ export enum EMimeType {
   PowerPoint = 'PowerPoint',
   PlainText = 'PlainText',
 }
+
 export const mimeNamesMapping: { [name in EMimeType]: string } = {
   Excel: 'EXCEL',
   Image: 'IMAGE',
@@ -16,6 +17,14 @@ export const mimeNamesMapping: { [name in EMimeType]: string } = {
   PowerPoint: 'PRESENTATION',
   PlainText: 'TXT',
 };
+
+export enum Sort {
+  ASC_NAME = 'ASC_NAME',
+  DESC_NAME = 'DESC_NAME',
+  ASC_MODIFIED = 'ASC_MODIFIED',
+  DESC_MODIFIED = 'DESC_MODIFIED',
+  NONE = 'NONE',
+}
 
 export const SortDataType = {
   ASC_NAME: 'ASC_NAME',

@@ -1,27 +1,49 @@
 import { Chip, Stack } from '@mui/material';
-import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { SearchContext, Sorting, TCheckBoxes } from '../../contexts/SearchContext';
 import { formatYear } from '../../utils/helpers';
 import { EMimeType } from '../../constants/Data';
 import { SearchParameterName } from '../Search/FilterSearchData';
 
 export const Tags = () => {
   const { t } = useTranslation(['search']);
-  const { years, yearsHandler, savedCheckboxes, savedCheckboxesHandler, sort, sortHandler, pageHandler } =
-    useContext(SearchContext);
+  const savedCheckboxes = {
+    mimeTypes: ['image'],
+    categories: ['category'],
+  };
+  const sort = [
+    {
+      field: 'name',
+      ascending: true,
+    },
+  ];
+
+  const pageHandler = (pageNumber: number) => {
+    console.log(pageNumber);
+  };
+
+  const sortHandler = (sort: string) => {
+    console.log(sort);
+  };
+
+  const yearsHandler = (fromYear: Date | null, toYear: Date | null) => {
+    console.log(fromYear, toYear);
+  };
+
+  const savedCheckboxesHandler = (checkboxes: any) => {
+    console.log(checkboxes);
+  };
 
   const getYearTagName = (): string => {
-    const fromYear = formatYear(years[0]);
-    const toYear = formatYear(years[1]);
+    const fromYear = formatYear(new Date());
+    const toYear = formatYear(new Date());
     if (fromYear) {
       return fromYear < toYear ? `${fromYear} - ${toYear}` : fromYear;
     }
     return '';
   };
 
-  const getSortingTagName = (sortRequest: Sorting) => {
+  const getSortingTagName = (sortRequest: any) => {
     const { field, ascending } = sortRequest;
     switch (field) {
       case 'name':
@@ -39,7 +61,7 @@ export const Tags = () => {
   };
 
   const removeSortingTag = () => {
-    sortHandler(sort[0] ?? '');
+    sortHandler('');
     pageHandler(0);
   };
 
@@ -49,7 +71,7 @@ export const Tags = () => {
   };
 
   const removeCheckboxTag = (type: SearchParameterName, name: string) => {
-    savedCheckboxesHandler((prevData: TCheckBoxes) => {
+    savedCheckboxesHandler((prevData: any) => {
       return {
         ...prevData,
         [type]: prevData[type].filter((item: string) => item !== name),

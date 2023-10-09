@@ -2,18 +2,10 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getAlfrescoOptions } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
-import { log } from '../../utils/logger';
+import { devLog, log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
-import { DatabaseClient } from '../database/client';
 import { searchQueryBuilder } from './searchQueryBuilder';
-import {
-  AdditionalFields,
-  IAncestorSearchParameter,
-  ICategorySearchParameter,
-  QueryRequest,
-  SearchParameter,
-  SearchParameterName,
-} from './searchQueryBuilder/types';
+import { AdditionalFields, QueryRequest } from './searchQueryBuilder/types';
 import { alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
 
 const searchByTerm = async (uid: string, body: QueryRequest) => {
@@ -46,31 +38,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
     const { body } = event;
-    const parsedBody: QueryRequest = body ? JSON.parse(body) : {};
-    const { searchParameters } = parsedBody;
+    if (body === null) throw new Error('Body is null');
+    const parsedBody: QueryRequest = JSON.parse(body);
     log.info(user, `Alfresco search: ${body}`);
     validateReadUser(user);
 
-    // Currently, only accept one category
-    const categoryParameter = searchParameters.find(
-      (parameter: SearchParameter) => SearchParameterName.CATEGORY === parameter.parameterName.toLowerCase(),
-    ) as ICategorySearchParameter;
-    const database = await DatabaseClient.build();
-    if (categoryParameter) {
-      const categoryResponse = await database.categoryDataBase.findFirst({
-        where: {
-          rataextraRequestPage: categoryParameter.categoryName,
-        },
-      });
-
-      const ancestorParameter: IAncestorSearchParameter = {
-        parameterName: SearchParameterName.ANCESTOR,
-        ancestor: categoryResponse?.alfrescoFolder || '',
-      };
-      searchParameters.push(ancestorParameter);
-    }
-
     const data = await searchByTerm(user.uid, parsedBody);
+    devLog.info(data);
     return {
       statusCode: 200,
       headers: {

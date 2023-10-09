@@ -3,47 +3,32 @@ import axios from 'axios';
 
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
 import { QueryKeys } from '../../constants/QueryKeys';
-import { SortingParameters } from '../../contexts/SearchContext';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
 import { getRouterName } from '../../utils/helpers';
-
-export type TAlfrescoSearchProps = {
-  term: string | null;
-  from?: string | number;
-  to?: string | number;
-  fileTypes?: string[];
-  // TODO: multiple ainestoluokka/category
-  categoryName: string;
-  page?: number;
-  sort?: SortingParameters;
-  contentSearch?: boolean;
-  nameSearch?: boolean;
-  titleSearch?: boolean;
-  descriptionSearch?: boolean;
-};
+import { Filter } from '../../components/Search/filterStore';
 
 const getSearchBody = ({
-  term,
+  searchString,
   from,
   to,
-  fileTypes,
-  categoryName,
-  page = 0,
-  sort = [],
+  mimeTypes,
+  category,
+  page,
+  sort,
   contentSearch,
   nameSearch,
   titleSearch,
   descriptionSearch,
-}: TAlfrescoSearchProps) => {
-  let body: { searchParameters: TSearchParameterBody[]; page?: number; sort?: SortingParameters } = {
+}: Filter) => {
+  let body: { searchParameters: TSearchParameterBody[]; page?: number; sort?: string } = {
     searchParameters: [],
     page: page,
     sort: sort,
   };
-  if (term) {
+  if (searchString) {
     body.searchParameters.push({
       parameterName: ExtendedSearchParameterName.NAME,
-      term: term,
+      term: searchString,
       contentSearch: contentSearch,
       nameSearch: nameSearch,
       titleSearch: titleSearch,
@@ -57,26 +42,26 @@ const getSearchBody = ({
       to: to,
     });
   }
-  if (fileTypes?.length) {
+  if (mimeTypes?.length) {
     body.searchParameters.push({
       parameterName: SearchParameterName.MIME,
-      fileTypes: fileTypes,
+      fileTypes: mimeTypes,
     });
   }
-  if (categoryName) {
+  if (category) {
     body.searchParameters.push({
       parameterName: SearchParameterName.CATEGORY,
-      categoryName: getRouterName(categoryName),
+      categoryName: getRouterName(category.name),
     });
   }
   return body;
 };
 
-export const usePostAlfrescoSearch = (props: TAlfrescoSearchProps) => {
-  const { term } = props;
+export const usePostAlfrescoSearch = (props: Filter) => {
+  console.log('SEARCH: ', props);
 
   return useQuery({
-    enabled: Boolean(term),
+    enabled: Boolean(props.searchString),
     queryKey: [QueryKeys.ALFRESCO_SEARCH, props],
     queryFn: async () => {
       const body = getSearchBody(props);

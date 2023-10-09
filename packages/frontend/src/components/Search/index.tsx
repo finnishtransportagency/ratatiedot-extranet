@@ -6,7 +6,6 @@ import ArrayBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 
-import { SearchContext } from '../../contexts/SearchContext';
 import { RecentSearch } from './RecentSearch';
 import { KeyEnum, LocalStorageHelper } from '../../utils/StorageHelper';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +13,7 @@ import { Routes } from '../../constants/Routes';
 import { FilterSearch } from './FilterSearch';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { useTranslation } from 'react-i18next';
+import { useFiltersStore } from './filterStore';
 
 type SearchProps = {
   isDesktop?: boolean;
@@ -23,26 +23,27 @@ type SearchProps = {
 export const SearchStorage = new LocalStorageHelper(5);
 
 export const Search = ({ isDesktop = false }: SearchProps) => {
-  const searchContext = useContext(SearchContext);
-  const { query, queryHandler } = searchContext;
   const { openSearch, toggleSearch, openFilter, toggleFilter } = useContext(AppBarContext);
   const navigate = useNavigate();
   const { t } = useTranslation(['common']);
+
+  const searchString = useFiltersStore((state) => state.searchString);
+  const updateSearchString = useFiltersStore((state) => state.updateSearchString);
 
   const closeSearch = () => {
     openSearch && toggleSearch();
   };
 
   const enterSearch = (event: React.KeyboardEvent) => {
-    if (event.code === 'Enter' && query) {
+    if (event.code === 'Enter' && searchString) {
       search();
     }
   };
 
   const search = () => {
-    SearchStorage.add(KeyEnum.RECENT_SEARCHES, query);
+    SearchStorage.add(KeyEnum.RECENT_SEARCHES, searchString);
     closeSearch();
-    navigate(`${Routes.SEARCH_RESULT}?query=${query}`);
+    navigate(`${Routes.SEARCH_RESULT}?query=${searchString}`);
   };
 
   const openRecentSearch = () => !openSearch && toggleSearch();
@@ -53,6 +54,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
     closeRecentSearch();
     closeFilterSearch();
   };
+
   const LeftSearchBar = () => {
     return (
       <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
@@ -89,19 +91,19 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
           fullWidth={true}
           placeholder={t('common:action.search_site')}
           inputProps={{ 'aria-label': t('common:action.search') }}
-          value={query}
-          onChange={(event) => queryHandler(event.target.value)}
+          value={searchString}
+          onChange={(event) => updateSearchString(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
           onBlur={closeRecentSearch}
           endAdornment={
             <>
-              <InputAdornment position="end" sx={{ visibility: query ? 'visible' : 'hidden' }}>
+              <InputAdornment position="end" sx={{ visibility: searchString ? 'visible' : 'hidden' }}>
                 <IconButton
                   size="large"
                   edge="end"
                   aria-label={t('common:action.erase_query')}
-                  onMouseDown={() => queryHandler('')}
+                  onMouseDown={() => updateSearchString('')}
                 >
                   <CloseIcon color="primary" />
                 </IconButton>

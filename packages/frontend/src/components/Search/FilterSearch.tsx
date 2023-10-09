@@ -10,7 +10,6 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
-  TextField,
   Toolbar,
   Typography,
 } from '@mui/material';
@@ -23,69 +22,54 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
-import { SearchParameterName, FilterSearchData, IItem } from './FilterSearchData';
+import { useFiltersStore } from './filterStore';
+import { categories } from '../../utils/categories';
+import { Category, Mime } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
-import { SearchContext } from '../../contexts/SearchContext';
+import { Sort } from '../../constants/Data';
 import { ButtonWrapper } from '../../styles/common';
 import { useTranslation } from 'react-i18next';
-import { EMimeType, SortDataType } from '../../constants/Data';
+import { SortDataType } from '../../constants/Data';
 import { AppBarContext } from '../../contexts/AppBarContext';
-import { mapSortTypeToValue } from '../../utils/helpers';
 
-interface IFilterSearchItem extends IItem {
-  checkboxes: any;
-  handleCheckboxes: any;
+interface CategoryFilterProps {
+  title: string;
+  categories?: Category[];
 }
 
-const FilterSearchItem = (props: IFilterSearchItem) => {
+const CategoryFilter = (props: CategoryFilterProps) => {
   const { t } = useTranslation(['search']);
   const [open, setOpen] = useState(false);
-  const { savedCheckboxes } = useContext(SearchContext);
+  const activeCategory = useFiltersStore((state) => state.category);
+  const { categories } = props;
 
-  const handleClick = () => {
-    setOpen((prevState: boolean) => !prevState);
-  };
-
-  const isDefaultChecked = (name: SearchParameterName, value: string) => {
-    return savedCheckboxes[name]?.indexOf(value) !== -1;
-  };
-
-  const isChecked = (name: SearchParameterName, value: string) => {
-    return checkboxes[name]?.indexOf(value) !== -1;
-  };
-
-  const { name, type, items, handleCheckboxes, checkboxes } = props;
-
-  const getTranslatedItemText = (text: string) => {
-    if (text === EMimeType.Image) return t('search:image');
-    return text;
-  };
+  const updateCategory = useFiltersStore((state) => state.updateCategory);
 
   return (
     <>
-      <ListItem key={`${name}-ListItem`} onClick={handleClick}>
+      <ListItem key={'categories'} onClick={() => setOpen(!open)}>
         <ListItemText
           disableTypography
           primary={
             <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
-              {name}
+              {t('search:category')}
             </Typography>
           }
         />
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
-      <Collapse key={`${name}-Collapse`} in={open} timeout="auto" unmountOnExit>
+      <Collapse key={'categories-collapse'} in={open} timeout="auto" unmountOnExit>
         <List component="li" disablePadding>
-          {items?.map((item: string, index: number) => {
+          {categories?.map((category: Category, index: number) => {
             return (
               <ListItem key={index}>
                 <Checkbox
-                  defaultChecked={isDefaultChecked(type, item)}
-                  checked={isChecked(type, item)}
-                  onChange={() => handleCheckboxes(type, item)}
+                  defaultChecked={false}
+                  checked={category.id === activeCategory?.id}
+                  onChange={() => updateCategory(category)}
                 />
-                <ListItemText primary={getTranslatedItemText(item)} />
+                <ListItemText primary={category.name} />
               </ListItem>
             );
           })}
@@ -104,73 +88,30 @@ export const FilterSearch = (props: FilterSearchProps) => {
   const { openFilter, toggleFilter } = useContext(AppBarContext);
   const { filtersApplied } = props;
 
-  const {
-    savedCheckboxes,
-    savedCheckboxesHandler,
-    years,
-    yearsHandler,
-    sort,
-    sortHandler,
-    pageHandler,
-    contentSearch,
-    nameSearch,
-    titleSearch,
-    descriptionSearch,
-    contentSearchHandler,
-    nameSearchHandler,
-    titleSearchHandler,
-    descriptionSearchHandler,
-  } = useContext(SearchContext);
-  const [from, setFrom] = useState<Date | null>(years[0] ? years[0] : null);
-  const [to, setTo] = useState<Date | null>(years[1] ? years[1] : null);
-  // Currently, sort array contains only 1 object
-  const [sortType, setSortType] = useState<string>(() => mapSortTypeToValue(sort[0]));
-  const [checkboxes, setCheckboxes] = useState<{ [name in SearchParameterName]: string[] }>(savedCheckboxes);
-  const [isContentSearched, setIsContentSearched] = useState(contentSearch);
-  const [isNameSearched, setIsNameSearched] = useState(nameSearch);
-  const [isTitleSearched, setIsTitleSearched] = useState(titleSearch);
-  const [isDescriptionSearched, setIsDescriptionSearched] = useState(descriptionSearch);
+  // states
+  const contentSearch = useFiltersStore((state) => state.contentSearch);
+  const nameSearch = useFiltersStore((state) => state.nameSearch);
+  const titleSearch = useFiltersStore((state) => state.titleSearch);
+  const descriptionSearch = useFiltersStore((state) => state.descriptionSearch);
+  const from = useFiltersStore((state) => state.from);
+  const to = useFiltersStore((state) => state.to);
+  const sortType = useFiltersStore((state) => state.sort[0]);
 
-  const clearFilters = () => {
-    setFrom(null);
-    setTo(null);
-    setSortType(() => mapSortTypeToValue(null));
-    setCheckboxes({
-      [SearchParameterName.MIME]: [],
-      [SearchParameterName.CATEGORY]: [],
-    });
-    setIsContentSearched(false);
-    setIsNameSearched(false);
-    setIsTitleSearched(false);
-    setIsDescriptionSearched(false);
-  };
-
-  const handleCheckboxes = (name: SearchParameterName, value: EMimeType) => {
-    const index = checkboxes[name].indexOf(value);
-    if (index === -1) {
-      // Temporary: only let 1 aineistoluokka/category be selected at a time
-      // TODO: select and filter by multiple ainestoluokka/category
-      if (name === SearchParameterName.CATEGORY) {
-        setCheckboxes({ ...checkboxes, [name]: [value] });
-      } else {
-        setCheckboxes({ ...checkboxes, [name]: [...checkboxes[name], value] });
-      }
-    } else {
-      setCheckboxes({ ...checkboxes, [name]: checkboxes[name].filter((item) => item !== value) });
-    }
-  };
+  // actions
+  //  const updateContentSearch = useFiltersStore(state => state.updateContentSearch);
+  //  const updateNameSearch = useFiltersStore(state => state.updateNameSearch);
+  //  const updateTitleSearch = useFiltersStore(state => state.updateTitleSearch);
+  //  const updateDescriptionSearch = useFiltersStore(state => state.updateDescriptionSearch);
+  const updateFrom = useFiltersStore((state) => state.updateFrom);
+  const updateTo = useFiltersStore((state) => state.updateTo);
+  const updateSortType = useFiltersStore((state) => state.updateSort);
 
   const saveFilters = () => {
-    savedCheckboxesHandler(checkboxes);
-    yearsHandler(from, to);
-    sortHandler(sortType);
-    contentSearchHandler(isContentSearched);
-    nameSearchHandler(isNameSearched);
-    titleSearchHandler(isTitleSearched);
-    descriptionSearchHandler(isDescriptionSearched);
-    // reset pagination
-    pageHandler(0);
-    toggleFilter();
+    console.log('save filters');
+  };
+
+  const clearFilters = () => {
+    console.log('clear filters');
   };
 
   return (
@@ -205,35 +146,19 @@ export const FilterSearch = (props: FilterSearchProps) => {
           </ListItemText>
         </ListItem>
         <ListItem>
-          <Checkbox
-            defaultChecked={contentSearch}
-            checked={isContentSearched}
-            onChange={() => setIsContentSearched(!isContentSearched)}
-          />
+          <Checkbox value={contentSearch} />
           <ListItemText primary={t('search:content_search_checkbox')} />
         </ListItem>
         <ListItem>
-          <Checkbox
-            defaultChecked={false}
-            checked={isNameSearched}
-            onChange={() => setIsNameSearched(!isNameSearched)}
-          />
+          <Checkbox value={nameSearch} />
           <ListItemText primary={t('search:name_search_checkbox')} />
         </ListItem>
         <ListItem>
-          <Checkbox
-            defaultChecked={false}
-            checked={isTitleSearched}
-            onChange={() => setIsTitleSearched(!isTitleSearched)}
-          />
+          <Checkbox value={titleSearch} />
           <ListItemText primary={t('search:title_search_checkbox')} />
         </ListItem>
         <ListItem>
-          <Checkbox
-            defaultChecked={false}
-            checked={isDescriptionSearched}
-            onChange={() => setIsDescriptionSearched(!isDescriptionSearched)}
-          />
+          <Checkbox value={descriptionSearch} />
           <ListItemText primary={t('search:description_search_checkbox')} />
         </ListItem>
 
@@ -249,7 +174,7 @@ export const FilterSearch = (props: FilterSearchProps) => {
             displayEmpty
             label={t('search:sort_results')}
             value={sortType}
-            onChange={(event) => setSortType(event.target.value)}
+            onChange={(event) => updateSortType(event.target.value as Sort)}
             input={<OutlinedInput />}
             sx={{ width: '100%' }}
           >
@@ -275,7 +200,7 @@ export const FilterSearch = (props: FilterSearchProps) => {
               minDate={new Date('2002-01-01')}
               maxDate={new Date()}
               value={from}
-              onChange={(newValue) => setFrom(newValue)}
+              onChange={(newValue) => updateFrom(newValue)}
             />
             <DatePicker
               views={['year']}
@@ -284,13 +209,11 @@ export const FilterSearch = (props: FilterSearchProps) => {
               maxDate={new Date()}
               value={to}
               shouldDisableYear={(year: any) => (from ? year < from : true)}
-              onChange={(newValue) => setTo(newValue)}
+              onChange={(newValue) => updateTo(newValue)}
             />
           </LocalizationProvider>
         </ListItem>
-        {FilterSearchData.map((data: IItem, index: number) => (
-          <FilterSearchItem key={index} {...data} checkboxes={checkboxes} handleCheckboxes={handleCheckboxes} />
-        ))}
+        <CategoryFilter title="AINEISTOLUOKKA" categories={categories} />
       </Box>
     </DrawerWrapper>
   );
