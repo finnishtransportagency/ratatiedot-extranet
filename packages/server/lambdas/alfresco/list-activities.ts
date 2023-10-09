@@ -42,13 +42,20 @@ interface AlfrescoCombinedResponse {
   categoryName: string;
 }
 
-export const getActivities = async (options: AxiosRequestConfig) => {
+const getActivities = async (options: AxiosRequestConfig, skipCount = 0) => {
   try {
     const response = await alfrescoAxios.get(
-      `${alfrescoApiVersion}/people/-me-/activities?skipCount=0&maxItems=5`,
+      `${alfrescoApiVersion}/people/-me-/activities?skipCount=${skipCount}&maxItems=25`,
       options,
     );
-    return response.data;
+
+    const activities = response.data.list.entries as AlfrescoActivityResponse[];
+    const nonDownloadActivities = activities.filter(
+      (child: { entry: { activityType: string } }) =>
+        child.entry.activityType !== 'org.alfresco.documentlibrary.file-downloaded' &&
+        child.entry.activityType !== 'org.alfresco.documentlibrary.folder-downloaded',
+    );
+    return nonDownloadActivities;
   } catch (error) {
     throw error;
   }
@@ -67,17 +74,31 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
   }
 };
 
+const getNonDownloadActivities = async (options: AxiosRequestConfig) => {
+  const target = 5;
+  let skipCount = 0;
+  let results: AlfrescoActivityResponse[] = [];
+
+  while (results.length < target) {
+    const activities = await getActivities(options, skipCount);
+    results = results.concat(activities);
+
+    skipCount += activities.length;
+
+    if (activities.length === 0 || results.length >= target) {
+      break;
+    }
+  }
+
+  const nonDownloadActivities = results.slice(0, target);
+  return nonDownloadActivities;
+};
+
 async function combineData(childData: AlfrescoActivityResponse[], options: AxiosRequestConfig) {
   const combinedData: AlfrescoCombinedResponse[] = [];
   const nodePromises = [];
 
-  const filteredChildData = childData.filter(
-    (child) =>
-      child.entry.activityType !== 'org.alfresco.documentlibrary.file-downloaded' &&
-      child.entry.activityType !== 'org.alfresco.documentlibrary.folder-downloaded',
-  );
-
-  for (const child of filteredChildData) {
+  for (const child of childData) {
     const nodeId = child.entry.activitySummary.objectId;
 
     // get the contents of the node to determine its category
@@ -116,10 +137,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateReadUser(user);
 
     const options = await getAlfrescoOptions(user.uid);
-    const activityList = await getActivities(options);
 
-    const activityEntries = activityList.list.entries;
-    const combinedData = await combineData(activityEntries, options);
+    const activityList = await getNonDownloadActivities(options);
+    const combinedData = await combineData(activityList, options);
 
     const responseBody = {
       data: combinedData ?? {
