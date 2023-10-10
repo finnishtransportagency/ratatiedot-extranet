@@ -83,13 +83,14 @@ const getNonDownloadActivities = async (options: AxiosRequestConfig) => {
     const activities = await getActivities(options, skipCount);
     results = results.concat(activities);
 
-    skipCount += activities.length;
+    skipCount += 25;
 
     if (results.length >= target) {
       break;
     }
-  }
 
+    // TODO: improve so that rare but possible endless loops are avoided
+  }
   const nonDownloadActivities = results.slice(0, target);
   return nonDownloadActivities;
 };
