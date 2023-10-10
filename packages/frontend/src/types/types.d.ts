@@ -136,6 +136,7 @@ export interface AlfrescoPaginatedResponse {
 
 interface AlfrescoResponse {
   entry: {
+    path: any;
     isFile: boolean;
     createdByUser: {
       id: string;
@@ -152,7 +153,7 @@ interface AlfrescoResponse {
     parentId: string;
     aspectNames: string[];
     createdAt: string;
-    isFolder: string;
+    isFolder: boolean;
     modifiedByUser: {
       id: string;
       displayName: string;
@@ -164,4 +165,38 @@ interface AlfrescoResponse {
       'cm:versionType': string;
     };
   };
+}
+
+export interface AlfrescoActivityResponse {
+  entry: {
+    postedAt: string;
+    feedPersonId: string;
+    postPersonId: string;
+    siteId: string;
+    activitySummary: {
+      firstName: string;
+      lastName: string;
+      parentObjectId: string;
+      title: string;
+      objectId: string;
+    };
+    id: string;
+    activityType: string;
+    parent: unknown;
+  };
+}
+
+interface AlfrescoCombinedResponse {
+  activityEntry: {
+    postedAt: string;
+    feedPersonId: string;
+    postPersonId: string;
+    siteId: string;
+    activitySummary: { firstName: string; lastName: string; parentObjectId: string; title: string; objectId: string };
+    id: string;
+    activityType: string;
+    parent: unknown;
+  };
+  nodeEntry: AlfrescoResponse['entry'];
+  categoryName: string;
 }
