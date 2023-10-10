@@ -1,6 +1,7 @@
 import { Category, Mime } from './FilterSearchData';
 import { create } from 'zustand';
 import { Sort } from '../../constants/Data';
+import { searchFiles, usePostAlfrescoSearch } from '../../hooks/query/Search';
 
 export type Filter = {
   searchString: string;
@@ -14,6 +15,12 @@ export type Filter = {
   nameSearch: boolean;
   titleSearch: boolean;
   descriptionSearch: boolean;
+};
+
+export type FileStore = {
+  data?: any | null;
+  error?: any | null;
+  fetch: () => void;
 };
 
 export type FilterAction = {
@@ -30,6 +37,16 @@ export type FilterAction = {
   updateDescriptionSearch: (descriptionSearch: Filter['descriptionSearch']) => void;
 };
 
+export const useFileStore = create<FileStore>((set) => ({
+  data: null,
+  error: null,
+  fetch: async () => {
+    const filter = getFilter();
+    const response = await searchFiles(filter);
+    set({ data: response.data, error: response.error });
+  },
+}));
+
 export const useFiltersStore = create<Filter & FilterAction>((set) => ({
   searchString: '',
   category: null,
@@ -42,7 +59,7 @@ export const useFiltersStore = create<Filter & FilterAction>((set) => ({
   nameSearch: false,
   titleSearch: false,
   descriptionSearch: false,
-  updateSearchString: (searchString) => set(() => ({ searchString })),
+  updateSearchString: (searchString) => set(() => ({ searchString: searchString })),
   updateCategory: (category) => set(() => ({ category })),
   updateMimeTypes: (mimeTypes) => set(() => ({ mimeTypes })),
   updateFrom: (from) => set(() => ({ from })),
@@ -54,3 +71,20 @@ export const useFiltersStore = create<Filter & FilterAction>((set) => ({
   updateTitleSearch: (titleSearch) => set(() => ({ titleSearch })),
   updateDescriptionSearch: (descriptionSearch) => set(() => ({ descriptionSearch })),
 }));
+
+export const getFilter = () => {
+  const filter = {
+    searchString: useFiltersStore.getState().searchString,
+    category: useFiltersStore.getState().category,
+    mimeTypes: useFiltersStore.getState().mimeTypes,
+    from: useFiltersStore.getState().from,
+    to: useFiltersStore.getState().to,
+    page: useFiltersStore.getState().page,
+    sort: useFiltersStore.getState().sort,
+    contentSearch: useFiltersStore.getState().contentSearch,
+    nameSearch: useFiltersStore.getState().nameSearch,
+    titleSearch: useFiltersStore.getState().titleSearch,
+    descriptionSearch: useFiltersStore.getState().descriptionSearch,
+  };
+  return filter;
+};

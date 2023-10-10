@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 import { InputBase, IconButton, InputAdornment } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -13,7 +14,7 @@ import { Routes } from '../../constants/Routes';
 import { FilterSearch } from './FilterSearch';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { useTranslation } from 'react-i18next';
-import { useFiltersStore } from './filterStore';
+import { useFiltersStore, useFileStore } from './filterStore';
 
 type SearchProps = {
   isDesktop?: boolean;
@@ -27,26 +28,29 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation(['common']);
 
+  const [localSearchString, setLocalSearchString] = useState('');
   const searchString = useFiltersStore((state) => state.searchString);
   const updateSearchString = useFiltersStore((state) => state.updateSearchString);
+  const fetchFiles = useFileStore((state) => state.fetch);
 
   const closeSearch = () => {
     openSearch && toggleSearch();
   };
 
   const enterSearch = (event: React.KeyboardEvent) => {
-    if (event.code === 'Enter' && searchString) {
-      console.log('value: ', searchString);
-      updateSearchString(searchString);
+    if (event.code === 'Enter' && localSearchString) {
+      console.log('local: ', localSearchString);
+      updateSearchString(localSearchString);
       search();
     }
   };
 
   const search = () => {
     console.log('search()');
-    SearchStorage.add(KeyEnum.RECENT_SEARCHES, searchString);
+    SearchStorage.add(KeyEnum.RECENT_SEARCHES, localSearchString);
     closeSearch();
-    navigate(`${Routes.SEARCH_RESULT}?query=${searchString}`);
+    navigate(`${Routes.SEARCH_RESULT}?query=${localSearchString}`);
+    fetchFiles();
   };
 
   const openRecentSearch = () => !openSearch && toggleSearch();
@@ -94,8 +98,8 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
           fullWidth={true}
           placeholder={t('common:action.search_site')}
           inputProps={{ 'aria-label': t('common:action.search') }}
-          value={searchString}
-          onChange={(event) => updateSearchString(event.target.value)}
+          value={localSearchString}
+          onChange={(event) => setLocalSearchString(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
           onBlur={closeRecentSearch}
