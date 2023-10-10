@@ -30,16 +30,14 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
   const searchString = useFiltersStore((state) => state.searchString);
   const updateSearchString = useFiltersStore((state) => state.updateSearchString);
 
-  const [searchValue, setSearchValue] = useState('');
-
   const closeSearch = () => {
     openSearch && toggleSearch();
   };
 
   const enterSearch = (event: React.KeyboardEvent) => {
-    if (event.code === 'Enter' && searchValue) {
-      console.log('value: ', searchValue);
-      updateSearchString(searchValue);
+    if (event.code === 'Enter' && searchString) {
+      console.log('value: ', searchString);
+      updateSearchString(searchString);
       search();
     }
   };
@@ -96,8 +94,8 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
           fullWidth={true}
           placeholder={t('common:action.search_site')}
           inputProps={{ 'aria-label': t('common:action.search') }}
-          value={searchValue}
-          onChange={(event) => setSearchValue(event.target.value)}
+          value={searchString}
+          onChange={(event) => updateSearchString(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
           onBlur={closeRecentSearch}
