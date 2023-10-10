@@ -85,7 +85,7 @@ const getNonDownloadActivities = async (options: AxiosRequestConfig) => {
 
     skipCount += activities.length;
 
-    if (activities.length === 0 || results.length >= target) {
+    if (results.length >= target) {
       break;
     }
   }
