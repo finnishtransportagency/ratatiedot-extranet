@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { InputBase, IconButton, InputAdornment } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -30,17 +30,22 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
   const searchString = useFiltersStore((state) => state.searchString);
   const updateSearchString = useFiltersStore((state) => state.updateSearchString);
 
+  const [searchValue, setSearchValue] = useState('');
+
   const closeSearch = () => {
     openSearch && toggleSearch();
   };
 
   const enterSearch = (event: React.KeyboardEvent) => {
-    if (event.code === 'Enter' && searchString) {
+    if (event.code === 'Enter' && searchValue) {
+      console.log('value: ', searchValue);
+      updateSearchString(searchValue);
       search();
     }
   };
 
   const search = () => {
+    console.log('search()');
     SearchStorage.add(KeyEnum.RECENT_SEARCHES, searchString);
     closeSearch();
     navigate(`${Routes.SEARCH_RESULT}?query=${searchString}`);
@@ -91,8 +96,8 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
           fullWidth={true}
           placeholder={t('common:action.search_site')}
           inputProps={{ 'aria-label': t('common:action.search') }}
-          value={searchString}
-          onChange={(event) => updateSearchString(event.target.value)}
+          value={searchValue}
+          onChange={(event) => setSearchValue(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
           onBlur={closeRecentSearch}

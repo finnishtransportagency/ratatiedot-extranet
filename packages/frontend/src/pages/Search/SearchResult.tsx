@@ -16,21 +16,19 @@ export const SearchResult = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('query');
 
-  const filters = useFiltersStore(
-    useShallow((state: any) => ({
-      searchString: state.searchString,
-      from: state.from,
-      to: state.to,
-      mimeTypes: state.mimeTypes,
-      category: state.category,
-      page: state.page,
-      sort: state.sort,
-      contentSearch: state.contentSearch,
-      nameSearch: state.nameSearch,
-      titleSearch: state.titleSearch,
-      descriptionSearch: state.descriptionSearch,
-    })),
-  );
+  const filters = useFiltersStore((state: any) => ({
+    searchString: state.searchString,
+    from: state.from,
+    to: state.to,
+    mimeTypes: state.mimeTypes,
+    category: state.category,
+    page: state.page,
+    sort: state.sort,
+    contentSearch: state.contentSearch,
+    nameSearch: state.nameSearch,
+    titleSearch: state.titleSearch,
+    descriptionSearch: state.descriptionSearch,
+  }));
 
   console.log('FILTERS', filters);
 
