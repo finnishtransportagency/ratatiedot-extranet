@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { SortDataType } from '../constants/Data';
+import { Sort } from '../types/search';
 import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
-import { Sorting } from '../contexts/SearchContext';
 import categoryData from '../assets/data/FinnishCategories.json';
 import { MainCategoryData, SubCategoryData } from '../types/types';
 import { capitalize } from 'lodash';
@@ -67,7 +67,7 @@ export const formatYear = (date: Date | null) => {
  * @param sortRequest
  * @returns string
  */
-export const mapSortTypeToValue = (sortRequest: Sorting | null) => {
+export const mapSortTypeToValue = (sortRequest: Sort | null) => {
   if (!sortRequest) return SortDataType.NONE;
   const { field, ascending } = sortRequest;
   if (field === 'name' && ascending) return SortDataType.ASC_NAME;
