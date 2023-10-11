@@ -1,7 +1,7 @@
 import { Category, Mime } from './FilterSearchData';
 import { create } from 'zustand';
 import { Sort } from '../../constants/Data';
-import { searchFiles, usePostAlfrescoSearch } from '../../hooks/query/Search';
+import { searchFiles } from '../../hooks/query/Search';
 
 export type Filter = {
   searchString: string;
@@ -10,7 +10,7 @@ export type Filter = {
   from: Date | null;
   to: Date | null;
   page: number;
-  sort: Sort;
+  sort: string;
   contentSearch: boolean;
   nameSearch: boolean;
   titleSearch: boolean;

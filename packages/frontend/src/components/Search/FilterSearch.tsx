@@ -95,16 +95,16 @@ export const FilterSearch = (props: FilterSearchProps) => {
   const descriptionSearch = useFiltersStore((state) => state.descriptionSearch);
   const from = useFiltersStore((state) => state.from);
   const to = useFiltersStore((state) => state.to);
-  const sortType = useFiltersStore((state) => state.sort[0]);
+  const sortType = useFiltersStore((state) => state.sort);
 
   // actions
-  //  const updateContentSearch = useFiltersStore(state => state.updateContentSearch);
-  //  const updateNameSearch = useFiltersStore(state => state.updateNameSearch);
-  //  const updateTitleSearch = useFiltersStore(state => state.updateTitleSearch);
-  //  const updateDescriptionSearch = useFiltersStore(state => state.updateDescriptionSearch);
+  const updateContentSearch = useFiltersStore((state) => state.updateContentSearch);
+  const updateNameSearch = useFiltersStore((state) => state.updateNameSearch);
+  const updateTitleSearch = useFiltersStore((state) => state.updateTitleSearch);
+  const updateDescriptionSearch = useFiltersStore((state) => state.updateDescriptionSearch);
   const updateFrom = useFiltersStore((state) => state.updateFrom);
   const updateTo = useFiltersStore((state) => state.updateTo);
-  const updateSortType = useFiltersStore((state) => state.updateSort);
+  const updateSort = useFiltersStore((state) => state.updateSort);
 
   const saveFilters = () => {
     console.log('save filters');
@@ -146,19 +146,35 @@ export const FilterSearch = (props: FilterSearchProps) => {
           </ListItemText>
         </ListItem>
         <ListItem>
-          <Checkbox value={contentSearch} />
+          <Checkbox
+            onChange={(event) => updateContentSearch(event.target.checked)}
+            value={contentSearch}
+            checked={contentSearch}
+          />
           <ListItemText primary={t('search:content_search_checkbox')} />
         </ListItem>
         <ListItem>
-          <Checkbox value={nameSearch} />
+          <Checkbox
+            onChange={(event) => updateNameSearch(event.target.checked)}
+            value={nameSearch}
+            checked={nameSearch}
+          />
           <ListItemText primary={t('search:name_search_checkbox')} />
         </ListItem>
         <ListItem>
-          <Checkbox value={titleSearch} />
+          <Checkbox
+            onChange={(event) => updateTitleSearch(event.target.checked)}
+            value={titleSearch}
+            checked={titleSearch}
+          />
           <ListItemText primary={t('search:title_search_checkbox')} />
         </ListItem>
         <ListItem>
-          <Checkbox value={descriptionSearch} />
+          <Checkbox
+            onChange={(event) => updateDescriptionSearch(event.target.checked)}
+            value={descriptionSearch}
+            checked={descriptionSearch}
+          />
           <ListItemText primary={t('search:description_search_checkbox')} />
         </ListItem>
 
@@ -174,7 +190,7 @@ export const FilterSearch = (props: FilterSearchProps) => {
             displayEmpty
             label={t('search:sort_results')}
             value={sortType}
-            onChange={(event) => updateSortType(event.target.value as Sort)}
+            onChange={(event) => updateSort(event.target.value)}
             input={<OutlinedInput />}
             sx={{ width: '100%' }}
           >

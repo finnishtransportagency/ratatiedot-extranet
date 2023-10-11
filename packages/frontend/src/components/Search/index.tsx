@@ -28,7 +28,6 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation(['common']);
 
-  const [localSearchString, setLocalSearchString] = useState('');
   const searchString = useFiltersStore((state) => state.searchString);
   const updateSearchString = useFiltersStore((state) => state.updateSearchString);
   const fetchFiles = useFileStore((state) => state.fetch);
@@ -38,18 +37,18 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
   };
 
   const enterSearch = (event: React.KeyboardEvent) => {
-    if (event.code === 'Enter' && localSearchString) {
-      console.log('local: ', localSearchString);
-      updateSearchString(localSearchString);
+    if (event.code === 'Enter' && searchString) {
+      console.log('local: ', searchString);
+      updateSearchString(searchString);
       search();
     }
   };
 
   const search = () => {
     console.log('search()');
-    SearchStorage.add(KeyEnum.RECENT_SEARCHES, localSearchString);
+    SearchStorage.add(KeyEnum.RECENT_SEARCHES, searchString);
     closeSearch();
-    navigate(`${Routes.SEARCH_RESULT}?query=${localSearchString}`);
+    navigate(`${Routes.SEARCH_RESULT}?query=${searchString}`);
     fetchFiles();
   };
 
@@ -98,8 +97,8 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
           fullWidth={true}
           placeholder={t('common:action.search_site')}
           inputProps={{ 'aria-label': t('common:action.search') }}
-          value={localSearchString}
-          onChange={(event) => setLocalSearchString(event.target.value)}
+          value={searchString}
+          onChange={(event) => updateSearchString(event.target.value)}
           onKeyDown={(event) => enterSearch(event)}
           onFocus={openRecentSearch}
           onBlur={closeRecentSearch}

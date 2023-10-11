@@ -35,11 +35,11 @@ const getSearchBody = ({
       descriptionSearch: descriptionSearch,
     });
   }
-  if (from) {
+  if (to || from) {
     body.searchParameters.push({
       parameterName: ExtendedSearchParameterName.MODIFIED,
-      from: from,
-      to: to,
+      from: from?.getFullYear().toString() as string,
+      to: to?.getFullYear().toString() as string,
     });
   }
   if (mimeTypes?.length) {

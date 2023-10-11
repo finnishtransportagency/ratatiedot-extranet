@@ -42,8 +42,8 @@ type TNameSearchParameter = {
 
 type TModifiedSearchParameter = {
   parameterName: ExtendedSearchParameterName.MODIFIED;
-  from: Date | null;
-  to?: Date | null;
+  from: string | null;
+  to?: string | null;
 };
 
 type TMimeSearchParameter = {
