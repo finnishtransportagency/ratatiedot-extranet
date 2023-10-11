@@ -5,7 +5,7 @@ import { SearchParameterName } from '../../components/Search/FilterSearchData';
 import { QueryKeys } from '../../constants/QueryKeys';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
 import { getRouterName } from '../../utils/helpers';
-import { Filter, SearchResult } from '../../components/Search/filterStore';
+import { Filter } from '../../components/Search/filterStore';
 
 const getSearchBody = ({
   searchString,
