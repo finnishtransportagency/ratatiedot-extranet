@@ -27,7 +27,7 @@ export type QueryRequest = {
   page?: number;
   language: QueryLanguage;
   additionalFields?: Array<AdditionalFields>;
-  sort?: Array<SortingParameter>;
+  sort?: SortingParameter;
 };
 
 export type Query = {
@@ -37,7 +37,7 @@ export type Query = {
     language: QueryLanguage;
   };
   paging: Paging;
-  sort?: Sorting | Array<Sorting>;
+  sort?: Sorting;
 };
 
 export type Paging = {
@@ -55,7 +55,7 @@ export enum SortingFieldParameter {
 }
 
 export type SortingParameter = {
-  field: SortingFieldParameter;
+  field: string;
   ascending: boolean;
 };
 

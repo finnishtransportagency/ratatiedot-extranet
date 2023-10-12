@@ -1,8 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
-import { QueryKeys } from '../../constants/QueryKeys';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
 import { getRouterName } from '../../utils/helpers';
 import { Filter } from '../../components/Search/filterStore';
@@ -54,6 +52,7 @@ const getSearchBody = ({
       categoryName: getRouterName(category.name),
     });
   }
+  console.log('BODY: ', body);
   return body;
 };
 

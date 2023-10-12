@@ -95,7 +95,7 @@ export const FilterSearch = (props: FilterSearchProps) => {
   const descriptionSearch = useFiltersStore((state) => state.descriptionSearch);
   const from = useFiltersStore((state) => state.from);
   const to = useFiltersStore((state) => state.to);
-  const sortType = useFiltersStore((state) => state.sort);
+  const sort = useFiltersStore((state) => state.sort);
 
   // actions
   const updateContentSearch = useFiltersStore((state) => state.updateContentSearch);
@@ -189,16 +189,16 @@ export const FilterSearch = (props: FilterSearchProps) => {
           <Select
             displayEmpty
             label={t('search:sort_results')}
-            value={sortType}
-            onChange={(event) => updateSort(event.target.value)}
+            value={sort}
+            onChange={(event) => updateSort(event.target.value as Sort)}
             input={<OutlinedInput />}
             sx={{ width: '100%' }}
           >
-            <MenuItem value={SortDataType.NONE}>{t('search:no_sort')}</MenuItem>
-            <MenuItem value={SortDataType.ASC_NAME}>{t('search:A-Z')}</MenuItem>
-            <MenuItem value={SortDataType.DESC_NAME}>{t('search:Z-A')}</MenuItem>
-            <MenuItem value={SortDataType.DESC_MODIFIED}>{t('search:latest_first')}</MenuItem>
-            <MenuItem value={SortDataType.ASC_MODIFIED}>{t('search:oldest_first')}</MenuItem>
+            <MenuItem value={SortDataType.NONE as any}>{t('search:no_sort')}</MenuItem>
+            <MenuItem value={SortDataType.ASC_NAME as any}>{t('search:A-Z')}</MenuItem>
+            <MenuItem value={SortDataType.DESC_NAME as any}>{t('search:Z-A')}</MenuItem>
+            <MenuItem value={SortDataType.DESC_MODIFIED as any}>{t('search:latest_first')}</MenuItem>
+            <MenuItem value={SortDataType.ASC_MODIFIED as any}>{t('search:oldest_first')}</MenuItem>
           </Select>
         </ListItem>
         <ListItem>

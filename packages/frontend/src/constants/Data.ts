@@ -27,11 +27,11 @@ export enum Sort {
 }
 
 export const SortDataType = {
-  ASC_NAME: 'ASC_NAME',
-  DESC_NAME: 'DESC_NAME',
-  ASC_MODIFIED: 'ASC_MODIFIED',
-  DESC_MODIFIED: 'DESC_MODIFIED',
-  NONE: 'NONE',
+  ASC_NAME: { field: 'name', ascending: true },
+  DESC_NAME: { field: 'name', ascending: false },
+  ASC_MODIFIED: { field: 'modified', ascending: true },
+  DESC_MODIFIED: { field: 'modified', ascending: false },
+  NONE: { field: '', ascending: false },
 };
 
 export const FileMaxSizeInBytes = 50000000;
