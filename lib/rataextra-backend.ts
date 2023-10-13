@@ -465,7 +465,7 @@ export class RataExtraBackendStack extends NestedStack {
         priority: 245,
         path: ['/api/database/activities'],
         httpRequestMethods: ['GET'],
-        targetName: 'dbListActivities',
+        targetName: 'dbGetActivities',
       },
     ];
 

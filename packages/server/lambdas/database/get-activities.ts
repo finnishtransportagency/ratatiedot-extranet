@@ -6,7 +6,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
-import { AlfrescoEntry } from './fileRequestBuilder/types';
+import { AlfrescoEntry } from '../alfresco/fileRequestBuilder/types';
 
 export interface AlfrescoActivityResponse {
   entry: {
