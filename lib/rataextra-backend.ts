@@ -315,7 +315,7 @@ export class RataExtraBackendStack extends NestedStack {
     // Separate lambda that does not require ALB
     const populateActivities = this.createNodejsLambda({
       ...prismaAlfrescoCombinedParameters,
-      name: 'populateActivities',
+      name: 'populate-activities',
       relativePath: '../packages/server/lambdas/alfresco/populate-activities.ts',
     });
 

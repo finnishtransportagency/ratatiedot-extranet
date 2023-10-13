@@ -6,7 +6,8 @@ import { getMockUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { AlfrescoActivityResponse, AlfrescoCombinedResponse } from '../database/get-activities';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
-import { CategoryDataBase } from '@prisma/client';
+import { Activity, CategoryDataBase } from '@prisma/client';
+import { randomUUID } from 'crypto';
 
 const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
@@ -93,21 +94,26 @@ export async function handleRequest(): Promise<unknown> {
     const activityList = await getActivities(options, 0, 5000);
     const combinedData = await combineData(activityList, options);
 
+    const activityObjects: Array<Activity> = [];
+
     for (const item of combinedData) {
       const categoryData = findEndpoint(item.categoryName, fileEndpointsCache);
       if (categoryData) {
-        await database.activity.create({
-          data: {
-            alfrescoId: item.nodeEntry.id,
-            action: item.activityEntry.activityType,
-            fileName: item.nodeEntry.name,
-            timestamp: item.activityEntry.postedAt,
-            mimeType: item.nodeEntry.content.mimeType,
-            categoryId: categoryData?.id,
-          },
+        activityObjects.push({
+          id: randomUUID(),
+          alfrescoId: item.nodeEntry.id,
+          action: item.activityEntry.activityType,
+          fileName: item.nodeEntry.name,
+          timestamp: new Date(item.activityEntry.postedAt),
+          mimeType: item.nodeEntry.content.mimeType,
+          categoryId: categoryData?.id,
         });
       }
     }
+
+    await database.activity.createMany({
+      data: activityObjects,
+    });
 
     return {
       statusCode: 200,
