@@ -24,6 +24,7 @@ const getActivities = async (options: AxiosRequestConfig, skipCount = 0, maxItem
         child.entry.activityType !== 'org.alfresco.documentlibrary.file-downloaded' &&
         child.entry.activityType !== 'org.alfresco.documentlibrary.folder-downloaded',
     );
+    console.log('Found ' + nonDownloadActivities.length + ' activities.');
     return nonDownloadActivities;
   } catch (error) {
     throw error;
@@ -97,6 +98,7 @@ export async function handleRequest(): Promise<unknown> {
 
     for (const item of combinedData) {
       const categoryData = findEndpoint(item.categoryName, fileEndpointsCache);
+      console.log('Categorydata: ', categoryData);
       if (categoryData) {
         activityObjects.push({
           alfrescoId: item.nodeEntry.id,
