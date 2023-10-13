@@ -6,8 +6,7 @@ import { getMockUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { AlfrescoActivityResponse, AlfrescoCombinedResponse } from '../database/get-activities';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
-import { Activity, CategoryDataBase } from '@prisma/client';
-import { randomUUID } from 'crypto';
+import { CategoryDataBase, Prisma } from '@prisma/client';
 
 const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
@@ -91,16 +90,15 @@ export async function handleRequest(): Promise<unknown> {
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
 
-    const activityList = await getActivities(options, 0, 5000);
+    const activityList = await getActivities(options, 0, 1000);
     const combinedData = await combineData(activityList, options);
 
-    const activityObjects: Array<Activity> = [];
+    const activityObjects: Prisma.ActivityCreateManyInput[] = [];
 
     for (const item of combinedData) {
       const categoryData = findEndpoint(item.categoryName, fileEndpointsCache);
       if (categoryData) {
         activityObjects.push({
-          id: randomUUID(),
           alfrescoId: item.nodeEntry.id,
           action: item.activityEntry.activityType,
           fileName: item.nodeEntry.name,
