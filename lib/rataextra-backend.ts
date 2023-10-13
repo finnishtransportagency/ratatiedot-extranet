@@ -18,6 +18,8 @@ import { isPermanentStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { RatatietoNodeBackendConstruct } from './rataextra-node-backend';
+import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
+import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -268,12 +270,6 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/list-nodes.ts',
     });
 
-    const alfrescoListActivities = this.createNodejsLambda({
-      ...prismaAlfrescoCombinedParameters,
-      name: 'list-activities',
-      relativePath: '../packages/server/lambdas/alfresco/list-activities.ts',
-    });
-
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-page-contents',
@@ -308,6 +304,32 @@ export class RataExtraBackendStack extends NestedStack {
       ...prismaParameters,
       name: 'db-delete-favorite-page',
       relativePath: '../packages/server/lambdas/database/delete-favorite-page.ts',
+    });
+
+    const dbGetActivities = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-activities',
+      relativePath: '../packages/server/lambdas/database/get-activities.ts',
+    });
+
+    // Separate lambda that does not require ALB
+    const populateActivities = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'populateActivities',
+      relativePath: '../packages/server/lambdas/alfresco/populate-activities.ts',
+    });
+
+    // EventBridge rule for running a scheduled lambda
+    new Rule(this, 'Rule', {
+      description: 'Schedule a Lambda that populates activities db table every 5 minutes',
+      schedule: Schedule.cron({
+        year: '*',
+        month: '*',
+        day: '*',
+        hour: '*',
+        minute: '*/5',
+      }),
+      targets: [new LambdaFunction(populateActivities)],
     });
 
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
@@ -390,13 +412,6 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'getNodesById',
       },
       {
-        lambda: alfrescoListActivities,
-        priority: 146,
-        path: ['/api/alfresco/activities'],
-        httpRequestMethods: ['GET'],
-        targetName: 'alfrescoListActivities',
-      },
-      {
         lambda: dbGetPageContents,
         priority: 200,
         path: ['/api/database/page-contents/*'],
@@ -444,6 +459,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/favorites'],
         httpRequestMethods: ['DELETE'],
         targetName: 'dbDeleteFavoritePage',
+      },
+      {
+        lambda: dbGetActivities,
+        priority: 245,
+        path: ['/api/database/activities'],
+        httpRequestMethods: ['GET'],
+        targetName: 'dbListActivities',
       },
     ];
 
