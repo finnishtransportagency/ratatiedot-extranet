@@ -53,7 +53,7 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
     const nodeId = child.entry.activitySummary.objectId;
 
     // get the contents of the node to determine its category
-    const nodePromise = getNode(nodeId, options, ['path']).then((node) => {
+    const nodePromise = await getNode(nodeId, options, ['path']).then((node) => {
       // eg. "/Company Home/Sites/site/root/category1"
       // where category1 is the actual categoryName we want to know
       const categoryname: string = node.entry.path.elements[4]?.name;
