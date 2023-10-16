@@ -24,7 +24,6 @@ const getActivities = async (options: AxiosRequestConfig, skipCount = 0, maxItem
         child.entry.activityType !== 'org.alfresco.documentlibrary.file-downloaded' &&
         child.entry.activityType !== 'org.alfresco.documentlibrary.folder-downloaded',
     );
-    console.log('Found ' + nonDownloadActivities.length + ' activities.');
     return nonDownloadActivities;
   } catch (error) {
     throw error;
@@ -40,7 +39,6 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
     const response = await alfrescoAxios.get(`${alfrescoApiVersion}/nodes/${nodeId}${queryParameter}`, options);
     return response.data;
   } catch (error) {
-    console.log('Error happened in getNode');
     throw error;
   }
 };
@@ -51,23 +49,28 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
 
   for (const child of childData) {
     const nodeId = child.entry.activitySummary.objectId;
+    const isNotDeleted =
+      child.entry.activityType !== 'org.alfresco.documentlibrary.file-deleted' &&
+      child.entry.activityType !== 'org.alfresco.documentlibrary.folder-deleted';
 
-    // get the contents of the node to determine its category
-    const nodePromise = await getNode(nodeId, options, ['path']).then((node) => {
-      // eg. "/Company Home/Sites/site/root/category1"
-      // where category1 is the actual categoryName we want to know
-      const categoryname: string = node.entry.path.elements[4]?.name;
-      // If node has a category and category is not the root page
-      if (categoryname && categoryname !== 'documentLibrary') {
-        const combinedItem = {
-          activityEntry: child.entry,
-          nodeEntry: node.entry,
-          categoryName: categoryname,
-        };
-        combinedData.push(combinedItem);
-      }
-    });
-    nodePromises.push(nodePromise);
+    // get the contents of the node to determine its category if node is not deleted
+    if (isNotDeleted) {
+      const nodePromise = await getNode(nodeId, options, ['path']).then((node) => {
+        // eg. "/Company Home/Sites/site/root/category1"
+        // where category1 is the actual categoryName we want to know
+        const categoryname: string = node.entry.path.elements[4]?.name;
+        // If node has a category and category is not the root page
+        if (categoryname && categoryname !== 'documentLibrary') {
+          const combinedItem = {
+            activityEntry: child.entry,
+            nodeEntry: node.entry,
+            categoryName: categoryname,
+          };
+          combinedData.push(combinedItem);
+        }
+      });
+      nodePromises.push(nodePromise);
+    }
   }
 
   await Promise.all(nodePromises);
@@ -99,7 +102,6 @@ export async function handleRequest(): Promise<unknown> {
 
     for (const item of combinedData) {
       const categoryData = findEndpoint(item.categoryName, fileEndpointsCache);
-      console.log('Categorydata: ', categoryData);
       if (categoryData) {
         activityObjects.push({
           alfrescoId: item.nodeEntry.id,
