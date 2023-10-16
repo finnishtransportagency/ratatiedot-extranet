@@ -54,7 +54,6 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
   const nodePromises = [];
 
   for (const child of childData) {
-    const nodeId = child.entry.activitySummary.objectId;
     const isNotDeleted =
       child.entry.activityType !== 'org.alfresco.documentlibrary.file-deleted' &&
       child.entry.activityType !== 'org.alfresco.documentlibrary.folder-deleted';
@@ -62,8 +61,7 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
     // get the contents of the node to determine its category if node is not deleted
     if (isNotDeleted) {
       console.log('Node is not deleted, continue');
-      console.log('getNode: ', nodeId);
-      const nodePromise = getNode(nodeId, options, ['path']).then((node) => {
+      const nodePromise = getNode(child.entry.activitySummary.objectId, options, ['path']).then((node) => {
         // eg. "/Company Home/Sites/site/root/category1"
         // where category1 is the actual categoryName we want to know
         const categoryname: string = node.entry.path.elements[4]?.name;
