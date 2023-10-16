@@ -36,8 +36,9 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
     if (include.length) {
       queryParameter = `?include=${include.join(',')}`;
     }
+    console.log('Fetching node info for node: ', nodeId);
     const response = await alfrescoAxios.get(`${alfrescoApiVersion}/nodes/${nodeId}${queryParameter}`, options);
-    console.log('getNode response: ', response.data);
+    console.log('response: ', response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -98,7 +99,7 @@ export async function handleRequest(): Promise<unknown> {
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
 
-    const activityList = await getActivities(options, 0, 1000);
+    const activityList = await getActivities(options, 0, 100);
     const combinedData = await combineData(activityList, options);
 
     const activityObjects: Prisma.ActivityCreateManyInput[] = [];
