@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { alfrescoAxios, alfrescoApiVersion } from '../../utils/axios';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
@@ -41,6 +41,9 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
     console.log('response: ', response.data);
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) return;
+    }
     throw error;
   }
 };
