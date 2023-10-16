@@ -41,8 +41,9 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
     console.log('response: ', response.data);
     return response.data;
   } catch (error) {
+    console.log('Error in getNode: ', error);
     if (axios.isAxiosError(error)) {
-      if (error.response?.status === 404) return;
+      if (error.response?.status === 404) return null;
     }
     throw error;
   }
