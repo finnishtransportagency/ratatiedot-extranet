@@ -37,6 +37,7 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
       queryParameter = `?include=${include.join(',')}`;
     }
     const response = await alfrescoAxios.get(`${alfrescoApiVersion}/nodes/${nodeId}${queryParameter}`, options);
+    console.log('getNode response: ', response.data);
     return response.data;
   } catch (error) {
     throw error;
