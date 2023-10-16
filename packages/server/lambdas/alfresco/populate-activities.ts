@@ -56,7 +56,9 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
 
     // get the contents of the node to determine its category if node is not deleted
     if (isNotDeleted) {
-      const nodePromise = await getNode(nodeId, options, ['path']).then((node) => {
+      console.log('Node is not deleted, continue');
+      console.log('getNode: ', nodeId);
+      const nodePromise = getNode(nodeId, options, ['path']).then((node) => {
         // eg. "/Company Home/Sites/site/root/category1"
         // where category1 is the actual categoryName we want to know
         const categoryname: string = node.entry.path.elements[4]?.name;
