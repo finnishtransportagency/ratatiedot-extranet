@@ -121,14 +121,6 @@ export async function handleRequest(): Promise<unknown> {
     await database.activity.createMany({
       data: activityObjects,
     });
-
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({}),
-    };
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);
