@@ -45,7 +45,8 @@
   "menu": {
     "frontpage": "Etusivu",
     "favorite": "Suosikit",
-    "logout": "Kirjaudu ulos"
+    "logout": "Kirjaudu ulos",
+    "instructions": "Käyttöohjeet"
   },
   "file": {
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
@@ -168,6 +169,6 @@
     "area": "Alue"
   },
   "warning": {
-    "confidential": "Näkymä sisältää salassapidettävää tietoa. Älä jaa tietoja eteenpäin. Laki viranomaisten toiminnan julkisuudesta: <0>https://www.finlex.fi/fi/laki/ajantasa/1999/19990621</0> Salassapito: 24§, kohta 7."
+    "confidential": "Oheisissa kansioissa olevat dokumentit sisältävät salassapidettävää tietoa. Älä jaa tietoja eteenpäin. Laki viranomaisten toiminnan julkisuudesta: <0>https://www.finlex.fi/fi/laki/ajantasa/1999/19990621</0> Salassapito: 24§, kohta 7."
   }
 }

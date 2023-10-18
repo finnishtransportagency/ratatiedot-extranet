@@ -69,6 +69,7 @@ type MainCategoryData = {
   SAFETY_EQUIPMENT: string;
   CONTACT_INFORMATION: string;
   OTHERS: string;
+  INSTRUCTIONS: string;
 };
 
 type SubCategoryData = {
@@ -97,6 +98,10 @@ type SubCategoryData = {
   REGIONAL_LIMITATIONS_DRIVER_ACTIVITY: string;
   PLANNING_ARCHIVE: string;
   RAILWAY_MONITORING_SERVICE: string;
+  SEARCH_AND_FILTERS: string;
+  FAVORITES: string;
+  LOGIN_AND_PERMISSIONS: string;
+  EDIT_TOOL: string;
 };
 
 type TNode = {

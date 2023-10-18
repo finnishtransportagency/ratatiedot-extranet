@@ -14,6 +14,12 @@ export interface IItem {
   items: string[];
 }
 
+// Omit instruction pages from filter search
+const categoriesWithoutInstructions = categoryData.filter((entry) => {
+  const categoryKey = Object.keys(entry.category)[0];
+  return categoryKey !== 'INSTRUCTIONS';
+});
+
 export const FilterSearchData: IItem[] = [
   {
     name: i18n.t('search:format'),
@@ -23,6 +29,6 @@ export const FilterSearchData: IItem[] = [
   {
     name: i18n.t('search:category'),
     type: SearchParameterName.CATEGORY,
-    items: flatMapByKey(getTranslatedCategoryData(categoryData), 'subCategories'),
+    items: flatMapByKey(getTranslatedCategoryData(categoriesWithoutInstructions), 'subCategories'),
   },
 ];
