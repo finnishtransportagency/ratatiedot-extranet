@@ -1,4 +1,4 @@
-import { createBrowserRouter, Location, matchRoutes, redirect, RouteObject } from 'react-router-dom';
+import { createBrowserRouter, Location, matchRoutes, redirect, redirectDocument, RouteObject } from 'react-router-dom';
 
 import { Landing } from './pages/Landing';
 import { Routes } from './constants/Routes';
