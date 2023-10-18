@@ -12,7 +12,8 @@ const MOCK_UID = process.env.MOCK_UID || '';
 
 const STATIC_ROLES = {
   read: 'Ratatieto_luku',
-  admin: 'Ratatieto_kirjoitus',
+  write: 'Ratatieto_kirjoitus',
+  admin: 'Ratatieto_admin',
 };
 
 export type RataExtraUser = {
@@ -71,7 +72,8 @@ const isReadUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.re
 
 const isAdmin = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.admin);
 
-const isWriteUser = (user: RataExtraUser, writeRole: string) => user.roles?.includes(writeRole);
+const isWriteUser = (user: RataExtraUser, writeRole: string) =>
+  user.roles?.includes(writeRole) || user.roles?.includes(STATIC_ROLES.write);
 
 export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
   if (!STACK_ID || !ENVIRONMENT) {
