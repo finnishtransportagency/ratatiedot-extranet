@@ -58,10 +58,6 @@ export const getLocaleByteUnit = (unitStr: string, locale: LocaleLang) => {
   return unitParts[0] + ' ' + (LocaleUnit[locale][unitParts[1] as keyof FileSizeUnit] || unitParts[1]);
 };
 
-export const formatYear = (date: Date | null) => {
-  return date ? format(date, 'yyyy') : '';
-};
-
 /**
  * Mapping sort {field: string, ascending: boolean} to corresponding string value
  * @param sortRequest

@@ -9,6 +9,7 @@ import {
   IconButton,
   MenuItem,
   OutlinedInput,
+  Radio,
   Select,
   Toolbar,
   Typography,
@@ -22,15 +23,14 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
-import { useFiltersStore } from './filterStore';
-import { categories } from '../../utils/categories';
-import { Category, Mime } from './FilterSearchData';
+import { Sort, useFiltersStore } from './filterStore';
+import { Area, areas, categories } from '../../utils/categories';
+import { Category } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
-import { Sort } from '../../constants/Data';
 import { ButtonWrapper } from '../../styles/common';
 import { useTranslation } from 'react-i18next';
-import { SortDataType } from '../../constants/Data';
+import { FileFormats, SortDataType } from '../../constants/Data';
 import { AppBarContext } from '../../contexts/AppBarContext';
 
 interface CategoryFilterProps {
@@ -38,13 +38,69 @@ interface CategoryFilterProps {
   categories?: Category[];
 }
 
-const CategoryFilter = (props: CategoryFilterProps) => {
+const AreaFilter = () => {
   const { t } = useTranslation(['search']);
   const [open, setOpen] = useState(false);
-  const activeCategory = useFiltersStore((state) => state.category);
+  const activeArea = useFiltersStore((state) => state.area);
+  const updateArea = useFiltersStore((state) => state.updateArea);
+
+  const handleAreaUpdate = (area: Area) => {
+    if (area.area === activeArea?.area) {
+      updateArea(null);
+      return;
+    }
+    updateArea(area);
+  };
+
+  return (
+    <>
+      <ListItem key={'categories'} onClick={() => setOpen(!open)}>
+        <ListItemText
+          disableTypography
+          primary={
+            <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
+              {t('search:area')}
+            </Typography>
+          }
+        />
+        {open ? <ExpandLess /> : <ExpandMore />}
+      </ListItem>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component="li" disablePadding>
+          {areas?.map((area: Area) => {
+            return (
+              <ListItem>
+                <Radio
+                  defaultChecked={false}
+                  checked={area.area === activeArea?.area}
+                  onClick={() => handleAreaUpdate(area)}
+                />
+                <ListItemText primary={area.title} style={{ textTransform: 'capitalize' }} />
+              </ListItem>
+            );
+          })}
+        </List>
+      </Collapse>
+    </>
+  );
+};
+
+const CategoryFilter = (props: CategoryFilterProps) => {
   const { categories } = props;
 
+  const { t } = useTranslation(['search']);
+
+  const [open, setOpen] = useState(false);
+  const activeCategory = useFiltersStore((state) => state.category);
   const updateCategory = useFiltersStore((state) => state.updateCategory);
+
+  const handleCategoryUpdate = (category: Category) => {
+    if (category.id === activeCategory?.id) {
+      updateCategory(null);
+      return;
+    }
+    updateCategory(category);
+  };
 
   return (
     <>
@@ -61,15 +117,55 @@ const CategoryFilter = (props: CategoryFilterProps) => {
       </ListItem>
       <Collapse key={'categories-collapse'} in={open} timeout="auto" unmountOnExit>
         <List component="li" disablePadding>
-          {categories?.map((category: Category, index: number) => {
+          {categories?.map((category: Category) => {
             return (
-              <ListItem key={index}>
-                <Checkbox
+              <ListItem>
+                <Radio
                   defaultChecked={false}
                   checked={category.id === activeCategory?.id}
-                  onChange={() => updateCategory(category)}
+                  onClick={() => handleCategoryUpdate(category)}
                 />
-                <ListItemText primary={category.name} />
+                <ListItemText primary={category.name} style={{ textTransform: 'capitalize' }} />
+              </ListItem>
+            );
+          })}
+        </List>
+      </Collapse>
+    </>
+  );
+};
+
+const MimeFilter = () => {
+  const { t } = useTranslation(['search']);
+
+  const [open, setOpen] = useState(false);
+
+  const selectedMimeTypes = useFiltersStore((state) => state.mimeTypes);
+  const toggleMimeType = useFiltersStore((state) => state.toggleMimeType);
+
+  return (
+    <>
+      <ListItem onClick={() => setOpen(!open)}>
+        <ListItemText
+          disableTypography
+          primary={
+            <Typography variant="body1" textTransform="uppercase" sx={{ color: Colors.darkgrey }}>
+              {t('search:format')}
+            </Typography>
+          }
+        />
+        {open ? <ExpandLess /> : <ExpandMore />}
+      </ListItem>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component="li" disablePadding>
+          {FileFormats.map((format) => {
+            return (
+              <ListItem>
+                <Checkbox
+                  checked={selectedMimeTypes.includes(format.value)}
+                  onChange={() => toggleMimeType(format.value)}
+                />
+                <ListItemText primary={format.name} />
               </ListItem>
             );
           })}
@@ -106,12 +202,16 @@ export const FilterSearch = (props: FilterSearchProps) => {
   const updateTo = useFiltersStore((state) => state.updateTo);
   const updateSort = useFiltersStore((state) => state.updateSort);
 
+  const clearFilter = useFiltersStore((state) => state.resetFilter);
+
   const saveFilters = () => {
+    toggleFilter();
     console.log('save filters');
   };
 
-  const clearFilters = () => {
-    console.log('clear filters');
+  const handleToChange = (newValue: Date | null) => {
+    updateTo(newValue);
+    from ?? updateFrom(new Date('2000-01-01'));
   };
 
   return (
@@ -133,7 +233,7 @@ export const FilterSearch = (props: FilterSearchProps) => {
         </IconButtonWrapper>
       </Toolbar>
       <Toolbar>
-        <Button sx={{ textTransform: 'none' }} color="primary" onClick={clearFilters}>
+        <Button sx={{ textTransform: 'none' }} color="primary" onClick={clearFilter}>
           {t('search:action.remove_filters')}
         </Button>
       </Toolbar>
@@ -213,23 +313,24 @@ export const FilterSearch = (props: FilterSearchProps) => {
             <DatePicker
               views={['year']}
               label={t('search:from_year')}
-              minDate={new Date('2002-01-01')}
+              minDate={new Date('2000-01-01')}
               maxDate={new Date()}
-              value={from}
+              value={from ?? null}
               onChange={(newValue) => updateFrom(newValue)}
             />
             <DatePicker
               views={['year']}
               label={t('search:to_year')}
-              minDate={new Date('2002-01-01')}
+              minDate={from ?? new Date('2000-01-01')}
               maxDate={new Date()}
               value={to}
-              shouldDisableYear={(year: any) => (from ? year < from : true)}
-              onChange={(newValue) => updateTo(newValue)}
+              onChange={(newValue) => handleToChange(newValue)}
             />
           </LocalizationProvider>
         </ListItem>
         <CategoryFilter title="AINEISTOLUOKKA" categories={categories} />
+        <AreaFilter />
+        <MimeFilter />
       </Box>
     </DrawerWrapper>
   );

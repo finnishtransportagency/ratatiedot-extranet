@@ -3,14 +3,14 @@ import axios from 'axios';
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
 import { getRouterName } from '../../utils/helpers';
-import { Filter } from '../../components/Search/filterStore';
+import { Filter, Sort } from '../../components/Search/filterStore';
 
 const getSearchBody = ({
   searchString,
   from,
   to,
   mimeTypes,
-  category,
+  ancestor,
   page,
   sort,
   contentSearch,
@@ -18,7 +18,7 @@ const getSearchBody = ({
   titleSearch,
   descriptionSearch,
 }: Filter) => {
-  let body: { searchParameters: TSearchParameterBody[]; page?: number; sort?: string } = {
+  let body: { searchParameters: TSearchParameterBody[]; page?: number; sort: Sort | null } = {
     searchParameters: [],
     page: page,
     sort: sort,
@@ -46,22 +46,18 @@ const getSearchBody = ({
       fileTypes: mimeTypes,
     });
   }
-  if (category) {
+  if (ancestor) {
     body.searchParameters.push({
-      parameterName: SearchParameterName.CATEGORY,
-      categoryName: getRouterName(category.name),
+      parameterName: SearchParameterName.ANCESTOR,
+      ancestor: ancestor,
     });
   }
-  console.log('BODY: ', body);
   return body;
 };
 
 export const searchFiles = async (filter: Filter) => {
-  console.log('SEARCH: ', filter);
-
   const response = await axios.post('/api/alfresco/search', getSearchBody(filter)).catch((err) => {
-    console.log(err);
-    return err;
+    return { data: null, error: err };
   });
-  return response.data;
+  return { data: response.data, error: null };
 };

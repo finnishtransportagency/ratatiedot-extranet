@@ -2,7 +2,7 @@ import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
-import { devLog, log } from '../../utils/logger';
+import { log } from '../../utils/logger';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
@@ -202,7 +202,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         },
       },
     };
-    devLog.info(responseBody);
 
     return {
       statusCode: 200,

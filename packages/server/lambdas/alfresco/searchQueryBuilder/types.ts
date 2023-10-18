@@ -37,7 +37,7 @@ export type Query = {
     language: QueryLanguage;
   };
   paging: Paging;
-  sort?: Sorting;
+  sort?: Sorting | Array<Sorting>;
 };
 
 export type Paging = {

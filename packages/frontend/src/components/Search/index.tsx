@@ -30,7 +30,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
 
   const searchString = useFiltersStore((state) => state.searchString);
   const updateSearchString = useFiltersStore((state) => state.updateSearchString);
-  const fetchFiles = useFileStore((state) => state.fetch);
+  const fetchFiles = useFileStore((state) => state.search);
 
   const closeSearch = () => {
     openSearch && toggleSearch();
@@ -38,14 +38,12 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
 
   const enterSearch = (event: React.KeyboardEvent) => {
     if (event.code === 'Enter' && searchString) {
-      console.log('local: ', searchString);
       updateSearchString(searchString);
       search();
     }
   };
 
   const search = () => {
-    console.log('search()');
     SearchStorage.add(KeyEnum.RECENT_SEARCHES, searchString);
     closeSearch();
     navigate(`${Routes.SEARCH_RESULT}?query=${searchString}`);

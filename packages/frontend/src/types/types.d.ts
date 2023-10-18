@@ -56,11 +56,17 @@ type TCategorySearchParameter = {
   categoryName: string;
 };
 
+type TAncestorSearchParameter = {
+  parameterName: SearchParameterName.ANCESTOR;
+  ancestor: string;
+};
+
 type TSearchParameterBody =
   | TNameSearchParameter
   | TModifiedSearchParameter
   | TMimeSearchParameter
-  | TCategorySearchParameter;
+  | TCategorySearchParameter
+  | TAncestorSearchParameter;
 
 type MainCategoryData = {
   DIAGRAMS: string;

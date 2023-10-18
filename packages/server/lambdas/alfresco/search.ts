@@ -2,7 +2,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getAlfrescoOptions } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
-import { devLog, log } from '../../utils/logger';
+import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { searchQueryBuilder } from './searchQueryBuilder';
 import { AdditionalFields, QueryRequest } from './searchQueryBuilder/types';
@@ -44,7 +44,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateReadUser(user);
 
     const data = await searchByTerm(user.uid, parsedBody);
-    devLog.info(data);
     return {
       statusCode: 200,
       headers: {

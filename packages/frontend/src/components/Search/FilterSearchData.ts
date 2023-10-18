@@ -1,22 +1,18 @@
 import { flatMapByKey, getTranslatedCategoryData } from '../../utils/helpers';
 import categoryData from '../../assets/data/FinnishCategories.json';
-import { EMimeType, FileFormats } from '../../constants/Data';
+import { FileFormats } from '../../constants/Data';
 import i18n from '../../i18n';
 
 export enum SearchParameterName {
   MIME = 'mime',
   CATEGORY = 'category',
+  ANCESTOR = 'ancestor',
 }
 
 export interface Category {
   id: string;
   alfrescoId: string;
   name: string;
-}
-
-export interface Mime {
-  id: number;
-  type: EMimeType;
 }
 
 export interface IItem {
