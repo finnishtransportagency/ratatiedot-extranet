@@ -1,4 +1,4 @@
-import { createBrowserRouter, Location, matchRoutes, redirect, redirectDocument, RouteObject } from 'react-router-dom';
+import { createBrowserRouter, Location, matchRoutes, redirect, RouteObject } from 'react-router-dom';
 
 import { Landing } from './pages/Landing';
 import { Routes } from './constants/Routes';
@@ -191,7 +191,6 @@ const routes: RouteObject[] = [
       }
       // redirect to logout url after succesfull cookie removal
       window.location.href = `${window.location.origin}/sso/logout?auth=1`;
-      return null;
     },
   },
 ];
