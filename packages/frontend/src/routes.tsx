@@ -190,7 +190,8 @@ const routes: RouteObject[] = [
         throw new Error('Could not remove cookie.');
       }
       // redirect to logout url after succesfull cookie removal
-      return redirectDocument(`${window.location.origin}/sso/logout?auth=1`);
+      window.location.href = `${window.location.origin}/sso/logout?auth=1`;
+      return null;
     },
   },
 ];
