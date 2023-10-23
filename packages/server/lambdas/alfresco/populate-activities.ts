@@ -26,6 +26,7 @@ const getActivities = async (options: AxiosRequestConfig, skipCount = 0, maxItem
     );
     return nonDownloadActivities;
   } catch (error) {
+    console.log('error at getActivities: ', error);
     throw error;
   }
 };
@@ -39,6 +40,7 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
     const response = await alfrescoAxios.get(`${alfrescoApiVersion}/nodes/${nodeId}${queryParameter}`, options);
     return response.data;
   } catch (error) {
+    console.log('error at getNode: ', error);
     throw error;
   }
 };
@@ -119,7 +121,7 @@ export async function handleRequest(): Promise<unknown> {
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
 
-    const activityList = await getActivities(options, 0, 500);
+    const activityList = await getActivities(options, 0, 200);
     const latestActivityInDb = await database.activity.findFirst({
       take: 1,
       orderBy: { activityId: 'desc' },
