@@ -317,6 +317,7 @@ export class RataExtraBackendStack extends NestedStack {
       ...prismaAlfrescoCombinedParameters,
       name: 'populate-activities',
       relativePath: '../packages/server/lambdas/alfresco/populate-activities.ts',
+      timeout: Duration.seconds(60),
     });
 
     // EventBridge rule for running a scheduled lambda
@@ -466,6 +467,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/activities'],
         httpRequestMethods: ['GET'],
         targetName: 'dbGetActivities',
+      },
+      {
+        lambda: populateActivities,
+        priority: 250,
+        path: ['/api/database/activities/populate'],
+        httpRequestMethods: ['GET'],
+        targetName: 'populateActivities',
       },
     ];
 
