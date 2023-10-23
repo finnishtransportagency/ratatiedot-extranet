@@ -19,9 +19,9 @@ export interface AlfrescoActivityResponse {
       lastName: string;
       parentObjectId: string;
       title: string;
-      objectId: string;
+      objectId?: string;
     };
-    id: string;
+    id: number;
     activityType: string;
     parent: unknown;
   };
@@ -33,12 +33,12 @@ export interface AlfrescoCombinedResponse {
     feedPersonId: string;
     postPersonId: string;
     siteId: string;
-    activitySummary: { firstName: string; lastName: string; parentObjectId: string; title: string; objectId: string };
-    id: string;
+    activitySummary: { firstName: string; lastName: string; parentObjectId: string; title: string; objectId?: string };
+    id: number;
     activityType: string;
     parent: unknown;
   };
-  nodeEntry: AlfrescoEntry;
+  nodeEntry: AlfrescoEntry | undefined;
   categoryName: string;
 }
 
