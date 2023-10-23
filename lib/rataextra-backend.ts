@@ -328,7 +328,7 @@ export class RataExtraBackendStack extends NestedStack {
         month: '*',
         day: '*',
         hour: '*',
-        minute: '*/5',
+        minute: '*/10',
       }),
       targets: [new LambdaFunction(populateActivities)],
     });
