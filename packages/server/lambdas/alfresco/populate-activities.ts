@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import { AxiosRequestConfig } from 'axios';
 import { alfrescoAxios, alfrescoApiVersion } from '../../utils/axios';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
@@ -36,15 +36,9 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
     if (include.length) {
       queryParameter = `?include=${include.join(',')}`;
     }
-    console.log('Fetching node info for node: ', nodeId);
     const response = await alfrescoAxios.get(`${alfrescoApiVersion}/nodes/${nodeId}${queryParameter}`, options);
-    console.log('response: ', response.data);
     return response.data;
   } catch (error) {
-    console.log('Error in getNode: ', error);
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 404) return null;
-    }
     throw error;
   }
 };
@@ -53,33 +47,57 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
   const combinedData: AlfrescoCombinedResponse[] = [];
   const nodePromises = [];
 
-  for (const child of childData) {
-    const isNotDeleted =
-      child.entry.activityType !== 'org.alfresco.documentlibrary.file-deleted' &&
-      child.entry.activityType !== 'org.alfresco.documentlibrary.folder-deleted';
+  const deletedNodeIds = new Set();
+  const deletedNodeEntries: AlfrescoActivityResponse[] = [];
 
-    // get the contents of the node to determine its category if node is not deleted
-    if (isNotDeleted) {
-      console.log('Node is not deleted, continue');
-      const nodePromise = getNode(child.entry.activitySummary.objectId, options, ['path']).then((node) => {
-        // eg. "/Company Home/Sites/site/root/category1"
-        // where category1 is the actual categoryName we want to know
-        const categoryname: string = node.entry.path.elements[4]?.name;
-        // If node has a category and category is not the root page
-        if (categoryname && categoryname !== 'documentLibrary') {
-          const combinedItem = {
-            activityEntry: child.entry,
-            nodeEntry: node.entry,
-            categoryName: categoryname,
-          };
-          combinedData.push(combinedItem);
-        }
-      });
-      nodePromises.push(nodePromise);
+  const nodesToFetch = childData.filter((child) => {
+    const nodeDeleted =
+      child.entry.activityType === 'org.alfresco.documentlibrary.file-deleted' ||
+      child.entry.activityType === 'org.alfresco.documentlibrary.folder-deleted' ||
+      ((child.entry.activityType === 'org.alfresco.documentlibrary.file-added' ||
+        child.entry.activityType === 'org.alfresco.documentlibrary.folder-added') &&
+        deletedNodeIds.has(child.entry.activitySummary.objectId));
+
+    if (nodeDeleted) {
+      deletedNodeIds.add(child.entry.activitySummary.objectId);
+      deletedNodeEntries.push(child);
+    } else {
+      return !deletedNodeIds.has(child.entry.activitySummary.objectId);
     }
+  });
+
+  // Only fetch additional info for items that are present in Alfresco
+  for (const child of nodesToFetch) {
+    const nodeId = child.entry.activitySummary.objectId!;
+    const nodePromise = getNode(nodeId, options, ['path']).then((node) => {
+      // eg. "/Company Home/Sites/site/root/category1"
+      // where category1 is the actual categoryName we want to know
+      const categoryname: string = node.entry.path.elements[4]?.name;
+      // If node has a category and category is not the root page
+      if (categoryname && categoryname !== 'documentLibrary') {
+        const combinedItem = {
+          activityEntry: child.entry,
+          nodeEntry: node.entry,
+          categoryName: categoryname,
+        };
+        combinedData.push(combinedItem);
+      }
+    });
+    nodePromises.push(nodePromise);
   }
 
   await Promise.all(nodePromises);
+
+  for (const deletedNode of deletedNodeEntries) {
+    // item doesn't exist in alfresco, delete its id
+    // so we dont route to alfresco to view a non-existent file
+    delete deletedNode.entry.activitySummary.objectId;
+    combinedData.push({
+      activityEntry: deletedNode.entry,
+      nodeEntry: undefined,
+      categoryName: '',
+    });
+  }
   return combinedData;
 }
 
@@ -101,27 +119,43 @@ export async function handleRequest(): Promise<unknown> {
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
 
-    const activityList = await getActivities(options, 0, 100);
-    const combinedData = await combineData(activityList, options);
+    const activityList = await getActivities(options, 0, 500);
+    const latestActivityInDb = await database.activity.findFirst({
+      take: 1,
+      orderBy: { activityId: 'desc' },
+    });
+
+    let filteredActivityList: AlfrescoActivityResponse[] = [];
+    if (latestActivityInDb) {
+      filteredActivityList = activityList.filter((activity) => activity.entry.id > latestActivityInDb.activityId);
+    }
+
+    const combinedData = await combineData(
+      filteredActivityList.length > 0 ? filteredActivityList : activityList,
+      options,
+    );
 
     const activityObjects: Prisma.ActivityCreateManyInput[] = [];
 
     for (const item of combinedData) {
       const categoryData = findEndpoint(item.categoryName, fileEndpointsCache);
-      if (categoryData) {
-        activityObjects.push({
-          alfrescoId: item.nodeEntry.id,
-          action: item.activityEntry.activityType,
-          fileName: item.nodeEntry.name,
-          timestamp: new Date(item.activityEntry.postedAt),
-          mimeType: item.nodeEntry.content.mimeType,
-          categoryId: categoryData?.id,
-        });
-      }
+      const activityEntry = item.activityEntry;
+      const nodeEntry = item.nodeEntry;
+
+      activityObjects.push({
+        activityId: activityEntry.id,
+        alfrescoId: activityEntry.activitySummary.objectId,
+        action: activityEntry.activityType,
+        fileName: activityEntry.activitySummary.title,
+        timestamp: new Date(activityEntry.postedAt),
+        mimeType: nodeEntry?.isFile ? nodeEntry.content.mimeType : nodeEntry?.isFolder ? 'folder' : 'other',
+        categoryId: categoryData?.id,
+      });
     }
 
     await database.activity.createMany({
       data: activityObjects,
+      skipDuplicates: true,
     });
   } catch (err) {
     log.error(err);
