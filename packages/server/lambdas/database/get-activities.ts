@@ -54,7 +54,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Fetching recent Alfresco activity list`);
 
-    const activities = await database.activity.findMany({ take: 5 });
+    const activities = await database.activity.findMany({
+      take: 5,
+      orderBy: {
+        timestamp: 'desc',
+      },
+    });
 
     const responseBody = {
       data: activities ?? {

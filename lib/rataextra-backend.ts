@@ -322,7 +322,7 @@ export class RataExtraBackendStack extends NestedStack {
 
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {
-      description: 'Schedule a Lambda that populates activities db table every 5 minutes',
+      description: 'Schedule a Lambda that populates activities db table every 10 minutes',
       schedule: Schedule.cron({
         year: '*',
         month: '*',
