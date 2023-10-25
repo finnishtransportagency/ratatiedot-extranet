@@ -59,6 +59,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       orderBy: {
         timestamp: 'desc',
       },
+      select: {
+        id: true,
+        categoryDataBase: {
+          select: {
+            rataextraRequestPage: true,
+            alfrescoFolder: true,
+          },
+        },
+      },
     });
 
     const responseBody = {

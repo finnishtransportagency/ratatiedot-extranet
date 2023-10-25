@@ -4,9 +4,10 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getMockUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { AlfrescoActivityResponse, AlfrescoCombinedResponse } from '../database/get-activities';
+import { AlfrescoActivityResponse } from '../database/get-activities';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { CategoryDataBase, Prisma } from '@prisma/client';
+import { getFolder } from './list-files';
 
 const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
@@ -46,7 +47,7 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
 };
 
 async function combineData(childData: AlfrescoActivityResponse[], options: AxiosRequestConfig) {
-  const combinedData: AlfrescoCombinedResponse[] = [];
+  const combinedData: Prisma.ActivityCreateManyInput[] = [];
   const nodePromises = [];
 
   const deletedNodeIds = new Set();
@@ -77,10 +78,16 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
       const categoryname: string = node.entry.path.elements[4]?.name;
       // If node has a category and category is not the root page
       if (categoryname && categoryname !== 'documentLibrary') {
+        const categoryData = findEndpoint(categoryname, fileEndpointsCache);
+
         const combinedItem = {
-          activityEntry: child.entry,
-          nodeEntry: node.entry,
-          categoryName: categoryname,
+          activityId: child.entry.id,
+          alfrescoId: child.entry.activitySummary.objectId,
+          action: child.entry.activityType,
+          fileName: child.entry.activitySummary.title,
+          timestamp: new Date(child.entry.postedAt),
+          mimeType: node.entry.isFile ? node.entry.content.mimeType : node.entry.isFolder ? 'folder' : 'other',
+          categoryId: categoryData?.id,
         };
         combinedData.push(combinedItem);
       }
@@ -88,18 +95,32 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
     nodePromises.push(nodePromise);
   }
 
-  await Promise.all(nodePromises);
-
   for (const deletedNode of deletedNodeEntries) {
-    // item doesn't exist in alfresco, delete its id
-    // so we dont route to alfresco to view a non-existent file
-    delete deletedNode.entry.activitySummary.objectId;
-    combinedData.push({
-      activityEntry: deletedNode.entry,
-      nodeEntry: undefined,
-      categoryName: '',
+    const folderPromise = await getFolder(
+      options.headers?.['OAM-REMOTE-USER'],
+      deletedNode.entry.activitySummary.parentObjectId,
+    ).then((folder) => {
+      const categoryName = folder.entry?.path.elements[4]?.name || folder.entry?.name;
+      let categoryId = null;
+      if (categoryName) {
+        const category = findEndpoint(categoryName, fileEndpointsCache);
+        categoryId = category?.id;
+      }
+
+      const deletedItem = {
+        activityId: deletedNode.entry.id,
+        alfrescoId: undefined,
+        action: deletedNode.entry.activityType,
+        fileName: deletedNode.entry.activitySummary.title,
+        timestamp: new Date(deletedNode.entry.postedAt),
+        mimeType: 'other',
+        categoryId,
+      };
+      combinedData.push(deletedItem);
     });
+    nodePromises.push(folderPromise);
   }
+  await Promise.all(nodePromises);
   return combinedData;
 }
 
@@ -129,34 +150,23 @@ export async function handleRequest(): Promise<unknown> {
 
     let filteredActivityList: AlfrescoActivityResponse[] = [];
     if (latestActivityInDb) {
+      // A filtered list of items that are newer than the ones in DB, only these will be inserted
       filteredActivityList = activityList.filter((activity) => activity.entry.id > latestActivityInDb.activityId);
     }
 
-    const combinedData = await combineData(
-      filteredActivityList.length > 0 ? filteredActivityList : activityList,
-      options,
-    );
+    let combinedData: Prisma.ActivityCreateManyInput[] = [];
+    // If filteredActivitylist, then we have newer entries in API that dont yet exist in db. add those to db.
+    if (filteredActivityList.length > 0) {
+      combinedData = await combineData(filteredActivityList, options);
+    }
 
-    const activityObjects: Prisma.ActivityCreateManyInput[] = [];
-
-    for (const item of combinedData) {
-      const categoryData = findEndpoint(item.categoryName, fileEndpointsCache);
-      const activityEntry = item.activityEntry;
-      const nodeEntry = item.nodeEntry;
-
-      activityObjects.push({
-        activityId: activityEntry.id,
-        alfrescoId: activityEntry.activitySummary.objectId,
-        action: activityEntry.activityType,
-        fileName: activityEntry.activitySummary.title,
-        timestamp: new Date(activityEntry.postedAt),
-        mimeType: nodeEntry?.isFile ? nodeEntry.content.mimeType : nodeEntry?.isFolder ? 'folder' : 'other',
-        categoryId: categoryData?.id,
-      });
+    // initial insert to DB
+    if (latestActivityInDb === null) {
+      combinedData = await combineData(activityList, options);
     }
 
     await database.activity.createMany({
-      data: activityObjects,
+      data: combinedData,
       skipDuplicates: true,
     });
   } catch (err) {
