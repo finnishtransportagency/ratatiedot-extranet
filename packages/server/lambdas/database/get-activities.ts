@@ -59,8 +59,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       orderBy: {
         timestamp: 'desc',
       },
-      select: {
-        id: true,
+      include: {
         categoryDataBase: {
           select: {
             rataextraRequestPage: true,
