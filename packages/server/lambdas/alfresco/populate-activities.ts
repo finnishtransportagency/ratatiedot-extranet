@@ -107,13 +107,19 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
         categoryId = category?.id;
       }
 
+      const mimeType =
+        deletedNode.entry.activityType === 'org.alfresco.documentlibrary.folder-deleted' ||
+        deletedNode.entry.activityType === 'org.alfresco.documentlibrary.folder-added'
+          ? 'folder'
+          : 'other';
+
       const deletedItem = {
         activityId: deletedNode.entry.id,
         alfrescoId: undefined,
         action: deletedNode.entry.activityType,
         fileName: deletedNode.entry.activitySummary.title,
         timestamp: new Date(deletedNode.entry.postedAt),
-        mimeType: 'other',
+        mimeType,
         categoryId,
       };
       combinedData.push(deletedItem);
