@@ -204,7 +204,7 @@ export const prodAreas = [
   {
     area: 3,
     name: 'alue_3_riihimaki-seinajoki',
-    title: 'Alue 3 Riihimaki-Seinajoki',
+    title: 'Alue 3 Riihimäki-Seinäjoki',
     collection: [
       {
         alfrescoId: '8c067e74-d2ae-4ed7-b9cc-931be894d083',
