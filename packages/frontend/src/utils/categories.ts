@@ -123,7 +123,7 @@ export const categories = [
   },
   {
     id: 'e10bdfc9-ec20-45ac-add5-3b81f20c1845',
-    name: 'Vak-ratapihat',
+    name: 'VAK-ratapihat',
     alfrescoId: 'a97586e7-3156-472b-ab25-08bc3e5f4ea3',
   },
   {
