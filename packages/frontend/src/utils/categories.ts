@@ -108,7 +108,7 @@ export const categories = [
   },
   {
     id: 'ccd53c2b-b569-4698-9c26-117fe5528051',
-    name: 'Liikennepaikkapäätokset',
+    name: 'Liikennepaikkapäätökset',
     alfrescoId: 'd2f31b30-5ee1-4dd2-9d41-768d8d8be239',
   },
   {
