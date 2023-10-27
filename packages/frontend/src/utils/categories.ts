@@ -542,7 +542,7 @@ export const devAreas = [
   {
     area: 4,
     name: 'alue_4_rauma-pieksamaki',
-    title: 'Alue 4 Rauma-Pieksämaki',
+    title: 'Alue 4 Rauma-Pieksämäki',
     collection: [
       {
         alfrescoId: 'b5893ea1-abf1-418e-853e-801d8b4b83f6',
