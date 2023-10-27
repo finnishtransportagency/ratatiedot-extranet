@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { searchFiles } from '../../hooks/query/Search';
 import { SortDataType } from '../../constants/Data';
 import { produce } from 'immer';
-import { Area, areas } from '../../utils/categories';
+import { Area } from '../../utils/categories';
 
 export type Sort = {
   field: string | null;

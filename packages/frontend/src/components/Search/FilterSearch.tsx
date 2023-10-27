@@ -76,7 +76,7 @@ const AreaFilter = () => {
                   checked={area.area === activeArea?.area}
                   onClick={() => handleAreaUpdate(area)}
                 />
-                <ListItemText primary={area.title} style={{ textTransform: 'capitalize' }} />
+                <ListItemText primary={area.title} />
               </ListItem>
             );
           })}
