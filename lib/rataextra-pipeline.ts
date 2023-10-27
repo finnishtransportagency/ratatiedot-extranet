@@ -2,7 +2,7 @@ import { RemovalPolicy, SecretValue, Stack, Stage, StageProps, Tags } from 'aws-
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import { BuildEnvironmentVariableType, Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
-import { getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from './config';
+import { ENVIRONMENTS, getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';
 import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { isDevelopmentMainStack } from './utils';
@@ -22,6 +22,13 @@ export class RataExtraPipelineStack extends Stack {
       tags: config.tags,
     });
     const { alfrescoDownloadUrl, sonarQubeUrl } = getRataExtraStackConfig(this);
+
+    const viteEnvironment = () => {
+      if (config.env === ENVIRONMENTS.prod) {
+        return ENVIRONMENTS.prod;
+      }
+      return ENVIRONMENTS.dev;
+    };
 
     const oauth = SecretValue.secretsManager(config.authenticationToken);
 
@@ -55,7 +62,7 @@ export class RataExtraPipelineStack extends Stack {
         input: github,
         installCommands: ['npm run ci --user=root'],
         commands: [
-          `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} npm run build:frontend`,
+          `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} npm run build:frontend`,
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
         ],
       }),

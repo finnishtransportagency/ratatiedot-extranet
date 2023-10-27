@@ -9,7 +9,7 @@ export const searchQueryBuilder = ({
   page = 0,
   language = QueryLanguage.LUCENE,
   additionalFields,
-  sort = [],
+  sort,
 }: QueryRequest): Query => {
   switch (language) {
     case QueryLanguage.LUCENE:
@@ -21,7 +21,7 @@ export const searchQueryBuilder = ({
           language,
         },
         paging: luceneQueryBuilder.pagination(page),
-        sort: luceneQueryBuilder.sorting(sort),
+        sort: sort ? luceneQueryBuilder.sorting(sort) : [],
         ...(additionalFields && { include: luceneQueryBuilder.additionalFields(additionalFields) }),
       };
     default:

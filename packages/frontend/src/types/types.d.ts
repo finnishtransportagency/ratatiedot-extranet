@@ -42,13 +42,13 @@ type TNameSearchParameter = {
 
 type TModifiedSearchParameter = {
   parameterName: ExtendedSearchParameterName.MODIFIED;
-  from: string | number;
-  to?: string | number;
+  from: string | null;
+  to?: string | null;
 };
 
 type TMimeSearchParameter = {
   parameterName: SearchParameterName.MIME;
-  fileTypes: string[];
+  fileTypes: Mime[];
 };
 
 type TCategorySearchParameter = {
@@ -56,11 +56,17 @@ type TCategorySearchParameter = {
   categoryName: string;
 };
 
+type TAncestorSearchParameter = {
+  parameterName: SearchParameterName.ANCESTOR;
+  ancestor: string;
+};
+
 type TSearchParameterBody =
   | TNameSearchParameter
   | TModifiedSearchParameter
   | TMimeSearchParameter
-  | TCategorySearchParameter;
+  | TCategorySearchParameter
+  | TAncestorSearchParameter;
 
 type MainCategoryData = {
   DIAGRAMS: string;
