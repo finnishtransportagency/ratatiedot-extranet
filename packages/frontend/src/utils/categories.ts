@@ -58,7 +58,7 @@ export const categories = [
   },
   {
     id: '60e85839-72e4-46b5-881a-0552129925b9',
-    name: 'Rinf rekisteri',
+    name: 'RINF-rekisteri (ERADIS-tunnus)',
     alfrescoId: 'c595c9ac-3c54-4b3b-b8bd-3cc5be929a91',
   },
   {
