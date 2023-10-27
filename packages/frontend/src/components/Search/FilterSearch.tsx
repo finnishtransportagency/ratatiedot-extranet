@@ -24,7 +24,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 import { Sort, useFiltersStore } from './filterStore';
-import { Area, areas, categories } from '../../utils/categories';
+import { Area, categories } from '../../utils/categories';
 import { Category } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
@@ -32,6 +32,7 @@ import { ButtonWrapper } from '../../styles/common';
 import { useTranslation } from 'react-i18next';
 import { FileFormats, SortDataType } from '../../constants/Data';
 import { AppBarContext } from '../../contexts/AppBarContext';
+import { areas } from '../../utils/helpers';
 
 interface CategoryFilterProps {
   title: string;
@@ -43,6 +44,8 @@ const AreaFilter = () => {
   const [open, setOpen] = useState(false);
   const activeArea = useFiltersStore((state) => state.area);
   const updateArea = useFiltersStore((state) => state.updateArea);
+
+  console.log(areas());
 
   const handleAreaUpdate = (area: Area) => {
     if (area.area === activeArea?.area) {
@@ -67,7 +70,7 @@ const AreaFilter = () => {
       </ListItem>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="li" disablePadding>
-          {areas?.map((area: Area) => {
+          {areas().map((area: Area) => {
             return (
               <ListItem>
                 <Radio

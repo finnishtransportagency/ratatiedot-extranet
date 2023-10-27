@@ -1,10 +1,12 @@
-import { format } from 'date-fns';
 import { SortDataType } from '../constants/Data';
 import { Sort } from '../types/search';
 import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
 import categoryData from '../assets/data/FinnishCategories.json';
 import { MainCategoryData, SubCategoryData } from '../types/types';
 import { capitalize } from 'lodash';
+import { Area, devAreas, prodAreas } from './categories';
+
+const { VITE_BUILD_ENVIRONMENT } = import.meta.env;
 
 /**
  * Generate range of years
@@ -149,4 +151,11 @@ export const parseRouterName = (routerName: string = '') => {
 
 export const matchRouteWithCategory = (routeList: any, categoryPage: string) => {
   return Object.values(routeList).find((r: any) => r.indexOf(categoryPage) !== -1);
+};
+
+export const areas = () => {
+  if (VITE_BUILD_ENVIRONMENT === 'prod') {
+    return prodAreas;
+  }
+  return devAreas;
 };
