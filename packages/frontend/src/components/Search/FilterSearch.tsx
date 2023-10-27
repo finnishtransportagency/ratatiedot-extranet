@@ -45,8 +45,6 @@ const AreaFilter = () => {
   const activeArea = useFiltersStore((state) => state.area);
   const updateArea = useFiltersStore((state) => state.updateArea);
 
-  console.log(areas());
-
   const handleAreaUpdate = (area: Area) => {
     if (area.area === activeArea?.area) {
       updateArea(null);
