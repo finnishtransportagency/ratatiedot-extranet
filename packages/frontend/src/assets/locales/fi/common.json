@@ -172,11 +172,15 @@
     "confidential": "Näkymä sisältää salassapidettävää tietoa. Älä jaa tietoja eteenpäin. Laki viranomaisten toiminnan julkisuudesta: <0>https://www.finlex.fi/fi/laki/ajantasa/1999/19990621</0> Salassapito: 24§, kohta 7."
   },
   "activityTypes": {
-    "FILE_DOWNLOADED": "latasi tiedoston",
-    "FILE_ADDED": "lisäsi tiedoston",
-    "FILE_DELETED": "poisti tiedoston",
-    "FOLDER_DOWNLOADED": "latasi kansion",
-    "FOLDER_ADDED": "lisäsi kansion",
-    "FOLDER_DELETED": "poisti kansion"
+    "FILE_DOWNLOADED": "ladattu",
+    "FILE_ADDED": "lisätty",
+    "FILE_DELETED": "poistettu",
+    "FOLDER_DOWNLOADED": "ladattu",
+    "FOLDER_ADDED": "lisätty",
+    "FOLDER_DELETED": "poistettu"
+  },
+  "activityList": {
+    "noRecentUpdates": "Ei viimeaikaisia muutoksia",
+    "recentUpdates": "Viimeksi muokatut"
   }
 }
