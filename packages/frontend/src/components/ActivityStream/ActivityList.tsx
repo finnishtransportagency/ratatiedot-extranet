@@ -1,31 +1,25 @@
-import { Card, CardContent, Typography } from '@mui/material';
-import { AlfrescoActivityResponse, AlfrescoCombinedResponse, TNode } from '../../types/types';
+import { Card, CardContent, CardHeader, Typography } from '@mui/material';
 import { ErrorMessage } from '../Notification/ErrorMessage';
 import { Spinner } from '../Spinner';
 import { HighlightedTitle } from '../Typography/HighlightedTitle';
 import { ActivityItem } from './ActivityItem';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const ActivityList = () => {
   const [modifiedFiles, setModifiedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState();
+  const { t } = useTranslation();
 
   const getActivityList = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get('/api/alfresco/activities');
+      const response = await axios.get('/api/database/activities');
       const { data } = response.data;
 
-      const sorted = data.sort((a: AlfrescoCombinedResponse, b: AlfrescoCombinedResponse) => {
-        const dateA = new Date(a.activityEntry.postedAt);
-        const dateB = new Date(b.activityEntry.postedAt);
-
-        return dateB.getTime() - dateA.getTime();
-      });
-
-      setModifiedFiles(sorted);
+      setModifiedFiles(data);
       setIsLoading(false);
     } catch (error: any) {
       setError(error);
@@ -41,15 +35,13 @@ export const ActivityList = () => {
 
   return (
     <Card sx={{ minWidth: 275 }}>
+      <CardHeader title={<HighlightedTitle>{t('activityList.recentUpdates')}</HighlightedTitle>} />
       <CardContent>
-        <HighlightedTitle>Viimeksi muokatut</HighlightedTitle>
-        {!modifiedFiles.length && !isLoading && <Typography>Ei viimeaikaisia muutoksia</Typography>}
+        {!modifiedFiles.length && !isLoading && <Typography>{t('activityList.noRecentUpdates')}</Typography>}
         {isLoading ? (
           <Spinner />
         ) : (
-          modifiedFiles.map((node: AlfrescoCombinedResponse, index: number) => (
-            <ActivityItem key={index} row={index} node={node} />
-          ))
+          modifiedFiles.map((node, index: number) => <ActivityItem key={index} row={index} node={node} />)
         )}
       </CardContent>
     </Card>
