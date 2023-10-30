@@ -126,7 +126,7 @@ const CategoryFilter = (props: CategoryFilterProps) => {
                   checked={category.id === activeCategory?.id}
                   onClick={() => handleCategoryUpdate(category)}
                 />
-                <ListItemText primary={category.name} style={{ textTransform: 'capitalize' }} />
+                <ListItemText primary={category.name} />
               </ListItem>
             );
           })}

@@ -53,7 +53,7 @@ export const categories = [
   },
   {
     id: '481eb3a8-d084-4612-8712-c5df6ea89e9f',
-    name: 'Turvalaitteiden käyttoohjeet',
+    name: 'Turvalaitteiden käyttöohjeet',
     alfrescoId: 'f5444443-9404-415a-b7f3-8a2970c2cab9',
   },
   {
