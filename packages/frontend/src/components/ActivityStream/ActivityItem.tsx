@@ -32,7 +32,6 @@ type NodeItemProps = {
   node: any;
   row: number;
   isSelected?: boolean;
-  onFileClick?: (node: AlfrescoCombinedResponse['nodeEntry']) => void;
 };
 
 export const ActivityItem = ({ node, row, isSelected = false }: NodeItemProps) => {
@@ -83,11 +82,11 @@ export const ActivityItem = ({ node, row, isSelected = false }: NodeItemProps) =
           }
         }}
         href={
-          isFile &&
-          !isDeleted &&
-          `${VITE_ALFRESCO_DOWNLOAD_URL}/alfresco/versions/1/nodes/${id}/content/${encodeURI(
-            fileName,
-          )}?attachment=false`
+          isFile && !isDeleted
+            ? `${VITE_ALFRESCO_DOWNLOAD_URL}/alfresco/versions/1/nodes/${id}/content/${encodeURI(
+                fileName,
+              )}?attachment=false`
+            : ''
         }
       >
         <Grid item mobile={1} tablet={0.5} desktop={0.5}>
