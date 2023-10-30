@@ -42,13 +42,13 @@ type TNameSearchParameter = {
 
 type TModifiedSearchParameter = {
   parameterName: ExtendedSearchParameterName.MODIFIED;
-  from: string | number;
-  to?: string | number;
+  from: string | null;
+  to?: string | null;
 };
 
 type TMimeSearchParameter = {
   parameterName: SearchParameterName.MIME;
-  fileTypes: string[];
+  fileTypes: Mime[];
 };
 
 type TCategorySearchParameter = {
@@ -56,11 +56,17 @@ type TCategorySearchParameter = {
   categoryName: string;
 };
 
+type TAncestorSearchParameter = {
+  parameterName: SearchParameterName.ANCESTOR;
+  ancestor: string;
+};
+
 type TSearchParameterBody =
   | TNameSearchParameter
   | TModifiedSearchParameter
   | TMimeSearchParameter
-  | TCategorySearchParameter;
+  | TCategorySearchParameter
+  | TAncestorSearchParameter;
 
 type MainCategoryData = {
   DIAGRAMS: string;
@@ -136,7 +142,6 @@ export interface AlfrescoPaginatedResponse {
 
 interface AlfrescoResponse {
   entry: {
-    path: any;
     isFile: boolean;
     createdByUser: {
       id: string;
@@ -153,7 +158,7 @@ interface AlfrescoResponse {
     parentId: string;
     aspectNames: string[];
     createdAt: string;
-    isFolder: boolean;
+    isFolder: string;
     modifiedByUser: {
       id: string;
       displayName: string;
@@ -165,38 +170,4 @@ interface AlfrescoResponse {
       'cm:versionType': string;
     };
   };
-}
-
-export interface AlfrescoActivityResponse {
-  entry: {
-    postedAt: string;
-    feedPersonId: string;
-    postPersonId: string;
-    siteId: string;
-    activitySummary: {
-      firstName: string;
-      lastName: string;
-      parentObjectId: string;
-      title: string;
-      objectId: string;
-    };
-    id: string;
-    activityType: string;
-    parent: unknown;
-  };
-}
-
-interface AlfrescoCombinedResponse {
-  activityEntry: {
-    postedAt: string;
-    feedPersonId: string;
-    postPersonId: string;
-    siteId: string;
-    activitySummary: { firstName: string; lastName: string; parentObjectId: string; title: string; objectId: string };
-    id: string;
-    activityType: string;
-    parent: unknown;
-  };
-  nodeEntry: AlfrescoResponse['entry'];
-  categoryName: string;
 }
