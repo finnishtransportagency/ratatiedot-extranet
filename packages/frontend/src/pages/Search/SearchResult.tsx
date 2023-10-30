@@ -48,22 +48,19 @@ export const SearchResult = () => {
         ))}
       </div>
       {data.list.pagination.totalItems ? (
-        <>
-          <Pagination
-            sx={{ justifyContent: 'center', display: 'flex' }}
-            page={pageNumber}
-            showFirstButton
-            showLastButton
-            count={Math.ceil(data.list.pagination.totalItems / data.list.pagination.maxItems)}
-            color="primary"
-            onChange={(_: React.ChangeEvent<unknown>, value: number) => {
-              setPageNumber(value);
-              updatePage(value - 1);
-              search();
-            }}
-          />
-          <div>{page}</div>
-        </>
+        <Pagination
+          sx={{ justifyContent: 'center', display: 'flex' }}
+          page={pageNumber}
+          showFirstButton
+          showLastButton
+          count={Math.ceil(data.list.pagination.totalItems / data.list.pagination.maxItems)}
+          color="primary"
+          onChange={(_: React.ChangeEvent<unknown>, value: number) => {
+            setPageNumber(value);
+            updatePage(value - 1);
+            search();
+          }}
+        />
       ) : (
         <Typography variant="body1" sx={{ margin: '24px 0px' }}>
           {t('search:zero_result', { query: query })}
