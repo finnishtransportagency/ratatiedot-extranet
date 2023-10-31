@@ -468,13 +468,6 @@ export class RataExtraBackendStack extends NestedStack {
         httpRequestMethods: ['GET'],
         targetName: 'dbGetActivities',
       },
-      {
-        lambda: populateActivities,
-        priority: 250,
-        path: ['/api/database/activities/populate'],
-        httpRequestMethods: ['GET'],
-        targetName: 'populateActivities',
-      },
     ];
 
     // ALB for API

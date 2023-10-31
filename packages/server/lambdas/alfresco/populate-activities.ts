@@ -27,7 +27,6 @@ const getActivities = async (options: AxiosRequestConfig, skipCount = 0, maxItem
     );
     return nonDownloadActivities;
   } catch (error) {
-    console.log('error at getActivities: ', error);
     throw error;
   }
 };
