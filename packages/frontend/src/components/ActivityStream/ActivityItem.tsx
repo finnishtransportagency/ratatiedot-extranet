@@ -12,7 +12,6 @@ import PPT from '../../assets/icons/PowerPoint.svg';
 import { Colors } from '../../constants/Colors';
 import { DateFormat } from '../../constants/Formats';
 import { matchRouteWithCategory, parseRouterName } from '../../utils/helpers';
-import { AlfrescoCombinedResponse } from '../../types/types';
 import { Routes, useNavigate } from 'react-router-dom';
 import { ActivityTypes } from '../../constants/ActivityTypes';
 
