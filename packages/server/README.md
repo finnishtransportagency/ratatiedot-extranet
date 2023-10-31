@@ -174,6 +174,16 @@ psql [connection URL]
 rataextra=> \dt+
 ```
 
+#### Migration Problems
+
+If you encounter problems with migration, check [troubleshooting for issues in development](https://www.prisma.io/docs/guides/migrate/developing-with-prisma-migrate/troubleshooting-development) and [production](https://www.prisma.io/docs/guides/migrate/production-troubleshooting) first.
+
+A common case might be that a change is already present in the DB and thus migration fails due to a table or relation already existing. If you have confirmed this to be the case, you can mark the migration as applied to skip it.
+
+```
+npx prisma migrate resolve --applied "20231030_my_migration"
+```
+
 ### Build
 
 #### Pipeline
