@@ -46,6 +46,7 @@ const AreaFilter = () => {
   const updateArea = useFiltersStore((state) => state.updateArea);
 
   const handleAreaUpdate = (area: Area) => {
+    setOpen(false);
     if (area.area === activeArea?.area) {
       updateArea(null);
       return;
@@ -96,6 +97,7 @@ const CategoryFilter = (props: CategoryFilterProps) => {
   const updateCategory = useFiltersStore((state) => state.updateCategory);
 
   const handleCategoryUpdate = (category: Category) => {
+    setOpen(!open);
     if (category.id === activeCategory?.id) {
       updateCategory(null);
       return;
@@ -205,11 +207,6 @@ export const FilterSearch = (props: FilterSearchProps) => {
 
   const clearFilter = useFiltersStore((state) => state.resetFilter);
 
-  const saveFilters = () => {
-    toggleFilter();
-    console.log('save filters');
-  };
-
   const handleToChange = (newValue: Date | null) => {
     updateTo(newValue);
     from ?? updateFrom(new Date('2000-01-01'));
@@ -222,7 +219,6 @@ export const FilterSearch = (props: FilterSearchProps) => {
           color="primary"
           variant="contained"
           onClick={() => {
-            saveFilters();
             filtersApplied();
           }}
         >
