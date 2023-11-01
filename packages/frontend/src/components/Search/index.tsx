@@ -1,5 +1,4 @@
-import React, { useContext, useState } from 'react';
-import { useShallow } from 'zustand/shallow';
+import React, { useContext } from 'react';
 import { InputBase, IconButton, InputAdornment } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -25,7 +24,7 @@ type SearchProps = {
 export const SearchStorage = new LocalStorageHelper(5);
 
 export const Search = ({ isDesktop = false }: SearchProps) => {
-  const { openSearch, toggleSearch, openFilter, toggleFilter } = useContext(AppBarContext);
+  const { openSearch, toggleSearch, openFilter, toggleFilter, closeFilter } = useContext(AppBarContext);
   const navigate = useNavigate();
   const { t } = useTranslation(['common']);
 
@@ -53,7 +52,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
     }
     SearchStorage.add(KeyEnum.RECENT_SEARCHES, searchString);
     closeSearch();
-    toggleFilter();
+    closeFilter();
     navigate(`${Routes.SEARCH_RESULT}?query=${searchString}`);
     fetchFiles();
   };
@@ -134,3 +133,6 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
     </>
   );
 };
+function closeFilter() {
+  throw new Error('Function not implemented.');
+}

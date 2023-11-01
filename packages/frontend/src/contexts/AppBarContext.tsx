@@ -12,6 +12,7 @@ export const AppBarContext = React.createContext({
   toggleSearch: () => {},
   openFilter: false,
   toggleFilter: () => {},
+  closeFilter: () => {},
   openEdit: false,
   toggleEdit: () => {},
   openToolbar: false,
@@ -69,6 +70,12 @@ export const AppBarContextProvider = (props: any) => {
     setOpenFilter(!openFilter);
   };
 
+  const closeFilter = () => {
+    setOpenMiniDrawer(false);
+    setOpenEdit(false);
+    setOpenFilter(false);
+  };
+
   const toggleEdit = () => {
     setOpenMiniDrawer(false);
     setOpenEdit(!openEdit);
@@ -107,6 +114,7 @@ export const AppBarContextProvider = (props: any) => {
         toggleSearch: toggleSearch,
         openFilter: openFilter,
         toggleFilter: toggleFilter,
+        closeFilter: closeFilter,
         openEdit: openEdit,
         toggleEdit: toggleEdit,
         openToolbar: openToolbar,
