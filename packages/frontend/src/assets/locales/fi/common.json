@@ -67,6 +67,9 @@
     "files": "tiedostoa",
     "file_too_large": "Tiedosto on liian suuri. Tiedoston enimmäiskoko on 50 MB."
   },
+  "filter": {
+    "add_category_info": "Valitse aineistoluokka"
+  },
   "folder": {
     "select_folder_title": "Valitse kansio.",
     "add_folder": "Lisää kansio",
