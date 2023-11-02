@@ -133,6 +133,3 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
     </>
   );
 };
-function closeFilter() {
-  throw new Error('Function not implemented.');
-}
