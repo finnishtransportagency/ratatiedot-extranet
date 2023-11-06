@@ -2,7 +2,7 @@ import { AxiosRequestConfig } from 'axios';
 import { alfrescoAxios, alfrescoApiVersion } from '../../utils/axios';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getMockUser, validateReadUser } from '../../utils/userService';
+import { getServiceUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { AlfrescoActivityResponse } from '../database/get-activities';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
@@ -23,7 +23,8 @@ const getActivities = async (options: AxiosRequestConfig, skipCount = 0, maxItem
     const nonDownloadActivities = activities.filter(
       (child: { entry: { activityType: string } }) =>
         child.entry.activityType !== 'org.alfresco.documentlibrary.file-downloaded' &&
-        child.entry.activityType !== 'org.alfresco.documentlibrary.folder-downloaded',
+        child.entry.activityType !== 'org.alfresco.documentlibrary.folder-downloaded' &&
+        !child.entry.activityType.startsWith('org.alfresco.site.'),
     );
     return nonDownloadActivities;
   } catch (error) {
@@ -135,12 +136,10 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
  */
 export async function handleRequest(): Promise<unknown> {
   try {
-    const user = getMockUser();
-    validateReadUser(user);
-
-    const options = await getAlfrescoOptions(user.uid);
-
+    const serviceUser = getServiceUser();
     log.info(`Fetching alfresco activities and populating database..`);
+
+    const options = await getAlfrescoOptions(serviceUser.uid);
 
     if (!fileEndpointsCache.length) {
       log.debug('Cache empty');

@@ -37,6 +37,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly alfrescoAncestor: string;
   readonly mockUid?: string;
   readonly alfrescoSitePath: string;
+  readonly serviceUserUid?: string;
 }
 
 type ListenerTargetLambdas = {
@@ -91,6 +92,7 @@ export class RataExtraBackendStack extends NestedStack {
       alfrescoAncestor,
       mockUid,
       alfrescoSitePath,
+      serviceUserUid,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -130,6 +132,7 @@ export class RataExtraBackendStack extends NestedStack {
         ENVIRONMENT: rataExtraEnv,
         LOG_LEVEL: isFeatOrLocalStack(rataExtraEnv) ? 'debug' : 'info',
         MOCK_UID: mockUid || '',
+        SERVICE_USER_UID: serviceUserUid || '',
       },
       initialPolicy: [],
     };
