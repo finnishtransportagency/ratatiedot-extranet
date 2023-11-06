@@ -24,6 +24,7 @@ const getActivities = async (options: AxiosRequestConfig, skipCount = 0, maxItem
       const allowedTypes = [
         'org.alfresco.documentlibrary.file-added',
         'org.alfresco.documentlibrary.file-deleted',
+        'org.alfresco.documentlibrary.file-created',
         'org.alfresco.documentlibrary.folder-added',
         'org.alfresco.documentlibrary.folder-deleted',
         'org.alfresco.documentlibrary.inline-edit',
@@ -45,7 +46,6 @@ export const getNode = async (nodeId: string, options: AxiosRequestConfig, inclu
     const response = await alfrescoAxios.get(`${alfrescoApiVersion}/nodes/${nodeId}${queryParameter}`, options);
     return response.data;
   } catch (error) {
-    console.log('error at getNode: ', error);
     throw error;
   }
 };
