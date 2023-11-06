@@ -36,7 +36,7 @@ type NodeItemProps = {
 };
 
 export const ActivityItem = ({ node, row, isSelected = false }: NodeItemProps) => {
-  const { mimeType, fileName, timestamp, id, action } = node;
+  const { mimeType, fileName, timestamp, action, alfrescoId } = node;
   const { rataextraRequestPage } = node.categoryDataBase;
 
   const isFolder = mimeType === 'folder';
@@ -84,7 +84,7 @@ export const ActivityItem = ({ node, row, isSelected = false }: NodeItemProps) =
         }}
         href={
           isFile && !isDeleted
-            ? `${VITE_ALFRESCO_DOWNLOAD_URL}/alfresco/versions/1/nodes/${id}/content/${encodeURI(
+            ? `${VITE_ALFRESCO_DOWNLOAD_URL}/alfresco/versions/1/nodes/${alfrescoId}/content/${encodeURI(
                 fileName,
               )}?attachment=false`
             : undefined
