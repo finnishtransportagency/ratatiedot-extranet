@@ -18,6 +18,8 @@ import { isPermanentStack, isFeatOrLocalStack } from './utils';
 import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { RatatietoNodeBackendConstruct } from './rataextra-node-backend';
+import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
+import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -35,6 +37,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly alfrescoAncestor: string;
   readonly mockUid?: string;
   readonly alfrescoSitePath: string;
+  readonly serviceUserUid?: string;
 }
 
 type ListenerTargetLambdas = {
@@ -89,6 +92,7 @@ export class RataExtraBackendStack extends NestedStack {
       alfrescoAncestor,
       mockUid,
       alfrescoSitePath,
+      serviceUserUid,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -128,6 +132,7 @@ export class RataExtraBackendStack extends NestedStack {
         ENVIRONMENT: rataExtraEnv,
         LOG_LEVEL: isFeatOrLocalStack(rataExtraEnv) ? 'debug' : 'info',
         MOCK_UID: mockUid || '',
+        SERVICE_USER_UID: serviceUserUid || '',
       },
       initialPolicy: [],
     };
@@ -304,6 +309,33 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/delete-favorite-page.ts',
     });
 
+    const dbGetActivities = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-activities',
+      relativePath: '../packages/server/lambdas/database/get-activities.ts',
+    });
+
+    // Separate lambda that does not require ALB
+    const populateActivities = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'populate-activities',
+      relativePath: '../packages/server/lambdas/alfresco/populate-activities.ts',
+      timeout: Duration.seconds(60),
+    });
+
+    // EventBridge rule for running a scheduled lambda
+    new Rule(this, 'Rule', {
+      description: 'Schedule a Lambda that populates activities db table every 10 minutes',
+      schedule: Schedule.cron({
+        year: '*',
+        month: '*',
+        day: '*',
+        hour: '*',
+        minute: '*/10',
+      }),
+      targets: [new LambdaFunction(populateActivities)],
+    });
+
     // Add all lambdas here to add as alb targets. Alb forwards requests based on path starting from smallest numbered priority
     // Keep list in order by priority. Don't reuse priority numbers
     const lambdas: ListenerTargetLambdas[] = [
@@ -431,6 +463,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/favorites'],
         httpRequestMethods: ['DELETE'],
         targetName: 'dbDeleteFavoritePage',
+      },
+      {
+        lambda: dbGetActivities,
+        priority: 245,
+        path: ['/api/database/activities'],
+        httpRequestMethods: ['GET'],
+        targetName: 'dbGetActivities',
       },
     ];
 
