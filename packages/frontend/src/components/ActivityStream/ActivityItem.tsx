@@ -12,8 +12,10 @@ import PPT from '../../assets/icons/PowerPoint.svg';
 import { Colors } from '../../constants/Colors';
 import { DateFormat } from '../../constants/Formats';
 import { matchRouteWithCategory, parseRouterName } from '../../utils/helpers';
-import { Routes, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 import { ActivityTypes } from '../../constants/ActivityTypes';
+import { Routes } from '../../constants/Routes';
 
 export const NodeTypes = {
   other: Other,
@@ -85,7 +87,7 @@ export const ActivityItem = ({ node, row, isSelected = false }: NodeItemProps) =
             ? `${VITE_ALFRESCO_DOWNLOAD_URL}/alfresco/versions/1/nodes/${id}/content/${encodeURI(
                 fileName,
               )}?attachment=false`
-            : ''
+            : undefined
         }
       >
         <Grid item mobile={1} tablet={0.5} desktop={0.5}>

@@ -20,12 +20,16 @@ const getActivities = async (options: AxiosRequestConfig, skipCount = 0, maxItem
     );
 
     const activities = response.data.list.entries as AlfrescoActivityResponse[];
-    const nonDownloadActivities = activities.filter(
-      (child: { entry: { activityType: string } }) =>
-        child.entry.activityType !== 'org.alfresco.documentlibrary.file-downloaded' &&
-        child.entry.activityType !== 'org.alfresco.documentlibrary.folder-downloaded' &&
-        !child.entry.activityType.startsWith('org.alfresco.site.'),
-    );
+    const nonDownloadActivities = activities.filter((child: { entry: { activityType: string } }) => {
+      const allowedTypes = [
+        'org.alfresco.documentlibrary.file-added',
+        'org.alfresco.documentlibrary.file-deleted',
+        'org.alfresco.documentlibrary.folder-added',
+        'org.alfresco.documentlibrary.folder-deleted',
+        'org.alfresco.documentlibrary.inline-edit',
+      ];
+      return allowedTypes.includes(child.entry.activityType);
+    });
     return nonDownloadActivities;
   } catch (error) {
     throw error;
