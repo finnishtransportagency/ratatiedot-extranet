@@ -6,10 +6,10 @@ import { getUser } from '../utils/userService';
 const CLOUDFRONT_DOMAIN_NAME = process.env.CLOUDFRONT_DOMAIN_NAME;
 
 /**
- * Adds Return-cookie and returns user back to requested endpoint in the same domain
+ * Returns user back to requested endpoint in the same domain
  * @param {ALBEvent} event
  * @param {string} [event.queryStringParameters.redirect_url] URL encoded endpoint to return user to
- * @returns Redirect with location and Return-cookie in headers
+ * @returns Redirect with location
  */
 export async function handleRequest(event: ALBEvent) {
   try {

@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Check if asking for file or page. For pages (including /index.html), check if cookie "Return" is set.
+ * Check if asking for file or page. For pages (including /index.html).
  * If cookie is missing, redirect to /api/return-login to check SSO session
  * @param {CloudFrontFunctionsEvent} event aws-lambda.CloudFrontFunctionsEvent
  * @returns Original request or redirect
@@ -18,9 +18,9 @@ function handler(event) {
     return request;
   }
 
-  /* Check for return cookie, if present then proceed with request */
-  var isReturnedRequest = cookies && (cookies['AWSELBAuthSessionCookie-0'] || cookies['AWSELBAuthSessionCookie-1']);
-  if (isReturnedRequest) {
+  /* If AuthSessionCookie present, proceed with request */
+  var sessionCookieExists = cookies && (cookies['AWSELBAuthSessionCookie-0'] || cookies['AWSELBAuthSessionCookie-1']);
+  if (sessionCookieExists) {
     return request;
   }
   var host = headers.host && headers.host.value;
