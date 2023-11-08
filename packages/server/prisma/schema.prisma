@@ -21,6 +21,7 @@ model CategoryDataBase {
   FavoriteCategory       FavoriteCategory[]
   hasClassifiedContent   Boolean               @default(false)
   hasConfidentialContent Boolean               @default(false)
+  Activity               Activity[]
 }
 
 model CategoryDataContents {
@@ -62,4 +63,16 @@ model FavoriteCategory {
   categoryId       String
 
   @@unique([userId, categoryId], name: "favoriteCategoryIdentifier") // compound unique constraint
+}
+
+model Activity {
+  id               String            @id @default(uuid())
+  fileName         String
+  categoryDataBase CategoryDataBase? @relation(fields: [categoryId], references: [id])
+  categoryId       String?
+  alfrescoId       String?
+  timestamp        DateTime
+  action           String
+  mimeType         String
+  activityId       Int               @unique
 }

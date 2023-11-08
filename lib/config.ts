@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { StringParameter, StringListParameter } from 'aws-cdk-lib/aws-ssm';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { getEnvOrFail } from '../utils';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
@@ -8,13 +8,13 @@ const getSSMStringParameter = (scope: Construct, parameterName: string) =>
   StringParameter.valueForStringParameter(scope, parameterName);
 
 // Returns token that resolves during deployment to SSM parameter value
-const getSSMStringListParameter = (scope: Construct, parameterName: string) =>
-  StringListParameter.valueForTypedListParameter(scope, parameterName);
+/* const getSSMStringListParameter = (scope: Construct, parameterName: string) =>
+  StringListParameter.valueForTypedListParameter(scope, parameterName); */
 
-export type RataExtraEnvironment = typeof ENVIRONMENTS[keyof typeof ENVIRONMENTS];
+export type RataExtraEnvironment = (typeof ENVIRONMENTS)[keyof typeof ENVIRONMENTS];
 
 function isRataExtraEnvironment(arg: string): arg is RataExtraEnvironment {
-  return !!arg && Object.values(ENVIRONMENTS).includes(arg as any);
+  return !!arg && Object.values(ENVIRONMENTS).includes(arg as RataExtraEnvironment);
 }
 
 export const ENVIRONMENTS = {
@@ -43,6 +43,7 @@ const SSM_MOCK_UID = 'rataextra-static-test-user';
 const SSM_ALFRESCO_SITE_PATH = 'rataextra-alfresco-site-path';
 const SSM_SONARQUBE_URL = 'rataextra-sonarqube-url';
 const SSM_SONARQUBE_TOKEN = 'rataextra-sonarqube-token';
+const SSM_SERVICE_USER_UID = 'rataextra-service-user';
 
 // Minified JS code that is used to make ES modules working
 // Also handles __dirname & import.meta.url
@@ -70,6 +71,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   mockUid: getSSMStringParameter(scope, SSM_MOCK_UID),
   alfrescoSitePath: getSSMStringParameter(scope, SSM_ALFRESCO_SITE_PATH),
   sonarQubeUrl: getSSMStringParameter(scope, SSM_SONARQUBE_URL),
+  serviceUserUid: getSSMStringParameter(scope, SSM_SERVICE_USER_UID),
 });
 
 // Runtime variables from SSM/Parameter Store

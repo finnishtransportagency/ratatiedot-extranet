@@ -1,5 +1,4 @@
-import React, { useContext, useState } from 'react';
-import { useShallow } from 'zustand/shallow';
+import React, { useContext } from 'react';
 import { InputBase, IconButton, InputAdornment } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -15,6 +14,7 @@ import { FilterSearch } from './FilterSearch';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { useTranslation } from 'react-i18next';
 import { useFiltersStore, useFileStore } from './filterStore';
+import { toast } from 'react-toastify';
 
 type SearchProps = {
   isDesktop?: boolean;
@@ -24,13 +24,15 @@ type SearchProps = {
 export const SearchStorage = new LocalStorageHelper(5);
 
 export const Search = ({ isDesktop = false }: SearchProps) => {
-  const { openSearch, toggleSearch, openFilter, toggleFilter } = useContext(AppBarContext);
+  const { openSearch, toggleSearch, openFilter, toggleFilter, closeFilter } = useContext(AppBarContext);
   const navigate = useNavigate();
   const { t } = useTranslation(['common']);
 
   const searchString = useFiltersStore((state) => state.searchString);
   const updateSearchString = useFiltersStore((state) => state.updateSearchString);
   const fetchFiles = useFileStore((state) => state.search);
+  const area = useFiltersStore((state) => state.area);
+  const category = useFiltersStore((state) => state.category);
 
   const closeSearch = () => {
     openSearch && toggleSearch();
@@ -44,8 +46,13 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
   };
 
   const search = () => {
+    if (area !== null && category === null) {
+      toast(t('common:filter.add_category_info'), { type: 'info' });
+      return;
+    }
     SearchStorage.add(KeyEnum.RECENT_SEARCHES, searchString);
     closeSearch();
+    closeFilter();
     navigate(`${Routes.SEARCH_RESULT}?query=${searchString}`);
     fetchFiles();
   };

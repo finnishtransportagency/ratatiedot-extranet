@@ -33,6 +33,7 @@ export class RataExtraStack extends Stack {
       alfrescoAncestor,
       mockUid,
       alfrescoSitePath,
+      serviceUserUid,
     } = getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
@@ -67,6 +68,7 @@ export class RataExtraStack extends Stack {
       alfrescoAncestor,
       mockUid: mockUid,
       alfrescoSitePath: alfrescoSitePath,
+      serviceUserUid: serviceUserUid,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
 

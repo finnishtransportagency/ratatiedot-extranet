@@ -91,7 +91,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       targetNode = categoryData.alfrescoFolder;
     }
 
-    const options = await getAlfrescoOptions(user.uid);
+    const options = await getAlfrescoOptions(user.uid, { 'Content-Type': 'application/json' });
     const requestOptions = (await folderCreateRequestBuilder(event, options.headers)) as unknown as AxiosRequestOptions;
 
     const folderName = JSON.parse(event.body).name;
