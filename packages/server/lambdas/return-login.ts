@@ -16,8 +16,6 @@ export async function handleRequest(event: ALBEvent) {
     const user = await getUser(event);
     log.info(user, 'Returning user back to frontpage.');
 
-    const expires = new Date(Date.now() + 120 * 1000).toUTCString(); // In two minutes
-    const setCookieAttributes = `; Domain=${CLOUDFRONT_DOMAIN_NAME}; Path=/; Secure; SameSite=Lax; expires=${expires};`;
     const returnUrlEnd = event.queryStringParameters?.redirect_url
       ? decodeURIComponent(event.queryStringParameters.redirect_url)
       : '/';
@@ -25,7 +23,6 @@ export async function handleRequest(event: ALBEvent) {
       statusCode: 302,
       headers: {
         Location: `https://${CLOUDFRONT_DOMAIN_NAME}${returnUrlEnd}`,
-        'Set-Cookie': `Return=true${setCookieAttributes}`,
       },
     };
   } catch (err) {

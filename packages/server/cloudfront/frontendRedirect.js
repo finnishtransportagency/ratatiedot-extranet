@@ -19,7 +19,7 @@ function handler(event) {
   }
 
   /* Check for return cookie, if present then proceed with request */
-  var isReturnedRequest = cookies && cookies['Return'];
+  var isReturnedRequest = cookies && (cookies['AWSELBAuthSessionCookie-0'] || cookies['AWSELBAuthSessionCookie-1']);
   if (isReturnedRequest) {
     return request;
   }
