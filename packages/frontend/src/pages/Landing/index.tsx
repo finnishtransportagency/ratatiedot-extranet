@@ -26,6 +26,9 @@ export const Landing = () => {
         .
       </ParagraphWrapper>
       <SubtitleWrapper variant="subtitle1">Ajankohtaista</SubtitleWrapper>
+      <SubtitleWrapper variant="subtitle2">
+        Huoltokatkon takia järjestelmään kirjautuminen ei onnistu ti 14.11. 2023 klo 6:30-9:00.
+      </SubtitleWrapper>
       <SubtitleWrapper variant="subtitle2">Tiedostojen päivämäärät</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
         Järjestelmämuutoksen (Ratatiedon extranet-&gt;Ratatieto) yhteydessä siirrettiin aineisto uuteen palveluun
