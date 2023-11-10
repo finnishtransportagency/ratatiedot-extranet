@@ -15,7 +15,7 @@ export class RataExtraEC2Error extends Error {
  * Returns error translation key that gets translated on client
  */
 export const getClientErrorTranslationKey = (err: unknown) =>
-  (err instanceof RataExtraEC2Error && err.errorTranslationKey) || 'genericError';
+  err instanceof RataExtraEC2Error && err.errorTranslationKey;
 
 /**
  * Returns error response object for RataExtra API requests

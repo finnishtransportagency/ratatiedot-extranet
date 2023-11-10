@@ -21,6 +21,7 @@
   "image": "Kuva",
   "format": "Muoto",
   "category": "Aineistoluokka",
+  "area": "Alue",
   "action": {
     "update_results": "Päivitä tulokset",
     "remove_filters": "Poista kaikki suodattimet"

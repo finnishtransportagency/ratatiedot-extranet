@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ProtectedContainerWrapper } from '../../styles/common';
 import { Link } from '@mui/material';
+import { ActivityList } from '../../components/ActivityStream/ActivityList';
 
 export const Landing = () => {
   const { t } = useTranslation(['common', 'landing']);
@@ -25,6 +26,9 @@ export const Landing = () => {
         .
       </ParagraphWrapper>
       <SubtitleWrapper variant="subtitle1">Ajankohtaista</SubtitleWrapper>
+      <SubtitleWrapper variant="subtitle2">
+        Huoltokatkon takia järjestelmään kirjautuminen ei onnistu ti 14.11. 2023 klo 6:30-9:00.
+      </SubtitleWrapper>
       <SubtitleWrapper variant="subtitle2">Tiedostojen päivämäärät</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
         Järjestelmämuutoksen (Ratatiedon extranet-&gt;Ratatieto) yhteydessä siirrettiin aineisto uuteen palveluun
@@ -32,6 +36,7 @@ export const Landing = () => {
         on pelkkä viiva, tarkoittaa se, että tiedosto on luotu ennen huhtikuuta 2023. Jos tuolla kohdalla on päivämäärä,
         ilmoittaa se ajankohtaa jolloin tiedosto on luotu tai päivitetty massa-aineistosiirron jälkeen.
       </ParagraphWrapper>
+      <ActivityList />
     </ProtectedContainerWrapper>
   );
 };

@@ -1,27 +1,31 @@
 import { Chip, Stack } from '@mui/material';
-import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { SearchContext, Sorting, TCheckBoxes } from '../../contexts/SearchContext';
-import { formatYear } from '../../utils/helpers';
-import { EMimeType } from '../../constants/Data';
-import { SearchParameterName } from '../Search/FilterSearchData';
+import { useFiltersStore, useFileStore } from '../../components/Search/filterStore';
+import { SortDataType } from '../../constants/Data';
 
 export const Tags = () => {
   const { t } = useTranslation(['search']);
-  const { years, yearsHandler, savedCheckboxes, savedCheckboxesHandler, sort, sortHandler, pageHandler } =
-    useContext(SearchContext);
 
-  const getYearTagName = (): string => {
-    const fromYear = formatYear(years[0]);
-    const toYear = formatYear(years[1]);
-    if (fromYear) {
-      return fromYear < toYear ? `${fromYear} - ${toYear}` : fromYear;
-    }
-    return '';
+  const category = useFiltersStore((state) => state.category);
+  const updateCategory = useFiltersStore((state) => state.updateCategory);
+  const area = useFiltersStore((state) => state.area);
+  const updateArea = useFiltersStore((state) => state.updateArea);
+  const mimeTypes = useFiltersStore((state) => state.mimeTypes);
+  const toggleMimeType = useFiltersStore((state) => state.toggleMimeType);
+  const sort = useFiltersStore((state) => state.sort);
+  const updateSort = useFiltersStore((state) => state.updateSort);
+  const fromYear = useFiltersStore((state) => state.from?.getFullYear());
+  const toYear = useFiltersStore((state) => state.to?.getFullYear());
+  const resetTimespan = useFiltersStore((state) => state.resetTimespan);
+
+  const search = useFileStore((state) => state.search);
+
+  const getTimespanLabel = (): string => {
+    return `${fromYear} - ${toYear}`;
   };
 
-  const getSortingTagName = (sortRequest: Sorting) => {
+  const getSortingTagName = (sortRequest: any) => {
     const { field, ascending } = sortRequest;
     switch (field) {
       case 'name':
@@ -33,47 +37,59 @@ export const Tags = () => {
     }
   };
 
-  const getGeneralTagName = (name: string) => {
-    if (name === EMimeType.Image) return t('search:image');
-    return name;
-  };
-
-  const removeSortingTag = () => {
-    sortHandler(sort[0] ?? '');
-    pageHandler(0);
-  };
-
-  const removeYearTag = () => {
-    yearsHandler(null, null);
-    pageHandler(0);
-  };
-
-  const removeCheckboxTag = (type: SearchParameterName, name: string) => {
-    savedCheckboxesHandler((prevData: TCheckBoxes) => {
-      return {
-        ...prevData,
-        [type]: prevData[type].filter((item: string) => item !== name),
-      };
-    });
-    pageHandler(0);
-  };
-
   return (
     <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
-      {/* Sorting by alphabet and date */}
-      {sort[0] && <Chip color="secondary" label={getSortingTagName(sort[0])} onDelete={removeSortingTag} />}
-      {/* Select by year range */}
-      {getYearTagName() && <Chip color="secondary" label={getYearTagName()} onDelete={removeYearTag} />}
-      {/* Select by mime format type and category name */}
-      {Object.entries(savedCheckboxes).map(([type, names]) =>
-        names.map((name: string, index: number) => (
+      {sort?.field && (
+        <Chip
+          color="secondary"
+          label={getSortingTagName(sort)}
+          onDelete={() => {
+            updateSort(SortDataType.NONE);
+            search();
+          }}
+        />
+      )}
+      {fromYear && (
+        <Chip
+          color="secondary"
+          label={getTimespanLabel()}
+          onDelete={() => {
+            resetTimespan();
+            search();
+          }}
+        />
+      )}
+      {mimeTypes.map((mimeType) => {
+        return (
           <Chip
-            key={`${type}-${index}`}
             color="secondary"
-            label={getGeneralTagName(name)}
-            onDelete={() => removeCheckboxTag(type as SearchParameterName, name as string)}
+            label={mimeType}
+            onDelete={() => {
+              toggleMimeType(mimeType);
+              search();
+            }}
           />
-        )),
+        );
+      })}
+      {category && (
+        <Chip
+          color="secondary"
+          label={category.name}
+          onDelete={() => {
+            updateCategory(null);
+            search();
+          }}
+        />
+      )}
+      {area && (
+        <Chip
+          color="secondary"
+          label={area.title}
+          onDelete={() => {
+            updateArea(null);
+            search();
+          }}
+        />
       )}
     </Stack>
   );

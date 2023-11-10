@@ -1,92 +1,63 @@
-import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
-import { QueryKeys } from '../../constants/QueryKeys';
-import { SortingParameters } from '../../contexts/SearchContext';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
 import { getRouterName } from '../../utils/helpers';
-
-export type TAlfrescoSearchProps = {
-  term: string | null;
-  from?: string | number;
-  to?: string | number;
-  fileTypes?: string[];
-  // TODO: multiple ainestoluokka/category
-  categoryName: string;
-  page?: number;
-  sort?: SortingParameters;
-  contentSearch?: boolean;
-  nameSearch?: boolean;
-  titleSearch?: boolean;
-  descriptionSearch?: boolean;
-};
+import { Filter, Sort } from '../../components/Search/filterStore';
 
 const getSearchBody = ({
-  term,
+  searchString,
   from,
   to,
-  fileTypes,
-  categoryName,
-  page = 0,
-  sort = [],
+  mimeTypes,
+  ancestor,
+  page,
+  sort,
   contentSearch,
   nameSearch,
   titleSearch,
   descriptionSearch,
-}: TAlfrescoSearchProps) => {
-  let body: { searchParameters: TSearchParameterBody[]; page?: number; sort?: SortingParameters } = {
+}: Filter) => {
+  let body: { searchParameters: TSearchParameterBody[]; page?: number; sort: Sort | null } = {
     searchParameters: [],
     page: page,
     sort: sort,
   };
-  if (term) {
+  if (searchString) {
     body.searchParameters.push({
       parameterName: ExtendedSearchParameterName.NAME,
-      term: term,
+      term: searchString,
       contentSearch: contentSearch,
       nameSearch: nameSearch,
       titleSearch: titleSearch,
       descriptionSearch: descriptionSearch,
     });
   }
-  if (from) {
+  if (to || from) {
     body.searchParameters.push({
       parameterName: ExtendedSearchParameterName.MODIFIED,
-      from: from,
-      to: to,
+      from: from?.getFullYear().toString() as string,
+      to: to?.getFullYear().toString() as string,
     });
   }
-  if (fileTypes?.length) {
+  if (mimeTypes?.length) {
     body.searchParameters.push({
       parameterName: SearchParameterName.MIME,
-      fileTypes: fileTypes,
+      fileTypes: mimeTypes,
     });
   }
-  if (categoryName) {
+  if (ancestor) {
     body.searchParameters.push({
-      parameterName: SearchParameterName.CATEGORY,
-      categoryName: getRouterName(categoryName),
+      parameterName: SearchParameterName.ANCESTOR,
+      ancestor: ancestor,
     });
   }
   return body;
 };
 
-export const usePostAlfrescoSearch = (props: TAlfrescoSearchProps) => {
-  const { term } = props;
-
-  return useQuery({
-    enabled: Boolean(term),
-    queryKey: [QueryKeys.ALFRESCO_SEARCH, props],
-    queryFn: async () => {
-      const body = getSearchBody(props);
-      const response = await axios.post('/api/alfresco/search', body);
-      return response.data;
-    },
-    onSuccess: (res) => res,
-    onError: (err: Error) => {
-      console.log(err);
-      return err;
-    },
+export const searchFiles = async (filter: Filter) => {
+  const response = await axios.post('/api/alfresco/search', getSearchBody(filter)).catch((err) => {
+    return { data: null, error: err };
   });
+  return { data: response.data, error: null };
 };

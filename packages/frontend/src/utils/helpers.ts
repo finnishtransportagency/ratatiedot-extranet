@@ -1,10 +1,12 @@
-import { format } from 'date-fns';
 import { SortDataType } from '../constants/Data';
+import { Sort } from '../types/search';
 import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
-import { Sorting } from '../contexts/SearchContext';
 import categoryData from '../assets/data/FinnishCategories.json';
 import { MainCategoryData, SubCategoryData } from '../types/types';
 import { capitalize } from 'lodash';
+import { Area, devAreas, prodAreas } from './categories';
+
+const { VITE_BUILD_ENVIRONMENT } = import.meta.env;
 
 /**
  * Generate range of years
@@ -58,16 +60,12 @@ export const getLocaleByteUnit = (unitStr: string, locale: LocaleLang) => {
   return unitParts[0] + ' ' + (LocaleUnit[locale][unitParts[1] as keyof FileSizeUnit] || unitParts[1]);
 };
 
-export const formatYear = (date: Date | null) => {
-  return date ? format(date, 'yyyy') : '';
-};
-
 /**
  * Mapping sort {field: string, ascending: boolean} to corresponding string value
  * @param sortRequest
  * @returns string
  */
-export const mapSortTypeToValue = (sortRequest: Sorting | null) => {
+export const mapSortTypeToValue = (sortRequest: Sort | null) => {
   if (!sortRequest) return SortDataType.NONE;
   const { field, ascending } = sortRequest;
   if (field === 'name' && ascending) return SortDataType.ASC_NAME;
@@ -153,4 +151,11 @@ export const parseRouterName = (routerName: string = '') => {
 
 export const matchRouteWithCategory = (routeList: any, categoryPage: string) => {
   return Object.values(routeList).find((r: any) => r.indexOf(categoryPage) !== -1);
+};
+
+export const areas = () => {
+  if (VITE_BUILD_ENVIRONMENT === 'prod') {
+    return prodAreas;
+  }
+  return devAreas;
 };

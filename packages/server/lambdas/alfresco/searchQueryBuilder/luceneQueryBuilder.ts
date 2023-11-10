@@ -187,15 +187,13 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     };
   }
 
-  public sorting(params?: SortingParameter[]): [] | Sorting[] {
-    return params && params.length
-      ? params.map((param: SortingParameter) => {
-          return {
-            type: 'FIELD',
-            field: `cm:${param.field}`,
-            ascending: param.ascending,
-          };
-        })
-      : [];
+  public sorting(param: SortingParameter): Sorting[] {
+    return [
+      {
+        type: 'FIELD',
+        field: `cm:${param.field}`,
+        ascending: param.ascending,
+      },
+    ];
   }
 }

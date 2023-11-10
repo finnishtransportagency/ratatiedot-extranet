@@ -67,6 +67,9 @@
     "files": "tiedostoa",
     "file_too_large": "Tiedosto on liian suuri. Tiedoston enimmäiskoko on 50 MB."
   },
+  "filter": {
+    "add_category_info": "Valitse aineistoluokka"
+  },
   "folder": {
     "select_folder_title": "Valitse kansio.",
     "add_folder": "Lisää kansio",
@@ -170,5 +173,17 @@
   },
   "warning": {
     "confidential": "Oheisissa kansioissa olevat dokumentit sisältävät salassapidettävää tietoa. Älä jaa tietoja eteenpäin. Laki viranomaisten toiminnan julkisuudesta: <0>https://www.finlex.fi/fi/laki/ajantasa/1999/19990621</0> Salassapito: 24§, kohta 7."
+  },
+  "activityTypes": {
+    "FILE_DOWNLOADED": "ladattu",
+    "FILE_ADDED": "lisätty",
+    "FILE_DELETED": "poistettu",
+    "FOLDER_DOWNLOADED": "ladattu",
+    "FOLDER_ADDED": "lisätty",
+    "FOLDER_DELETED": "poistettu"
+  },
+  "activityList": {
+    "noRecentUpdates": "Ei viimeaikaisia muutoksia",
+    "recentUpdates": "Viimeksi muokatut"
   }
 }
