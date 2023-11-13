@@ -112,11 +112,11 @@ export class RataExtraCloudFrontStack extends NestedStack {
         '/api*': backendProxyBehavior,
         '/oauth2*': backendProxyBehavior,
         '/sso*': backendProxyBehavior,
-        '/images*': {
-          origin: new S3Origin(imageBucket),
-          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-        },
       },
+    });
+
+    cloudfrontDistribution.addBehavior('/images*', new S3Origin(imageBucket), {
+      cachePolicy: CachePolicy.CACHING_OPTIMIZED,
     });
 
     const frontendRelativeBuildDir = '../packages/frontend/build';
