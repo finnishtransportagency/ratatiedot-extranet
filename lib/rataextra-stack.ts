@@ -88,6 +88,18 @@ export class RataExtraStack extends Stack {
       enforceSSL: true,
     });
 
+    const imageBucket = new Bucket(this, `rataextra-images-`, {
+      bucketName: `s3-${this.#rataExtraStackIdentifier}-images`,
+      publicReadAccess: false,
+      accessControl: BucketAccessControl.PRIVATE,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: removalPolicy,
+      autoDeleteObjects: autoDeleteObjects,
+      objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
+      encryption: BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+    });
+
     if (isPermanentStack(stackId, rataExtraEnv)) {
       const cloudFrontStack = new RataExtraCloudFrontStack(this, 'stack-cf', {
         rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
@@ -96,6 +108,7 @@ export class RataExtraStack extends Stack {
         cloudfrontDomainName: cloudfrontDomainName,
         dmzApiEndpoint: dmzApiEndpoint,
         frontendBucket: frontendBucket,
+        imageBucket: imageBucket,
       });
       Object.entries(props.tags).forEach(([key, value]) => Tags.of(cloudFrontStack).add(key, value));
     }

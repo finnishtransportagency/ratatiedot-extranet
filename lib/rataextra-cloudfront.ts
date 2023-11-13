@@ -31,18 +31,33 @@ interface CloudFrontStackProps extends StackProps {
   readonly cloudfrontDomainName: string;
   readonly dmzApiEndpoint: string;
   readonly frontendBucket: Bucket;
+  readonly imageBucket: Bucket;
 }
 export class RataExtraCloudFrontStack extends NestedStack {
   constructor(scope: Construct, id: string, props: CloudFrontStackProps) {
     super(scope, id, props);
-    const { rataExtraStackIdentifier, dmzApiEndpoint, cloudfrontCertificateArn, cloudfrontDomainName, frontendBucket } =
-      props;
+    const {
+      rataExtraStackIdentifier,
+      dmzApiEndpoint,
+      cloudfrontCertificateArn,
+      cloudfrontDomainName,
+      frontendBucket,
+      imageBucket,
+    } = props;
     const cloudfrontOAI = new OriginAccessIdentity(this, 'CloudFrontOriginAccessIdentity');
 
     frontendBucket.addToResourcePolicy(
       new PolicyStatement({
         actions: ['s3:GetObject'],
         resources: [frontendBucket.arnForObjects('*')],
+        principals: [new CanonicalUserPrincipal(cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
+      }),
+    );
+
+    imageBucket.addToResourcePolicy(
+      new PolicyStatement({
+        actions: ['s3:GetObject'],
+        resources: [imageBucket.arnForObjects('*')],
         principals: [new CanonicalUserPrincipal(cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
       }),
     );
@@ -97,8 +112,13 @@ export class RataExtraCloudFrontStack extends NestedStack {
         '/api*': backendProxyBehavior,
         '/oauth2*': backendProxyBehavior,
         '/sso*': backendProxyBehavior,
+        '/images*': {
+          origin: new S3Origin(imageBucket),
+          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+        },
       },
     });
+
     const frontendRelativeBuildDir = '../packages/frontend/build';
     new BucketDeployment(this, 'FrontendDeployment', {
       sources: [Source.asset(join(__dirname, frontendRelativeBuildDir))],
