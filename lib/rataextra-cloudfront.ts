@@ -115,7 +115,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       },
     });
 
-    cloudfrontDistribution.addBehavior('/images*', new S3Origin(imageBucket), {
+    cloudfrontDistribution.addBehavior('/images*', new S3Origin(imageBucket, { originAccessIdentity: cloudfrontOAI }), {
       cachePolicy: CachePolicy.CACHING_OPTIMIZED,
     });
 
