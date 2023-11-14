@@ -121,7 +121,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
     const edgeAuthFunction = new experimental.EdgeFunction(this, 'EdgeAuthFunction', {
       runtime: Runtime.NODEJS_16_X,
       handler: 'index.handler',
-      code: Code.fromAsset(join(__dirname, '../packages/server/edge-auth')),
+      code: Code.fromAsset(join(__dirname, '../packages/server/lambdas/edge-auth')),
     });
 
     cloudfrontDistribution.addBehavior('/images*', new S3Origin(imageBucket, { originAccessIdentity: cloudfrontOAI }), {
