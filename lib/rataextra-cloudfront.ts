@@ -24,8 +24,8 @@ import { RataExtraEnvironment } from './config';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { join } from 'path';
-import { EdgeFunction } from 'aws-cdk-lib/aws-cloudfront/lib/experimental';
 import { Runtime, Code } from 'aws-cdk-lib/aws-lambda';
+import { experimental } from 'aws-cdk-lib/aws-cloudfront';
 
 interface CloudFrontStackProps extends StackProps {
   readonly rataExtraStackIdentifier: string;
@@ -118,7 +118,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       },
     });
 
-    const edgeAuthFunction = new EdgeFunction(this, 'EdgeAuthFunction', {
+    const edgeAuthFunction = new experimental.EdgeFunction(this, 'EdgeAuthFunction', {
       runtime: Runtime.NODEJS_16_X,
       handler: 'index.handler',
       code: Code.fromAsset(join(__dirname, '../packages/server/edge-auth')),
