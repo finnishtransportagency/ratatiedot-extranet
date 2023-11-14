@@ -2,7 +2,7 @@ import { Stack } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
 import { RemovalPolicy, StackProps, Tags } from 'aws-cdk-lib';
-import { getRemovalPolicy, isPermanentStack, getVpcAttributes, getSecurityGroupId } from './utils';
+import { getRemovalPolicy, /*isPermanentStack,*/ getVpcAttributes, getSecurityGroupId } from './utils';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { RataExtraBackendStack } from './rataextra-backend';
@@ -100,18 +100,18 @@ export class RataExtraStack extends Stack {
       enforceSSL: true,
     });
 
-    if (isPermanentStack(stackId, rataExtraEnv)) {
-      const cloudFrontStack = new RataExtraCloudFrontStack(this, 'stack-cf', {
-        rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
-        rataExtraEnv: rataExtraEnv,
-        cloudfrontCertificateArn: cloudfrontCertificateArn,
-        cloudfrontDomainName: cloudfrontDomainName,
-        dmzApiEndpoint: dmzApiEndpoint,
-        frontendBucket: frontendBucket,
-        imageBucket: imageBucket,
-      });
-      Object.entries(props.tags).forEach(([key, value]) => Tags.of(cloudFrontStack).add(key, value));
-    }
+    //if (isPermanentStack(stackId, rataExtraEnv)) {
+    const cloudFrontStack = new RataExtraCloudFrontStack(this, 'stack-cf', {
+      rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
+      rataExtraEnv: rataExtraEnv,
+      cloudfrontCertificateArn: cloudfrontCertificateArn,
+      cloudfrontDomainName: cloudfrontDomainName,
+      dmzApiEndpoint: dmzApiEndpoint,
+      frontendBucket: frontendBucket,
+      imageBucket: imageBucket,
+    });
+    Object.entries(props.tags).forEach(([key, value]) => Tags.of(cloudFrontStack).add(key, value));
+    //}
   }
   private createServiceRole(name: string, servicePrincipal: string, policyName: string) {
     return new Role(this, name, {
