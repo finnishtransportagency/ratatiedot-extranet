@@ -44,7 +44,7 @@ const SSM_ALFRESCO_SITE_PATH = 'rataextra-alfresco-site-path';
 const SSM_SONARQUBE_URL = 'rataextra-sonarqube-url';
 const SSM_SONARQUBE_TOKEN = 'rataextra-sonarqube-token';
 const SSM_SERVICE_USER_UID = 'rataextra-service-user';
-const SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY = 'rataextra-cloudfront-signer-public-key';
+const SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY_ID = 'rataextra-cloudfront-signer-public-key-id';
 
 // Minified JS code that is used to make ES modules working
 // Also handles __dirname & import.meta.url
@@ -73,7 +73,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   alfrescoSitePath: getSSMStringParameter(scope, SSM_ALFRESCO_SITE_PATH),
   sonarQubeUrl: getSSMStringParameter(scope, SSM_SONARQUBE_URL),
   serviceUserUid: getSSMStringParameter(scope, SSM_SERVICE_USER_UID),
-  cloudfrontSignerPublicKey: getSSMStringParameter(scope, SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY),
+  cloudfrontSignerPublicKeyId: getSSMStringParameter(scope, SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY_ID),
 });
 
 // Runtime variables from SSM/Parameter Store

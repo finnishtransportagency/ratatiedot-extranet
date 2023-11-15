@@ -7,7 +7,7 @@ import {
   FunctionEventType,
   CachedMethods,
   KeyGroup,
-  IPublicKey,
+  PublicKey,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { PolicyStatement, CanonicalUserPrincipal } from 'aws-cdk-lib/aws-iam';
@@ -34,7 +34,7 @@ interface CloudFrontStackProps extends StackProps {
   readonly dmzApiEndpoint: string;
   readonly frontendBucket: Bucket;
   readonly imageBucket: Bucket;
-  readonly cloudfrontSignerPublicKey: IPublicKey;
+  readonly cloudfrontSignerPublicKeyId: string;
 }
 export class RataExtraCloudFrontStack extends NestedStack {
   constructor(scope: Construct, id: string, props: CloudFrontStackProps) {
@@ -46,7 +46,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       //cloudfrontDomainName,
       frontendBucket,
       imageBucket,
-      cloudfrontSignerPublicKey,
+      cloudfrontSignerPublicKeyId,
     } = props;
     const cloudfrontOAI = new OriginAccessIdentity(this, 'CloudFrontOriginAccessIdentity');
 
@@ -66,7 +66,13 @@ export class RataExtraCloudFrontStack extends NestedStack {
       }),
     );
 
-    const keyGroup = new KeyGroup(this, 'keyGroup', {
+    const cloudfrontSignerPublicKey = PublicKey.fromPublicKeyId(
+      this,
+      'rataextra-cloudfront-public-key-id',
+      cloudfrontSignerPublicKeyId,
+    );
+
+    const keyGroup = new KeyGroup(this, 'rataextra-cloudfront-key-group', {
       items: [cloudfrontSignerPublicKey],
     });
 
