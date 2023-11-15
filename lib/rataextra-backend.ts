@@ -323,6 +323,12 @@ export class RataExtraBackendStack extends NestedStack {
       timeout: Duration.seconds(60),
     });
 
+    const getNotices = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-notices',
+      relativePath: '../packages/server/lambdas/database/get-notices.ts',
+    });
+
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {
       description: 'Schedule a Lambda that populates activities db table every 10 minutes',
@@ -470,6 +476,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/activities'],
         httpRequestMethods: ['GET'],
         targetName: 'dbGetActivities',
+      },
+      {
+        lambda: getNotices,
+        priority: 250,
+        path: ['/api/notices'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getNotices',
       },
     ];
 
