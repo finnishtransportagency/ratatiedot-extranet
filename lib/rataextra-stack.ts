@@ -8,6 +8,7 @@ import { SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { RataExtraBackendStack } from './rataextra-backend';
 import { RataExtraCloudFrontStack } from './rataextra-cloudfront';
 import { Bucket, BucketAccessControl, BlockPublicAccess, ObjectOwnership, BucketEncryption } from 'aws-cdk-lib/aws-s3';
+import { IPublicKey } from 'aws-cdk-lib/aws-cloudfront';
 
 interface RataExtraStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
@@ -34,6 +35,7 @@ export class RataExtraStack extends Stack {
       mockUid,
       alfrescoSitePath,
       serviceUserUid,
+      cloudfrontSignerPublicKey,
     } = getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
@@ -109,6 +111,7 @@ export class RataExtraStack extends Stack {
       dmzApiEndpoint: dmzApiEndpoint,
       frontendBucket: frontendBucket,
       imageBucket: imageBucket,
+      cloudfrontSignerPublicKey: cloudfrontSignerPublicKey as unknown as IPublicKey,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(cloudFrontStack).add(key, value));
     //}

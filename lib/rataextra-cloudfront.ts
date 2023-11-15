@@ -6,7 +6,8 @@ import {
   FunctionCode,
   FunctionEventType,
   CachedMethods,
-  LambdaEdgeEventType,
+  KeyGroup,
+  IPublicKey,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { PolicyStatement, CanonicalUserPrincipal } from 'aws-cdk-lib/aws-iam';
@@ -24,8 +25,6 @@ import { RataExtraEnvironment } from './config';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { join } from 'path';
-import { Runtime, Code } from 'aws-cdk-lib/aws-lambda';
-import { experimental } from 'aws-cdk-lib/aws-cloudfront';
 
 interface CloudFrontStackProps extends StackProps {
   readonly rataExtraStackIdentifier: string;
@@ -35,6 +34,7 @@ interface CloudFrontStackProps extends StackProps {
   readonly dmzApiEndpoint: string;
   readonly frontendBucket: Bucket;
   readonly imageBucket: Bucket;
+  readonly cloudfrontSignerPublicKey: IPublicKey;
 }
 export class RataExtraCloudFrontStack extends NestedStack {
   constructor(scope: Construct, id: string, props: CloudFrontStackProps) {
@@ -46,6 +46,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       //cloudfrontDomainName,
       frontendBucket,
       imageBucket,
+      cloudfrontSignerPublicKey,
     } = props;
     const cloudfrontOAI = new OriginAccessIdentity(this, 'CloudFrontOriginAccessIdentity');
 
@@ -64,6 +65,10 @@ export class RataExtraCloudFrontStack extends NestedStack {
         principals: [new CanonicalUserPrincipal(cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
       }),
     );
+
+    const keyGroup = new KeyGroup(this, 'keyGroup', {
+      items: [cloudfrontSignerPublicKey],
+    });
 
     /* const certificate = Certificate.fromCertificateArn(
       this,
@@ -115,23 +120,13 @@ export class RataExtraCloudFrontStack extends NestedStack {
         '/api*': backendProxyBehavior,
         '/oauth2*': backendProxyBehavior,
         '/sso*': backendProxyBehavior,
-      },
-    });
-
-    const edgeAuthFunction = new experimental.EdgeFunction(this, 'EdgeAuthFunction', {
-      runtime: Runtime.NODEJS_16_X,
-      handler: 'index.handler',
-      code: Code.fromAsset(join(__dirname, '../packages/server/lambdas/edge-auth')),
-    });
-
-    cloudfrontDistribution.addBehavior('/images*', new S3Origin(imageBucket, { originAccessIdentity: cloudfrontOAI }), {
-      cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-      edgeLambdas: [
-        {
-          functionVersion: edgeAuthFunction.currentVersion,
-          eventType: LambdaEdgeEventType.VIEWER_REQUEST,
+        '/images*': {
+          origin: new S3Origin(imageBucket, { originAccessIdentity: cloudfrontOAI }),
+          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          trustedKeyGroups: [keyGroup],
         },
-      ],
+      },
     });
 
     const frontendRelativeBuildDir = '../packages/frontend/build';
