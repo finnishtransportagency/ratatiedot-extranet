@@ -2,10 +2,41 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateReadUser } from '../../utils/userService';
+import { getUser, validateAdminUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 
 const database = await DatabaseClient.build();
+
+// const getPublishedNotices = async () => {
+//   const notices = await database.notice.findMany({
+//     where: {
+//       publishTimeStart: {
+//         gt: new Date(),
+//       },
+//     },
+//     select: {
+//       id: true,
+//       title: true,
+//       publishTimeStart: true,
+//       showAsBanner: true,
+//     },
+//   });
+//
+//   return notices;
+// };
+
+const getAllNotices = async () => {
+  const notices = await database.notice.findMany({
+    select: {
+      id: true,
+      title: true,
+      publishTimeStart: true,
+      showAsBanner: true,
+    },
+  });
+
+  return notices;
+};
 
 /**
  * Get list of notices containing basic information. Example request: /api/notices
@@ -14,12 +45,18 @@ const database = await DatabaseClient.build();
  */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
+    const queryParams = event.queryStringParameters;
     const user = await getUser(event);
+
     log.info(user, 'Get list of notices');
     validateReadUser(user);
 
-    // maybe logic where read user can see only currently available notices. Timed notices only for write users???
-    const notices = await database.notices.findMany({});
+    let notices;
+
+    if (queryParams?.unpublished === 'true') {
+      validateAdminUser(user);
+      notices = getAllNotices();
+    }
 
     return {
       statusCode: 200,

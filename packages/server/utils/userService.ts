@@ -75,7 +75,7 @@ const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
 
 const isReadUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.read);
 
-const isAdmin = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.admin);
+export const isAdmin = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.admin);
 
 const isWriteUser = (user: RataExtraUser, writeRole: string) =>
   user.roles?.includes(writeRole) || user.roles?.includes(STATIC_ROLES.write);
@@ -114,6 +114,20 @@ export const validateWriteUser = (user: RataExtraUser, writeRole: string): void 
     return;
   } else {
     log.error(user, 'Forbidden: User is not an authorised write user');
+    // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
+    throw new RataExtraLambdaError('Forbidden', 401);
+  }
+};
+
+/**
+ * Checks if the user has necessary "Admin" role. Throws 403 Forbidden if not authorised.
+ * @param {RataExtraUser} user User being validated
+ */
+export const validateAdminUser = (user: RataExtraUser): void => {
+  if (isAdmin(user)) {
+    return;
+  } else {
+    log.error(user, 'Forbidden: User is not admin');
     // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
     throw new RataExtraLambdaError('Forbidden', 401);
   }

@@ -76,3 +76,14 @@ model Activity {
   mimeType         String
   activityId       Int               @unique
 }
+
+model Notice {
+  id                String    @id @default(uuid())
+  title             String
+  content           Json
+  authorId          String
+  createdTime       DateTime  @default(now())
+  publishTimeStart  DateTime  @default(now())
+  publishTimeEnd    DateTime?
+  showAsBanner      Boolean
+}
