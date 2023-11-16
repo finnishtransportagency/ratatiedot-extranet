@@ -234,6 +234,7 @@ Add following values to Parameter Store for permanent environments:
 - **rataextra-alfresco-api-url**: URL for Alfresco API service
 - **rataextra-alfresco-download-url**: URL for downloading Alfresco file
 - **rataextra-alfresco-ancestor**: Root folder name in Alfresco
+- **rataextra-cloudfront-signer-public-key-id**: ID of the key used to create a CloudFront Key Group via CDK. Note that you should generate the key by hand and upload to CloudFront > Public keys > Create public key and use the ID that is generated here.
 
 ### Backend development
 
