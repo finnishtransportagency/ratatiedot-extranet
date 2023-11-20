@@ -79,11 +79,11 @@ model Activity {
 
 model Notice {
   id                String    @id @default(uuid())
-  title             String
+  title             String?
   content           Json
-  authorId          String
+  authorId          String?
   createdTime       DateTime  @default(now())
   publishTimeStart  DateTime  @default(now())
   publishTimeEnd    DateTime?
-  showAsBanner      Boolean
+  showAsBanner      Boolean   @default(false)
 }

@@ -7,39 +7,8 @@ import { DatabaseClient } from './client';
 
 const database = await DatabaseClient.build();
 
-// const getPublishedNotices = async () => {
-//   const notices = await database.notice.findMany({
-//     where: {
-//       publishTimeStart: {
-//         gt: new Date(),
-//       },
-//     },
-//     select: {
-//       id: true,
-//       title: true,
-//       publishTimeStart: true,
-//       showAsBanner: true,
-//     },
-//   });
-//
-//   return notices;
-// };
-
-const getAllNotices = async () => {
-  const notices = await database.notice.findMany({
-    select: {
-      id: true,
-      title: true,
-      publishTimeStart: true,
-      showAsBanner: true,
-    },
-  });
-
-  return notices;
-};
-
 /**
- * Get list of notices containing basic information. Example request: /api/notices
+ * Get list of notices. Example request: /api/notices?published=true?count=10
  * @param {ALBEvent} event
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
  */
@@ -52,10 +21,20 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateReadUser(user);
 
     let notices;
+    const resultCount = parseInt(queryParams?.count || '10');
 
     if (queryParams?.unpublished === 'true') {
       validateAdminUser(user);
-      notices = getAllNotices();
+      notices = await database.notice.findMany({ take: resultCount });
+    } else {
+      notices = await database.notice.findMany({
+        where: {
+          publishTimeStart: {
+            lte: new Date(),
+          },
+        },
+        take: resultCount,
+      });
     }
 
     return {
@@ -63,7 +42,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ notices }),
+      body: JSON.stringify(notices),
     };
   } catch (err) {
     log.error(err);
