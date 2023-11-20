@@ -323,6 +323,30 @@ export class RataExtraBackendStack extends NestedStack {
       timeout: Duration.seconds(60),
     });
 
+    const getNotices = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-notices',
+      relativePath: '../packages/server/lambdas/database/get-notices.ts',
+    });
+
+    const getNotice = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-notice',
+      relativePath: '../packages/server/lambdas/database/get-notice.ts',
+    });
+
+    const postNotice = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'post-notice',
+      relativePath: '../packages/server/lambdas/database/post-notice.ts',
+    });
+
+    const deleteNotice = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'delete-notice',
+      relativePath: '../packages/server/lambdas/database/delete-notice.ts',
+    });
+
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {
       description: 'Schedule a Lambda that populates activities db table every 10 minutes',
@@ -470,6 +494,34 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/activities'],
         httpRequestMethods: ['GET'],
         targetName: 'dbGetActivities',
+      },
+      {
+        lambda: getNotice,
+        priority: 250,
+        path: ['/api/notice/*'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getNotice',
+      },
+      {
+        lambda: getNotices,
+        priority: 252,
+        path: ['/api/notices'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getNotices',
+      },
+      {
+        lambda: postNotice,
+        priority: 254,
+        path: ['/api/notices'],
+        httpRequestMethods: ['POST'],
+        targetName: 'postNotice',
+      },
+      {
+        lambda: deleteNotice,
+        priority: 256,
+        path: ['/api/notice/*'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'deleteNotice',
       },
     ];
 
