@@ -40,6 +40,9 @@ import { FavoritesInstructions } from './pages/Instructions/Favorites';
 import { LoginAndPermissionsInstructions } from './pages/Instructions/LoginAndPermissions';
 import { EditToolInstructions } from './pages/Instructions/EditTool';
 import { ProtectedStaticPage } from './pages/ProtectedPage/ProtectedStaticPage';
+import { Notices } from './pages/Notices';
+import { EditNotice } from './pages/Notices/EditNotice';
+import { SingleNotice } from './pages/Notices/SingleNotice';
 
 /**
  * Return router name based on page title's name
@@ -165,6 +168,10 @@ const INSTRUCTIONS_ROUTES = [
   ...getProtectedStaticRoute(Routes.EDIT_TOOL, <EditToolInstructions />),
 ];
 
+const EDIT_NOTICE_ROUTE = getProtectedRoute(Routes.EDIT_NOTICE, <EditNotice />);
+const NOTICES_ROUTE = getProtectedRoute(Routes.NOTICES, <Notices />);
+const SINGLE_NOTICE_ROUTE = getProtectedRoute(Routes.SINGLE_NOTICE, <SingleNotice />);
+
 export const categoryRoutes: RouteObject[] = [
   ...DIAGRAMS_ROUTES,
   ...OPERATION_ROUTES,
@@ -180,6 +187,9 @@ const routes: RouteObject[] = [
   ACCEPT_INSTRUCTIONS,
   ...SEARCH_ROUTE,
   ...INSTRUCTIONS_ROUTE,
+  ...EDIT_NOTICE_ROUTE,
+  ...NOTICES_ROUTE,
+  ...SINGLE_NOTICE_ROUTE,
   {
     path: Routes.LOGOUT_REDIRECT,
     loader: () => {

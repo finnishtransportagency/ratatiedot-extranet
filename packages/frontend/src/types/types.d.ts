@@ -76,6 +76,7 @@ type MainCategoryData = {
   CONTACT_INFORMATION: string;
   OTHERS: string;
   INSTRUCTIONS: string;
+  NOTICE: string;
 };
 
 type SubCategoryData = {
@@ -108,6 +109,8 @@ type SubCategoryData = {
   FAVORITES: string;
   LOGIN_AND_PERMISSIONS: string;
   EDIT_TOOL: string;
+  EDIT_NOTICE: string;
+  NOTICES: string;
 };
 
 type TNode = {
