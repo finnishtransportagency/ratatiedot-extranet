@@ -130,7 +130,8 @@
     "card": "kortti",
     "card_title": "kortin otsikko",
     "text": "teksti",
-    "file": "tiedosto"
+    "file": "tiedosto",
+    "image": "kuva"
   },
   "colors": {
     "darkblue": "tummansininen",

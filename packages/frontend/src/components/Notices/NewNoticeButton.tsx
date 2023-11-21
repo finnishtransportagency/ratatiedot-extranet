@@ -25,15 +25,6 @@ export const NoticeDialogButton: FunctionComponent<DialogButtonProps> = ({ butto
     if (onUpload) onUpload(result);
   };
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const isOpen = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
-
   return (
     <>
       <Button

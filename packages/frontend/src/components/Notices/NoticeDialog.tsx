@@ -19,7 +19,6 @@ import { AxiosResponse } from 'axios';
 import { useState } from 'react';
 import { ElementType } from '../../utils/types';
 interface NoticeUploadProps {
-  categoryName: string;
   nestedFolderId?: string;
   onClose: (event?: {}) => void;
   onUpload: (result: AxiosResponse) => any;
