@@ -185,5 +185,8 @@
   "activityList": {
     "noRecentUpdates": "Ei viimeaikaisia muutoksia",
     "recentUpdates": "Viimeksi muokatut"
+  },
+  "noticeList": {
+    "topical": "Ajankohtaista"
   }
 }

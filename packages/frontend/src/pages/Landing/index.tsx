@@ -4,6 +4,7 @@ import { SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ProtectedContainerWrapper } from '../../styles/common';
 import { Link } from '@mui/material';
 import { ActivityList } from '../../components/ActivityStream/ActivityList';
+import NoticeList from '../../components/Notices/NoticeList';
 
 export const Landing = () => {
   const { t } = useTranslation(['common', 'landing']);
@@ -37,6 +38,7 @@ export const Landing = () => {
         ilmoittaa se ajankohtaa jolloin tiedosto on luotu tai päivitetty massa-aineistosiirron jälkeen.
       </ParagraphWrapper>
       <ActivityList />
+      <NoticeList />
     </ProtectedContainerWrapper>
   );
 };
