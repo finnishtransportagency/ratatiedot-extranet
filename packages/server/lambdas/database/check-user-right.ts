@@ -4,7 +4,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, isAdmin, validateReadUser, validateWriteUser } from '../../utils/userService';
+import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { validateQueryParameters } from '../../utils/validation';
 import { DatabaseClient } from './client';
 
@@ -22,26 +22,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   const userRight = {
     canRead: false,
     canWrite: false,
-    isAdmin: false,
   };
 
   try {
-    const user = await getUser(event);
-    if (isAdmin(user)) {
-      return {
-        statusCode: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ canRead: true, canWrite: true, isAdmin: true }),
-      };
-    }
-
     const params = event.queryStringParameters;
     // only listed parameters are accepted
     validateQueryParameters(params, ['category']);
     const category = params?.category;
 
+    const user = await getUser(event);
     log.info(user, `Checking user write permission for page ${category}`);
     validateReadUser(user);
     userRight.canRead = true;
@@ -50,6 +39,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('Category missing', 400);
     }
 
+    // TODO: check super admin's role that can edit front page/home page/etusivu
     if (!fileEndpointsCache.length) {
       fileEndpointsCache = await database.categoryDataBase.findMany();
     }
