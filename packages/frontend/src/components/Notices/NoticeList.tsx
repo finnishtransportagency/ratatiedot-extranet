@@ -6,12 +6,13 @@ import { Colors } from '../../constants/Colors';
 import { NoticeDialogButton } from './NewNoticeButton';
 import { AxiosResponse } from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { ElementType } from '../../utils/types';
 
 const NoticeList: React.FC = () => {
   const navigate = useNavigate();
   const [notices, setNotices] = useState([
     {
-      type: 'title',
+      type: ElementType.HEADING_TWO,
       children: [{ text: 'Otsikko' }],
     },
     {
@@ -20,7 +21,7 @@ const NoticeList: React.FC = () => {
     },
   ]);
 
-  const addNotices = (notice) => {
+  const addNotices = (notice: any) => {
     console.log('add this notice to the local state');
 
     setNotices([...notices, ...notice.content.fields]);

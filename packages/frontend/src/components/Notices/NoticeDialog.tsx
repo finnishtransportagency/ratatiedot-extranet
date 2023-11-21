@@ -17,6 +17,7 @@ import NoticeEditor from '../../utils/NoticeEditor';
 import { HighlightedTitle } from '../Typography/HighlightedTitle';
 import { AxiosResponse } from 'axios';
 import { useState } from 'react';
+import { ElementType } from '../../utils/types';
 interface NoticeUploadProps {
   categoryName: string;
   nestedFolderId?: string;
@@ -24,33 +25,25 @@ interface NoticeUploadProps {
   onUpload: (result: AxiosResponse) => any;
   open: boolean;
 }
-const NoticeDialog = ({ onUpload, onClose, open }: NoticeUploadProps) => {
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
+const NoticeDialog = ({ /* onUpload,  */ onClose, open }: NoticeUploadProps) => {
+  const [startDate, setStartDate] = useState<Date | null>();
+  const [endDate, setEndDate] = useState<Date | null>();
   const [value, setValue] = useState<any[]>([
     {
-      type: 'title',
+      type: ElementType.HEADING_ONE,
       children: [{ text: 'Otsikko' }],
     },
     {
-      type: 'paragraph',
+      type: ElementType.PARAGRAPH_ONE,
       children: [{ text: 'Tekstisisältö' }],
     },
   ]);
   const [isBanner, setIsBanner] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
 
   const handleNoticeUpload = () => {
     console.log('Uploading a file at handleNoticeUpload');
-    console.log('Value: ', value);
 
-    const mockResult = {
-      status: 'OK',
-      content: { fields: [...value] },
-    };
-
-    onUpload(mockResult);
+    //onUpload(result);
     handleClose();
   };
 

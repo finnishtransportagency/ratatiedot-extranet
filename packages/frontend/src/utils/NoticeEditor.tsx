@@ -1,9 +1,10 @@
-import { RemoveCircle } from '@mui/icons-material';
 import { Box, Button } from '@mui/material';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createEditor, Node, Transforms } from 'slate';
-import { Slate, Editable, withReact, useSlateStatic, ReactEditor } from 'slate-react';
+import { Slate, Editable, withReact } from 'slate-react';
 import { Colors } from '../constants/Colors';
+import { SlateElement } from './slateEditorUtil';
+import { ElementType } from './types';
 
 interface EditorProps {
   value: Node[];
@@ -16,11 +17,11 @@ const NoticeEditor = ({ value, setValue, initialValue }: EditorProps) => {
 
   const initialContent = initialValue || [
     {
-      type: 'title',
+      type: ElementType.HEADING_TWO,
       children: [{ text: 'Otsikko' }],
     },
     {
-      type: 'paragraph',
+      type: ElementType.PARAGRAPH_TWO,
       children: [{ text: 'Tekstisisältö' }],
     },
     /*  {
@@ -55,22 +56,12 @@ const NoticeEditor = ({ value, setValue, initialValue }: EditorProps) => {
     inputRef.current!.click();
   };
 
+  const renderElement = useCallback((props: any) => <SlateElement {...props} />, []);
+
   return (
     <Box sx={{ border: `1px dashed ${Colors.darkblue}`, padding: '10px' }}>
       <Slate editor={editor} initialValue={content} onChange={(value) => setValue(value)}>
-        <Editable
-          placeholder={'Muokkaa'}
-          renderElement={({ attributes, children, element }) => {
-            switch (element.type) {
-              case 'title':
-                return <h2 {...attributes}>{children}</h2>;
-              case 'image':
-                return <ImageNode {...attributes} element={element} />;
-              default:
-                return <p {...attributes}>{children}</p>;
-            }
-          }}
-        />
+        <Editable placeholder={'Muokkaa'} renderElement={renderElement} />
         <Button sx={{ marginLeft: '0' }} color="primary" variant="text" onClick={() => handleClick()}>
           Lisää kuva
         </Button>
@@ -80,8 +71,8 @@ const NoticeEditor = ({ value, setValue, initialValue }: EditorProps) => {
   );
 };
 
-const ImageNode = ({ element }) => {
-  const editor = useSlateStatic();
+/* const ImageNode = ({ element }) => {
+  const editor = useSlateStatic() as ReactEditor;
   const path = ReactEditor.findPath(editor, element);
 
   return (
@@ -107,6 +98,6 @@ const ImageNode = ({ element }) => {
       </Button>
     </Box>
   );
-};
+}; */
 
 export default NoticeEditor;
