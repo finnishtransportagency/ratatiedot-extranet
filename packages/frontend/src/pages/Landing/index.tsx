@@ -27,7 +27,8 @@ export const Landing = () => {
       </ParagraphWrapper>
       <SubtitleWrapper variant="subtitle1">Ajankohtaista</SubtitleWrapper>
       <SubtitleWrapper variant="subtitle2">
-        Huoltokatkon takia järjestelmään kirjautuminen ei onnistu ti 14.11. 2023 klo 6:30-9:00.
+        Taustajärjestelmässä on päivityksestä johtuen katko maanantaina 27.11.2023 klo 15 alkaen. Katko päättyy
+        tiistaina 28.11.2023 iltapäivään mennessä. Katkon aikana tiedostot eivät ole saatavilla.
       </SubtitleWrapper>
       <SubtitleWrapper variant="subtitle2">Tiedostojen päivämäärät</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
