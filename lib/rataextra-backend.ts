@@ -353,6 +353,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/delete-notice.ts',
     });
 
+    const getBanners = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-banners',
+      relativePath: '../packages/server/lambdas/database/get-banners.ts',
+    });
+
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {
       description: 'Schedule a Lambda that populates activities db table every 10 minutes',
@@ -535,6 +541,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/notice/*'],
         httpRequestMethods: ['DELETE'],
         targetName: 'deleteNotice',
+      },
+      {
+        lambda: getBanners,
+        priority: 258,
+        path: ['/api/banners'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'getBanners',
       },
     ];
 
