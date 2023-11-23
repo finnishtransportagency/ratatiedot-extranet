@@ -6,6 +6,8 @@ import {
   FunctionCode,
   FunctionEventType,
   CachedMethods,
+  KeyGroup,
+  PublicKey,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { PolicyStatement, CanonicalUserPrincipal } from 'aws-cdk-lib/aws-iam';
@@ -31,12 +33,21 @@ interface CloudFrontStackProps extends StackProps {
   readonly cloudfrontDomainName: string;
   readonly dmzApiEndpoint: string;
   readonly frontendBucket: Bucket;
+  readonly imageBucket: Bucket;
+  readonly cloudfrontSignerPublicKeyId: string;
 }
 export class RataExtraCloudFrontStack extends NestedStack {
   constructor(scope: Construct, id: string, props: CloudFrontStackProps) {
     super(scope, id, props);
-    const { rataExtraStackIdentifier, dmzApiEndpoint, cloudfrontCertificateArn, cloudfrontDomainName, frontendBucket } =
-      props;
+    const {
+      rataExtraStackIdentifier,
+      dmzApiEndpoint,
+      cloudfrontCertificateArn,
+      cloudfrontDomainName,
+      frontendBucket,
+      imageBucket,
+      cloudfrontSignerPublicKeyId,
+    } = props;
     const cloudfrontOAI = new OriginAccessIdentity(this, 'CloudFrontOriginAccessIdentity');
 
     frontendBucket.addToResourcePolicy(
@@ -46,6 +57,24 @@ export class RataExtraCloudFrontStack extends NestedStack {
         principals: [new CanonicalUserPrincipal(cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
       }),
     );
+
+    imageBucket.addToResourcePolicy(
+      new PolicyStatement({
+        actions: ['s3:GetObject'],
+        resources: [imageBucket.arnForObjects('*')],
+        principals: [new CanonicalUserPrincipal(cloudfrontOAI.cloudFrontOriginAccessIdentityS3CanonicalUserId)],
+      }),
+    );
+
+    const cloudfrontSignerPublicKey = PublicKey.fromPublicKeyId(
+      this,
+      'rataextra-cloudfront-public-key-id',
+      cloudfrontSignerPublicKeyId,
+    );
+
+    const keyGroup = new KeyGroup(this, 'rataextra-cloudfront-key-group', {
+      items: [cloudfrontSignerPublicKey],
+    });
 
     const certificate = Certificate.fromCertificateArn(
       this,
@@ -97,8 +126,15 @@ export class RataExtraCloudFrontStack extends NestedStack {
         '/api*': backendProxyBehavior,
         '/oauth2*': backendProxyBehavior,
         '/sso*': backendProxyBehavior,
+        '/images*': {
+          origin: new S3Origin(imageBucket, { originAccessIdentity: cloudfrontOAI }),
+          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          trustedKeyGroups: [keyGroup],
+        },
       },
     });
+
     const frontendRelativeBuildDir = '../packages/frontend/build';
     new BucketDeployment(this, 'FrontendDeployment', {
       sources: [Source.asset(join(__dirname, frontendRelativeBuildDir))],

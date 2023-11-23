@@ -291,6 +291,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/check-user-right.ts',
     });
 
+    const checkAdminRight = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'check-admin-right',
+      relativePath: '../packages/server/lambdas/database/check-admin-right.ts',
+    });
+
     const dbGetFavoritePages = this.createNodejsLambda({
       ...prismaParameters,
       name: 'db-get-favorite-pages',
@@ -321,6 +327,30 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'populate-activities',
       relativePath: '../packages/server/lambdas/alfresco/populate-activities.ts',
       timeout: Duration.seconds(60),
+    });
+
+    const getNotices = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-notices',
+      relativePath: '../packages/server/lambdas/database/get-notices.ts',
+    });
+
+    const getNotice = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-notice',
+      relativePath: '../packages/server/lambdas/database/get-notice.ts',
+    });
+
+    const postNotice = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'post-notice',
+      relativePath: '../packages/server/lambdas/database/post-notice.ts',
+    });
+
+    const deleteNotice = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'delete-notice',
+      relativePath: '../packages/server/lambdas/database/delete-notice.ts',
     });
 
     // EventBridge rule for running a scheduled lambda
@@ -437,6 +467,13 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'checkUserRightOnPageContents',
       },
       {
+        lambda: checkAdminRight,
+        priority: 212,
+        path: ['/api/admin'],
+        httpRequestMethods: ['GET'],
+        targetName: 'checkAdminRight',
+      },
+      {
         lambda: getComponents,
         priority: 220,
         path: ['/api/database/components/*'],
@@ -470,6 +507,34 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/database/activities'],
         httpRequestMethods: ['GET'],
         targetName: 'dbGetActivities',
+      },
+      {
+        lambda: getNotice,
+        priority: 250,
+        path: ['/api/notice/*'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getNotice',
+      },
+      {
+        lambda: getNotices,
+        priority: 252,
+        path: ['/api/notices'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getNotices',
+      },
+      {
+        lambda: postNotice,
+        priority: 254,
+        path: ['/api/notices'],
+        httpRequestMethods: ['POST'],
+        targetName: 'postNotice',
+      },
+      {
+        lambda: deleteNotice,
+        priority: 256,
+        path: ['/api/notice/*'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'deleteNotice',
       },
     ];
 
