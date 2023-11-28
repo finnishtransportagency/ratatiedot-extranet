@@ -28,7 +28,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     if (queryParams?.unpublished === 'true') {
       validateAdminUser(user);
-      notices = await database.notice.findMany({ take: resultCount, skip });
+      notices = await database.notice.findMany({
+        take: resultCount,
+        skip,
+        orderBy: {
+          publishTimeStart: 'desc',
+        },
+      });
       totalItems = await database.notice.count();
     } else {
       notices = await database.notice.findMany({
@@ -39,6 +45,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         },
         take: resultCount,
         skip,
+        orderBy: {
+          publishTimeStart: 'desc',
+        },
       });
       totalItems = await database.notice.count({
         where: {
