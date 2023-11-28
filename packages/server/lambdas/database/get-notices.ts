@@ -22,11 +22,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateReadUser(user);
 
     let notices;
+    let totalItems;
     const resultCount = parseInt(queryParams?.count || '10');
+    const skip = queryParams?.page ? (parseInt(queryParams?.page) - 1) * resultCount : 0;
 
     if (queryParams?.unpublished === 'true') {
       validateAdminUser(user);
-      notices = await database.notice.findMany({ take: resultCount });
+      notices = await database.notice.findMany({ take: resultCount, skip });
+      totalItems = await database.notice.count();
     } else {
       notices = await database.notice.findMany({
         where: {
@@ -36,6 +39,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         },
         take: resultCount,
       });
+      totalItems = await database.notice.count({
+        where: {
+          publishTimeStart: {
+            lte: new Date(),
+          },
+        },
+      });
     }
 
     return {
@@ -43,7 +53,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(notices),
+      body: JSON.stringify({ data: notices, totalItems }),
     };
   } catch (err) {
     log.error(err);
