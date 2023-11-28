@@ -38,6 +38,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           },
         },
         take: resultCount,
+        skip,
       });
       totalItems = await database.notice.count({
         where: {
