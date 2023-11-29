@@ -28,7 +28,7 @@ export const MiniAppBar = () => {
     userRight,
   } = useContext(AppBarContext);
 
-  const userWriteRight = userRight.canWrite;
+  const userWriteRight = userRight.canWrite || userRight.isAdmin;
   const shouldEdit = userWriteRight && !openEdit && !openToolbar;
   const { t } = useTranslation(['common']);
 

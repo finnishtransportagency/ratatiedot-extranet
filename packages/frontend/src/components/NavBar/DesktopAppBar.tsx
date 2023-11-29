@@ -18,7 +18,7 @@ export const DesktopAppBar = () => {
   const { openEdit, openDesktopDrawer, openToolbar, openToolbarHandler, userRight } = useContext(AppBarContext);
   const { t } = useTranslation(['common']);
 
-  const userWriteRight = userRight.canWrite;
+  const userWriteRight = userRight.canWrite || userRight.isAdmin;
   const shouldEdit = userWriteRight && !openEdit && !openToolbar;
 
   const MainAppBar = () => {
