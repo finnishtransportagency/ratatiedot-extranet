@@ -1,29 +1,18 @@
 import { Button, ButtonProps } from '@mui/material';
 import { AxiosResponse } from 'axios';
 import { t } from 'i18next';
-import { FunctionComponent, useState } from 'react';
+import { FunctionComponent } from 'react';
 
 import { Image } from '@mui/icons-material';
-import NoticeDialog from './NoticeDialog';
+import { useNavigate } from 'react-router-dom';
 
 interface DialogButtonProps {
   buttonProps?: ButtonProps;
   onUpload?: (response: AxiosResponse) => any;
 }
 
-export const NoticeDialogButton: FunctionComponent<DialogButtonProps> = ({ buttonProps, onUpload }) => {
-  const [openNewFolderDialog, setOpenNewFolderDialog] = useState(false);
-
-  const handleOpenNewFolderDialog = () => {
-    setOpenNewFolderDialog(true);
-  };
-  const handleCloseNewFolderDialog = () => {
-    setOpenNewFolderDialog(false);
-  };
-
-  const handleUpload = (result: AxiosResponse) => {
-    if (onUpload) onUpload(result);
-  };
+export const NoticeDialogButton: FunctionComponent<DialogButtonProps> = ({ buttonProps }) => {
+  const navigate = useNavigate();
 
   return (
     <>
@@ -31,16 +20,11 @@ export const NoticeDialogButton: FunctionComponent<DialogButtonProps> = ({ butto
         variant="text"
         startIcon={<Image />}
         {...buttonProps}
-        onClick={handleOpenNewFolderDialog}
+        onClick={() => navigate('/ajankohtaista/uusi')}
         sx={{ minHeight: 0, m: 0, p: 0, top: 0 }}
       >
         {t('common:action.add_new')}
       </Button>
-      <NoticeDialog
-        onClose={handleCloseNewFolderDialog}
-        onUpload={handleUpload}
-        open={openNewFolderDialog}
-      ></NoticeDialog>
     </>
   );
 };
