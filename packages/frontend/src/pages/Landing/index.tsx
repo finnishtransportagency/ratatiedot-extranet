@@ -26,19 +26,8 @@ export const Landing = () => {
         </Link>
         .
       </ParagraphWrapper>
-      <SubtitleWrapper variant="subtitle1">Ajankohtaista</SubtitleWrapper>
-      <SubtitleWrapper variant="subtitle2">
-        Huoltokatkon takia järjestelmään kirjautuminen ei onnistu ti 14.11. 2023 klo 6:30-9:00.
-      </SubtitleWrapper>
-      <SubtitleWrapper variant="subtitle2">Tiedostojen päivämäärät</SubtitleWrapper>
-      <ParagraphWrapper variant="body1">
-        Järjestelmämuutoksen (Ratatiedon extranet-&gt;Ratatieto) yhteydessä siirrettiin aineisto uuteen palveluun
-        sellaisenaan. Kunkin siirretyn tiedoston alkuperäinen luontiajankohta ei ole enää nähtävillä. Jos tiedoston alla
-        on pelkkä viiva, tarkoittaa se, että tiedosto on luotu ennen huhtikuuta 2023. Jos tuolla kohdalla on päivämäärä,
-        ilmoittaa se ajankohtaa jolloin tiedosto on luotu tai päivitetty massa-aineistosiirron jälkeen.
-      </ParagraphWrapper>
-      <ActivityList />
       <NoticeList />
+      <ActivityList />
     </ProtectedContainerWrapper>
   );
 };
