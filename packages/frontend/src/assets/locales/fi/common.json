@@ -188,6 +188,11 @@
     "recentUpdates": "Viimeksi muokatut"
   },
   "noticeList": {
-    "topical": "Ajankohtaista"
+    "topical": "Ajankohtaista",
+    "noRecentNotices": "Ei viimeaikaisia tiedotteita",
+    "publishTimeStart": "Julkaisuajankohta",
+    "publishTimeEnd": "Julkaisun poistoaika",
+    "showAsBanner": "Näytä bannerina",
+    "createNewNotice": "Luo uusi tiedote"
   }
 }
