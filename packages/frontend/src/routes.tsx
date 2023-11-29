@@ -43,6 +43,8 @@ import { ProtectedStaticPage } from './pages/ProtectedPage/ProtectedStaticPage';
 import { Notices } from './pages/Notices';
 import { EditNotice } from './pages/Notices/EditNotice';
 import { SingleNotice } from './pages/Notices/SingleNotice';
+import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
+import { NewNotice } from './pages/Notices/NewNotice';
 
 /**
  * Return router name based on page title's name
@@ -113,6 +115,27 @@ const getProtectedStaticRoute = (path: string, component: JSX.Element): RouteObj
   return [baseRoute];
 };
 
+const getProtectedNoticeRoute = (path: string, component: JSX.Element): RouteObject[] => {
+  const baseRoute = {
+    path: path,
+    element: (
+      <AppContextProvider>
+        <ProtectedNoticePage children={component} />
+      </AppContextProvider>
+    ),
+    errorElement: <RootBoundary />, // Send user here whenever error is thrown
+    loader: async () => {
+      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+      if (isFirstLogin === 'true') {
+        return redirect(Routes.ACCEPT_INSTRUCTIONS);
+      }
+      return null;
+    },
+    children: [],
+  };
+  return [baseRoute];
+};
+
 const HOME_ROUTE = getProtectedRoute(Routes.HOME, <Landing />);
 const ACCEPT_INSTRUCTIONS: RouteObject = { path: Routes.ACCEPT_INSTRUCTIONS, element: <AcceptInstructions /> };
 const SEARCH_ROUTE = getProtectedRoute(Routes.SEARCH_RESULT, <SearchResult />);
@@ -168,9 +191,9 @@ const INSTRUCTIONS_ROUTES = [
   ...getProtectedStaticRoute(Routes.EDIT_TOOL, <EditToolInstructions />),
 ];
 
-const EDIT_NOTICE_ROUTE = getProtectedRoute(Routes.EDIT_NOTICE, <EditNotice />);
 const NOTICES_ROUTE = getProtectedRoute(Routes.NOTICES, <Notices />);
-const SINGLE_NOTICE_ROUTE = getProtectedRoute(Routes.SINGLE_NOTICE, <SingleNotice />);
+const SINGLE_NOTICE_ROUTE = getProtectedNoticeRoute(Routes.SINGLE_NOTICE, <SingleNotice />);
+const NEW_NOTICE = getProtectedNoticeRoute(Routes.NEW_NOTICE, <NewNotice />);
 
 export const categoryRoutes: RouteObject[] = [
   ...DIAGRAMS_ROUTES,
@@ -187,9 +210,9 @@ const routes: RouteObject[] = [
   ACCEPT_INSTRUCTIONS,
   ...SEARCH_ROUTE,
   ...INSTRUCTIONS_ROUTE,
-  ...EDIT_NOTICE_ROUTE,
   ...NOTICES_ROUTE,
   ...SINGLE_NOTICE_ROUTE,
+  ...NEW_NOTICE,
   {
     path: Routes.LOGOUT_REDIRECT,
     loader: () => {
