@@ -33,6 +33,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           publishTimeStart: {
             lte: new Date(),
           },
+          publishTimeEnd: {
+            gte: new Date(),
+          },
         },
         take: resultCount,
       });
