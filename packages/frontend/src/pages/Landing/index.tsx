@@ -27,8 +27,9 @@ export const Landing = () => {
       </ParagraphWrapper>
       <SubtitleWrapper variant="subtitle1">Ajankohtaista</SubtitleWrapper>
       <SubtitleWrapper variant="subtitle2">
-        Taustajärjestelmässä on päivityksestä johtuen katko maanantaina 27.11.2023 klo 15 alkaen. Katko päättyy
-        tiistaina 28.11.2023 iltapäivään mennessä. Katkon aikana tiedostot eivät ole saatavilla.
+        Aineiston lataaminen ei tällä hetkellä toimi kartan vieressä olevien linkkien kautta, mutta kartan alapuolelta
+        löytyvän kansiolistauksen kautta aineiston saa esille. Myös hakutoiminnossa on tällä hetkellä ongelmia. Vikaa
+        tutkitaan parhaillaan ja pyritään korjaamaan mahdollisimman pian.
       </SubtitleWrapper>
       <SubtitleWrapper variant="subtitle2">Tiedostojen päivämäärät</SubtitleWrapper>
       <ParagraphWrapper variant="body1">
