@@ -109,8 +109,6 @@ type SubCategoryData = {
   FAVORITES: string;
   LOGIN_AND_PERMISSIONS: string;
   EDIT_TOOL: string;
-  EDIT_NOTICE: string;
-  NOTICES: string;
 };
 
 type TNode = {
@@ -173,4 +171,15 @@ interface AlfrescoResponse {
       'cm:versionType': string;
     };
   };
+}
+
+interface Notice {
+  id: string;
+  title: string | null;
+  content: any;
+  authorId: string | null;
+  createdTime: Date;
+  publishTimeStart: Date;
+  publishTimeEnd: Date | null;
+  showAsBanner: boolean;
 }
