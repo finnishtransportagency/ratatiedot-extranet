@@ -20,6 +20,8 @@ export const EditorContext = React.createContext({
   noticeFields: [] as any,
   valueHandler: (_: any) => {},
   valueReset: () => {},
+  noticeFieldsHandler: (_: any) => {},
+  noticeFieldsReset: () => {},
 });
 
 export type TSlateNode = { children: { text?: string; children?: any }[]; type?: string };
@@ -75,6 +77,7 @@ export const EditorContextProvider = (props: any) => {
   };
 
   const valueHandler = (v: any) => setValue(v);
+  const noticeFieldsHandler = (v: any) => setNoticeFields(v);
 
   const valueReset = () => {
     if (isSlateValueEmpty(dbValue)) {
@@ -88,6 +91,10 @@ export const EditorContextProvider = (props: any) => {
     }
   };
 
+  const noticeFieldsReset = () => {
+    setNoticeFields(noticeFieldsTemplate);
+  };
+
   return (
     <EditorContext.Provider
       value={{
@@ -96,6 +103,8 @@ export const EditorContextProvider = (props: any) => {
         noticeFields: noticeFields,
         valueHandler: valueHandler,
         valueReset: valueReset,
+        noticeFieldsHandler: noticeFieldsHandler,
+        noticeFieldsReset: noticeFieldsReset,
       }}
     >
       {props.children}
