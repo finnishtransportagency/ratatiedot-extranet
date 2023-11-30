@@ -42,9 +42,16 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           publishTimeStart: {
             lte: new Date(),
           },
-          publishTimeEnd: {
-            gte: new Date(),
-          },
+          OR: [
+            {
+              publishTimeEnd: {
+                gte: new Date(),
+              },
+            },
+            {
+              publishTimeEnd: null,
+            },
+          ],
         },
         take: resultCount,
         skip,
