@@ -347,10 +347,22 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/post-notice.ts',
     });
 
+    const putNotice = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'put-notice',
+      relativePath: '../packages/server/lambdas/database/put-notice.ts',
+    });
+
     const deleteNotice = this.createNodejsLambda({
       ...prismaParameters,
       name: 'delete-notice',
       relativePath: '../packages/server/lambdas/database/delete-notice.ts',
+    });
+
+    const getBanners = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-banners',
+      relativePath: '../packages/server/lambdas/database/get-banners.ts',
     });
 
     // EventBridge rule for running a scheduled lambda
@@ -530,11 +542,25 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'postNotice',
       },
       {
+        lambda: putNotice,
+        priority: 255,
+        path: ['/api/notice/*'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'putNotice',
+      },
+      {
         lambda: deleteNotice,
         priority: 256,
         path: ['/api/notice/*'],
         httpRequestMethods: ['DELETE'],
         targetName: 'deleteNotice',
+      },
+      {
+        lambda: getBanners,
+        priority: 258,
+        path: ['/api/banners'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'getBanners',
       },
     ];
 
