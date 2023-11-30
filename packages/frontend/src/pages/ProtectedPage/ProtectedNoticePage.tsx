@@ -28,11 +28,27 @@ type Props = {
 export const ProtectedNoticePage = ({ children }: Props) => {
   const { t } = useTranslation(['common']);
   const { openEdit, openToolbar } = useContext(AppBarContext);
-  const { value, noticeFields } = useContext(EditorContext);
+  const { value, noticeFields, noticeFieldsHandler } = useContext(EditorContext);
   const location = useLocation();
   const [startDate, setStartDate] = useState(noticeFields.publishTimeStart);
   const [endDate, setEndDate] = useState(noticeFields.publishTimeEnd);
   const [isBanner, setIsBanner] = useState(noticeFields.showAsBanner);
+
+  const handleStartDateChange = (newValue: Date) => {
+    setStartDate(newValue);
+    noticeFieldsHandler({ ...noticeFields, publishTimeStart: newValue });
+  };
+
+  const handleEndDateChange = (newValue: Date) => {
+    setEndDate(newValue);
+    noticeFieldsHandler({ ...noticeFields, publishTimeEnd: newValue });
+  };
+
+  const handleIsBannerChange = () => {
+    const newIsBanner = !isBanner;
+    setIsBanner(newIsBanner);
+    noticeFieldsHandler({ ...noticeFields, showAsBanner: newIsBanner });
+  };
 
   const isEditorOpened = openToolbar || (openEdit && !isSlateValueEmpty(value)) || !isSlateValueEmpty(value);
   const pageTitle = location.pathname === Routes.NEW_NOTICE ? t('common:noticeList.createNewNotice') : '';
@@ -53,20 +69,20 @@ export const ProtectedNoticePage = ({ children }: Props) => {
                     <DateTimePicker
                       label={t('common:noticeList.publishTimeStart')}
                       value={startDate}
-                      onChange={(newValue) => setStartDate(newValue)}
+                      onChange={(newValue) => handleStartDateChange(newValue)}
                     />
                   </Grid>
                   <Grid item>
                     <DateTimePicker
                       label={t('common:noticeList.publishTimeEnd')}
                       value={endDate}
-                      onChange={(newValue) => setEndDate(newValue)}
+                      onChange={(newValue) => handleEndDateChange(newValue)}
                     />
                   </Grid>
                 </Grid>
                 <ListItem disableGutters>
                   <FormControlLabel
-                    control={<Checkbox checked={isBanner} onChange={() => setIsBanner(!isBanner)} />}
+                    control={<Checkbox checked={isBanner} onChange={handleIsBannerChange} />}
                     label={t('common:noticeList.showAsBanner')}
                   />
                 </ListItem>
