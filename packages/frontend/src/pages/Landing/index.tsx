@@ -2,12 +2,15 @@ import { useTranslation } from 'react-i18next';
 
 import { SubtitleWrapper, ParagraphWrapper } from './index.styles';
 import { ProtectedContainerWrapper } from '../../styles/common';
-import { Link } from '@mui/material';
+import { Grid, Link } from '@mui/material';
 import { ActivityList } from '../../components/ActivityStream/ActivityList';
 import NoticeList from '../../components/Notices/NoticeList';
+import { useError } from '../../contexts/ErrorContext';
+import { ErrorMessage } from '../../components/Notification/ErrorMessage';
 
 export const Landing = () => {
   const { t } = useTranslation(['common', 'landing']);
+  const { error } = useError();
 
   return (
     <ProtectedContainerWrapper>
@@ -26,8 +29,15 @@ export const Landing = () => {
         </Link>
         .
       </ParagraphWrapper>
-      <NoticeList />
-      <ActivityList />
+      {error && <ErrorMessage error={error} />}
+      <Grid container spacing={2}>
+        <Grid item mobile={12} tablet={12} desktop={6}>
+          <NoticeList />
+        </Grid>
+        <Grid item mobile={12} tablet={12} desktop={6}>
+          <ActivityList />
+        </Grid>
+      </Grid>
     </ProtectedContainerWrapper>
   );
 };

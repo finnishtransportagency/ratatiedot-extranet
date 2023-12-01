@@ -45,9 +45,8 @@ export const ProtectedNoticePage = ({ children }: Props) => {
   };
 
   const handleIsBannerChange = () => {
-    const newIsBanner = !isBanner;
-    setIsBanner(newIsBanner);
-    noticeFieldsHandler({ ...noticeFields, showAsBanner: newIsBanner });
+    setIsBanner(!isBanner);
+    noticeFieldsHandler({ ...noticeFields, showAsBanner: !isBanner });
   };
 
   const isEditorOpened = openToolbar || (openEdit && !isSlateValueEmpty(value)) || !isSlateValueEmpty(value);

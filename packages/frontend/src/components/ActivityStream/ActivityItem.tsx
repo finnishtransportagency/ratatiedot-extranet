@@ -90,7 +90,7 @@ export const ActivityItem = ({ node, row, isSelected = false }: NodeItemProps) =
             : undefined
         }
       >
-        <Grid item mobile={1} tablet={0.5} desktop={0.5}>
+        <Grid item mobile={1} tablet={0.5} desktop={0.5} sx={{ marginRight: '6px' }}>
           <Box component="img" src={isFile ? matchMimeType(mimeType) : Folder} alt="Logo" />
         </Grid>
         <Grid item mobile={10} tablet={10.5} desktop={10.5}>

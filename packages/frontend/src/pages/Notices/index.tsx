@@ -32,7 +32,7 @@ export const Notices = () => {
     fetchNotices();
   }, [page]);
 
-  const handlePageChange = (event: any, value: number) => {
+  const handlePageChange = (value: number) => {
     setPage(value);
   };
 
@@ -46,7 +46,9 @@ export const Notices = () => {
             <Typography>{format(new Date(node.createdTime), DateFormat)}</Typography>
             <Typography
               sx={{ color: Colors.darkblue, marginBottom: '12px', fontSize: '18px', fontFamily: 'Exo2-Bold' }}
-              onClick={() => navigate(`${Routes.NOTICES}/${node?.id}`)}
+              onClick={() =>
+                navigate(`${Routes.NOTICES}/${node.content[0].children[0].text}`, { state: { noticeId: node.id } })
+              }
             >
               {node.content[0].children[0].text}
             </Typography>
@@ -56,7 +58,7 @@ export const Notices = () => {
       <Pagination
         count={totalPages}
         page={page}
-        onChange={handlePageChange}
+        onChange={(_, value) => handlePageChange(value)}
         sx={{ justifyContent: 'center', display: 'flex' }}
         showFirstButton
         showLastButton

@@ -6,12 +6,15 @@ import { ActivityItem } from './ActivityItem';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useError } from '../../contexts/ErrorContext';
+import { Errors } from '../../constants/Errors';
 
 export const ActivityList = () => {
   const [modifiedFiles, setModifiedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState();
+  const [errorMessage, setErrorMessage] = useState();
   const { t } = useTranslation();
+  const { setError } = useError();
 
   const getActivityList = async () => {
     try {
@@ -22,7 +25,10 @@ export const ActivityList = () => {
       setModifiedFiles(data);
       setIsLoading(false);
     } catch (error: any) {
-      setError(error);
+      if (error.message === Errors.ERR_NETWORK) {
+        setError(error);
+      }
+      setErrorMessage(error);
       setIsLoading(false);
     }
   };
@@ -31,7 +37,9 @@ export const ActivityList = () => {
     getActivityList();
   }, []);
 
-  if (error) return <ErrorMessage error={error}></ErrorMessage>;
+  if (errorMessage) {
+    return <ErrorMessage error={errorMessage} />;
+  }
 
   return (
     <Card sx={{ minWidth: 275 }}>
