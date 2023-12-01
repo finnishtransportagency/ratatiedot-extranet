@@ -145,7 +145,7 @@ export const parseRouterName = (routerName: string = '') => {
     case 'muokkaustyokalu':
       return 'Muokkaustyökalu';
     default:
-      return capitalize(routerName.replace(/-/g, ' '));
+      return decodeURIComponent(capitalize(routerName.replace(/-/g, ' ')));
   }
 };
 

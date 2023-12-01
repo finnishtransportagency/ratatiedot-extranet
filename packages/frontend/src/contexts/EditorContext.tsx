@@ -34,11 +34,12 @@ const noticeFieldsTemplate = {
 };
 
 export const EditorContextProvider = (props: any) => {
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
   const noticeRoute = useMatch('/ajankohtaista/:id');
+  const noticeId = state?.noticeId;
 
   const { data } = useGetCategoryPageContent(pathname);
-  const { data: noticeData } = useGetNoticePageContent(pathname);
+  const { data: noticeData } = useGetNoticePageContent(noticeId);
 
   const [editor, setEditor] = useState(createEditorWithPlugins(createEditor()));
   const [dbValue, setDBValue] = useState(nodeTemplate);

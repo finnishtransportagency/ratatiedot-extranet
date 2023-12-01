@@ -18,14 +18,15 @@ import { useUpdateNoticePageContents } from '../../hooks/mutations/UpdateNoticeP
 export const ConfirmationAppBar = () => {
   const { toggleEdit, openToolbarHandler } = useContext(AppBarContext);
   const { value, valueReset, noticeFields } = useContext(EditorContext);
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
   const noticeRoute = useMatch('/ajankohtaista/:id');
+  const noticeId = state?.noticeId;
 
   const { t } = useTranslation(['common']);
 
   const mutatePageContents = useUpdatePageContents(getRouterName(categoryName));
-  const mutateNoticePageContents = useUpdateNoticePageContents(categoryName);
+  const mutateNoticePageContents = useUpdateNoticePageContents(noticeId);
   const { error } = mutatePageContents;
 
   const handleReject = () => {
@@ -38,7 +39,6 @@ export const ConfirmationAppBar = () => {
 
   const handleSave = () => {
     if (noticeRoute) {
-      console.log('Save on noticeRoute');
       mutateNoticePageContents.mutate(
         { value, noticeFields },
         {

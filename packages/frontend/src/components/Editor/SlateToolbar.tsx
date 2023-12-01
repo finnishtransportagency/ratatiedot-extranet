@@ -83,12 +83,13 @@ export const SlateToolbar = () => {
   const { editor, value, valueReset, noticeFields } = useContext(EditorContext);
   const [isColorOpened, setIsColorOpened] = useState(false);
   const [initialValue, setInitialValue] = useState([]);
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
   const noticeRoute = useMatch('/ajankohtaista/:id');
+  const noticeId = state?.noticeId;
 
   const mutatePageContents = useUpdatePageContents(getRouterName(categoryName));
-  const mutateNoticePageContents = useUpdateNoticePageContents(categoryName);
+  const mutateNoticePageContents = useUpdateNoticePageContents(noticeId);
 
   const { error } = mutatePageContents;
 
@@ -105,7 +106,6 @@ export const SlateToolbar = () => {
 
   const handleSave = () => {
     if (noticeRoute) {
-      console.log('Save on noticeRoute');
       mutateNoticePageContents.mutate(
         { value, noticeFields },
         {
