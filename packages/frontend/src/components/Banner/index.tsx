@@ -1,10 +1,13 @@
+import { useEffect } from 'react';
 import { useBannerStore } from '../../store/bannerStore';
 
 export const Banner = () => {
   const banners = useBannerStore((state) => state.banners);
   const getBanners = useBannerStore((state) => state.getBanners);
 
-  // getBanners();
+  useEffect(() => {
+    getBanners();
+  }, [getBanners]);
 
   return (
     <>

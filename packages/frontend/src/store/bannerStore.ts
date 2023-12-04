@@ -1,12 +1,32 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
+/*
+  const getActivityList = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get('/api/database/activities');
+      const { data } = response.data;
+
+      setModifiedFiles(data);
+      setIsLoading(false);
+    } catch (error: any) {
+      setError(error);
+      setIsLoading(false);
+    }
+  };
+
+  */
+
 export const getBanners = async () => {
-  const response = await axios.get('/api/banners').catch((err) => {
-    return { data: null, error: err };
-  });
-  console.log('response: ', response);
-  return { data: response, error: null };
+  try {
+    const response = await axios.get('/api/banners');
+    console.log('response: ', response);
+    return { data: response, error: null };
+  } catch (error: any) {
+    console.log('error: ', error);
+    return { data: error, error: error };
+  }
 };
 
 export type BannerStore = {
