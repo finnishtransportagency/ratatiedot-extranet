@@ -347,6 +347,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/post-notice.ts',
     });
 
+    const putNotice = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'put-notice',
+      relativePath: '../packages/server/lambdas/database/put-notice.ts',
+    });
+
     const deleteNotice = this.createNodejsLambda({
       ...prismaParameters,
       name: 'delete-notice',
@@ -536,6 +542,13 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'postNotice',
       },
       {
+        lambda: putNotice,
+        priority: 255,
+        path: ['/api/notice/*'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'putNotice',
+      },
+      {
         lambda: deleteNotice,
         priority: 256,
         path: ['/api/notice/*'],
@@ -546,7 +559,7 @@ export class RataExtraBackendStack extends NestedStack {
         lambda: getBanners,
         priority: 258,
         path: ['/api/banners'],
-        httpRequestMethods: ['PUT'],
+        httpRequestMethods: ['GET'],
         targetName: 'getBanners',
       },
     ];
