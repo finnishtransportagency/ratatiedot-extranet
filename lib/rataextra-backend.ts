@@ -559,7 +559,7 @@ export class RataExtraBackendStack extends NestedStack {
         lambda: getBanners,
         priority: 258,
         path: ['/api/banners'],
-        httpRequestMethods: ['PUT'],
+        httpRequestMethods: ['GET'],
         targetName: 'getBanners',
       },
     ];
