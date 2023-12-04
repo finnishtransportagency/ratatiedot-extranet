@@ -19,6 +19,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
 import { DesktopAppBar } from '../../components/NavBar/DesktopAppBar';
 import { PageTitle } from '../../components/Typography/PageTitle';
+import { Banner } from '../../components/Banner';
 import { ProtectedContainerWrapper } from '../../styles/common';
 import { CategoryDataContext } from '../../contexts/CategoryDataContext';
 
@@ -71,6 +72,7 @@ export const ProtectedPage = ({ children }: Props) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         <DesktopAppBar />
         <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
+          <Banner />
           <PageTitle routerName={categoryRouteName} />
           {hasConfidentialContent && (
             <ProtectedContainerWrapper>
