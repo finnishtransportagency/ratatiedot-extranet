@@ -1,28 +1,22 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-/*
-  const getActivityList = async () => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get('/api/database/activities');
-      const { data } = response.data;
-
-      setModifiedFiles(data);
-      setIsLoading(false);
-    } catch (error: any) {
-      setError(error);
-      setIsLoading(false);
-    }
-  };
-
-  */
+interface Banner {
+  id: string;
+  title?: string;
+  content: string;
+  authorId: string;
+  createdTime: Date;
+  publishTimeStart: Date;
+  publishTimeEnd?: Date;
+  showAsBanner: boolean;
+}
 
 export const getBanners = async () => {
   try {
     const response = await axios.get('/api/banners');
     console.log('response: ', response);
-    return { data: response, error: null };
+    return { data: response.data, error: null };
   } catch (error: any) {
     console.log('error: ', error);
     return { data: error, error: error };
@@ -31,8 +25,8 @@ export const getBanners = async () => {
 
 export type BannerStore = {
   isLoading: boolean;
-  banners?: any | null;
-  error?: any | null;
+  banners: Banner[] | null;
+  error: any | null;
   getBanners: () => void;
 };
 
