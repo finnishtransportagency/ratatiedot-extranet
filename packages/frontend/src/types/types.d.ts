@@ -183,3 +183,18 @@ interface Notice {
   publishTimeEnd: Date | null;
   showAsBanner: boolean;
 }
+
+interface Activity {
+  id: string;
+  fileName: string;
+  categoryId: string;
+  alfrescoId: string;
+  timestamp: string;
+  action: string;
+  mimeType: string;
+  activityId: number;
+  categoryDataBase: {
+    rataextraRequestPage: string;
+    alfrescoFolder: string;
+  };
+}
