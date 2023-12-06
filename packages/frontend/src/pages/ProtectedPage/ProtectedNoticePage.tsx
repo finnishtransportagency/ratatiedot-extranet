@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Box, Checkbox, FormControlLabel, Grid, ListItem, Paper, styled } from '@mui/material';
@@ -30,23 +30,22 @@ export const ProtectedNoticePage = ({ children }: Props) => {
   const { openEdit, openToolbar } = useContext(AppBarContext);
   const { value, noticeFields, noticeFieldsHandler } = useContext(EditorContext);
   const location = useLocation();
-  const [startDate, setStartDate] = useState(noticeFields.publishTimeStart);
-  const [endDate, setEndDate] = useState(noticeFields.publishTimeEnd);
-  const [isBanner, setIsBanner] = useState(noticeFields.showAsBanner);
 
-  const handleStartDateChange = (newValue: Date) => {
-    setStartDate(newValue);
-    noticeFieldsHandler({ ...noticeFields, publishTimeStart: newValue });
+  const handleStartDateChange = (newValue: Date | null) => {
+    if (newValue) {
+      noticeFieldsHandler({ ...noticeFields, publishTimeStart: newValue });
+    }
   };
 
-  const handleEndDateChange = (newValue: Date) => {
-    setEndDate(newValue);
-    noticeFieldsHandler({ ...noticeFields, publishTimeEnd: newValue });
+  const handleEndDateChange = (newValue: Date | null) => {
+    if (newValue) {
+      noticeFieldsHandler({ ...noticeFields, publishTimeEnd: newValue });
+    }
   };
 
-  const handleIsBannerChange = () => {
-    setIsBanner(!isBanner);
-    noticeFieldsHandler({ ...noticeFields, showAsBanner: !isBanner });
+  const handleIsBannerChange = (event: any) => {
+    const { checked } = event.target;
+    noticeFieldsHandler({ ...noticeFields, showAsBanner: checked });
   };
 
   const isEditorOpened = openToolbar || (openEdit && !isSlateValueEmpty(value)) || !isSlateValueEmpty(value);
@@ -58,38 +57,39 @@ export const ProtectedNoticePage = ({ children }: Props) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         <DesktopAppBar />
         <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
-          <PageTitle routerName={pageTitle} />
+          {!openToolbar && <PageTitle routerName={pageTitle} />}
           {isEditorOpened && <SlateInputField />}
-          {isEditorOpened ? (
+          {openToolbar && (
             <NoticeFieldsWrapper sx={{ margin: '0px 15px' }}>
               <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
                 <Grid container spacing={2}>
                   <Grid item>
                     <DateTimePicker
                       label={t('common:noticeList.publishTimeStart')}
-                      value={startDate}
+                      value={new Date(noticeFields.publishTimeStart)}
                       onChange={(newValue) => handleStartDateChange(newValue)}
                     />
                   </Grid>
                   <Grid item>
                     <DateTimePicker
                       label={t('common:noticeList.publishTimeEnd')}
-                      value={endDate}
+                      value={new Date(noticeFields.publishTimeEnd)}
                       onChange={(newValue) => handleEndDateChange(newValue)}
                     />
                   </Grid>
                 </Grid>
                 <ListItem disableGutters>
                   <FormControlLabel
-                    control={<Checkbox checked={isBanner} onChange={handleIsBannerChange} />}
+                    control={
+                      <Checkbox checked={noticeFields.showAsBanner} onChange={(value) => handleIsBannerChange(value)} />
+                    }
                     label={t('common:noticeList.showAsBanner')}
                   />
                 </ListItem>
               </LocalizationProvider>
             </NoticeFieldsWrapper>
-          ) : (
-            ''
           )}
+
           {children}
           <ToastContainer
             position="bottom-right"
