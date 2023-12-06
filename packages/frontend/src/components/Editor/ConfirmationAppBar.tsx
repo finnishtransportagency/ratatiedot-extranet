@@ -14,6 +14,7 @@ import { useLocation, useMatch } from 'react-router-dom';
 import { useUpdatePageContents } from '../../hooks/mutations/UpdateCategoryPageContent';
 import { getRouterName } from '../../utils/helpers';
 import { useUpdateNoticePageContents } from '../../hooks/mutations/UpdateNoticePageContent';
+import { useCreateNoticePageContent } from '../../hooks/mutations/CreateNoticePageContent';
 
 export const ConfirmationAppBar = () => {
   const { toggleEdit, openToolbarHandler } = useContext(AppBarContext);
@@ -21,12 +22,18 @@ export const ConfirmationAppBar = () => {
   const { pathname, state } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
   const noticeRoute = useMatch('/ajankohtaista/:id');
+  const noticeCreateRoute = useMatch('/ajankohtaista/uusi');
   const noticeId = state?.noticeId;
 
+  let isCreateRoute = false;
+  if (noticeRoute && noticeRoute.params.id === 'uusi') {
+    isCreateRoute = true;
+  }
   const { t } = useTranslation(['common']);
 
   const mutatePageContents = useUpdatePageContents(getRouterName(categoryName));
   const mutateNoticePageContents = useUpdateNoticePageContents(noticeId);
+  const createNoticePageContent = useCreateNoticePageContent();
   const { error } = mutatePageContents;
 
   const handleReject = () => {
@@ -34,12 +41,22 @@ export const ConfirmationAppBar = () => {
     valueReset();
   };
 
-  console.log(pathname);
-  console.log(categoryName);
-
   const handleSave = () => {
-    if (noticeRoute) {
+    if (noticeRoute && !isCreateRoute) {
       mutateNoticePageContents.mutate(
+        { value, noticeFields },
+        {
+          onSuccess: () => {
+            toast(t('common:edit.saved_success'), { type: 'success' });
+            toggleEdit();
+          },
+          onError: () => {
+            toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+          },
+        },
+      );
+    } else if (noticeCreateRoute || isCreateRoute) {
+      createNoticePageContent.mutate(
         { value, noticeFields },
         {
           onSuccess: () => {

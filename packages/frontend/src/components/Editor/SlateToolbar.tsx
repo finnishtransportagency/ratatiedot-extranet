@@ -32,6 +32,7 @@ import { toast } from 'react-toastify';
 import { isEqual } from 'lodash';
 import { HistoryEditor } from 'slate-history';
 import { useUpdateNoticePageContents } from '../../hooks/mutations/UpdateNoticePageContent';
+import { useCreateNoticePageContent } from '../../hooks/mutations/CreateNoticePageContent';
 
 type MarkButtonProps = { editor: any; format: FontFormatType; icon: any };
 
@@ -79,7 +80,7 @@ const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
 
 export const SlateToolbar = () => {
   const { t } = useTranslation(['common']);
-  const { closeToolbarHandler, closeToolbarWithoutSaveHandler } = useContext(AppBarContext);
+  const { closeToolbarHandler, closeToolbarWithoutSaveHandler, toggleEdit } = useContext(AppBarContext);
   const { editor, value, valueReset, noticeFields } = useContext(EditorContext);
   const [isColorOpened, setIsColorOpened] = useState(false);
   const [initialValue, setInitialValue] = useState([]);
@@ -87,9 +88,16 @@ export const SlateToolbar = () => {
   const categoryName = pathname.split('/').at(-1) || '';
   const noticeRoute = useMatch('/ajankohtaista/:id');
   const noticeId = state?.noticeId;
+  const noticeCreateRoute = useMatch('/ajankohtaista/uusi');
+
+  let isCreateRoute = false;
+  if (noticeRoute && noticeRoute.params.id === 'uusi') {
+    isCreateRoute = true;
+  }
 
   const mutatePageContents = useUpdatePageContents(getRouterName(categoryName));
   const mutateNoticePageContents = useUpdateNoticePageContents(noticeId);
+  const createNoticePageContent = useCreateNoticePageContent();
 
   const { error } = mutatePageContents;
 
@@ -105,7 +113,7 @@ export const SlateToolbar = () => {
   const toggleColorPicker = () => setIsColorOpened(!isColorOpened);
 
   const handleSave = () => {
-    if (noticeRoute) {
+    if (noticeRoute && !isCreateRoute) {
       mutateNoticePageContents.mutate(
         { value, noticeFields },
         {
@@ -115,6 +123,20 @@ export const SlateToolbar = () => {
           },
           onError: () => {
             toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+          },
+        },
+      );
+    } else if (noticeCreateRoute || isCreateRoute) {
+      createNoticePageContent.mutate(
+        { value, noticeFields },
+        {
+          onSuccess: () => {
+            toast(t('common:edit.saved_success'), { type: 'success' });
+            toggleEdit();
+          },
+          onError: () => {
+            toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+            toggleEdit();
           },
         },
       );

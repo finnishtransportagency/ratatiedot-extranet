@@ -54,7 +54,7 @@ export const EditorContextProvider = (props: any) => {
       setValue(dataResponse);
     }
     const noticeResponse = getNoticeProperties();
-    if (noticeResponse && noticeResponse.length) {
+    if (noticeResponse && Object.keys(noticeResponse).length) {
       const { content, ...noticeProperties } = noticeResponse;
       setNoticeFields(noticeProperties);
     }
@@ -71,7 +71,7 @@ export const EditorContextProvider = (props: any) => {
   };
 
   const getNoticeProperties = () => {
-    if (noticeData) {
+    if (noticeData && Object.keys(noticeData).length) {
       return noticeData;
     }
     return noticeFieldsTemplate;
