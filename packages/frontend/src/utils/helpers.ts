@@ -4,7 +4,7 @@ import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
 import categoryData from '../assets/data/FinnishCategories.json';
 import { MainCategoryData, SubCategoryData } from '../types/types';
 import { capitalize } from 'lodash';
-import { Area, devAreas, prodAreas } from './categories';
+import { devAreas, prodAreas } from './categories';
 
 const { VITE_BUILD_ENVIRONMENT } = import.meta.env;
 
@@ -145,7 +145,7 @@ export const parseRouterName = (routerName: string = '') => {
     case 'muokkaustyokalu':
       return 'Muokkaustyökalu';
     default:
-      return decodeURIComponent(capitalize(routerName.replace(/-/g, ' ')));
+      return capitalize(routerName.replace(/-/g, ' '));
   }
 };
 
