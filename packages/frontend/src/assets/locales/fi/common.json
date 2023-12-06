@@ -193,6 +193,7 @@
     "publishTimeStart": "Julkaisuajankohta",
     "publishTimeEnd": "Julkaisun poistoaika",
     "showAsBanner": "Näytä bannerina",
+    "createNewNoticeInfo": "Luo uusi tiedote avaamalla muokkausnäkymä",
     "createNewNotice": "Luo uusi tiedote"
   }
 }

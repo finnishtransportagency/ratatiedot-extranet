@@ -49,7 +49,7 @@ export const ProtectedNoticePage = ({ children }: Props) => {
   };
 
   const isEditorOpened = openToolbar || (openEdit && !isSlateValueEmpty(value)) || !isSlateValueEmpty(value);
-  const pageTitle = location.pathname === Routes.NEW_NOTICE ? t('common:noticeList.createNewNotice') : '';
+  const pageTitle = location.pathname === Routes.NEW_NOTICE ? t('common:noticeList.createNewNoticeInfo') : '';
 
   return (
     <ContainerWrapper>
@@ -66,14 +66,14 @@ export const ProtectedNoticePage = ({ children }: Props) => {
                   <Grid item>
                     <DateTimePicker
                       label={t('common:noticeList.publishTimeStart')}
-                      value={new Date(noticeFields.publishTimeStart)}
+                      value={noticeFields.publishTimeStart ? new Date(noticeFields.publishTimeStart) : null}
                       onChange={(newValue) => handleStartDateChange(newValue)}
                     />
                   </Grid>
                   <Grid item>
                     <DateTimePicker
                       label={t('common:noticeList.publishTimeEnd')}
-                      value={new Date(noticeFields.publishTimeEnd)}
+                      value={noticeFields.publishTimeEnd ? new Date(noticeFields.publishTimeEnd) : null}
                       onChange={(newValue) => handleEndDateChange(newValue)}
                     />
                   </Grid>

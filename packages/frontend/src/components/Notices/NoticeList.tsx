@@ -26,9 +26,12 @@ export const NoticeList = ({ notices }: { notices: Notice[] }) => {
               <Typography
                 sx={{ color: Colors.darkblue, marginBottom: '12px', fontSize: '18px', fontFamily: 'Exo2-Bold' }}
                 onClick={() =>
-                  navigate(`${Routes.NOTICES}/${format(new Date(node.publishTimeStart), URIFriendlyDateFormat)}`, {
-                    state: { noticeId: node.id },
-                  })
+                  navigate(
+                    `${Routes.NOTICES}/${node.id}/${format(new Date(node.publishTimeStart), URIFriendlyDateFormat)}`,
+                    {
+                      state: { noticeId: node.id },
+                    },
+                  )
                 }
               >
                 {node.content[0].children[0].text}
