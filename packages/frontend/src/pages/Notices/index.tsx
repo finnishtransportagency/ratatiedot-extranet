@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getNotices } from '../../services/NoticeListService';
 import { ProtectedContainerWrapper } from '../../styles/common';
-import { Box, Pagination, Typography } from '@mui/material';
+import { Box, Button, List, ListItemButton, ListItemText, Pagination, Typography } from '@mui/material';
 import { format } from 'date-fns';
 import { Colors } from '../../constants/Colors';
 import { DateFormat, URIFriendlyDateFormat } from '../../constants/Formats';
@@ -9,6 +9,9 @@ import { useNavigate } from 'react-router-dom';
 import { Notice } from '../../types/types';
 import { ErrorMessage } from '../../components/Notification/ErrorMessage';
 import { Routes } from '../../constants/Routes';
+import { t } from 'i18next';
+import { checkAdminRights } from '../../services/AdminRightService';
+import { theme } from '../../styles/createTheme';
 
 export const Notices = () => {
   const [notices, setNotices] = useState<Notice[]>([]);
@@ -16,6 +19,7 @@ export const Notices = () => {
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const [totalPages, setTotalPages] = useState(0);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
   useEffect(() => {
     const fetchNotices = async () => {
@@ -29,6 +33,12 @@ export const Notices = () => {
       }
     };
 
+    const checkForAdminRights = async () => {
+      const { isAdmin } = await checkAdminRights();
+      setIsUserAdmin(isAdmin);
+    };
+
+    checkForAdminRights();
     fetchNotices();
   }, [page]);
 
@@ -40,23 +50,33 @@ export const Notices = () => {
 
   return (
     <ProtectedContainerWrapper>
-      {notices.map((node) => {
-        return (
-          <Box sx={{ cursor: 'pointer' }}>
-            <Typography>{format(new Date(node.createdTime), DateFormat)}</Typography>
-            <Typography
-              sx={{ color: Colors.darkblue, marginBottom: '12px', fontSize: '18px', fontFamily: 'Exo2-Bold' }}
-              onClick={() =>
-                navigate(`${Routes.NOTICES}/${format(new Date(node.publishTimeStart), URIFriendlyDateFormat)}`, {
-                  state: { noticeId: node.id },
-                })
-              }
+      {isUserAdmin && (
+        <Button variant="outlined" sx={{ mb: '16px' }} onClick={() => navigate(Routes.NEW_NOTICE)}>
+          {t('common:noticeList.createNewNotice')}
+        </Button>
+      )}
+      <List>
+        {notices.map((node) => {
+          return (
+            <ListItemButton
+              sx={{
+                whiteSpace: 'normal',
+                flexGrow: 'unset',
+                '&.MuiListItemButton-root:hover': {
+                  backgroundColor: theme.palette.action.hover,
+                },
+              }}
+              key={node.id}
+              href={`${Routes.NOTICES}/${node.id}/${format(new Date(node.createdTime), URIFriendlyDateFormat)}`}
             >
-              {node.content[0].children[0].text}
-            </Typography>
-          </Box>
-        );
-      })}
+              <ListItemText
+                secondary={format(new Date(node.createdTime), DateFormat)}
+                primary={node.content[0].children[0].text}
+              />
+            </ListItemButton>
+          );
+        })}
+      </List>
       <Pagination
         count={totalPages}
         page={page}
