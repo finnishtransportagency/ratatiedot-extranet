@@ -4,7 +4,7 @@ import { ProtectedContainerWrapper } from '../../styles/common';
 import { Box, Pagination, Typography } from '@mui/material';
 import { format } from 'date-fns';
 import { Colors } from '../../constants/Colors';
-import { DateFormat } from '../../constants/Formats';
+import { DateFormat, URIFriendlyDateFormat } from '../../constants/Formats';
 import { useNavigate } from 'react-router-dom';
 import { Notice } from '../../types/types';
 import { ErrorMessage } from '../../components/Notification/ErrorMessage';
@@ -47,7 +47,7 @@ export const Notices = () => {
             <Typography
               sx={{ color: Colors.darkblue, marginBottom: '12px', fontSize: '18px', fontFamily: 'Exo2-Bold' }}
               onClick={() =>
-                navigate(`${Routes.NOTICES}/${format(new Date(node.publishTimeStart), DateFormat)}`, {
+                navigate(`${Routes.NOTICES}/${format(new Date(node.publishTimeStart), URIFriendlyDateFormat)}`, {
                   state: { noticeId: node.id },
                 })
               }

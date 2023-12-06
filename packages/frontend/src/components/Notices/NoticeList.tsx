@@ -3,7 +3,7 @@ import { t } from 'i18next';
 import { HighlightedTitle } from '../Typography/HighlightedTitle';
 import { Colors } from '../../constants/Colors';
 import { useNavigate } from 'react-router-dom';
-import { DateFormat } from '../../constants/Formats';
+import { DateFormat, URIFriendlyDateFormat } from '../../constants/Formats';
 import { format } from 'date-fns';
 import { ArrowForward } from '@mui/icons-material';
 import { Notice } from '../../types/types';
@@ -26,7 +26,7 @@ export const NoticeList = ({ notices }: { notices: Notice[] }) => {
               <Typography
                 sx={{ color: Colors.darkblue, marginBottom: '12px', fontSize: '18px', fontFamily: 'Exo2-Bold' }}
                 onClick={() =>
-                  navigate(`${Routes.NOTICES}/${format(new Date(node.publishTimeStart), DateFormat)}`, {
+                  navigate(`${Routes.NOTICES}/${format(new Date(node.publishTimeStart), URIFriendlyDateFormat)}`, {
                     state: { noticeId: node.id },
                   })
                 }
