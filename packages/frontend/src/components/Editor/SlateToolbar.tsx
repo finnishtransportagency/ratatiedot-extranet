@@ -27,7 +27,7 @@ import { FontSizeDropdown } from './Dropdown/FontSizeDropdown';
 import { ButtonWrapper } from './ConfirmationAppBar';
 import { useUpdatePageContents } from '../../hooks/mutations/UpdateCategoryPageContent';
 import { getRouterName } from '../../utils/helpers';
-import { useLocation, useMatch } from 'react-router-dom';
+import { useLocation, useMatch, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { isEqual } from 'lodash';
 import { HistoryEditor } from 'slate-history';
@@ -86,8 +86,8 @@ export const SlateToolbar = () => {
   const [initialValue, setInitialValue] = useState([]);
   const { pathname, state } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
-  const noticeRoute = useMatch('/ajankohtaista/:id');
-  const noticeId = state?.noticeId;
+  const noticeRoute = useMatch('/ajankohtaista/:id/:date');
+  const { id: noticeId } = useParams();
   const noticeCreateRoute = useMatch('/ajankohtaista/uusi');
 
   let isCreateRoute = false;
@@ -96,7 +96,7 @@ export const SlateToolbar = () => {
   }
 
   const mutatePageContents = useUpdatePageContents(getRouterName(categoryName));
-  const mutateNoticePageContents = useUpdateNoticePageContents(noticeId);
+  const mutateNoticePageContents = useUpdateNoticePageContents(noticeId!);
   const createNoticePageContent = useCreateNoticePageContent();
 
   const { error } = mutatePageContents;
@@ -132,11 +132,10 @@ export const SlateToolbar = () => {
         {
           onSuccess: () => {
             toast(t('common:edit.saved_success'), { type: 'success' });
-            toggleEdit();
+            setInitialValue(value);
           },
           onError: () => {
             toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
-            toggleEdit();
           },
         },
       );

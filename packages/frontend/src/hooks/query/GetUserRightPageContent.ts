@@ -7,7 +7,7 @@ import { STATIC_ROUTES } from '../../constants/Routes';
 import { useMatch } from 'react-router-dom';
 
 export const useGetUserRightPageContent = (categoryName: string) => {
-  const matchNoticeRoute = useMatch('/ajankohtaista/:id');
+  const matchNoticeRoute = useMatch('/ajankohtaista/:id/:date');
 
   const matchCategoryPageRoute = Boolean(categoryName) && !STATIC_ROUTES.includes(categoryName);
   const endpoint = matchNoticeRoute

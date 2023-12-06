@@ -10,7 +10,7 @@ import { Colors } from '../../constants/Colors';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { ParagraphWrapper } from '../../pages/Landing/index.styles';
 import { EditorContext } from '../../contexts/EditorContext';
-import { useLocation, useMatch } from 'react-router-dom';
+import { useLocation, useMatch, useParams } from 'react-router-dom';
 import { useUpdatePageContents } from '../../hooks/mutations/UpdateCategoryPageContent';
 import { getRouterName } from '../../utils/helpers';
 import { useUpdateNoticePageContents } from '../../hooks/mutations/UpdateNoticePageContent';
@@ -19,11 +19,11 @@ import { useCreateNoticePageContent } from '../../hooks/mutations/CreateNoticePa
 export const ConfirmationAppBar = () => {
   const { toggleEdit, openToolbarHandler } = useContext(AppBarContext);
   const { value, valueReset, noticeFields } = useContext(EditorContext);
-  const { pathname, state } = useLocation();
+  const { pathname } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
-  const noticeRoute = useMatch('/ajankohtaista/:id');
+  const noticeRoute = useMatch('/ajankohtaista/:id/:date');
   const noticeCreateRoute = useMatch('/ajankohtaista/uusi');
-  const noticeId = state?.noticeId;
+  const { id: noticeId } = useParams();
 
   let isCreateRoute = false;
   if (noticeRoute && noticeRoute.params.id === 'uusi') {
@@ -32,7 +32,7 @@ export const ConfirmationAppBar = () => {
   const { t } = useTranslation(['common']);
 
   const mutatePageContents = useUpdatePageContents(getRouterName(categoryName));
-  const mutateNoticePageContents = useUpdateNoticePageContents(noticeId);
+  const mutateNoticePageContents = useUpdateNoticePageContents(noticeId!);
   const createNoticePageContent = useCreateNoticePageContent();
   const { error } = mutatePageContents;
 

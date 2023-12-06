@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash';
 import React, { useEffect, useState } from 'react';
-import { useLocation, useMatch } from 'react-router-dom';
+import { useLocation, useMatch, useParams } from 'react-router-dom';
 import { Transforms, createEditor } from 'slate';
 import { withReact } from 'slate-react';
 import pipe from 'lodash/fp/pipe';
@@ -34,12 +34,12 @@ const noticeFieldsTemplate = {
 };
 
 export const EditorContextProvider = (props: any) => {
-  const { pathname, state } = useLocation();
-  const noticeRoute = useMatch('/ajankohtaista/:id');
-  const noticeId = state?.noticeId;
+  const { pathname } = useLocation();
+  const noticeRoute = useMatch('/ajankohtaista/:id/:date');
+  const { id: noticeId } = useParams();
 
   const { data } = useGetCategoryPageContent(pathname);
-  const { data: noticeData } = useGetNoticePageContent(noticeId);
+  const { data: noticeData } = useGetNoticePageContent(noticeId!);
 
   const [editor, setEditor] = useState(createEditorWithPlugins(createEditor()));
   const [dbValue, setDBValue] = useState(nodeTemplate);

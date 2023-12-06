@@ -21,6 +21,7 @@ export const AppBarContext = React.createContext({
   closeToolbarWithoutSaveHandler: () => {},
   userRight: { canRead: false, canWrite: false, isAdmin: false },
   userRightHandler: (_: TUserRight) => {},
+  closeEdit: () => {},
 });
 
 export type TUserRight = { canRead: boolean; canWrite: boolean; isAdmin: boolean };
@@ -123,6 +124,7 @@ export const AppBarContextProvider = (props: any) => {
         closeToolbarWithoutSaveHandler: closeToolbarWithoutSaveHandler,
         userRight: userRight,
         userRightHandler: userRightHandler,
+        closeEdit: closeEdit,
       }}
     >
       {props.children}

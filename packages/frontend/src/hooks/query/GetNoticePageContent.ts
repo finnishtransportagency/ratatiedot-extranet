@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useMatch } from 'react-router-dom';
 
 export const useGetNoticePageContent = (noticeId: string) => {
-  const match = useMatch('/ajankohtaista/:id');
+  const match = useMatch('/ajankohtaista/:id/:date');
 
   return useQuery({
     enabled: !!match,
