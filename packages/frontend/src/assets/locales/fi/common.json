@@ -194,6 +194,10 @@
     "publishTimeEnd": "Julkaisun poistoaika",
     "showAsBanner": "Näytä bannerina",
     "createNewNoticeInfo": "Luo uusi tiedote avaamalla muokkausnäkymä",
-    "createNewNotice": "Luo uusi tiedote"
+    "createNewNotice": "Luo uusi tiedote",
+    "deleteNotice": "Poista tiedote",
+    "confirmDeleteNotice": "Haluatko varmasti poistaa tiedotteen?",
+    "deleteNoticeFailed": "Tiedotteen poistaminen epäonnistui",
+    "deleteNoticeSuccess": "Tiedote poistettu"
   }
 }
