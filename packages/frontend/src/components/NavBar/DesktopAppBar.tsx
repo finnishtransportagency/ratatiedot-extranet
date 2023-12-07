@@ -13,21 +13,13 @@ import { CustomBreadcrumbs } from '../Breadcrumbs';
 import { useTranslation } from 'react-i18next';
 import { ConfirmationAppBar } from '../Editor/ConfirmationAppBar';
 import { SlateToolbar } from '../Editor/SlateToolbar';
-import { useLocation } from 'react-router-dom';
-import { Routes } from '../../constants/Routes';
 
 export const DesktopAppBar = () => {
   const { openEdit, openDesktopDrawer, openToolbar, openToolbarHandler, userRight } = useContext(AppBarContext);
   const { t } = useTranslation(['common']);
-  const location = useLocation();
 
   const userWriteRight = userRight.canWrite || userRight.isAdmin;
-  const shouldEdit =
-    userWriteRight &&
-    !openEdit &&
-    !openToolbar &&
-    location.pathname !== Routes.HOME &&
-    location.pathname !== Routes.NOTICES;
+  const shouldEdit = userWriteRight && !openEdit && !openToolbar;
 
   const MainAppBar = () => {
     return (

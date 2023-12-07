@@ -89,7 +89,7 @@ export const Notices = () => {
     <>
       <ProtectedContainerWrapper>
         {isUserAdmin && (
-          <Button variant="outlined" sx={{ mb: '16px' }} onClick={() => navigate(Routes.NEW_NOTICE)}>
+          <Button variant="outlined" sx={{ mb: '16px' }} href={Routes.NEW_NOTICE}>
             {t('common:noticeList.createNewNotice')}
           </Button>
         )}
@@ -117,10 +117,7 @@ export const Notices = () => {
                   key={node.id}
                   href={`${Routes.NOTICES}/${node.id}/${format(new Date(node.createdTime), URIFriendlyDateFormat)}`}
                 >
-                  <ListItemText
-                    secondary={format(new Date(node.createdTime), DateFormat)}
-                    primary={node.content[0].children[0].text}
-                  />
+                  <ListItemText secondary={format(new Date(node.createdTime), DateFormat)} primary={node.title} />
                 </ListItemButton>
               </ListItem>
             );

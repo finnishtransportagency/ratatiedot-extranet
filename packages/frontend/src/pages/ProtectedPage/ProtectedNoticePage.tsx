@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Box, Checkbox, FormControlLabel, Grid, ListItem, Paper, styled } from '@mui/material';
+import { Box, Checkbox, FormControlLabel, Grid, ListItem, Paper, TextField, styled } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 
 import { ContentWrapper, ContainerWrapper } from './index.styles';
@@ -18,6 +18,7 @@ import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { fi } from 'date-fns/locale';
 import { Routes } from '../../constants/Routes';
+import { checkAdminRights } from '../../services/AdminRightService';
 
 type Props = {
   children: React.ReactElement;
@@ -27,7 +28,7 @@ type Props = {
 // to get access navigation bar and title bar
 export const ProtectedNoticePage = ({ children }: Props) => {
   const { t } = useTranslation(['common']);
-  const { openEdit, openToolbar } = useContext(AppBarContext);
+  const { openEdit, openToolbar, userRightHandler, userRight } = useContext(AppBarContext);
   const { value, noticeFields, noticeFieldsHandler } = useContext(EditorContext);
   const location = useLocation();
 
@@ -48,8 +49,23 @@ export const ProtectedNoticePage = ({ children }: Props) => {
     noticeFieldsHandler({ ...noticeFields, showAsBanner: checked });
   };
 
+  const handleTitleChange = (newValue: string | null) => {
+    if (newValue) {
+      noticeFieldsHandler({ ...noticeFields, title: newValue });
+    }
+  };
+
+  useEffect(() => {
+    const checkUserRights = async () => {
+      const { isAdmin } = await checkAdminRights();
+      userRightHandler({ ...userRight, isAdmin: isAdmin });
+    };
+    checkUserRights();
+  }, []);
+
   const isEditorOpened = openToolbar || (openEdit && !isSlateValueEmpty(value)) || !isSlateValueEmpty(value);
-  const pageTitle = location.pathname === Routes.NEW_NOTICE ? t('common:noticeList.createNewNoticeInfo') : '';
+  const pageTitle =
+    location.pathname === Routes.NEW_NOTICE ? t('common:noticeList.createNewNoticeInfo') : noticeFields.title;
 
   return (
     <ContainerWrapper>
@@ -58,6 +74,16 @@ export const ProtectedNoticePage = ({ children }: Props) => {
         <DesktopAppBar />
         <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
           {!openToolbar && <PageTitle routerName={pageTitle} />}
+          {openToolbar && (
+            <InputFieldWrapper>
+              <TextField
+                defaultValue={noticeFields.title}
+                label={t('common:noticeList.writeTitle')}
+                fullWidth
+                onChange={(e) => handleTitleChange(e.target.value)}
+              />
+            </InputFieldWrapper>
+          )}
           {isEditorOpened && <SlateInputField />}
           {openToolbar && (
             <NoticeFieldsWrapper sx={{ margin: '0px 15px' }}>
@@ -120,5 +146,18 @@ const NoticeFieldsWrapper = styled(Paper)(({ theme }) => ({
   },
   [theme.breakpoints.only('desktop')]: {
     margin: '30px 40px 0px 40px',
+  },
+}));
+
+const InputFieldWrapper = styled(Paper)(({ theme }) => ({
+  boxShadow: 'none',
+  [theme.breakpoints.only('mobile')]: {
+    margin: '30px 15px',
+  },
+  [theme.breakpoints.only('tablet')]: {
+    margin: '30px 32px',
+  },
+  [theme.breakpoints.only('desktop')]: {
+    margin: '60px 40px -30px 40px',
   },
 }));

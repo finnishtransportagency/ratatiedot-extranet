@@ -198,6 +198,7 @@
     "deleteNotice": "Poista tiedote",
     "confirmDeleteNotice": "Haluatko varmasti poistaa tiedotteen?",
     "deleteNoticeFailed": "Tiedotteen poistaminen epäonnistui",
-    "deleteNoticeSuccess": "Tiedote poistettu"
+    "deleteNoticeSuccess": "Tiedote poistettu",
+    "writeTitle": "Kirjoita otsikko"
   }
 }

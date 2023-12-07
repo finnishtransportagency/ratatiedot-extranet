@@ -28,14 +28,9 @@ export const MiniAppBar = () => {
     userRight,
   } = useContext(AppBarContext);
 
-  const location = useLocation();
   const userWriteRight = userRight.canWrite || userRight.isAdmin;
-  const shouldEdit =
-    userWriteRight &&
-    !openEdit &&
-    !openToolbar &&
-    location.pathname !== Routes.HOME &&
-    location.pathname !== Routes.NOTICES;
+  const shouldEdit = userWriteRight && !openEdit && !openToolbar;
+
   const { t } = useTranslation(['common']);
 
   const MainAppBar = () => {

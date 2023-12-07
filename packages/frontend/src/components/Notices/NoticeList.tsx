@@ -34,7 +34,7 @@ export const NoticeList = ({ notices }: { notices: Notice[] }) => {
                   )
                 }
               >
-                {node.content[0].children[0].text}
+                {node.title}
               </Typography>
             </Box>
           );
