@@ -193,7 +193,7 @@
     "publishTimeStart": "Julkaisuajankohta",
     "publishTimeEnd": "Julkaisun poistoaika",
     "showAsBanner": "Näytä bannerina",
-    "createNewNoticeInfo": "Luo uusi tiedote avaamalla muokkausnäkymä",
+    "createNewNoticeInfo": "Luo uusi tiedote klikkaamalla 'Muokkaa sisältöä'",
     "createNewNotice": "Luo uusi tiedote",
     "deleteNotice": "Poista tiedote",
     "confirmDeleteNotice": "Haluatko varmasti poistaa tiedotteen?",
