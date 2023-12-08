@@ -4,6 +4,7 @@ import { ButtonWrapper, ProtectedContainerWrapper } from '../../styles/common';
 import {
   Box,
   Button,
+  Chip,
   CircularProgress,
   IconButton,
   List,
@@ -16,7 +17,6 @@ import {
 import { format } from 'date-fns';
 import { Colors } from '../../constants/Colors';
 import { DateFormat, URIFriendlyDateFormat } from '../../constants/Formats';
-import { useNavigate } from 'react-router-dom';
 import { Notice } from '../../types/types';
 import { ErrorMessage } from '../../components/Notification/ErrorMessage';
 import { Routes } from '../../constants/Routes';
@@ -28,12 +28,11 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import { deleteNotice } from '../../services/NoticeDeleteService';
 
 export const Notices = () => {
-  const [notices, setNotices] = useState<Notice[]>([]);
+  const [notices, setNotices] = useState<any[]>([]);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
   const [success, setSuccess] = useState(false);
   const [page, setPage] = useState(1);
-  const navigate = useNavigate();
   const [totalPages, setTotalPages] = useState(0);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
   const [open, setIsOpen] = useState(false);
@@ -117,6 +116,16 @@ export const Notices = () => {
                   href={`${Routes.NOTICES}/${node.id}/${format(new Date(node.createdTime), URIFriendlyDateFormat)}`}
                 >
                   <ListItemText secondary={format(new Date(node.createdTime), DateFormat)} primary={node.title} />
+                  {(() => {
+                    switch (node.state) {
+                      case 'scheduled':
+                        return <Chip label="Julkaisematon" color="secondary" variant="outlined" size="small" />;
+                      case 'archived':
+                        return <Chip label="Vanhentunut" color="secondary" variant="outlined" size="small" />;
+                      default:
+                        return;
+                    }
+                  })()}
                 </ListItemButton>
               </ListItem>
             );

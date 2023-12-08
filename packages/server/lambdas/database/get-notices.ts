@@ -2,10 +2,30 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateAdminUser, validateReadUser } from '../../utils/userService';
+import { getUser, isAdmin, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
+import { Prisma } from '@prisma/client';
 
 const database = await DatabaseClient.build();
+database.$extends({
+  result: {
+    notice: {
+      state: {
+        needs: { publishTimeStart: true, publishTimeEnd: true },
+        compute({ publishTimeStart, publishTimeEnd }) {
+          const now = new Date();
+          if (publishTimeStart > now) {
+            return 'scheduled';
+          } else if (publishTimeEnd && publishTimeEnd < now) {
+            return 'archived';
+          } else {
+            return 'published';
+          }
+        },
+      },
+    },
+  },
+});
 
 /**
  * Get list of notices. Example request: /api/notices?published=true?count=10
@@ -21,62 +41,46 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.info(user, 'Get list of notices');
     validateReadUser(user);
 
-    let notices;
-    let totalItems;
     const resultCount = parseInt(queryParams?.count || '10');
     const skip = queryParams?.page ? (parseInt(queryParams?.page) - 1) * resultCount : 0;
 
-    if (queryParams?.unpublished === 'true') {
-      validateAdminUser(user);
-      notices = await database.notice.findMany({
-        take: resultCount,
-        skip,
-        orderBy: {
-          publishTimeStart: 'desc',
+    const whereDefaultOptions = {
+      where: {
+        publishTimeStart: {
+          lte: new Date(),
         },
-      });
-      totalItems = await database.notice.count();
-    } else {
-      notices = await database.notice.findMany({
-        where: {
-          publishTimeStart: {
-            lte: new Date(),
+        OR: [
+          {
+            publishTimeEnd: {
+              gte: new Date(),
+            },
           },
-          OR: [
-            {
-              publishTimeEnd: {
-                gte: new Date(),
-              },
-            },
-            {
-              publishTimeEnd: null,
-            },
-          ],
-        },
-        take: resultCount,
-        skip,
-        orderBy: {
-          publishTimeStart: 'desc',
-        },
-      });
-      totalItems = await database.notice.count({
-        where: {
-          publishTimeStart: {
-            lte: new Date(),
+          {
+            publishTimeEnd: null,
           },
-          OR: [
-            {
-              publishTimeEnd: {
-                gte: new Date(),
-              },
-            },
-            {
-              publishTimeEnd: null,
-            },
-          ],
-        },
-      });
-    }
+        ],
+      },
+    };
+
+    const defaultOptions = {
+      ...whereDefaultOptions,
+      take: resultCount,
+      skip,
+      orderBy: {
+        publishTimeStart: Prisma.SortOrder.desc,
+      },
+    };
+
+    const adminOptions = {
+      take: resultCount,
+      skip,
+      orderBy: {
+        publishTimeStart: Prisma.SortOrder.desc,
+      },
+    };
+
+    const notices = await database.notice.findMany(isAdmin(user) ? adminOptions : defaultOptions);
+    const totalItems = await database.notice.count(isAdmin(user) ? undefined : whereDefaultOptions);
 
     return {
       statusCode: 200,
