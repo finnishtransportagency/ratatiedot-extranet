@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useBannerStore } from '../../store/bannerStore';
 import { Alert } from '@mui/material';
 import { Colors } from '../../constants/Colors';
-import './styles.css';
 
 export const Banner = () => {
   const banners = useBannerStore((state) => state.banners);
