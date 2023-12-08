@@ -70,7 +70,6 @@ export const Notices = () => {
       .then((result) => {
         setError(false);
         setSuccess(true);
-        console.log('res from delete: ', result);
         setIsOpen(false);
 
         setNotices((prevNotices) => {
