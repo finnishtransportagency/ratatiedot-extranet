@@ -27,10 +27,12 @@ import { FontSizeDropdown } from './Dropdown/FontSizeDropdown';
 import { ButtonWrapper } from './ConfirmationAppBar';
 import { useUpdatePageContents } from '../../hooks/mutations/UpdateCategoryPageContent';
 import { getRouterName } from '../../utils/helpers';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useMatch, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { isEqual } from 'lodash';
 import { HistoryEditor } from 'slate-history';
+import { useUpdateNoticePageContents } from '../../hooks/mutations/UpdateNoticePageContent';
+import { useCreateNoticePageContent } from '../../hooks/mutations/CreateNoticePageContent';
 
 type MarkButtonProps = { editor: any; format: FontFormatType; icon: any };
 
@@ -78,14 +80,25 @@ const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
 
 export const SlateToolbar = () => {
   const { t } = useTranslation(['common']);
-  const { closeToolbarHandler, closeToolbarWithoutSaveHandler } = useContext(AppBarContext);
-  const { editor, value, valueReset } = useContext(EditorContext);
+  const { closeToolbarHandler, closeToolbarWithoutSaveHandler, toggleEdit } = useContext(AppBarContext);
+  const { editor, value, valueReset, noticeFields } = useContext(EditorContext);
   const [isColorOpened, setIsColorOpened] = useState(false);
   const [initialValue, setInitialValue] = useState([]);
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
+  const noticeRoute = useMatch('/ajankohtaista/:id/:date');
+  const { id: noticeId } = useParams();
+  const noticeCreateRoute = useMatch('/ajankohtaista/uusi');
+
+  let isCreateRoute = false;
+  if (noticeRoute && noticeRoute.params.id === 'uusi') {
+    isCreateRoute = true;
+  }
 
   const mutatePageContents = useUpdatePageContents(getRouterName(categoryName));
+  const mutateNoticePageContents = useUpdateNoticePageContents(noticeId!);
+  const createNoticePageContent = useCreateNoticePageContent();
+
   const { error } = mutatePageContents;
 
   useEffect(() => {
@@ -100,15 +113,43 @@ export const SlateToolbar = () => {
   const toggleColorPicker = () => setIsColorOpened(!isColorOpened);
 
   const handleSave = () => {
-    mutatePageContents.mutate(value, {
-      onSuccess: () => {
-        toast(t('common:edit.saved_success'), { type: 'success' });
-        setInitialValue(value);
-      },
-      onError: () => {
-        toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
-      },
-    });
+    if (noticeRoute && !isCreateRoute) {
+      mutateNoticePageContents.mutate(
+        { value, noticeFields },
+        {
+          onSuccess: () => {
+            toast(t('common:edit.saved_success'), { type: 'success' });
+            setInitialValue(value);
+          },
+          onError: () => {
+            toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+          },
+        },
+      );
+    } else if (noticeCreateRoute || isCreateRoute) {
+      createNoticePageContent.mutate(
+        { value, noticeFields },
+        {
+          onSuccess: () => {
+            toast(t('common:edit.saved_success'), { type: 'success' });
+            setInitialValue(value);
+          },
+          onError: () => {
+            toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+          },
+        },
+      );
+    } else {
+      mutatePageContents.mutate(value, {
+        onSuccess: () => {
+          toast(t('common:edit.saved_success'), { type: 'success' });
+          setInitialValue(value);
+        },
+        onError: () => {
+          toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+        },
+      });
+    }
   };
 
   const handleClose = () => {

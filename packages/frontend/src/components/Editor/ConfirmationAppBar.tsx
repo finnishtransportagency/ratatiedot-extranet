@@ -10,19 +10,30 @@ import { Colors } from '../../constants/Colors';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { ParagraphWrapper } from '../../pages/Landing/index.styles';
 import { EditorContext } from '../../contexts/EditorContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useMatch, useParams } from 'react-router-dom';
 import { useUpdatePageContents } from '../../hooks/mutations/UpdateCategoryPageContent';
 import { getRouterName } from '../../utils/helpers';
+import { useUpdateNoticePageContents } from '../../hooks/mutations/UpdateNoticePageContent';
+import { useCreateNoticePageContent } from '../../hooks/mutations/CreateNoticePageContent';
 
 export const ConfirmationAppBar = () => {
   const { toggleEdit, openToolbarHandler } = useContext(AppBarContext);
-  const { value, valueReset } = useContext(EditorContext);
+  const { value, valueReset, noticeFields } = useContext(EditorContext);
   const { pathname } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
+  const noticeRoute = useMatch('/ajankohtaista/:id/:date');
+  const noticeCreateRoute = useMatch('/ajankohtaista/uusi');
+  const { id: noticeId } = useParams();
 
+  let isCreateRoute = false;
+  if (noticeRoute && noticeRoute.params.id === 'uusi') {
+    isCreateRoute = true;
+  }
   const { t } = useTranslation(['common']);
 
   const mutatePageContents = useUpdatePageContents(getRouterName(categoryName));
+  const mutateNoticePageContents = useUpdateNoticePageContents(noticeId!);
+  const createNoticePageContent = useCreateNoticePageContent();
   const { error } = mutatePageContents;
 
   const handleReject = () => {
@@ -31,15 +42,43 @@ export const ConfirmationAppBar = () => {
   };
 
   const handleSave = () => {
-    mutatePageContents.mutate(value, {
-      onSuccess: () => {
-        toast(t('common:edit.saved_success'), { type: 'success' });
-        toggleEdit();
-      },
-      onError: () => {
-        toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
-      },
-    });
+    if (noticeRoute && !isCreateRoute) {
+      mutateNoticePageContents.mutate(
+        { value, noticeFields },
+        {
+          onSuccess: () => {
+            toast(t('common:edit.saved_success'), { type: 'success' });
+            toggleEdit();
+          },
+          onError: () => {
+            toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+          },
+        },
+      );
+    } else if (noticeCreateRoute || isCreateRoute) {
+      createNoticePageContent.mutate(
+        { value, noticeFields },
+        {
+          onSuccess: () => {
+            toast(t('common:edit.saved_success'), { type: 'success' });
+            toggleEdit();
+          },
+          onError: () => {
+            toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+          },
+        },
+      );
+    } else {
+      mutatePageContents.mutate(value, {
+        onSuccess: () => {
+          toast(t('common:edit.saved_success'), { type: 'success' });
+          toggleEdit();
+        },
+        onError: () => {
+          toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+        },
+      });
+    }
   };
 
   return (

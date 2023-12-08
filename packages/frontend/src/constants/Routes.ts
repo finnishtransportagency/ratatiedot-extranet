@@ -75,6 +75,9 @@ export const Routes = {
     SubCategoryNames.LOGIN_AND_PERMISSIONS,
   )}`,
   EDIT_TOOL: `/${getRouterName(MainCategoryNames.INSTRUCTIONS)}/${getRouterName(SubCategoryNames.EDIT_TOOL)}`,
+  NOTICES: '/ajankohtaista',
+  SINGLE_NOTICE: '/ajankohtaista/:id/:date',
+  NEW_NOTICE: '/ajankohtaista/uusi',
 };
 
 export const STATIC_ROUTES = [

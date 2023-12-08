@@ -20,6 +20,7 @@ export enum ElementType {
   NOTIFICATION_CONFIRMATION = 'notification_confirmation',
   CARD_TITLE = 'card_title',
   CARD = 'card',
+  IMAGE = 'image',
 }
 
 export interface IElement {
@@ -58,4 +59,10 @@ export interface INotificationElement extends IElement {
 
 export interface ICardElement extends IElement {
   type: ElementType.CARD | ElementType.CARD_TITLE;
+}
+
+export interface IImageElement extends IElement {
+  type: ElementType.IMAGE;
+  url: string;
+  children: any;
 }

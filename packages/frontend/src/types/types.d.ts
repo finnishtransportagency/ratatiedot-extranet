@@ -76,6 +76,7 @@ type MainCategoryData = {
   CONTACT_INFORMATION: string;
   OTHERS: string;
   INSTRUCTIONS: string;
+  NOTICE: string;
 };
 
 type SubCategoryData = {
@@ -169,5 +170,31 @@ interface AlfrescoResponse {
       'cm:versionLabel': number;
       'cm:versionType': string;
     };
+  };
+}
+
+interface Notice {
+  id: string;
+  title: string | null;
+  content: any;
+  authorId: string | null;
+  createdTime: Date;
+  publishTimeStart: Date;
+  publishTimeEnd: Date | null;
+  showAsBanner: boolean;
+}
+
+interface Activity {
+  id: string;
+  fileName: string;
+  categoryId: string;
+  alfrescoId: string;
+  timestamp: string;
+  action: string;
+  mimeType: string;
+  activityId: number;
+  categoryDataBase: {
+    rataextraRequestPage: string;
+    alfrescoFolder: string;
   };
 }

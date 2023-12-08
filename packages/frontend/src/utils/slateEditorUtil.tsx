@@ -58,9 +58,9 @@ export const SlateElement = ({ attributes, children, element }: SlateElementProp
       return <ContactEditorCard attributes={attributes} children={children} element={element} />;
     case ElementType.PARAGRAPH_ONE:
       return (
-        <span {...attributes} style={{ fontSize: '18px' }}>
+        <p {...attributes} style={{ fontSize: '18px' }}>
           {children}
-        </span>
+        </p>
       );
     case ElementType.PARAGRAPH_TWO:
     default:
