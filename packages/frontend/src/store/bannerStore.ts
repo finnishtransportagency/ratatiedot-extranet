@@ -15,11 +15,9 @@ interface Banner {
 export const getBanners = async () => {
   try {
     const response = await axios.get('/api/banners');
-    console.log('response: ', response);
     return { data: response.data, error: null };
   } catch (error: any) {
-    console.log('error: ', error);
-    return { data: error, error: error };
+    return { data: null, error: error };
   }
 };
 
