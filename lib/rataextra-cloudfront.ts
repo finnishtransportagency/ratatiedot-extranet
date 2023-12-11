@@ -43,7 +43,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       rataExtraStackIdentifier,
       dmzApiEndpoint,
       cloudfrontCertificateArn,
-      cloudfrontDomainName,
+      //cloudfrontDomainName,
       frontendBucket,
       imageBucket,
       cloudfrontSignerPublicKeyId,
@@ -91,7 +91,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
     };
 
     const cloudfrontDistribution = new Distribution(this, `rataextra-cloudfront`, {
-      domainNames: [cloudfrontDomainName],
+      //domainNames: [cloudfrontDomainName],
       certificate,
       defaultRootObject: 'index.html',
       errorResponses: [
