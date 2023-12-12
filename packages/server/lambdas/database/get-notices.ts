@@ -7,25 +7,6 @@ import { DatabaseClient } from './client';
 import { Prisma } from '@prisma/client';
 
 const database = await DatabaseClient.build();
-database.$extends({
-  result: {
-    notice: {
-      state: {
-        needs: { publishTimeStart: true, publishTimeEnd: true },
-        compute({ publishTimeStart, publishTimeEnd }) {
-          const now = new Date();
-          if (publishTimeStart > now) {
-            return 'scheduled';
-          } else if (publishTimeEnd && publishTimeEnd < now) {
-            return 'archived';
-          } else {
-            return 'published';
-          }
-        },
-      },
-    },
-  },
-});
 
 /**
  * Get list of notices. Example request: /api/notices?published=true?count=10
