@@ -4,9 +4,30 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { devLog, log } from '../../utils/logger';
 import { getUser, isAdmin, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
-import { Prisma } from '@prisma/client';
+import { Notice, Prisma } from '@prisma/client';
 
 const database = await DatabaseClient.build();
+
+const getStatus = (notice: Notice) => {
+  if (notice.publishTimeStart > new Date()) {
+    return 'scheduled';
+  } else if (notice.publishTimeEnd && notice.publishTimeEnd < new Date()) {
+    return 'archived';
+  } else {
+    return 'published';
+  }
+};
+
+const extendNotices = (notices: Notice[]) => {
+  const extendedNotices = notices.map((notice) => {
+    return {
+      ...notice,
+      status: getStatus(notice),
+    };
+  });
+
+  return extendedNotices;
+};
 
 /**
  * Get list of notices. Example request: /api/notices?published=true?count=10
@@ -60,8 +81,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       },
     };
 
-    const notices = await database.notice.findMany(isAdmin(user) ? adminOptions : defaultOptions);
+    const noticesResponse = await database.notice.findMany(isAdmin(user) ? adminOptions : defaultOptions);
     const totalItems = await database.notice.count(isAdmin(user) ? undefined : whereDefaultOptions);
+
+    const notices = extendNotices(noticesResponse);
 
     devLog.debug({ notices, totalItems });
 

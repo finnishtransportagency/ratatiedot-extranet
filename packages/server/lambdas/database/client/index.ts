@@ -29,28 +29,6 @@ export class DatabaseClient {
       DATABASE_URL = `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public`;
     }
 
-    const client = new PrismaClient({ datasources: { db: { url: DATABASE_URL } } });
-
-    client.$extends({
-      result: {
-        notice: {
-          state: {
-            needs: { publishTimeStart: true, publishTimeEnd: true },
-            compute({ publishTimeStart, publishTimeEnd }) {
-              const now = new Date();
-              if (publishTimeStart > now) {
-                return 'scheduled';
-              } else if (publishTimeEnd && publishTimeEnd < now) {
-                return 'archived';
-              } else {
-                return 'published';
-              }
-            },
-          },
-        },
-      },
-    });
-
-    return client;
+    return new PrismaClient({ datasources: { db: { url: DATABASE_URL } } });
   }
 }
