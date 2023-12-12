@@ -1,7 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
-import { log } from '../../utils/logger';
+import { devLog, log } from '../../utils/logger';
 import { getUser, isAdmin, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 import { Prisma } from '@prisma/client';
@@ -81,6 +81,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const notices = await database.notice.findMany(isAdmin(user) ? adminOptions : defaultOptions);
     const totalItems = await database.notice.count(isAdmin(user) ? undefined : whereDefaultOptions);
+
+    devLog.debug({ notices, totalItems });
 
     return {
       statusCode: 200,
