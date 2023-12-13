@@ -28,7 +28,7 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import { deleteNotice } from '../../services/NoticeDeleteService';
 
 export const Notices = () => {
-  const [notices, setNotices] = useState<any[]>([]);
+  const [notices, setNotices] = useState<Notice[]>([]);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
   const [success, setSuccess] = useState(false);
