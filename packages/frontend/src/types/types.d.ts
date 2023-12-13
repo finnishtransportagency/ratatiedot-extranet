@@ -182,6 +182,7 @@ interface Notice {
   publishTimeStart: Date;
   publishTimeEnd: Date | null;
   showAsBanner: boolean;
+  state: string;
 }
 
 interface Activity {
