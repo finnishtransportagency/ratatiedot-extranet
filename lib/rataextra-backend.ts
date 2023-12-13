@@ -20,6 +20,7 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { RatatietoNodeBackendConstruct } from './rataextra-node-backend';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -38,6 +39,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly mockUid?: string;
   readonly alfrescoSitePath: string;
   readonly serviceUserUid?: string;
+  readonly imageBucket: Bucket;
 }
 
 type ListenerTargetLambdas = {
@@ -93,6 +95,7 @@ export class RataExtraBackendStack extends NestedStack {
       mockUid,
       alfrescoSitePath,
       serviceUserUid,
+      imageBucket,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -374,6 +377,8 @@ export class RataExtraBackendStack extends NestedStack {
         RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
       },
     });
+
+    imageBucket.grantReadWrite(uploadImage);
 
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {
