@@ -115,7 +115,7 @@ export const Notices = () => {
                   key={node.id}
                   href={`${Routes.NOTICES}/${node.id}/${format(new Date(node.createdTime), URIFriendlyDateFormat)}`}
                 >
-                  <ListItemText secondary={format(new Date(node.createdTime), DateFormat)} primary={node.title} />
+                  <ListItemText secondary={format(new Date(node.publishTimeStart), DateFormat)} primary={node.title} />
                   {(() => {
                     switch (node.state) {
                       case 'scheduled':
