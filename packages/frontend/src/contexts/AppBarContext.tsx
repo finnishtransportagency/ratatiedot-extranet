@@ -19,11 +19,12 @@ export const AppBarContext = React.createContext({
   openToolbarHandler: () => {},
   closeToolbarHandler: () => {},
   closeToolbarWithoutSaveHandler: () => {},
-  userRight: { canRead: false, canWrite: false },
+  userRight: { canRead: false, canWrite: false, isAdmin: false },
   userRightHandler: (_: TUserRight) => {},
+  closeEdit: () => {},
 });
 
-export type TUserRight = { canRead: boolean; canWrite: boolean };
+export type TUserRight = { canRead: boolean; canWrite: boolean; isAdmin: boolean };
 
 export const AppBarContextProvider = (props: any) => {
   const [openMiniDrawer, setOpenMiniDrawer] = useState(false);
@@ -36,7 +37,7 @@ export const AppBarContextProvider = (props: any) => {
   const [openFilter, setOpenFilter] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openToolbar, setOpenToolbar] = useState(false);
-  const [userRight, setUserRight] = useState<TUserRight>({ canRead: false, canWrite: false });
+  const [userRight, setUserRight] = useState<TUserRight>({ canRead: false, canWrite: false, isAdmin: false });
 
   const location = useLocation();
   const categoryName = getCategoryRouteName(location);
@@ -47,7 +48,7 @@ export const AppBarContextProvider = (props: any) => {
     if (data) {
       setUserRight(data);
     } else {
-      userRightHandler({ canRead: false, canWrite: false });
+      userRightHandler({ canRead: false, canWrite: false, isAdmin: false });
       closeEdit();
     }
   }, [data]);
@@ -123,6 +124,7 @@ export const AppBarContextProvider = (props: any) => {
         closeToolbarWithoutSaveHandler: closeToolbarWithoutSaveHandler,
         userRight: userRight,
         userRightHandler: userRightHandler,
+        closeEdit: closeEdit,
       }}
     >
       {props.children}

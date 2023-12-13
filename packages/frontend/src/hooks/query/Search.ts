@@ -2,7 +2,6 @@ import axios from 'axios';
 
 import { SearchParameterName } from '../../components/Search/FilterSearchData';
 import { ExtendedSearchParameterName, TSearchParameterBody } from '../../types/types.d';
-import { getRouterName } from '../../utils/helpers';
 import { Filter, Sort } from '../../components/Search/filterStore';
 
 const getSearchBody = ({

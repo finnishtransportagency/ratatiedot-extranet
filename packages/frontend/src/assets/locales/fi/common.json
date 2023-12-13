@@ -130,7 +130,8 @@
     "card": "kortti",
     "card_title": "kortin otsikko",
     "text": "teksti",
-    "file": "tiedosto"
+    "file": "tiedosto",
+    "image": "kuva"
   },
   "colors": {
     "darkblue": "tummansininen",
@@ -185,5 +186,19 @@
   "activityList": {
     "noRecentUpdates": "Ei viimeaikaisia muutoksia",
     "recentUpdates": "Viimeksi muokatut"
+  },
+  "noticeList": {
+    "topical": "Ajankohtaista",
+    "noRecentNotices": "Ei viimeaikaisia tiedotteita",
+    "publishTimeStart": "Julkaisuajankohta",
+    "publishTimeEnd": "Julkaisun poistoaika",
+    "showAsBanner": "Näytä bannerina",
+    "createNewNoticeInfo": "Luo uusi tiedote klikkaamalla 'Muokkaa sisältöä'",
+    "createNewNotice": "Luo uusi tiedote",
+    "deleteNotice": "Poista tiedote",
+    "confirmDeleteNotice": "Haluatko varmasti poistaa tiedotteen?",
+    "deleteNoticeFailed": "Tiedotteen poistaminen epäonnistui",
+    "deleteNoticeSuccess": "Tiedote poistettu",
+    "writeTitle": "Kirjoita otsikko"
   }
 }
