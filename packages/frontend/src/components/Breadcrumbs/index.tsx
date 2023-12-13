@@ -25,7 +25,7 @@ export const CustomBreadcrumbs = () => {
       <BreadcrumbText key={index} routerName={routerName} />
     ) : index === 1 && matchNoticeRoute ? null : (
       <Link underline="hover" key={index} href={breadcrumbPath}>
-        <Typography sx={{ color: Colors.extrablack }}>{routerName}</Typography>
+        <BreadcrumbText routerName={routerName} />
       </Link>
     );
   });
