@@ -16,18 +16,12 @@ export const Banner = () => {
       {banners?.map((banner) => (
         <Alert
           key={banner.id}
-          sx={{ backgroundColor: Colors.darkblue, margin: '16px 32px' }}
+          sx={{ backgroundColor: Colors.darkred, margin: '16px 32px' }}
           severity="info"
           variant="filled"
         >
           <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
             <span>{banner.title}</span>
-            {/*
-                  // TODO: Add link to banner when editor is ready
-                  <a style={{ color: "white", paddingLeft: "10px" }} href='http://google.com/' target="_blank" rel="noopener noreferrer">
-                    <OpenInNewIcon style={{ color: "white", width: "20px" }} color='inherit' />
-                  </a>
-                  */}
           </div>
         </Alert>
       ))}
