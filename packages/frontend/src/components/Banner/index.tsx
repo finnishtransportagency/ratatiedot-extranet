@@ -16,7 +16,7 @@ export const Banner = () => {
       {banners?.map((banner) => (
         <Alert
           key={banner.id}
-          sx={{ backgroundColor: Colors.yellow, margin: '16px 32px' }}
+          sx={{ backgroundColor: Colors.yellow, color: Colors.black, margin: '16px 32px' }}
           severity="info"
           variant="filled"
         >
