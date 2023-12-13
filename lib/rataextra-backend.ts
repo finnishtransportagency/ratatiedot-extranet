@@ -365,6 +365,16 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/get-banners.ts',
     });
 
+    const uploadImage = this.createNodejsLambda({
+      ...genericLambdaParameters,
+      name: 'upload-image',
+      relativePath: '../packages/server/lambdas/s3/upload-image.ts',
+      environment: {
+        ...genericLambdaParameters.environment,
+        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
+      },
+    });
+
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {
       description: 'Schedule a Lambda that populates activities db table every 10 minutes',
@@ -561,6 +571,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/banners'],
         httpRequestMethods: ['GET'],
         targetName: 'getBanners',
+      },
+      {
+        lambda: uploadImage,
+        priority: 260,
+        path: ['/api/images'],
+        httpRequestMethods: ['POST'],
+        targetName: 'uploadImage',
       },
     ];
 
