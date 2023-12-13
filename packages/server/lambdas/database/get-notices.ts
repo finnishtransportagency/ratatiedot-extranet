@@ -22,7 +22,7 @@ const extendNotices = (notices: Notice[]) => {
   const extendedNotices = notices.map((notice) => {
     return {
       ...notice,
-      status: getStatus(notice),
+      state: getStatus(notice),
     };
   });
 
