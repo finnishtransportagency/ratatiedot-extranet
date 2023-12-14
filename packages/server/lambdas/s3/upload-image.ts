@@ -1,8 +1,9 @@
 import AWS from 'aws-sdk';
 import { getUser, validateAdminUser } from '../../utils/userService';
-import { ALBEvent, ALBResult } from 'aws-lambda';
+import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
+import { parseForm } from '../../utils/parser';
 
 const s3 = new AWS.S3();
 const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
@@ -14,21 +15,21 @@ const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
  * @param {{string}} event.body File contents and metadata to upload
  * @returns  {Promise<any>} JSON stringified URL of the image
  */
+
 export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
   try {
-    //const paths = event.path.split('/');
-
     const user = await getUser(event);
     log.info(user, `Uploading image`);
 
-    console.log('EVENT AT LAMBDA: ', event);
-
     validateAdminUser(user);
+
+    const form = await parseForm(event.body as string, event.headers as ALBEventHeaders);
+    console.log('form', form);
 
     const params = {
       Bucket: `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`,
       Key: 'fileName',
-      Body: 'file',
+      Body: 'fileData',
       ACL: 'private',
     };
 
