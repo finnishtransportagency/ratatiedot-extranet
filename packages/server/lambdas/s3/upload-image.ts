@@ -4,6 +4,7 @@ import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { parseForm } from '../../utils/parser';
+import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 
 const s3 = new AWS.S3();
 const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
@@ -23,9 +24,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     validateAdminUser(user);
 
-    const form = await parseForm(event.body as string, event.headers as ALBEventHeaders);
-    console.log('form', form);
+    const body = event.body ?? '';
+    let buffer;
+    if (event.isBase64Encoded) {
+      buffer = base64ToBuffer(event.body as string);
+    }
 
+    const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
+
+    console.log('formData: ', formData);
     const params = {
       Bucket: `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`,
       Key: 'fileName',
