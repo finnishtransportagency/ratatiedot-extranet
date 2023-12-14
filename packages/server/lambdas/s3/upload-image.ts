@@ -5,7 +5,9 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { parseForm } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
-
+import { FileInfo } from 'busboy';
+import path from 'path';
+import { randomUUID } from 'crypto';
 const s3 = new AWS.S3();
 const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
 
@@ -31,19 +33,23 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     }
 
     const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
+    const fileData: Buffer = formData.filedata as Buffer;
+    const fileInfo = formData.fileinfo as FileInfo;
 
-    console.log('formData: ', formData);
+    const fileExtension = path.extname(fileInfo.filename);
+    const sanitizedFilename = `${randomUUID()}${fileExtension}`;
+
     const params = {
       Bucket: `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`,
-      Key: 'fileName',
-      Body: 'fileData',
+      Key: sanitizedFilename,
+      Body: fileData,
       ACL: 'private',
     };
 
     await s3.upload(params).promise();
     const imageUrl = `https://${RATAEXTRA_STACK_IDENTIFIER}-images.s3.eu-west-1.amazonaws.com/${'fileName'}`;
 
-    auditLog.info(user, `Uploaded image`);
+    auditLog.info(user, `Succesfully uploaded image`);
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
