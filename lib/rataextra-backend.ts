@@ -349,7 +349,7 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'post-notice',
       relativePath: '../packages/server/lambdas/database/post-notice.ts',
       environment: {
-        ...genericLambdaParameters.environment,
+        ...prismaParameters.environment,
         RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
       },
     });
@@ -359,7 +359,7 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'put-notice',
       relativePath: '../packages/server/lambdas/database/put-notice.ts',
       environment: {
-        ...genericLambdaParameters.environment,
+        ...prismaParameters.environment,
         RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
       },
     });
@@ -368,19 +368,19 @@ export class RataExtraBackendStack extends NestedStack {
       ...prismaParameters,
       name: 'delete-notice',
       relativePath: '../packages/server/lambdas/database/delete-notice.ts',
-      environment: {
-        ...genericLambdaParameters.environment,
-        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
-      },
     });
 
     const getBanners = this.createNodejsLambda({
       ...prismaParameters,
       name: 'get-banners',
       relativePath: '../packages/server/lambdas/database/get-banners.ts',
+      environment: {
+        ...prismaParameters.environment,
+        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
+      },
     });
 
-    const uploadImage = this.createNodejsLambda({
+    /*     const uploadImage = this.createNodejsLambda({
       ...genericLambdaParameters,
       name: 'upload-image',
       relativePath: '../packages/server/lambdas/s3/upload-image.ts',
@@ -388,7 +388,7 @@ export class RataExtraBackendStack extends NestedStack {
         ...genericLambdaParameters.environment,
         RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
       },
-    });
+    }); */
 
     imageBucket.grantReadWrite(postNotice);
     imageBucket.grantReadWrite(putNotice);
@@ -591,13 +591,13 @@ export class RataExtraBackendStack extends NestedStack {
         httpRequestMethods: ['GET'],
         targetName: 'getBanners',
       },
-      {
+      /*       {
         lambda: uploadImage,
         priority: 260,
         path: ['/api/images'],
         httpRequestMethods: ['POST'],
         targetName: 'uploadImage',
-      },
+      }, */
     ];
 
     // ALB for API

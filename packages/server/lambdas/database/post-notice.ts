@@ -1,3 +1,4 @@
+import AWS from 'aws-sdk';
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
@@ -10,7 +11,6 @@ import { randomUUID } from 'crypto';
 import path from 'path';
 import { parseForm } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
-import AWS from 'aws-sdk';
 
 const database = await DatabaseClient.build();
 const s3 = new AWS.S3();
