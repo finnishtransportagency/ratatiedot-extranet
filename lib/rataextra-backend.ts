@@ -348,18 +348,30 @@ export class RataExtraBackendStack extends NestedStack {
       ...prismaParameters,
       name: 'post-notice',
       relativePath: '../packages/server/lambdas/database/post-notice.ts',
+      environment: {
+        ...genericLambdaParameters.environment,
+        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
+      },
     });
 
     const putNotice = this.createNodejsLambda({
       ...prismaParameters,
       name: 'put-notice',
       relativePath: '../packages/server/lambdas/database/put-notice.ts',
+      environment: {
+        ...genericLambdaParameters.environment,
+        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
+      },
     });
 
     const deleteNotice = this.createNodejsLambda({
       ...prismaParameters,
       name: 'delete-notice',
       relativePath: '../packages/server/lambdas/database/delete-notice.ts',
+      environment: {
+        ...genericLambdaParameters.environment,
+        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
+      },
     });
 
     const getBanners = this.createNodejsLambda({
@@ -378,7 +390,9 @@ export class RataExtraBackendStack extends NestedStack {
       },
     });
 
-    imageBucket.grantReadWrite(uploadImage);
+    imageBucket.grantReadWrite(postNotice);
+    imageBucket.grantReadWrite(putNotice);
+    imageBucket.grantReadWrite(deleteNotice);
 
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {

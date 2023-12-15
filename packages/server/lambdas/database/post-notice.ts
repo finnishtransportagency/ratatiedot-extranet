@@ -10,10 +10,10 @@ import { randomUUID } from 'crypto';
 import path from 'path';
 import { parseForm } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
-import { S3 } from 'aws-sdk';
+import AWS from 'aws-sdk';
 
 const database = await DatabaseClient.build();
-const s3 = new S3();
+const s3 = new AWS.S3();
 const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
 
 /**
