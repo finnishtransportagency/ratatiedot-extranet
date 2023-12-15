@@ -1,12 +1,20 @@
-import { ALBEvent, ALBResult } from 'aws-lambda';
+import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
-import { devLog, log } from '../../utils/logger';
+import { log } from '../../utils/logger';
 import { getUser, validateAdminUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 import { Notice, Prisma } from '@prisma/client';
+import { FileInfo } from 'busboy';
+import { randomUUID } from 'crypto';
+import path from 'path';
+import { parseForm } from '../../utils/parser';
+import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
+import { S3 } from 'aws-sdk';
 
 const database = await DatabaseClient.build();
+const s3 = new S3();
+const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
 
 /**
  * Create new notice. Example request: /api/notice
@@ -18,15 +26,51 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     validateAdminUser(user);
 
-    const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: Notice = JSON.parse(event.body as string);
+    const body = event.body ?? '';
+    let buffer;
+    if (event.isBase64Encoded) {
+      buffer = base64ToBuffer(event.body as string);
+    }
+
+    const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
+    const fileData: Buffer = formData.filedata as Buffer;
+    const fileInfo = formData.fileinfo as FileInfo;
+
+    const fileExtension = path.extname(fileInfo.filename);
+    const sanitizedFilename = `${randomUUID()}${fileExtension}`;
+
+    const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: Notice = JSON.parse(
+      formData.notice as string,
+    );
+
+    const params = {
+      Bucket: `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`,
+      Key: sanitizedFilename,
+      Body: fileData,
+      ACL: 'private',
+    };
+
+    await s3.upload(params).promise();
+    const imageUrl = `https://${RATAEXTRA_STACK_IDENTIFIER}-images.s3.eu-west-1.amazonaws.com/${sanitizedFilename}`;
 
     log.info(user, 'Add new notice');
-    devLog.info(content);
+
+    let updatedContent;
+    if (Array.isArray(content)) {
+      updatedContent = content.map((element) => {
+        if (element.type === 'image') {
+          return { ...element, url: imageUrl };
+        }
+        return element;
+      });
+    } else {
+      updatedContent = content;
+    }
 
     const notice = await database.notice.create({
       data: {
         title,
-        content: content,
+        content: updatedContent,
         publishTimeStart,
         publishTimeEnd,
         showAsBanner,
