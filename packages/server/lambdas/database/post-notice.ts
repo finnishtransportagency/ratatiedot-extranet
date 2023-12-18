@@ -1,4 +1,4 @@
-import S3 from 'aws-sdk/clients/s3';
+import AWS from 'aws-sdk';
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
@@ -13,7 +13,7 @@ import { parseForm } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 
 const database = await DatabaseClient.build();
-const s3 = new S3();
+const s3 = new AWS.S3();
 const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
 
 /**
