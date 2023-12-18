@@ -39,9 +39,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const fileExtension = path.extname(fileInfo.filename);
     const sanitizedFilename = `${randomUUID()}${fileExtension}`;
 
+    console.log('formData.notice', formData.notice);
+
     const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: Notice = JSON.parse(
       formData.notice as string,
     );
+
+    console.log(title, content, publishTimeStart, publishTimeEnd, showAsBanner);
 
     const params = {
       Bucket: `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`,
@@ -51,11 +55,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     };
 
     await s3.upload(params).promise();
-    const imageUrl = `https://${RATAEXTRA_STACK_IDENTIFIER}-images.s3.eu-west-1.amazonaws.com/${sanitizedFilename}`;
+    //const imageUrl = `https://${RATAEXTRA_STACK_IDENTIFIER}-images.s3.eu-west-1.amazonaws.com/${sanitizedFilename}`;
 
     log.info(user, 'Add new notice');
 
-    let updatedContent;
+    /* let updatedContent;
     if (Array.isArray(content)) {
       updatedContent = content.map((element) => {
         if (element.type === 'image') {
@@ -65,12 +69,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       });
     } else {
       updatedContent = content;
-    }
+    } */
 
     const notice = await database.notice.create({
       data: {
         title,
-        content: updatedContent,
+        content: content,
         publishTimeStart,
         publishTimeEnd,
         showAsBanner,
