@@ -148,6 +148,7 @@ export class RataExtraBackendStack extends NestedStack {
         SSM_DATABASE_DOMAIN_ID: SSM_DATABASE_DOMAIN,
         SSM_DATABASE_PASSWORD_ID: SSM_DATABASE_PASSWORD,
         DATABASE_URL: '',
+        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
@@ -348,20 +349,12 @@ export class RataExtraBackendStack extends NestedStack {
       ...prismaParameters,
       name: 'post-notice',
       relativePath: '../packages/server/lambdas/database/post-notice.ts',
-      environment: {
-        ...prismaParameters.environment,
-        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
-      },
     });
 
     const putNotice = this.createNodejsLambda({
       ...prismaParameters,
       name: 'put-notice',
       relativePath: '../packages/server/lambdas/database/put-notice.ts',
-      environment: {
-        ...prismaParameters.environment,
-        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
-      },
     });
 
     const deleteNotice = this.createNodejsLambda({
@@ -374,10 +367,6 @@ export class RataExtraBackendStack extends NestedStack {
       ...prismaParameters,
       name: 'get-banners',
       relativePath: '../packages/server/lambdas/database/get-banners.ts',
-      environment: {
-        ...prismaParameters.environment,
-        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
-      },
     });
 
     /*     const uploadImage = this.createNodejsLambda({
