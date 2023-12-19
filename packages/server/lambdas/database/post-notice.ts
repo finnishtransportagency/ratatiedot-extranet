@@ -51,13 +51,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     };
 
     await s3.upload(params).promise();
-    const imageUrl = `https://s3-${RATAEXTRA_STACK_IDENTIFIER}-images.s3.eu-west-1.amazonaws.com/${sanitizedFilename}`;
-
     log.info(user, 'Add new notice');
 
     const imageElement = content.find((element) => element.type === 'image');
     if (imageElement) {
-      imageElement.url = imageUrl;
+      imageElement.url = sanitizedFilename;
     }
 
     const notice = await database.notice.create({
