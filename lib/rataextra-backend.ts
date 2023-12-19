@@ -40,6 +40,8 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly alfrescoSitePath: string;
   readonly serviceUserUid?: string;
   readonly imageBucket: Bucket;
+  readonly cloudfrontSignerPublicKeyId: string;
+  readonly cloudfrontSignerPrivateKey: string;
 }
 
 type ListenerTargetLambdas = {
@@ -96,6 +98,8 @@ export class RataExtraBackendStack extends NestedStack {
       alfrescoSitePath,
       serviceUserUid,
       imageBucket,
+      cloudfrontSignerPublicKeyId,
+      cloudfrontSignerPrivateKey,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -136,6 +140,9 @@ export class RataExtraBackendStack extends NestedStack {
         LOG_LEVEL: isFeatOrLocalStack(rataExtraEnv) ? 'debug' : 'info',
         MOCK_UID: mockUid || '',
         SERVICE_USER_UID: serviceUserUid || '',
+        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier,
+        cloudfrontSignerPublicKeyId,
+        cloudfrontSignerPrivateKey,
       },
       initialPolicy: [],
     };
@@ -148,7 +155,6 @@ export class RataExtraBackendStack extends NestedStack {
         SSM_DATABASE_DOMAIN_ID: SSM_DATABASE_DOMAIN,
         SSM_DATABASE_PASSWORD_ID: SSM_DATABASE_PASSWORD,
         DATABASE_URL: '',
-        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier || '',
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],

@@ -35,6 +35,7 @@ export class RataExtraStack extends Stack {
       alfrescoSitePath,
       serviceUserUid,
       cloudfrontSignerPublicKeyId,
+      cloudfrontSignerPrivateKey,
     } = getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
@@ -87,6 +88,8 @@ export class RataExtraStack extends Stack {
       alfrescoSitePath: alfrescoSitePath,
       serviceUserUid: serviceUserUid,
       imageBucket: imageBucket,
+      cloudfrontSignerPublicKeyId: cloudfrontSignerPublicKeyId,
+      cloudfrontSignerPrivateKey: cloudfrontSignerPrivateKey,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
 
