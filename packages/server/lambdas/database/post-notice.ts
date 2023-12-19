@@ -51,7 +51,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     };
 
     await s3.upload(params).promise();
-    const imageUrl = `https://${RATAEXTRA_STACK_IDENTIFIER}-images.s3.eu-west-1.amazonaws.com/${sanitizedFilename}`;
+    const imageUrl = `https://s3-${RATAEXTRA_STACK_IDENTIFIER}-images.s3.eu-west-1.amazonaws.com/${sanitizedFilename}`;
 
     log.info(user, 'Add new notice');
 
