@@ -5,11 +5,14 @@ import { RataExtraLambdaError, getRataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { getUser, validateAdminUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
+import { SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY } from '../../../../lib/config';
+import { getSecuredStringParameter } from '../../utils/parameterStore';
 
 const database = await DatabaseClient.build();
-const keyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
-const privateKey = process.env.SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY || '';
-const cloudfront = new AWS.CloudFront.Signer(keyPairId, privateKey);
+const cfKeyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
+const cfPrivateKey = await getSecuredStringParameter(SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY);
+
+const cloudfront = new AWS.CloudFront.Signer(cfKeyPairId, cfPrivateKey);
 
 /**
  * Get single notice by id. Example request: /api/notice/:id

@@ -41,7 +41,6 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly serviceUserUid?: string;
   readonly imageBucket: Bucket;
   readonly cloudfrontSignerPublicKeyId: string;
-  readonly cloudfrontSignerPrivateKey: string;
 }
 
 type ListenerTargetLambdas = {
@@ -99,7 +98,6 @@ export class RataExtraBackendStack extends NestedStack {
       serviceUserUid,
       imageBucket,
       cloudfrontSignerPublicKeyId,
-      cloudfrontSignerPrivateKey,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -142,7 +140,6 @@ export class RataExtraBackendStack extends NestedStack {
         SERVICE_USER_UID: serviceUserUid || '',
         RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier,
         cloudfrontSignerPublicKeyId,
-        cloudfrontSignerPrivateKey,
       },
       initialPolicy: [],
     };
