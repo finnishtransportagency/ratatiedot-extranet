@@ -1,6 +1,7 @@
 import { Construct } from 'constructs';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { getEnvOrFail } from '../utils';
+import { getSecuredStringParameter } from '../packages/server/utils/parameterStore';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
 // Returns token that resolves during deployment to SSM parameter value
@@ -75,7 +76,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   sonarQubeUrl: getSSMStringParameter(scope, SSM_SONARQUBE_URL),
   serviceUserUid: getSSMStringParameter(scope, SSM_SERVICE_USER_UID),
   cloudfrontSignerPublicKeyId: getSSMStringParameter(scope, SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY_ID),
-  cloudfrontSignerPrivateKey: getSSMStringParameter(scope, SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY),
+  cloudfrontSignerPrivateKey: getSecuredStringParameter(SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY),
 });
 
 // Runtime variables from SSM/Parameter Store
