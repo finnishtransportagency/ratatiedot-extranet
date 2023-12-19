@@ -9,6 +9,7 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
   ESM_REQUIRE_SHIM,
+  SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -109,6 +110,11 @@ export class RataExtraBackendStack extends NestedStack {
         `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_NAME}`,
         `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_PASSWORD}`,
       ],
+    });
+
+    const ssmCFKeyPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter'],
+      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY}`],
     });
 
     const ssmAlfrescoParameterPolicy = new PolicyStatement({
@@ -347,6 +353,8 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'get-notice',
       relativePath: '../packages/server/lambdas/database/get-notice.ts',
     });
+
+    getNotice.addToRolePolicy(ssmCFKeyPolicy);
 
     const postNotice = this.createNodejsLambda({
       ...prismaParameters,
