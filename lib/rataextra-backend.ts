@@ -3,7 +3,13 @@ import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
 import { Role, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
 import { Construct } from 'constructs';
-import { RataExtraEnvironment, SSM_DATABASE_DOMAIN, SSM_DATABASE_NAME, SSM_DATABASE_PASSWORD } from './config';
+import {
+  RataExtraEnvironment,
+  SSM_DATABASE_DOMAIN,
+  SSM_DATABASE_NAME,
+  SSM_DATABASE_PASSWORD,
+  ESM_REQUIRE_SHIM,
+} from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
@@ -148,6 +154,7 @@ export class RataExtraBackendStack extends NestedStack {
         esbuildArgs: {
           '--conditions': 'module',
         },
+        banner: ESM_REQUIRE_SHIM, // Workaround for ESM problem. https://github.com/evanw/esbuild/pull/2067#issuecomment-1073039746
         commandHooks: {
           beforeInstall(inputDir: string, outputDir: string) {
             return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];

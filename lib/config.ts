@@ -46,6 +46,10 @@ const SSM_SONARQUBE_TOKEN = 'rataextra-sonarqube-token';
 const SSM_SERVICE_USER_UID = 'rataextra-service-user';
 const SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY_ID = 'rataextra-cloudfront-signer-public-key-id';
 
+// Minified JS code that is used to make ES modules working
+// Also handles __dirname & import.meta.url
+export const ESM_REQUIRE_SHIM = `await(async()=>{let{dirname:e}=await import("path"),{fileURLToPath:i}=await import("url");if(typeof globalThis.__filename>"u"&&(globalThis.__filename=i(import.meta.url)),typeof globalThis.__dirname>"u"&&(globalThis.__dirname=e(globalThis.__filename)),typeof globalThis.require>"u"){let{default:a}=await import("module");globalThis.require=a.createRequire(import.meta.url)}})();`;
+
 function getStackId(branch: string): string {
   const stackId = getEnvOrFail('STACK_ID');
   if (branch === PRODUCTION_BRANCH && stackId !== PRODUCTION_STACK_ID) {
