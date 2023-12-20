@@ -4,7 +4,7 @@ import { FileSizeUnit, LocaleLang, LocaleUnit } from '../constants/Units';
 import categoryData from '../assets/data/FinnishCategories.json';
 import { MainCategoryData, SubCategoryData } from '../types/types';
 import { capitalize } from 'lodash';
-import { devAreas, prodAreas } from './categories';
+import { devAreas, prodAreas, prodCategories, devCategories } from './categories';
 
 const { VITE_BUILD_ENVIRONMENT } = import.meta.env;
 
@@ -158,4 +158,11 @@ export const areas = () => {
     return prodAreas;
   }
   return devAreas;
+};
+
+export const categories = () => {
+  if (VITE_BUILD_ENVIRONMENT === 'prod') {
+    return prodCategories;
+  }
+  return devCategories;
 };
