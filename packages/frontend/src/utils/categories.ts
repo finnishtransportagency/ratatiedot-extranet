@@ -10,7 +10,140 @@ export interface Area {
   collection: Collection[];
 }
 
-export const categories = [
+export const prodCategories = [
+  {
+    id: '5efd3f7d-9630-4d0d-877a-51f16bc9518a',
+    name: 'Reittikirjatiedot',
+    alfrescoId: '846eb15f-17dc-4f58-982e-b957d8b5ad38',
+  },
+  {
+    id: '91394bd7-8882-4111-adda-ef9d38109b5b',
+    name: 'Rautatietunneleiden pelastussuunnitelmat',
+    alfrescoId: '8688b89a-7898-4a38-b582-c6338a8547b5',
+  },
+  {
+    id: '88cd7dfc-13aa-45d7-b4d2-a094f5449f81',
+    name: 'Ryhmityskaaviot',
+    alfrescoId: '2526730d-16fa-4132-88ef-a3a2da5d16a5',
+  },
+  {
+    id: 'a8323a3a-8eff-49c1-98de-6a9daaaa4d7f',
+    name: 'Kaluston valvontalaitteet',
+    alfrescoId: '15d7d17c-2ef5-4208-838b-27fda7f5a293',
+  },
+  {
+    id: '150ac733-a87a-4328-829e-74e545b789e0',
+    name: 'Rataomaisuusnumerot',
+    alfrescoId: '4962b813-9756-4efe-bbf6-b4c488c43e80',
+  },
+  {
+    id: 'fa4f795b-2c47-4148-858d-36ac1408f6b0',
+    name: 'Ratatietokartat',
+    alfrescoId: '846eb15f-17dc-4f58-982e-b957d8b5ad38',
+  },
+  {
+    id: '52b70668-e245-483e-98ea-b19e31d8c2f4',
+    name: 'Raiteistokaaviot',
+    alfrescoId: '21f89c16-604e-46c9-b833-eb4d4e3265b0',
+  },
+  {
+    id: 'da3f5704-417b-4e54-b727-8fd10fe9407a',
+    name: 'Liikennepaikkojen yhteystiedot',
+    alfrescoId: '6e75d480-bf0c-4b05-b088-125d26cfee30',
+  },
+  {
+    id: '09e5e6dc-4486-4d86-9594-fdd74668b558',
+    name: 'Turvalaitteiden käyttöohjeet',
+    alfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
+  },
+  {
+    id: '3f7c47f7-de6a-4796-a1fe-43306f30bec1',
+    name: 'RINF-rekisteri (ERADIS-tunnus)',
+    alfrescoId: '24ff15ac-c1ac-404f-b5bc-6c32e2aa2543',
+  },
+  {
+    id: 'e327c52e-62a0-447e-9194-992674950205',
+    name: 'Tunnelitiedot',
+    alfrescoId: '2eb0bd96-14db-4a58-aeac-cce1188f7977',
+  },
+  {
+    id: 'eec096be-0c67-4a7d-8393-a604e925b504',
+    name: 'Rautatieliikennepaikkojen kehitystarpeet',
+    alfrescoId: 'aa3a1432-93a7-4e31-adec-18c63df6d83b',
+  },
+  {
+    id: 'fa90b7de-987d-44e0-a3b6-e689ede3076d',
+    name: 'Linjakaaviot',
+    alfrescoId: '2a668dba-7b3f-47f2-82f0-ccada03e9779',
+  },
+  {
+    id: 'bf77ba91-a705-40e0-944e-42a5df8ef635',
+    name: 'Ratakuvapalvelu',
+    alfrescoId: '470d39ac-b7bc-4fef-b1fc-7750376742e9',
+  },
+  {
+    id: '5d414668-620e-4ed2-a82a-c988870873e6',
+    name: 'Liikenteenohjauksen yhteystiedot',
+    alfrescoId: '41e1ec44-e1da-4eb3-9158-e53fb97d47d3',
+  },
+  {
+    id: '2adf5f7e-6709-433d-b6fb-5d07c5769647',
+    name: 'Paikantamismerkit risteysasemilla',
+    alfrescoId: '3be59326-4794-4681-b4ce-32507905182c',
+  },
+  {
+    id: 'ee602793-a7ac-4000-96ea-c2f2098c471c',
+    name: 'Nopeuskaaviot',
+    alfrescoId: '4f892a64-f6cf-4991-9bf1-8655d4880ed6',
+  },
+  {
+    id: '24272d94-482f-48d5-a72b-148f0e0cab0f',
+    name: 'Hallintaraportit',
+    alfrescoId: '9fbcde01-1527-46cd-bcba-3781480f8492',
+  },
+  {
+    id: '29189099-1cf6-4426-b0ff-280be231728f',
+    name: 'Piirustusarkisto',
+    alfrescoId: '5b6ba50c-3669-4c29-b043-dbc28e886f66',
+  },
+  {
+    id: '0550d314-270d-4fd7-aa78-8832d6ca7d0d',
+    name: 'Liikennepaikkapäätökset',
+    alfrescoId: 'ae7c082b-da5b-4e86-91d0-867e9f736b2e',
+  },
+  {
+    id: '84f760d1-590f-4780-ab63-0b21d430cb3e',
+    name: 'Turvalaitteiden huolto-ohjeet',
+    alfrescoId: '01c8c293-02c9-419f-9709-c7d03eccc2d1',
+  },
+  {
+    id: '681ff19d-6a90-4eba-9086-f6dceca6ebdc',
+    name: 'Siltatarkastukset',
+    alfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
+  },
+  {
+    id: 'a3aef157-9376-4145-a554-94c87f53a243',
+    name: 'VAK-ratapihat',
+    alfrescoId: '2e33a089-70cd-4f05-abb7-3390939e85f1',
+  },
+  {
+    id: '58648982-57db-4e06-9fb3-d58402db76e8',
+    name: 'Siltojen kiskotus- ja kunnossapito-ohjeet',
+    alfrescoId: '3a4fc1a6-f392-44c9-b196-213bea0450eb',
+  },
+  {
+    id: '2da86168-eed3-4429-93b6-78415515cf49',
+    name: 'Pienimuotoisen kuljettajatoiminnan aluerajaukset',
+    alfrescoId: '69b4145c-1a3e-499c-9213-083651a0a19f',
+  },
+  {
+    id: '2da86168-eed3-4429-93b6-78415515cf49',
+    name: 'Ratatietojen luokittelu',
+    alfrescoId: '69b4145c-1a3e-499c-9213-083651a0a19f',
+  },
+];
+
+export const devCategories = [
   {
     id: '0e86d6ca-7300-4833-aab5-2b1a8d1f326d',
     name: 'Reittikirjatiedot',
@@ -80,6 +213,11 @@ export const categories = [
     id: '8afb5a4a-4452-4b5c-8983-6a24be10a716',
     name: 'Ratakuvapalvelu',
     alfrescoId: 'f6104f66-ed4d-4ccb-9ae4-6a3336400c8a',
+  },
+  {
+    id: '04834242-68aa-4404-8e4c-5c7aa363defe',
+    name: 'Ratatietojen luokittelu',
+    alfrescoId: 'b66ae651-7cf1-4bf7-be74-c4896d5cf3d2',
   },
   {
     id: '8c7e69bc-1d46-4cc6-844a-0f42b25a17b2',
