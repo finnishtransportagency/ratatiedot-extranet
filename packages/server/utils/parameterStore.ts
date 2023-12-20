@@ -1,8 +1,7 @@
-// TODO: Figure out how to use import for this in a way that actually works
-const AWS = require('aws-sdk'); //eslint-disable-line @typescript-eslint/no-var-requires
+import { SSM } from 'aws-sdk';
 import { log } from './logger';
 
-const ssm = new AWS.SSM({ region: process.env.region || 'eu-west-1' });
+const ssm = new SSM({ region: process.env.region || 'eu-west-1' });
 
 export const getSecuredStringParameter = async (name: string) => {
   try {

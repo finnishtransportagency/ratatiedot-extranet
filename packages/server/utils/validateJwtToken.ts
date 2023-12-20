@@ -1,8 +1,7 @@
 import JWT, { JwtPayload } from 'jsonwebtoken';
 import Axios from 'axios';
 import { log } from './logger';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const jwkToPem = require('jwk-to-pem');
+import jwkToPem from 'jwk-to-pem';
 
 let cachedKeys: Record<string, string>;
 
