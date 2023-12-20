@@ -1,7 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
-import { devLog, log } from '../../utils/logger';
+import { log } from '../../utils/logger';
 import { getUser, validateAdminUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 import { Notice, Prisma } from '@prisma/client';
@@ -22,7 +22,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: Notice = JSON.parse(event.body as string);
 
     log.info(user, 'Update notice by id ' + id);
-    devLog.info(content);
 
     const notice = await database.notice.update({
       where: {
