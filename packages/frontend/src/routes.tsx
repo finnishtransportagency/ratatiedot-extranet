@@ -41,7 +41,6 @@ import { LoginAndPermissionsInstructions } from './pages/Instructions/LoginAndPe
 import { EditToolInstructions } from './pages/Instructions/EditTool';
 import { ProtectedStaticPage } from './pages/ProtectedPage/ProtectedStaticPage';
 import { Notices } from './pages/Notices';
-import { EditNotice } from './pages/Notices/EditNotice';
 import { SingleNotice } from './pages/Notices/SingleNotice';
 import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
