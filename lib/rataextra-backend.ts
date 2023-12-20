@@ -145,7 +145,7 @@ export class RataExtraBackendStack extends NestedStack {
         MOCK_UID: mockUid || '',
         SERVICE_USER_UID: serviceUserUid || '',
         RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier,
-        cloudfrontSignerPublicKeyId,
+        CLOUDFRONT_SIGNER_PUBLIC_KEY_ID: cloudfrontSignerPublicKeyId,
       },
       initialPolicy: [],
     };
