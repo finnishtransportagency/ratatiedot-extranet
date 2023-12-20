@@ -14,6 +14,8 @@ const cfPrivateKey = await getSecuredStringParameter(SSM_CLOUDFRONT_SIGNER_PRIVA
 
 const cloudfront = new AWS.CloudFront.Signer(cfKeyPairId, cfPrivateKey);
 
+console.log('keypairid', cfKeyPairId);
+
 /**
  * Get single notice by id. Example request: /api/notice/:id
  * @param {ALBEvent} event
