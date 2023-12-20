@@ -24,7 +24,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 import { Sort, useFiltersStore } from './filterStore';
-import { Area, categories } from '../../utils/categories';
+import { Area } from '../../utils/categories';
 import { Category } from './FilterSearchData';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Colors } from '../../constants/Colors';
@@ -32,7 +32,7 @@ import { ButtonWrapper } from '../../styles/common';
 import { useTranslation } from 'react-i18next';
 import { FileFormats, SortDataType } from '../../constants/Data';
 import { AppBarContext } from '../../contexts/AppBarContext';
-import { areas } from '../../utils/helpers';
+import { areas, categories } from '../../utils/helpers';
 
 interface CategoryFilterProps {
   title: string;
@@ -325,7 +325,7 @@ export const FilterSearch = (props: FilterSearchProps) => {
             />
           </LocalizationProvider>
         </ListItem>
-        <CategoryFilter title="AINEISTOLUOKKA" categories={categories} />
+        <CategoryFilter title="AINEISTOLUOKKA" categories={categories()} />
         <AreaFilter />
         <MimeFilter />
       </Box>

@@ -55,7 +55,8 @@
       "MONITORING_EQUIPMENT": "Kaluston valvontalaitteet",
       "REGIONAL_LIMITATIONS_DRIVER_ACTIVITY": "Pienimuotoisen kuljettajatoiminnan aluerajaukset",
       "PLANNING_ARCHIVE": "Piirustusarkisto",
-      "RAILWAY_MONITORING_SERVICE": "Ratakuvapalvelu"
+      "RAILWAY_MONITORING_SERVICE": "Ratakuvapalvelu",
+      "RAILWAY_CATEGORY": "Ratatietojen luokittelu"
     }
   },
   {
