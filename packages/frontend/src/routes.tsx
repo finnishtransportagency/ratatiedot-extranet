@@ -44,6 +44,7 @@ import { Notices } from './pages/Notices';
 import { SingleNotice } from './pages/Notices/SingleNotice';
 import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
+import { RailwayCategory } from './pages/Others/RailwayCategory';
 
 /**
  * Return router name based on page title's name
@@ -181,6 +182,7 @@ const OTHERS_ROUTES = [
   ...getProtectedRoute(Routes.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY, <DriverActivity />),
   ...getProtectedRoute(Routes.PLANNING_ARCHIVE, <PlanningArchive />),
   ...getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
+  ...getProtectedRoute(Routes.RAILWAY_CATEGORY, <RailwayCategory />),
 ];
 
 const INSTRUCTIONS_ROUTES = [
