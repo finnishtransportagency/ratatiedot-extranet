@@ -33,10 +33,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
     const fileData: Buffer = formData.filedata as Buffer;
-    const fileInfo = formData.fileinfo as FileInfo;
 
-    const fileExtension = path.extname(fileInfo.filename);
-    const sanitizedFilename = `images/${randomUUID()}${fileExtension}`;
+    let sanitizedFilename = '';
+    if (formData.fileinfo) {
+      const fileInfo = formData.fileinfo as FileInfo;
+      const fileExtension = path.extname(fileInfo.filename);
+      sanitizedFilename = `images/${randomUUID()}${fileExtension}`;
+    }
 
     const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: Notice = JSON.parse(
       formData.notice as string,
