@@ -41,7 +41,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         url: `https://dawlcrdphn1az.cloudfront.net/images/${imageElement.url}`,
         expires: Math.floor(Date.now() / 1000 + 60),
       });
-      imageElement.url = signedUrl;
+      imageElement.signedUrl = signedUrl;
     }
 
     if ((notice?.publishTimeStart as Date) > new Date()) {

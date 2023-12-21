@@ -1,4 +1,3 @@
-const AWS = require('aws-sdk'); //eslint-disable-line @typescript-eslint/no-var-requires
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
@@ -11,9 +10,9 @@ import { randomUUID } from 'crypto';
 import path from 'path';
 import { parseForm } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
+import { uploadToS3 } from '../../utils/s3utils';
 
 const database = await DatabaseClient.build();
-const s3 = new AWS.S3();
 const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
 
 /**
@@ -37,27 +36,23 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const fileInfo = formData.fileinfo as FileInfo;
 
     const fileExtension = path.extname(fileInfo.filename);
-    const sanitizedFilename = `${randomUUID()}${fileExtension}`;
+    const sanitizedFilename = `images/${randomUUID()}${fileExtension}`;
 
     const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: Notice = JSON.parse(
       formData.notice as string,
     );
 
-    const params = {
-      Bucket: `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`,
-      Key: sanitizedFilename,
-      Body: fileData,
-      ACL: 'private',
-    };
+    if (fileData) {
+      const bucket = `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`;
+      await uploadToS3(bucket, sanitizedFilename, fileData);
 
-    await s3.upload(params).promise();
-    log.info(user, 'Add new notice');
-
-    const imageElement = content.find((element) => element.type === 'image');
-    if (imageElement) {
-      imageElement.url = sanitizedFilename;
+      const imageElement = content.find((element) => element.type === 'image');
+      if (imageElement) {
+        imageElement.url = sanitizedFilename;
+      }
     }
 
+    log.info(user, 'Add new notice');
     const notice = await database.notice.create({
       data: {
         title,
