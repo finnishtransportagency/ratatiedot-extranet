@@ -1,31 +1,54 @@
 import { Node, Editor, Element, Transforms, Path, Range } from 'slate';
-import { ReactEditor } from 'slate-react';
+import { ReactEditor, useSlateStatic } from 'slate-react';
 
 import { ContactEditorCard } from '../components/Editor/Cards/ContactEditorCard';
 import { NotificationEditorCard } from '../components/Editor/Cards/NotificationEditorCard';
 import { LinkPopup } from '../components/Editor/Popup/LinkPopup';
 import { HighlightedTitle } from '../components/Typography/HighlightedTitle';
-import { TSlateNode } from '../contexts/EditorContext';
-import { createContactCardNode, createLinkNode, createNotificationNode, createParagraphNode } from './createSlateNode';
+import { EditorContext, TSlateNode } from '../contexts/EditorContext';
+import {
+  createContactCardNode,
+  createImageNode,
+  createLinkNode,
+  createNotificationNode,
+  createParagraphNode,
+} from './createSlateNode';
 
 import {
   ElementType,
   FontFormatType,
   ICardElement,
   IHeadingElement,
+  IImageElement,
   ILinkElement,
   IListElement,
   INotificationElement,
   IParagraphElement,
 } from './types';
+import { IconButton } from '@mui/material';
+import { DeleteOutline } from '@mui/icons-material';
+import { useContext } from 'react';
+import { AppBarContext } from '../contexts/AppBarContext';
 
 export type SlateElementProps = {
   attributes: any;
   children: any;
-  element: IParagraphElement | IHeadingElement | IListElement | ILinkElement | INotificationElement | ICardElement;
+  element:
+    | IParagraphElement
+    | IHeadingElement
+    | IListElement
+    | ILinkElement
+    | INotificationElement
+    | ICardElement
+    | IImageElement;
 };
 
 export const SlateElement = ({ attributes, children, element }: SlateElementProps) => {
+  const editor = useSlateStatic() as ReactEditor;
+  const path = ReactEditor.findPath(editor, element as any);
+  const { openToolbar } = useContext(AppBarContext);
+  const { selectedImage } = useContext(EditorContext);
+
   switch (element.type) {
     case ElementType.NOTIFICATION_INFO:
     case ElementType.NOTIFICATION_WARNING:
@@ -61,6 +84,34 @@ export const SlateElement = ({ attributes, children, element }: SlateElementProp
         <p {...attributes} style={{ fontSize: '18px' }}>
           {children}
         </p>
+      );
+    case ElementType.IMAGE:
+      return (
+        <div {...attributes} style={{ position: 'relative' }}>
+          {openToolbar && (
+            <IconButton
+              sx={{
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                zIndex: '1',
+                background: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                margin: '6px',
+                '&:hover': { background: '#c3c3c3' },
+              }}
+              onClick={() => Transforms.removeNodes(editor, { at: path })}
+            >
+              <DeleteOutline fontSize="small" color="error" />
+            </IconButton>
+          )}
+          <img
+            src={selectedImage ? element.url : element.signedUrl}
+            alt={element.alt}
+            style={{ display: 'block', maxWidth: '100%', maxHeight: '20em' }}
+          />
+        </div>
       );
     case ElementType.PARAGRAPH_TWO:
     default:
@@ -246,6 +297,21 @@ export const deleteEditor = (editor: any) => {
       focus: Editor.end(editor, []),
     },
   });
+};
+
+export const insertImage = (editor: any, format: ElementType, url: string) => {
+  const isImage = format === ElementType.IMAGE;
+  if (!format || !isImage) return;
+
+  Transforms.select(editor, Editor.end(editor, []));
+  ReactEditor.focus(editor);
+
+  Transforms.unwrapNodes(editor, {
+    match: (n: Node) => (n as any).type === ElementType.IMAGE,
+    split: true,
+  });
+  const image = createImageNode(url);
+  Transforms.insertNodes(editor, image, { at: [editor.children.length - 1] });
 };
 
 export const isSlateValueEmpty = (value: TSlateNode[]): boolean => {
