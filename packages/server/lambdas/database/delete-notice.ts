@@ -4,8 +4,10 @@ import { RataExtraLambdaError, getRataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { getUser, validateAdminUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
+import { deleteFromS3 } from '../../utils/s3utils';
 
 const database = await DatabaseClient.build();
+const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
 
 /**
  * Delete notice by id. Example request: /api/notice/:id
@@ -26,6 +28,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateAdminUser(user);
 
     const notice = await database.notice.delete({ where: { id: noticeId } });
+
+    const bucket = `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`;
+    const imageElement = notice.content.find((element) => element.type === 'image');
+
+    if (imageElement) {
+      await deleteFromS3(bucket, imageElement.url);
+    }
 
     return {
       statusCode: 200,
