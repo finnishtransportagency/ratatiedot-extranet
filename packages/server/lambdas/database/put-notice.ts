@@ -34,16 +34,17 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
     const fileData: Buffer = formData.filedata as Buffer;
-    const fileInfo = formData.fileinfo as FileInfo;
 
-    const fileExtension = path.extname(fileInfo.filename);
-    const sanitizedFilename = `images/${randomUUID()}${fileExtension}`;
+    let sanitizedFilename = '';
+    if (formData.fileinfo) {
+      const fileInfo = formData.fileinfo as FileInfo;
+      const fileExtension = path.extname(fileInfo.filename);
+      sanitizedFilename = `images/${randomUUID()}${fileExtension}`;
+    }
 
     const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: Notice = JSON.parse(
       formData.notice as string,
     );
-
-    const existingNotice = await database.notice.findUnique({ where: { id } });
 
     const imageElement = content.find((element) => element.type === 'image');
 
@@ -53,15 +54,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       await uploadToS3(bucket, sanitizedFilename, fileData);
       if (imageElement) {
         imageElement.url = sanitizedFilename;
-      }
-    }
-
-    // Check if the image is the same as the existing one, if not, upload it to S3
-    if (imageElement) {
-      const existingImageElement = existingNotice.content.find((element) => element.type === 'image');
-      if (existingImageElement && existingImageElement.url !== imageElement.url) {
-        const bucket = `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`;
-        await uploadToS3(bucket, sanitizedFilename, fileData);
       }
     }
 
