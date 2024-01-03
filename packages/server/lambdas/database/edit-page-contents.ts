@@ -1,5 +1,5 @@
 import { CategoryDataBase } from '@prisma/client';
-import { ALBEvent, ALBResult } from 'aws-lambda';
+import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
@@ -9,8 +9,13 @@ import { DatabaseClient } from './client';
 import { Prisma } from '@prisma/client';
 import { isEmpty } from 'lodash';
 import { handlePrismaError, PrismaError } from './error/databaseError';
+import { FileInfo } from 'busboy';
+import { parseForm } from '../../utils/parser';
+import { uploadToS3 } from '../../utils/s3utils';
+import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 
 const database = await DatabaseClient.build();
+const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
@@ -53,8 +58,36 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       baseId: categoryData.id,
     });
 
+    const body = event.body ?? '';
+    let buffer;
+    if (event.isBase64Encoded) {
+      buffer = base64ToBuffer(event.body as string);
+    }
+
+    const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
+    const fileData: Buffer = formData.filedata as Buffer;
+
+    let filename = '';
+    if (formData.fileinfo) {
+      const fileInfo = formData.fileinfo as FileInfo;
+      filename = `images/${fileInfo.filename}`;
+    }
+
+    const pagecontent = formData.pagecontent;
+
+    const imageElement = pagecontent.find((element) => element.type === 'image');
+
+    // If we receive a new image, upload it to S3
+    if (fileData) {
+      const bucket = `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`;
+      await uploadToS3(bucket, filename, fileData);
+      if (imageElement) {
+        imageElement.url = filename;
+      }
+    }
+
     const dataClause = Prisma.validator<Prisma.CategoryDataContentsUpdateInput>()({
-      fields: JSON.parse(event.body),
+      fields: JSON.parse(pagecontent as string),
     });
 
     const updateContent = async () => {

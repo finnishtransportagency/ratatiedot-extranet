@@ -68,6 +68,9 @@ export const parseForm = (buffer: Buffer | string, headers: ALBEventHeaders) => 
       if (fieldname === 'notice') {
         form['notice'] = value;
       }
+      if (fieldname === 'pagecontent') {
+        form['pagecontent'] = value;
+      }
     });
 
     bb.on('finish', () => {
