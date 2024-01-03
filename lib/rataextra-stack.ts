@@ -67,6 +67,7 @@ export class RataExtraStack extends Stack {
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       encryption: BucketEncryption.S3_MANAGED,
       enforceSSL: true,
+      versioned: true,
     });
 
     const backendStack = new RataExtraBackendStack(this, 'stack-backend', {

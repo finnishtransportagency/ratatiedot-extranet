@@ -11,10 +11,7 @@ import { getSecuredStringParameter } from '../../utils/parameterStore';
 const database = await DatabaseClient.build();
 const cfKeyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
 const cfPrivateKey = await getSecuredStringParameter(SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY);
-
 const cloudfront = new AWS.CloudFront.Signer(cfKeyPairId, cfPrivateKey);
-
-console.log('keypairid', cfKeyPairId);
 
 /**
  * Get single notice by id. Example request: /api/notice/:id

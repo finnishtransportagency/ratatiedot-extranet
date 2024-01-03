@@ -6,8 +6,6 @@ import { getUser, validateAdminUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 import { Notice, Prisma } from '@prisma/client';
 import { FileInfo } from 'busboy';
-import { randomUUID } from 'crypto';
-import path from 'path';
 import { parseForm } from '../../utils/parser';
 import { uploadToS3 } from '../../utils/s3utils';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
@@ -35,11 +33,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const formData = await parseForm(buffer ?? body, event.headers as ALBEventHeaders);
     const fileData: Buffer = formData.filedata as Buffer;
 
-    let sanitizedFilename = '';
+    let filename = '';
     if (formData.fileinfo) {
       const fileInfo = formData.fileinfo as FileInfo;
-      const fileExtension = path.extname(fileInfo.filename);
-      sanitizedFilename = `images/${randomUUID()}${fileExtension}`;
+      filename = `images/${fileInfo.filename}`;
     }
 
     const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: Notice = JSON.parse(
@@ -51,9 +48,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // If we receive a new image, upload it to S3
     if (fileData) {
       const bucket = `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`;
-      await uploadToS3(bucket, sanitizedFilename, fileData);
+      await uploadToS3(bucket, filename, fileData);
       if (imageElement) {
-        imageElement.url = sanitizedFilename;
+        imageElement.url = filename;
       }
     }
 
