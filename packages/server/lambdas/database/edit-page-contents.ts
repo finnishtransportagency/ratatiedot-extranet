@@ -73,7 +73,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       filename = `images/${fileInfo.filename}`;
     }
 
-    const pagecontent = formData.pagecontent;
+    const pagecontent = JSON.parse(formData.pagecontent as string);
 
     const imageElement = pagecontent.find((element) => element.type === 'image');
 
