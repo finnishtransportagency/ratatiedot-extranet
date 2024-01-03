@@ -354,7 +354,9 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/get-notice.ts',
     });
 
+    // Add lambdas permissions to access SSM parameters
     getNotice.addToRolePolicy(ssmCFKeyPolicy);
+    dbGetPageContents.addToRolePolicy(ssmCFKeyPolicy);
 
     const postNotice = this.createNodejsLambda({
       ...prismaParameters,
@@ -580,6 +582,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/banners'],
         httpRequestMethods: ['GET'],
         targetName: 'getBanners',
+      },
+      {
+        lambda: populateActivities,
+        priority: 258,
+        path: ['/api/acts'],
+        httpRequestMethods: ['GET'],
+        targetName: 'populateActivities',
       },
     ];
 

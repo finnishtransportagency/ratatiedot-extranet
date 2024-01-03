@@ -36,7 +36,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     if (imageElement) {
       const signedUrl = await cloudfront.getSignedUrl({
         url: `https://dawlcrdphn1az.cloudfront.net/${imageElement.url}`,
-        expires: Math.floor(Date.now() / 1000 + 60),
+        expires: Math.floor(Date.now() / 1000) + 3600,
       });
       imageElement.signedUrl = signedUrl;
     }

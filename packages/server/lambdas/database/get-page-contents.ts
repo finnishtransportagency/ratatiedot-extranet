@@ -1,3 +1,4 @@
+const AWS = require('aws-sdk'); //eslint-disable-line @typescript-eslint/no-var-requires
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
@@ -6,8 +7,13 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
+import { SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY } from '../../../../lib/config';
+import { getSecuredStringParameter } from '../../utils/parameterStore';
 
 const database = await DatabaseClient.build();
+const cfKeyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
+const cfPrivateKey = await getSecuredStringParameter(SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY);
+const cloudfront = new AWS.CloudFront.Signer(cfKeyPairId, cfPrivateKey);
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
 
@@ -40,6 +46,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     const contents = await database.categoryDataContents.findUnique({ where: { baseId: categoryData.id } });
+
+    const imageElement = contents?.fields.find((element) => element.type === 'image');
+    if (imageElement) {
+      const signedUrl = await cloudfront.getSignedUrl({
+        url: `https://dawlcrdphn1az.cloudfront.net/${imageElement.url}`,
+        expires: Math.floor(Date.now() / 1000) + 3600,
+      });
+      imageElement.signedUrl = signedUrl;
+    }
 
     return {
       statusCode: 200,
