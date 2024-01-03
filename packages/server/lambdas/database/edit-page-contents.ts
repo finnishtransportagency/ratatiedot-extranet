@@ -87,7 +87,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     const dataClause = Prisma.validator<Prisma.CategoryDataContentsUpdateInput>()({
-      fields: JSON.parse(pagecontent as string),
+      fields: pagecontent,
     });
 
     const updateContent = async () => {
