@@ -288,6 +288,10 @@ export class RataExtraBackendStack extends NestedStack {
 
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
+      environment: {
+        ...prismaParameters.environment,
+        CLOUDFRONT_DOMAIN_NAME: cloudfrontDomainName || '',
+      },
       name: 'db-get-page-contents',
       relativePath: '../packages/server/lambdas/database/get-page-contents.ts',
     });
@@ -350,6 +354,10 @@ export class RataExtraBackendStack extends NestedStack {
 
     const getNotice = this.createNodejsLambda({
       ...prismaParameters,
+      environment: {
+        ...prismaParameters.environment,
+        CLOUDFRONT_DOMAIN_NAME: cloudfrontDomainName || '',
+      },
       name: 'get-notice',
       relativePath: '../packages/server/lambdas/database/get-notice.ts',
     });

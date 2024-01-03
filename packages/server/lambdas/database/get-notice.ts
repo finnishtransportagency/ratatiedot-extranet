@@ -12,6 +12,7 @@ const database = await DatabaseClient.build();
 const cfKeyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
 const cfPrivateKey = await getSecuredStringParameter(SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY);
 const cloudfront = new AWS.CloudFront.Signer(cfKeyPairId, cfPrivateKey);
+const CLOUDFRONT_DOMAIN_NAME = process.env.CLOUDFRONT_DOMAIN_NAME;
 
 /**
  * Get single notice by id. Example request: /api/notice/:id
@@ -35,7 +36,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const imageElement = notice.content.find((element) => element.type === 'image');
     if (imageElement) {
       const signedUrl = await cloudfront.getSignedUrl({
-        url: `https://dawlcrdphn1az.cloudfront.net/${imageElement.url}`,
+        url: `https://${CLOUDFRONT_DOMAIN_NAME}/${imageElement.url}`,
         expires: Math.floor(Date.now() / 1000) + 3600,
       });
       imageElement.signedUrl = signedUrl;
