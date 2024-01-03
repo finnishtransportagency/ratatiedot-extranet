@@ -19,7 +19,7 @@ import {
   PriceClass,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
-//import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment } from './config';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
@@ -42,8 +42,8 @@ export class RataExtraCloudFrontStack extends NestedStack {
     const {
       rataExtraStackIdentifier,
       dmzApiEndpoint,
-      //cloudfrontCertificateArn,
-      //cloudfrontDomainName,
+      cloudfrontCertificateArn,
+      cloudfrontDomainName,
       frontendBucket,
       imageBucket,
       cloudfrontSignerPublicKeyId,
@@ -76,11 +76,11 @@ export class RataExtraCloudFrontStack extends NestedStack {
       items: [cloudfrontSignerPublicKey],
     });
 
-    /*  const certificate = Certificate.fromCertificateArn(
+    const certificate = Certificate.fromCertificateArn(
       this,
       `certificate-${rataExtraStackIdentifier}`,
       cloudfrontCertificateArn,
-    ); */
+    );
 
     const backendProxyBehavior: BehaviorOptions = {
       origin: new HttpOrigin(dmzApiEndpoint, { readTimeout: Duration.seconds(60) }),
@@ -91,8 +91,8 @@ export class RataExtraCloudFrontStack extends NestedStack {
     };
 
     const cloudfrontDistribution = new Distribution(this, `rataextra-cloudfront`, {
-      //domainNames: [cloudfrontDomainName],
-      //certificate,
+      domainNames: [cloudfrontDomainName],
+      certificate,
       defaultRootObject: 'index.html',
       errorResponses: [
         {
