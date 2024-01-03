@@ -9,6 +9,7 @@ import { insertImage, insertParagraph, openContactCard } from '../../utils/slate
 import { useTranslation } from 'react-i18next';
 import { EditorContext } from '../../contexts/EditorContext';
 import { TypeContainerWrapper } from './NotificationTypes';
+import { toast } from 'react-toastify';
 
 export const ContentTypes = () => {
   const { editor, value, valueHandler, selectedImageHandler } = useContext(EditorContext);
@@ -36,9 +37,13 @@ export const ContentTypes = () => {
   const handleFileInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      selectedImageHandler(file);
-      insertImage(editor, ElementType.IMAGE, URL.createObjectURL(file));
-      event.target.value = '';
+      if (file.size > 1000000) {
+        toast(t('common:file.file_too_large'), { type: 'error' });
+      } else {
+        selectedImageHandler(file);
+        insertImage(editor, ElementType.IMAGE, URL.createObjectURL(file));
+        event.target.value = '';
+      }
     }
   };
 
