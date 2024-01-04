@@ -162,7 +162,7 @@ export class RataExtraBackendStack extends NestedStack {
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
         format: OutputFormat.ESM,
-        target: 'node16',
+        target: 'node18',
         mainFields: ['module', 'main'],
         esbuildArgs: {
           '--conditions': 'module',
@@ -641,7 +641,7 @@ export class RataExtraBackendStack extends NestedStack {
     securityGroups,
     memorySize = 1024,
     timeout = Duration.seconds(30),
-    runtime = Runtime.NODEJS_16_X,
+    runtime = Runtime.NODEJS_18_X,
     logRetention = RetentionDays.SIX_MONTHS,
     handler = 'handleRequest',
     environment = {},

@@ -105,6 +105,7 @@ type SubCategoryData = {
   REGIONAL_LIMITATIONS_DRIVER_ACTIVITY: string;
   PLANNING_ARCHIVE: string;
   RAILWAY_MONITORING_SERVICE: string;
+  RAILWAY_CATEGORY: string;
   SEARCH_AND_FILTERS: string;
   FAVORITES: string;
   LOGIN_AND_PERMISSIONS: string;
@@ -182,6 +183,7 @@ interface Notice {
   publishTimeStart: Date;
   publishTimeEnd: Date | null;
   showAsBanner: boolean;
+  state: string;
 }
 
 interface Activity {

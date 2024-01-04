@@ -41,10 +41,10 @@ import { LoginAndPermissionsInstructions } from './pages/Instructions/LoginAndPe
 import { EditToolInstructions } from './pages/Instructions/EditTool';
 import { ProtectedStaticPage } from './pages/ProtectedPage/ProtectedStaticPage';
 import { Notices } from './pages/Notices';
-import { EditNotice } from './pages/Notices/EditNotice';
 import { SingleNotice } from './pages/Notices/SingleNotice';
 import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
+import { RailwayCategory } from './pages/Others/RailwayCategory';
 
 /**
  * Return router name based on page title's name
@@ -182,6 +182,7 @@ const OTHERS_ROUTES = [
   ...getProtectedRoute(Routes.REGIONAL_LIMITATIONS_DRIVER_ACTIVITY, <DriverActivity />),
   ...getProtectedRoute(Routes.PLANNING_ARCHIVE, <PlanningArchive />),
   ...getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
+  ...getProtectedRoute(Routes.RAILWAY_CATEGORY, <RailwayCategory />),
 ];
 
 const INSTRUCTIONS_ROUTES = [

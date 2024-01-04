@@ -55,16 +55,17 @@
       "MONITORING_EQUIPMENT": "Kaluston valvontalaitteet",
       "REGIONAL_LIMITATIONS_DRIVER_ACTIVITY": "Pienimuotoisen kuljettajatoiminnan aluerajaukset",
       "PLANNING_ARCHIVE": "Piirustusarkisto",
-      "RAILWAY_MONITORING_SERVICE": "Ratakuvapalvelu"
+      "RAILWAY_MONITORING_SERVICE": "Ratakuvapalvelu",
+      "RAILWAY_CATEGORY": "Ratatietojen luokittelu"
     }
   },
   {
     "category": { "INSTRUCTIONS": "Käyttöohjeet" },
     "subCategories": {
       "SEARCH_AND_FILTERS": "Haku ja suodattimet",
-      "FAVORITES": "Suosikit",
       "LOGIN_AND_PERMISSIONS": "Kirjautuminen ja käyttöoikeudet",
-      "EDIT_TOOL": "Muokkaustyökalu"
+      "EDIT_TOOL": "Sisällön hallinta",
+      "FAVORITES": "Suosikit"
     }
   }
 ]

@@ -53,6 +53,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     log.info(user, 'Add new notice');
+
     const notice = await database.notice.create({
       data: {
         title,
