@@ -3,11 +3,15 @@ import L, { Layer } from 'leaflet';
 import styled from '@emotion/styled';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { loadGeoJson, matchAreaIdWithFolderName, polygonStyle } from '../../utils/mapUtil';
+import { findAreaId, loadGeoJson, polygonStyle } from '../../utils/mapUtil';
 import { FinlandMapFeature } from './types';
 import { StaticAreaFolderList } from '../Folders/StaticAreaFolderList';
 
-export const PolylineFinlandMap = () => {
+type PolylineProps = {
+  categoryId: string;
+};
+
+export const PolylineFinlandMap = ({ categoryId }: PolylineProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -34,7 +38,7 @@ export const PolylineFinlandMap = () => {
           style: polygonStyle as L.PathOptions,
           onEachFeature: (feature: FinlandMapFeature, layer: Layer) => {
             layer.on('click', () => {
-              navigate(`${pathname}/${matchAreaIdWithFolderName(feature.properties.kpalue)}`);
+              navigate(`${pathname}/${findAreaId(categoryId, feature.properties.kpalue)}`);
             });
           },
         }).addTo(mapRef.current);
@@ -49,7 +53,7 @@ export const PolylineFinlandMap = () => {
   return (
     <PolylineFinlandMapWrapper>
       <MapContainerWrapper id="map" />
-      <StaticAreaFolderList />
+      <StaticAreaFolderList categoryId={categoryId} />
     </PolylineFinlandMapWrapper>
   );
 };

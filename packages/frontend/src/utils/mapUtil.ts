@@ -2,6 +2,7 @@ import axios from 'axios';
 import { FinlandMapFeature } from '../components/Map/types';
 
 import { Colors } from '../constants/Colors';
+import { areas } from './helpers';
 
 export const loadGeoJson = async (geoJsonPath: string) => {
   try {
@@ -59,68 +60,31 @@ export const polygonStyle = (feature: FinlandMapFeature) => {
   };
 };
 
-export const matchAreaIdWithFolderName = (maintenanceArea: number) => {
-  let folderName = `alue_${maintenanceArea}_`;
-  switch (maintenanceArea) {
-    case 1:
-      folderName += 'uusimaa';
-      break;
-    case 2:
-      folderName += 'lounaisrannikko';
-      break;
-    case 3:
-      folderName += 'riihimaki-seinajoki';
-      break;
-    case 4:
-      folderName += 'rauma-pieksamaki';
-      break;
-    case 5:
-      folderName += 'haapamaen_tahti';
-      break;
-    case 6:
-      folderName += 'savon_rata';
-      break;
-    case 7:
-      folderName += 'karjalan_rata';
-      break;
-    case 8:
-      folderName += 'ylasavo';
-      break;
-    case 9:
-      folderName += 'pohjanmaan_rata';
-      break;
-    case 10:
-      folderName += 'keski-suomi';
-      break;
-    case 11:
-      folderName += 'kainuu-oulu';
-      break;
-    case 12:
-      folderName += 'oulu-lappi';
-      break;
-  }
-  return folderName;
+export const findAreaId = (categoryId: string, areaNumber: number) => {
+  const areaList = areas().find((area: any) => area.area === areaNumber);
+  const areaId = areaList?.collection.find((collection) => collection.parentAlfrescoId === categoryId)?.alfrescoId;
+  return areaId;
 };
 
 export const getReadableAreaTitle = (area: string) => {
   switch (area) {
-    case 'alue_1_uusimaa':
+    case 'alue_01_uusimaa':
       return 'Alue 1 Uusimaa';
-    case 'alue_2_lounaisrannikko':
+    case 'alue_02_lounaisrannikko':
       return 'Alue 2 Lounaisrannikko';
-    case 'alue_3_riihimaki-seinajoki':
+    case 'alue_03_riihimaki-seinajoki':
       return 'Alue 3 Riihimäki-Seinäjoki';
-    case 'alue_4_rauma-pieksamaki':
+    case 'alue_04_rauma-pieksamaki':
       return 'Alue 4 Rauma-Pieksämäki';
-    case 'alue_5_haapamaen_tahti':
+    case 'alue_05_haapamaen_tahti':
       return 'Alue 5 Haapamäen tähti';
-    case 'alue_6_savon_rata':
+    case 'alue_06_savon_rata':
       return 'Alue 6 Savon rata';
-    case 'alue_7_karjalan_rata':
+    case 'alue_07_karjalan_rata':
       return 'Alue 7 Karjalan rata';
-    case 'alue_8_ylasavo':
+    case 'alue_08_ylasavo':
       return 'Alue 8 Yläsavo';
-    case 'alue_9_pohjanmaan_rata':
+    case 'alue_09_pohjanmaan_rata':
       return 'Alue 9 Pohjanmaan rata';
     case 'alue_10_keski-suomi':
       return 'Alue 10 Keski-Suomi';

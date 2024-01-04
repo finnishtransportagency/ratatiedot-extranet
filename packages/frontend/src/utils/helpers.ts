@@ -166,3 +166,7 @@ export const categories = () => {
   }
   return devCategories;
 };
+
+export const getAreaByAlfrescoId = (alfrescoId: string) => {
+  return areas().find((areaObj) => areaObj.collection.find((collection) => collection.alfrescoId === alfrescoId));
+};

@@ -1,10 +1,9 @@
 import styled from '@emotion/styled';
 import { useLocation } from 'react-router-dom';
 import { Colors } from '../../constants/Colors';
-import { matchAreaIdWithFolderName } from '../../utils/mapUtil';
 
 type StaticAreaFolderProps = {
-  areaId: number;
+  areaId: undefined | string;
   title: string;
   color: string;
   isDashed?: boolean;
@@ -16,7 +15,7 @@ export const StaticAreaFolder = ({ color, isDashed, title, areaId }: StaticAreaF
   return (
     <StaticAreaFolderWrapper
       style={{ borderLeft: `8px ${isDashed ? 'dashed' : 'solid'} ${color}` }}
-      href={`${pathname}/${matchAreaIdWithFolderName(areaId)}`}
+      href={`${pathname}/${areaId}`}
     >
       <StaticAreaFolderTitleWrapper>{title}</StaticAreaFolderTitleWrapper>
     </StaticAreaFolderWrapper>
