@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk'); //eslint-disable-line @typescript-eslint/no-var-requires
+import { CloudFront } from 'aws-sdk';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
@@ -13,7 +13,7 @@ import { getSecuredStringParameter } from '../../utils/parameterStore';
 const database = await DatabaseClient.build();
 const cfKeyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
 const cfPrivateKey = await getSecuredStringParameter(SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY);
-const cloudfront = new AWS.CloudFront.Signer(cfKeyPairId, cfPrivateKey);
+const cloudfront = new CloudFront.Signer(cfKeyPairId, cfPrivateKey);
 const CLOUDFRONT_DOMAIN_NAME = process.env.CLOUDFRONT_DOMAIN_NAME;
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
