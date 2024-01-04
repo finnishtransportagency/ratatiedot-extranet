@@ -65,34 +65,3 @@ export const findAreaId = (categoryId: string, areaNumber: number) => {
   const areaId = areaList?.collection.find((collection) => collection.parentAlfrescoId === categoryId)?.alfrescoId;
   return areaId;
 };
-
-export const getReadableAreaTitle = (area: string) => {
-  switch (area) {
-    case 'alue_01_uusimaa':
-      return 'Alue 1 Uusimaa';
-    case 'alue_02_lounaisrannikko':
-      return 'Alue 2 Lounaisrannikko';
-    case 'alue_03_riihimaki-seinajoki':
-      return 'Alue 3 Riihimäki-Seinäjoki';
-    case 'alue_04_rauma-pieksamaki':
-      return 'Alue 4 Rauma-Pieksämäki';
-    case 'alue_05_haapamaen_tahti':
-      return 'Alue 5 Haapamäen tähti';
-    case 'alue_06_savon_rata':
-      return 'Alue 6 Savon rata';
-    case 'alue_07_karjalan_rata':
-      return 'Alue 7 Karjalan rata';
-    case 'alue_08_ylasavo':
-      return 'Alue 8 Yläsavo';
-    case 'alue_09_pohjanmaan_rata':
-      return 'Alue 9 Pohjanmaan rata';
-    case 'alue_10_keski-suomi':
-      return 'Alue 10 Keski-Suomi';
-    case 'alue_11_kainuu-oulu':
-      return 'Alue 11 Kainuu-Oulu';
-    case 'alue_12_oulu-lappi':
-      return 'Alue 12 Oulu-Lappi';
-    default:
-      return area;
-  }
-};
