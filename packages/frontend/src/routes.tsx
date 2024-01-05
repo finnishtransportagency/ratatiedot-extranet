@@ -46,6 +46,8 @@ import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
 import { RailwayCategory } from './pages/Others/RailwayCategory';
 
+import { findCategoryIdByKey } from './utils/helpers';
+
 /**
  * Return router name based on page title's name
  * @param location
@@ -142,10 +144,10 @@ const SEARCH_ROUTE = getProtectedRoute(Routes.SEARCH_RESULT, <SearchResult />);
 const INSTRUCTIONS_ROUTE = getProtectedRoute(Routes.INSTRUCTIONS, <Instructions />);
 
 const DIAGRAMS_ROUTES = [
-  ...getProtectedRoute(Routes.LINE_DIAGRAMS, <LineDiagrams />, true),
-  ...getProtectedRoute(Routes.SPEED_DIAGRAMS, <SpeedDiagrams />, true),
-  ...getProtectedRoute(Routes.TRACK_DIAGRAMS, <TrackDiagrams />, true),
-  ...getProtectedRoute(Routes.GROUPING_DIAGRAMS, <GroupingDiagrams />, true),
+  ...getProtectedRoute(Routes.LINE_DIAGRAMS, <LineDiagrams id={findCategoryIdByKey(13)} />, true),
+  ...getProtectedRoute(Routes.SPEED_DIAGRAMS, <SpeedDiagrams id={findCategoryIdByKey(17)} />, true),
+  ...getProtectedRoute(Routes.TRACK_DIAGRAMS, <TrackDiagrams id={findCategoryIdByKey(7)} />, true),
+  ...getProtectedRoute(Routes.GROUPING_DIAGRAMS, <GroupingDiagrams id={findCategoryIdByKey(3)} />, true),
 ];
 
 const OPERATION_ROUTES = [
@@ -154,13 +156,13 @@ const OPERATION_ROUTES = [
   ...getProtectedRoute(Routes.RAILWAY_ASSET_NUMBERS, <RailwayAssetNumbers />),
   ...getProtectedRoute(Routes.RAILWAY_MAPS, <RailwayMaps />),
   ...getProtectedRoute(Routes.RAILWAY_INTERCHANGE_DEVELOPMENT_NEEDS, <RailwayInterchangeDevelopmentNeeds />),
-  ...getProtectedRoute(Routes.ROUTE_DOCUMENTS, <RouteDocuments />, true),
+  ...getProtectedRoute(Routes.ROUTE_DOCUMENTS, <RouteDocuments id={findCategoryIdByKey(1)} />, true),
   ...getProtectedRoute(Routes.RINF_REGISTER, <RINFRegister />),
   ...getProtectedRoute(Routes.VAK_RAIL_DEPOT, <VAKRailDepot />),
 ];
 
 const SPECIALTY_STRUCTURES_ROUTES = [
-  ...getProtectedRoute(Routes.BRIDGE_INSPECTIONS, <BridgeInspections />, true),
+  ...getProtectedRoute(Routes.BRIDGE_INSPECTIONS, <BridgeInspections id={findCategoryIdByKey(22)} />, true),
   ...getProtectedRoute(Routes.BRIDGE_MAINTENANCE_INSTRUCTIONS, <BridgeMaintenanceInstructions />),
   ...getProtectedRoute(Routes.TUNNELS, <Tunnels />, true),
   ...getProtectedRoute(Routes.RAILWAY_TUNNEL_RESCUE_PLANS, <RailwayTunnelRescuePlans />),
@@ -168,7 +170,7 @@ const SPECIALTY_STRUCTURES_ROUTES = [
 
 const SAFETY_EQUIPMENT_ROUTES = [
   ...getProtectedRoute(Routes.SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS, <MaintenanceInstructions />),
-  ...getProtectedRoute(Routes.SAFETY_EQUIPMENT_MANUALS, <Manuals />, true),
+  ...getProtectedRoute(Routes.SAFETY_EQUIPMENT_MANUALS, <Manuals id={findCategoryIdByKey(9)} />, true),
 ];
 
 const CONTACT_INFORMATION_ROUTES = [

@@ -170,3 +170,14 @@ export const categories = () => {
 export const getAreaByAlfrescoId = (alfrescoId: string) => {
   return areas().find((areaObj) => areaObj.collection.find((collection) => collection.alfrescoId === alfrescoId));
 };
+
+export const findCategoryIdByKey = (key: number) => {
+  const category = categories().find((category) => category.key === key);
+
+  if (!category) {
+    console.error(`Category with id ${key} not found`);
+    return '';
+  }
+
+  return category.alfrescoId;
+};
