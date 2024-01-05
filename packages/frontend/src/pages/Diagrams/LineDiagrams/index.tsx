@@ -1,10 +1,10 @@
 import { PolylineFinlandMap } from '../../../components/Map/PolylineFinlandMap';
 import { ProtectedContainerWrapper } from '../../../styles/common';
 
-export const LineDiagrams = () => {
+export const LineDiagrams = ({ id }: PageProps) => {
   return (
     <ProtectedContainerWrapper>
-      <PolylineFinlandMap categoryId="71d157b0-6c81-4b55-ad99-d7bfbfd2d960" />
+      <PolylineFinlandMap categoryId={id} />
     </ProtectedContainerWrapper>
   );
 };
