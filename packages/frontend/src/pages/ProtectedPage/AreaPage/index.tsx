@@ -1,12 +1,18 @@
 import { useParams } from 'react-router-dom';
 import { PageTitleWrapper, ProtectedContainerWrapper } from '../../../styles/common';
-import { getReadableAreaTitle } from '../../../utils/mapUtil';
+import { getAreaByAlfrescoId } from '../../../utils/helpers';
 
 export const AreaPage = () => {
   const { area } = useParams<{ area: string }>();
+
+  let title;
+  if (area) {
+    title = getAreaByAlfrescoId(area)?.title || '';
+  }
+
   return (
     <ProtectedContainerWrapper>
-      <PageTitleWrapper>{getReadableAreaTitle(area!)}</PageTitleWrapper>
+      <PageTitleWrapper>{title}</PageTitleWrapper>
     </ProtectedContainerWrapper>
   );
 };
