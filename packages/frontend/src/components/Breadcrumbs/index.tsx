@@ -2,8 +2,7 @@ import { Breadcrumbs, Link, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useMatch, useParams } from 'react-router-dom';
 import { Colors } from '../../constants/Colors';
-import { parseRouterName } from '../../utils/helpers';
-import { getReadableAreaTitle } from '../../utils/mapUtil';
+import { getAreaByAlfrescoId, parseRouterName } from '../../utils/helpers';
 
 export const CustomBreadcrumbs = () => {
   const { t } = useTranslation(['common']);
@@ -14,7 +13,9 @@ export const CustomBreadcrumbs = () => {
   const BreadcrumbText = ({ routerName }: { routerName: string }) => {
     return (
       <Typography sx={{ color: Colors.extrablack }}>
-        {routerName === area ? getReadableAreaTitle(area) : parseRouterName(routerName) || t('common:page.frontpage')}
+        {routerName === area
+          ? getAreaByAlfrescoId(area)?.title
+          : parseRouterName(routerName) || t('common:page.frontpage')}
       </Typography>
     );
   };

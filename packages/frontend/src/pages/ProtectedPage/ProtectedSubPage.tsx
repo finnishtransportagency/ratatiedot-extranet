@@ -30,7 +30,7 @@ export const ProtectedSubPage = ({ children }: Props) => {
         <DesktopAppBar />
         <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
           {children}
-          {categoryRouteName && <CategoryFiles childFolderName={area} />}
+          {categoryRouteName && <CategoryFiles nestedFolderId={area} />}
         </ContentWrapper>
         <Footer />
       </Box>
