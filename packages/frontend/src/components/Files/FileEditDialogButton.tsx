@@ -36,7 +36,7 @@ export const FileEditDialogButton: FunctionComponent<DialogButtonProps> = ({
 
   return (
     <>
-      <Button variant="outlined" disabled={disabled} startIcon={<EditOutlined />} onClick={handleOpenFileEditDialog}>
+      <Button variant="contained" disabled={disabled} startIcon={<EditOutlined />} onClick={handleOpenFileEditDialog}>
         {t('edit.edit')}
       </Button>
       {node?.entry ? (
