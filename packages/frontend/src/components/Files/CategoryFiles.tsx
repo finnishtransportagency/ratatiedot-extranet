@@ -17,6 +17,7 @@ import { MenuContext } from '../../contexts/MenuContext';
 import { CategoryDataContext } from '../../contexts/CategoryDataContext';
 import { UploadDialogButton } from './UploadDialogButton';
 import styled from '@emotion/styled';
+import { FileEditDialogButton } from './FileEditDialogButton';
 
 type TCategoryFilesProps = {
   childFolderName?: string;
@@ -104,6 +105,18 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
     setTotalFiles((currentTotalFiles) => currentTotalFiles + 1);
   };
 
+  const updateFile = (editedNode: TNode) => {
+    setFileList((currentFileList) => {
+      const updatedList = currentFileList.map((node) => {
+        if (node.entry.id === editedNode.entry.id) {
+          return editedNode;
+        }
+        return node;
+      });
+      return updatedList;
+    });
+  };
+
   if (error) return <ErrorMessage error={error} />;
 
   return (
@@ -116,6 +129,17 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
             onUpload={(response: AxiosResponse) => {
               const node = response.data.body || response.data;
               addFile(node);
+            }}
+          />
+        )}
+        {isEditOpen && !fileUploadDisabled && (
+          <FileEditDialogButton
+            categoryName={categoryName}
+            disabled={!selectedFile}
+            node={selectedFile}
+            onUpload={(response: AxiosResponse) => {
+              const node = response.data;
+              updateFile(node);
             }}
           />
         )}
@@ -162,5 +186,6 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
 const GroupedFileButtonsWrapper = styled('div')(() => ({
   display: 'flex',
   marginBottom: '30px',
-  justifyContent: 'space-between',
+  justifyContent: 'start',
+  gap: '10px',
 }));
