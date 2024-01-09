@@ -65,7 +65,10 @@
     "files_deleted": "Tiedostot poistettu",
     "file_delete_confirmation": "Haluatko varmasti poistaa tiedoston",
     "files": "tiedostoa",
-    "file_too_large": "Tiedosto on liian suuri. Tiedoston enimmäiskoko on 50 MB."
+    "file_too_large": "Tiedosto on liian suuri. Tiedoston enimmäiskoko on 50 MB.",
+    "edit_file": "Muokkaa tiedoston tietoja",
+    "file_not_edited": "Tiedostoa ei muokattu",
+    "file_edited": "Tiedoston muokkaus onnistui"
   },
   "filter": {
     "add_category_info": "Valitse aineistoluokka"
@@ -78,6 +81,7 @@
     "delete_selected_folder": "Poista valittu kansio",
     "name": "Nimi",
     "description": "Selitysteksti",
+    "title": "Otsikko",
     "more_actions": "Valinnaiset toiminnot",
     "selected_folder": "Valittu kansio",
     "folder_not_selected": "Kansiota ei valittu",
@@ -85,7 +89,10 @@
     "folder_not_deleted": "Kansiota ei poistettu",
     "folder_uploaded": "Kansio lähetetty",
     "folder_deleted": "Kansio poistettu",
-    "folder_delete_confirmation": "Haluatko varmasti poistaa kansion"
+    "folder_delete_confirmation": "Haluatko varmasti poistaa kansion",
+    "edit_folder": "Muokkaa kansion tietoja",
+    "folder_not_edited": "Kansiota ei muokattu",
+    "folder_edited": "Kansion muokkaus onnistui"
   },
   "list": {
     "add_list": "Lisää lista",
