@@ -50,8 +50,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const imageElement = contents?.fields.find((element) => element.type === 'image');
     if (imageElement) {
+      const encodedUrl = encodeURIComponent(imageElement.url);
       const signedUrl = await cloudfront.getSignedUrl({
-        url: `https://${CLOUDFRONT_DOMAIN_NAME}/${imageElement.url}`,
+        url: `https://${CLOUDFRONT_DOMAIN_NAME}/${encodedUrl}`,
         expires: Math.floor(Date.now() / 1000) + 3600,
       });
       imageElement.signedUrl = signedUrl;
