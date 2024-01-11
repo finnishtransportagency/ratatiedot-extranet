@@ -81,7 +81,7 @@ const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
 export const SlateToolbar = () => {
   const { t } = useTranslation(['common']);
   const { closeToolbarHandler, closeToolbarWithoutSaveHandler, toggleEdit } = useContext(AppBarContext);
-  const { editor, value, valueReset, noticeFields } = useContext(EditorContext);
+  const { editor, value, valueReset, noticeFields, selectedImage } = useContext(EditorContext);
   const [isColorOpened, setIsColorOpened] = useState(false);
   const [initialValue, setInitialValue] = useState([]);
   const { pathname, state } = useLocation();
@@ -115,7 +115,7 @@ export const SlateToolbar = () => {
   const handleSave = () => {
     if (noticeRoute && !isCreateRoute) {
       mutateNoticePageContents.mutate(
-        { value, noticeFields },
+        { value, noticeFields, selectedImage },
         {
           onSuccess: () => {
             toast(t('common:edit.saved_success'), { type: 'success' });
@@ -128,7 +128,7 @@ export const SlateToolbar = () => {
       );
     } else if (noticeCreateRoute || isCreateRoute) {
       createNoticePageContent.mutate(
-        { value, noticeFields },
+        { value, noticeFields, selectedImage },
         {
           onSuccess: () => {
             toast(t('common:edit.saved_success'), { type: 'success' });
@@ -140,15 +140,18 @@ export const SlateToolbar = () => {
         },
       );
     } else {
-      mutatePageContents.mutate(value, {
-        onSuccess: () => {
-          toast(t('common:edit.saved_success'), { type: 'success' });
-          setInitialValue(value);
+      mutatePageContents.mutate(
+        { value, selectedImage },
+        {
+          onSuccess: () => {
+            toast(t('common:edit.saved_success'), { type: 'success' });
+            setInitialValue(value);
+          },
+          onError: () => {
+            toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+          },
         },
-        onError: () => {
-          toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
-        },
-      });
+      );
     }
   };
 

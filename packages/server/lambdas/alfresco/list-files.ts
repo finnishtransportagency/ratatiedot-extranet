@@ -83,7 +83,7 @@ const searchByTermWithParent = async (
 
 export const getFolder = async (uid: string, nodeId: string) => {
   try {
-    const url = `${alfrescoApiVersion}/nodes/${nodeId}?where=(isFolder=true)&include=path`;
+    const url = `${alfrescoApiVersion}/nodes/${nodeId}?include=path`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
     return response.data;
