@@ -36,7 +36,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     let filename = '';
     if (formData.fileinfo) {
       const fileInfo = formData.fileinfo as FileInfo;
-      filename = `images/${fileInfo.filename}`;
+      filename = `images/${Date.now()}_${fileInfo.filename}`;
     }
 
     const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: Notice = JSON.parse(
