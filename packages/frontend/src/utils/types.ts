@@ -64,5 +64,6 @@ export interface ICardElement extends IElement {
 export interface IImageElement extends IElement {
   type: ElementType.IMAGE;
   url: string;
-  children: any;
+  signedUrl: string;
+  alt: string;
 }

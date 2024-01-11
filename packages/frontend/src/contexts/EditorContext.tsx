@@ -18,10 +18,12 @@ export const EditorContext = React.createContext({
   editor: createEditorWithPlugins(createEditor()),
   value: [] as any,
   noticeFields: [] as any,
+  selectedImage: undefined as any,
   valueHandler: (_: any) => {},
   valueReset: () => {},
   noticeFieldsHandler: (_: any) => {},
   noticeFieldsReset: () => {},
+  selectedImageHandler: (_: any) => {},
 });
 
 export type TSlateNode = { children: { text?: string; children?: any }[]; type?: string };
@@ -45,6 +47,7 @@ export const EditorContextProvider = (props: any) => {
   const [dbValue, setDBValue] = useState(nodeTemplate);
   const [value, setValue] = useState(nodeTemplate);
   const [noticeFields, setNoticeFields] = useState(noticeFieldsTemplate);
+  const [selectedImage, setSelectedImage] = useState<any>();
 
   useEffect(() => {
     const dataResponse = getPageData();
@@ -79,13 +82,14 @@ export const EditorContextProvider = (props: any) => {
 
   const valueHandler = (v: any) => setValue(v);
   const noticeFieldsHandler = (v: any) => setNoticeFields(v);
+  const selectedImageHandler = (v: any) => setSelectedImage(v);
 
   const valueReset = () => {
     if (isSlateValueEmpty(dbValue)) {
       setValue(nodeTemplate);
       setEditor(createEditorWithPlugins(createEditor()));
     } else {
-      editor.children.map(() => {
+      editor.children.forEach(() => {
         Transforms.delete(editor, { at: [0] });
       });
       editor.children = dbValue as any;
@@ -102,10 +106,12 @@ export const EditorContextProvider = (props: any) => {
         editor: editor,
         value: value,
         noticeFields: noticeFields,
+        selectedImage: selectedImage,
         valueHandler: valueHandler,
         valueReset: valueReset,
         noticeFieldsHandler: noticeFieldsHandler,
         noticeFieldsReset: noticeFieldsReset,
+        selectedImageHandler: selectedImageHandler,
       }}
     >
       {props.children}

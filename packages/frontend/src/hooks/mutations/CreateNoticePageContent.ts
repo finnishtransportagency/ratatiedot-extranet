@@ -11,11 +11,19 @@ export const useCreateNoticePageContent = () => {
         content: data.value,
         ...data.noticeFields,
       };
-      const options = {
+
+      const formData = new FormData();
+      formData.append('notice', JSON.stringify(payload));
+      if (data.selectedImage) {
+        formData.append('file', data.selectedImage);
+      }
+      return axios(`/api/notices`, {
         method: 'POST',
-        data: payload,
-      };
-      return axios(`/api/notices`, options);
+        data: formData,
+        headers: {
+          'content-Type': 'multipart/form-data',
+        },
+      });
     },
     onMutate: async (slateValue: any) => {
       // Cancel any outgoing refetches

@@ -7,8 +7,21 @@ import { getRouterName } from '../../utils/helpers';
 export const useUpdatePageContents = (categoryName: string) => {
   return useMutation({
     mutationKey: ['page-content-update'],
-    mutationFn: (slateValue: any) =>
-      axios.put(`/api/database/page-contents/${getRouterName(categoryName)}`, slateValue),
+    mutationFn: (data: any) => {
+      const formData = new FormData();
+      formData.append('pagecontent', JSON.stringify(data.value));
+      if (data.selectedImage) {
+        formData.append('file', data.selectedImage);
+      }
+
+      return axios(`/api/database/page-contents/${getRouterName(categoryName)}`, {
+        method: 'PUT',
+        data: formData,
+        headers: {
+          'content-Type': 'multipart/form-data',
+        },
+      });
+    },
     onMutate: async (slateValue: any) => {
       // Cancel any outgoing refetches
       // (so they don't overwrite our optimistic update)

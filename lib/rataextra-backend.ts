@@ -9,6 +9,7 @@ import {
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
   ESM_REQUIRE_SHIM,
+  SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -20,6 +21,7 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { RatatietoNodeBackendConstruct } from './rataextra-node-backend';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -38,6 +40,8 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly mockUid?: string;
   readonly alfrescoSitePath: string;
   readonly serviceUserUid?: string;
+  readonly imageBucket: Bucket;
+  readonly cloudfrontSignerPublicKeyId: string;
 }
 
 type ListenerTargetLambdas = {
@@ -93,6 +97,8 @@ export class RataExtraBackendStack extends NestedStack {
       mockUid,
       alfrescoSitePath,
       serviceUserUid,
+      imageBucket,
+      cloudfrontSignerPublicKeyId,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -104,6 +110,11 @@ export class RataExtraBackendStack extends NestedStack {
         `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_NAME}`,
         `arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_DATABASE_PASSWORD}`,
       ],
+    });
+
+    const ssmCFKeyPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter'],
+      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY}`],
     });
 
     const ssmAlfrescoParameterPolicy = new PolicyStatement({
@@ -133,6 +144,8 @@ export class RataExtraBackendStack extends NestedStack {
         LOG_LEVEL: isFeatOrLocalStack(rataExtraEnv) ? 'debug' : 'info',
         MOCK_UID: mockUid || '',
         SERVICE_USER_UID: serviceUserUid || '',
+        RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier,
+        CLOUDFRONT_SIGNER_PUBLIC_KEY_ID: cloudfrontSignerPublicKeyId,
       },
       initialPolicy: [],
     };
@@ -275,6 +288,10 @@ export class RataExtraBackendStack extends NestedStack {
 
     const dbGetPageContents = this.createNodejsLambda({
       ...prismaParameters,
+      environment: {
+        ...prismaParameters.environment,
+        CLOUDFRONT_DOMAIN_NAME: cloudfrontDomainName || '',
+      },
       name: 'db-get-page-contents',
       relativePath: '../packages/server/lambdas/database/get-page-contents.ts',
     });
@@ -337,9 +354,17 @@ export class RataExtraBackendStack extends NestedStack {
 
     const getNotice = this.createNodejsLambda({
       ...prismaParameters,
+      environment: {
+        ...prismaParameters.environment,
+        CLOUDFRONT_DOMAIN_NAME: cloudfrontDomainName || '',
+      },
       name: 'get-notice',
       relativePath: '../packages/server/lambdas/database/get-notice.ts',
     });
+
+    // Add lambdas permissions to access SSM parameters
+    getNotice.addToRolePolicy(ssmCFKeyPolicy);
+    dbGetPageContents.addToRolePolicy(ssmCFKeyPolicy);
 
     const postNotice = this.createNodejsLambda({
       ...prismaParameters,
@@ -364,6 +389,10 @@ export class RataExtraBackendStack extends NestedStack {
       name: 'get-banners',
       relativePath: '../packages/server/lambdas/database/get-banners.ts',
     });
+
+    imageBucket.grantReadWrite(postNotice);
+    imageBucket.grantReadWrite(putNotice);
+    imageBucket.grantReadWrite(deleteNotice);
 
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {

@@ -1,24 +1,29 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { queryClient } from '../..';
 import { QueryKeys } from '../../constants/QueryKeys';
+import { queryClient } from '../..';
 
 export const useUpdateNoticePageContents = (noticeId: string) => {
   return useMutation({
     mutationKey: ['notice-page-content-update'],
-    mutationFn: (data: any) => {
+    mutationFn: async (data: any) => {
       const payload = {
         content: data.value,
         ...data.noticeFields,
       };
-      const options = {
+
+      const formData = new FormData();
+      formData.append('notice', JSON.stringify(payload));
+      if (data.selectedImage) {
+        formData.append('file', data.selectedImage);
+      }
+      return axios(`/api/notice/${noticeId}`, {
         method: 'PUT',
-        data: payload,
+        data: formData,
         headers: {
-          'content-type': 'application/json',
+          'content-Type': 'multipart/form-data',
         },
-      };
-      return axios(`/api/notice/${noticeId}`, options);
+      });
     },
     onMutate: async (slateValue: any) => {
       // Cancel any outgoing refetches

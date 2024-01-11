@@ -14,7 +14,7 @@ import { log } from '../../../utils/logger';
 //   return blob;
 // };
 
-const base64ToBuffer = (base64string: string): Buffer => {
+export const base64ToBuffer = (base64string: string): Buffer => {
   const buffer = Buffer.from(base64string, 'base64');
   return buffer;
 };

@@ -53,6 +53,23 @@ export class RataExtraStack extends Stack {
       'lambda.amazonaws.com',
       'service-role/AWSLambdaVPCAccessExecutionRole',
     );
+
+    const removalPolicy = getRemovalPolicy(rataExtraEnv);
+    const autoDeleteObjects = removalPolicy === RemovalPolicy.DESTROY;
+
+    const imageBucket = new Bucket(this, `rataextra-images-`, {
+      bucketName: `s3-${this.#rataExtraStackIdentifier}-images`,
+      publicReadAccess: false,
+      accessControl: BucketAccessControl.PRIVATE,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: removalPolicy,
+      autoDeleteObjects: autoDeleteObjects,
+      objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
+      encryption: BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+      versioned: true,
+    });
+
     const backendStack = new RataExtraBackendStack(this, 'stack-backend', {
       rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
       rataExtraEnv: rataExtraEnv,
@@ -70,11 +87,10 @@ export class RataExtraStack extends Stack {
       mockUid: mockUid,
       alfrescoSitePath: alfrescoSitePath,
       serviceUserUid: serviceUserUid,
+      imageBucket: imageBucket,
+      cloudfrontSignerPublicKeyId: cloudfrontSignerPublicKeyId,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
-
-    const removalPolicy = getRemovalPolicy(rataExtraEnv);
-    const autoDeleteObjects = removalPolicy === RemovalPolicy.DESTROY;
 
     // TODO: Bucket creation as a function?
     const frontendBucket = new Bucket(this, `rataextra-frontend-`, {
@@ -87,18 +103,7 @@ export class RataExtraStack extends Stack {
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       encryption: BucketEncryption.S3_MANAGED,
       enforceSSL: true,
-    });
-
-    const imageBucket = new Bucket(this, `rataextra-images-`, {
-      bucketName: `s3-${this.#rataExtraStackIdentifier}-images`,
-      publicReadAccess: false,
-      accessControl: BucketAccessControl.PRIVATE,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      removalPolicy: removalPolicy,
-      autoDeleteObjects: autoDeleteObjects,
-      objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
-      encryption: BucketEncryption.S3_MANAGED,
-      enforceSSL: true,
+      versioned: true,
     });
 
     if (isPermanentStack(stackId, rataExtraEnv)) {

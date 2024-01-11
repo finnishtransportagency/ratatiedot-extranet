@@ -18,7 +18,7 @@ import { useCreateNoticePageContent } from '../../hooks/mutations/CreateNoticePa
 
 export const ConfirmationAppBar = () => {
   const { toggleEdit, openToolbarHandler } = useContext(AppBarContext);
-  const { value, valueReset, noticeFields } = useContext(EditorContext);
+  const { value, valueReset, noticeFields, selectedImage } = useContext(EditorContext);
   const { pathname } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
   const noticeRoute = useMatch('/ajankohtaista/:id/:date');
@@ -44,7 +44,7 @@ export const ConfirmationAppBar = () => {
   const handleSave = () => {
     if (noticeRoute && !isCreateRoute) {
       mutateNoticePageContents.mutate(
-        { value, noticeFields },
+        { value, noticeFields, selectedImage },
         {
           onSuccess: () => {
             toast(t('common:edit.saved_success'), { type: 'success' });
@@ -57,7 +57,7 @@ export const ConfirmationAppBar = () => {
       );
     } else if (noticeCreateRoute || isCreateRoute) {
       createNoticePageContent.mutate(
-        { value, noticeFields },
+        { value, noticeFields, selectedImage },
         {
           onSuccess: () => {
             toast(t('common:edit.saved_success'), { type: 'success' });
@@ -69,15 +69,18 @@ export const ConfirmationAppBar = () => {
         },
       );
     } else {
-      mutatePageContents.mutate(value, {
-        onSuccess: () => {
-          toast(t('common:edit.saved_success'), { type: 'success' });
-          toggleEdit();
+      mutatePageContents.mutate(
+        { value, selectedImage },
+        {
+          onSuccess: () => {
+            toast(t('common:edit.saved_success'), { type: 'success' });
+            toggleEdit();
+          },
+          onError: () => {
+            toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
+          },
         },
-        onError: () => {
-          toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
-        },
-      });
+      );
     }
   };
 

@@ -80,3 +80,9 @@ export const createContactCardNode = () => {
     ],
   };
 };
+
+export const createImageNode = (url: string) => ({
+  type: ElementType.IMAGE,
+  url,
+  children: [{ text: '' }],
+});
