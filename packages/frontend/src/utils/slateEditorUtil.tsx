@@ -317,7 +317,7 @@ export const insertImage = (editor: any, format: ElementType, url: string) => {
 export const isSlateValueEmpty = (value: TSlateNode[]): boolean => {
   return value.every((node: TSlateNode) => {
     if (node.type === ElementType.IMAGE) return false;
-    if (typeof node.children[0].text !== 'undefined') return !node.children[0].text;
+    else if (typeof node.children[0].text !== 'undefined') return !node.children[0].text;
     else if (typeof node.children[0].children !== 'undefined') return isSlateValueEmpty(node.children as TSlateNode[]);
   });
 };
