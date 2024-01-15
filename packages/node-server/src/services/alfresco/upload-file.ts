@@ -47,7 +47,7 @@ export interface AxiosRequestOptions {
 }
 
 const postFile = async (options: AxiosRequestOptions, nodeId: string): Promise<AlfrescoResponse | undefined> => {
-  const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?overwrite=true`;
+  const url = `${alfrescoApiVersion}/nodes/${nodeId}/children`;
   const headers = {
     ...options.headers,
   };
