@@ -214,8 +214,7 @@ export const FileUploadDialog = ({
                   variant="contained"
                   disabled={isLoading}
                   onClick={() => {
-                    const fileAlreadyExists = fileExists(name);
-                    if (fileAlreadyExists) {
+                    if (fileExists(name)) {
                       setPhase(3);
                     } else {
                       handleFileUpload(file as File);
