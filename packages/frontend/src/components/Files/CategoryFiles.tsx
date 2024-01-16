@@ -101,6 +101,9 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   };
 
   const addFile = (node: TNode) => {
+    if (fileExists(node.entry.name)) {
+      deleteFile(node);
+    }
     setFileList((currentFileList) => [...currentFileList, node]);
     setTotalFiles((currentTotalFiles) => currentTotalFiles + 1);
   };
@@ -117,6 +120,10 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
     });
   };
 
+  const fileExists = (fileName: string): boolean => {
+    return fileList.some((file) => file.entry.name === fileName);
+  };
+
   if (error) return <ErrorMessage error={error} />;
 
   return (
@@ -124,6 +131,7 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
       <GroupedFileButtonsWrapper>
         {isEditOpen && !fileUploadDisabled && (
           <UploadDialogButton
+            fileExists={fileExists}
             categoryName={categoryName}
             nestedFolderId={nestedFolderId}
             onUpload={(response: AxiosResponse) => {

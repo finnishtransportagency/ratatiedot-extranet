@@ -68,7 +68,10 @@
     "file_too_large": "Tiedosto on liian suuri. Tiedoston enimmäiskoko on 50 MB.",
     "edit_file": "Muokkaa tiedoston tietoja",
     "file_not_edited": "Tiedostoa ei muokattu",
-    "file_edited": "Tiedoston muokkaus onnistui"
+    "file_edited": "Tiedoston muokkaus onnistui",
+    "replace_file_confirmation": "Tiedosto on jo olemassa. Haluatko korvata sen?",
+    "replace_file_subtitle": "Voit myös palata takaisin ja muokata tiedoston nimeä.",
+    "replace_file": "Korvaa tiedosto"
   },
   "filter": {
     "add_category_info": "Valitse aineistoluokka"
