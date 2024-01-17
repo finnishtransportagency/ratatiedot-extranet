@@ -26,10 +26,18 @@ interface FileUploadProps {
   nestedFolderId?: string;
   onClose: (event?: Event) => void;
   onUpload: (result: AxiosResponse) => any;
+  fileExists: (fileName: string) => boolean;
   open: boolean;
 }
 
-export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, onUpload }: FileUploadProps) => {
+export const FileUploadDialog = ({
+  categoryName,
+  nestedFolderId,
+  open,
+  onClose,
+  onUpload,
+  fileExists,
+}: FileUploadProps) => {
   const { t } = useTranslation(['common']);
 
   const [file, setFile] = useState<File>();
@@ -205,7 +213,13 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
                   color="primary"
                   variant="contained"
                   disabled={isLoading}
-                  onClick={() => handleFileUpload(file as File)}
+                  onClick={() => {
+                    if (fileExists(name)) {
+                      setPhase(3);
+                    } else {
+                      handleFileUpload(file as File);
+                    }
+                  }}
                   startIcon={
                     isLoading ? (
                       <CircularProgress sx={{ color: Colors.darkgrey }} size="16px"></CircularProgress>
@@ -215,6 +229,46 @@ export const FileUploadDialog = ({ categoryName, nestedFolderId, open, onClose, 
                   }
                 >
                   {t('common:action.add')}
+                </ButtonWrapper>
+              </Box>
+            </Box>
+          }
+        ></Modal>
+      );
+    case 3:
+      return (
+        <Modal
+          open={open}
+          onSnackbarClose={handleSnackbarClose}
+          handleClose={handleClose}
+          title={t('common:file.replace_file_confirmation')}
+          error={error}
+          errorMessage={errorMessage || t('common:file.file_not_uploaded')}
+          successMessage={t('common:file.file_uploaded')}
+          success={success}
+          children={
+            <Box component="form">
+              <Typography aria-describedby="modal-modal-description" variant="body1" sx={{ marginBottom: '12px' }}>
+                {t('common:file.replace_file_subtitle')}
+              </Typography>
+              <Box sx={{ display: 'flex' }}>
+                <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={() => setPhase(2)}>
+                  {t('common:action.back')}
+                </ButtonWrapper>
+                <ButtonWrapper
+                  color="primary"
+                  variant="contained"
+                  disabled={isLoading}
+                  onClick={() => handleFileUpload(file as File)}
+                  startIcon={
+                    isLoading ? (
+                      <CircularProgress sx={{ color: Colors.darkgrey }} size="16px"></CircularProgress>
+                    ) : (
+                      <CheckIcon></CheckIcon>
+                    )
+                  }
+                >
+                  {t('common:file.replace_file')}
                 </ButtonWrapper>
               </Box>
             </Box>
