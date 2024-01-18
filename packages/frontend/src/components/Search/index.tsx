@@ -68,7 +68,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
 
   const LeftSearchBar = () => {
     return (
-      <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
+      <IconButton size="large" edge="end" color="inherit" aria-label="open search" onClick={toggleSearch}>
         <SearchIcon color="primary" />
       </IconButton>
     );
@@ -79,7 +79,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
       <IconButton
         size="large"
         edge="start"
-        area-label="back"
+        aria-label="back"
         onClick={() => {
           exitSearch();
         }}
@@ -87,7 +87,7 @@ export const Search = ({ isDesktop = false }: SearchProps) => {
         <ArrayBackIcon color="primary" />
       </IconButton>
     ) : (
-      <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
+      <IconButton size="large" edge="end" color="inherit" aria-label="open search" onClick={toggleSearch}>
         <SearchIcon color="primary" />
       </IconButton>
     );

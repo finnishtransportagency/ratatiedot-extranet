@@ -40,7 +40,7 @@ export const MiniAppBar = () => {
           size="large"
           edge="start"
           color="inherit"
-          area-label={openMiniDrawer ? 'close drawer' : 'open drawer'}
+          aria-label={openMiniDrawer ? 'close drawer' : 'open drawer'}
           onClick={toggleMiniDrawer}
         >
           {openMiniDrawer ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
