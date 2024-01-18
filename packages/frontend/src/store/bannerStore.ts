@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-interface Banner {
+export interface IBanner {
   id: string;
   title?: string;
   content: string;
@@ -23,7 +23,7 @@ export const getBanners = async () => {
 
 export type BannerStore = {
   isLoading: boolean;
-  banners: Banner[] | null;
+  banners: IBanner[] | null;
   error: any | null;
   getBanners: () => void;
 };
