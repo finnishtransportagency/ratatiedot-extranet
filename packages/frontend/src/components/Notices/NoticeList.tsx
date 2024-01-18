@@ -39,11 +39,9 @@ export const NoticeList = ({ notices }: { notices: Notice[] }) => {
             </Box>
           );
         })}
-        {notices.length > 0 && (
-          <Button endIcon={<ArrowForward />} onClick={() => navigate(Routes.NOTICES)}>
-            Lue lisää
-          </Button>
-        )}
+        <Button endIcon={<ArrowForward />} onClick={() => navigate(Routes.NOTICES)}>
+          {t('common:noticeList.showMore')}
+        </Button>
       </CardContent>
     </Card>
   );
