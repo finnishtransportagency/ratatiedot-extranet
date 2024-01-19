@@ -50,9 +50,7 @@ export const ProtectedNoticePage = ({ children }: Props) => {
   };
 
   const handleTitleChange = (newValue: string | null) => {
-    if (newValue) {
-      noticeFieldsHandler({ ...noticeFields, title: newValue });
-    }
+    noticeFieldsHandler({ ...noticeFields, title: newValue });
   };
 
   useEffect(() => {
@@ -77,10 +75,14 @@ export const ProtectedNoticePage = ({ children }: Props) => {
           {openToolbar && (
             <InputFieldWrapper>
               <TextField
-                defaultValue={noticeFields.title}
                 label={t('common:noticeList.writeTitle')}
+                inputProps={{ maxLength: 150 }}
+                value={noticeFields.title}
+                helperText={`${(noticeFields.title || '').length}/150`}
+                onChange={(e) => {
+                  handleTitleChange(e.target.value);
+                }}
                 fullWidth
-                onChange={(e) => handleTitleChange(e.target.value)}
               />
             </InputFieldWrapper>
           )}
