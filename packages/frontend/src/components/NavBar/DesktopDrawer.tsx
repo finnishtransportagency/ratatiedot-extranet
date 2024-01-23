@@ -39,7 +39,7 @@ export const DesktopDrawer = () => {
         disablePadding
         onClick={resetMenuAndToggleDrawer}
       >
-        <ListItemButton area-label={openDesktopDrawer ? 'close desktop drawer' : 'open desktop drawer'}>
+        <ListItemButton aria-label={openDesktopDrawer ? 'close desktop drawer' : 'open desktop drawer'}>
           <ListItemIcon>
             {openDesktopDrawer ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}
           </ListItemIcon>

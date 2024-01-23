@@ -48,7 +48,7 @@ export const createContactCardNode = () => {
         children: [{ text: '' }],
       },
       {
-        children: [{ text: i18n.t('common:card.email'), color: Colors.midblue }],
+        children: [{ text: i18n.t('common:card.email') }],
       },
       {
         children: [{ text: '' }],
@@ -75,7 +75,7 @@ export const createContactCardNode = () => {
         children: [{ text: '' }],
       },
       {
-        children: [{ text: i18n.t('common:card.email'), color: Colors.midblue }],
+        children: [{ text: i18n.t('common:card.email') }],
       },
     ],
   };

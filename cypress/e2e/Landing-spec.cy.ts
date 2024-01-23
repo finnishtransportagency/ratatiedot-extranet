@@ -15,9 +15,9 @@ describe('Landing page', () => {
       it('MuiAppBar exists', function () {
         cy.get('header.MuiPaper-root')
           .should('be.visible')
-          .get('[area-label="open search"]')
+          .get('[aria-label="open search"]')
           .should('be.visible')
-          .get('[area-label="open drawer"]')
+          .get('[aria-label="open drawer"]')
           .should('be.visible');
       });
 
@@ -26,14 +26,14 @@ describe('Landing page', () => {
       });
 
       it('clicks on Menu icon and Drawer appears', () => {
-        cy.get('[area-label="open drawer"]')
+        cy.get('[aria-label="open drawer"]')
           .click()
           .get('div.MuiDrawer-root')
           .should('exist')
           .invoke('css', 'width')
           .then((widthStr) => parseInt(widthStr))
           .should('be.gte', 375) // iphone x screen width
-          .get('[area-label="close drawer"]')
+          .get('[aria-label="close drawer"]')
           .should('be.visible');
       });
 
@@ -81,7 +81,7 @@ describe('Landing page', () => {
     });
 
     it('Toggle menu drawer', () => {
-      cy.get('div[area-label="open desktop drawer"]')
+      cy.get('div[aria-label="open desktop drawer"]')
         .click()
         .then(() => {
           cy.get('div.MuiDrawer-root div.MuiPaper-root')
@@ -91,7 +91,7 @@ describe('Landing page', () => {
             .should('be.visible');
         });
 
-      cy.get('div[area-label="close desktop drawer"]')
+      cy.get('div[aria-label="close desktop drawer"]')
         .click()
         .then(() => {
           cy.get('ul.MuiList-root > li.MuiListItem-root')
@@ -118,7 +118,7 @@ describe('Landing page', () => {
         .then((widthStr) => {
           initialContentWidth = parseInt(widthStr);
         });
-      cy.get('div[area-label="open desktop drawer"]')
+      cy.get('div[aria-label="open desktop drawer"]')
         .click()
         .then(() => {
           cy.get('div.MuiBox-root div.MuiBox-root:last-child')

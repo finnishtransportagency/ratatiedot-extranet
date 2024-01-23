@@ -32,7 +32,7 @@ export const DesktopAppBar = () => {
             color="primary"
             variant="contained"
             onClick={openToolbarHandler}
-            aria-label={t('common:action.open_edit')}
+            aria-label={t('common:edit.edit_content')}
           >
             <EditIcon fontSize="small" />
             {t('common:edit.edit_content')}
