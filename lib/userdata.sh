@@ -6,6 +6,9 @@ if ! [ -d "/var/log/nodeserver" ]; then
   mkdir /var/log/nodeserver/
 fi
 
+# Check for updates
+dnf -y update
+
 # Must match port used in express
 nft add table ip filter
 nft add chain ip filter input { type filter hook input priority 0 \; }
