@@ -85,7 +85,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
       vpc,
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-09c13919869e4af37' }),
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-09e50afd561f15458' }),
       allowAllOutbound: true,
       role: asgRole,
       healthCheck: HealthCheck.elb({ grace: Duration.minutes(10) }),
@@ -116,7 +116,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
             '/home/ec2-user/cloudwatch-agent-config.json',
             `{"logs":{"logs_collected":{"files":{"collect_list":[{"file_path":"/var/log/nodeserver/logs.log","log_group_name":"${logGroupName}","log_stream_name":"{instance_id}","timezone":"UTC","retention_in_days":180}]}},"log_stream_name":"logs"}}`,
           ),
-          InitCommand.shellCommand('yum install -y amazon-cloudwatch-agent'),
+          InitCommand.shellCommand('dnf install amazon-cloudwatch-agent -y'),
           InitCommand.shellCommand(
             'sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/home/ec2-user/cloudwatch-agent-config.json',
           ),

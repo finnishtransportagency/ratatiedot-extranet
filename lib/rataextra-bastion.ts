@@ -35,8 +35,8 @@ export class RataExtraBastionStack extends Stack {
 
     const userData = UserData.forLinux();
     const userDataCommands = [
-      'sudo yum update -y',
-      'sudo yum install socat -y',
+      'sudo dnf -y update',
+      'sudo dnf install socat -y',
       `nohup socat TCP4-LISTEN:80,reuseaddr,fork TCP:${albDns}:80 &`,
     ];
     if (databaseDns) {
@@ -48,11 +48,11 @@ export class RataExtraBastionStack extends Stack {
     }
     userData.addCommands(...userDataCommands);
 
-    const bastion = new Instance(this, 'ec2-bastion-instance', {
+    new Instance(this, 'ec2-bastion-instance', {
       vpc,
       securityGroup,
       instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0b9b4e1a3d497aefa' }),
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-09e50afd561f15458' }),
       role: bastionRole,
       userData,
     });
