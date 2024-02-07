@@ -8,6 +8,9 @@ import {
   CachedMethods,
   KeyGroup,
   PublicKey,
+  OriginRequestHeaderBehavior,
+  OriginRequestCookieBehavior,
+  OriginRequestQueryStringBehavior,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { PolicyStatement, CanonicalUserPrincipal } from 'aws-cdk-lib/aws-iam';
@@ -82,12 +85,40 @@ export class RataExtraCloudFrontStack extends NestedStack {
       cloudfrontCertificateArn,
     );
 
+    const trueClientIp = new OriginRequestPolicy(this, 'TrueClientIp', {
+      originRequestPolicyName: 'TrueClientIp',
+      comment: 'Include true client ip in origin requests',
+      headerBehavior: OriginRequestHeaderBehavior.allowList('CloudFront-Viewer-Address'),
+      cookieBehavior: OriginRequestCookieBehavior.none(),
+      queryStringBehavior: OriginRequestQueryStringBehavior.none(),
+    });
+
+    const allViewerAndtrueClientIp = new OriginRequestPolicy(this, 'AllViewerAndtrueClientIp', {
+      originRequestPolicyName: 'AllViewerAndtrueClientIp',
+      comment: 'Include true client ip and all viewer headers in origin requests',
+      headerBehavior: OriginRequestHeaderBehavior.all('CloudFront-Viewer-Address'),
+      cookieBehavior: OriginRequestCookieBehavior.all(),
+      queryStringBehavior: OriginRequestQueryStringBehavior.all(),
+    });
+
+    const clientIpCFFunction = new Function(this, 'ClientIpCFFunction', {
+      code: FunctionCode.fromFile({
+        filePath: join(__dirname, '../packages/server/cloudfront/trueClientIp.js'),
+      }),
+    });
+
     const backendProxyBehavior: BehaviorOptions = {
       origin: new HttpOrigin(dmzApiEndpoint, { readTimeout: Duration.seconds(60) }),
       cachePolicy: CachePolicy.CACHING_DISABLED,
-      originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
+      originRequestPolicy: allViewerAndtrueClientIp,
       allowedMethods: AllowedMethods.ALLOW_ALL,
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      functionAssociations: [
+        {
+          function: clientIpCFFunction,
+          eventType: FunctionEventType.VIEWER_REQUEST,
+        },
+      ],
     };
 
     const cloudfrontDistribution = new Distribution(this, `rataextra-cloudfront`, {
@@ -105,6 +136,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       priceClass: PriceClass.PRICE_CLASS_100,
       enableLogging: true,
       defaultBehavior: {
+        originRequestPolicy: trueClientIp,
         origin: new S3Origin(frontendBucket, {
           originAccessIdentity: cloudfrontOAI,
         }),
@@ -128,9 +160,16 @@ export class RataExtraCloudFrontStack extends NestedStack {
         '/sso*': backendProxyBehavior,
         '/images*': {
           origin: new S3Origin(imageBucket, { originAccessIdentity: cloudfrontOAI }),
+          originRequestPolicy: trueClientIp,
           cachePolicy: CachePolicy.CACHING_OPTIMIZED,
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           trustedKeyGroups: [keyGroup],
+          functionAssociations: [
+            {
+              function: clientIpCFFunction,
+              eventType: FunctionEventType.VIEWER_REQUEST,
+            },
+          ],
         },
       },
     });
