@@ -88,9 +88,15 @@ export class RataExtraCloudFrontStack extends NestedStack {
     const allViewerAndClientIp = new OriginRequestPolicy(this, 'AllViewerAndClientIp', {
       originRequestPolicyName: 'AllViewerAndClientIp',
       comment: 'Include all viewer headers and true client ip in origin requests ',
-      headerBehavior: OriginRequestHeaderBehavior.all('CloudFront-Viewer-Address'),
+      headerBehavior: OriginRequestHeaderBehavior.allowList('CloudFront-Viewer-Address'),
       cookieBehavior: OriginRequestCookieBehavior.all(),
       queryStringBehavior: OriginRequestQueryStringBehavior.all(),
+    });
+
+    const clientIpCFFunction = new Function(this, 'ClientIpCFFunction', {
+      code: FunctionCode.fromFile({
+        filePath: join(__dirname, '../packages/server/cloudfront/trueClientIp.js'),
+      }),
     });
 
     const backendProxyBehavior: BehaviorOptions = {
@@ -101,11 +107,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       functionAssociations: [
         {
-          function: new Function(this, 'ClientIpCFFunction', {
-            code: FunctionCode.fromFile({
-              filePath: join(__dirname, '../packages/server/cloudfront/trueClientIp.js'),
-            }),
-          }),
+          function: clientIpCFFunction,
           eventType: FunctionEventType.VIEWER_REQUEST,
         },
       ],
@@ -156,11 +158,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
           trustedKeyGroups: [keyGroup],
           functionAssociations: [
             {
-              function: new Function(this, 'ClientIpCFFunction', {
-                code: FunctionCode.fromFile({
-                  filePath: join(__dirname, '../packages/server/cloudfront/trueClientIp.js'),
-                }),
-              }),
+              function: clientIpCFFunction,
               eventType: FunctionEventType.VIEWER_REQUEST,
             },
           ],
