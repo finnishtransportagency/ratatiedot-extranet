@@ -11,11 +11,6 @@ function handler(event) {
   var headers = request.headers;
   var cookies = request.cookies;
 
-  var clientIP = event.viewer.ip;
-
-  // Add the true-client-ip header to the incoming request
-  request.headers['true-client-ip'] = { value: clientIP };
-
   var index = request.uri === '/' || request.uri === '/index.html';
   var isFile = request.uri.split('.').length > 1;
 
