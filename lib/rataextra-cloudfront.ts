@@ -85,10 +85,18 @@ export class RataExtraCloudFrontStack extends NestedStack {
       cloudfrontCertificateArn,
     );
 
-    const allViewerAndClientIp = new OriginRequestPolicy(this, 'AllViewerAndClientIp', {
-      originRequestPolicyName: 'AllViewerAndClientIp',
-      comment: 'Include all viewer headers and true client ip in origin requests ',
+    const trueClientIp = new OriginRequestPolicy(this, 'TrueClientIp', {
+      originRequestPolicyName: 'TrueClientIp',
+      comment: 'Include true client ip in origin requests',
       headerBehavior: OriginRequestHeaderBehavior.allowList('CloudFront-Viewer-Address'),
+      cookieBehavior: OriginRequestCookieBehavior.none(),
+      queryStringBehavior: OriginRequestQueryStringBehavior.none(),
+    });
+
+    const allViewerAndtrueClientIp = new OriginRequestPolicy(this, 'AllViewerAndtrueClientIp', {
+      originRequestPolicyName: 'AllViewerAndtrueClientIp',
+      comment: 'Include true client ip and all viewer headers in origin requests',
+      headerBehavior: OriginRequestHeaderBehavior.all('CloudFront-Viewer-Address'),
       cookieBehavior: OriginRequestCookieBehavior.all(),
       queryStringBehavior: OriginRequestQueryStringBehavior.all(),
     });
@@ -102,7 +110,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
     const backendProxyBehavior: BehaviorOptions = {
       origin: new HttpOrigin(dmzApiEndpoint, { readTimeout: Duration.seconds(60) }),
       cachePolicy: CachePolicy.CACHING_DISABLED,
-      originRequestPolicy: allViewerAndClientIp,
+      originRequestPolicy: allViewerAndtrueClientIp,
       allowedMethods: AllowedMethods.ALLOW_ALL,
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       functionAssociations: [
@@ -128,7 +136,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
       priceClass: PriceClass.PRICE_CLASS_100,
       enableLogging: true,
       defaultBehavior: {
-        originRequestPolicy: allViewerAndClientIp,
+        originRequestPolicy: trueClientIp,
         origin: new S3Origin(frontendBucket, {
           originAccessIdentity: cloudfrontOAI,
         }),
@@ -152,7 +160,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
         '/sso*': backendProxyBehavior,
         '/images*': {
           origin: new S3Origin(imageBucket, { originAccessIdentity: cloudfrontOAI }),
-          originRequestPolicy: allViewerAndClientIp,
+          originRequestPolicy: trueClientIp,
           cachePolicy: CachePolicy.CACHING_OPTIMIZED,
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           trustedKeyGroups: [keyGroup],
