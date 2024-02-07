@@ -32,6 +32,7 @@ interface RatatietoNodeBackendStackProps extends StackProps {
   readonly region: string;
   readonly parentStackName: string;
   readonly jwtTokenIssuer: string;
+  readonly jwtTokenIssuers: string;
   readonly alfrescoAPIKey: string;
   readonly alfrescoAPIUrl: string;
   readonly alfrescoAncestor: string;
@@ -55,7 +56,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       securityGroup,
       region,
       parentStackName,
-      jwtTokenIssuer,
+      jwtTokenIssuers,
       alfrescoAPIKey,
       alfrescoAPIUrl,
       alfrescoAncestor,
@@ -159,7 +160,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     // Hack to replace old instance by modifying asg init configuration file.
     autoScalingGroup.addUserData(`# instance created at: ${new Date()}`);
     autoScalingGroup.addUserData(
-      `export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUER=${jwtTokenIssuer}" "MOCK_UID=${mockUid}"`,
+      `export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUERS=${jwtTokenIssuers}" "MOCK_UID=${mockUid}"`,
     );
     autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v16.20.0/bin/node /usr/bin/node');
     autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v16.20.0/bin/npm /usr/bin/npm');
