@@ -13,6 +13,7 @@ interface DialogButtonProps {
   nestedFolderId?: string;
   buttonProps?: ButtonProps;
   onUpload?: (response: AxiosResponse) => any;
+  fileExists: (fileName: string) => boolean;
 }
 
 export const UploadDialogButton: FunctionComponent<DialogButtonProps> = ({
@@ -20,6 +21,7 @@ export const UploadDialogButton: FunctionComponent<DialogButtonProps> = ({
   categoryName,
   nestedFolderId,
   onUpload,
+  fileExists,
 }) => {
   const [openFileDialog, setOpenFileDialog] = useState(false);
   const [openNewFolderDialog, setOpenNewFolderDialog] = useState(false);
@@ -83,6 +85,7 @@ export const UploadDialogButton: FunctionComponent<DialogButtonProps> = ({
         open={openFileDialog}
         categoryName={categoryName}
         nestedFolderId={nestedFolderId}
+        fileExists={fileExists}
       ></FileUploadDialog>
       <NewFolderDialog
         onClose={handleCloseNewFolderDialog}

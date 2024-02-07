@@ -225,7 +225,7 @@ export const FilterSearch = (props: FilterSearchProps) => {
           {t('search:action.update_results')}
         </ButtonWrapper>
         <Box sx={{ flexGrow: 1 }} />
-        <IconButtonWrapper size="large" area-label="filter" onClick={toggleFilter}>
+        <IconButtonWrapper size="large" aria-label="filter" onClick={toggleFilter}>
           {openFilter ? <DisabledByDefaultIcon color="primary" /> : <TuneIcon color="primary" />}
         </IconButtonWrapper>
       </Toolbar>

@@ -12,7 +12,7 @@ import { Colors } from '../../constants/Colors';
 import { Search } from '../Search';
 import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { useTranslation } from 'react-i18next';
 
@@ -40,7 +40,7 @@ export const MiniAppBar = () => {
           size="large"
           edge="start"
           color="inherit"
-          area-label={openMiniDrawer ? 'close drawer' : 'open drawer'}
+          aria-label={openMiniDrawer ? 'close drawer' : 'open drawer'}
           onClick={toggleMiniDrawer}
         >
           {openMiniDrawer ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}

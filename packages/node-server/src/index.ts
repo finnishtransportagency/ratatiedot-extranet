@@ -2,7 +2,6 @@ import multer from 'multer';
 import express, { Request, Response } from 'express';
 import { log } from './utils/logger.js';
 import uploadFileHandler from './services/alfresco/upload-file.js';
-import { RataExtraEC2Error } from './utils/errors.js';
 
 const upload = multer().single('filedata');
 
@@ -13,12 +12,6 @@ const uploadFile = async (req: Request, res: Response) => {
   } catch (err) {
     log.error(err);
     if (err.status) {
-      if (err.status === 409) {
-        const rataExtraEC2Error = new RataExtraEC2Error('File already exists', 409, 'nodeAlreadyExists');
-        return res
-          .status(rataExtraEC2Error.statusCode)
-          .json({ errorTranslationKey: rataExtraEC2Error.errorTranslationKey });
-      }
       res.sendStatus(err.status);
     } else {
       res.sendStatus(500);
