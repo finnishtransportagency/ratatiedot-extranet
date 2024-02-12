@@ -1,0 +1,8 @@
+export const QueryKeys = {
+  ALFRESCO_SEARCH: 'alfresco-search',
+  UPDATE_PAGE_CONTENTS_QUERY_KEY: 'update-page-content',
+  GET_PAGE_CONTENTS_QUERY_KEY: 'get-page-content',
+  GET_USER_RIGHT_PAGE_CONTENT_QUERY_KEY: 'get-user-right',
+  UPDATE_NOTICE_PAGE_CONTENTS_QUERY_KEY: 'update-notice-page-content',
+  CREATE_NOTICE_PAGE_CONTENTS_QUERY_KEY: 'create-notice-page-content',
+};

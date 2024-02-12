@@ -1,4 +1,4 @@
-import * as cdk from 'aws-cdk-lib';
+import { Stack } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { RataExtraEnvironment, getRataExtraStackConfig } from './config';
 import { RemovalPolicy, StackProps, Tags } from 'aws-cdk-lib';
@@ -15,25 +15,37 @@ interface RataExtraStackProps extends StackProps {
   readonly tags: { [key: string]: string };
 }
 
-export class RataExtraStack extends cdk.Stack {
+export class RataExtraStack extends Stack {
   #rataExtraStackIdentifier: string;
 
   constructor(scope: Construct, id: string, props: RataExtraStackProps) {
     super(scope, id, props);
     this.#rataExtraStackIdentifier = id.toLowerCase();
     const { rataExtraEnv, stackId, tags } = props;
-    const { cloudfrontCertificateArn, cloudfrontDomainName, dmzApiEndpoint, databaseDomain, jwtTokenIssuer } =
-      getRataExtraStackConfig(this);
+    const {
+      cloudfrontCertificateArn,
+      cloudfrontDomainName,
+      dmzApiEndpoint,
+      databaseDomain,
+      jwtTokenIssuer,
+      alfrescoAPIKey,
+      alfrescoApiUrl,
+      alfrescoAncestor,
+      mockUid,
+      alfrescoSitePath,
+      serviceUserUid,
+      cloudfrontSignerPublicKeyId,
+    } = getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
-      ...getVpcAttributes(rataExtraEnv),
+      ...getVpcAttributes(stackId, rataExtraEnv),
     });
 
     // TODO: Fix import
     const securityGroup = SecurityGroup.fromSecurityGroupId(
       this,
       'rataextra-security-group',
-      getSecurityGroupId(rataExtraEnv),
+      getSecurityGroupId(stackId, rataExtraEnv),
     );
 
     const lambdaServiceRole = this.createServiceRole(
@@ -41,6 +53,23 @@ export class RataExtraStack extends cdk.Stack {
       'lambda.amazonaws.com',
       'service-role/AWSLambdaVPCAccessExecutionRole',
     );
+
+    const removalPolicy = getRemovalPolicy(rataExtraEnv);
+    const autoDeleteObjects = removalPolicy === RemovalPolicy.DESTROY;
+
+    const imageBucket = new Bucket(this, `rataextra-images-`, {
+      bucketName: `s3-${this.#rataExtraStackIdentifier}-images`,
+      publicReadAccess: false,
+      accessControl: BucketAccessControl.PRIVATE,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: removalPolicy,
+      autoDeleteObjects: autoDeleteObjects,
+      objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
+      encryption: BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+      versioned: true,
+    });
+
     const backendStack = new RataExtraBackendStack(this, 'stack-backend', {
       rataExtraStackIdentifier: this.#rataExtraStackIdentifier,
       rataExtraEnv: rataExtraEnv,
@@ -52,11 +81,16 @@ export class RataExtraStack extends cdk.Stack {
       cloudfrontDomainName: cloudfrontDomainName,
       jwtTokenIssuer,
       tags: tags,
+      alfrescoAPIKey: alfrescoAPIKey,
+      alfrescoAPIUrl: alfrescoApiUrl,
+      alfrescoAncestor,
+      mockUid: mockUid,
+      alfrescoSitePath: alfrescoSitePath,
+      serviceUserUid: serviceUserUid,
+      imageBucket: imageBucket,
+      cloudfrontSignerPublicKeyId: cloudfrontSignerPublicKeyId,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
-
-    const removalPolicy = getRemovalPolicy(rataExtraEnv);
-    const autoDeleteObjects = removalPolicy === RemovalPolicy.DESTROY;
 
     // TODO: Bucket creation as a function?
     const frontendBucket = new Bucket(this, `rataextra-frontend-`, {
@@ -68,6 +102,8 @@ export class RataExtraStack extends cdk.Stack {
       autoDeleteObjects: autoDeleteObjects,
       objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
       encryption: BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+      versioned: true,
     });
 
     if (isPermanentStack(stackId, rataExtraEnv)) {
@@ -78,6 +114,8 @@ export class RataExtraStack extends cdk.Stack {
         cloudfrontDomainName: cloudfrontDomainName,
         dmzApiEndpoint: dmzApiEndpoint,
         frontendBucket: frontendBucket,
+        imageBucket: imageBucket,
+        cloudfrontSignerPublicKeyId: cloudfrontSignerPublicKeyId,
       });
       Object.entries(props.tags).forEach(([key, value]) => Tags.of(cloudFrontStack).add(key, value));
     }

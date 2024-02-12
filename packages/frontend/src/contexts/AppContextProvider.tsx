@@ -1,7 +1,17 @@
 import { FC } from 'react';
-import { SearchContextProvider } from './SearchContext';
+import { AppBarContextProvider } from './AppBarContext';
+import { MenuContextProvider } from './MenuContext';
+import { EditorContextProvider } from './EditorContext';
+import { CategoryDataContextProvider } from './CategoryDataContext';
+import { ErrorContextProvider } from './ErrorContext';
 
-const providers = [SearchContextProvider];
+const providers = [
+  AppBarContextProvider,
+  MenuContextProvider,
+  EditorContextProvider,
+  CategoryDataContextProvider,
+  ErrorContextProvider,
+];
 
 const combineComponents = (...components: FC[]) => {
   return components.reduce(

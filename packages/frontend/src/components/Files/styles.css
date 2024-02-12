@@ -1,0 +1,15 @@
+.additional-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.expand-button {
+  transition: transform 0.2s ease-in-out;
+}
+
+.expand-button.active {
+  transform: rotate(180deg);
+}

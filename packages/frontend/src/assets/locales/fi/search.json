@@ -1,0 +1,29 @@
+{
+  "from_year": "Vuodesta",
+  "to_year": "Vuoteen",
+  "search_results": "Hakutulokset",
+  "results": "tulosta",
+  "time": "Aika",
+  "sort_results": "Lajittele tulokset",
+  "content_search": "Sisältöhaku",
+  "content_search_checkbox": "Sisältö",
+  "title_search_checkbox": "Otsikko",
+  "name_search_checkbox": "Nimi",
+  "description_search_checkbox": "Selite",
+  "no_sort": "Ei lajiteltu",
+  "A-Z": "A-Ö",
+  "Z-A": "Ö-A",
+  "oldest_first": "Vanhin ensin",
+  "latest_first": "Uusin ensin",
+  "last_searches": "VIIMEISET HAUT",
+  "show_results": " Näytetään {{files}}/{{total}} tulosta",
+  "zero_result": "Hakusanalla \"{{query}}\" ei löytynyt tuloksia. Tarkista oikeinkirjoitus, kokeile toisella hakusanalla tai muokkaa valitsemiasi suodattimia.",
+  "image": "Kuva",
+  "format": "Muoto",
+  "category": "Aineistoluokka",
+  "area": "Alue",
+  "action": {
+    "update_results": "Päivitä tulokset",
+    "remove_filters": "Poista kaikki suodattimet"
+  }
+}

@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  font-family: 'Exo2-Regular', Exo2-Bold, 'Exo2-ExtraBold', 'Exo2-LightItalic', 'Arial', serif;
 }
 
 @font-face {
@@ -20,4 +21,10 @@ body {
 @font-face {
   font-family: 'Exo2-LightItalic';
   src: local('Exo2-LightItalic'), url('./assets//fonts/Exo_2/Exo2-LightItalic.ttf') format('truetype');
+}
+
+/* Hide browser default file input button */
+::-webkit-file-upload-button,
+::file-selector-button {
+  display: none;
 }

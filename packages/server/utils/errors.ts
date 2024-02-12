@@ -3,17 +3,25 @@
  */
 export class RataExtraLambdaError extends Error {
   statusCode: number;
-  constructor(message: string, statusCode: number) {
+  errorTranslationKey?: string;
+  constructor(message: string, statusCode: number, errorTranslationKey?: string) {
     super(message);
     this.statusCode = statusCode;
+    this.errorTranslationKey = errorTranslationKey;
   }
 }
 
 /**
- * Returns error message to be returned to client
+ * Returns error translation key that gets translated on client
+ */
+export const getClientErrorTranslationKey = (err: unknown) =>
+  err instanceof RataExtraLambdaError && err.errorTranslationKey;
+
+/**
+ * Returns error message to client
  */
 export const getClientErrorMessage = (err: unknown) =>
-  (err instanceof RataExtraLambdaError && err.message) || 'An error occurred processing the request.';
+  (err instanceof RataExtraLambdaError && err.message) || 'Pyynnössä tapahtui virhe.';
 
 /**
  * Returns error response object for RataExtra API requests
@@ -23,5 +31,9 @@ export const getRataExtraLambdaError = (err: unknown) => ({
   headers: {
     'Content-Type': 'application/json',
   },
-  body: JSON.stringify({ message: getClientErrorMessage(err) }, null, 2),
+  body: JSON.stringify(
+    { errorTranslationKey: getClientErrorTranslationKey(err), message: getClientErrorMessage(err) },
+    null,
+    2,
+  ),
 });

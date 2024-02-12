@@ -1,59 +1,108 @@
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { useState } from 'react';
+import { Fragment, useContext } from 'react';
 import { Colors } from '../../constants/Colors';
+import { AppBarContext } from '../../contexts/AppBarContext';
+import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
+import { useLocation } from 'react-router-dom';
+import { capitalize } from 'lodash';
+import { getRouterName } from '../../utils/helpers';
+import { theme } from '../../styles/createTheme';
+import { useTranslation } from 'react-i18next';
 
-import { IMenuItem, MenuItems } from './MenuItems';
+export const MenuList = () => {
+  const { t } = useTranslation(['common']);
+  const { openMiniDrawer, toggleDesktopDrawer, openDesktopDrawer } = useContext(AppBarContext);
+  const { menu, menuItems, menuHandler } = useContext(MenuContext);
 
-type MenuListProps = {
-  open: boolean;
-};
-
-export const MenuList = ({ open }: MenuListProps) => {
-  const resetMenu = () => {
-    let menuData = {};
-    MenuItems.forEach((item: IMenuItem) => {
-      menuData = {
-        ...menuData,
-        [item.key]: false,
-      };
-    });
-    return menuData;
+  const categoryHandler = (key: string) => {
+    menuHandler(key);
+    if (!openDesktopDrawer) {
+      toggleDesktopDrawer();
+    }
   };
-
-  const [menu, setMenu] = useState<{ [key: string]: boolean }>(resetMenu);
-
-  const handleClick = (key: string) => {
-    setMenu({ ...menu, [key]: !menu[key] });
-  };
+  const { pathname } = useLocation();
+  const routeName = getRouterName(pathname).split('/').filter(Boolean)[0];
 
   return (
     <>
-      {MenuItems.map((item: IMenuItem) => {
+      {menuItems.map((item: IMenuItem) => {
         const { key, primary, icon, to, children } = item;
+
+        const selected =
+          (key !== t('common:menu.logout') && capitalize(getRouterName(primary as string)) === capitalize(routeName)) ||
+          (key === t('common:menu.frontpage') && pathname === '/');
         return (
-          <>
-            <ListItem disablePadding key={key} alignItems="flex-start" onClick={() => handleClick(key)}>
-              <ListItemButton href={to ? to : ''}>
+          <Fragment key={key}>
+            <ListItem disablePadding alignItems="flex-start" onClick={() => categoryHandler(key)}>
+              <ListItemButton
+                href={to ? to : ''}
+                selected={selected}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: '#fff',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: '4px',
+                      backgroundColor: Colors.midblue,
+                    },
+                    '&.MuiListItemButton-root:hover': {
+                      backgroundColor: theme.palette.action.hover,
+                    },
+                  },
+                }}
+              >
                 <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={primary} sx={{ opacity: open ? 1 : 0 }} />
-                {children && (menu[key] ? <ExpandLess /> : <ExpandMore />)}
+                <ListItemText
+                  primary={primary}
+                  sx={{
+                    opacity: openDesktopDrawer || openMiniDrawer ? 1 : 0,
+                    '.MuiListItemText-primary': {
+                      fontFamily: selected ? 'Exo2-Bold' : 'Exo2-Regular',
+                    },
+                  }}
+                />
+                {children && (menu[key as never] ? <ExpandLess /> : <ExpandMore />)}
               </ListItemButton>
             </ListItem>
             {children &&
-              menu[key] &&
+              menu[key as never] &&
               children.map((child: IMenuItem) => {
+                const selected = child.to === pathname;
                 return (
                   <ListItemButton
-                    sx={{ pl: 9, whiteSpace: 'normal', flexGrow: 'unset', backgroundColor: Colors.lightgrey }}
+                    sx={{
+                      pl: 9,
+                      whiteSpace: 'normal',
+                      flexGrow: 'unset',
+                      backgroundColor: Colors.lightgrey,
+                      '&.Mui-selected': {
+                        backgroundColor: Colors.midgrey,
+                        '&.MuiListItemButton-root:hover': {
+                          backgroundColor: theme.palette.action.hover,
+                        },
+                      },
+                    }}
                     key={child.key}
                     href={child.to ? child.to : ''}
+                    selected={child.to === pathname}
                   >
-                    <ListItemText primary={child.primary} />
+                    <ListItemText
+                      primary={child.primary}
+                      sx={{
+                        '.MuiListItemText-primary': {
+                          fontFamily: selected ? 'Exo2-Bold' : 'Exo2-Regular',
+                        },
+                      }}
+                    />
                   </ListItemButton>
                 );
               })}
-          </>
+          </Fragment>
         );
       })}
     </>

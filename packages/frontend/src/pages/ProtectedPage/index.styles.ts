@@ -1,21 +1,56 @@
 import styled from '@emotion/styled';
-import { Box } from '@mui/material';
+import { Box, CSSObject, Theme } from '@mui/material';
+import { DrawerWrapperProps } from '../../components/NavBar/DesktopDrawer';
 
-export const ProtectedContainerWrapper = styled(Box)(({ theme }) => ({
+export const ContainerWrapper = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down('desktop')]: {
-    display: 'block',
+    display: 'flex',
+    flexDirection: 'row',
+    minHeight: '100vh',
   },
   [theme.breakpoints.up('desktop')]: {
     display: 'flex',
+    flexDirection: 'row',
+    minHeight: '100vh',
     '& .MuiToolbar-root': {
       padding: 0,
     },
   },
 }));
 
-export const ContentWrapper = styled('div')(({ theme }) => ({
-  width: '100%',
-  [theme.breakpoints.up('desktop')]: {
-    marginTop: '90px',
-  },
-}));
+const openedEditContentMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create('margin', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+  marginTop: '250px',
+});
+
+const closedContentMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create('margin', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: 'hidden',
+  marginTop: '90px',
+});
+
+const openedToolbarContentMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create('margin', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+  marginTop: '180px',
+});
+
+export const ContentWrapper = styled(Box)<DrawerWrapperProps>(({ theme, openedit, opentoolbar }) => {
+  return {
+    [theme.breakpoints.up('desktop')]: {
+      ...((openedit && { ...openedEditContentMixin(theme) }) as any),
+      ...((!openedit && { ...closedContentMixin(theme) }) as any),
+      ...((opentoolbar && { ...openedToolbarContentMixin(theme) }) as any),
+    },
+  };
+});

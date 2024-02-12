@@ -1,9 +1,13 @@
-import { SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
-import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-import { Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
+import { RemovalPolicy, SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
+import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
+import { BuildEnvironmentVariableType, Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
-import { getPipelineConfig, RataExtraEnvironment } from './config';
+import { ENVIRONMENTS, getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';
+import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
+import { isDevelopmentMainStack } from './utils';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { Pipeline } from 'aws-cdk-lib/aws-codepipeline';
 
 /**
  * The stack that defines the application pipeline
@@ -17,16 +21,48 @@ export class RataExtraPipelineStack extends Stack {
       },
       tags: config.tags,
     });
+    const { alfrescoDownloadUrl, sonarQubeUrl } = getRataExtraStackConfig(this);
 
-    const pipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
-      pipelineName: 'pr-rataextra-' + config.stackId,
+    const viteEnvironment = () => {
+      if (config.env === ENVIRONMENTS.prod) {
+        return ENVIRONMENTS.prod;
+      }
+      return ENVIRONMENTS.dev;
+    };
+
+    const oauth = SecretValue.secretsManager(config.authenticationToken);
+
+    const github = CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
+      authentication: oauth,
+    });
+
+    const artifactBucket = new Bucket(this, `s3-rataextra-pipeline-${config.stackId}`, {
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      enforceSSL: true,
+    });
+
+    const pipeline = new Pipeline(this, 'pipeline', {
+      artifactBucket: artifactBucket,
+      pipelineName: `cpl-rataextra-${config.stackId}`,
+    });
+
+    // Can't start build process otherwise
+    pipeline.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['codebuild:StartBuild'],
+        resources: ['*'],
+      }),
+    );
+
+    const codePipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
+      codePipeline: pipeline,
       synth: new ShellStep('Synth', {
-        input: CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
-          authentication: SecretValue.secretsManager(config.authenticationToken),
-        }),
+        input: github,
         installCommands: ['npm run ci --user=root'],
         commands: [
-          'npm run build:frontend',
+          `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} npm run build:frontend`,
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
         ],
       }),
@@ -38,7 +74,39 @@ export class RataExtraPipelineStack extends Stack {
         },
       },
     });
-    pipeline.addStage(
+
+    const strip = new CodeBuildStep('StripAssetsFromAssembly', {
+      input: codePipeline.cloudAssemblyFileSet,
+      commands: [
+        "cross_region_replication_buckets=$(grep BucketName cross-region-stack-* | awk -F 'BucketName' '{print $2}' | tr -d ': ' | tr -d '\"' | tr -d ',')",
+        'S3_PATH=${CODEBUILD_SOURCE_VERSION#"arn:aws:s3:::"}',
+        'ZIP_ARCHIVE=$(basename $S3_PATH)',
+        'rm -rf asset.*',
+        'zip -r -q -A $ZIP_ARCHIVE *',
+        'aws s3 cp $ZIP_ARCHIVE s3://$S3_PATH',
+        'object_location=${S3_PATH#*/}',
+        'for bucket in $cross_region_replication_buckets; do aws s3 cp $ZIP_ARCHIVE s3://$bucket/$object_location; done',
+      ],
+      // TODO use more accurate resource definition
+      rolePolicyStatements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          resources: ['arn:aws:s3:::*'],
+          actions: ['s3:GetObject', 's3:ListBucket', 's3:PutObject'],
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          resources: [`arn:aws:kms:${this.region}:${this.account}:aws/ssm`],
+          actions: ['kms:GenerateDataKey'],
+        }),
+      ],
+    });
+
+    codePipeline.addWave('BeforeStageDeploy', {
+      pre: [strip],
+    });
+
+    codePipeline.addStage(
       new RataExtraApplication(this, 'RataExtra', {
         stackId: config.stackId,
         rataExtraEnv: config.env,
@@ -48,6 +116,38 @@ export class RataExtraPipelineStack extends Stack {
         },
       }),
     );
+
+    if (isDevelopmentMainStack(config.stackId, config.env)) {
+      const sonarQube = new CodeBuildStep('Scan', {
+        input: github,
+        buildEnvironment: {
+          environmentVariables: {
+            SONAR_TOKEN: {
+              value: config.sonarQubeToken,
+              type: BuildEnvironmentVariableType.SECRETS_MANAGER,
+            },
+          },
+        },
+        installCommands: [
+          'export SONAR_SCANNER_VERSION=4.7.0.2747',
+          'export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux',
+          'curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip',
+          'unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/',
+          'export PATH=$SONAR_SCANNER_HOME/bin:$PATH',
+          'export SONAR_SCANNER_OPTS="-server"',
+        ],
+        commands: [
+          `sonar-scanner \
+            -Dsonar.projectKey=Ratatieto \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=${sonarQubeUrl}`,
+        ],
+      });
+
+      codePipeline.addWave('SonarQube', {
+        pre: [sonarQube],
+      });
+    }
   }
 }
 interface RataExtraStageProps extends StageProps {

@@ -4,29 +4,35 @@ import { Box, Toolbar, IconButton, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
+import EditIcon from '@mui/icons-material/Edit';
 
 import RataExtLogo from '../../assets/images/Logo_noText.png';
 
 import { Colors } from '../../constants/Colors';
 import { Search } from '../Search';
+import { useContext } from 'react';
+import { AppBarContext } from '../../contexts/AppBarContext';
+import { Link } from 'react-router-dom';
+import { Routes } from '../../constants/Routes';
+import { useTranslation } from 'react-i18next';
 
-type MiniAppBarProps = {
-  openDrawer: boolean;
-  openSearch: boolean;
-  openFilter: boolean;
-  toggleDrawer: any;
-  toggleSearch: any;
-  toggleFilter: any;
-};
+export const MiniAppBar = () => {
+  const {
+    openMiniDrawer,
+    toggleMiniDrawer,
+    openSearch,
+    toggleSearch,
+    openEdit,
+    openToolbar,
+    openToolbarHandler,
+    userRight,
+  } = useContext(AppBarContext);
 
-export const MiniAppBar = ({
-  openDrawer,
-  openSearch,
-  openFilter,
-  toggleDrawer,
-  toggleSearch,
-  toggleFilter,
-}: MiniAppBarProps) => {
+  const userWriteRight = userRight.canWrite || userRight.isAdmin;
+  const shouldEdit = userWriteRight && !openEdit && !openToolbar;
+
+  const { t } = useTranslation(['common']);
+
   const MainAppBar = () => {
     return (
       <>
@@ -34,15 +40,36 @@ export const MiniAppBar = ({
           size="large"
           edge="start"
           color="inherit"
-          area-label={openDrawer ? 'close drawer' : 'open drawer'}
-          onClick={toggleDrawer}
+          aria-label={openMiniDrawer ? 'close drawer' : 'open drawer'}
+          onClick={toggleMiniDrawer}
         >
-          {openDrawer ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
+          {openMiniDrawer ? <CloseIcon color="primary" /> : <MenuIcon color="primary" />}
         </IconButton>
-        <Typography sx={{ width: '40px', height: '40px' }} component="img" src={RataExtLogo} alt="Logo" />
-        <Typography sx={{ fontSize: '18px' }}>Ratatiedon extranet</Typography>
+        <Link to={Routes.HOME} style={{ textDecoration: 'none', boxShadow: 'none', color: Colors.extrablack }}>
+          <Toolbar sx={{ padding: 0 }}>
+            <Typography sx={{ width: '40px', height: '40px' }} component="img" src={RataExtLogo} alt="Logo" />
+            <Typography sx={{ fontSize: '18px' }}>RATATIETO</Typography>
+          </Toolbar>
+        </Link>
         <Box sx={{ flexGrow: 1 }} />
-        <IconButton size="large" edge="end" color="inherit" area-label="open search" onClick={toggleSearch}>
+        {shouldEdit && (
+          <IconButton
+            size="large"
+            edge="end"
+            color="inherit"
+            aria-label={t('common:action.open_edit')}
+            onClick={openToolbarHandler}
+          >
+            <EditIcon fontSize="small" color="primary" />
+          </IconButton>
+        )}
+        <IconButton
+          size="large"
+          edge="end"
+          color="inherit"
+          aria-label={t('common:action.open_search')}
+          onClick={toggleSearch}
+        >
           <SearchIcon color="primary" />
         </IconButton>
       </>
@@ -50,19 +77,8 @@ export const MiniAppBar = ({
   };
 
   return (
-    <MiniAppBarWrapper position="fixed" color="transparent" open={openDrawer}>
-      <Toolbar>
-        {openSearch ? (
-          <Search
-            openSearch={openSearch}
-            toggleSearch={toggleSearch}
-            openFilter={openFilter}
-            toggleFilter={toggleFilter}
-          />
-        ) : (
-          <MainAppBar />
-        )}
-      </Toolbar>
+    <MiniAppBarWrapper position="fixed" color="transparent" open={openMiniDrawer}>
+      <Toolbar>{openSearch ? <Search /> : <MainAppBar />}</Toolbar>
     </MiniAppBarWrapper>
   );
 };

@@ -1,67 +1,84 @@
-import { Typography } from '@mui/material';
-import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { ContainerWrapper, SubtitleWrapper, ParagraphWrapper } from './index.styles';
-import { ButtonWrapper } from '../../styles/ButtonWrapper';
-import { Footer } from '../../components/Footer';
-import { useQuery } from '@tanstack/react-query';
+import { SubtitleWrapper, ParagraphWrapper } from './index.styles';
+import { ProtectedContainerWrapper } from '../../styles/common';
+import { Grid, Link } from '@mui/material';
+import { ActivityList } from '../../components/ActivityStream/ActivityList';
+import { NoticeList } from '../../components/Notices/NoticeList';
+import { useError } from '../../contexts/ErrorContext';
+import { ErrorMessage } from '../../components/Notification/ErrorMessage';
+import { useEffect, useState } from 'react';
+import { Spinner } from '../../components/Spinner';
+import { getNotices } from '../../services/NoticeListService';
+import { getActivities } from '../../services/ActivityListService';
+import { Notice, Activity } from '../../types/types';
+
+const withApiData = (NoticeList: any, ActivityList: any) => {
+  return () => {
+    const [data, setData] = useState<{ notices: Notice[]; activities: Activity[] } | null>(null);
+    const [error, setError] = useState<Error | null>(null);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response1 = await getNotices();
+          const response2 = await getActivities();
+
+          setData({ notices: response1.data.notices, activities: response2.data.data });
+        } catch (error: any) {
+          setError(error);
+        }
+      };
+
+      fetchData();
+    }, []);
+
+    if (error) {
+      return <ErrorMessage error={error} />;
+    }
+
+    if (!data) {
+      return <Spinner />;
+    }
+
+    return (
+      <Grid container spacing={2}>
+        <Grid item mobile={12} tablet={12} desktop={6}>
+          <NoticeList notices={data.notices} />
+        </Grid>
+        <Grid item mobile={12} tablet={12} desktop={6}>
+          <ActivityList modifiedFiles={data.activities} />
+        </Grid>
+      </Grid>
+    );
+  };
+};
+
+const ActivityAndNoticeLists = withApiData(NoticeList, ActivityList);
 
 export const Landing = () => {
-  // temporary state -> should save in db instead
-  const [isFirstLogin, setIsFirstLogin] = useState(() => {
-    const saved = localStorage.getItem('isFirstLogin') || 'true';
-    const initialValue = JSON.parse(saved);
-    return initialValue === 'true' || initialValue;
-  });
+  const { t } = useTranslation(['common', 'landing']);
+  const { error } = useError();
 
-  const acceptTerm = () => {
-    setIsFirstLogin(false);
-    localStorage.setItem('isFirstLogin', 'false');
-  };
-
-  const FirstLoginView = () => {
-    return (
-      <>
-        <SubtitleWrapper variant="subtitle1">Käyttöohjeet: Ratatiedon extranet</SubtitleWrapper>
-        <ParagraphWrapper variant="body1">
-          Ratatiedon extranettiin kerätty aineisto on tarkoitettu liikenteenohjaukselle, isännöitsijöille,
-          kunnossapitäjille, rakentajille ja liikennöijille. Tietoja ei saa luovuttaa eteenpäin ilman Väyläviraston
-          lupaa. Tietoja saa käyttää radanpidon ja liikennöinnin työtehtäviin.
-        </ParagraphWrapper>
-        <ParagraphWrapper variant="body1">
-          Ratatiedon extranetin käyttäjät ovat sitoutuneet noudattamaan ylläolevia palvelun sääntöjä. Palvelun tunnukset
-          ovat henkilökohtaiset.
-        </ParagraphWrapper>
-        <Typography variant="subtitle2">Jatkakseesi palveluun sinun on hyväksyttävä käyttöohjeet.</Typography>
-        <ButtonWrapper color="primary" variant="contained" onClick={acceptTerm}>
-          Hyväksy
-        </ButtonWrapper>
-      </>
-    );
-  };
-
-  const LandingView = () => {
-    useQuery({
-      queryKey: ['dummy2'],
-      queryFn: async () => {
-        const response = await fetch('/api/test');
-        if (!response.ok) {
-          throw new Error('Dummy2 failed');
-        }
-        return response.json();
-      },
-    });
-    return (
-      <>
-        <SubtitleWrapper variant="subtitle1">Tervetuloa uudistuneeseen Ratatiedon extranettiin</SubtitleWrapper>
-        <ParagraphWrapper variant="body1">
-          Tarkista ajankohtaiset ilmoitukset, viimeksi muokatut tiedostot ja omat suosikit suoraan tältä sivulta. Voit
-          siirtyä myös muihin aineistoihin navigaation tai haun kautta.
-        </ParagraphWrapper>
-        <Footer />
-      </>
-    );
-  };
-
-  return <ContainerWrapper>{isFirstLogin ? <FirstLoginView /> : <LandingView />}</ContainerWrapper>;
+  return (
+    <ProtectedContainerWrapper>
+      <SubtitleWrapper variant="subtitle1">{t('landing:welcome.text')}</SubtitleWrapper>
+      <ParagraphWrapper variant="body1">{t('landing:welcome.description_primary')}</ParagraphWrapper>
+      <ParagraphWrapper variant="body1">{t('landing:welcome.description_secondary')}</ParagraphWrapper>
+      <ParagraphWrapper variant="body1">
+        {t('landing:welcome.contact')}
+        <Link
+          href="mailto:ratatieto@vayla.fi"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: 'inline', textDecoration: 'none' }}
+        >
+          ratatieto@vayla.fi
+        </Link>
+        .
+      </ParagraphWrapper>
+      {error && <ErrorMessage error={error} />}
+      <ActivityAndNoticeLists />
+    </ProtectedContainerWrapper>
+  );
 };

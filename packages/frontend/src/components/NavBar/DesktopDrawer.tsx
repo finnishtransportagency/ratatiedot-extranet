@@ -9,25 +9,43 @@ import { Colors } from '../../constants/Colors';
 import RataExtLogo from '../../assets/images/Logo_noText.png';
 import { MenuList } from './MenuList';
 import { drawerWidth } from '../../constants/Viewports';
+import { useContext } from 'react';
+import { AppBarContext } from '../../contexts/AppBarContext';
+import { MenuContext } from '../../contexts/MenuContext';
+import { Link } from 'react-router-dom';
+import { Routes } from '../../constants/Routes';
 
-type DesktopDrawerProps = {
-  openDrawer: boolean;
-  toggleDrawer: React.MouseEventHandler<HTMLElement>;
-};
+export const DesktopDrawer = () => {
+  const { openDesktopDrawer, toggleDesktopDrawer } = useContext(AppBarContext);
+  const { resetMenu } = useContext(MenuContext);
 
-export const DesktopDrawer = ({ openDrawer, toggleDrawer }: DesktopDrawerProps) => {
+  const resetMenuAndToggleDrawer = () => {
+    if (openDesktopDrawer) {
+      resetMenu();
+    }
+    toggleDesktopDrawer();
+  };
+
   return (
-    <DesktopDrawerWrapper variant="permanent" anchor="left" open={openDrawer}>
-      <Toolbar>
-        <Typography component="img" src={RataExtLogo} alt="Logo" sx={{ width: '65px', height: '65px' }} />
-        <Typography sx={{ fontSize: '18px', opacity: openDrawer ? 1 : 0 }}>Ratatiedon extranet</Typography>
-      </Toolbar>
-      <ListItem key={openDrawer ? 'Close drawer' : 'Open drawer'} disablePadding onClick={toggleDrawer}>
-        <ListItemButton area-label={openDrawer ? 'close desktop drawer' : 'open desktop drawer'}>
-          <ListItemIcon>{openDrawer ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}</ListItemIcon>
+    <DesktopDrawerWrapper variant="permanent" anchor="left" open={openDesktopDrawer}>
+      <Link to={Routes.HOME} style={{ textDecoration: 'none', boxShadow: 'none', color: Colors.extrablack }}>
+        <Toolbar>
+          <Typography component="img" src={RataExtLogo} alt="Logo" sx={{ width: '65px', height: '65px' }} />
+          <Typography sx={{ fontSize: '18px', opacity: openDesktopDrawer ? 1 : 0 }}>RATATIET0</Typography>
+        </Toolbar>
+      </Link>
+      <ListItem
+        key={openDesktopDrawer ? 'Close drawer' : 'Open drawer'}
+        disablePadding
+        onClick={resetMenuAndToggleDrawer}
+      >
+        <ListItemButton aria-label={openDesktopDrawer ? 'close desktop drawer' : 'open desktop drawer'}>
+          <ListItemIcon>
+            {openDesktopDrawer ? <ArrowBackIcon color="primary" /> : <MenuIcon color="primary" />}
+          </ListItemIcon>
         </ListItemButton>
       </ListItem>
-      <MenuList open={openDrawer} />
+      <MenuList />
     </DesktopDrawerWrapper>
   );
 };
@@ -55,6 +73,8 @@ const closedMixin = (theme: Theme): CSSObject => ({
 
 export interface DrawerWrapperProps extends DrawerProps {
   open?: boolean;
+  openedit?: boolean;
+  opentoolbar?: boolean;
 }
 export const DesktopDrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ theme, open }) => {
   return {
@@ -81,8 +101,6 @@ export const DesktopDrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ the
       // Logout is the last list item
       '& li:last-child': {
         // TODO: Logout should always be placed in bottom
-        // position: 'fixed',
-        // bottom: '16px',
         width: open ? `${drawerWidth}px` : `calc(${theme.spacing(8)} + 1px)`,
         '& .MuiListItemIcon-root': {
           color: Colors.darkblue,

@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model CategoryDataBase {
+  id                     String                @id @default(uuid())
+  rataextraRequestPage   String
+  alfrescoFolder         String
+  categoryDataContents   CategoryDataContents?
+  categoryComponents     CategoryComponent[]
+  writeRights            String
+  FavoriteCategory       FavoriteCategory[]
+  hasClassifiedContent   Boolean               @default(false)
+  hasConfidentialContent Boolean               @default(false)
+  Activity               Activity[]
+}
+
+model CategoryDataContents {
+  id               String           @id @default(uuid())
+  categoryDataBase CategoryDataBase @relation(fields: [baseId], references: [id])
+  baseId           String           @unique
+  fields           Json
+}
+
+model CategoryComponent {
+  id               String           @id @default(uuid())
+  categoryDataBase CategoryDataBase @relation(fields: [categoryId], references: [id])
+  categoryId       String
+  node             Node?
+  card             Card?
+}
+
+model Node {
+  id                  String             @id @default(uuid())
+  title               String
+  type                String
+  alfrescoNodeId      String
+  CategoryComponent   CategoryComponent? @relation(fields: [categoryComponentId], references: [id])
+  categoryComponentId String             @unique
+}
+
+model Card {
+  id                  String             @id @default(uuid())
+  title               String
+  content             Json
+  CategoryComponent   CategoryComponent? @relation(fields: [categoryComponentId], references: [id])
+  categoryComponentId String             @unique
+}
+
+model FavoriteCategory {
+  id               String           @id @default(uuid())
+  userId           String
+  categoryDataBase CategoryDataBase @relation(fields: [categoryId], references: [id])
+  categoryId       String
+
+  @@unique([userId, categoryId], name: "favoriteCategoryIdentifier") // compound unique constraint
+}
+
+model Activity {
+  id               String           @id @default(uuid())
+  fileName         String
+  categoryDataBase CategoryDataBase @relation(fields: [categoryId], references: [id])
+  categoryId       String
+  alfrescoId       String
+  timestamp        DateTime
+  action           String
+  mimeType         String
+}

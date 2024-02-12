@@ -1,8 +1,7 @@
 import JWT, { JwtPayload } from 'jsonwebtoken';
 import Axios from 'axios';
 import { log } from './logger';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const jwkToPem = require('jwk-to-pem');
+import jwkToPem from 'jwk-to-pem';
 
 let cachedKeys: Record<string, string>;
 
@@ -23,7 +22,7 @@ const getPublicKeys = async (issuerUrl: string) => {
 const validateJwtToken = async (
   token: string | undefined,
   dataToken: string | undefined,
-  issuer: string,
+  issuers: string[],
 ): Promise<JwtPayload | undefined> => {
   if (!token) {
     log.error('IAM JWT Token missing');
@@ -52,8 +51,13 @@ const validateJwtToken = async (
     return;
   }
 
+  if (!issuers.includes(tokenPayload.iss)) {
+    log.error('Invalid issuer');
+    return;
+  }
+
   // Verify token
-  const result = JWT.verify(token, publicKey, { issuer }) as JwtPayload;
+  const result = JWT.verify(token, publicKey, { issuer: tokenPayload.iss }) as JwtPayload;
   if (!result) {
     log.error('Failed to verify JWT');
     return;

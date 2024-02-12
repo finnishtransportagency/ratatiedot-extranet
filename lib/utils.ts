@@ -23,6 +23,12 @@ export const isProductionStack = (stackId: string, rataExtraEnv: RataExtraEnviro
  */
 export const isFeatOrLocalStack = (rataExtraEnv: RataExtraEnvironment) =>
   rataExtraEnv === ENVIRONMENTS.feat || rataExtraEnv === ENVIRONMENTS.local;
+
+/**
+ * Returns whether the stack is a local stack
+ */
+export const isLocalStack = (rataExtraEnv: RataExtraEnvironment) => rataExtraEnv === ENVIRONMENTS.local;
+
 /**
  * Returns whether the stack is one of the two permanent RataExtra stacks
  * - development main stack that corresponds to development main branch in Github
@@ -31,12 +37,18 @@ export const isFeatOrLocalStack = (rataExtraEnv: RataExtraEnvironment) =>
 export const isPermanentStack = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
   isDevelopmentMainStack(stackId, rataExtraEnv) || isProductionStack(stackId, rataExtraEnv);
 
-// TODO: Add VPCs for each environment once available
-export const getVpcAttributes = (rataExtraEnv: RataExtraEnvironment) => ({
-  vpcId: 'vpc-092f1d064d39ca6a1',
-  availabilityZones: ['eu-west-1a', 'eu-west-1b'],
-  privateSubnetIds: ['subnet-05ba766fa5c0f0eb0', 'subnet-019cb289645adae50'],
-});
+export const getVpcAttributes = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
+  isProductionStack(stackId, rataExtraEnv)
+    ? {
+        vpcId: 'vpc-0f7ce3c168bc01755',
+        availabilityZones: ['eu-west-1a', 'eu-west-1b'],
+        privateSubnetIds: ['subnet-01c9e778cbb6cb767', 'subnet-03598efd60ee4b545'],
+      }
+    : {
+        vpcId: 'vpc-092f1d064d39ca6a1',
+        availabilityZones: ['eu-west-1a', 'eu-west-1b'],
+        privateSubnetIds: ['subnet-05ba766fa5c0f0eb0', 'subnet-019cb289645adae50'],
+      };
 
-// TODO: Add Security Groups for each environment once available
-export const getSecurityGroupId = (rataExtraEnv: RataExtraEnvironment) => 'sg-04a38c9d8b10a6bbd';
+export const getSecurityGroupId = (stackId: string, rataExtraEnv: RataExtraEnvironment) =>
+  isProductionStack(stackId, rataExtraEnv) ? 'sg-0fa9cd225ca77951a' : 'sg-04a38c9d8b10a6bbd';

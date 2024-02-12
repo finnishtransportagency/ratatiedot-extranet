@@ -1,0 +1,215 @@
+{
+  "page": {
+    "frontpage": "Etusivu",
+    "plans": "Kaaviot",
+    "traffic": "Liikennöinti",
+    "structures": "Taitorakenteet",
+    "safety_equipment": "Turvalaitteet",
+    "contact_info": "Yhteystiedot",
+    "others": "Muut"
+  },
+  "action": {
+    "accept": "Hyväksy",
+    "back": "Takaisin",
+    "go_home": "Siirry etusivulle",
+    "next": "Seuraava",
+    "add": "Lisää",
+    "add_new": "Lisää uusi",
+    "cancel": "Peruuta",
+    "load_more": "Lataa lisää",
+    "save": "Tallenna",
+    "reject": "Hylkää",
+    "delete": "Poista",
+    "close": "Sulje",
+    "open_edit": "Avaa muokkausnäkymä",
+    "open_search": "Avaa hakunäkymä",
+    "search": "Hae",
+    "close_modal": "Sulje modaali",
+    "erase_query": "Tyhjennä haku",
+    "filter": "Suodata",
+    "search_site": "Etsi sivustolta",
+    "add_favorite": "Lisää suosikkeihin",
+    "remove_favorite": "Poista suosikeista",
+    "delete_selected": "Poista valittu"
+  },
+  "error": {
+    "401": "Puutteelliset käyttöoikeudet",
+    "403": "Pääsy estetty",
+    "500": "Jokin meni pieleen!",
+    "networkError": "Ei Internet-yhteyttä",
+    "badRequest": "Pyynnössä tapahtui virhe"
+  },
+  "loading": {
+    "logging_out": "Kirjaudutaan ulos..."
+  },
+  "menu": {
+    "frontpage": "Etusivu",
+    "favorite": "Suosikit",
+    "logout": "Kirjaudu ulos",
+    "instructions": "Käyttöohjeet"
+  },
+  "file": {
+    "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",
+    "add_file": "Lisää tiedosto",
+    "delete_file": "Poista tiedosto",
+    "delete_selected_file": "Poista valittu tiedosto",
+    "name": "Nimi",
+    "title": "Otsikko",
+    "description": "Selitysteksti",
+    "more_actions": "Valinnaiset toiminnot",
+    "selected_files": "Valitut tiedostot",
+    "file_not_selected": "Tiedostoa ei valittu",
+    "file_not_uploaded": "Tiedostoa ei lähetetty",
+    "files_not_deleted": "Tiedostoja ei poistettu",
+    "file_uploaded": "Tiedosto lähetetty",
+    "files_deleted": "Tiedostot poistettu",
+    "file_delete_confirmation": "Haluatko varmasti poistaa tiedoston",
+    "files": "tiedostoa",
+    "file_too_large": "Tiedosto on liian suuri. Tiedoston enimmäiskoko on 50 MB.",
+    "edit_file": "Muokkaa tiedoston tietoja",
+    "file_not_edited": "Tiedostoa ei muokattu",
+    "file_edited": "Tiedoston muokkaus onnistui",
+    "replace_file_confirmation": "Tiedosto on jo olemassa. Haluatko korvata sen?",
+    "replace_file_subtitle": "Voit myös palata takaisin ja muokata tiedoston nimeä.",
+    "replace_file": "Korvaa tiedosto"
+  },
+  "filter": {
+    "add_category_info": "Valitse aineistoluokka"
+  },
+  "folder": {
+    "select_folder_title": "Valitse kansio.",
+    "add_folder": "Lisää kansio",
+    "create_folder": "Luo uusi kansio",
+    "delete_folder": "Poista kansio",
+    "delete_selected_folder": "Poista valittu kansio",
+    "name": "Nimi",
+    "description": "Selitysteksti",
+    "title": "Otsikko",
+    "more_actions": "Valinnaiset toiminnot",
+    "selected_folder": "Valittu kansio",
+    "folder_not_selected": "Kansiota ei valittu",
+    "folder_not_uploaded": "Kansiota ei lähetetty",
+    "folder_not_deleted": "Kansiota ei poistettu",
+    "folder_uploaded": "Kansio lähetetty",
+    "folder_deleted": "Kansio poistettu",
+    "folder_delete_confirmation": "Haluatko varmasti poistaa kansion",
+    "edit_folder": "Muokkaa kansion tietoja",
+    "folder_not_edited": "Kansiota ei muokattu",
+    "folder_edited": "Kansion muokkaus onnistui"
+  },
+  "list": {
+    "add_list": "Lisää lista",
+    "edit_list": "Muokkaa listaa"
+  },
+  "edit": {
+    "edit": "Muokkaa",
+    "edit_content": "Muokkaa sisältöä",
+    "save_changes_confirmation": "Haluatko tallentaa muutoksesi?",
+    "write_content": "Kirjoita sisältö",
+    "new_link": "Uusi linkki",
+    "enter_url": "Anna URL-osoite",
+    "choose_color": "Valitse väri",
+    "color": "väri",
+    "insert_link": "Lisää linkki",
+    "color_picker": "värivalitsin",
+    "toolbar": "työkalupalkki",
+    "choose_fontsize": "Valitse fontin koko",
+    "saved_success": "Sisällön tallennus onnistui",
+    "saved_failure": "Sisällön tallennus epäonnistui"
+  },
+  "notification": {
+    "info": "info",
+    "warning": "varoitus",
+    "error": "virhe",
+    "check": "oikein-merkki"
+  },
+  "element": {
+    "breadcrumb": "linkkipolku",
+    "bulleted-list": "numeroimaton lista",
+    "numbered-list": "numeroitu lista",
+    "heading-one": "Otsikko",
+    "heading-two": "Pieni otsikko",
+    "list-item": "listan osio",
+    "paragraph-one": "Iso leipäteksti",
+    "paragraph-two": "Leipäteksti",
+    "link": "linkki",
+    "notification_info": "infoilmoitus",
+    "notification_warning": "varoitusilmoitus",
+    "notification_error": "virheilmoitus",
+    "notification_confirmation": "vahvistusilmoitus",
+    "card": "kortti",
+    "card_title": "kortin otsikko",
+    "text": "teksti",
+    "file": "tiedosto",
+    "image": "kuva"
+  },
+  "colors": {
+    "darkblue": "tummansininen",
+    "midblue": "keskisininen",
+    "lightblue": "vaaleansininen",
+    "aliceblue": "haalea sininen",
+    "cyan": "sinivihreä",
+    "lightgrey": "vaaleanharmaa",
+    "darkgrey": "tummanharmaa",
+    "white": "valkoinen",
+    "darkgreen": "tummanvihreä",
+    "lightgreen": "vaaleanvihreä",
+    "extrablack": "erittäin musta",
+    "black": "musta",
+    "darkred": "tummanpunainen",
+    "lightred": "vaalea punainen",
+    "yellow": "keltainen",
+    "pink": "vaaleanpunainen",
+    "purple": "violetti"
+  },
+  "font": {
+    "bold": "lihavoitu",
+    "italic": "kursivoitu",
+    "underlined": "alleviivattu",
+    "color": "väri"
+  },
+  "card": {
+    "contact_information": "Yhteystiedot",
+    "responsibility": "Vastuu",
+    "name": "Henkilön nimi",
+    "phone_number": "Puhelinnumero",
+    "email": "Sähköpostiosoite"
+  },
+  "map": {
+    "south": "etelä",
+    "north": "pohjoinen",
+    "west": "länsi",
+    "east": "itä",
+    "area": "Alue"
+  },
+  "warning": {
+    "confidential": "Oheisissa kansioissa olevat dokumentit sisältävät salassapidettävää tietoa. Älä jaa tietoja eteenpäin. Laki viranomaisten toiminnan julkisuudesta: <0>https://www.finlex.fi/fi/laki/ajantasa/1999/19990621</0> Salassapito: 24§, kohta 7."
+  },
+  "activityTypes": {
+    "FILE_DOWNLOADED": "ladattu",
+    "FILE_ADDED": "lisätty",
+    "FILE_DELETED": "poistettu",
+    "FOLDER_DOWNLOADED": "ladattu",
+    "FOLDER_ADDED": "lisätty",
+    "FOLDER_DELETED": "poistettu"
+  },
+  "activityList": {
+    "noRecentUpdates": "Ei viimeaikaisia muutoksia",
+    "recentUpdates": "Viimeksi muokatut"
+  },
+  "noticeList": {
+    "topical": "Ajankohtaista",
+    "noRecentNotices": "Ei viimeaikaisia tiedotteita",
+    "publishTimeStart": "Julkaisuajankohta",
+    "publishTimeEnd": "Julkaisun poistoaika",
+    "showAsBanner": "Näytä bannerina",
+    "createNewNoticeInfo": "Luo uusi tiedote klikkaamalla 'Muokkaa sisältöä'",
+    "createNewNotice": "Luo uusi tiedote",
+    "deleteNotice": "Poista tiedote",
+    "confirmDeleteNotice": "Haluatko varmasti poistaa tiedotteen?",
+    "deleteNoticeFailed": "Tiedotteen poistaminen epäonnistui",
+    "deleteNoticeSuccess": "Tiedote poistettu",
+    "writeTitle": "Kirjoita otsikko",
+    "showMore": "Näytä lisää"
+  }
+}

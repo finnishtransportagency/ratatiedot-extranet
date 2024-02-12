@@ -16,7 +16,9 @@ export class LocalStorageHelper {
     if (this.localStorageSupported && value) {
       const item = this.get(key);
       if (this.maxLen) {
-        const arr = Array.isArray(item) ? [value, ...item] : [item];
+        const arr = Array.isArray(item)
+          ? [value, ...item.filter((val: string) => val.toLowerCase() !== value.toLowerCase())]
+          : [value];
         if (this.maxLen < arr.length) {
           arr.pop();
         }
