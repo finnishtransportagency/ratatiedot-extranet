@@ -1,7 +1,6 @@
 import { Construct } from 'constructs';
-import { StringListParameter, StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { /* StringListParameter */ StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { getEnvOrFail } from '../utils';
-import { Fn } from 'aws-cdk-lib';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
 // Returns token that resolves during deployment to SSM parameter value
@@ -9,10 +8,10 @@ const getSSMStringParameter = (scope: Construct, parameterName: string) =>
   StringParameter.valueForStringParameter(scope, parameterName);
 
 // Returns token that resolves during deployment to SSM parameter value
-const getSSMStringListParameter = (scope: Construct, parameterName: string) => {
+/* const getSSMStringListParameter = (scope: Construct, parameterName: string) => {
   const parameterList = StringListParameter.valueForTypedListParameter(scope, parameterName);
   return Fn.join(',', parameterList);
-};
+}; */
 
 export type RataExtraEnvironment = (typeof ENVIRONMENTS)[keyof typeof ENVIRONMENTS];
 
@@ -70,7 +69,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
   databaseDomain: getSSMStringParameter(scope, SSM_DATABASE_DOMAIN),
   jwtTokenIssuer: getSSMStringParameter(scope, SSM_JWT_TOKEN_ISSUER),
-  jwtTokenIssuers: getSSMStringListParameter(scope, SSM_JWT_TOKEN_ISSUERS),
+  jwtTokenIssuers: getSSMStringParameter(scope, SSM_JWT_TOKEN_ISSUERS),
   alfrescoApiUrl: getSSMStringParameter(scope, SSM_ALFRESCO_API_URL),
   alfrescoAPIKey: SSM_ALFRESCO_API_KEY,
   alfrescoDownloadUrl: getSSMStringParameter(scope, SSM_ALFRESCO_DOWNLOAD_URL),

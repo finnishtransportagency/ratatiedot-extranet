@@ -141,7 +141,7 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
       environment: {
         JWT_TOKEN_ISSUER: jwtTokenIssuer,
-        JWT_TOKEN_ISSUERS: JSON.stringify(jwtTokenIssuers),
+        JWT_TOKEN_ISSUERS: jwtTokenIssuers,
         STACK_ID: stackId,
         ENVIRONMENT: rataExtraEnv,
         LOG_LEVEL: isFeatOrLocalStack(rataExtraEnv) ? 'debug' : 'info',
