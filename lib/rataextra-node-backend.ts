@@ -32,7 +32,7 @@ interface RatatietoNodeBackendStackProps extends StackProps {
   readonly region: string;
   readonly parentStackName: string;
   readonly jwtTokenIssuer: string;
-  readonly jwtTokenIssuers: string[];
+  readonly jwtTokenIssuers: string;
   readonly alfrescoAPIKey: string;
   readonly alfrescoAPIUrl: string;
   readonly alfrescoAncestor: string;

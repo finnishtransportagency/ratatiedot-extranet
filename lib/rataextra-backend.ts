@@ -34,7 +34,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly cloudfrontDomainName?: string;
   readonly tags: { [key: string]: string };
   readonly jwtTokenIssuer: string;
-  readonly jwtTokenIssuers: string[];
+  readonly jwtTokenIssuers: string;
   readonly alfrescoAPIKey: string;
   readonly alfrescoAPIUrl: string;
   readonly alfrescoAncestor: string;
