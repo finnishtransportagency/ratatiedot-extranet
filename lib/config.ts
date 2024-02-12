@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { StringListParameter, StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { getEnvOrFail } from '../utils';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
@@ -8,8 +8,8 @@ const getSSMStringParameter = (scope: Construct, parameterName: string) =>
   StringParameter.valueForStringParameter(scope, parameterName);
 
 // Returns token that resolves during deployment to SSM parameter value
-/* const getSSMStringListParameter = (scope: Construct, parameterName: string) =>
-  StringListParameter.valueForTypedListParameter(scope, parameterName); */
+const getSSMStringListParameter = (scope: Construct, parameterName: string) =>
+  StringListParameter.valueForTypedListParameter(scope, parameterName);
 
 export type RataExtraEnvironment = (typeof ENVIRONMENTS)[keyof typeof ENVIRONMENTS];
 
@@ -32,6 +32,7 @@ const SSM_CLOUDFRONT_CERTIFICATE_ARN = 'rataextra-cloudfront-certificate-arn';
 const SSM_CLOUDFRONT_DOMAIN_NAME = 'rataextra-cloudfront-domain-name';
 const SSM_DMZ_API_DOMAIN_NAME = 'rataextra-dmz-api-domain-name';
 const SSM_JWT_TOKEN_ISSUER = 'rataextra-jwt-token-issuer';
+const SSM_JWT_TOKEN_ISSUERS = 'rataextra-jwt-token-issuers';
 export const SSM_DATABASE_DOMAIN = 'rataextra-database-domain';
 export const SSM_DATABASE_NAME = 'rataextra-database-name';
 export const SSM_DATABASE_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
@@ -66,6 +67,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   dmzApiEndpoint: getSSMStringParameter(scope, SSM_DMZ_API_DOMAIN_NAME),
   databaseDomain: getSSMStringParameter(scope, SSM_DATABASE_DOMAIN),
   jwtTokenIssuer: getSSMStringParameter(scope, SSM_JWT_TOKEN_ISSUER),
+  jwtTokenIssuers: getSSMStringListParameter(scope, SSM_JWT_TOKEN_ISSUERS),
   alfrescoApiUrl: getSSMStringParameter(scope, SSM_ALFRESCO_API_URL),
   alfrescoAPIKey: SSM_ALFRESCO_API_KEY,
   alfrescoDownloadUrl: getSSMStringParameter(scope, SSM_ALFRESCO_DOWNLOAD_URL),

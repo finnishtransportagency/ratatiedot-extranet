@@ -4,7 +4,7 @@ import { validateJwtToken } from './validateJwtToken.js';
 import { isFeatOrLocalStack, RataExtraEnvironment } from './lib.js';
 import { log } from './logger.js';
 
-const ISSUER = process.env.JWT_TOKEN_ISSUER;
+const ISSUERS = process.env.JWT_TOKEN_ISSUERS?.split(',');
 const ENVIRONMENT = process.env.ENVIRONMENT || '';
 const MOCK_UID = process.env.MOCK_UID || '';
 
@@ -44,7 +44,7 @@ const getMockUser = (): RataExtraUser => ({
 });
 
 const parseUserFromEvent = async (req: Request): Promise<RataExtraUser> => {
-  if (!ISSUER) {
+  if (!ISSUERS) {
     log.error('Issuer missing');
     throw new RataExtraEC2Error('User validation failed', 500);
   }
@@ -53,7 +53,11 @@ const parseUserFromEvent = async (req: Request): Promise<RataExtraUser> => {
     log.error('Headers missing');
     throw new RataExtraEC2Error('Headers missing', 400);
   }
-  const jwt = await validateJwtToken(headers['x-iam-accesstoken'].toString(), headers['x-iam-data'].toString(), ISSUER);
+  const jwt = await validateJwtToken(
+    headers['x-iam-accesstoken'].toString(),
+    headers['x-iam-data'].toString(),
+    ISSUERS,
+  );
 
   if (!jwt) {
     throw new RataExtraEC2Error('User validation failed', 500);
