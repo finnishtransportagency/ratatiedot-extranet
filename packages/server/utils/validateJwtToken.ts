@@ -7,16 +7,16 @@ let cachedKeys: Record<string, string>;
 
 // Fetch JWK's from Cognito or cache
 const getPublicKeys = async (issuerUrl: string) => {
-  if (!cachedKeys) {
-    cachedKeys = {};
-    const publicKeys = await Axios.get(issuerUrl + '/.well-known/jwks.json');
-    for (const key of publicKeys.data.keys) {
-      cachedKeys[key.kid] = jwkToPem(key);
-    }
-    return cachedKeys;
-  } else {
-    return cachedKeys;
+  //if (!cachedKeys) {
+  cachedKeys = {};
+  const publicKeys = await Axios.get(issuerUrl + '/.well-known/jwks.json');
+  for (const key of publicKeys.data.keys) {
+    cachedKeys[key.kid] = jwkToPem(key);
   }
+  return cachedKeys;
+  /* } else {
+    return cachedKeys;
+  } */
 };
 
 const validateJwtToken = async (
