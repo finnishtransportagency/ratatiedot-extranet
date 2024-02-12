@@ -1,6 +1,7 @@
 import { Construct } from 'constructs';
 import { StringListParameter, StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { getEnvOrFail } from '../utils';
+import { Fn } from 'aws-cdk-lib';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
 // Returns token that resolves during deployment to SSM parameter value
@@ -8,8 +9,10 @@ const getSSMStringParameter = (scope: Construct, parameterName: string) =>
   StringParameter.valueForStringParameter(scope, parameterName);
 
 // Returns token that resolves during deployment to SSM parameter value
-const getSSMStringListParameter = (scope: Construct, parameterName: string) =>
-  StringListParameter.valueForTypedListParameter(scope, parameterName);
+const getSSMStringListParameter = (scope: Construct, parameterName: string) => {
+  const parameterList = StringListParameter.valueForTypedListParameter(scope, parameterName);
+  return Fn.join(',', parameterList);
+};
 
 export type RataExtraEnvironment = (typeof ENVIRONMENTS)[keyof typeof ENVIRONMENTS];
 
