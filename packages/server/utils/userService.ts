@@ -42,7 +42,7 @@ function parseRoles(roles: string): string[] | undefined {
 
 export const getMockUser = (): RataExtraUser => ({
   uid: MOCK_UID,
-  roles: [STATIC_ROLES.read, STATIC_ROLES.admin],
+  roles: [STATIC_ROLES.read, 'Ratatieto_kirjoitus_hallintaraportit'],
   isMockUser: true,
 });
 
