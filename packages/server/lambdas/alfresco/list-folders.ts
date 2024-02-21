@@ -16,7 +16,11 @@ const listFolders = async (uid: string, nodeId: string) => {
     const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?where=(isFolder=true)`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
-    return response.data;
+    const folders = response.data.list.entries;
+    for (const folder of folders) {
+      folder.entry.children = await listFolders(uid, folder.entry.id);
+    }
+    return folders;
   } catch (err) {
     throw err;
   }
@@ -36,26 +40,18 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // only listed parameters are accepted
     validateQueryParameters(params, ['category', 'folderId']);
     const category = params?.category;
-    const folderId = params?.folderId;
 
     validateReadUser(user);
-    if (!category && !folderId) {
-      throw new RataExtraLambdaError('Category or folderId missing', 400);
+    if (!category) {
+      throw new RataExtraLambdaError('Category missing', 400);
     }
 
-    let alfrescoParent;
-
-    if (folderId) {
-      log.info(user, `Fetching folders for folderId ${folderId}`);
-      alfrescoParent = folderId;
-    } else if (category) {
-      log.info(user, `Fetching folders for page ${category}`);
-      if (!fileEndpointsCache.length) {
-        fileEndpointsCache = await database.categoryDataBase.findMany();
-      }
-      const endpoint = findEndpoint(category, fileEndpointsCache);
-      alfrescoParent = endpoint?.alfrescoFolder;
+    log.info(user, `Fetching folders for page ${category}`);
+    if (!fileEndpointsCache.length) {
+      fileEndpointsCache = await database.categoryDataBase.findMany();
     }
+    const endpoint = findEndpoint(category, fileEndpointsCache);
+    const alfrescoParent = endpoint?.alfrescoFolder;
 
     if (!alfrescoParent) {
       throw new RataExtraLambdaError('Category or folder not found', 404);
