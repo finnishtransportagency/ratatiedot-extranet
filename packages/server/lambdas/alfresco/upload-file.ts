@@ -8,7 +8,7 @@ import { getUser, validateReadUser, validateWriteUser } from '../../utils/userSe
 import { DatabaseClient } from '../database/client';
 import { fileRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
-import { getFolder, isFolderInCategory } from './list-files';
+import { getFolder, isNodeInCategory } from './list-files';
 import FormData from 'form-data';
 
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
@@ -82,7 +82,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       const foundFolder = await getFolder(user.uid, nestedFolderId);
       const folderPath = get(foundFolder, 'entry.path.name', '');
       // Check if the nest folder is a descendant of the category
-      const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
+      const isFolderDescendantOfCategory = await isNodeInCategory(folderPath, category);
       if (!isFolderDescendantOfCategory) {
         throw new RataExtraLambdaError('Folder cannot be found in category', 404);
       }
