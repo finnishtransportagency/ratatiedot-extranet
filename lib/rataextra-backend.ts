@@ -34,6 +34,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly cloudfrontDomainName?: string;
   readonly tags: { [key: string]: string };
   readonly jwtTokenIssuer: string;
+  readonly jwtTokenIssuers: string;
   readonly alfrescoAPIKey: string;
   readonly alfrescoAPIUrl: string;
   readonly alfrescoAncestor: string;
@@ -91,6 +92,7 @@ export class RataExtraBackendStack extends NestedStack {
       cloudfrontDomainName,
       tags,
       jwtTokenIssuer,
+      jwtTokenIssuers,
       alfrescoAPIKey,
       alfrescoAPIUrl,
       alfrescoAncestor,
@@ -139,6 +141,7 @@ export class RataExtraBackendStack extends NestedStack {
       securityGroups: securityGroups,
       environment: {
         JWT_TOKEN_ISSUER: jwtTokenIssuer,
+        JWT_TOKEN_ISSUERS: jwtTokenIssuers,
         STACK_ID: stackId,
         ENVIRONMENT: rataExtraEnv,
         LOG_LEVEL: isFeatOrLocalStack(rataExtraEnv) ? 'debug' : 'info',
@@ -612,6 +615,7 @@ export class RataExtraBackendStack extends NestedStack {
       region: this.region,
       parentStackName: this.stackName,
       jwtTokenIssuer,
+      jwtTokenIssuers,
       alfrescoAPIKey,
       alfrescoAPIUrl,
       alfrescoAncestor,

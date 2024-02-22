@@ -7,22 +7,22 @@ let cachedKeys: Record<string, string>;
 
 // Fetch JWK's from Cognito or cache
 const getPublicKeys = async (issuerUrl: string) => {
-  if (!cachedKeys) {
-    cachedKeys = {};
-    const publicKeys = await Axios.get(issuerUrl + '/.well-known/jwks.json');
-    for (const key of publicKeys.data.keys) {
-      cachedKeys[key.kid] = jwkToPem(key);
-    }
-    return cachedKeys;
-  } else {
-    return cachedKeys;
+  //if (!cachedKeys) {
+  cachedKeys = {};
+  const publicKeys = await Axios.get(issuerUrl + '/.well-known/jwks.json');
+  for (const key of publicKeys.data.keys) {
+    cachedKeys[key.kid] = jwkToPem(key);
   }
+  return cachedKeys;
+  /* } else {
+    return cachedKeys;
+  } */
 };
 
 const validateJwtToken = async (
   token: string | undefined,
   dataToken: string | undefined,
-  issuer: string,
+  issuers: string[],
 ): Promise<JwtPayload | undefined> => {
   if (!token) {
     log.error('IAM JWT Token missing');
@@ -51,8 +51,13 @@ const validateJwtToken = async (
     return;
   }
 
+  if (!issuers.includes(tokenPayload.iss)) {
+    log.error('Invalid issuer');
+    return;
+  }
+
   // Verify token
-  const result = JWT.verify(token, publicKey, { issuer }) as JwtPayload;
+  const result = JWT.verify(token, publicKey, { issuer: tokenPayload.iss }) as JwtPayload;
   if (!result) {
     log.error('Failed to verify JWT');
     return;

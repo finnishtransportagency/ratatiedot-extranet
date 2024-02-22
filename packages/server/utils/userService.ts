@@ -5,7 +5,7 @@ import { isFeatOrLocalStack } from '../../../lib/utils';
 import { RataExtraEnvironment } from '../../../lib/config';
 import { log } from './logger';
 
-const ISSUER = process.env.JWT_TOKEN_ISSUER;
+const ISSUERS = process.env.JWT_TOKEN_ISSUERS?.split(',');
 const STACK_ID = process.env.STACK_ID || '';
 const ENVIRONMENT = process.env.ENVIRONMENT || '';
 const MOCK_UID = process.env.MOCK_UID || '';
@@ -51,7 +51,7 @@ export const getServiceUser = (): RataExtraUser => ({
 });
 
 const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
-  if (!ISSUER) {
+  if (!ISSUERS) {
     log.error('Issuer missing');
     throw new RataExtraLambdaError('User validation failed', 500);
   }
@@ -60,7 +60,7 @@ const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
     log.error('Headers missing');
     throw new RataExtraLambdaError('Headers missing', 400);
   }
-  const jwt = await validateJwtToken(headers['x-iam-accesstoken'], headers['x-iam-data'], ISSUER);
+  const jwt = await validateJwtToken(headers['x-iam-accesstoken'], headers['x-iam-data'], ISSUERS);
 
   if (!jwt) {
     throw new RataExtraLambdaError('User validation failed', 500);
