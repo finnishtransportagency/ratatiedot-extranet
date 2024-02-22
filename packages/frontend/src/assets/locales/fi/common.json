@@ -30,7 +30,8 @@
     "search_site": "Etsi sivustolta",
     "add_favorite": "Lisää suosikkeihin",
     "remove_favorite": "Poista suosikeista",
-    "delete_selected": "Poista valittu"
+    "delete_selected": "Poista valittu",
+    "move_selected": "Siirrä valittu"
   },
   "error": {
     "401": "Puutteelliset käyttöoikeudet",
@@ -71,7 +72,10 @@
     "file_edited": "Tiedoston muokkaus onnistui",
     "replace_file_confirmation": "Tiedosto on jo olemassa. Haluatko korvata sen?",
     "replace_file_subtitle": "Voit myös palata takaisin ja muokata tiedoston nimeä.",
-    "replace_file": "Korvaa tiedosto"
+    "replace_file": "Korvaa tiedosto",
+    "file_moved": "Tiedosto siirretty",
+    "file_not_moved": "Tiedostoa ei siirretty",
+    "file": "tiedosto"
   },
   "filter": {
     "add_category_info": "Valitse aineistoluokka"
@@ -95,7 +99,10 @@
     "folder_delete_confirmation": "Haluatko varmasti poistaa kansion",
     "edit_folder": "Muokkaa kansion tietoja",
     "folder_not_edited": "Kansiota ei muokattu",
-    "folder_edited": "Kansion muokkaus onnistui"
+    "folder_edited": "Kansion muokkaus onnistui",
+    "folder_moved": "Kansio siirretty",
+    "folder_not_moved": "Kansiota ei siirretty",
+    "folder": "kansio"
   },
   "list": {
     "add_list": "Lisää lista",
@@ -211,5 +218,10 @@
     "deleteNoticeSuccess": "Tiedote poistettu",
     "writeTitle": "Kirjoita otsikko",
     "showMore": "Näytä lisää"
+  },
+  "moveDialog": {
+    "nodeBeindMoved": "Siirrettävä {{nodeType}}",
+    "chooseTarget": "Valitse kohde, jonne {{nodeType}} siirretään:",
+    "moveNode": "Siirrä {{nodeType}}"
   }
 }

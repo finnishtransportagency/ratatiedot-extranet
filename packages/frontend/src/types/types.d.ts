@@ -126,6 +126,7 @@ type TNode = {
       'cm:description': string;
       'cm:title': string;
     };
+    children?: [];
   };
 };
 

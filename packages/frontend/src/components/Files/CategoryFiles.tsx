@@ -18,6 +18,7 @@ import { CategoryDataContext } from '../../contexts/CategoryDataContext';
 import { UploadDialogButton } from './UploadDialogButton';
 import styled from '@emotion/styled';
 import { FileEditDialogButton } from './FileEditDialogButton';
+import { MoveDialogButton } from './MoveDialogButton';
 
 type TCategoryFilesProps = {
   childFolderName?: string;
@@ -160,6 +161,17 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
               deleteFile(e.node);
             }}
           ></DeleteDialogButton>
+        )}
+        {isEditOpen && !hasClassifiedContent && (
+          <MoveDialogButton
+            categoryName={categoryName}
+            disabled={!selectedFile}
+            node={selectedFile}
+            onMove={(e) => {
+              console.log('In onMove, deleting file ' + e.node + ' from list');
+              deleteFile(e.node);
+            }}
+          ></MoveDialogButton>
         )}
       </GroupedFileButtonsWrapper>
 
