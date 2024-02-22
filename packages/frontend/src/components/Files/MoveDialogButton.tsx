@@ -49,13 +49,15 @@ export const MoveDialogButton: FunctionComponent<DialogButtonProps> = ({
         {t('common:action.move_selected')}
       </Button>
 
-      <FileMoveDialog
-        categoryName={categoryName}
-        onClose={handleClose}
-        onMove={handleMove}
-        open={open}
-        node={node}
-      ></FileMoveDialog>
+      {node && (
+        <FileMoveDialog
+          categoryName={categoryName}
+          onClose={handleClose}
+          onMove={handleMove}
+          open={open}
+          node={node}
+        ></FileMoveDialog>
+      )}
     </>
   );
 };

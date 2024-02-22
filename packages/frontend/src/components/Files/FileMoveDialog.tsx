@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMoreOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import DriveFileMoveOutlined from '@mui/icons-material/DriveFileMoveOutlined';
 import ChevronRightIcon from '@mui/icons-material/ChevronRightOutlined';
 import { Box, Typography } from '@mui/material';
 import { ButtonWrapper } from '../../styles/common';
@@ -36,6 +36,7 @@ export const FileMoveDialog = ({ categoryName, node, open, onClose, onMove }: Fi
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [success, setSuccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFolderListLoading, setIsFolderListLoading] = useState(false);
   const [folders, setFolders] = useState<TNode[]>([]);
   const [target, setTarget] = useState<string>('');
 
@@ -44,8 +45,16 @@ export const FileMoveDialog = ({ categoryName, node, open, onClose, onMove }: Fi
   };
 
   const listFolders = async () => {
-    const resp = await getFolders(categoryName);
-    setFolders(resp.data.data);
+    try {
+      setIsFolderListLoading(true);
+      const resp = await getFolders(categoryName);
+      setFolders(resp.data.data);
+    } catch (err: any) {
+      setIsFolderListLoading(false);
+      setError(true);
+    } finally {
+      setIsFolderListLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -116,24 +125,28 @@ export const FileMoveDialog = ({ categoryName, node, open, onClose, onMove }: Fi
               nodeType: node?.entry.isFolder ? t('common:folder.folder') : t('common:file.file'),
             })}
           </Typography>
-          <TreeView
-            aria-label="file system navigator"
-            defaultCollapseIcon={<ExpandMoreIcon />}
-            defaultExpandIcon={<ChevronRightIcon />}
-            sx={{
-              height: 240,
-              flexGrow: 1,
-              overflowY: 'auto',
-              overflowX: 'hidden',
-            }}
-            onNodeSelect={(_, nodeId) => {
-              setTarget(nodeId);
-            }}
-          >
-            {folders.map((folder) => (
-              <RenderTree {...folder} />
-            ))}
-          </TreeView>
+          {isFolderListLoading ? (
+            <CircularProgress size="24px" />
+          ) : (
+            <TreeView
+              aria-label="file system navigator"
+              defaultCollapseIcon={<ExpandMoreIcon />}
+              defaultExpandIcon={<ChevronRightIcon />}
+              sx={{
+                height: 240,
+                flexGrow: 1,
+                overflowY: 'auto',
+                overflowX: 'hidden',
+              }}
+              onNodeSelect={(_, nodeId) => {
+                setTarget(nodeId);
+              }}
+            >
+              {folders.map((folder) => (
+                <RenderTree {...folder} />
+              ))}
+            </TreeView>
+          )}
 
           <Box sx={{ display: 'flex' }}>
             <ButtonWrapper sx={{ marginLeft: 'auto' }} color="primary" variant="text" onClick={() => handleClose()}>
@@ -148,11 +161,11 @@ export const FileMoveDialog = ({ categoryName, node, open, onClose, onMove }: Fi
                 isLoading ? (
                   <CircularProgress sx={{ color: Colors.darkgrey }} size="16px"></CircularProgress>
                 ) : (
-                  <DeleteOutlineOutlinedIcon></DeleteOutlineOutlinedIcon>
+                  <DriveFileMoveOutlined></DriveFileMoveOutlined>
                 )
               }
             >
-              {'Siirrä'}
+              {t('common:action.move')}
             </ButtonWrapper>
           </Box>
         </Box>
