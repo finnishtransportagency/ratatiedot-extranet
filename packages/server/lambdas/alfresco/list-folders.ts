@@ -7,6 +7,7 @@ import { validateQueryParameters } from '../../utils/validation';
 import { CategoryDataBase } from '@prisma/client';
 import { DatabaseClient } from '../database/client';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { TNode } from './list-files';
 
 const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
@@ -17,8 +18,14 @@ const listFolders = async (uid: string, nodeId: string) => {
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
     const folders = response.data.list.entries;
-    for (const folder of folders) {
-      folder.entry.children = await listFolders(uid, folder.entry.id);
+
+    const childPromises = folders.map((folder: TNode) => listFolders(uid, folder.entry.id));
+    const childArrays = await Promise.all(childPromises);
+
+    for (let i = 0; i < folders.length; i++) {
+      if (childArrays[i].length > 0) {
+        folders[i].entry.children = childArrays[i];
+      }
     }
     return folders;
   } catch (err) {
