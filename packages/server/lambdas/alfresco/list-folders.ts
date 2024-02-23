@@ -66,13 +66,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const folders = await listFolders(user.uid, alfrescoParent);
 
-    const folderStructure = {
-      entry: {
-        id: alfrescoParent,
-        name: endpoint.alfrescoFolder,
-        children: folders,
+    const folderStructure = [
+      {
+        entry: {
+          id: alfrescoParent,
+          name: endpoint.rataextraRequestPage,
+          children: folders,
+        },
       },
-    };
+    ];
 
     const responseBody = {
       data: folderStructure ?? {
