@@ -31,7 +31,8 @@
     "add_favorite": "Lisää suosikkeihin",
     "remove_favorite": "Poista suosikeista",
     "delete_selected": "Poista valittu",
-    "move_selected": "Siirrä valittu"
+    "move_selected": "Siirrä valittu",
+    "move": "Siirrä"
   },
   "error": {
     "401": "Puutteelliset käyttöoikeudet",
