@@ -64,11 +64,18 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('Category or folder not found', 404);
     }
 
-    // Fetch folders from Alfresco
-    const data = await listFolders(user.uid, alfrescoParent);
+    const folders = await listFolders(user.uid, alfrescoParent);
+
+    const folderStructure = {
+      entry: {
+        id: alfrescoParent,
+        name: endpoint.alfrescoFolder,
+        children: folders,
+      },
+    };
 
     const responseBody = {
-      data: data ?? {
+      data: folderStructure ?? {
         list: {
           pagination: {
             count: 0,
