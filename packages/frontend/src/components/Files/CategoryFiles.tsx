@@ -19,7 +19,7 @@ import { UploadDialogButton } from './UploadDialogButton';
 import styled from '@emotion/styled';
 import { FileEditDialogButton } from './FileEditDialogButton';
 import { MoveDialogButton } from './MoveDialogButton';
-
+import { useStore } from './RefreshKeyStore';
 type TCategoryFilesProps = {
   childFolderName?: string;
   nestedFolderId?: string;
@@ -36,6 +36,8 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   const [hasMoreItems, setHasMoreItems] = useState(false);
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
   const categoryName = getCategoryRouteName(location);
+
+  const { refreshKey, incrementRefreshKey } = useStore();
 
   const { openEdit, openToolbar } = useContext(AppBarContext);
   const { fileUploadDisabled, fileUploadDisabledHandler } = useContext(MenuContext);
@@ -71,11 +73,11 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
     } finally {
       setLoading(false);
     }
-  }, [categoryName, page]);
+  }, [categoryName, page, refreshKey]);
 
   useEffect(() => {
     getCategoryFiles();
-  }, [page]);
+  }, [page, refreshKey]);
 
   const loadMore = () => setPage(page + 1);
 
@@ -168,8 +170,7 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
             disabled={!selectedFile}
             node={selectedFile}
             onMove={(e) => {
-              console.log('In onMove, deleting file ' + e.node + ' from list');
-              deleteFile(e.node);
+              incrementRefreshKey();
             }}
           ></MoveDialogButton>
         )}
