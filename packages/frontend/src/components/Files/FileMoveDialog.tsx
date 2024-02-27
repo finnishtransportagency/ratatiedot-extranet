@@ -15,17 +15,13 @@ import { getErrorMessage } from '../../utils/errorUtil';
 import { TreeView, TreeItem } from '@mui/x-tree-view';
 import { moveFile } from '../../services/FileMoveService';
 import { getFolders } from '../../services/FolderListService';
-
-export interface FileMoveResponse {
-  response: AxiosResponse;
-  node: TNode;
-}
+import { parseRouterName } from '../../utils/helpers';
 
 interface FileMoveProps {
   categoryName: string;
   node: TNode;
   onClose: (event?: Event) => void;
-  onMove: (result: FileMoveResponse) => any;
+  onMove: (result: AxiosResponse) => any;
   open: boolean;
 }
 
@@ -48,6 +44,8 @@ export const FileMoveDialog = ({ categoryName, node, open, onClose, onMove }: Fi
     try {
       setIsFolderListLoading(true);
       const resp = await getFolders(categoryName);
+      // parse root node name to readable form
+      resp.data.data[0].entry.name = parseRouterName(categoryName);
       setFolders(resp.data.data);
     } catch (err: any) {
       setIsFolderListLoading(false);
@@ -70,11 +68,7 @@ export const FileMoveDialog = ({ categoryName, node, open, onClose, onMove }: Fi
           handleClose();
           setError(false);
           setSuccess(true);
-          const res = {
-            response: result,
-            node: node,
-          };
-          onMove(res);
+          onMove(result);
           return result;
         })
         .catch((error) => {

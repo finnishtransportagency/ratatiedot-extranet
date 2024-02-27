@@ -5,14 +5,14 @@ import { FunctionComponent, useState } from 'react';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 
 import { TNode } from '../../types/types';
-import { FileMoveResponse } from './FileMoveDialog';
 import { FileMoveDialog } from './FileMoveDialog';
+import { AxiosResponse } from 'axios';
 
 interface DialogButtonProps {
   categoryName: string;
   node: TNode | null;
   buttonProps?: ButtonProps;
-  onMove: (response: FileMoveResponse) => any;
+  onMove: (response: AxiosResponse) => any;
   disabled?: boolean;
 }
 
@@ -32,7 +32,7 @@ export const MoveDialogButton: FunctionComponent<DialogButtonProps> = ({
     setOpen(false);
   };
 
-  const handleMove = (result: FileMoveResponse) => {
+  const handleMove = (result: AxiosResponse) => {
     onMove(result);
   };
 
