@@ -182,7 +182,8 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
             categoryName={categoryName}
             disabled={!selectedFile}
             node={selectedFile}
-            onMove={() => {
+            onMove={(e) => {
+              deleteFile(e.data);
               incrementRefreshKey();
             }}
           ></MoveDialogButton>
