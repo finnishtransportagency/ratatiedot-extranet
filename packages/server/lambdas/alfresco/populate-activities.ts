@@ -7,7 +7,6 @@ import { DatabaseClient } from '../database/client';
 import { AlfrescoActivityResponse } from '../database/get-activities';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { CategoryDataBase, Prisma } from '@prisma/client';
-import { getFolder } from './list-files';
 
 const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
@@ -23,10 +22,8 @@ const getActivities = async (options: AxiosRequestConfig, skipCount = 0, maxItem
     const nonDownloadActivities = activities.filter((child: { entry: { activityType: string } }) => {
       const allowedTypes = [
         'org.alfresco.documentlibrary.file-added',
-        'org.alfresco.documentlibrary.file-deleted',
         'org.alfresco.documentlibrary.file-created',
         'org.alfresco.documentlibrary.folder-added',
-        'org.alfresco.documentlibrary.folder-deleted',
         'org.alfresco.documentlibrary.inline-edit',
       ];
       return allowedTypes.includes(child.entry.activityType);
@@ -54,27 +51,8 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
   const combinedData: Prisma.ActivityCreateManyInput[] = [];
   const nodePromises = [];
 
-  const deletedNodeIds = new Set();
-  const deletedNodeEntries: AlfrescoActivityResponse[] = [];
-
-  const nodesToFetch = childData.filter((child) => {
-    const nodeDeleted =
-      child.entry.activityType === 'org.alfresco.documentlibrary.file-deleted' ||
-      child.entry.activityType === 'org.alfresco.documentlibrary.folder-deleted' ||
-      ((child.entry.activityType === 'org.alfresco.documentlibrary.file-added' ||
-        child.entry.activityType === 'org.alfresco.documentlibrary.folder-added') &&
-        deletedNodeIds.has(child.entry.activitySummary.objectId));
-
-    if (nodeDeleted) {
-      deletedNodeIds.add(child.entry.activitySummary.objectId);
-      deletedNodeEntries.push(child);
-    } else {
-      return !deletedNodeIds.has(child.entry.activitySummary.objectId);
-    }
-  });
-
   // Only fetch additional info for items that are present in Alfresco
-  for (const child of nodesToFetch) {
+  for (const child of childData) {
     const nodeId = child.entry.activitySummary.objectId!;
     const nodePromise = getNode(nodeId, options, ['path']).then((node) => {
       // eg. "/Company Home/Sites/site/root/category1"
@@ -99,37 +77,6 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
     nodePromises.push(nodePromise);
   }
 
-  for (const deletedNode of deletedNodeEntries) {
-    const folderPromise = await getFolder(
-      options.headers?.['OAM-REMOTE-USER'],
-      deletedNode.entry.activitySummary.parentObjectId,
-    ).then((folder) => {
-      const categoryName = folder.entry?.path.elements[4]?.name || folder.entry?.name;
-      let categoryId = null;
-      if (categoryName) {
-        const category = findEndpoint(categoryName, fileEndpointsCache);
-        categoryId = category?.id;
-      }
-
-      const mimeType =
-        deletedNode.entry.activityType === 'org.alfresco.documentlibrary.folder-deleted' ||
-        deletedNode.entry.activityType === 'org.alfresco.documentlibrary.folder-added'
-          ? 'folder'
-          : 'other';
-
-      const deletedItem = {
-        activityId: deletedNode.entry.id,
-        alfrescoId: undefined,
-        action: deletedNode.entry.activityType,
-        fileName: deletedNode.entry.activitySummary.title,
-        timestamp: new Date(deletedNode.entry.postedAt),
-        mimeType,
-        categoryId,
-      };
-      combinedData.push(deletedItem);
-    });
-    nodePromises.push(folderPromise);
-  }
   await Promise.all(nodePromises);
   return combinedData;
 }
