@@ -87,12 +87,18 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
     } finally {
       setLoading(false);
     }
-  }, [categoryName, page, refreshKey]);
+  }, [categoryName, page]);
 
   useEffect(() => {
-    resetState();
     getCategoryFiles();
-  }, [page, refreshKey]);
+  }, [page]);
+
+  useEffect(() => {
+    if (refreshKey !== 0) {
+      resetState();
+      getCategoryFiles();
+    }
+  }, [refreshKey]);
 
   const loadMore = () => setPage(page + 1);
 
@@ -184,7 +190,7 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
             categoryName={categoryName}
             disabled={!selectedFile}
             node={selectedFile}
-            onMove={(e) => {
+            onMove={() => {
               incrementRefreshKey();
             }}
           ></MoveDialogButton>
