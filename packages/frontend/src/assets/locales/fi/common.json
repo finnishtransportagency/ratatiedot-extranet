@@ -38,7 +38,7 @@
     "401": "Puutteelliset käyttöoikeudet",
     "403": "Pääsy estetty",
     "500": "Jokin meni pieleen!",
-    "networkError": "Ei Internet-yhteyttä",
+    "networkError": "Istunnon muodostaminen epäonnistui. Päivitä sivu (Ctrl + F5) tai yritä myöhemmin uudelleen.",
     "badRequest": "Pyynnössä tapahtui virhe"
   },
   "loading": {
