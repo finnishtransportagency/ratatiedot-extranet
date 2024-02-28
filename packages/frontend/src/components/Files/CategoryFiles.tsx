@@ -43,20 +43,12 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
   const categoryName = getCategoryRouteName(location);
 
-  const { refreshKey, incrementRefreshKey } = useStore();
+  const { refreshKey, incrementRefreshKey, resetRefreshKey } = useStore();
 
   const { openEdit, openToolbar } = useContext(AppBarContext);
   const { fileUploadDisabled, fileUploadDisabledHandler } = useContext(MenuContext);
   const { hasConfidentialContentHandler, hasClassifiedContentHandler, hasClassifiedContent } =
     useContext(CategoryDataContext);
-
-  const resetState = () => {
-    setFileList(initialFileList);
-    setTotalFiles(initialTotalFiles);
-    setHasMoreItems(initialHasMoreItems);
-    setLoading(initialLoading);
-    setError(initialError);
-  };
 
   const isEditOpen = openEdit || openToolbar;
 
@@ -95,8 +87,8 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
 
   useEffect(() => {
     if (refreshKey !== 0) {
-      resetState();
       getCategoryFiles();
+      resetRefreshKey();
     }
   }, [refreshKey]);
 
