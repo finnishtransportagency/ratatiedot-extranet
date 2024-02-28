@@ -15,7 +15,6 @@ export const moveFile = async (
     },
   };
 
-  console.log('options: ', options);
   const url = `/api/alfresco/files/${categoryName}/${fileId}/move`;
   const response = await axios(url, options);
   return response as any;
