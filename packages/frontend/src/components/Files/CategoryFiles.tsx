@@ -26,14 +26,20 @@ type TCategoryFilesProps = {
 };
 
 export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFilesProps) => {
+  const initialFileList: TNode[] = [];
+  const initialTotalFiles = 0;
+  const initialHasMoreItems = false;
+  const initialLoading = false;
+  const initialError = null;
+
   const { t } = useTranslation(['common', 'search']);
   const location = useLocation();
-  const [fileList, setFileList] = useState<TNode[]>([]);
+  const [fileList, setFileList] = useState<TNode[]>(initialFileList);
   const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState();
-  const [totalFiles, setTotalFiles] = useState(0);
-  const [hasMoreItems, setHasMoreItems] = useState(false);
+  const [loading, setLoading] = useState(initialLoading);
+  const [error, setError] = useState(initialError);
+  const [totalFiles, setTotalFiles] = useState(initialTotalFiles);
+  const [hasMoreItems, setHasMoreItems] = useState(initialHasMoreItems);
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
   const categoryName = getCategoryRouteName(location);
 
@@ -43,6 +49,14 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   const { fileUploadDisabled, fileUploadDisabledHandler } = useContext(MenuContext);
   const { hasConfidentialContentHandler, hasClassifiedContentHandler, hasClassifiedContent } =
     useContext(CategoryDataContext);
+
+  const resetState = () => {
+    setFileList(initialFileList);
+    setTotalFiles(initialTotalFiles);
+    setHasMoreItems(initialHasMoreItems);
+    setLoading(initialLoading);
+    setError(initialError);
+  };
 
   const isEditOpen = openEdit || openToolbar;
 
@@ -76,6 +90,7 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   }, [categoryName, page, refreshKey]);
 
   useEffect(() => {
+    resetState();
     getCategoryFiles();
   }, [page, refreshKey]);
 
