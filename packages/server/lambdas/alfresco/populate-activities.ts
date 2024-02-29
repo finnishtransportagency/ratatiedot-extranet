@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from 'axios';
 import { alfrescoAxios, alfrescoApiVersion } from '../../utils/axios';
 import { getRataExtraLambdaError } from '../../utils/errors';
-import { log } from '../../utils/logger';
+import { devLog, log } from '../../utils/logger';
 import { getServiceUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { AlfrescoActivityResponse } from '../database/get-activities';
@@ -18,6 +18,8 @@ const getActivities = async (options: AxiosRequestConfig, skipCount = 0, maxItem
       options,
     );
 
+    devLog.info('response', response);
+
     const activities = response.data.list.entries as AlfrescoActivityResponse[];
     const nonDownloadActivities = activities.filter((child: { entry: { activityType: string } }) => {
       const allowedTypes = [
@@ -30,6 +32,7 @@ const getActivities = async (options: AxiosRequestConfig, skipCount = 0, maxItem
     });
     return nonDownloadActivities;
   } catch (error) {
+    devLog.error('error', error);
     throw error;
   }
 };
