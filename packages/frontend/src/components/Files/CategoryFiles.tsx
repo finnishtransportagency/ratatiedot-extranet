@@ -18,7 +18,8 @@ import { CategoryDataContext } from '../../contexts/CategoryDataContext';
 import { UploadDialogButton } from './UploadDialogButton';
 import styled from '@emotion/styled';
 import { FileEditDialogButton } from './FileEditDialogButton';
-
+import { MoveDialogButton } from './MoveDialogButton';
+import { useStore } from './RefreshKeyStore';
 type TCategoryFilesProps = {
   childFolderName?: string;
   nestedFolderId?: string;
@@ -35,6 +36,8 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   const [hasMoreItems, setHasMoreItems] = useState(false);
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
   const categoryName = getCategoryRouteName(location);
+
+  const { refreshKey, incrementRefreshKey, resetRefreshKey } = useStore();
 
   const { openEdit, openToolbar } = useContext(AppBarContext);
   const { fileUploadDisabled, fileUploadDisabledHandler } = useContext(MenuContext);
@@ -75,6 +78,13 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   useEffect(() => {
     getCategoryFiles();
   }, [page]);
+
+  useEffect(() => {
+    if (refreshKey !== 0) {
+      getCategoryFiles();
+      resetRefreshKey();
+    }
+  }, [refreshKey]);
 
   const loadMore = () => setPage(page + 1);
 
@@ -160,6 +170,17 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
               deleteFile(e.node);
             }}
           ></DeleteDialogButton>
+        )}
+        {isEditOpen && !hasClassifiedContent && (
+          <MoveDialogButton
+            categoryName={categoryName}
+            disabled={!selectedFile}
+            node={selectedFile}
+            onMove={(e) => {
+              deleteFile(e.data);
+              incrementRefreshKey();
+            }}
+          ></MoveDialogButton>
         )}
       </GroupedFileButtonsWrapper>
 
