@@ -393,6 +393,18 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/get-banners.ts',
     });
 
+    const alfrescoListFolders = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-list-folders',
+      relativePath: '../packages/server/lambdas/alfresco/list-folders.ts',
+    });
+
+    const alfrescoMoveNode = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-move-node',
+      relativePath: '../packages/server/lambdas/alfresco/move-node.ts',
+    });
+
     imageBucket.grantReadWrite(postNotice);
     imageBucket.grantReadWrite(putNotice);
     imageBucket.grantReadWrite(deleteNotice);
@@ -593,6 +605,20 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/banners'],
         httpRequestMethods: ['GET'],
         targetName: 'getBanners',
+      },
+      {
+        lambda: alfrescoListFolders,
+        priority: 260,
+        path: ['/api/alfresco/folders'],
+        httpRequestMethods: ['GET'],
+        targetName: 'alfrescoListFolders',
+      },
+      {
+        lambda: alfrescoMoveNode,
+        priority: 270,
+        path: ['/api/alfresco/files/*/*/move'],
+        httpRequestMethods: ['POST'],
+        targetName: 'alfrescoMoveNode',
       },
     ];
 

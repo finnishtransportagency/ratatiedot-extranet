@@ -92,9 +92,9 @@ export const getFolder = async (uid: string, nodeId: string) => {
   }
 };
 
-export const isFolderInCategory = async (folderPath: string, category: string) => {
+export const isNodeInCategory = async (nodePath: string, category: string) => {
   // Split the path into its components
-  const pathComponents = folderPath.split('/');
+  const pathComponents = nodePath.split('/');
 
   // Check if the parent folder name is among the path components
   // Adjust the index based on given path structure
@@ -166,7 +166,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       const foundFolder = await getFolder(user.uid, nestedFolderId);
       const folderPath = get(foundFolder, 'entry.path.name', '');
       // Check if the nest folder is a descendant of the category
-      const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
+      const isFolderDescendantOfCategory = await isNodeInCategory(folderPath, category);
       if (isFolderDescendantOfCategory) {
         data = await listFiles(user.uid, nestedFolderId, page);
       }
