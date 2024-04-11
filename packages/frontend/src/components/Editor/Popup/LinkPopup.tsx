@@ -20,16 +20,7 @@ export const LinkPopup = ({ attributes, element, children }: LinkPopupProps) => 
   const url = (element as ILinkElement).href;
   return (
     <LinkPopUpContainer {...attributes}>
-      <a
-        href={url}
-        rel="noreferrer"
-        target="_blank"
-        onClick={() => {
-          if (!openToolbar) {
-            window.open(url, '_blank', 'noopener,noreferrer');
-          }
-        }}
-      >
+      <a href={url} rel="noreferrer noopener" target="_blank">
         {children}
       </a>
       {selected && focused && (
