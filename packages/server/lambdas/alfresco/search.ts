@@ -22,7 +22,7 @@ const searchByTerm = async (uid: string, body: QueryRequest) => {
     log.info(uid, `bodyRequest2: ${JSON.stringify(bodyRequest)}`);
     const alfrescoSearchAPIUrl = alfrescoSearchApiVersion;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
-    log.info(uid, `options: ${JSON.stringify(options)}`);
+    log.info(uid, 'options');
 
     const response = await alfrescoAxios.post(alfrescoSearchAPIUrl, bodyRequest, options);
     log.info(uid, `response asd: ${JSON.stringify(response)}`);
