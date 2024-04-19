@@ -18,13 +18,11 @@ const searchByTerm = async (user: RataExtraUser, body: QueryRequest) => {
       sort: body.sort,
       additionalFields: [AdditionalFields.PROPERTIES],
     });
-    log.info(user, `bodyRequest1: ${bodyRequest}`);
-    log.info(user, `bodyRequest2: ${JSON.stringify(bodyRequest)}`);
+    log.info(user, `bodyRequest: ${JSON.stringify(bodyRequest)}`);
     const alfrescoSearchAPIUrl = alfrescoSearchApiVersion;
     const options = await getAlfrescoOptions(user.uid, { 'Content-Type': 'application/json;charset=UTF-8' });
 
     const response = await alfrescoAxios.post(alfrescoSearchAPIUrl, bodyRequest, options);
-    log.info(user, `response asd: ${JSON.stringify(response)}`);
     return response.data;
   } catch (err) {
     log.error(err);
