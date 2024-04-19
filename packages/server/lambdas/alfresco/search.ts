@@ -23,6 +23,7 @@ const searchByTerm = async (user: RataExtraUser, body: QueryRequest) => {
     const options = await getAlfrescoOptions(user.uid, { 'Content-Type': 'application/json;charset=UTF-8' });
 
     const response = await alfrescoAxios.post(alfrescoSearchAPIUrl, bodyRequest, options);
+    log.info(user, `response asd: ${JSON.stringify(response)}`);
     return response.data;
   } catch (err) {
     log.error(err);
