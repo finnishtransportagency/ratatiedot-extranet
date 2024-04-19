@@ -9,6 +9,7 @@ import { AdditionalFields, QueryRequest } from './searchQueryBuilder/types';
 import { alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
 
 const searchByTerm = async (uid: string, body: QueryRequest) => {
+  log.info(uid, 'searchByTerm');
   try {
     const bodyRequest = searchQueryBuilder({
       searchParameters: body.searchParameters,
@@ -17,7 +18,7 @@ const searchByTerm = async (uid: string, body: QueryRequest) => {
       sort: body.sort,
       additionalFields: [AdditionalFields.PROPERTIES],
     });
-    log.debug(bodyRequest, 'Complete body request');
+    log.info('Complete body request', bodyRequest);
     const alfrescoSearchAPIUrl = alfrescoSearchApiVersion;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
 
@@ -42,8 +43,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const parsedBody: QueryRequest = JSON.parse(body);
     log.info(user, `Alfresco search: ${body}`);
     validateReadUser(user);
+    log.info(user, `we are here!`);
 
     const data = await searchByTerm(user.uid, parsedBody);
+    log.info(user, JSON.stringify(data));
     return {
       statusCode: 200,
       headers: {
