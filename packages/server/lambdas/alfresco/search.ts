@@ -3,13 +3,13 @@ import { getAlfrescoOptions } from '../../utils/alfresco';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateReadUser } from '../../utils/userService';
+import { RataExtraUser, getUser, validateReadUser } from '../../utils/userService';
 import { searchQueryBuilder } from './searchQueryBuilder';
 import { AdditionalFields, QueryRequest } from './searchQueryBuilder/types';
 import { alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
 
-const searchByTerm = async (uid: string, body: QueryRequest) => {
-  log.info(uid, 'searchByTerm');
+const searchByTerm = async (user: RataExtraUser, body: QueryRequest) => {
+  log.info(user, 'searchByTerm');
   try {
     const bodyRequest = searchQueryBuilder({
       searchParameters: body.searchParameters,
@@ -18,14 +18,13 @@ const searchByTerm = async (uid: string, body: QueryRequest) => {
       sort: body.sort,
       additionalFields: [AdditionalFields.PROPERTIES],
     });
-    log.info(uid, `bodyRequest1: ${bodyRequest}`);
-    log.info(uid, `bodyRequest2: ${JSON.stringify(bodyRequest)}`);
+    log.info(user, `bodyRequest1: ${bodyRequest}`);
+    log.info(user, `bodyRequest2: ${JSON.stringify(bodyRequest)}`);
     const alfrescoSearchAPIUrl = alfrescoSearchApiVersion;
-    const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
-    log.info(uid, 'options');
+    const options = await getAlfrescoOptions(user.uid, { 'Content-Type': 'application/json;charset=UTF-8' });
 
     const response = await alfrescoAxios.post(alfrescoSearchAPIUrl, bodyRequest, options);
-    log.info(uid, `response asd: ${JSON.stringify(response)}`);
+    log.info(user, `response asd: ${JSON.stringify(response)}`);
     return response.data;
   } catch (err) {
     log.error(err);
@@ -49,7 +48,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateReadUser(user);
     log.info(user, `we are here!`);
 
-    const data = await searchByTerm(user.uid, parsedBody);
+    const data = await searchByTerm(user, parsedBody);
     log.info(user, JSON.stringify(data));
     return {
       statusCode: 200,
