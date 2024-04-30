@@ -52,7 +52,7 @@ export class RataExtraBastionStack extends Stack {
       vpc,
       securityGroup,
       instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-09e50afd561f15458' }),
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-02f9251f780ced760' }),
       role: bastionRole,
       userData,
     });
