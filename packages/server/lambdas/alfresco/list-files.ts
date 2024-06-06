@@ -32,10 +32,11 @@ export type TNode = {
   };
 };
 
-const listFiles = async (uid: string, nodeId: string, page: number) => {
+const listFiles = async (uid: string, nodeId: string, page: number, ascending: boolean = true) => {
   try {
     const skipCount = Math.max(page ?? 0, 0) * 50;
-    const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?skipCount=${skipCount}&maxItems=50&include=${AdditionalFields.PROPERTIES}&orderBy=name ASC`;
+    const order = ascending ? 'ASC' : 'DESC';
+    const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?skipCount=${skipCount}&maxItems=50&include=${AdditionalFields.PROPERTIES}&orderBy=name ${order}`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
     return response.data;
@@ -108,7 +109,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
 
 /**
  * Case 1: Get the list of files and folders embedded to category page.
- * Example: /api/alfresco/files?category=linjakaaviot
+ * Example: /api/alfresco/files?category=linjakaaviot&order=ascending
  * Case 2: Get the list of files and folders embedded to any folder that is a descendant of category page.
  * Example: /api/alfresco/files?category=linjakaaviot&nestedFolderId=123
  * Case 3: Get the list of files and folders embedded to direct child folder of category page
@@ -123,10 +124,21 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     const params = event.queryStringParameters;
     // only listed parameters are accepted
-    validateQueryParameters(params, ['category', 'nestedFolderId', 'childFolderName', 'page', 'language']);
+    validateQueryParameters(params, ['category', 'nestedFolderId', 'childFolderName', 'page', 'language', 'order']);
     const category = params?.category;
     const nestedFolderId = params?.nestedFolderId;
     const childFolderName = params?.childFolderName;
+    const order = params?.order;
+    let ascendingOrder = true;
+
+    if (order) {
+      if (order === 'descending') {
+        ascendingOrder = false;
+      }
+      if (order !== 'ascending' && order !== 'descending') {
+        throw new RataExtraLambdaError('Invalid order parameter, allowed params are: "ascending" or "descenting"', 400);
+      }
+    }
 
     log.info(
       user,
@@ -168,7 +180,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       // Check if the nest folder is a descendant of the category
       const isFolderDescendantOfCategory = await isNodeInCategory(folderPath, category);
       if (isFolderDescendantOfCategory) {
-        data = await listFiles(user.uid, nestedFolderId, page);
+        data = await listFiles(user.uid, nestedFolderId, page, ascendingOrder);
       }
     }
 
@@ -177,12 +189,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       const childFolder = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, 0, language); // direct child folder name is given, default page should be 0
       const childFolderId = get(childFolder, 'list.entries[0].entry.id');
       if (childFolderId) {
-        data = await listFiles(user.uid, childFolderId, page);
+        data = await listFiles(user.uid, childFolderId, page, ascendingOrder);
       }
     }
 
     if (!nestedFolderId && !childFolderName) {
-      data = await listFiles(user.uid, alfrescoParent, page);
+      data = await listFiles(user.uid, alfrescoParent, page, ascendingOrder);
     }
 
     const responseBody = {
