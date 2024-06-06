@@ -358,6 +358,10 @@ export const prodAreas = [
         alfrescoId: 'a3093f2e-deac-449c-aa89-2058de35a72e',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
       },
+      {
+        alfrescoId: 'dd571031-4157-4d0b-a0a6-d637206277fa',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
+      },
     ],
   },
   {
@@ -389,6 +393,10 @@ export const prodAreas = [
         alfrescoId: '17437108-8e6d-46b3-8c68-ada6fa0fad80',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
       },
+      {
+        alfrescoId: '4ea2caa6-b5b2-4bf1-a51e-ef8722a20627',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
+      },
     ],
   },
   {
@@ -415,6 +423,10 @@ export const prodAreas = [
       {
         alfrescoId: '7c5730f5-7e4e-4a99-af97-c93225719061',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
+      },
+      {
+        alfrescoId: 'd6c2e6c0-0fab-4570-8f48-0a2ba436a831',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
       },
     ],
   },
@@ -447,6 +459,10 @@ export const prodAreas = [
         alfrescoId: '9f837b44-cd05-4e9d-bbf6-75d24ca20f3d',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
       },
+      {
+        alfrescoId: '84f60960-1333-4299-969b-4bf4aef16535',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
+      },
     ],
   },
   {
@@ -477,6 +493,10 @@ export const prodAreas = [
       {
         alfrescoId: '1abbe7a0-e82e-43b7-9a42-48a667806ba9',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
+      },
+      {
+        alfrescoId: 'a925058f-8c31-4225-a3e9-04015d015937',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
       },
     ],
   },
@@ -509,6 +529,10 @@ export const prodAreas = [
         alfrescoId: '4fa56d1a-6371-4718-9574-11b8777a0481',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
       },
+      {
+        alfrescoId: '6a17cf90-5206-4f34-943a-6f6a54d25051',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
+      },
     ],
   },
   {
@@ -539,6 +563,10 @@ export const prodAreas = [
       {
         alfrescoId: '95bf781b-f3f8-4d62-9fa7-cbc4cd14f98a',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
+      },
+      {
+        alfrescoId: 'cefae085-527e-4ee1-aa9d-eeef5d53e902',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
       },
     ],
   },
@@ -571,6 +599,10 @@ export const prodAreas = [
         alfrescoId: '072fcd9c-305c-4851-8056-f3c3e30c29e4',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
       },
+      {
+        alfrescoId: '39e4dd1a-14d2-4961-bf08-62cea3b25763',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
+      },
     ],
   },
   {
@@ -602,6 +634,10 @@ export const prodAreas = [
         alfrescoId: '309ac3c5-c799-43e6-b1fd-df3cc50716b1',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
       },
+      {
+        alfrescoId: '2978ffc2-0441-44fa-a540-4c600b519992',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
+      },
     ],
   },
   {
@@ -628,6 +664,10 @@ export const prodAreas = [
       {
         alfrescoId: 'f13ed686-db37-42b6-854a-206396ce30a0',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
+      },
+      {
+        alfrescoId: 'ab11e6ce-f985-4718-afac-f4df21dbf9c7',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
       },
     ],
   },
@@ -660,6 +700,10 @@ export const prodAreas = [
         alfrescoId: 'cb6ffbed-9891-4280-998c-ae71c92c2f93',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
       },
+      {
+        alfrescoId: '6579cef9-54c6-49c2-b971-385eb13a88a0',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
+      },
     ],
   },
   {
@@ -690,6 +734,10 @@ export const prodAreas = [
       {
         alfrescoId: '9fb517ab-f34d-4e52-960b-18430a1ec9c4',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
+      },
+      {
+        alfrescoId: '574f155d-ec2c-4d09-9c8b-e82b36b87249',
+        parentAlfrescoId: 'c3ad0d3d-0b54-4b8b-a5e8-3d229ee47155',
       },
     ],
   },
