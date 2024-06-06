@@ -46,13 +46,18 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
 
   const isEditOpen = openEdit || openToolbar;
 
+  // Special case for pages that need descending order by default.
+  // Not ideal, but if more pages happen to need this, we can refactor.
+  const pagesWithDescendingFileListOrder = ['hallintaraportit'];
+
   const getCategoryFiles = useCallback(async () => {
     try {
       setLoading(true);
       const childFolderNameQuery = childFolderName ? `&childFolderName=${childFolderName}` : '';
       const nestedFolderIdQuery = nestedFolderId ? `&nestedFolderId=${nestedFolderId}` : '';
+      const order = pagesWithDescendingFileListOrder.includes(categoryName) ? 'descending' : 'ascending';
       const response = await axios.get(
-        `/api/alfresco/files?category=${categoryName}${childFolderNameQuery}${nestedFolderIdQuery}&page=${page}`,
+        `/api/alfresco/files?category=${categoryName}${childFolderNameQuery}${nestedFolderIdQuery}&page=${page}&order=${order}`,
       );
       const { data, hasClassifiedContent, hasConfidentialContent } = response.data;
       const totalFiles = get(data, 'list.entries', []);
