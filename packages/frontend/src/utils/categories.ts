@@ -421,6 +421,10 @@ export const prodAreas = [
         parentAlfrescoId: '2526730d-16fa-4132-88ef-a3a2da5d16a5',
       },
       {
+        alfrescoId: '9c8cbe72-ebb5-487b-bc5c-c42c70992783',
+        parentAlfrescoId: '846eb15f-17dc-4f58-982e-b957d8b5ad38',
+      },
+      {
         alfrescoId: '7c5730f5-7e4e-4a99-af97-c93225719061',
         parentAlfrescoId: '84823b29-dd36-438b-ac2d-91c907357fe1',
       },

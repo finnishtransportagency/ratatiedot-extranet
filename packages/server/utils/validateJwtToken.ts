@@ -1,7 +1,16 @@
 import JWT, { JwtPayload } from 'jsonwebtoken';
 import Axios from 'axios';
 import { log } from './logger';
-import jwkToPem from 'jwk-to-pem';
+import { createPublicKey } from 'crypto';
+
+function jwkToPem(webKey: string | Buffer) {
+  const pubKey = createPublicKey({
+    key: webKey,
+    format: 'jwk',
+  });
+
+  return pubKey.export({ format: 'pem', type: 'spki' }).toString();
+}
 
 let cachedKeys: Record<string, string>;
 
