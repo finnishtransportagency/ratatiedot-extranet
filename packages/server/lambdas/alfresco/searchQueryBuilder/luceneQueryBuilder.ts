@@ -89,10 +89,8 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     return sentence.match(/[a-ö]|[0-9]|[-]|\s/gi)?.join('');
   }
 
-  addWildcard(searchTerms: string[]) {
-    let parsedSentence = searchTerms.join('*');
-    parsedSentence = `*${parsedSentence}*`;
-
+  addWildcard(searchTerms: string[]): string {
+    const parsedSentence = searchTerms.map((term) => `${term}*`).join(' ');
     return parsedSentence;
   }
 
