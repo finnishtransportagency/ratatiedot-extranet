@@ -175,7 +175,6 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
         default:
       }
     });
-    console.log('RESULTING QUERY: ', query);
     return query;
   }
 
