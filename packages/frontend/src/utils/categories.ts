@@ -167,6 +167,12 @@ export const prodCategories = [
     name: 'Ratatietojen luokittelu',
     alfrescoId: '69b4145c-1a3e-499c-9213-083651a0a19f',
   },
+  {
+    key: 27,
+    id: 'd4baac14-818f-4776-9b4b-72fe1fab3afe',
+    name: 'Muita ratatietoaineistoja',
+    alfrescoId: 'beb734da-d83d-4d2b-930a-b21e92978acb',
+  },
 ];
 
 export const devCategories = [
@@ -325,6 +331,12 @@ export const devCategories = [
     id: '04834242-68aa-4404-8e4c-5c7aa363defe',
     name: 'Ratatietojen luokittelu',
     alfrescoId: 'b66ae651-7cf1-4bf7-be74-c4896d5cf3d2',
+  },
+  {
+    key: 27,
+    id: 'd4baac14-818f-4776-9b4b-72fe1fab3afe',
+    name: 'Muita ratatietoaineistoja',
+    alfrescoId: '37b87c76-ef88-42fc-b145-1cea71c32773',
   },
 ];
 
