@@ -45,6 +45,7 @@ import { SingleNotice } from './pages/Notices/SingleNotice';
 import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
 import { RailwayCategory } from './pages/Others/RailwayCategory';
+import { OtherRailway } from './pages/Others/OtherRailway';
 
 import { findCategoryIdByKey } from './utils/helpers';
 
@@ -185,6 +186,7 @@ const OTHERS_ROUTES = [
   ...getProtectedRoute(Routes.PLANNING_ARCHIVE, <PlanningArchive />),
   ...getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
   ...getProtectedRoute(Routes.RAILWAY_CATEGORY, <RailwayCategory />),
+  ...getProtectedRoute(Routes.OTHER_RAILWAY, <OtherRailway />),
 ];
 
 const INSTRUCTIONS_ROUTES = [
