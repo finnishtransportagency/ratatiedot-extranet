@@ -29,7 +29,7 @@ Copy `.env.bastion.example` as `.env.bastion` and fill the parameters. Refresh y
 
 This will set up a pipe to the bastion host using AWS SSM on localhost:3001. These are then piped to the ALB. If you get "Forbidden"-error, you need to refresh your credentials in `~/.aws/credentials`. For this to keep working, `bastion-backend-pipe.sh` locally needs to be up and running.
 
-#### Connecting to AWS dev/prod database
+#### Connecting to dev/prod database
 
 Do `.env.bastion` steps above if you have not done so already. Refresh local AWS credentials and run
 
