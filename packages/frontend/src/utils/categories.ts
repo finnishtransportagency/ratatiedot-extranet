@@ -203,7 +203,7 @@ export const prodCategories = [
   },
   {
     key: 27,
-    id: 'd4baac14-818f-4776-9b4b-72fe1fab3afe',
+    id: '3ce32dad-1528-4a9e-8e02-d51f28507600',
     name: 'Muita ratatietoaineistoja',
     alfrescoId: 'beb734da-d83d-4d2b-930a-b21e92978acb',
   },
