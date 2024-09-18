@@ -29,7 +29,7 @@ Copy `.env.bastion.example` as `.env.bastion` and fill the parameters. Refresh y
 
 This will set up a pipe to the bastion host using AWS SSM on localhost:3001. These are then piped to the ALB. If you get "Forbidden"-error, you need to refresh your credentials in `~/.aws/credentials`. For this to keep working, `bastion-backend-pipe.sh` locally needs to be up and running.
 
-#### Connecting to AWS dev database
+#### Connecting to AWS dev/prod database
 
 Do `.env.bastion` steps above if you have not done so already. Refresh local AWS credentials and run
 
@@ -38,6 +38,14 @@ Do `.env.bastion` steps above if you have not done so already. Refresh local AWS
 ```
 
 This will set up a pipe to the bastion host using AWS SSM on localhost:5433. These are then piped to the DB. For this to keep working, `bastion-database-pipe.sh` locally needs to be up and running.
+
+> [!NOTE]  
+> If you have configured `.env.bastion` file with desired bastion `﻿INSTANCE_ID` and aws `PROFILE`, updated your AWS credentials in `~/.aws/credentials` file and have correct database credentials in `/packages/server/.env` file but still are not able to connect to desired database through bastion host, check that `nohup socat` process is running in the instance. You can use AWS EC2 console to login to bastion host terminal.
+> - login to bastion host terminal and list all running processes `sudo lsof -i -P -n`
+>   - see if process listening port `*:5432` is in the list
+> - If not, run following command with database DNS address copied from Parameter Store
+> 
+> `nohup socat TCP4-LISTEN:5432,reuseaddr,fork TCP:{DATABASE_DNS}:5432 &`
 
 #### Connecting to feature ALB
 
