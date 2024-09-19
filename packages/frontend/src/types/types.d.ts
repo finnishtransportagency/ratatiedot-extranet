@@ -106,6 +106,7 @@ type SubCategoryData = {
   PLANNING_ARCHIVE: string;
   RAILWAY_MONITORING_SERVICE: string;
   RAILWAY_CATEGORY: string;
+  OTHER_RAILWAY: string;
   SEARCH_AND_FILTERS: string;
   FAVORITES: string;
   LOGIN_AND_PERMISSIONS: string;

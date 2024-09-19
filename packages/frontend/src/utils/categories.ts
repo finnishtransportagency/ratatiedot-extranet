@@ -10,6 +10,40 @@ export interface Area {
   collection: Collection[];
 }
 
+/*
+  Categories are used to to map the correct Alfresco folder to the correct category
+  Keys  explained:
+  {
+    // Unique key for each category
+    // No specific use case or rules for the key
+    // Just make sure that each category has unique key
+    key: number,
+
+    // Unique id for each category. Id is used to map category with correct categoty in the database (CategoryDataBase)
+    // If you add new category, you need to add new id to the database
+    // Id is generated automatically in database so paste that id here
+    id: 'uuid',
+
+    // Name of the category
+    name: 'Category name',
+
+    // Alfresco id is used to map category with correct folder in Alfresco
+    // Alfresco id is generated when you create new folder in Alfresco
+    // You can find Alfresco id from the url when you are in the folder in Alfresco
+    // Copy the id from the url and paste it here when creating new category or if you have to update corresponding alfresco folder
+    alfrescoId: 'uuid',
+  }
+
+  When creating new category, you have to create also new item to database (CategoryDataContents)
+  You have to reference category baseId to the id of the category (CategoryDataBase)
+  CategoryDataContents table is used to save user-modifiable content to the database (Like page header, description etc.)
+
+  There are separate categories for production and development
+  Use prodCategories for production and devCategories for development
+
+  Areas are used to map the correct Alfresco folder to the correct area
+ */
+
 export const prodCategories = [
   {
     key: 1,
@@ -166,6 +200,12 @@ export const prodCategories = [
     id: '2da86168-eed3-4429-93b6-78415515cf49',
     name: 'Ratatietojen luokittelu',
     alfrescoId: '69b4145c-1a3e-499c-9213-083651a0a19f',
+  },
+  {
+    key: 27,
+    id: '3ce32dad-1528-4a9e-8e02-d51f28507600',
+    name: 'Muita ratatietoaineistoja',
+    alfrescoId: 'beb734da-d83d-4d2b-930a-b21e92978acb',
   },
 ];
 
@@ -325,6 +365,12 @@ export const devCategories = [
     id: '04834242-68aa-4404-8e4c-5c7aa363defe',
     name: 'Ratatietojen luokittelu',
     alfrescoId: 'b66ae651-7cf1-4bf7-be74-c4896d5cf3d2',
+  },
+  {
+    key: 27,
+    id: '76f3862d-d7aa-4330-bbac-a5c5d9162798',
+    name: 'Muita ratatietoaineistoja',
+    alfrescoId: '37b87c76-ef88-42fc-b145-1cea71c32773',
   },
 ];
 
