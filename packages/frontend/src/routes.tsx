@@ -23,6 +23,8 @@ import { BridgeMaintenanceInstructions } from './pages/SpecialtyStructures/Bridg
 import { Tunnels } from './pages/SpecialtyStructures/Tunnels';
 import { RailwayTunnelRescuePlans } from './pages/SpecialtyStructures/RailwayTunnelRescuePlans';
 import { MaintenanceInstructions } from './pages/SafetyEquipment/MaintenanceInstructions';
+import { InputStationManuals } from './pages/ElectricRailway/InputStationManuals';
+import { TrackManagementManuals } from './pages/ElectricRailway/TrackManagementManuals';
 import { Manuals } from './pages/SafetyEquipment/Manuals';
 import { TrafficControl } from './pages/ContactInformation/TrafficControlContactInformation';
 import { ManagementReports } from './pages/Others/ManagementReports';
@@ -174,6 +176,11 @@ const SAFETY_EQUIPMENT_ROUTES = [
   ...getProtectedRoute(Routes.SAFETY_EQUIPMENT_MANUALS, <Manuals id={findCategoryIdByKey(9)} />, true),
 ];
 
+const ELECTRIC_RAILWAY_ROUTES = [
+  ...getProtectedRoute(Routes.INPUT_STATION_MANUALS, <InputStationManuals />),
+  ...getProtectedRoute(Routes.TRACK_MANAGEMENT_MANUALS, <TrackManagementManuals />),
+];
+
 const CONTACT_INFORMATION_ROUTES = [
   ...getProtectedRoute(Routes.INTERCHANGE_CONTACT_INFORMATION, <InterchangeContactInformation />),
   ...getProtectedRoute(Routes.TRAFFIC_CONTROL_CONTACT_INFORMATION, <TrafficControl />, true),
@@ -205,6 +212,7 @@ export const categoryRoutes: RouteObject[] = [
   ...OPERATION_ROUTES,
   ...SPECIALTY_STRUCTURES_ROUTES,
   ...SAFETY_EQUIPMENT_ROUTES,
+  ...ELECTRIC_RAILWAY_ROUTES,
   ...CONTACT_INFORMATION_ROUTES,
   ...OTHERS_ROUTES,
   ...INSTRUCTIONS_ROUTES,

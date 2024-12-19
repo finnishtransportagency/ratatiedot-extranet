@@ -47,6 +47,12 @@ export const Routes = {
   SAFETY_EQUIPMENT_MANUALS: `/${getRouterName(MainCategoryNames.SAFETY_EQUIPMENT)}/${getRouterName(
     SubCategoryNames.SAFETY_EQUIPMENT_MANUALS,
   )}`,
+  INPUT_STATION_MANUALS: `/${getRouterName(MainCategoryNames.ELECTRIC_RAILWAY)}/${getRouterName(
+    SubCategoryNames.INPUT_STATION_MANUALS,
+  )}`,
+  TRACK_MANAGEMENT_MANUALS: `/${getRouterName(MainCategoryNames.ELECTRIC_RAILWAY)}/${getRouterName(
+    SubCategoryNames.TRACK_MANAGEMENT_MANUALS,
+  )}`,
   INTERCHANGE_CONTACT_INFORMATION: `/${getRouterName(MainCategoryNames.CONTACT_INFORMATION)}/${getRouterName(
     SubCategoryNames.INTERCHANGE_CONTACT_INFORMATION,
   )}`,
