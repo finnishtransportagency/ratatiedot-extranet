@@ -42,6 +42,13 @@
     }
   },
   {
+    "category": { "ELECTRIC_RAILWAY": "Sähkörata" },
+    "subCategories": {
+      "INPUT_STATION_MANUALS": "Syöttöasemalaitteiden huolto- ja käyttöohjeet",
+      "TRACK_MANAGEMENT_MANUALS": "Ratajohdon laitteiden huolto- ja käyttöohjeet"
+    }
+  },
+  {
     "category": { "CONTACT_INFORMATION": "Yhteystiedot" },
     "subCategories": {
       "INTERCHANGE_CONTACT_INFORMATION": "Liikennepaikkojen yhteystiedot",
