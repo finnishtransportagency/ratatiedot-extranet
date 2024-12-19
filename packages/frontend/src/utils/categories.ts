@@ -207,6 +207,18 @@ export const prodCategories = [
     name: 'Muita ratatietoaineistoja',
     alfrescoId: 'beb734da-d83d-4d2b-930a-b21e92978acb',
   },
+  {
+    key: 28,
+    id: '510dd8b8-6321-4592-bd8a-0320a282ea06',
+    name: 'Syöttöasemalaitteiden huolto- ja käyttöohjeet',
+    alfrescoId: '10beaa50-4413-4d3e-8ce7-86ed98f638b9',
+  },
+  {
+    key: 29,
+    id: '9360df71-e125-47d1-85f2-0437fa7db10d',
+    name: 'Ratajohdon laitteiden huolto- ja käyttöohjeet',
+    alfrescoId: 'c1c9e7a1-b681-4adc-8caf-4eba9d19c889',
+  },
 ];
 
 export const devCategories = [
@@ -379,7 +391,7 @@ export const devCategories = [
     alfrescoId: 'b5ce6dab-640f-407a-91ab-5d5c5b1ed8e9',
   },
   {
-    key: 279,
+    key: 29,
     id: '878a9561-9957-4c70-9b59-cb0d0183a1cc',
     name: 'Ratajohdon laitteiden huolto- ja käyttöohjeet',
     alfrescoId: '0d6d4045-4ebb-4e37-b677-21843c3a150f',
