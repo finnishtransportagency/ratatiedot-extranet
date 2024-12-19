@@ -6,7 +6,7 @@ import SsidChartIcon from '@mui/icons-material/SsidChart';
 import DirectionsIcon from '@mui/icons-material/Directions';
 import SubwayIcon from '@mui/icons-material/Subway';
 import ShieldIcon from '@mui/icons-material/Shield';
-import ElectricMeterIcon from '@mui/icons-material/Bolt';
+import Bolt from '@mui/icons-material/Bolt';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import BrowserNotSupportedIcon from '@mui/icons-material/BrowserNotSupported';
@@ -42,7 +42,7 @@ const fetchMaterialClass = (): IMenuItem[] => {
       case 'Turvalaitteet':
         return <ShieldIcon />;
       case 'Sähkörata':
-        return <ElectricMeterIcon />;
+        return <Bolt />;
       case 'Yhteystiedot':
         return <AlternateEmailIcon />;
       case 'Muut':
