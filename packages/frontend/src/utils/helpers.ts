@@ -136,6 +136,12 @@ export const parseRouterName = (routerName: string = '') => {
       return 'Turvalaitteiden huolto-ohjeet';
     case 'turvalaitteiden-kayttoohjeet':
       return 'Turvalaitteiden käyttöohjeet';
+    case 'sahkorata':
+      return 'Sähkörata';
+    case 'syottoasemalaitteiden-huolto--ja-kayttoohjeet':
+      return 'Syöttöasemalaitteiden huolto- ja käyttöohjeet';
+    case 'ratajohdon-laitteiden-huolto--ja-kayttoohjeet':
+      return 'Ratajohdon laitteiden huolto- ja käyttöohjeet';
     case 'liikennointi':
       return 'Liikennöinti';
     case 'kayttoohjeet':
