@@ -138,3 +138,5 @@ It can be fixed by using `~/.huskyrc` to load the necessary stuff before running
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 ```
+
+test
