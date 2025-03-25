@@ -4,7 +4,6 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { getAlfrescoOptions } from '../../utils/alfresco';
 import { getUser, validateReadUser } from '../../utils/userService';
-import { validateQueryParameters } from '../../utils/validation';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 
 /**
@@ -42,10 +41,9 @@ const fetchPdfDocument = async (uid: string, nodeId: string): Promise<Buffer> =>
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    const params = event.queryStringParameters;
 
-    validateQueryParameters(params, ['nodeId']);
-    const nodeId = params?.nodeId;
+    const paths = event.path.split('/');
+    const nodeId = paths.at(-1);
 
     log.info(user, `Fetching PDF document with ID: ${nodeId}`);
 
