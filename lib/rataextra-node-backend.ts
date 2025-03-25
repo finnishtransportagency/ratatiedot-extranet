@@ -157,6 +157,20 @@ export class RatatietoNodeBackendConstruct extends Construct {
         healthyThresholdCount: 2,
       },
     });
+
+    listener.addTargets('NodeBackendTarget', {
+      port: 8080,
+      protocol: ApplicationProtocol.HTTP,
+      targets: [autoScalingGroup],
+      conditions: [
+        ListenerCondition.pathPatterns(['/api/alfresco/pdf/*']),
+        ListenerCondition.httpRequestMethods(['GET']),
+      ],
+      priority: 122,
+      healthCheck: {
+        healthyThresholdCount: 2,
+      },
+    });
     // Hack to replace old instance by modifying asg init configuration file.
     autoScalingGroup.addUserData(`# instance created at: ${new Date()}`);
     autoScalingGroup.addUserData(
