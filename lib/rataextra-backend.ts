@@ -405,6 +405,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/move-node.ts',
     });
 
+    const alfrescoGetPdfFile = this.createNodejsLambda({
+      ...prismaAlfrescoCombinedParameters,
+      name: 'alfresco-get-pdf-file',
+      relativePath: '../packages/server/lambdas/alfresco/get-pdf-file.ts',
+    });
+
     imageBucket.grantReadWrite(postNotice);
     imageBucket.grantReadWrite(putNotice);
     imageBucket.grantReadWrite(deleteNotice);
@@ -619,6 +625,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/alfresco/files/*/*/move'],
         httpRequestMethods: ['POST'],
         targetName: 'alfrescoMoveNode',
+      },
+      {
+        lambda: alfrescoGetPdfFile,
+        priority: 280,
+        path: ['/api/alfresco/pdf/*'],
+        httpRequestMethods: ['GET'],
+        targetName: 'alfrescoGetPdfFile',
       },
     ];
 
