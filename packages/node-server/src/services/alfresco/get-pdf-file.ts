@@ -1,10 +1,9 @@
-import { ALBEvent, ALBResult } from 'aws-lambda';
-
-import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
+import { Request } from 'express';
 import { getAlfrescoOptions } from '../../utils/alfresco';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { RataExtraEC2Error } from '../../utils/errors';
 
 /**
  * Fetches a specific PDF document from Alfresco
@@ -33,30 +32,29 @@ const fetchPdfDocument = async (uid: string, nodeId: string): Promise<Buffer> =>
 /**
  * Handler for retrieving a PDF document from Alfresco for direct embedding in the frontend
  *
- * @param {ALBEvent} event - ALB event
- * @param {Object} event.queryStringParameters
+ * @param {ALBEvent} request
+ * @param {{string}} event.path Path should end with the page to upload the file to
  * @param {string} event.queryStringParameters.nodeId - The Alfresco node ID of the PDF document
- * @returns {Promise<ALBResult>} - PDF document with appropriate headers for embedding
+ * @returns {Promise<void>}
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export async function handleRequest(req: Request): Promise<{ pdfData: Buffer; headers: Record<string, string> }> {
   try {
-    const user = await getUser(event);
+    const user = await getUser(req);
 
-    const paths = event.path.split('/');
-    const nodeId = paths.at(-1);
+    const nodeId = req.params.nodeId;
 
     log.info(user, `Fetching PDF document with ID: ${nodeId}`);
 
     validateReadUser(user);
 
     if (!nodeId) {
-      throw new RataExtraLambdaError('Node ID is required', 400);
+      throw new RataExtraEC2Error('Node ID is required', 400);
     }
 
     const pdfData = await fetchPdfDocument(user.uid, nodeId);
 
     return {
-      statusCode: 200,
+      pdfData,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'inline; filename="document.pdf"',
@@ -65,11 +63,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'public, max-age=3600',
       },
-      body: pdfData.toString('base64'),
-      isBase64Encoded: true,
     };
   } catch (err) {
     log.error(err);
-    return getRataExtraLambdaError(err);
+    throw new RataExtraEC2Error('Error occurred:', err);
   }
 }
+
+export default handleRequest;
