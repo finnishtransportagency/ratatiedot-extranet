@@ -21,7 +21,10 @@ const fetchPdfDocument = async (uid: string, nodeId: string): Promise<Buffer> =>
     });
 
     const response = await alfrescoAxios.get(url, options);
-    console.log(`Fetched pdf data size: ${response.data.byteLength} bytes`);
+    console.log(`Fetched response: ${response}`);
+    console.log(`Fetched response data: ${response.data}`);
+    console.log(typeof response);
+    console.log(typeof response.data);
     return response.data;
   } catch (err) {
     log.error(`Error fetching PDF document with ID ${nodeId}:`, err);
@@ -53,7 +56,7 @@ export async function handleRequest(req: Request): Promise<{ pdfData: Buffer; he
 
     const pdfData = await fetchPdfDocument(user.uid, nodeId);
 
-    console.log(`Sending PDF data size: ${pdfData.byteLength} bytes`);
+    console.log(`Sending PDF data size: ${Buffer.from(pdfData).byteLength} bytes`);
     return {
       pdfData: Buffer.from(pdfData),
       headers: {
