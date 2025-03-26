@@ -158,7 +158,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
       },
     });
 
-    listener.addTargets('NodeBackendTarget', {
+    listener.addTargets('NodeBackendPdfTarget', {
       port: 8080,
       protocol: ApplicationProtocol.HTTP,
       targets: [autoScalingGroup],
