@@ -14,13 +14,14 @@ import { RataExtraEC2Error } from '../../utils/errors.js';
  */
 const fetchPdfDocument = async (uid: string, nodeId: string): Promise<Buffer> => {
   try {
-    const url = `${alfrescoApiVersion}/nodes/${nodeId}/content?attachment=false`;
+    const url = `${alfrescoApiVersion}/nodes/${nodeId}/content`;
     const options = await getAlfrescoOptions(uid, {
       Accept: 'application/pdf',
       responseType: 'arraybuffer',
     });
 
     const response = await alfrescoAxios.get(url, options);
+    console.log(`Fetched pdf data size: ${response.data.byteLength} bytes`);
     return response.data;
   } catch (err) {
     log.error(`Error fetching PDF document with ID ${nodeId}:`, err);
@@ -52,8 +53,9 @@ export async function handleRequest(req: Request): Promise<{ pdfData: Buffer; he
 
     const pdfData = await fetchPdfDocument(user.uid, nodeId);
 
+    console.log(`Sending PDF data size: ${pdfData.byteLength} bytes`);
     return {
-      pdfData,
+      pdfData: Buffer.from(pdfData),
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'inline; filename="document.pdf"',
