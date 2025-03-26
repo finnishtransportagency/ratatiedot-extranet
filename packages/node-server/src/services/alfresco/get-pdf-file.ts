@@ -1,9 +1,9 @@
-import { log } from '../../utils/logger';
+import { log } from '../../utils/logger.js';
 import { Request } from 'express';
-import { getAlfrescoOptions } from '../../utils/alfresco';
-import { getUser, validateReadUser } from '../../utils/userService';
-import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
-import { RataExtraEC2Error } from '../../utils/errors';
+import { getAlfrescoOptions } from '../../utils/alfresco.js';
+import { getUser, validateReadUser } from '../../utils/userService.js';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios.js';
+import { RataExtraEC2Error } from '../../utils/errors.js';
 
 /**
  * Fetches a specific PDF document from Alfresco
