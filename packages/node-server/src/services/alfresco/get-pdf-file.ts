@@ -14,10 +14,9 @@ import { RataExtraEC2Error } from '../../utils/errors.js';
  */
 const fetchPdfDocument = async (uid: string, nodeId: string): Promise<Buffer> => {
   try {
-    const url = `${alfrescoApiVersion}/nodes/${nodeId}/content`;
+    const url = `${alfrescoApiVersion}/nodes/${nodeId}/content?attachment=false`;
     const options = await getAlfrescoOptions(uid, {
       Accept: 'application/pdf',
-      'Content-Type': 'application/json;charset=UTF-8',
       responseType: 'arraybuffer',
     });
 
