@@ -22,7 +22,7 @@ const fetchPdfDocument = async (uid: string, nodeId: string): Promise<Buffer> =>
     });
 
     const response = await alfrescoAxios.get(url, options);
-    return Buffer.from(response.data);
+    return response.data;
   } catch (err) {
     log.error(`Error fetching PDF document with ID ${nodeId}:`, err);
     throw err;
@@ -58,9 +58,6 @@ export async function handleRequest(req: Request): Promise<{ pdfData: Buffer; he
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'inline; filename="document.pdf"',
-        'X-Frame-Options': 'ALLOWALL',
-        'Content-Security-Policy': "frame-ancestors 'self' *",
-        'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'public, max-age=3600',
       },
     };
