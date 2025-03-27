@@ -28,7 +28,8 @@ const getPdfFile = async (req: Request, res: Response) => {
       res.setHeader(key, result.headers[key]);
     });
 
-    res.status(200).send(result.pdfData);
+    res.status(200);
+    res.end(result.pdfData);
   } catch (err) {
     log.error(err);
     if (err.status) {
