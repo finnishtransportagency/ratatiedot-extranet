@@ -24,10 +24,15 @@ const getPdfFile = async (req: Request, res: Response) => {
   try {
     const result = await getPdfFileHandler(req);
 
-    Object.keys(result.headers).forEach((key) => {
-      res.setHeader(key, result.headers[key]);
-    });
+    // Log the size of the PDF data being sent
+    console.log(`Sending PDF to client: size = ${result.pdfData.length} bytes`);
 
+    // Set headers explicitly
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Length', result.pdfData.length);
+    res.setHeader('Content-Disposition', 'inline; filename="document.pdf"');
+
+    // Send the binary data
     res.status(200);
     res.end(result.pdfData);
   } catch (err) {

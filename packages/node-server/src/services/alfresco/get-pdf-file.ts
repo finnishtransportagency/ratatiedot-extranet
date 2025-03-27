@@ -17,10 +17,18 @@ const fetchPdfDocument = async (uid: string, nodeId: string): Promise<Buffer> =>
     const url = `${alfrescoApiVersion}/nodes/${nodeId}/content`;
     const options = await getAlfrescoOptions(uid, {
       Accept: 'application/pdf',
-      responseType: 'arraybuffer',
+      responseType: 'arraybuffer', // Ensure binary data is fetched
     });
 
     const response = await alfrescoAxios.get(url, options);
+
+    // Log the response size and type
+    console.log(
+      `Fetched PDF from Alfresco: ${response.headers['content-type']}, size: ${
+        Buffer.from(response.data).byteLength
+      } bytes`,
+    );
+
     return Buffer.from(response.data);
   } catch (err) {
     log.error(`Error fetching PDF document with ID ${nodeId}:`, err);
