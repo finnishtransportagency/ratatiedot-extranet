@@ -23,10 +23,10 @@ export type RataExtraUser = {
   isMockUser?: boolean;
 };
 
-function parseRoles(roles: string): string[] | undefined {
+export function parseRoles(roles: string): string[] | undefined {
   return roles
     ? roles
-        .replace('\\', '')
+        .replace(/[\"\[\]\\]/g, '')
         .split(',')
         .map((s) => {
           const s1 = s.split('/').pop();
