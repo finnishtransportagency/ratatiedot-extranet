@@ -4,7 +4,7 @@ import {
   updateFileMetadataRequestBuilder,
   deleteFileRequestBuilder,
 } from '../../fileRequestBuilder';
-import { mockFormDataOptions } from './__mocks__/mockFormOptions';
+import { mockFormDataOptions } from './__mocks__/lambdaMockFormOptions';
 
 type jsonBody = {
   name: string;
