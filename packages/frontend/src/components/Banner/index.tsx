@@ -42,7 +42,7 @@ export const Banner = () => {
       {visibleBanners?.map((banner) => (
         <Alert
           key={banner.id}
-          sx={{ backgroundColor: Colors.yellow, color: Colors.black, margin: '16px 32px', cursor: 'pointer' }}
+          sx={{ backgroundColor: Colors.darkred, color: Colors.white, margin: '16px 32px', cursor: 'pointer' }}
           severity="info"
           variant="filled"
           onClick={() => handleAlertClick(banner)}
