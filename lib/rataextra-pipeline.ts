@@ -21,7 +21,7 @@ export class RataExtraPipelineStack extends Stack {
       },
       tags: config.tags,
     });
-    const { alfrescoDownloadUrl, sonarQubeUrl } = getRataExtraStackConfig(this);
+    const { alfrescoDownloadUrl, sonarQubeUrl, maintenanceInstructionsNodeId } = getRataExtraStackConfig(this);
 
     const viteEnvironment = () => {
       if (config.env === ENVIRONMENTS.prod) {
@@ -62,7 +62,7 @@ export class RataExtraPipelineStack extends Stack {
         input: github,
         installCommands: ['npm run ci --user=root'],
         commands: [
-          `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} npm run build:frontend`,
+          `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} VITE_MAINTENANCE_INSTRUCTIONS_NODE_ID=${maintenanceInstructionsNodeId} npm run build:frontend`,
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
         ],
       }),
