@@ -49,6 +49,7 @@ const SSM_SONARQUBE_TOKEN = 'rataextra-sonarqube-token';
 const SSM_SERVICE_USER_UID = 'rataextra-service-user';
 const SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY_ID = 'rataextra-cloudfront-signer-public-key-id';
 export const SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY = 'rataextra-cloudfront-signer-private-key';
+const SSM_MAINTENANCE_INSTRUCTIONS_NODE_ID = 'rataextra-maintenance-instructions-node-id';
 
 // Minified JS code that is used to make ES modules working
 // Also handles __dirname & import.meta.url
@@ -79,6 +80,7 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   sonarQubeUrl: getSSMStringParameter(scope, SSM_SONARQUBE_URL),
   serviceUserUid: getSSMStringParameter(scope, SSM_SERVICE_USER_UID),
   cloudfrontSignerPublicKeyId: getSSMStringParameter(scope, SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY_ID),
+  maintenanceInstructionsNodeId: getSSMStringParameter(scope, SSM_MAINTENANCE_INSTRUCTIONS_NODE_ID),
 });
 
 // Runtime variables from SSM/Parameter Store
