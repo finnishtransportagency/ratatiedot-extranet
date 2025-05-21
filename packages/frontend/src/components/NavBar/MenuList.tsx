@@ -4,7 +4,8 @@ import { Fragment, useContext } from 'react';
 import { Colors } from '../../constants/Colors';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { IMenuItem, MenuContext } from '../../contexts/MenuContext';
-import { useLocation } from 'react-router-dom';
+import { useMenuItemStore } from '../../store/menuItemStore';
+import { useLocation, Link } from 'react-router-dom';
 import { capitalize } from 'lodash';
 import { getRouterName } from '../../utils/helpers';
 import { theme } from '../../styles/createTheme';
@@ -12,15 +13,16 @@ import { useTranslation } from 'react-i18next';
 
 export const MenuList = () => {
   const { t } = useTranslation(['common']);
-  const { openMiniDrawer, toggleDesktopDrawer, openDesktopDrawer } = useContext(AppBarContext);
-  const { menu, menuItems, menuHandler } = useContext(MenuContext);
+  const { openMiniDrawer, openDesktopDrawer } = useContext(AppBarContext);
+  const { menu, menuItems } = useContext(MenuContext);
 
-  const categoryHandler = (key: string) => {
-    menuHandler(key);
-    if (!openDesktopDrawer) {
-      toggleDesktopDrawer();
-    }
-  };
+  const openMenuItems = useMenuItemStore((state) => state.openMenuItems);
+  // const openMenuItemArray = ['Liikennöinti']
+  const addMenuItem = useMenuItemStore((state) => state.addMenuItem);
+  const removeMenuItem = useMenuItemStore((state) => state.removeMenuItem);
+
+  const toggleMenuItemOpen = (key: string) => (openMenuItems.includes(key) ? removeMenuItem(key) : addMenuItem(key));
+
   const { pathname } = useLocation();
   const routeName = getRouterName(pathname).split('/').filter(Boolean)[0];
 
@@ -34,7 +36,7 @@ export const MenuList = () => {
           (key === t('common:menu.frontpage') && pathname === '/');
         return (
           <Fragment key={key}>
-            <ListItem disablePadding alignItems="flex-start" onClick={() => categoryHandler(key)}>
+            <ListItem disablePadding alignItems="flex-start" onClick={() => toggleMenuItemOpen(key)}>
               <ListItemButton
                 href={to ? to : ''}
                 selected={selected}
@@ -70,11 +72,13 @@ export const MenuList = () => {
               </ListItemButton>
             </ListItem>
             {children &&
-              menu[key as never] &&
+              openMenuItems.includes(key) &&
               children.map((child: IMenuItem) => {
                 const selected = child.to === pathname;
                 return (
                   <ListItemButton
+                    component={Link}
+                    to={child.to ? child.to : ''}
                     sx={{
                       pl: 9,
                       whiteSpace: 'normal',
@@ -88,7 +92,6 @@ export const MenuList = () => {
                       },
                     }}
                     key={child.key}
-                    href={child.to ? child.to : ''}
                     selected={child.to === pathname}
                   >
                     <ListItemText
