@@ -27,7 +27,7 @@ export const SlateInputField = () => {
     } else {
       setIsEditorOpened(false);
     }
-  }, [openToolbar]);
+  }, [editor, openToolbar]);
 
   const refocusEditor = (editor: any) => {
     ReactEditor.focus(editor);

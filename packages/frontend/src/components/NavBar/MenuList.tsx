@@ -21,7 +21,11 @@ export const MenuList = () => {
   const addMenuItem = useMenuItemStore((state) => state.addMenuItem);
   const removeMenuItem = useMenuItemStore((state) => state.removeMenuItem);
 
-  const toggleMenuItemOpen = (key: string) => (openMenuItems.includes(key) ? removeMenuItem(key) : addMenuItem(key));
+  const toggleMenuItemOpen = (key: string) => {
+    if (openDesktopDrawer || openMiniDrawer) {
+      return openMenuItems.includes(key) ? removeMenuItem(key) : addMenuItem(key);
+    }
+  };
 
   const { pathname } = useLocation();
   const routeName = getRouterName(pathname).split('/').filter(Boolean)[0];
