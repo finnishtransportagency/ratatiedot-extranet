@@ -162,8 +162,8 @@ export class RatatietoNodeBackendConstruct extends Construct {
     autoScalingGroup.addUserData(
       `export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUERS=${jwtTokenIssuers}" "MOCK_UID=${mockUid}"`,
     );
-    autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v16.20.0/bin/node /usr/bin/node');
-    autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v16.20.0/bin/npm /usr/bin/npm');
+    autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v22.16.0/bin/node /usr/bin/node');
+    autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v22.16.0/bin/npm /usr/bin/npm');
     autoScalingGroup.addUserData('exec >> /var/log/nodeserver/logs.log 2>&1');
     autoScalingGroup.addUserData('cd /home/ec2-user/source/packages/node-server && su ec2-user -c "npm run start"');
 
