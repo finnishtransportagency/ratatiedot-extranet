@@ -70,7 +70,7 @@ export class RataExtraPipelineStack extends Stack {
       codeBuildDefaults: {
         cache: Cache.local(LocalCacheMode.DOCKER_LAYER, LocalCacheMode.SOURCE),
         buildEnvironment: {
-          buildImage: LinuxBuildImage.STANDARD_6_0,
+          buildImage: LinuxBuildImage.STANDARD_7_0,
         },
       },
     });
