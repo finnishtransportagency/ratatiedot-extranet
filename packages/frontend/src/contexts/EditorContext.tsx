@@ -11,7 +11,6 @@ import { createParagraphNode } from '../utils/createSlateNode';
 import { withHistory } from 'slate-history';
 import { useGetNoticePageContent } from '../hooks/query/GetNoticePageContent';
 
-// export const createEditorWithPlugins = pipe(withReact, withHistory, withLinks);
 export const createEditorWithPlugins = () => withReact(withHistory(withLinks(createEditor())));
 
 export const EditorContext = React.createContext({
