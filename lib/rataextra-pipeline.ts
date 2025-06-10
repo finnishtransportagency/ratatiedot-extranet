@@ -63,7 +63,10 @@ export class RataExtraPipelineStack extends Stack {
         installCommands: [
           // 'rm -rf packages/frontend/node_modules packages/frontend/package-lock.json',
           // 'npm i --prefix packages/frontend',
-          'npm ci',
+          'npm i',
+          'npm i --prefix packages/frontend',
+          'npm i --prefix packages/server',
+          'npm i --prefix packages/node-server',
         ],
         commands: [
           `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} VITE_MAINTENANCE_INSTRUCTIONS_NODE_ID=${maintenanceInstructionsNodeId} npm run build:frontend`,
