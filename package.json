@@ -9,7 +9,6 @@
     "bootstrap": "npx bootstrap --force-local",
     "build": "npm run build --workspaces",
     "build:frontend": "npm --prefix packages/frontend run build",
-    "ci": "npm ci",
     "dev-client": "cd packages/frontend && npm start",
     "dev-server": "cd packages/server && npm start",
     "dev-node": "cd packages/node-server && npm run watch",
