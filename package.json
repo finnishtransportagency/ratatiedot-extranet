@@ -7,7 +7,7 @@
   "scripts": {
     "prepare": "husky install",
     "bootstrap": "npx bootstrap --force-local",
-    "build": "npx run build",
+    "build": "npm run build --workspaces",
     "build:frontend": "npm --prefix packages/frontend run build",
     "ci": "npm ci",
     "dev-client": "cd packages/frontend && npm start",
