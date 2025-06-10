@@ -6,9 +6,7 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky install",
-    "bootstrap": "npx bootstrap --force-local",
-    "build": "npm run build --workspaces",
-    "build:frontend": "npm --prefix packages/frontend run build",
+    "build:frontend": "npm run build --prefix packages/frontend",
     "dev-client": "cd packages/frontend && npm start",
     "dev-server": "cd packages/server && npm start",
     "dev-node": "cd packages/node-server && npm run watch",

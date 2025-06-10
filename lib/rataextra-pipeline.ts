@@ -61,9 +61,9 @@ export class RataExtraPipelineStack extends Stack {
       synth: new ShellStep('Synth', {
         input: github,
         installCommands: [
-          'rm -rf packages/frontend/node_modules packages/frontend/package-lock.json',
-          'cd packages/frontend && npm i',
-          // 'npm run ci --user=root',
+          // 'rm -rf packages/frontend/node_modules packages/frontend/package-lock.json',
+          // 'npm i --prefix packages/frontend',
+          'npm ci',
         ],
         commands: [
           `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} VITE_MAINTENANCE_INSTRUCTIONS_NODE_ID=${maintenanceInstructionsNodeId} npm run build:frontend`,
