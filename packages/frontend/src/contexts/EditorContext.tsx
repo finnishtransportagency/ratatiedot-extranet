@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useMatch, useParams } from 'react-router-dom';
 import { Transforms, createEditor } from 'slate';
 import { withReact } from 'slate-react';
-import pipe from 'lodash/fp/pipe';
 
 import { useGetCategoryPageContent } from '../hooks/query/GetCategoryPageContent';
 import { isSlateValueEmpty } from '../utils/slateEditorUtil';
@@ -12,10 +11,11 @@ import { createParagraphNode } from '../utils/createSlateNode';
 import { withHistory } from 'slate-history';
 import { useGetNoticePageContent } from '../hooks/query/GetNoticePageContent';
 
-export const createEditorWithPlugins = pipe(withReact, withHistory, withLinks);
+// export const createEditorWithPlugins = pipe(withReact, withHistory, withLinks);
+export const createEditorWithPlugins = () => withReact(withHistory(withLinks(createEditor())));
 
 export const EditorContext = React.createContext({
-  editor: createEditorWithPlugins(createEditor()),
+  editor: createEditorWithPlugins(),
   value: [] as any,
   noticeFields: [] as any,
   selectedImage: undefined as any,
@@ -43,7 +43,7 @@ export const EditorContextProvider = (props: any) => {
   const { data } = useGetCategoryPageContent(pathname);
   const { data: noticeData } = useGetNoticePageContent(noticeId!);
 
-  const [editor, setEditor] = useState(createEditorWithPlugins(createEditor()));
+  const [editor, setEditor] = useState(createEditorWithPlugins());
   const [dbValue, setDBValue] = useState(nodeTemplate);
   const [value, setValue] = useState(nodeTemplate);
   const [noticeFields, setNoticeFields] = useState(noticeFieldsTemplate);
@@ -91,7 +91,7 @@ export const EditorContextProvider = (props: any) => {
   const valueReset = () => {
     if (isSlateValueEmpty(dbValue)) {
       setValue(nodeTemplate);
-      setEditor(createEditorWithPlugins(createEditor()));
+      setEditor(createEditorWithPlugins());
     } else {
       editor.children.forEach(() => {
         Transforms.delete(editor, { at: [0] });
