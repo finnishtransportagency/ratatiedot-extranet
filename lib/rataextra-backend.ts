@@ -167,9 +167,6 @@ export class RataExtraBackendStack extends NestedStack {
         format: OutputFormat.ESM,
         target: 'node18',
         mainFields: ['module', 'main'],
-        esbuildArgs: {
-          '--conditions': 'module',
-        },
         banner: ESM_REQUIRE_SHIM, // Workaround for ESM problem. https://github.com/evanw/esbuild/pull/2067#issuecomment-1073039746
         commandHooks: {
           beforeInstall(inputDir: string, outputDir: string) {
@@ -671,11 +668,16 @@ export class RataExtraBackendStack extends NestedStack {
     securityGroups,
     memorySize = 1024,
     timeout = Duration.seconds(30),
-    runtime = Runtime.NODEJS_18_X,
+    runtime = Runtime.NODEJS_22_X,
     logRetention = RetentionDays.SIX_MONTHS,
     handler = 'handleRequest',
     environment = {},
-    bundling = {},
+    bundling = {
+      esbuildArgs: {
+        '--conditions': 'module',
+        '--packages': 'bundle',
+      },
+    },
     initialPolicy,
   }: LambdaParameters) {
     return new NodejsFunction(this, name, {

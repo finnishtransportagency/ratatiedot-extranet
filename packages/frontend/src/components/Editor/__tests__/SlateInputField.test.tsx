@@ -1,7 +1,6 @@
 import { vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import { createEditor } from 'slate';
 import { createEditorWithPlugins, EditorContextProvider } from '../../../contexts/EditorContext';
 
 import { SlateInputField } from '../SlateInputField';
@@ -29,7 +28,7 @@ vi.mock('@tanstack/react-query', async () => {
 const customSlatInputFieldRender = (ui: any, { providerProps, ...renderOptions }: any) => {
   const { openToolbar = false } = providerProps;
   const {
-    editor = createEditorWithPlugins(createEditor()),
+    editor = createEditorWithPlugins(),
     value = [{ children: [{ text: '' }] }],
     valueHandler = () => {},
   } = providerProps;

@@ -80,11 +80,11 @@ const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
 
 export const SlateToolbar = () => {
   const { t } = useTranslation(['common']);
-  const { closeToolbarHandler, closeToolbarWithoutSaveHandler, toggleEdit } = useContext(AppBarContext);
+  const { closeToolbarHandler, closeToolbarWithoutSaveHandler } = useContext(AppBarContext);
   const { editor, value, valueReset, noticeFields, selectedImage } = useContext(EditorContext);
   const [isColorOpened, setIsColorOpened] = useState(false);
   const [initialValue, setInitialValue] = useState([]);
-  const { pathname, state } = useLocation();
+  const { pathname } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
   const noticeRoute = useMatch('/ajankohtaista/:id/:date');
   const { id: noticeId } = useParams();
@@ -103,7 +103,7 @@ export const SlateToolbar = () => {
 
   useEffect(() => {
     setInitialValue(value);
-  }, []);
+  }, [value]);
   const handleInsertLink = () => {
     const url = prompt(t('common:edit.enter_url'));
     if (!url) return;

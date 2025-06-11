@@ -59,7 +59,7 @@ export const ProtectedNoticePage = ({ children }: Props) => {
       userRightHandler({ ...userRight, isAdmin: isAdmin });
     };
     checkUserRights();
-  }, []);
+  }, [userRight, userRightHandler]);
 
   const isEditorOpened = openToolbar || (openEdit && !isSlateValueEmpty(value)) || !isSlateValueEmpty(value);
   const pageTitle =
