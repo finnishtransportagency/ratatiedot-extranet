@@ -50,35 +50,39 @@ export const EditorContextProvider = (props: any) => {
   const [selectedImage, setSelectedImage] = useState<any>();
 
   useEffect(() => {
+    const getPageData = () => {
+      if (noticeRoute && noticeData && noticeData.content && !isEmpty(noticeData.content)) {
+        return noticeData.content;
+      }
+      if (data && data.fields && !isEmpty(data.fields)) {
+        return data.fields;
+      }
+      return nodeTemplate;
+    };
+
+    const getNoticeProperties = () => {
+      if (noticeData && Object.keys(noticeData).length) {
+        return noticeData;
+      }
+      return noticeFieldsTemplate;
+    };
+
     const dataResponse = getPageData();
     // TODO: check if response data has slate editor's format
     if (dataResponse && dataResponse.length) {
       setDBValue(dataResponse);
       setValue(dataResponse);
+      editor.children.forEach(() => {
+        Transforms.delete(editor, { at: [0] });
+      });
+      editor.children = dbValue as any;
     }
     const noticeResponse = getNoticeProperties();
     if (noticeResponse && Object.keys(noticeResponse).length) {
       const { content, ...noticeProperties } = noticeResponse;
       setNoticeFields(noticeProperties);
     }
-  }, [data, noticeData]);
-
-  const getPageData = () => {
-    if (noticeRoute && noticeData && noticeData.content && !isEmpty(noticeData.content)) {
-      return noticeData.content;
-    }
-    if (data && data.fields && !isEmpty(data.fields)) {
-      return data.fields;
-    }
-    return nodeTemplate;
-  };
-
-  const getNoticeProperties = () => {
-    if (noticeData && Object.keys(noticeData).length) {
-      return noticeData;
-    }
-    return noticeFieldsTemplate;
-  };
+  }, [data, dbValue, editor, noticeData, noticeRoute, pathname]);
 
   const valueHandler = (v: any) => setValue(v);
   const noticeFieldsHandler = (v: any) => setNoticeFields(v);

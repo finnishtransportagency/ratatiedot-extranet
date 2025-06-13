@@ -10,6 +10,7 @@ import RataExtLogo from '../../assets/images/Logo_noText.png';
 import { MenuList } from './MenuList';
 import { drawerWidth } from '../../constants/Viewports';
 import { useContext } from 'react';
+import { useMenuItemStore } from '../../store/menuItemStore';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { MenuContext } from '../../contexts/MenuContext';
 import { Link } from 'react-router-dom';
@@ -19,11 +20,14 @@ export const DesktopDrawer = () => {
   const { openDesktopDrawer, toggleDesktopDrawer } = useContext(AppBarContext);
   const { resetMenu } = useContext(MenuContext);
 
+  const wipeMenuItems = useMenuItemStore((state) => state.wipeMenuItems);
+
   const resetMenuAndToggleDrawer = () => {
     if (openDesktopDrawer) {
       resetMenu();
     }
     toggleDesktopDrawer();
+    wipeMenuItems();
   };
 
   return (

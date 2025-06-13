@@ -46,11 +46,11 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
 
   const isEditOpen = openEdit || openToolbar;
 
-  // Special case for pages that need descending order by default.
-  // Not ideal, but if more pages happen to need this, we can refactor.
-  const pagesWithDescendingFileListOrder = ['hallintaraportit'];
-
   const getCategoryFiles = useCallback(async () => {
+    // Special case for pages that need descending order by default.
+    // Not ideal, but if more pages happen to need this, we can refactor.
+    const pagesWithDescendingFileListOrder = ['hallintaraportit'];
+
     try {
       setLoading(true);
       const childFolderNameQuery = childFolderName ? `&childFolderName=${childFolderName}` : '';
@@ -78,18 +78,26 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
     } finally {
       setLoading(false);
     }
-  }, [categoryName, page]);
+  }, [
+    categoryName,
+    childFolderName,
+    fileUploadDisabledHandler,
+    hasClassifiedContentHandler,
+    hasConfidentialContentHandler,
+    nestedFolderId,
+    page,
+  ]);
 
   useEffect(() => {
     getCategoryFiles();
-  }, [page]);
+  }, [getCategoryFiles, page]);
 
   useEffect(() => {
     if (refreshKey !== 0) {
       getCategoryFiles();
       resetRefreshKey();
     }
-  }, [refreshKey]);
+  }, [getCategoryFiles, refreshKey, resetRefreshKey]);
 
   const loadMore = () => setPage(page + 1);
 

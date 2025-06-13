@@ -1,6 +1,12 @@
 import { RemovalPolicy, SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-import { BuildEnvironmentVariableType, Cache, LinuxBuildImage, LocalCacheMode } from 'aws-cdk-lib/aws-codebuild';
+import {
+  BuildEnvironmentVariableType,
+  BuildSpec,
+  Cache,
+  LinuxBuildImage,
+  LocalCacheMode,
+} from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
 import { ENVIRONMENTS, getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from './config';
 import { RataExtraStack } from './rataextra-stack';
@@ -60,7 +66,7 @@ export class RataExtraPipelineStack extends Stack {
       codePipeline: pipeline,
       synth: new ShellStep('Synth', {
         input: github,
-        installCommands: ['npm run ci --user=root'],
+        installCommands: ['npm install'],
         commands: [
           `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} npm run build:frontend`,
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
@@ -69,8 +75,17 @@ export class RataExtraPipelineStack extends Stack {
       dockerEnabledForSynth: true,
       codeBuildDefaults: {
         cache: Cache.local(LocalCacheMode.DOCKER_LAYER, LocalCacheMode.SOURCE),
+        partialBuildSpec: BuildSpec.fromObject({
+          phases: {
+            install: {
+              'runtime-versions': {
+                nodejs: '22',
+              },
+            },
+          },
+        }),
         buildEnvironment: {
-          buildImage: LinuxBuildImage.STANDARD_6_0,
+          buildImage: LinuxBuildImage.STANDARD_7_0,
         },
       },
     });
