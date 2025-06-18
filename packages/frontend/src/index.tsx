@@ -18,7 +18,7 @@ export const queryClient = new QueryClient({
       refetchOnMount: true,
       refetchOnReconnect: true,
       retry: false,
-      staleTime: 300000, // 5 minutes for data to be staled
+      staleTime: 0,
     },
   },
 });

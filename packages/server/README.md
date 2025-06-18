@@ -225,6 +225,27 @@ Note! You need Docker installed on your computer for synth and deploy to work.
 
 Reference for pipeline setup: https://docs.aws.amazon.com/cdk/v2/guide/cdk_pipeline.html
 
+> [!IMPORTANT]
+> After you are done with the created feat stack, remember to delete the stack from CloudFormation
+>
+> Deleting the stack takes care of most of the created components. After that remember to delete S3 bucket by hand.
+
+> [!TIP]
+> **Issues with pipeline not running latest changes?**
+> 
+> For example, pipeline is failing and changes you make to fix that includes the changes to the pipeline itself.
+>
+> merge cdk changes to desired branch (main -> dev, prod -> production)
+> 
+> dev
+> ```
+> npm run pipeline:deploy --environment=dev --branch=main --stackid=main -- --profile XXXXXXXXXX_Rataextra-dev
+> ```
+> prod
+> ```
+> npm run pipeline:deploy --environment=prod --branch=prod --stackid=prod -- --profile XXXXXXXXXX_Rataextra-prod
+> ```
+
 #### Parameter Store
 
 Add following values to Parameter Store for permanent environments:
