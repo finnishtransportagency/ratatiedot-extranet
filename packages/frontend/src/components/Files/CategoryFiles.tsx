@@ -93,6 +93,12 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
   }, [getCategoryFiles, page]);
 
   useEffect(() => {
+    setPage(0);
+    setFileList([]);
+    setSelectedFile(null);
+  }, [categoryName]);
+
+  useEffect(() => {
     if (refreshKey !== 0) {
       getCategoryFiles();
       resetRefreshKey();
@@ -202,7 +208,7 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
           onFileClick={(node) => {
             handleNodeClick(node);
           }}
-          key={index}
+          key={node.entry.id}
           row={index}
           node={node}
           isSelected={isSelected(node)}
@@ -227,7 +233,7 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
 
 const GroupedFileButtonsWrapper = styled('div')(() => ({
   display: 'flex',
-  marginBottom: '30px',
+  marginBottom: '10px',
   justifyContent: 'start',
   gap: '10px',
 }));
