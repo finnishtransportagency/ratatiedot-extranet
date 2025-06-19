@@ -26,21 +26,21 @@ interface FolderListProps {
 
 export const FolderList = ({ parentNode, isEditing, title, onEdit }: FolderListProps) => {
   const [folders, setFolders] = useState<AlfrescoResponse[]>([]);
-  const getFolders = async () => {
-    try {
-      const response: AxiosResponse<AlfrescoPaginatedResponse> = await axios.get(
-        `api/alfresco/nodes/${parentNode.alfrescoNodeId}?type=folder`,
-      );
-      setFolders(response.data.list.entries);
-    } catch (error) {
-      console.log(error);
-      return error;
-    }
-  };
 
   useEffect(() => {
+    const getFolders = async () => {
+      try {
+        const response: AxiosResponse<AlfrescoPaginatedResponse> = await axios.get(
+          `api/alfresco/nodes/${parentNode.alfrescoNodeId}?type=folder`,
+        );
+        setFolders(response.data.list.entries);
+      } catch (error) {
+        console.log(error);
+        return error;
+      }
+    };
     getFolders();
-  }, []);
+  }, [parentNode.alfrescoNodeId]);
 
   return (
     <Box
