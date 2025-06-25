@@ -90,7 +90,7 @@ describe('Helpers Utility', () => {
         TRACK_DIAGRAMS: 'Raiteistokaaviot',
         TRAFFIC_CONTROL_CONTACT_INFORMATION: 'Liikenteenohjauksen yhteystiedot',
         TUNNELS: 'Tunnelitiedot',
-        VAK_RAIL_DEPOT: 'VAK-ratapihat',
+        VAK_RAIL_DEPOT: 'VAK tilapäisen säilytyksen paikat',
       });
     });
   });
