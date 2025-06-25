@@ -180,7 +180,7 @@ export const prodCategories = [
   {
     key: 23,
     id: 'a3aef157-9376-4145-a554-94c87f53a243',
-    name: 'VAK-ratapihat',
+    name: 'VAK tilapäisen säilytyksen paikat',
     alfrescoId: '2e33a089-70cd-4f05-abb7-3390939e85f1',
   },
   {
@@ -357,7 +357,7 @@ export const devCategories = [
   {
     key: 23,
     id: 'e10bdfc9-ec20-45ac-add5-3b81f20c1845',
-    name: 'VAK-ratapihat',
+    name: 'VAK tilapäisen säilytyksen paikat',
     alfrescoId: 'a97586e7-3156-472b-ab25-08bc3e5f4ea3',
   },
   {

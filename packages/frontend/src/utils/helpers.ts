@@ -128,8 +128,8 @@ export const parseRouterName = (routerName: string = '') => {
       return 'Liikennepaikkapäätökset';
     case 'rinf-rekisteri-eradis-tunnus':
       return 'RINF-rekisteri (ERADIS-tunnus)';
-    case 'vak-ratapihat':
-      return 'VAK-ratapihat';
+    case 'vak-tilapaisen-sailytyksen-paikat':
+      return 'VAK tilapäisen säilytyksen paikat';
     case 'siltojen-kiskotus--ja-kunnossapito-ohjeet':
       return 'Siltojen kiskotus- ja kunnossapito-ohjeet';
     case 'turvalaitteiden-huolto-ohjeet':
