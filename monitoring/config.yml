@@ -188,19 +188,7 @@ custom:
       endpoints: []
       emails: []
       slackWebhook: ''
-  billingAlert:
-    alarm:
-      critical:
-        budgetLimit: 10
-        evaluationPeriods: 2
-        comparisonOperator: GREATER_THAN_UPPER_THRESHOLD
-    metric:
-      period:
-        minutes: 360
-      statistic: Maximum
 lambdas:
-  aws-controltower-NotificationForwarder: {}
-  aws-quicksetup-lifecycle-TA-40pr3: {}
   lambda-rataextra-prod-prod-alfresco-create-folder: {}
   lambda-rataextra-prod-prod-alfresco-delete-file: {}
   lambda-rataextra-prod-prod-alfresco-delete-folder: {}
@@ -230,63 +218,10 @@ lambdas:
   lambda-rataextra-prod-prod-post-notice: {}
   lambda-rataextra-prod-prod-put-notice: {}
   lambda-rataextra-prod-prod-return-login: {}
-  RataExtra-rataextra-prod--CustomCDKBucketDeploymen-hCNaAZehBLPz: {}
-  RataExtra-rataextra-prod--LogRetentionaae0aa3c5b4d-aRwvqWGLFHjC: {}
-  stack-pipeline-rataextra--CustomS3AutoDeleteObject-EhCuApkrZ8ok: {}
-  StackSet-AWS-Centralized-Clo-AddSubscriptionLambda-iOyjsAddfJRl: {}
 distributions:
   E1VY8MZKXKB3CI: {}
 logGroups:
-  /aws/codebuild/PipelineRataExtraAssetsFile-0FTNxbCq8DNR: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-0SHxRqCSW0ix: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-0tG5GV7xUh8S: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-1kUv9TBt4v57: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-2HYJJN9LfXVw: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-2NXnKJBPoQJM: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-3KxFsfy4IJcu: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-5IdF3aXpEQv0: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-666MIxvvm3Bn: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-6waEny39L8CI: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-94TbMtOhBObw: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-9VziR9g2Wnu4: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-DULPLNBo43Vj: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-Ef32ftZsFlBM: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-H6MifLjSQtg4: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-I1zxHzJHDPb7: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-ILjJaDoDYhMQ: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-JYWiOto1qbvW: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-K7qTpRE6N0gX: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-LMDpvO6Tv2j6: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-Ngrt9oEvYLob: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-PS5yboywloxz: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-Q3cdLHh81N4r: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-RH4A0gDve1Ug: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-TFyOnoluARVW: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-UBoAf9uY44hP: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-VwJM2w4RRrlK: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-YkOXEUnQIHXE: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-eozMvy6vGO3e: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-jFsuuY62PWNW: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-jz6R5GybTkLN: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-kEN5zIudfgfZ: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-kKCqYrHldusH: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-ko21hqAUoJyM: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-l2dX4SnoUxyS: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-oJZr2vQgK8SF: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-rbEevn8PYQjC: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-sz4eCGVQvbc0: {}
-  /aws/codebuild/PipelineRataExtraAssetsFile-wmiFHLmgvvhW: {}
-  /aws/codebuild/PipelineRataExtraPipelineBe-Nge6md5Dum6F: {}
-  /aws/codebuild/PipelineRataExtraPipelineBu-uHrIDp831K20: {}
-  /aws/codebuild/PipelineRataExtraUpdatePipe-qG6phUi9E4fo: {}
-  /aws/codebuild/pipelineBeforeStageDeploySt-I8vcCnCEqohX: {}
-  /aws/codebuild/pipelineBuildSynthCdkBuildP-1QIoMWYh8kcF: {}
-  /aws/codebuild/pr-rataextra-prod-selfupdate: {}
   /aws/ec2/rataextra-prod-prod-prod-prod-node-server: {}
-  /aws/lambda/RataExtra-rataextra-prod--CustomCDKBucketDeploymen-hCNaAZehBLPz: {}
-  /aws/lambda/RataExtra-rataextra-prod--LogRetentionaae0aa3c5b4d-aRwvqWGLFHjC: {}
-  /aws/lambda/StackSet-AWS-Centralized-Clo-AddSubscriptionLambda-iOyjsAddfJRl: {}
-  /aws/lambda/aws-controltower-NotificationForwarder: {}
   /aws/lambda/lambda-rataextra-prod-prod-alfresco-create-folder: {}
   /aws/lambda/lambda-rataextra-prod-prod-alfresco-delete-file: {}
   /aws/lambda/lambda-rataextra-prod-prod-alfresco-delete-folder: {}
@@ -320,8 +255,3 @@ logGroups:
   /aws/lambda/lambda-rataextra-prod-prod-post-notice: {}
   /aws/lambda/lambda-rataextra-prod-prod-put-notice: {}
   /aws/lambda/lambda-rataextra-prod-prod-return-login: {}
-  /aws/lambda/stack-pipeline-rataextra--CustomS3AutoDeleteObject-EhCuApkrZ8ok: {}
-  /aws/lambda/stack-pipeline-rataextra--CustomS3AutoDeleteObject-WmI5NyEnFaQp: {}
-  /aws/lambda/stack-pipeline-rataextra--CustomS3AutoDeleteObject-hvYASz9XrHxU: {}
-  /aws/lambda/stack-pipeline-rataextra--CustomS3AutoDeleteObject-lWEr2AqxYZc7: {}
-  /aws/lambda/stack-pipeline-rataextra--CustomS3AutoDeleteObject-nvzEzwwnLXot: {}
