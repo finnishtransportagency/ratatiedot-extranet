@@ -6,6 +6,7 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { handlerWrapper } from '../handler-wrapper';
 
 export const getNodes = async (id: string, options: AxiosRequestConfig, type?: string) => {
   try {
@@ -29,7 +30,7 @@ export const getNodes = async (id: string, options: AxiosRequestConfig, type?: s
  * @param {{id: string, type?: NodeType }} event.queryStringParameters
  * @returns {Promise<ALBResult>} List of nodes for given ID
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult> => {
   try {
     const paths = event.path.split('/');
     const nodeId = paths.pop();
@@ -59,4 +60,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

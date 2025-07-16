@@ -9,6 +9,7 @@ import { FileInfo } from 'busboy';
 import { parseForm } from '../../utils/parser';
 import { uploadToS3 } from '../../utils/s3utils';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
@@ -18,7 +19,7 @@ const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
  * @param {ALBEvent} event
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult> => {
   try {
     const id = event.path.split('/').pop();
     const user = await getUser(event);
@@ -83,4 +84,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

@@ -8,6 +8,7 @@ import { CategoryDataBase } from '@prisma/client';
 import { DatabaseClient } from '../database/client';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { TNode } from './list-files';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
@@ -40,7 +41,7 @@ const listFolders = async (uid: string, nodeId: string) => {
  * @param {string} event.queryStringParameters.folderId Get folders for given folder inside the root page
  * @returns {Promise<ALBResult>} List of folders for given page or folder
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult> => {
   try {
     const user = await getUser(event);
     const params = event.queryStringParameters;
@@ -103,4 +104,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});
