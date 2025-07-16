@@ -3,13 +3,14 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, isAdmin } from '../../utils/userService';
+import { handlerWrapper } from '../handler-wrapper';
 
 /**
  * Check user's right based on given page. Example request: /api/admin
  * @param {ALBEvent} event
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult> => {
   const permission = { isAdmin: false };
 
   try {
@@ -31,4 +32,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

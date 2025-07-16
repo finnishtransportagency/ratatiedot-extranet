@@ -5,6 +5,7 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { getComponents } from '../database/components/get-components';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 
@@ -14,7 +15,7 @@ const database = await DatabaseClient.build();
  * @param {{string}} event.path Path should end with the name of the alfresco folder
  * @returns  {Promise<ALBResult>} JSON stringified object of pages components
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult | undefined> => {
   try {
     const paths = event.path.split('/');
     const category = paths.pop();
@@ -46,4 +47,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

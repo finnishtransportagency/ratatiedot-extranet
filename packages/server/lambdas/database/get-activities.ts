@@ -5,6 +5,7 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { AlfrescoEntry } from '../alfresco/fileRequestBuilder/types';
 import { DatabaseClient } from './client';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 
@@ -47,7 +48,7 @@ export interface AlfrescoCombinedResponse {
  * @param {ALBEvent} event
  * @returns {Promise<ALBResult>} List of activities
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult> => {
   try {
     const user = await getUser(event);
     validateReadUser(user);
@@ -96,4 +97,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

@@ -10,6 +10,7 @@ import { updateFileRequestBuilder } from './fileRequestBuilder';
 import { AlfrescoResponse } from './fileRequestBuilder/types';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 
@@ -35,7 +36,7 @@ const updateFile = async (
  * @param {{string}} event.body File contents and metadata to upload
  * @returns  {Promise<ALBResult>} JSON stringified object of uploaded file metadata
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult | undefined> => {
   try {
     const paths = event.path.split('/');
     const nodeId = paths.at(-2);
@@ -80,4 +81,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

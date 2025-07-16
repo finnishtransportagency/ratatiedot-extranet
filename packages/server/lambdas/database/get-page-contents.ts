@@ -9,6 +9,7 @@ import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 import { SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY } from '../../../../lib/config';
 import { getSecuredStringParameter } from '../../utils/parameterStore';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 const cfKeyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
@@ -24,7 +25,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
  * @param {{string}} event.path Path should end with the page to get the custom content for
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult> => {
   try {
     const paths = event.path.split('/');
     const category = paths.pop();
@@ -69,4 +70,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});
