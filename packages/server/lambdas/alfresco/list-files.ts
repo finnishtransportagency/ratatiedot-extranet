@@ -18,6 +18,7 @@ import { get } from 'lodash';
 import { validateQueryParameters } from '../../utils/validation';
 import { alfrescoApiVersion, alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
 import { searchQueryBuilder } from './searchQueryBuilder';
+import { handlerWrapper } from '../handler-wrapper';
 
 export type TNode = {
   entry: {
@@ -119,7 +120,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
  * @param {string} event.queryStringParameters.category Page to be searched for
  * @returns {Promise<ALBResult>} List of files for given page
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult> => {
   try {
     const user = await getUser(event);
     const params = event.queryStringParameters;
@@ -226,4 +227,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

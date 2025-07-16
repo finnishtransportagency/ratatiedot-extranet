@@ -7,6 +7,7 @@ import { DatabaseClient } from '../database/client';
 import { AlfrescoActivityResponse } from '../database/get-activities';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { CategoryDataBase, Prisma } from '@prisma/client';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
@@ -85,7 +86,7 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
  * Fetch activies from Alfresco, filter and save to db
  * @returns {Promise<void>}
  */
-export async function handleRequest(): Promise<unknown> {
+export const handleRequest = handlerWrapper(async (): Promise<unknown> => {
   try {
     const serviceUser = getServiceUser();
     log.info(`Fetching alfresco activities and populating database..`);
@@ -128,4 +129,4 @@ export async function handleRequest(): Promise<unknown> {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

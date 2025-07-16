@@ -12,6 +12,7 @@ import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 import { getFolder, isNodeInCategory } from './list-files';
 import { getNodes } from './list-nodes';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 
@@ -39,7 +40,7 @@ const postFolder = async (options: AxiosRequestOptions, nodeId: string): Promise
  * @param {{string}} event.body Folder name and other metadata
  * @returns  {Promise<ALBResult>} JSON stringified object of uploaded file metadata
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult | undefined> => {
   try {
     const paths = event.path.split('/');
     const category = paths.at(4);
@@ -125,4 +126,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

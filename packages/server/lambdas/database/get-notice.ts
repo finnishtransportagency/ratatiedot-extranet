@@ -7,6 +7,7 @@ import { getUser, validateAdminUser, validateReadUser } from '../../utils/userSe
 import { DatabaseClient } from './client';
 import { SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY } from '../../../../lib/config';
 import { getSecuredStringParameter } from '../../utils/parameterStore';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 const cfKeyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
@@ -19,7 +20,7 @@ const CLOUDFRONT_DOMAIN_NAME = process.env.CLOUDFRONT_DOMAIN_NAME;
  * @param {ALBEvent} event
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult> => {
   try {
     const paths = event.path.split('/');
     const noticeId = paths.pop();
@@ -58,4 +59,4 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.error(err);
     return getRataExtraLambdaError(err);
   }
-}
+});
