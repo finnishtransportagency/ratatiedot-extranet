@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getAlfrescoOptions } from '../../utils/alfresco';
 
@@ -58,6 +59,7 @@ export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALB
     };
   } catch (err) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
 });

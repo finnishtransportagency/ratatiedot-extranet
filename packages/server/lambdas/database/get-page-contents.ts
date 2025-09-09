@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { CloudFront } from 'aws-sdk';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
@@ -68,6 +69,7 @@ export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALB
     };
   } catch (err) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
 });

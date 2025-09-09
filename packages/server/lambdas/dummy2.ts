@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { ALBEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { log } from '../utils/logger';
 import { getRataExtraLambdaError } from '../utils/errors';
@@ -23,6 +24,7 @@ export const handleRequest = handlerWrapper(async (_event: ALBEvent): Promise<AP
     };
   } catch (err: unknown) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
 });

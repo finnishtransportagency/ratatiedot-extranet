@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { ALBEvent } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../utils/errors';
 import { log } from '../utils/logger';
@@ -31,6 +32,7 @@ export const handleRequest = handlerWrapper(async function (event: ALBEvent) {
     };
   } catch (err) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
 });

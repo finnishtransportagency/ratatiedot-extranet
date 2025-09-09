@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { AxiosRequestConfig } from 'axios';
 import { alfrescoAxios, alfrescoApiVersion } from '../../utils/axios';
 import { getRataExtraLambdaError } from '../../utils/errors';
@@ -127,6 +128,7 @@ export const handleRequest = handlerWrapper(async (): Promise<unknown> => {
     });
   } catch (err) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
 });
