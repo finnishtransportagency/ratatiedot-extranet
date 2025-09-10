@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 
@@ -72,6 +73,7 @@ export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALB
       }
     }
     log.error(err);
+    Sentry.captureException(err);
     return { ...getRataExtraLambdaError(err), body: JSON.stringify(userRight) };
   }
 });
