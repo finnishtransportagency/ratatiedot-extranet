@@ -1,5 +1,4 @@
 import { ALBEvent } from 'aws-lambda';
-import { getRataExtraLambdaError } from '../utils/errors';
 import { log } from '../utils/logger';
 import { getUser } from '../utils/userService';
 
@@ -29,7 +28,19 @@ export async function handleRequest(event: ALBEvent) {
       },
     };
   } catch (err) {
-    log.error(err);
-    return getRataExtraLambdaError(err);
+    log.error(err, 'Failed to validate user, redirecting to SSO login');
+
+    // If user validation fails (likely expired JWT), redirect to SSO login
+    // This handles the case where users have stale sessions
+    const loginRedirectUrl = event.queryStringParameters?.redirect_url
+      ? `?redirect=${encodeURIComponent(event.queryStringParameters.redirect_url)}`
+      : '';
+
+    return {
+      statusCode: 302,
+      headers: {
+        Location: `https://${CLOUDFRONT_DOMAIN_NAME}/sso/logout?auth=1${loginRedirectUrl}`,
+      },
+    };
   }
 }

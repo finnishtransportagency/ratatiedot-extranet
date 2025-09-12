@@ -11,6 +11,15 @@ import { theme } from './styles/createTheme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './i18n';
 
+import { setupAxiosInterceptors } from './utils/axiosInterceptors';
+import { startSessionMonitoring } from './utils/sessionMonitor';
+
+// Setup axios interceptors for authentication handling
+setupAxiosInterceptors();
+
+// Start session monitoring (check every 10 minutes)
+startSessionMonitoring(10);
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
