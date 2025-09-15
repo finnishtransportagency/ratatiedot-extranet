@@ -24,14 +24,25 @@ export const getFolder = async (uid: string, nodeId: string) => {
   }
 };
 
-export const isFolderInCategory = async (folderPath: string, category: string) => {
-  // Split the path into its components
-  const pathComponents = folderPath.split('/');
+export const isFolderInCategory = (folderPathInfo: unknown, categoryAlfrescoId: string): boolean => {
+  // The path object from Alfresco API should contain an array of elements with both id and name
+  // We check if any element in the path has the category's Alfresco node ID
+  if (folderPathInfo && typeof folderPathInfo === 'object' && 'elements' in folderPathInfo) {
+    const pathElements = folderPathInfo.elements;
+    if (Array.isArray(pathElements)) {
+      return pathElements.some(
+        (element: unknown) =>
+          element && typeof element === 'object' && 'id' in element && element.id === categoryAlfrescoId,
+      );
+    }
+  }
 
-  // Check if the parent folder name is among the path components
-  // Adjust the index based on given path structure
-  // e.g. /Company Home/Sites/ratat-extra/documentLibrary/hallintaraportit -> ['', 'Company Home', 'Sites', 'ratat-extra', 'documentLibrary', 'hallintaraportit']
-  return pathComponents[5] === category;
+  // Fallback: if we only have path name string, check if the category node ID is in the path
+  if (typeof folderPathInfo === 'string') {
+    return folderPathInfo.includes(categoryAlfrescoId);
+  }
+
+  return false;
 };
 
 // End copy from list-files
@@ -105,9 +116,9 @@ export async function handleRequest(req: Request): Promise<UploadResponse | unde
   let targetNode;
   if (nestedFolderId) {
     const foundFolder = await getFolder(user.uid, nestedFolderId);
-    const folderPath = lodash.get(foundFolder, 'entry.path.name', '');
+    const folderPath = lodash.get(foundFolder, 'entry.path', '');
     // Check if the nest folder is a descendant of the category
-    const isFolderDescendantOfCategory = await isFolderInCategory(folderPath, category);
+    const isFolderDescendantOfCategory = isFolderInCategory(folderPath, categoryData.alfrescoFolder);
     if (!isFolderDescendantOfCategory) {
       throw new RataExtraEC2Error('Folder cannot be found in category', 404);
     }

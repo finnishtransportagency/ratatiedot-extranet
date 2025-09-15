@@ -70,9 +70,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const options = await getAlfrescoOptions(user.uid, { 'Content-Type': 'application/json' });
 
     const targetNode = await getNode(targetParentId, options, ['path']);
-    const targetNodePath = get(targetNode, 'entry.path.name', '');
+    const targetNodePath = get(targetNode, 'entry.path', '');
 
-    if (!isNodeInCategory(targetNodePath, category)) {
+    if (!isNodeInCategory(targetNodePath, categoryData.alfrescoFolder)) {
       throw new RataExtraLambdaError('Cannot move node outside root category', 403);
     }
 
