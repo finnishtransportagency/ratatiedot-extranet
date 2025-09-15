@@ -74,7 +74,7 @@ custom:
                 fields @timestamp, @message
                 | sort @timestamp desc
                 | filter @duration > durationThresholdHere
-            threshold: 2000
+            threshold: 10000
         metric:
           period:
             minutes: 5
