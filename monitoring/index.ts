@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+import * as path from 'path';
+import * as mca from 'mca-monitoring';
+
+// Remember to load config before using mca monitoring stacks
+// If this is not loaded it won't load any stack
+mca.loadConfig(path.join(__dirname, 'config.yml'));
+
+// First create CDK app
+const app = mca.createApp();
+
+// Setup default monitoring stack with SNS topics (optional)
+const stack = mca.setupMonitoringStack(app, 'extranet-monitoring-production');
+
+// Add Lambda monitoring (optional)
+stack.addDefaultLambdaMonitoring();
+
+// Add default DynamoDB monitoring (optional)
+stack.addDefaultDynamoDBMonitoring();
+
+// Add default account monitoring for dynamodb
+// stack.addDefaultAccountMonitoring();
+
+// Add default ECS cluster monitoring
+stack.addDefaultClusterMonitoring();
+
+// Add default api gateway monitoring
+stack.addDefaultApiGatewayMonitoring();
+
+// Add default cloudfront monitoring
+stack.addDefaultCloudFrontMonitoring();
+
+// Add default RDS monitoring
+stack.addDefaultRDSMonitoring();
+
+// Add default EKS monitoring
+stack.addDefaultEKSMonitoring();
+
+// Add default Log Group monitoring
+stack.addDefaultLogGroupMonitoring();
+
+// Add default AppSync monitoring
+stack.addDefaultAppSyncMonitoring();
+
+// Add default SQS monitoring
+stack.addDefaultSQSMonitoring();
+
+// Add Billing Alerts
+stack.addBillingAlert();

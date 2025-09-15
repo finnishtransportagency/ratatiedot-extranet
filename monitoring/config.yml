@@ -1,0 +1,257 @@
+cli:
+  version: 1
+  services:
+    - lambda
+    - dynamodb
+    - ecs
+    - apigateway
+    - cloudfront
+    - rds
+    - eks
+    - loggroup
+    - appsync
+    - sqs
+  includes: []
+  excludes: []
+  profile: extranet
+custom:
+  default:
+    lambda:
+      Errors:
+        enabled: true
+        autoResolve: false
+        alarm:
+          critical:
+            evaluationPeriods: 1
+            alarmDescription: |-
+              - Evaluate the criticality of alert:
+                * Check the amount of errors
+                * If there are a lot of errors inform the product owner immediately
+              - Find the requestId of the error with CloudWatch Insights query:
+                fields @timestamp, @message
+                | sort @timestamp desc
+                | filter @message like /ERROR/
+              - Get the logs for the requestId:
+                fields @timestamp, @message
+                | sort @timestamp desc
+                | filter @requestId = "requestIdHere"
+              - Check if a development ticket exists of this issue
+                * If not create one
+            threshold: 1
+        metric:
+          period:
+            minutes: 5
+          statistic: Sum
+      Invocations:
+        enabled: true
+        autoResolve: false
+        alarm:
+          critical:
+            evaluationPeriods: 1
+            alarmDescription: |-
+              - Check metric history for changes to invocations
+              - Evaluate whether alarm threshold or applications needs to change
+              - CloudWatch Insights query to check the invocation counts:
+                fields @timestamp, @message
+                | sort @timestamp desc
+                | filter @message like /START RequestId:/
+                | stats count() by bin(5m)
+            threshold: 1000
+        metric:
+          period:
+            minutes: 5
+          statistic: Sum
+      Duration:
+        enabled: true
+        autoResolve: false
+        alarm:
+          critical:
+            evaluationPeriods: 1
+            alarmDescription: |-
+              - Check metric history for changes to durations
+              - Evaluate whether alarm threshold or applications needs to change
+              - CloudWatch Insights query to find offending durations:
+                fields @timestamp, @message
+                | sort @timestamp desc
+                | filter @duration > durationThresholdHere
+            threshold: 10000
+        metric:
+          period:
+            minutes: 5
+          statistic: Average
+      Throttles:
+        enabled: true
+        autoResolve: false
+        alarm:
+          critical:
+            evaluationPeriods: 1
+            alarmDescription: |-
+              - Check metric history for throttles
+              - Evaluate the severity
+                * Check how retry logic has been implemented
+                -> if retry logic is missing, issue is CRITICAL
+                * If situation is critical and urgent, request
+                  concurrency limit extension from AWS support immediately
+                * Check whether the issue affects data integrity
+                * Add retry logic if it's missing!
+            threshold: 1
+        metric:
+          period:
+            minutes: 5
+          statistic: Sum
+      DeadLetterErrors:
+        enabled: false
+      DestinationDeliveryFailures:
+        enabled: false
+      ProvisionedConcurrencyInvocations:
+        enabled: false
+      ProvisionedConcurrencySpilloverInvocations:
+        enabled: false
+      IteratorAge:
+        enabled: false
+      ConcurrencyExecutions:
+        enabled: false
+      ProvisionedConcurrencyExecutions:
+        enabled: false
+      ProvisionedConcurrencyUtilizations:
+        enabled: false
+      UnreservedConcurrentExecutions:
+        enabled: false
+    cloudfront:
+      5XXErrorRate:
+        enabled: true
+        alarm:
+          critical:
+            evaluationPeriods: 1
+            alarmDescription: |-
+              Consider the following:
+              - Be precise: character limit of 1024 for the alert description
+              - Actionability: Is it actionable, is the alert even needed?
+              - Prefer examples: share e.g. CloudWatch Insights queries
+              - Reusability: If instruction is generic open a PR to mca-cli :)
+            threshold: 1
+        metric:
+          period:
+            minutes: 5
+          unit: PERCENT
+          statistic: Average
+      4XXErrorRate:
+        enabled: false
+      401ErrorRate:
+        enabled: false
+      403ErrorRate:
+        enabled: false
+      404ErrorRate:
+        enabled: false
+      502ErrorRate:
+        enabled: false
+      503ErrorRate:
+        enabled: false
+      504ErrorRate:
+        enabled: false
+      BytesDownloaded:
+        enabled: false
+      BytesUploaded:
+        enabled: false
+      CacheHitRate:
+        enabled: false
+      OriginLatency:
+        enabled: false
+      Requests:
+        enabled: false
+      TotalErrorRate:
+        enabled: false
+    logGroup:
+      RuntimeErrors:
+        enabled: true
+        alarm:
+          critical:
+            evaluationPeriods: 1
+            alarmDescription: |-
+              Consider the following:
+              - Be precise: character limit of 1024 for the alert description
+              - Actionability: Is it actionable, is the alert even needed?
+              - Prefer examples: share e.g. CloudWatch Insights queries
+              - Reusability: If instruction is generic open a PR to mca-cli :)
+            threshold: 10
+        metric:
+          period:
+            minutes: 30
+          unit: Count
+          statistic: Sum
+        filter:
+          pattern: Error -401 -403
+  snsTopic:
+    critical:
+      name: Topic for mca monitoring alarms
+      id: extranet-alerts-alarm-production
+      endpoints: []
+      emails: []
+      slackWebhook: ''
+lambdas:
+  lambda-rataextra-prod-prod-alfresco-create-folder: {}
+  lambda-rataextra-prod-prod-alfresco-delete-file: {}
+  lambda-rataextra-prod-prod-alfresco-delete-folder: {}
+  lambda-rataextra-prod-prod-alfresco-list-files: {}
+  lambda-rataextra-prod-prod-alfresco-list-folders: {}
+  lambda-rataextra-prod-prod-alfresco-move-node: {}
+  lambda-rataextra-prod-prod-alfresco-search: {}
+  lambda-rataextra-prod-prod-alfresco-update-file: {}
+  lambda-rataextra-prod-prod-alfresco-update-file-metadata: {}
+  lambda-rataextra-prod-prod-alfresco-update-folder: {}
+  lambda-rataextra-prod-prod-check-admin-right: {}
+  lambda-rataextra-prod-prod-check-user-right: {}
+  lambda-rataextra-prod-prod-db-delete-favorite-page: {}
+  lambda-rataextra-prod-prod-db-edit-page-contents: {}
+  lambda-rataextra-prod-prod-db-get-favorite-pages: {}
+  lambda-rataextra-prod-prod-db-get-page-contents: {}
+  lambda-rataextra-prod-prod-db-post-favorite-page: {}
+  lambda-rataextra-prod-prod-delete-notice: {}
+  lambda-rataextra-prod-prod-dummy2-handler: {}
+  lambda-rataextra-prod-prod-get-activities: {}
+  lambda-rataextra-prod-prod-get-banners: {}
+  lambda-rataextra-prod-prod-get-components: {}
+  lambda-rataextra-prod-prod-get-nodes: {}
+  lambda-rataextra-prod-prod-get-notice: {}
+  lambda-rataextra-prod-prod-get-notices: {}
+  lambda-rataextra-prod-prod-populate-activities: {}
+  lambda-rataextra-prod-prod-post-notice: {}
+  lambda-rataextra-prod-prod-put-notice: {}
+  lambda-rataextra-prod-prod-return-login: {}
+distributions:
+  E1VY8MZKXKB3CI: {}
+logGroups:
+  /aws/ec2/rataextra-prod-prod-prod-prod-node-server: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-create-folder: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-delete-file: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-delete-folder: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-list-files: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-list-folders: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-move-node: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-search: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-update-file: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-update-file-metadata: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-update-folder: {}
+  /aws/lambda/lambda-rataextra-prod-prod-alfresco-upload-file: {}
+  /aws/lambda/lambda-rataextra-prod-prod-check-admin-right: {}
+  /aws/lambda/lambda-rataextra-prod-prod-check-user-right: {}
+  /aws/lambda/lambda-rataextra-prod-prod-create-user: {}
+  /aws/lambda/lambda-rataextra-prod-prod-db-delete-favorite-page: {}
+  /aws/lambda/lambda-rataextra-prod-prod-db-edit-page-contents: {}
+  /aws/lambda/lambda-rataextra-prod-prod-db-get-favorite-pages: {}
+  /aws/lambda/lambda-rataextra-prod-prod-db-get-page-contents: {}
+  /aws/lambda/lambda-rataextra-prod-prod-db-post-favorite-page: {}
+  /aws/lambda/lambda-rataextra-prod-prod-delete-notice: {}
+  /aws/lambda/lambda-rataextra-prod-prod-dummy-handler: {}
+  /aws/lambda/lambda-rataextra-prod-prod-dummy2-handler: {}
+  /aws/lambda/lambda-rataextra-prod-prod-get-activities: {}
+  /aws/lambda/lambda-rataextra-prod-prod-get-banners: {}
+  /aws/lambda/lambda-rataextra-prod-prod-get-components: {}
+  /aws/lambda/lambda-rataextra-prod-prod-get-nodes: {}
+  /aws/lambda/lambda-rataextra-prod-prod-get-notice: {}
+  /aws/lambda/lambda-rataextra-prod-prod-get-notices: {}
+  /aws/lambda/lambda-rataextra-prod-prod-list-users: {}
+  /aws/lambda/lambda-rataextra-prod-prod-populate-activities: {}
+  /aws/lambda/lambda-rataextra-prod-prod-post-notice: {}
+  /aws/lambda/lambda-rataextra-prod-prod-put-notice: {}
+  /aws/lambda/lambda-rataextra-prod-prod-return-login: {}
