@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { ActivityTypes } from '../../constants/ActivityTypes';
 import { Routes } from '../../constants/Routes';
+import { get } from 'lodash';
 
 export const NodeTypes = {
   other: Other,
@@ -37,7 +38,7 @@ type NodeItemProps = {
 
 export const ActivityItem = ({ node, row, isSelected = false }: NodeItemProps) => {
   const { mimeType, fileName, timestamp, action, alfrescoId } = node;
-  const { rataextraRequestPage } = node.categoryDataBase;
+  const rataextraRequestPage = get(node, 'categoryDataBase.rataextraRequestPage', '');
 
   const isFolder = mimeType === 'folder';
   const isFile = mimeType !== 'folder';
