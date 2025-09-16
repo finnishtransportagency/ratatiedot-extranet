@@ -11,6 +11,7 @@ import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import BrowserNotSupportedIcon from '@mui/icons-material/BrowserNotSupported';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import { toast } from 'react-toastify';
 
 import { Routes } from '../constants/Routes';
@@ -48,6 +49,8 @@ const fetchMaterialClass = (): IMenuItem[] => {
       case 'Muut':
         return <WidgetsIcon />;
       case 'Käyttöohjeet':
+        return <HelpIcon />;
+      case 'Baliisisanomat':
         return <HelpIcon />;
       default:
         return <BrowserNotSupportedIcon />;
@@ -157,6 +160,12 @@ export const MenuContextProvider = (props: any) => {
     },
     ...fetchMaterialClass(),
     // Logout should always be the last menu item
+    {
+      key: t('common:menu.balise'),
+      primary: t('common:menu.balise'),
+      icon: <RadioButtonCheckedIcon />,
+      to: Routes.BALISE,
+    },
     {
       key: t('common:menu.logout'),
       primary: <Typography variant="subtitle2">{t('common:menu.logout')}</Typography>,
