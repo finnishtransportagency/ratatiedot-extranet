@@ -42,6 +42,7 @@ import { FavoritesInstructions } from './pages/Instructions/Favorites';
 import { LoginAndPermissionsInstructions } from './pages/Instructions/LoginAndPermissions';
 import { EditToolInstructions } from './pages/Instructions/EditTool';
 import { ProtectedStaticPage } from './pages/ProtectedPage/ProtectedStaticPage';
+import { ProtectedBalisePage } from './pages/ProtectedPage/ProtectedBalisePage';
 import { Notices } from './pages/Notices';
 import { SingleNotice } from './pages/Notices/SingleNotice';
 import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
@@ -147,7 +148,7 @@ const getProtectedBaliseRoute = (path: string, component: JSX.Element): RouteObj
     path: path,
     element: (
       <AppContextProvider>
-        <ProtectedNoticePage children={component} />
+        <ProtectedBalisePage children={component} />
       </AppContextProvider>
     ),
     errorElement: <RootBoundary />, // Send user here whenever error is thrown

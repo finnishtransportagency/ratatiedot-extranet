@@ -12,7 +12,7 @@ import { Colors } from '../../constants/Colors';
 import { Search } from '../Search';
 import { useContext } from 'react';
 import { AppBarContext } from '../../contexts/AppBarContext';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { useTranslation } from 'react-i18next';
 
@@ -27,11 +27,18 @@ export const MiniAppBar = () => {
     openToolbarHandler,
     userRight,
   } = useContext(AppBarContext);
+  const location = useLocation();
 
   const userWriteRight = userRight.canWrite || userRight.isAdmin;
   const shouldEdit = userWriteRight && !openEdit && !openToolbar;
+  const isBaliseRoute = location.pathname === Routes.BALISE;
 
   const { t } = useTranslation(['common']);
+
+  // Hide the entire app bar on Balise route
+  if (isBaliseRoute) {
+    return null;
+  }
 
   const MainAppBar = () => {
     return (
