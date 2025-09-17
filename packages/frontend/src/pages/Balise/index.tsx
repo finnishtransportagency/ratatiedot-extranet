@@ -7,24 +7,37 @@ import {
   getAllAreaData,
   areaConfig,
   TOTAL_ITEMS_COUNT,
-} from './mockData';
+} from './simpleMockData';
 import { BaliseSearch } from './BaliseSearch';
 import { AreaFilter } from './AreaFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
 
 export const Balise = () => {
-  const [data, setData] = useState<IBalise[]>(initialMockData);
+  const [data, setData] = useState<IBalise[]>(() => {
+    // Safe initialization with fallback
+    try {
+      return Array.isArray(initialMockData) ? initialMockData : [];
+    } catch (error) {
+      console.error('Error initializing mock data:', error);
+      return [];
+    }
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [hasNextPage, setHasNextPage] = useState(true);
 
   // Filter data based on search term and selected area
   const filteredData = useMemo(() => {
+    // Ensure data is always an array
+    if (!Array.isArray(data)) {
+      return [];
+    }
+
     let filtered = data;
 
     // Filter by area first
     if (selectedArea) {
-      filtered = filtered.filter((item) => item.area === selectedArea);
+      filtered = filtered.filter((item) => item?.area === selectedArea);
     }
 
     // Then filter by search term
@@ -32,12 +45,12 @@ export const Balise = () => {
       const lowerSearchTerm = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (item) =>
-          item.secondaryId.toString().includes(lowerSearchTerm) ||
-          item.description.toLowerCase().includes(lowerSearchTerm) ||
-          item.createdBy.toLowerCase().includes(lowerSearchTerm) ||
-          item.editedBy.toLowerCase().includes(lowerSearchTerm) ||
-          item.createdTime.toLowerCase().includes(lowerSearchTerm) ||
-          item.editedTime.toLowerCase().includes(lowerSearchTerm),
+          item?.secondaryId?.toString().includes(lowerSearchTerm) ||
+          item?.description?.toLowerCase().includes(lowerSearchTerm) ||
+          item?.createdBy?.toLowerCase().includes(lowerSearchTerm) ||
+          item?.editedBy?.toLowerCase().includes(lowerSearchTerm) ||
+          item?.createdTime?.toLowerCase().includes(lowerSearchTerm) ||
+          item?.editedTime?.toLowerCase().includes(lowerSearchTerm),
       );
     }
 

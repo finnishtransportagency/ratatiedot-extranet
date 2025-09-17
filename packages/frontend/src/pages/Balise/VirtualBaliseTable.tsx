@@ -16,7 +16,7 @@ import {
   ListItemText,
   CircularProgress,
 } from '@mui/material';
-import { MoreVert, Download, Add, Delete, Lock, LockOpen, History } from '@mui/icons-material';
+import { MoreVert, Download, Add, Delete, Lock, LockOpen } from '@mui/icons-material';
 import { IBalise } from './mockData';
 
 interface VirtualBaliseTableProps {
@@ -61,10 +61,11 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
     setAnchorEl(null);
   };
 
-  const handleMenuAction = (action: string) => {
-    if (action === 'toggle-history') {
-      onToggleExpanded(row.id);
-    } else if (action === 'toggle-lock') {
+  const handleMenuAction = (action: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (action === 'toggle-lock') {
       onLockToggle(row.id);
     } else if (action === 'delete') {
       onDelete(row.id);
@@ -78,7 +79,14 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
 
   return (
     <>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+      <TableRow
+        sx={{
+          '& > *': { borderBottom: 'unset' },
+          cursor: 'pointer',
+          '&:hover': { backgroundColor: 'action.hover' },
+        }}
+        onClick={() => onToggleExpanded(row.id)}
+      >
         <TableCell sx={{ fontSize: '14px', width: '80px' }} component="th" scope="row">
           {row.secondaryId}
         </TableCell>
@@ -90,13 +98,21 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
         <TableCell sx={{ fontSize: '14px', width: '100px' }}>{row.editedBy}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '80px' }}>{row.locked ? '🔒' : ''}</TableCell>
         <TableCell sx={{ textAlign: 'right', width: '100px' }}>
-          <IconButton aria-label="more actions" size="small" onClick={handleMenuClick}>
+          <IconButton
+            aria-label="more actions"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent row click when clicking menu
+              handleMenuClick(e);
+            }}
+          >
             <MoreVert />
           </IconButton>
           <Menu
             anchorEl={anchorEl}
             open={menuOpen}
             onClose={handleMenuClose}
+            onClick={(e) => e.stopPropagation()} // Prevent menu container clicks from propagating
             anchorOrigin={{
               vertical: 'bottom',
               horizontal: 'right',
@@ -106,31 +122,25 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
               horizontal: 'right',
             }}
           >
-            <MenuItem onClick={() => handleMenuAction('download')}>
+            <MenuItem onClick={(e) => handleMenuAction('download', e)}>
               <ListItemIcon>
                 <Download fontSize="small" />
               </ListItemIcon>
               <ListItemText>Lataa</ListItemText>
             </MenuItem>
-            <MenuItem onClick={() => handleMenuAction('toggle-history')}>
-              <ListItemIcon>
-                <History fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>{isExpanded ? 'Piilota historia' : 'Näytä historia'}</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={() => handleMenuAction('create-version')}>
+            <MenuItem onClick={(e) => handleMenuAction('create-version', e)}>
               <ListItemIcon>
                 <Add fontSize="small" />
               </ListItemIcon>
               <ListItemText>Luo uusi versio</ListItemText>
             </MenuItem>
-            <MenuItem onClick={() => handleMenuAction('delete')}>
+            <MenuItem onClick={(e) => handleMenuAction('delete', e)}>
               <ListItemIcon>
                 <Delete fontSize="small" />
               </ListItemIcon>
               <ListItemText>Poista</ListItemText>
             </MenuItem>
-            <MenuItem onClick={() => handleMenuAction('toggle-lock')}>
+            <MenuItem onClick={(e) => handleMenuAction('toggle-lock', e)}>
               <ListItemIcon>{row.locked ? <LockOpen fontSize="small" /> : <Lock fontSize="small" />}</ListItemIcon>
               <ListItemText>{row.locked ? 'Poista lukitus' : 'Lukitse'}</ListItemText>
             </MenuItem>
