@@ -1,76 +1,58 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, TextField, InputAdornment, IconButton, Paper } from '@mui/material';
 import { Search as SearchIcon, Clear } from '@mui/icons-material';
 
 interface BaliseSearchProps {
-  onSearch: (searchTerm: string) => void;
+  searchTerm: string;
+  onSearchChange: (searchTerm: string) => void;
   placeholder?: string;
 }
 
-export const BaliseSearch: React.FC<BaliseSearchProps> = ({ onSearch, placeholder = 'Hae baliisisanomia...' }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
+export const BaliseSearch: React.FC<BaliseSearchProps> = ({
+  searchTerm,
+  onSearchChange,
+  placeholder = 'Hae baliisisanomia...',
+}) => {
   const handleSearch = (value: string) => {
-    setSearchTerm(value);
-    onSearch(value);
+    onSearchChange(value);
   };
 
   const clearSearch = () => {
-    setSearchTerm('');
-    onSearch('');
-  };
-
-  const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
-      onSearch(searchTerm);
-    }
+    onSearchChange('');
   };
 
   return (
-    <Box sx={{ mb: 3 }}>
-      <Paper
-        sx={{
-          p: 1,
-          display: 'flex',
-          alignItems: 'center',
-          boxShadow: 1,
-        }}
-      >
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 2,
+        borderRadius: 2,
+        backgroundColor: 'background.default',
+      }}
+    >
+      <Box sx={{ maxWidth: 500 }}>
         <TextField
           fullWidth
-          variant="outlined"
-          size="small"
-          placeholder={placeholder}
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
-          onKeyPress={handleKeyPress}
+          placeholder={placeholder}
+          size="small"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon color="primary" />
+                <SearchIcon color="action" />
               </InputAdornment>
             ),
             endAdornment: searchTerm && (
               <InputAdornment position="end">
-                <IconButton size="small" onClick={clearSearch} aria-label="clear search">
-                  <Clear fontSize="small" />
+                <IconButton aria-label="clear search" onClick={clearSearch} edge="end" size="small">
+                  <Clear />
                 </IconButton>
               </InputAdornment>
             ),
-            sx: {
-              '& .MuiOutlinedInput-notchedOutline': {
-                border: 'none',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                border: 'none',
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                border: 'none',
-              },
-            },
           }}
         />
-      </Paper>
-    </Box>
+      </Box>
+    </Paper>
   );
 };

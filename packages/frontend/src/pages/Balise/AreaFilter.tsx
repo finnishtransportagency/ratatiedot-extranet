@@ -1,58 +1,48 @@
 import React from 'react';
-import { Box, Card, CardContent, Typography, Chip } from '@mui/material';
-import { areas } from './mockData';
+import { Box, Card, CardContent, Chip } from '@mui/material';
+import { AreaConfig } from './types';
 
 interface AreaFilterProps {
+  areas: AreaConfig[];
   selectedArea: string | null;
   onAreaSelect: (area: string | null) => void;
 }
 
-// Shortened area names for more compact display
-const shortAreaNames: { [key: string]: string } = {
-  'Alue 1 Uusimaa': 'Uusimaa',
-  'Alue 2 Lounaisrannikko': 'Lounaisrannikko',
-  'Alue 3 (Riihimäki)-Kokkola': 'Riihimäki-Kokkola',
-  'Alue 4 Rauma- (Pieksämäki)': 'Rauma-Pieksämäki',
-  'Alue 5 Haapamäen tähti': 'Haapamäki',
-  'Alue 6 Savon rata': 'Savo',
-  'Alue 7 Karjalan rata': 'Karjala',
-  'Alue 8 Yläsavo': 'Yläsavo',
-  'Alue 9 Pohjanmaan rata': 'Pohjanmaa',
-  'Alue 10 Keski-Suomi': 'Keski-Suomi',
-  'Alue 11 Kainuu-Oulu': 'Kainuu-Oulu',
-  'Alue 12 Oulu-Lappi': 'Oulu-Lappi',
-};
-
-export const AreaFilter: React.FC<AreaFilterProps> = ({ selectedArea, onAreaSelect }) => {
+export const AreaFilter: React.FC<AreaFilterProps> = ({ areas, selectedArea, onAreaSelect }) => {
   const handleAreaClick = (area: string) => {
     if (selectedArea === area) {
       onAreaSelect(null); // Deselect if already selected
     } else {
-      onAreaSelect(area);
+      onAreaSelect(area); // Select new area
     }
   };
 
+  const handleAllClick = () => {
+    onAreaSelect(null);
+  };
+
   return (
-    <Card sx={{ mb: 2 }}>
+    <Card variant="outlined">
       <CardContent sx={{ pb: 2 }}>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+          {/* All areas option */}
           <Chip
-            label="Kaikki"
-            clickable
-            color={selectedArea === null ? 'primary' : 'default'}
-            onClick={() => onAreaSelect(null)}
-            variant={selectedArea === null ? 'filled' : 'outlined'}
+            label="Kaikki alueet"
             size="small"
+            color={selectedArea === null ? 'primary' : 'default'}
+            onClick={handleAllClick}
+            variant={selectedArea === null ? 'filled' : 'outlined'}
           />
+
+          {/* Individual area options */}
           {areas.map((area) => (
             <Chip
-              key={area}
-              label={shortAreaNames[area] || area}
-              clickable
-              color={selectedArea === area ? 'primary' : 'default'}
-              onClick={() => handleAreaClick(area)}
-              variant={selectedArea === area ? 'filled' : 'outlined'}
+              key={area.key}
+              label={area.shortName}
               size="small"
+              color={selectedArea === area.key ? 'primary' : 'default'}
+              onClick={() => handleAreaClick(area.key)}
+              variant={selectedArea === area.key ? 'filled' : 'outlined'}
             />
           ))}
         </Box>

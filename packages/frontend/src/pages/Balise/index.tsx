@@ -1,212 +1,102 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Box } from '@mui/material';
-import {
-  mockData as initialMockData,
-  IBalise,
-  generateBaliseData,
-  getAllAreaData,
-  areaConfig,
-  TOTAL_ITEMS_COUNT,
-} from './simpleMockData';
+import { Box, Typography, Stack } from '@mui/material';
+import { IBalise } from './types';
 import { BaliseSearch } from './BaliseSearch';
 import { AreaFilter } from './AreaFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
 
-export const Balise = () => {
-  const [data, setData] = useState<IBalise[]>(() => {
-    // Safe initialization with fallback
-    try {
-      return Array.isArray(initialMockData) ? initialMockData : [];
-    } catch (error) {
-      console.error('Error initializing mock data:', error);
-      return [];
-    }
-  });
+// Temporary area configuration - replace with API call
+const AREA_OPTIONS = [
+  { key: 'area_1', name: 'Alue 1 Helsinki-Riihimäki', shortName: 'Alue 1' },
+  { key: 'area_2', name: 'Alue 2 Päijät-Häme', shortName: 'Alue 2' },
+  { key: 'area_3', name: 'Alue 3 Etelä-Karjala', shortName: 'Alue 3' },
+  { key: 'area_4', name: 'Alue 4 Rauma-Pieksämäki', shortName: 'Alue 4' },
+  { key: 'area_5', name: 'Alue 5 Tampereen seutu', shortName: 'Alue 5' },
+  { key: 'area_6', name: 'Alue 6 Savon rata', shortName: 'Alue 6' },
+  { key: 'area_7', name: 'Alue 7 Karjalan rata', shortName: 'Alue 7' },
+  { key: 'area_8', name: 'Alue 8 Yläsavo', shortName: 'Alue 8' },
+  { key: 'area_9', name: 'Alue 9 Pohjanmaan rata', shortName: 'Alue 9' },
+  { key: 'area_10', name: 'Alue 10 Keski-Suomi', shortName: 'Alue 10' },
+  { key: 'area_11', name: 'Alue 11 Kainuu-Oulu', shortName: 'Alue 11' },
+  { key: 'area_12', name: 'Alue 12 Oulu-Lappi', shortName: 'Alue 12' },
+];
+
+export const Balise: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
-  const [hasNextPage, setHasNextPage] = useState(true);
+  const [baliseData] = useState<IBalise[]>([]); // Empty array - ready for API integration
 
-  // Filter data based on search term and selected area
+  // Filtered data based on search and area filter
   const filteredData = useMemo(() => {
-    // Ensure data is always an array
-    if (!Array.isArray(data)) {
-      return [];
-    }
+    let filtered = baliseData;
 
-    let filtered = data;
-
-    // Filter by area first
-    if (selectedArea) {
-      filtered = filtered.filter((item) => item?.area === selectedArea);
-    }
-
-    // Then filter by search term
+    // Apply search filter
     if (searchTerm.trim()) {
-      const lowerSearchTerm = searchTerm.toLowerCase();
+      const lowercaseSearch = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (item) =>
-          item?.secondaryId?.toString().includes(lowerSearchTerm) ||
-          item?.description?.toLowerCase().includes(lowerSearchTerm) ||
-          item?.createdBy?.toLowerCase().includes(lowerSearchTerm) ||
-          item?.editedBy?.toLowerCase().includes(lowerSearchTerm) ||
-          item?.createdTime?.toLowerCase().includes(lowerSearchTerm) ||
-          item?.editedTime?.toLowerCase().includes(lowerSearchTerm),
+          item.secondaryId.toString().includes(searchTerm) ||
+          item.description.toLowerCase().includes(lowercaseSearch) ||
+          item.createdBy.toLowerCase().includes(lowercaseSearch) ||
+          item.editedBy.toLowerCase().includes(lowercaseSearch),
       );
     }
 
+    // Apply area filter
+    if (selectedArea) {
+      filtered = filtered.filter((item) => item.area === selectedArea);
+    }
+
     return filtered;
-  }, [data, searchTerm, selectedArea]);
+  }, [baliseData, searchTerm, selectedArea]);
 
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-  };
+  // Table action handlers - ready for API integration
+  const handleLockToggle = useCallback((id: string) => {
+    console.log('Toggle lock for:', id);
+    // TODO: Implement API call to toggle lock status
+  }, []);
 
-  const handleAreaSelect = useCallback(
-    async (area: string | null) => {
-      setSelectedArea(area);
+  const handleDelete = useCallback((id: string) => {
+    console.log('Delete:', id);
+    // TODO: Implement API call to delete item
+  }, []);
 
-      // If selecting a specific area and we don't have much data for it, load more
-      if (area) {
-        const areaItems = data.filter((item) => item.area === area);
-        const config = areaConfig[area as keyof typeof areaConfig];
+  const handleDownload = useCallback((row: IBalise) => {
+    console.log('Download:', row);
+    // TODO: Implement download functionality
+  }, []);
 
-        // If we have less than 100 items for this area, try to load more from that area
-        if (areaItems.length < 100 && config) {
-          try {
-            const newAreaData = getAllAreaData(area).slice(areaItems.length, areaItems.length + 500);
-            if (newAreaData.length > 0) {
-              setData((prevData) => {
-                // Remove existing items from this area to avoid duplicates
-                const filteredData = prevData.filter((item) => item.area !== area);
-                // Add the existing area items and new ones
-                return [...filteredData, ...areaItems, ...newAreaData];
-              });
-            }
-          } catch (error) {
-            console.warn('Could not load additional area data:', error);
-          }
-        }
-      }
-    },
-    [data],
-  );
-
-  // Load more items for infinite scroll
-  const loadMoreItems = useCallback(
-    async (startIndex: number, stopIndex: number) => {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      const currentLength = data.length;
-      if (currentLength >= TOTAL_ITEMS_COUNT) {
-        setHasNextPage(false);
-        return;
-      }
-
-      // Generate more data
-      const newItemsCount = Math.min(stopIndex - startIndex + 1, TOTAL_ITEMS_COUNT - currentLength);
-      const newItems = generateBaliseData(currentLength, newItemsCount);
-
-      setData((prevData) => [...prevData, ...newItems]);
-
-      if (currentLength + newItemsCount >= TOTAL_ITEMS_COUNT) {
-        setHasNextPage(false);
-      }
-    },
-    [data.length],
-  );
-
-  const handleLockToggle = (id: string) => {
-    setData((prevData) =>
-      prevData.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              locked: !item.locked,
-              lockedTime: !item.locked
-                ? new Date().toLocaleDateString('fi-FI') +
-                  ' ' +
-                  new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })
-                : '',
-              lockedBy: !item.locked ? 'LX000001' : '',
-            }
-          : item,
-      ),
-    );
-  };
-
-  const handleDelete = (id: string) => {
-    setData((prevData) => prevData.filter((item) => item.id !== id));
-  };
-
-  const handleDownload = (row: IBalise) => {
-    // Create file content with some mock data about the balise
-    const fileContent = `Balise Information Report
-=========================
-
-ID: ${row.secondaryId}
-Version: ${row.version}
-Description: ${row.description}
-Area: ${row.area}
-Created By: ${row.createdBy}
-Created Time: ${row.createdTime}
-Edited By: ${row.editedBy}
-Edited Time: ${row.editedTime}
-Locked: ${row.locked ? 'Yes' : 'No'}
-${row.locked ? `Locked By: ${row.lockedBy}` : ''}
-${row.locked ? `Locked Time: ${row.lockedTime}` : ''}
-
-Version History:
-${
-  row.versions
-    ?.map((v) => `  Version ${v.version}: ${v.description} (Created: ${v.createdTime} by ${v.createdBy})`)
-    .join('\n') || 'No version history available'
-}
-
-Generated on: ${new Date().toLocaleString('fi-FI')}
-`;
-
-    // Create and trigger download
-    const blob = new Blob([fileContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `balise_${row.secondaryId}_report.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
+  const loadMoreItems = useCallback(async (startIndex: number, stopIndex: number) => {
+    console.log('Load more items:', startIndex, stopIndex);
+    // TODO: Implement API call to load more items
+  }, []);
 
   return (
-    <Box
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: 0,
-        margin: 0,
-        overflow: 'hidden',
-      }}
-    >
-      {/* Fixed header area with search and filters */}
-      <Box sx={{ px: { xs: 1, sm: 2, md: 2 }, pt: { xs: 1, sm: 2, md: 2 }, pb: 1 }}>
-        <BaliseSearch onSearch={handleSearch} />
-        <AreaFilter selectedArea={selectedArea} onAreaSelect={handleAreaSelect} />
-      </Box>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Baliisisanomat
+      </Typography>
 
-      {/* Table area that takes remaining space */}
-      <Box sx={{ flex: 1, overflow: 'hidden', px: { xs: 1, sm: 2, md: 2 }, pb: 1 }}>
+      <Stack spacing={2}>
+        {/* Search Component */}
+        <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} placeholder="Hae baliisisanomia..." />
+
+        {/* Area Filter Component */}
+        <AreaFilter areas={AREA_OPTIONS} selectedArea={selectedArea} onAreaSelect={setSelectedArea} />
+
+        {/* Data Table */}
         <VirtualBaliseTable
           items={filteredData}
-          hasNextPage={hasNextPage && !searchTerm && !selectedArea} // Disable infinite scroll when filtering
+          hasNextPage={false} // Set to true when pagination is implemented
           loadMoreItems={loadMoreItems}
-          totalCount={TOTAL_ITEMS_COUNT}
+          totalCount={filteredData.length}
           onLockToggle={handleLockToggle}
           onDelete={handleDelete}
           onDownload={handleDownload}
         />
-      </Box>
+      </Stack>
     </Box>
   );
 };
+
+export default Balise;

@@ -47,7 +47,7 @@ import { Notices } from './pages/Notices';
 import { SingleNotice } from './pages/Notices/SingleNotice';
 import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
-import { Balise } from './pages/Balise';
+import Balise from './pages/Balise/index';
 import { RailwayCategory } from './pages/Others/RailwayCategory';
 import { OtherRailway } from './pages/Others/OtherRailway';
 

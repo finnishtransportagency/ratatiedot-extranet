@@ -17,7 +17,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { MoreVert, Download, Add, Delete, Lock, LockOpen } from '@mui/icons-material';
-import { IBalise } from './mockData';
+import { IBalise } from './types';
 
 interface VirtualBaliseTableProps {
   items: IBalise[];
