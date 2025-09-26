@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { Box, Typography, Stack } from '@mui/material';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { Box, Typography, Alert, CircularProgress } from '@mui/material';
 import { IBalise } from './types';
 import { BaliseSearch } from './BaliseSearch';
 import { AreaFilter } from './AreaFilter';
@@ -21,10 +21,72 @@ const AREA_OPTIONS = [
   { key: 'area_12', name: 'Alue 12 Oulu-Lappi', shortName: 'Alue 12' },
 ];
 
+// API function to fetch balises
+const fetchBalises = async (filters?: { id_min?: number; id_max?: number }): Promise<IBalise[]> => {
+  try {
+    const params = new URLSearchParams();
+    if (filters?.id_min) params.append('id_min', filters.id_min.toString());
+    if (filters?.id_max) params.append('id_max', filters.id_max.toString());
+
+    const queryString = params.toString();
+    const url = `http://localhost:3001/api/balises${queryString ? `?${queryString}` : ''}`;
+
+    console.log('Fetching balises from:', url);
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Transform backend data to match frontend interface
+    return data.map((item: any) => ({
+      id: item.id.toString(),
+      secondaryId: item.secondaryId,
+      version: item.version?.toString() || '1',
+      description: `Balise ${item.secondaryId}`, // Backend doesn't have description field
+      createdTime: item.createdTime || new Date().toISOString(),
+      createdBy: item.createdBy || 'Unknown',
+      editedTime: item.createdTime || new Date().toISOString(), // Backend doesn't have editedTime
+      editedBy: item.createdBy || 'Unknown', // Backend doesn't have editedBy
+      locked: item.locked || false,
+      area: 'area_1', // Default area - would need mapping logic based on secondaryId ranges
+    }));
+  } catch (error) {
+    console.error('Error fetching balises:', error);
+    throw error;
+  }
+};
+
 export const Balise: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
-  const [baliseData] = useState<IBalise[]>([]); // Empty array - ready for API integration
+  const [baliseData, setBaliseData] = useState<IBalise[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load balises on component mount
+  useEffect(() => {
+    const loadBalises = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch balises in the range 24000-25000 (matching your test data)
+        const balises = await fetchBalises({ id_min: 24000, id_max: 25000 });
+        setBaliseData(balises);
+        console.log('Loaded balises:', balises.length);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load balises';
+        setError(errorMessage);
+        console.error('Failed to load balises:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBalises();
+  }, []);
 
   // Filtered data based on search and area filter
   const filteredData = useMemo(() => {
@@ -72,29 +134,65 @@ export const Balise: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box
+      sx={{
+        p: 3,
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
       <Typography variant="h4" gutterBottom>
         Baliisisanomat
       </Typography>
 
-      <Stack spacing={2}>
-        {/* Search Component */}
+      {/* Error Display */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}. Make sure your local API server is running on http://localhost:3001
+        </Alert>
+      )}
+
+      {/* Search Component */}
+      <Box sx={{ mb: 2 }}>
         <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} placeholder="Hae baliisisanomia..." />
+      </Box>
 
-        {/* Area Filter Component */}
+      {/* Area Filter Component */}
+      <Box sx={{ mb: 2 }}>
         <AreaFilter areas={AREA_OPTIONS} selectedArea={selectedArea} onAreaSelect={setSelectedArea} />
+      </Box>
 
-        {/* Data Table */}
-        <VirtualBaliseTable
-          items={filteredData}
-          hasNextPage={false} // Set to true when pagination is implemented
-          loadMoreItems={loadMoreItems}
-          totalCount={filteredData.length}
-          onLockToggle={handleLockToggle}
-          onDelete={handleDelete}
-          onDownload={handleDownload}
-        />
-      </Stack>
+      {/* Loading State */}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress />
+          <Typography sx={{ ml: 2 }}>Loading balises...</Typography>
+        </Box>
+      )}
+
+      {/* Data Table - Takes remaining space */}
+      {!loading && (
+        <Box sx={{ flex: 1, minHeight: 0 }}>
+          <VirtualBaliseTable
+            items={filteredData}
+            hasNextPage={false} // Set to true when pagination is implemented
+            loadMoreItems={loadMoreItems}
+            totalCount={filteredData.length}
+            onLockToggle={handleLockToggle}
+            onDelete={handleDelete}
+            onDownload={handleDownload}
+          />
+        </Box>
+      )}
+
+      {/* No Data Message */}
+      {!loading && !error && filteredData.length === 0 && baliseData.length === 0 && (
+        <Typography variant="body1" sx={{ textAlign: 'center', p: 4 }}>
+          No balises found. Make sure your database has test data and your local API server is running.
+        </Typography>
+      )}
     </Box>
   );
 };

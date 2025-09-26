@@ -169,10 +169,16 @@ async function invokeLambda(lambdaName, albEvent) {
 }
 
 /**
- * Send JSON response
+ * Send JSON response with CORS headers
  */
 function sendJSON(res, data, statusCode = 200) {
-  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+  res.writeHead(statusCode, headers);
   res.end(JSON.stringify(data, null, 2));
 }
 
@@ -197,8 +203,13 @@ async function handleLambdaRoute(req, res, lambdaName) {
     // Set response status
     const statusCode = lambdaResponse.statusCode || 200;
 
-    // Set response headers
-    const headers = { 'Content-Type': 'application/json' };
+    // Set response headers with CORS
+    const headers = {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    };
     if (lambdaResponse.headers) {
       Object.assign(headers, lambdaResponse.headers);
     }
@@ -244,6 +255,18 @@ async function handleRequest(req, res) {
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
   const method = req.method;
+
+  // Handle CORS preflight requests
+  if (method === 'OPTIONS') {
+    res.writeHead(200, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400', // 24 hours
+    });
+    res.end();
+    return;
+  }
 
   // Health check
   if (method === 'GET' && pathname === '/health') {
