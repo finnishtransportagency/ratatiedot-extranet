@@ -86,7 +86,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
       vpc,
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0137a96c6096da076' }),
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-02c64a3b42a74f093' }),
       allowAllOutbound: true,
       role: asgRole,
       healthCheck: HealthCheck.elb({ grace: Duration.minutes(10) }),
