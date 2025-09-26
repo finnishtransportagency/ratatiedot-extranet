@@ -11,6 +11,7 @@ export const Routes = {
   SEARCH_RESULT: '/haku',
   LOGOUT: 'logout',
   LOGOUT_REDIRECT: '/sso/*',
+  BALISE: '/baliisisanomat',
   LINE_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.LINE_DIAGRAMS)}`,
   SPEED_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.SPEED_DIAGRAMS)}`,
   TRACK_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.TRACK_DIAGRAMS)}`,
