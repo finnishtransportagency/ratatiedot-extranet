@@ -78,12 +78,43 @@ model Activity {
 }
 
 model Notice {
-  id                String    @id @default(uuid())
-  title             String?
-  content           Json
-  authorId          String?
-  createdTime       DateTime  @default(now())
-  publishTimeStart  DateTime  @default(now())
-  publishTimeEnd    DateTime?
-  showAsBanner      Boolean   @default(false)
+  id               String    @id @default(uuid())
+  title            String?
+  content          Json
+  authorId         String?
+  createdTime      DateTime  @default(now())
+  publishTimeStart DateTime  @default(now())
+  publishTimeEnd   DateTime?
+  showAsBanner     Boolean   @default(false)
+}
+
+model Balise {
+  id          String          @id @default(uuid())
+  secondaryId Int             @unique
+  version     Int
+  bucketId    String
+  fileTypes   String[] // ["leu", "il", "pdf", ...]. can be used to indicate filetypes and count without making request to s3
+  history     BaliseVersion[]
+  createdBy   String
+  createdTime DateTime        @default(now())
+  locked      Boolean         @default(false)
+  lockedBy    String?
+  lockedTime  DateTime?
+}
+
+model BaliseVersion {
+  id                 String    @id @default(uuid())
+  baliseId           String
+  balise             Balise    @relation(fields: [baliseId], references: [id])
+  secondaryId        Int
+  bucketId           String
+  version            Int
+  createdBy          String
+  createdTime        DateTime
+  locked             Boolean
+  lockedBy           String?
+  lockedTime         DateTime?
+  versionCreatedTime DateTime  @default(now())
+
+  @@index([baliseId, version])
 }
