@@ -82,9 +82,9 @@ export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALB
     let targetNode;
     if (nestedFolderId) {
       const foundFolder = await getFolder(user.uid, nestedFolderId);
-      const folderPath = get(foundFolder, 'entry.path.name', '');
+      const folderPath = get(foundFolder, 'entry.path', '');
       // Check if the nest folder is a descendant of the category
-      const isFolderDescendantOfCategory = await isNodeInCategory(folderPath, category);
+      const isFolderDescendantOfCategory = isNodeInCategory(folderPath, categoryData.alfrescoFolder);
       if (!isFolderDescendantOfCategory) {
         throw new RataExtraLambdaError('Folder cannot be found in category', 404);
       }
