@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 
@@ -6,6 +7,7 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { auditLog, log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 
@@ -17,7 +19,7 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
  * @param {{QueryRequest}} event.body JSON stringified QueryRequest: Category name to be added to favorite list
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult> => {
   try {
     const user = await getUser(event);
     const parsedBody: { category: string } = JSON.parse(event.body || '{}');
@@ -62,6 +64,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     };
   } catch (err) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

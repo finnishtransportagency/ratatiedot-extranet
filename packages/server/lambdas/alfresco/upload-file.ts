@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { get, isEmpty } from 'lodash';
@@ -12,6 +13,7 @@ import { getFolder, isNodeInCategory } from './list-files';
 import FormData from 'form-data';
 
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 
@@ -39,7 +41,7 @@ const postFile = async (options: AxiosRequestOptions, nodeId: string): Promise<A
  * @param {{string}} event.body File contents and metadata to upload
  * @returns  {Promise<ALBResult>} JSON stringified object of uploaded file metadata
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult | undefined> => {
   try {
     const paths = event.path.split('/');
     const category = paths.at(4);
@@ -106,6 +108,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     };
   } catch (err) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

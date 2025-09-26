@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
@@ -9,6 +10,7 @@ import { folderDeleteRequestBuilder } from './fileRequestBuilder';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestConfig } from 'axios';
 import { getNodes } from './list-nodes';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 
@@ -27,7 +29,7 @@ const deleteFolder = async (options: AxiosRequestConfig, nodeId: string) => {
  * @param {{string}} event.path Path should include category and node id of the folder to delete
  * @returns  {Promise<ALBResult>} JSON stringified object of deleted folder
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult | undefined> => {
   try {
     const paths = event.path.split('/');
     const nodeId = paths.at(-1);
@@ -87,6 +89,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     };
   } catch (err) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

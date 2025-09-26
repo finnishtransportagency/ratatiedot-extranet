@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getAlfrescoOptions } from '../../utils/alfresco';
 
@@ -7,6 +8,7 @@ import { RataExtraUser, getUser, validateReadUser } from '../../utils/userServic
 import { searchQueryBuilder } from './searchQueryBuilder';
 import { AdditionalFields, QueryRequest } from './searchQueryBuilder/types';
 import { alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
+import { handlerWrapper } from '../handler-wrapper';
 
 const searchByTerm = async (user: RataExtraUser, body: QueryRequest) => {
   log.info(user, 'searchByTerm');
@@ -36,7 +38,7 @@ const searchByTerm = async (user: RataExtraUser, body: QueryRequest) => {
  * @param {QueryRequest} event.body JSON stringified QueryRequest
  * @returns {Promise<ALBResult>} List of files stringified in body
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult> => {
   try {
     const user = await getUser(event);
     const { body } = event;
@@ -57,6 +59,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     };
   } catch (err) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

@@ -1,7 +1,9 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { ALBEvent } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../utils/errors';
 import { log } from '../utils/logger';
 import { getUser } from '../utils/userService';
+import { handlerWrapper } from './handler-wrapper';
 
 const CLOUDFRONT_DOMAIN_NAME = process.env.CLOUDFRONT_DOMAIN_NAME;
 
@@ -11,7 +13,7 @@ const CLOUDFRONT_DOMAIN_NAME = process.env.CLOUDFRONT_DOMAIN_NAME;
  * @param {string} [event.queryStringParameters.redirect_url] URL encoded endpoint to return user to
  * @returns Redirect with location and Return-cookie in headers
  */
-export async function handleRequest(event: ALBEvent) {
+export const handleRequest = handlerWrapper(async function (event: ALBEvent) {
   try {
     const user = await getUser(event);
     log.info(user, 'Returning user back to frontpage.');
@@ -30,6 +32,7 @@ export async function handleRequest(event: ALBEvent) {
     };
   } catch (err) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
-}
+});

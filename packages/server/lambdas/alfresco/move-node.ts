@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/aws-serverless';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { get, isEmpty } from 'lodash';
@@ -11,6 +12,7 @@ import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { AxiosRequestOptions } from './upload-file';
 import { isNodeInCategory } from './list-files';
 import { getNode } from './populate-activities';
+import { handlerWrapper } from '../handler-wrapper';
 
 const database = await DatabaseClient.build();
 
@@ -33,7 +35,7 @@ const moveNode = async (options: AxiosRequestOptions, nodeId: string): Promise<A
  * @param {{string}} event.body Folder name and other metadata
  * @returns {Promise<ALBResult>} JSON stringified object
  */
-export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefined> {
+export const handleRequest = handlerWrapper(async (event: ALBEvent): Promise<ALBResult | undefined> => {
   try {
     const paths = event.path.split('/');
     const category = paths[4];
@@ -92,6 +94,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     };
   } catch (err: unknown) {
     log.error(err);
+    Sentry.captureException(err);
     return getRataExtraLambdaError(err);
   }
-}
+});
