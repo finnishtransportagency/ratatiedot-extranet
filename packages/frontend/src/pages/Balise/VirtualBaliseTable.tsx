@@ -10,13 +10,10 @@ import {
   Collapse,
   Box,
   Typography,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
   CircularProgress,
+  Checkbox,
 } from '@mui/material';
-import { MoreVert, Download, Add, Delete, Lock, LockOpen } from '@mui/icons-material';
+import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { IBalise } from './types';
 
 interface VirtualBaliseTableProps {
@@ -27,6 +24,9 @@ interface VirtualBaliseTableProps {
   onLockToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onDownload: (row: IBalise) => void;
+  selectedItems: string[];
+  onSelectAll: () => void;
+  onSelectItem: (id: string) => void;
 }
 
 interface ExpandedRows {
@@ -40,6 +40,8 @@ interface CollapsibleRowProps {
   onDownload: (row: IBalise) => void;
   isExpanded: boolean;
   onToggleExpanded: (id: string) => void;
+  isSelected: boolean;
+  onSelectItem: (id: string) => void;
 }
 
 const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
@@ -49,32 +51,12 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
   onDownload,
   isExpanded,
   onToggleExpanded,
+  isSelected,
+  onSelectItem,
 }) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const menuOpen = Boolean(anchorEl);
-
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleMenuAction = (action: string, event?: React.MouseEvent) => {
-    if (event) {
-      event.stopPropagation();
-    }
-    if (action === 'toggle-lock') {
-      onLockToggle(row.id);
-    } else if (action === 'delete') {
-      onDelete(row.id);
-    } else if (action === 'download') {
-      onDownload(row);
-    } else {
-      console.log(`Action: ${action} for item: ${row.secondaryId}`);
-    }
-    handleMenuClose();
+  const handleCheckboxClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    onSelectItem(row.id);
   };
 
   return (
@@ -84,9 +66,13 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
           '& > *': { borderBottom: 'unset' },
           cursor: 'pointer',
           '&:hover': { backgroundColor: 'action.hover' },
+          backgroundColor: isSelected ? 'action.selected' : 'inherit',
         }}
         onClick={() => onToggleExpanded(row.id)}
       >
+        <TableCell sx={{ fontSize: '14px', width: '50px' }}>
+          <Checkbox checked={isSelected} onClick={handleCheckboxClick} size="small" />
+        </TableCell>
         <TableCell sx={{ fontSize: '14px', width: '80px' }} component="th" scope="row">
           {row.secondaryId}
         </TableCell>
@@ -97,58 +83,14 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
         <TableCell sx={{ fontSize: '14px', width: '120px' }}>{row.editedTime}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '100px' }}>{row.editedBy}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '80px' }}>{row.locked ? '🔒' : ''}</TableCell>
-        <TableCell sx={{ textAlign: 'right', width: '100px' }}>
-          <IconButton
-            aria-label="more actions"
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent row click when clicking menu
-              handleMenuClick(e);
-            }}
-          >
-            <MoreVert />
+        <TableCell sx={{ textAlign: 'right', width: '50px' }}>
+          <IconButton size="small" onClick={(e) => e.stopPropagation()}>
+            {isExpanded ? <ExpandLess /> : <ExpandMore />}
           </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={menuOpen}
-            onClose={handleMenuClose}
-            onClick={(e) => e.stopPropagation()} // Prevent menu container clicks from propagating
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-          >
-            <MenuItem onClick={(e) => handleMenuAction('download', e)}>
-              <ListItemIcon>
-                <Download fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Lataa</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={(e) => handleMenuAction('create-version', e)}>
-              <ListItemIcon>
-                <Add fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Luo uusi versio</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={(e) => handleMenuAction('delete', e)}>
-              <ListItemIcon>
-                <Delete fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Poista</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={(e) => handleMenuAction('toggle-lock', e)}>
-              <ListItemIcon>{row.locked ? <LockOpen fontSize="small" /> : <Lock fontSize="small" />}</ListItemIcon>
-              <ListItemText>{row.locked ? 'Poista lukitus' : 'Lukitse'}</ListItemText>
-            </MenuItem>
-          </Menu>
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
           <Collapse in={isExpanded} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Typography variant="body1" gutterBottom component="div">
@@ -190,10 +132,16 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
   onLockToggle,
   onDelete,
   onDownload,
+  selectedItems,
+  onSelectAll,
+  onSelectItem,
 }) => {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows>({});
   const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const isAllSelected = selectedItems.length === items.length && items.length > 0;
+  const isIndeterminate = selectedItems.length > 0 && selectedItems.length < items.length;
 
   const handleToggleExpanded = useCallback((id: string) => {
     setExpandedRows((prev) => ({
@@ -276,6 +224,9 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
           {/* Fixed header */}
           <TableHead sx={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'background.paper' }}>
             <TableRow>
+              <TableCell sx={{ fontSize: '12px', width: '50px' }}>
+                <Checkbox checked={isAllSelected} indeterminate={isIndeterminate} onChange={onSelectAll} size="small" />
+              </TableCell>
               <TableCell sx={{ fontSize: '12px', width: '80px' }}>ID</TableCell>
               <TableCell sx={{ fontSize: '12px', width: '60px' }}>Versio</TableCell>
               <TableCell sx={{ fontSize: '12px', width: '200px' }}>Kuvaus</TableCell>
@@ -284,7 +235,7 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
               <TableCell sx={{ fontSize: '12px', width: '120px' }}>Muokkausaika</TableCell>
               <TableCell sx={{ fontSize: '12px', width: '100px' }}>Muokannut</TableCell>
               <TableCell sx={{ fontSize: '12px', width: '80px' }}>Lukittu?</TableCell>
-              <TableCell sx={{ fontSize: '12px', width: '100px' }}>Toiminnot</TableCell>
+              <TableCell sx={{ fontSize: '12px', width: '50px' }}></TableCell>
             </TableRow>
           </TableHead>
 
@@ -292,7 +243,7 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
             {/* Top spacer for virtualization */}
             {topSpacer > 0 && (
               <TableRow>
-                <TableCell colSpan={9} sx={{ padding: 0, height: topSpacer, border: 'none' }} />
+                <TableCell colSpan={10} sx={{ padding: 0, height: topSpacer, border: 'none' }} />
               </TableRow>
             )}
 
@@ -306,20 +257,22 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
                 onDownload={onDownload}
                 isExpanded={expandedRows[row.id] || false}
                 onToggleExpanded={handleToggleExpanded}
+                isSelected={selectedItems.includes(row.id)}
+                onSelectItem={onSelectItem}
               />
             ))}
 
             {/* Bottom spacer for virtualization */}
             {bottomSpacer > 0 && (
               <TableRow>
-                <TableCell colSpan={9} sx={{ padding: 0, height: bottomSpacer, border: 'none' }} />
+                <TableCell colSpan={10} sx={{ padding: 0, height: bottomSpacer, border: 'none' }} />
               </TableRow>
             )}
 
             {/* Loading indicator */}
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={9} sx={{ textAlign: 'center', p: 2 }}>
+                <TableCell colSpan={10} sx={{ textAlign: 'center', p: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <CircularProgress size={24} />
                     <Typography variant="body2" sx={{ ml: 1 }}>
@@ -333,7 +286,7 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
             {/* End of data indicator */}
             {!hasNextPage && items.length > 0 && (
               <TableRow>
-                <TableCell colSpan={9} sx={{ textAlign: 'center', p: 2 }}>
+                <TableCell colSpan={10} sx={{ textAlign: 'center', p: 2 }}>
                   <Typography variant="body2" color="text.secondary">
                     Kaikki kohteet ladattu ({items.length} / {totalCount})
                   </Typography>

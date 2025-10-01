@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Box, Typography, Alert, CircularProgress } from '@mui/material';
+import { Box, Typography, Alert, CircularProgress, Button, Paper } from '@mui/material';
+import { Add, Download, Delete, Lock } from '@mui/icons-material';
 import { IBalise } from './types';
 import { BaliseSearch } from './BaliseSearch';
 import { AreaFilter } from './AreaFilter';
@@ -61,10 +62,11 @@ const fetchBalises = async (filters?: { id_min?: number; id_max?: number }): Pro
 
 export const Balise: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedArea, setSelectedArea] = useState<string | null>(null);
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [baliseData, setBaliseData] = useState<IBalise[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   // Load balises on component mount
   useEffect(() => {
@@ -105,12 +107,12 @@ export const Balise: React.FC = () => {
     }
 
     // Apply area filter
-    if (selectedArea) {
-      filtered = filtered.filter((item) => item.area === selectedArea);
+    if (selectedAreas.length > 0) {
+      filtered = filtered.filter((item) => item.area && selectedAreas.includes(item.area));
     }
 
     return filtered;
-  }, [baliseData, searchTerm, selectedArea]);
+  }, [baliseData, searchTerm, selectedAreas]);
 
   // Table action handlers - ready for API integration
   const handleLockToggle = useCallback((id: string) => {
@@ -133,6 +135,40 @@ export const Balise: React.FC = () => {
     // TODO: Implement API call to load more items
   }, []);
 
+  // Checkbox selection handlers
+  const handleSelectAll = useCallback(() => {
+    if (selectedItems.length === filteredData.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(filteredData.map((item) => item.id));
+    }
+  }, [selectedItems.length, filteredData]);
+
+  const handleSelectItem = useCallback((id: string) => {
+    setSelectedItems((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+  }, []);
+
+  // Bulk action handlers
+  const handleBulkDownload = useCallback(() => {
+    console.log('Bulk download:', selectedItems);
+    // TODO: Implement bulk download
+  }, [selectedItems]);
+
+  const handleBulkDelete = useCallback(() => {
+    console.log('Bulk delete:', selectedItems);
+    // TODO: Implement bulk delete
+  }, [selectedItems]);
+
+  const handleBulkLock = useCallback(() => {
+    console.log('Bulk lock/unlock:', selectedItems);
+    // TODO: Implement bulk lock/unlock
+  }, [selectedItems]);
+
+  const handleCreateNew = useCallback(() => {
+    console.log('Create new balise');
+    // TODO: Implement create new
+  }, []);
+
   return (
     <Box
       sx={{
@@ -143,26 +179,61 @@ export const Balise: React.FC = () => {
         overflow: 'hidden',
       }}
     >
-      <Typography variant="h4" gutterBottom>
-        Baliisisanomat
-      </Typography>
-
-      {/* Error Display */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}. Make sure your local API server is running on http://localhost:3001
         </Alert>
       )}
 
-      {/* Search Component */}
-      <Box sx={{ mb: 2 }}>
-        <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} placeholder="Hae baliisisanomia..." />
-      </Box>
-
-      {/* Area Filter Component */}
-      <Box sx={{ mb: 2 }}>
-        <AreaFilter areas={AREA_OPTIONS} selectedArea={selectedArea} onAreaSelect={setSelectedArea} />
-      </Box>
+      <Paper
+        variant="outlined"
+        sx={{
+          p: 2,
+          borderRadius: 2,
+          backgroundColor: 'background.default',
+          marginBottom: 2,
+        }}
+      >
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Button
+              variant="outlined"
+              startIcon={<Download />}
+              onClick={handleBulkDownload}
+              disabled={selectedItems.length === 0}
+              size="small"
+            >
+              Lataa ({selectedItems.length})
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<Delete />}
+              onClick={handleBulkDelete}
+              disabled={selectedItems.length === 0}
+              size="small"
+              color="error"
+            >
+              Poista ({selectedItems.length})
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<Lock />}
+              onClick={handleBulkLock}
+              disabled={selectedItems.length === 0}
+              size="small"
+            >
+              Lukitse ({selectedItems.length})
+            </Button>
+          </Box>
+          <Box sx={{ flex: 1, minWidth: '300px' }}>
+            <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} placeholder="Hae baliisisanomia..." />
+          </Box>
+          <AreaFilter areas={AREA_OPTIONS} selectedAreas={selectedAreas} onAreasSelect={setSelectedAreas} />
+          <Button variant="contained" startIcon={<Add />} onClick={handleCreateNew} size="small">
+            Luo uusi
+          </Button>
+        </Box>
+      </Paper>
 
       {/* Loading State */}
       {loading && (
@@ -183,6 +254,9 @@ export const Balise: React.FC = () => {
             onLockToggle={handleLockToggle}
             onDelete={handleDelete}
             onDownload={handleDownload}
+            selectedItems={selectedItems}
+            onSelectAll={handleSelectAll}
+            onSelectItem={handleSelectItem}
           />
         </Box>
       )}

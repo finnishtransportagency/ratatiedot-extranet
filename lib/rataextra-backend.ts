@@ -411,6 +411,30 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/balise/get-balises.ts',
     });
 
+    const getBalise = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-balise',
+      relativePath: '../packages/server/lambdas/balise/get-balise.ts',
+    });
+
+    const deleteBalise = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'delete-balise',
+      relativePath: '../packages/server/lambdas/balise/delete-balise.ts',
+    });
+
+    const addBalise = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'add-balise',
+      relativePath: '../packages/server/lambdas/balise/add-balise.ts',
+    });
+
+    const getBaliseDownloadUrl = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-balise-download-url',
+      relativePath: '../packages/server/lambdas/balise/get-balise-download-url.ts',
+    });
+
     imageBucket.grantReadWrite(postNotice);
     imageBucket.grantReadWrite(putNotice);
     imageBucket.grantReadWrite(deleteNotice);
@@ -626,19 +650,40 @@ export class RataExtraBackendStack extends NestedStack {
         httpRequestMethods: ['POST'],
         targetName: 'alfrescoMoveNode',
       },
-      // {
-      //   lambda: getBalise,
-      //   priority: 280,
-      //   path: ['/api/balise/*'],
-      //   httpRequestMethods: ['GET'],
-      //   targetName: 'getBalise',
-      // },
+      {
+        lambda: getBalise,
+        priority: 280,
+        path: ['/api/balise/*'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getBalise',
+      },
       {
         lambda: getBalises,
         priority: 285,
         path: ['/api/balises/*'],
         httpRequestMethods: ['GET'],
         targetName: 'getBalises',
+      },
+      {
+        lambda: addBalise,
+        priority: 287,
+        path: ['/api/balise/*/add'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'addBalise',
+      },
+      {
+        lambda: deleteBalise,
+        priority: 288,
+        path: ['/api/balise/*'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'deleteBalise',
+      },
+      {
+        lambda: getBaliseDownloadUrl,
+        priority: 290,
+        path: ['/api/balise/*/download'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getBaliseDownloadUrl',
       },
     ];
 

@@ -36,6 +36,30 @@ const LAMBDA_ROUTES = [
     lambdaName: 'stack-backend/getbalisesFC47DB5A',
     description: 'Get balises with optional filtering',
   },
+  {
+    method: 'GET',
+    path: '/api/balise',
+    lambdaName: 'stack-backend/getbalise7BABDDBB',
+    description: 'Get single balise by ID',
+  },
+  {
+    method: 'POST',
+    path: '/api/balise',
+    lambdaName: 'stack-backend/addbaliseF7269523',
+    description: 'Create or update a balise',
+  },
+  {
+    method: 'DELETE',
+    path: '/api/balise',
+    lambdaName: 'stack-backend/deletebaliseCB25E2C1',
+    description: 'Soft delete a balise',
+  },
+  {
+    method: 'GET',
+    path: '/api/balise/download-url',
+    lambdaName: 'stack-backend/getbalisedownloadurlCD8D30F1',
+    description: 'Get download URL for balise file',
+  },
   // ADD MORE ROUTES HERE:
   // {
   //   method: 'GET',

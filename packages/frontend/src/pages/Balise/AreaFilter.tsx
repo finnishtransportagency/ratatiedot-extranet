@@ -1,52 +1,56 @@
 import React from 'react';
-import { Box, Card, CardContent, Chip } from '@mui/material';
+import { Box, FormControl, InputLabel, Select, MenuItem, Chip, OutlinedInput, Paper } from '@mui/material';
 import { AreaConfig } from './types';
 
 interface AreaFilterProps {
   areas: AreaConfig[];
-  selectedArea: string | null;
-  onAreaSelect: (area: string | null) => void;
+  selectedAreas: string[];
+  onAreasSelect: (areas: string[]) => void;
 }
 
-export const AreaFilter: React.FC<AreaFilterProps> = ({ areas, selectedArea, onAreaSelect }) => {
-  const handleAreaClick = (area: string) => {
-    if (selectedArea === area) {
-      onAreaSelect(null); // Deselect if already selected
-    } else {
-      onAreaSelect(area); // Select new area
-    }
+export const AreaFilter: React.FC<AreaFilterProps> = ({ areas, selectedAreas, onAreasSelect }) => {
+  const handleChange = (event: any) => {
+    const value = event.target.value;
+    onAreasSelect(typeof value === 'string' ? value.split(',') : value);
   };
 
-  const handleAllClick = () => {
-    onAreaSelect(null);
+  const handleDelete = (areaToDelete: string) => {
+    onAreasSelect(selectedAreas.filter((area) => area !== areaToDelete));
   };
 
   return (
-    <Card variant="outlined">
-      <CardContent sx={{ pb: 2 }}>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-          {/* All areas option */}
-          <Chip
-            label="Kaikki alueet"
-            size="small"
-            color={selectedArea === null ? 'primary' : 'default'}
-            onClick={handleAllClick}
-            variant={selectedArea === null ? 'filled' : 'outlined'}
-          />
-
-          {/* Individual area options */}
+    <Box sx={{ minWidth: '280px' }}>
+      <FormControl fullWidth size="small">
+        <InputLabel>Alueet</InputLabel>
+        <Select
+          multiple
+          value={selectedAreas}
+          onChange={handleChange}
+          input={<OutlinedInput label="Alueet" />}
+          renderValue={(selected) => (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {(selected as string[]).map((value) => {
+                const area = areas.find((a) => a.key === value);
+                return (
+                  <Chip
+                    key={value}
+                    label={area?.shortName || value}
+                    size="small"
+                    onDelete={() => handleDelete(value)}
+                    deleteIcon={<span>×</span>}
+                  />
+                );
+              })}
+            </Box>
+          )}
+        >
           {areas.map((area) => (
-            <Chip
-              key={area.key}
-              label={area.shortName}
-              size="small"
-              color={selectedArea === area.key ? 'primary' : 'default'}
-              onClick={() => handleAreaClick(area.key)}
-              variant={selectedArea === area.key ? 'filled' : 'outlined'}
-            />
+            <MenuItem key={area.key} value={area.key}>
+              {area.name}
+            </MenuItem>
           ))}
-        </Box>
-      </CardContent>
-    </Card>
+        </Select>
+      </FormControl>
+    </Box>
   );
 };

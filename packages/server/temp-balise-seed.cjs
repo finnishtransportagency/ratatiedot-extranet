@@ -3,17 +3,17 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: 'postgresql://root:root@localhost:5432/test_db?schema=public'
-    }
-  }
+      url: 'postgresql://root:root@localhost:5432/test_db?schema=public',
+    },
+  },
 });
 
 async function seedBalises() {
   console.log('🌱 Seeding balises for testing...');
-  
+
   // Generate balises in the 24000-25000 range
   const balises = [];
-  
+
   for (let i = 24000; i < 25000; i += 50) {
     balises.push({
       secondaryId: i,
@@ -27,9 +27,9 @@ async function seedBalises() {
       lockedTime: Math.random() > 0.8 ? new Date() : null,
     });
   }
-  
+
   console.log(`Creating ${balises.length} test balises...`);
-  
+
   // Insert in batches to avoid overwhelming the database
   const batchSize = 50;
   for (let i = 0; i < balises.length; i += batchSize) {
@@ -40,7 +40,7 @@ async function seedBalises() {
     });
     console.log(`✅ Created batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(balises.length / batchSize)}`);
   }
-  
+
   const count = await prisma.balise.count();
   console.log(`🎉 Seeding complete! Total balises in database: ${count}`);
 }
@@ -56,8 +56,7 @@ async function main() {
   }
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
