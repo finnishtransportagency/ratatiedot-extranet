@@ -18,26 +18,13 @@ import {
   Divider,
 } from '@mui/material';
 import { ExpandMore, ExpandLess, Edit, Lock, LockOpen, Delete, Download, Visibility } from '@mui/icons-material';
-import type { BaliseVersion } from '@prisma/client';
+import type { BaliseVersion, Balise } from './types';
 
 // Mock area data - in real implementation this would come from API
 
-// Type for Balise with history included - matches Prisma client types
-export type BaliseWithHistory = {
-  id: string;
-  secondaryId: number;
-  version: number;
-  description: string;
-  bucketId: string;
-  fileTypes: string[];
+// Type for Balise with history included
+export type BaliseWithHistory = Balise & {
   history: BaliseVersion[];
-  createdBy: string;
-  createdTime: Date;
-  locked: boolean;
-  lockedBy: string | null;
-  lockedTime: Date | null;
-  deletedAt: Date | null;
-  deletedBy: string | null;
 };
 
 interface VirtualBaliseTableProps {
@@ -443,7 +430,7 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
       <Box
         ref={containerRef}
         sx={{
-          height: 'calc(100vh - 147px)', // Dynamic height minus space for controls
+          height: 'calc(100vh - 84px)', // Dynamic height minus space for controls
           overflow: 'auto',
         }}
       >

@@ -1,9 +1,8 @@
 import { create } from 'zustand';
-import type { Balise as PrismaBalise, BaliseVersion } from '@prisma/client';
+import type { Balise, BaliseVersion, BaliseWithHistory } from '../pages/Balise/types';
 
-export type BaliseWithHistory = PrismaBalise & {
-  history: BaliseVersion[];
-};
+// Re-export for components that import from store
+export type { BaliseWithHistory };
 
 export interface BaliseFilters {
   id_min?: number;

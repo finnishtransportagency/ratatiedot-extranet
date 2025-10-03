@@ -39,11 +39,7 @@ import {
   Add,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import type { Balise as PrismaBalise, BaliseVersion } from '@prisma/client';
-
-type BaliseWithHistory = PrismaBalise & {
-  history: BaliseVersion[];
-};
+import type { Balise, BaliseVersion, BaliseWithHistory } from './types';
 
 interface BaliseFormProps {
   mode: 'create' | 'edit' | 'view';
@@ -319,7 +315,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       Nykyiset tiedostot (säilytetään):
                     </Typography>
                     <List dense>
-                      {balise.fileTypes.map((type, index) => (
+                      {balise.fileTypes.map((type: string, index: number) => (
                         <ListItem key={index}>
                           <ListItemIcon>
                             <FilePresent />
@@ -378,7 +374,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             Versiohistoria
           </Typography>
           <List>
-            {balise.history.map((version, index) => (
+            {balise.history.map((version: BaliseVersion, index: number) => (
               <ListItem key={version.id} divider={index < balise.history.length - 1}>
                 <ListItemText
                   primary={`Versio ${version.version}`}

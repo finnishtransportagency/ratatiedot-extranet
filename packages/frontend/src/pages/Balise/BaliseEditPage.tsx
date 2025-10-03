@@ -4,11 +4,7 @@ import { Routes } from '../../constants/Routes';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { BaliseForm } from './BaliseForm';
 import { useBaliseStore } from '../../store/baliseStore';
-import type { Balise as PrismaBalise, BaliseVersion } from '@prisma/client';
-
-type BaliseWithHistory = PrismaBalise & {
-  history: BaliseVersion[];
-};
+import type { Balise, BaliseVersion, BaliseWithHistory } from './types';
 
 // Mock API functions - replace with actual API calls
 const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {

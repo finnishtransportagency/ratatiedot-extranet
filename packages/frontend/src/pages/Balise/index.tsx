@@ -122,25 +122,14 @@ export const BalisePage: React.FC = () => {
     }
   }, [refreshBalise]);
 
-  // Dropdown handlers
-  const handleDropdownClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleDropdownClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleAddSanoma = () => {
     console.log('Adding new sanoma...');
     navigate(`${Routes.BALISE}/create`);
-    handleDropdownClose();
   };
 
   const handleAddAlue = () => {
     console.log('Adding new alue...');
     navigate(`${Routes.BALISE}/create`);
-    handleDropdownClose();
   };
 
   // Handle row click to navigate to view/edit page and remember edited item
@@ -263,6 +252,8 @@ export const BalisePage: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         padding: 0,
+        mt: 1,
+        mb: 1,
         overflow: 'hidden',
       }}
     >
@@ -275,88 +266,36 @@ export const BalisePage: React.FC = () => {
           Background refresh failed: {error}
         </Alert>
       )}
-
-      {/* Controls */}
       <Paper
         sx={{
-          p: 2,
-          mb: 2,
+          p: 1,
           display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
+          justifyContent: 'space-between',
+          mb: 1,
+          gap: 1,
           flexShrink: 0,
         }}
+        variant="outlined"
       >
-        {/* Search and Area Filter Row */}
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Box sx={{ flex: 1, minWidth: '200px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+          }}
+        >
+          <Box sx={{ minWidth: '200px' }}>
             <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
           </Box>
-          <Box sx={{ flex: 1, minWidth: '200px' }}>
+          <Box sx={{ minWidth: '200px' }}>
             <AreaFilter areas={AREA_OPTIONS} selectedAreas={selectedAreas} onAreasSelect={setSelectedAreas} />
           </Box>
         </Box>
-
-        {/* Action Buttons Row */}
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Left side - Create button */}
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button
-              id="add-button"
-              variant="contained"
-              startIcon={<Add />}
-              endIcon={<ArrowDropDown />}
-              onClick={handleDropdownClick}
-              sx={{ textTransform: 'none' }}
-            >
-              Create
-            </Button>
-            <Menu
-              id="add-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleDropdownClose}
-              MenuListProps={{
-                'aria-labelledby': 'add-button',
-              }}
-            >
-              <MenuItem onClick={handleAddSanoma}>sanoma</MenuItem>
-              <MenuItem onClick={handleAddAlue}>alue</MenuItem>
-            </Menu>
-          </Box>
-
-          {/* Right side - Info */}
-          <Typography variant="body2" color="text.secondary">
-            {filteredData.length} balises loaded
-            {selectedAreas.length > 0 && (
-              <span>
-                {' '}
-                from {selectedAreas.length} area{selectedAreas.length !== 1 ? 's' : ''}
-              </span>
-            )}
-          </Typography>
-        </Box>
-
-        {/* Selected Areas Display */}
-        {selectedAreas.length > 0 && (
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            {selectedAreas.map((areaKey) => {
-              const area = AREA_OPTIONS.find((a) => a.key === areaKey);
-              return (
-                <Chip
-                  key={areaKey}
-                  label={area?.shortName || areaKey}
-                  size="small"
-                  onDelete={() => setSelectedAreas((prev) => prev.filter((a) => a !== areaKey))}
-                />
-              );
-            })}
-          </Box>
-        )}
+        <IconButton id="add-button" onClick={handleAddSanoma} size="small">
+          <Add fontSize="inherit" />
+        </IconButton>
       </Paper>
 
       {/* Table */}
-      <Paper sx={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Paper variant="outlined" sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <VirtualBaliseTable
           items={filteredData}
           hasNextPage={true} // We'll implement proper pagination detection later
