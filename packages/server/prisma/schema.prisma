@@ -92,6 +92,7 @@ model Balise {
   id          String          @id @default(uuid())
   secondaryId Int             @unique
   version     Int
+  description String
   bucketId    String
   fileTypes   String[] // ["leu", "il", "pdf", ...]. can be used to indicate filetypes and count without making request to s3
   history     BaliseVersion[]
@@ -109,8 +110,10 @@ model BaliseVersion {
   baliseId           String
   balise             Balise    @relation(fields: [baliseId], references: [id])
   secondaryId        Int
-  bucketId           String
   version            Int
+  description        String
+  bucketId           String
+  fileTypes          String[]
   createdBy          String
   createdTime        DateTime
   locked             Boolean
@@ -119,4 +122,22 @@ model BaliseVersion {
   versionCreatedTime DateTime  @default(now())
 
   @@index([baliseId, version])
+}
+
+model Area {
+  id          String    @id @default(uuid())
+  name        String // e.g., "Helsinki-Riihimäki"
+  shortName   String // e.g., "Alue 1"
+  key         String    @unique // e.g., "area_1"
+  idRangeMin  Int // e.g., 10000
+  idRangeMax  Int // e.g., 19999
+  description String? // Optional description
+  color       String? // Optional color for UI
+  active      Boolean   @default(true)
+  createdBy   String
+  createdTime DateTime  @default(now())
+  updatedBy   String?
+  updatedTime DateTime?
+
+  @@index([idRangeMin, idRangeMax])
 }

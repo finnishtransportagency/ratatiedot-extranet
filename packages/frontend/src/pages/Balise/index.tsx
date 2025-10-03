@@ -1,10 +1,24 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Box, Typography, Alert, CircularProgress, Button, Paper } from '@mui/material';
-import { Add, Download, Delete, Lock } from '@mui/icons-material';
-import { IBalise } from './types';
+import { useNavigate } from 'react-router-dom';
+import { Routes } from '../../constants/Routes';
+import {
+  Box,
+  Typography,
+  Alert,
+  Button,
+  Paper,
+  Menu,
+  MenuItem,
+  Slide,
+  IconButton,
+  Chip,
+  LinearProgress,
+} from '@mui/material';
+import { Add, Download, Delete, Lock, ArrowDropDown } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
 import { AreaFilter } from './AreaFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
+import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 
 // Temporary area configuration - replace with API call
 const AREA_OPTIONS = [
@@ -22,77 +36,136 @@ const AREA_OPTIONS = [
   { key: 'area_12', name: 'Alue 12 Oulu-Lappi', shortName: 'Alue 12' },
 ];
 
-// API function to fetch balises
-const fetchBalises = async (filters?: { id_min?: number; id_max?: number }): Promise<IBalise[]> => {
-  try {
-    const params = new URLSearchParams();
-    if (filters?.id_min) params.append('id_min', filters.id_min.toString());
-    if (filters?.id_max) params.append('id_max', filters.id_max.toString());
-
-    const queryString = params.toString();
-    const url = `http://localhost:3001/api/balises${queryString ? `?${queryString}` : ''}`;
-
-    console.log('Fetching balises from:', url);
-
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    // Transform backend data to match frontend interface
-    return data.map((item: any) => ({
-      id: item.id.toString(),
-      secondaryId: item.secondaryId,
-      version: item.version?.toString() || '1',
-      description: `Balise ${item.secondaryId}`, // Backend doesn't have description field
-      createdTime: item.createdTime || new Date().toISOString(),
-      createdBy: item.createdBy || 'Unknown',
-      editedTime: item.createdTime || new Date().toISOString(), // Backend doesn't have editedTime
-      editedBy: item.createdBy || 'Unknown', // Backend doesn't have editedBy
-      locked: item.locked || false,
-      area: 'area_1', // Default area - would need mapping logic based on secondaryId ranges
-    }));
-  } catch (error) {
-    console.error('Error fetching balises:', error);
-    throw error;
-  }
-};
-
-export const Balise: React.FC = () => {
+export const BalisePage: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
-  const [baliseData, setBaliseData] = useState<IBalise[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
 
-  // Load balises on component mount
-  useEffect(() => {
-    const loadBalises = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        // Fetch balises in the range 24000-25000 (matching your test data)
-        const balises = await fetchBalises({ id_min: 24000, id_max: 25000 });
-        setBaliseData(balises);
-        console.log('Loaded balises:', balises.length);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load balises';
-        setError(errorMessage);
-        console.error('Failed to load balises:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Store state and actions
+  const { balises, isBackgroundLoading, error, fetchBalises, refreshBalise } = useBaliseStore();
 
-    loadBalises();
+  // Area range mapping
+  const getAreaRange = useCallback((areaKey: string) => {
+    const areaIndex = parseInt(areaKey.split('_')[1]) - 1;
+    const ranges = [
+      { min: 10000, max: 14999 }, // area_1
+      { min: 15000, max: 19999 }, // area_2
+      { min: 20000, max: 24999 }, // area_3
+      { min: 25000, max: 29999 }, // area_4
+      { min: 30000, max: 34999 }, // area_5
+      { min: 35000, max: 39999 }, // area_6
+      { min: 40000, max: 44999 }, // area_7
+      { min: 45000, max: 49999 }, // area_8
+      { min: 50000, max: 54999 }, // area_9
+      { min: 55000, max: 59999 }, // area_10
+      { min: 60000, max: 64999 }, // area_11
+      { min: 65000, max: 99999 }, // area_12
+    ];
+    return ranges[areaIndex];
   }, []);
 
-  // Filtered data based on search and area filter
+  // Load initial data with area filtering
+  const loadInitialData = useCallback(
+    async (background = false) => {
+      if (selectedAreas.length === 0) {
+        // Load all data (first 50 items from first area for performance)
+        await fetchBalises({ limit: 50, page: 1 }, background);
+      } else {
+        // Load data for selected areas
+        const allFilters = selectedAreas.map((areaKey) => {
+          const range = getAreaRange(areaKey);
+          return {
+            id_min: range.min,
+            id_max: range.max,
+            limit: 50,
+            page: 1,
+          };
+        });
+
+        // For now, just load the first selected area
+        if (allFilters.length > 0) {
+          await fetchBalises(allFilters[0], background);
+        }
+      }
+    },
+    [selectedAreas, fetchBalises, getAreaRange],
+  );
+
+  // Initial data load and background refresh on return from form
+  useEffect(() => {
+    // If we have no data, do initial load
+    if (balises.length === 0) {
+      loadInitialData();
+    } else {
+      // If we have cached data, do background refresh
+      loadInitialData(true);
+    }
+  }, [balises.length, loadInitialData]);
+
+  // Reload data when area selection changes
+  useEffect(() => {
+    if (balises.length > 0) {
+      loadInitialData();
+    }
+  }, [selectedAreas, balises.length, loadInitialData]);
+
+  // Check for recently edited balise and refresh it
+  useEffect(() => {
+    const editedBaliseId = sessionStorage.getItem('editedBaliseId');
+    if (editedBaliseId) {
+      sessionStorage.removeItem('editedBaliseId');
+      // Refresh the specific balise in the background
+      refreshBalise(parseInt(editedBaliseId, 10));
+    }
+  }, [refreshBalise]);
+
+  // Dropdown handlers
+  const handleDropdownClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleDropdownClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleAddSanoma = () => {
+    console.log('Adding new sanoma...');
+    navigate(`${Routes.BALISE}/create`);
+    handleDropdownClose();
+  };
+
+  const handleAddAlue = () => {
+    console.log('Adding new alue...');
+    navigate(`${Routes.BALISE}/create`);
+    handleDropdownClose();
+  };
+
+  // Handle row click to navigate to view/edit page and remember edited item
+  const handleRowClick = useCallback(
+    (row: BaliseWithHistory) => {
+      // Store the edited item ID in sessionStorage for refresh on return
+      sessionStorage.setItem('editedBaliseId', row.secondaryId.toString());
+      navigate(`${Routes.BALISE}/${row.secondaryId}/view`);
+    },
+    [navigate],
+  );
+
+  // Handle edit click from context menu
+  const handleEditClick = useCallback(
+    (row: BaliseWithHistory) => {
+      // Store the edited item ID in sessionStorage for refresh on return
+      sessionStorage.setItem('editedBaliseId', row.secondaryId.toString());
+      navigate(`${Routes.BALISE}/${row.secondaryId}/edit`);
+    },
+    [navigate],
+  );
+
+  // Filtered data based on search filter only (area filtering is done at load time)
   const filteredData = useMemo(() => {
-    let filtered = baliseData;
+    let filtered = balises;
 
     // Apply search filter
     if (searchTerm.trim()) {
@@ -102,17 +175,12 @@ export const Balise: React.FC = () => {
           item.secondaryId.toString().includes(searchTerm) ||
           item.description.toLowerCase().includes(lowercaseSearch) ||
           item.createdBy.toLowerCase().includes(lowercaseSearch) ||
-          item.editedBy.toLowerCase().includes(lowercaseSearch),
+          (item.lockedBy && item.lockedBy.toLowerCase().includes(lowercaseSearch)),
       );
     }
 
-    // Apply area filter
-    if (selectedAreas.length > 0) {
-      filtered = filtered.filter((item) => item.area && selectedAreas.includes(item.area));
-    }
-
     return filtered;
-  }, [baliseData, searchTerm, selectedAreas]);
+  }, [balises, searchTerm]);
 
   // Table action handlers - ready for API integration
   const handleLockToggle = useCallback((id: string) => {
@@ -125,150 +193,220 @@ export const Balise: React.FC = () => {
     // TODO: Implement API call to delete item
   }, []);
 
-  const handleDownload = useCallback((row: IBalise) => {
+  const handleDownload = useCallback((row: BaliseWithHistory) => {
     console.log('Download:', row);
     // TODO: Implement download functionality
   }, []);
 
-  const loadMoreItems = useCallback(async (startIndex: number, stopIndex: number) => {
-    console.log('Load more items:', startIndex, stopIndex);
-    // TODO: Implement API call to load more items
-  }, []);
+  const handleLoadHistory = useCallback(
+    async (id: string) => {
+      console.log('Loading history for:', id);
+      // Find the balise and refresh its history
+      const balise = balises.find((b) => b.id === id);
+      if (balise) {
+        await refreshBalise(balise.secondaryId);
+      }
+    },
+    [balises, refreshBalise],
+  );
 
-  // Checkbox selection handlers
-  const handleSelectAll = useCallback(() => {
-    if (selectedItems.length === filteredData.length) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(filteredData.map((item) => item.id));
-    }
-  }, [selectedItems.length, filteredData]);
-
+  // Selection handlers
   const handleSelectItem = useCallback((id: string) => {
-    setSelectedItems((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+    setSelectedItems((prev) => {
+      const isSelected = prev.includes(id);
+      return isSelected ? prev.filter((item) => item !== id) : [...prev, id];
+    });
   }, []);
 
-  // Bulk action handlers
-  const handleBulkDownload = useCallback(() => {
-    console.log('Bulk download:', selectedItems);
-    // TODO: Implement bulk download
-  }, [selectedItems]);
+  const handleSelectAll = useCallback(() => {
+    const allIds = filteredData.map((item) => item.id);
+    setSelectedItems((prev) => (prev.length === allIds.length ? [] : allIds));
+  }, [filteredData]);
 
+  // Bulk actions
   const handleBulkDelete = useCallback(() => {
     console.log('Bulk delete:', selectedItems);
-    // TODO: Implement bulk delete
+    // TODO: Implement bulk delete API call
+    setSelectedItems([]);
   }, [selectedItems]);
 
   const handleBulkLock = useCallback(() => {
-    console.log('Bulk lock/unlock:', selectedItems);
-    // TODO: Implement bulk lock/unlock
+    console.log('Bulk lock:', selectedItems);
+    // TODO: Implement bulk lock API call
+    setSelectedItems([]);
   }, [selectedItems]);
 
-  const handleCreateNew = useCallback(() => {
-    console.log('Create new balise');
-    // TODO: Implement create new
-  }, []);
+  const handleBulkDownload = useCallback(() => {
+    console.log('Bulk download:', selectedItems);
+    // TODO: Implement bulk download functionality
+    setSelectedItems([]);
+  }, [selectedItems]);
+
+  // Show error without blocking the interface
+  if (error && balises.length === 0) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Error loading balises: {error}
+        </Alert>
+        <Button variant="contained" onClick={() => loadInitialData()}>
+          Retry
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box
       sx={{
-        p: 3,
-        height: '100vh',
+        height: '100%', // Use available height from parent
         display: 'flex',
         flexDirection: 'column',
+        padding: 0,
         overflow: 'hidden',
       }}
     >
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}. Make sure your local API server is running on http://localhost:3001
+      {/* Background loading indicator */}
+      {isBackgroundLoading && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000 }} />}
+
+      {/* Error banner (non-blocking) */}
+      {error && balises.length > 0 && (
+        <Alert severity="warning" sx={{ mb: 1 }}>
+          Background refresh failed: {error}
         </Alert>
       )}
 
+      {/* Controls */}
       <Paper
-        variant="outlined"
         sx={{
           p: 2,
-          borderRadius: 2,
-          backgroundColor: 'background.default',
-          marginBottom: 2,
+          mb: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          flexShrink: 0,
         }}
       >
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-            <Button
-              variant="outlined"
-              startIcon={<Download />}
-              onClick={handleBulkDownload}
-              disabled={selectedItems.length === 0}
-              size="small"
-            >
-              Lataa ({selectedItems.length})
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<Delete />}
-              onClick={handleBulkDelete}
-              disabled={selectedItems.length === 0}
-              size="small"
-              color="error"
-            >
-              Poista ({selectedItems.length})
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<Lock />}
-              onClick={handleBulkLock}
-              disabled={selectedItems.length === 0}
-              size="small"
-            >
-              Lukitse ({selectedItems.length})
-            </Button>
+        {/* Search and Area Filter Row */}
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+          <Box sx={{ flex: 1, minWidth: '200px' }}>
+            <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
           </Box>
-          <Box sx={{ flex: 1, minWidth: '300px' }}>
-            <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} placeholder="Hae baliisisanomia..." />
+          <Box sx={{ flex: 1, minWidth: '200px' }}>
+            <AreaFilter areas={AREA_OPTIONS} selectedAreas={selectedAreas} onAreasSelect={setSelectedAreas} />
           </Box>
-          <AreaFilter areas={AREA_OPTIONS} selectedAreas={selectedAreas} onAreasSelect={setSelectedAreas} />
-          <Button variant="contained" startIcon={<Add />} onClick={handleCreateNew} size="small">
-            Luo uusi
-          </Button>
         </Box>
+
+        {/* Action Buttons Row */}
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Left side - Create button */}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              id="add-button"
+              variant="contained"
+              startIcon={<Add />}
+              endIcon={<ArrowDropDown />}
+              onClick={handleDropdownClick}
+              sx={{ textTransform: 'none' }}
+            >
+              Create
+            </Button>
+            <Menu
+              id="add-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleDropdownClose}
+              MenuListProps={{
+                'aria-labelledby': 'add-button',
+              }}
+            >
+              <MenuItem onClick={handleAddSanoma}>sanoma</MenuItem>
+              <MenuItem onClick={handleAddAlue}>alue</MenuItem>
+            </Menu>
+          </Box>
+
+          {/* Right side - Info */}
+          <Typography variant="body2" color="text.secondary">
+            {filteredData.length} balises loaded
+            {selectedAreas.length > 0 && (
+              <span>
+                {' '}
+                from {selectedAreas.length} area{selectedAreas.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </Typography>
+        </Box>
+
+        {/* Selected Areas Display */}
+        {selectedAreas.length > 0 && (
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {selectedAreas.map((areaKey) => {
+              const area = AREA_OPTIONS.find((a) => a.key === areaKey);
+              return (
+                <Chip
+                  key={areaKey}
+                  label={area?.shortName || areaKey}
+                  size="small"
+                  onDelete={() => setSelectedAreas((prev) => prev.filter((a) => a !== areaKey))}
+                />
+              );
+            })}
+          </Box>
+        )}
       </Paper>
 
-      {/* Loading State */}
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-          <Typography sx={{ ml: 2 }}>Loading balises...</Typography>
-        </Box>
-      )}
+      {/* Table */}
+      <Paper sx={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column' }}>
+        <VirtualBaliseTable
+          items={filteredData}
+          hasNextPage={true} // We'll implement proper pagination detection later
+          selectedItems={selectedItems}
+          onRowClick={handleRowClick}
+          onEditClick={handleEditClick}
+          onLockToggle={handleLockToggle}
+          onDelete={handleDelete}
+          onDownload={handleDownload}
+          onSelectAll={handleSelectAll}
+          onSelectItem={handleSelectItem}
+          onLoadHistory={handleLoadHistory}
+          loadMoreItems={async () => {}} // TODO: Implement pagination
+          totalCount={filteredData.length}
+        />
+      </Paper>
 
-      {/* Data Table - Takes remaining space */}
-      {!loading && (
-        <Box sx={{ flex: 1, minHeight: 0 }}>
-          <VirtualBaliseTable
-            items={filteredData}
-            hasNextPage={false} // Set to true when pagination is implemented
-            loadMoreItems={loadMoreItems}
-            totalCount={filteredData.length}
-            onLockToggle={handleLockToggle}
-            onDelete={handleDelete}
-            onDownload={handleDownload}
-            selectedItems={selectedItems}
-            onSelectAll={handleSelectAll}
-            onSelectItem={handleSelectItem}
-          />
-        </Box>
-      )}
-
-      {/* No Data Message */}
-      {!loading && !error && filteredData.length === 0 && baliseData.length === 0 && (
-        <Typography variant="body1" sx={{ textAlign: 'center', p: 4 }}>
-          No balises found. Make sure your database has test data and your local API server is running.
-        </Typography>
-      )}
+      {/* Floating Action Bar */}
+      <Slide direction="up" in={selectedItems.length > 0} mountOnEnter unmountOnExit>
+        <Paper
+          sx={{
+            position: 'fixed',
+            bottom: 24,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            p: 2,
+            display: 'flex',
+            gap: 1,
+            alignItems: 'center',
+            boxShadow: 3,
+            borderRadius: 3,
+            zIndex: 1000,
+          }}
+        >
+          <Typography variant="body2" sx={{ mr: 2 }}>
+            {selectedItems.length} selected
+          </Typography>
+          <IconButton size="small" onClick={handleBulkDownload} title="Download Selected">
+            <Download fontSize="small" />
+          </IconButton>
+          <IconButton size="small" onClick={handleBulkLock} title="Lock/Unlock Selected">
+            <Lock fontSize="small" />
+          </IconButton>
+          <IconButton size="small" onClick={handleBulkDelete} title="Delete Selected" color="error">
+            <Delete fontSize="small" />
+          </IconButton>
+        </Paper>
+      </Slide>
     </Box>
   );
 };
 
-export default Balise;
+export default BalisePage;

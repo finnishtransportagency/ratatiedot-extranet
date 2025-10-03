@@ -47,17 +47,67 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     validateReadUser(user);
 
-    let options = {};
+    // Get pagination parameters
+    const page = getQueryParamAsInt(event, 'page', 1) ?? 1;
+    const limit = getQueryParamAsInt(event, 'limit', 1000) ?? 1000; // Default to 1000 items per page
+    const skip = (page - 1) * limit;
 
-    if (hasMinAndMaxParams(event)) {
-      options = {
-        where: {
+    // Limit maximum page size to prevent memory issues
+    const maxLimit = 5000;
+    const effectiveLimit = Math.min(limit, maxLimit);
+
+    const baseWhere = {
+      deletedAt: null, // Only get non-deleted balises
+    };
+
+    const whereClause = hasMinAndMaxParams(event)
+      ? {
+          ...baseWhere,
           secondaryId: getMinMaxParamsAsPrismaQuery(event),
-        },
-      };
-    }
+        }
+      : baseWhere;
 
-    const response = await database.balise.findMany(options);
+    // Get total count for pagination info
+    const totalCount = await database.balise.count({
+      where: whereClause,
+    });
+
+    // Check if history should be included (optional query parameter)
+    const includeHistory = getQueryParam(event, 'include_history') === 'true';
+
+    // Get balises with pagination
+    const balises = await database.balise.findMany({
+      where: whereClause,
+      include: includeHistory
+        ? {
+            history: {
+              orderBy: {
+                version: 'asc' as const,
+              },
+            },
+          }
+        : undefined,
+      orderBy: {
+        secondaryId: 'asc',
+      },
+      skip: skip,
+      take: effectiveLimit,
+    });
+
+    const hasNextPage = skip + effectiveLimit < totalCount;
+    const hasPreviousPage = page > 1;
+
+    const response = {
+      data: balises,
+      pagination: {
+        page: page,
+        limit: effectiveLimit,
+        totalCount: totalCount,
+        totalPages: Math.ceil(totalCount / effectiveLimit),
+        hasNextPage: hasNextPage,
+        hasPreviousPage: hasPreviousPage,
+      },
+    };
 
     return {
       statusCode: 200,

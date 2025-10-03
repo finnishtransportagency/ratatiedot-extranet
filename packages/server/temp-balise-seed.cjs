@@ -11,20 +11,21 @@ const prisma = new PrismaClient({
 async function seedBalises() {
   console.log('🌱 Seeding balises for testing...');
 
-  // Generate balises in the 24000-25000 range
   const balises = [];
 
-  for (let i = 24000; i < 25000; i += 50) {
+  for (let i = 10000; i < 99999; i += 50) {
+    const user = `LX00000${Math.random() * 9}`;
+    const isLocked = Math.random() > 0.8;
     balises.push({
       secondaryId: i,
       version: Math.floor(Math.random() * 3) + 1, // Random version 1-3
-      bucketId: `test-bucket-${i}`,
-      fileTypes: ['pdf', 'doc', 'xlsx'], // Example file types
-      createdBy: 'test-seed-user',
+      bucketId: `${i}`,
+      fileTypes: ['leu', 'il', 'bis'], // Example file types
+      createdBy: user,
       createdTime: new Date(),
-      locked: Math.random() > 0.8, // 20% chance of being locked
-      lockedBy: Math.random() > 0.8 ? 'admin-user' : null,
-      lockedTime: Math.random() > 0.8 ? new Date() : null,
+      locked: isLocked, // 20% chance of being locked
+      lockedBy: isLocked ? user : null,
+      lockedTime: isLocked ? new Date() : null,
     });
   }
 

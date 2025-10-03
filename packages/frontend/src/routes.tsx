@@ -48,6 +48,7 @@ import { SingleNotice } from './pages/Notices/SingleNotice';
 import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
 import Balise from './pages/Balise/index';
+import BaliseEditPage from './pages/Balise/BaliseEditPage';
 import { RailwayCategory } from './pages/Others/RailwayCategory';
 import { OtherRailway } from './pages/Others/OtherRailway';
 
@@ -143,27 +144,6 @@ const getProtectedNoticeRoute = (path: string, component: JSX.Element): RouteObj
   return [baseRoute];
 };
 
-const getProtectedBaliseRoute = (path: string, component: JSX.Element): RouteObject[] => {
-  const baseRoute = {
-    path: path,
-    element: (
-      <AppContextProvider>
-        <ProtectedBalisePage children={component} />
-      </AppContextProvider>
-    ),
-    errorElement: <RootBoundary />, // Send user here whenever error is thrown
-    loader: async () => {
-      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
-      if (isFirstLogin === 'true') {
-        return redirect(Routes.ACCEPT_INSTRUCTIONS);
-      }
-      return null;
-    },
-    children: [],
-  };
-  return [baseRoute];
-};
-
 const HOME_ROUTE = getProtectedRoute(Routes.HOME, <Landing />);
 const ACCEPT_INSTRUCTIONS: RouteObject = { path: Routes.ACCEPT_INSTRUCTIONS, element: <AcceptInstructions /> };
 const SEARCH_ROUTE = getProtectedRoute(Routes.SEARCH_RESULT, <SearchResult />);
@@ -230,7 +210,72 @@ const NOTICES_ROUTE = getProtectedRoute(Routes.NOTICES, <Notices />);
 const SINGLE_NOTICE_ROUTE = getProtectedNoticeRoute(Routes.SINGLE_NOTICE, <SingleNotice />);
 const NEW_NOTICE = getProtectedNoticeRoute(Routes.NEW_NOTICE, <NewNotice />);
 
-const BALISE_ROUTE = getProtectedBaliseRoute(Routes.BALISE, <Balise />);
+const BALISE_ROUTE: RouteObject[] = [
+  {
+    path: Routes.BALISE,
+    element: (
+      <AppContextProvider>
+        <ProtectedBalisePage children={<Balise />} />
+      </AppContextProvider>
+    ),
+    errorElement: <RootBoundary />,
+    loader: async () => {
+      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+      if (isFirstLogin === 'true') {
+        return redirect(Routes.ACCEPT_INSTRUCTIONS);
+      }
+      return null;
+    },
+  },
+  {
+    path: `${Routes.BALISE}/create`,
+    element: (
+      <AppContextProvider>
+        <ProtectedBalisePage children={<BaliseEditPage />} />
+      </AppContextProvider>
+    ),
+    errorElement: <RootBoundary />,
+    loader: async () => {
+      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+      if (isFirstLogin === 'true') {
+        return redirect(Routes.ACCEPT_INSTRUCTIONS);
+      }
+      return null;
+    },
+  },
+  {
+    path: `${Routes.BALISE}/:id/view`,
+    element: (
+      <AppContextProvider>
+        <ProtectedBalisePage children={<BaliseEditPage />} />
+      </AppContextProvider>
+    ),
+    errorElement: <RootBoundary />,
+    loader: async () => {
+      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+      if (isFirstLogin === 'true') {
+        return redirect(Routes.ACCEPT_INSTRUCTIONS);
+      }
+      return null;
+    },
+  },
+  {
+    path: `${Routes.BALISE}/:id/edit`,
+    element: (
+      <AppContextProvider>
+        <ProtectedBalisePage children={<BaliseEditPage />} />
+      </AppContextProvider>
+    ),
+    errorElement: <RootBoundary />,
+    loader: async () => {
+      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+      if (isFirstLogin === 'true') {
+        return redirect(Routes.ACCEPT_INSTRUCTIONS);
+      }
+      return null;
+    },
+  },
+];
 
 export const categoryRoutes: RouteObject[] = [
   ...DIAGRAMS_ROUTES,
