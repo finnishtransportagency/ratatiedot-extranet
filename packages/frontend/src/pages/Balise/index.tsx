@@ -23,7 +23,7 @@ const AREA_OPTIONS = [
 
 export const Balise: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedArea, setSelectedArea] = useState<string | null>(null);
+  const [selectedArea, setSelectedArea] = useState<string[]>([]);
   const [baliseData] = useState<IBalise[]>([]); // Empty array - ready for API integration
 
   // Filtered data based on search and area filter
