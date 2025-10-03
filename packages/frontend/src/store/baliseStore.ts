@@ -179,7 +179,7 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
         ...baseFilters,
         ...filters, // Allow override of specific filters
         page: (state.pagination.page || 1) + 1,
-        limit: state.pagination.limit || 50,
+        limit: state.pagination.limit || 200,
       };
 
       console.log('Loading more balises with filters:', nextPageFilters);

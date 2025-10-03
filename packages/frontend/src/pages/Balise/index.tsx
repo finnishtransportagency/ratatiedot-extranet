@@ -82,7 +82,7 @@ export const BalisePage: React.FC = () => {
     async (background = false) => {
       if (selectedAreas.length === 0) {
         // Load all data (first 50 items from first area for performance)
-        await fetchBalises({ limit: 50, page: 1 }, background);
+        await fetchBalises({ limit: 200, page: 1 }, background);
       } else {
         // Load data for selected areas
         const allFilters = selectedAreas.map((areaKey) => {
@@ -90,7 +90,7 @@ export const BalisePage: React.FC = () => {
           return {
             id_min: range.min,
             id_max: range.max,
-            limit: 50,
+            limit: 200,
             page: 1,
           };
         });
