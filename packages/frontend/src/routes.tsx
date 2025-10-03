@@ -42,10 +42,12 @@ import { FavoritesInstructions } from './pages/Instructions/Favorites';
 import { LoginAndPermissionsInstructions } from './pages/Instructions/LoginAndPermissions';
 import { EditToolInstructions } from './pages/Instructions/EditTool';
 import { ProtectedStaticPage } from './pages/ProtectedPage/ProtectedStaticPage';
+import { ProtectedBalisePage } from './pages/ProtectedPage/ProtectedBalisePage';
 import { Notices } from './pages/Notices';
 import { SingleNotice } from './pages/Notices/SingleNotice';
 import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
+import Balise from './pages/Balise/index';
 import { RailwayCategory } from './pages/Others/RailwayCategory';
 import { OtherRailway } from './pages/Others/OtherRailway';
 
@@ -141,6 +143,27 @@ const getProtectedNoticeRoute = (path: string, component: JSX.Element): RouteObj
   return [baseRoute];
 };
 
+const getProtectedBaliseRoute = (path: string, component: JSX.Element): RouteObject[] => {
+  const baseRoute = {
+    path: path,
+    element: (
+      <AppContextProvider>
+        <ProtectedBalisePage children={component} />
+      </AppContextProvider>
+    ),
+    errorElement: <RootBoundary />, // Send user here whenever error is thrown
+    loader: async () => {
+      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+      if (isFirstLogin === 'true') {
+        return redirect(Routes.ACCEPT_INSTRUCTIONS);
+      }
+      return null;
+    },
+    children: [],
+  };
+  return [baseRoute];
+};
+
 const HOME_ROUTE = getProtectedRoute(Routes.HOME, <Landing />);
 const ACCEPT_INSTRUCTIONS: RouteObject = { path: Routes.ACCEPT_INSTRUCTIONS, element: <AcceptInstructions /> };
 const SEARCH_ROUTE = getProtectedRoute(Routes.SEARCH_RESULT, <SearchResult />);
@@ -207,6 +230,8 @@ const NOTICES_ROUTE = getProtectedRoute(Routes.NOTICES, <Notices />);
 const SINGLE_NOTICE_ROUTE = getProtectedNoticeRoute(Routes.SINGLE_NOTICE, <SingleNotice />);
 const NEW_NOTICE = getProtectedNoticeRoute(Routes.NEW_NOTICE, <NewNotice />);
 
+const BALISE_ROUTE = getProtectedBaliseRoute(Routes.BALISE, <Balise />);
+
 export const categoryRoutes: RouteObject[] = [
   ...DIAGRAMS_ROUTES,
   ...OPERATION_ROUTES,
@@ -226,6 +251,7 @@ const routes: RouteObject[] = [
   ...NOTICES_ROUTE,
   ...SINGLE_NOTICE_ROUTE,
   ...NEW_NOTICE,
+  ...BALISE_ROUTE,
   {
     path: Routes.LOGOUT_REDIRECT,
     loader: () => {

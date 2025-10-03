@@ -49,6 +49,8 @@ const fetchMaterialClass = (): IMenuItem[] => {
         return <WidgetsIcon />;
       case 'Käyttöohjeet':
         return <HelpIcon />;
+      case 'Baliisisanomat':
+        return <HelpIcon />;
       default:
         return <BrowserNotSupportedIcon />;
     }

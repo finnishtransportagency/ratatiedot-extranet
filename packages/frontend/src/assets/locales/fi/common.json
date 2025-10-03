@@ -47,6 +47,7 @@
   "menu": {
     "frontpage": "Etusivu",
     "favorite": "Suosikit",
+    "balise": "Baliisisanomat",
     "logout": "Kirjaudu ulos",
     "instructions": "Käyttöohjeet"
   },
