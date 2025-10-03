@@ -10,7 +10,7 @@ import type { Balise, BaliseVersion, BaliseWithHistory } from './types';
 const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
   // API call to get single balise by secondaryId
   console.log('Fetching balise with secondaryId:', secondaryId);
-  const response = await fetch(`http://localhost:3001/api/balise/${secondaryId}`);
+  const response = await fetch(`/api/balise/${secondaryId}`);
   console.log('Response status:', response.status);
   console.log('Response headers:', response.headers);
 
@@ -35,7 +35,7 @@ const saveBalise = async (data: Partial<BaliseWithHistory>): Promise<BaliseWithH
   // API call to create new balise (this would need a proper creation endpoint)
   // For now, using add endpoint with a new secondaryId
   const newSecondaryId = Date.now(); // Temporary ID generation
-  const response = await fetch(`http://localhost:3001/api/balise/${newSecondaryId}/add`, {
+  const response = await fetch(`http://localhost:3002/api/balise/${newSecondaryId}/add`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -48,7 +48,7 @@ const saveBalise = async (data: Partial<BaliseWithHistory>): Promise<BaliseWithH
 
 const updateBalise = async (secondaryId: string, data: Partial<BaliseWithHistory>): Promise<BaliseWithHistory> => {
   // API call to update existing balise
-  const response = await fetch(`http://localhost:3001/api/balise/${secondaryId}/add`, {
+  const response = await fetch(`http://localhost:3002/api/balise/${secondaryId}/add`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),

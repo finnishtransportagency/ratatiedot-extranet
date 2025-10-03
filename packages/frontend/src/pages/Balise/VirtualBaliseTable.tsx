@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -27,10 +27,11 @@ export type BaliseWithHistory = Balise & {
   history: BaliseVersion[];
 };
 
-interface VirtualBaliseTableProps {
+interface BaliseTableProps {
   items: BaliseWithHistory[];
   hasNextPage: boolean;
-  loadMoreItems: (startIndex: number, stopIndex: number) => Promise<void>;
+  isBackgroundLoading?: boolean;
+  loadMoreItems: () => Promise<void>;
   totalCount: number;
   onLockToggle: (id: string) => void;
   onDelete: (id: string) => void;
@@ -263,9 +264,10 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
   );
 };
 
-export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
+export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
   items,
   hasNextPage,
+  isBackgroundLoading = false,
   loadMoreItems,
   totalCount,
   onLockToggle,
@@ -279,8 +281,7 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
   onEditClick,
 }) => {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState<{
@@ -368,69 +369,36 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
     }
   }, [contextMenu, handleContextMenuClose]);
 
-  // Infinite scroll implementation
-  const handleScroll = useCallback(async () => {
-    if (!containerRef.current || isLoading || !hasNextPage) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    const threshold = 200; // Start loading when 200px from bottom
-
-    if (scrollTop + clientHeight >= scrollHeight - threshold) {
-      setIsLoading(true);
-      try {
-        await loadMoreItems(items.length, items.length + 50);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  }, [items.length, loadMoreItems, hasNextPage, isLoading]);
-
-  // Only render visible rows (simple virtualization)
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 25 }); // Reduced to render fewer DOM nodes
-
-  const handleScrollVirtualization = useCallback(() => {
-    if (!containerRef.current) return;
-
-    const { scrollTop, clientHeight } = containerRef.current;
-    const rowHeight = 60; // Approximate row height
-    const containerHeight = clientHeight;
-    const buffer = 10; // Buffer rows
-
-    const start = Math.max(0, Math.floor(scrollTop / rowHeight) - buffer);
-    const visibleCount = Math.ceil(containerHeight / rowHeight) + buffer * 2;
-    const end = Math.min(items.length, start + visibleCount);
-
-    setVisibleRange({ start, end });
-  }, [items.length]);
-
+  // Intersection Observer for infinite scroll - industry standard approach
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasNextPage || isBackgroundLoading) return;
 
-    handleScrollVirtualization();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && hasNextPage && !isBackgroundLoading) {
+          loadMoreItems().catch((error) => {
+            console.error('Failed to load more items:', error);
+          });
+        }
+      },
+      {
+        root: null, // Use viewport as root
+        rootMargin: '100px', // Start loading 100px before sentinel is visible
+        threshold: 0.1,
+      },
+    );
 
-    const scrollHandler = () => {
-      handleScrollVirtualization();
-      handleScroll();
-    };
-
-    container.addEventListener('scroll', scrollHandler);
-    return () => container.removeEventListener('scroll', scrollHandler);
-  }, [handleScrollVirtualization, handleScroll]);
-
-  const visibleItems = useMemo(() => {
-    return items.slice(visibleRange.start, visibleRange.end);
-  }, [items, visibleRange]);
-
-  const topSpacer = visibleRange.start * 60; // Approximate row height
-  const bottomSpacer = Math.max(0, (items.length - visibleRange.end) * 60);
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isBackgroundLoading, loadMoreItems]);
 
   return (
     <Paper sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box
-        ref={containerRef}
         sx={{
-          height: 'calc(100vh - 84px)', // Dynamic height minus space for controls
+          height: 'calc(100vh - 84px)',
           overflow: 'auto',
         }}
       >
@@ -452,15 +420,8 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
           </TableHead>
 
           <TableBody sx={{ fontSize: '12px' }}>
-            {/* Top spacer for virtualization */}
-            {topSpacer > 0 && (
-              <TableRow>
-                <TableCell colSpan={8} sx={{ padding: 0, height: topSpacer, border: 'none' }} />
-              </TableRow>
-            )}
-
-            {/* Visible rows */}
-            {visibleItems.map((row, index) => (
+            {/* Render all loaded items */}
+            {items.map((row: BaliseWithHistory) => (
               <CollapsibleRow
                 key={row.id}
                 row={row}
@@ -477,15 +438,17 @@ export const VirtualBaliseTable: React.FC<VirtualBaliseTableProps> = ({
               />
             ))}
 
-            {/* Bottom spacer for virtualization */}
-            {bottomSpacer > 0 && (
+            {/* Intersection Observer Sentinel - invisible trigger for loading more */}
+            {hasNextPage && (
               <TableRow>
-                <TableCell colSpan={8} sx={{ padding: 0, height: bottomSpacer, border: 'none' }} />
+                <TableCell colSpan={8} sx={{ padding: 0, height: 1 }}>
+                  <div ref={sentinelRef} style={{ height: '1px' }} />
+                </TableCell>
               </TableRow>
             )}
 
             {/* Loading indicator */}
-            {isLoading && (
+            {isBackgroundLoading && (
               <TableRow>
                 <TableCell colSpan={8} sx={{ textAlign: 'center', p: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

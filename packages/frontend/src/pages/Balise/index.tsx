@@ -45,7 +45,17 @@ export const BalisePage: React.FC = () => {
   const open = Boolean(anchorEl);
 
   // Store state and actions
-  const { balises, isBackgroundLoading, error, fetchBalises, refreshBalise } = useBaliseStore();
+  const {
+    balises,
+    pagination,
+    isBackgroundLoading,
+    error,
+    currentFilters,
+    fetchBalises,
+    loadMoreBalises,
+    refreshBalise,
+    clearCache,
+  } = useBaliseStore();
 
   // Area range mapping
   const getAreaRange = useCallback((areaKey: string) => {
@@ -94,23 +104,22 @@ export const BalisePage: React.FC = () => {
     [selectedAreas, fetchBalises, getAreaRange],
   );
 
-  // Initial data load and background refresh on return from form
+  // Initial data load - only run once on mount
   useEffect(() => {
     // If we have no data, do initial load
     if (balises.length === 0) {
       loadInitialData();
-    } else {
-      // If we have cached data, do background refresh
-      loadInitialData(true);
     }
-  }, [balises.length, loadInitialData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   // Reload data when area selection changes
   useEffect(() => {
-    if (balises.length > 0) {
-      loadInitialData();
-    }
-  }, [selectedAreas, balises.length, loadInitialData]);
+    // Clear existing data and load new data for selected areas
+    clearCache(); // Clear cache to prevent stale data
+    loadInitialData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAreas]); // Only depend on selectedAreas
 
   // Check for recently edited balise and refresh it
   useEffect(() => {
@@ -298,7 +307,8 @@ export const BalisePage: React.FC = () => {
       <Paper variant="outlined" sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <VirtualBaliseTable
           items={filteredData}
-          hasNextPage={true} // We'll implement proper pagination detection later
+          hasNextPage={pagination?.hasNextPage ?? false}
+          isBackgroundLoading={isBackgroundLoading}
           selectedItems={selectedItems}
           onRowClick={handleRowClick}
           onEditClick={handleEditClick}
@@ -308,8 +318,15 @@ export const BalisePage: React.FC = () => {
           onSelectAll={handleSelectAll}
           onSelectItem={handleSelectItem}
           onLoadHistory={handleLoadHistory}
-          loadMoreItems={async () => {}} // TODO: Implement pagination
-          totalCount={filteredData.length}
+          loadMoreItems={async () => {
+            // Only load more if we have no search term
+            // Area filters are fine - they're handled by the store
+            if (searchTerm === '') {
+              // Use the current store filters to load the next page
+              await loadMoreBalises();
+            }
+          }}
+          totalCount={pagination?.totalCount ?? filteredData.length}
         />
       </Paper>
 

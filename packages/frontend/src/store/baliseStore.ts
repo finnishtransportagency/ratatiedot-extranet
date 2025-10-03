@@ -40,6 +40,7 @@ export interface BaliseState {
   setBackgroundLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   fetchBalises: (filters?: BaliseFilters, background?: boolean) => Promise<void>;
+  loadMoreBalises: (filters?: BaliseFilters) => Promise<void>;
   refreshBalise: (secondaryId: number) => Promise<void>;
   clearCache: () => void;
 }
@@ -54,7 +55,7 @@ const fetchBaliseAPI = async (filters?: BaliseFilters): Promise<{ data: BaliseWi
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.include_history) params.append('include_history', 'true');
     const queryString = params.toString();
-    const url = `http://localhost:3001/api/balises${queryString ? `?${queryString}` : ''}`;
+    const url = `http://localhost:3002/api/balises${queryString ? `?${queryString}` : ''}`;
 
     const response = await fetch(url);
     if (!response.ok) {
@@ -95,7 +96,7 @@ const fetchBaliseAPI = async (filters?: BaliseFilters): Promise<{ data: BaliseWi
 };
 
 const fetchSingleBaliseAPI = async (secondaryId: number): Promise<BaliseWithHistory> => {
-  const response = await fetch(`http://localhost:3001/api/balise/${secondaryId}`);
+  const response = await fetch(`http://localhost:3002/api/balise/${secondaryId}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch balise: ${response.status}`);
   }
@@ -141,7 +142,9 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
     }
 
     try {
+      console.log('Fetching balises with filters:', filters);
       const result = await fetchBaliseAPI(filters);
+      console.log('Fetched balises:', result.data.length, 'pagination:', result.pagination);
 
       set({
         balises: result.data,
@@ -158,6 +161,43 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
         isInitialLoading: false,
         isBackgroundLoading: false,
       });
+    }
+  },
+
+  loadMoreBalises: async (filters) => {
+    const state = get();
+    if (!state.pagination?.hasNextPage || state.isBackgroundLoading) {
+      return; // No more data to load or already loading
+    }
+
+    set({ isBackgroundLoading: true });
+
+    try {
+      // Use current stored filters as the base, but allow override
+      const baseFilters = state.currentFilters || {};
+      const nextPageFilters = {
+        ...baseFilters,
+        ...filters, // Allow override of specific filters
+        page: (state.pagination.page || 1) + 1,
+        limit: state.pagination.limit || 50,
+      };
+
+      console.log('Loading more balises with filters:', nextPageFilters);
+      const result = await fetchBaliseAPI(nextPageFilters);
+
+      set((currentState) => ({
+        balises: [...currentState.balises, ...result.data],
+        pagination: result.pagination,
+        lastFetched: Date.now(),
+        currentFilters: nextPageFilters, // Update stored filters with new page
+        error: null,
+      }));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load more balises';
+      set({ error: errorMessage });
+      console.error('Error loading more balises:', error);
+    } finally {
+      set({ isBackgroundLoading: false });
     }
   },
 
