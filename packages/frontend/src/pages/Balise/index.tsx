@@ -280,15 +280,48 @@ export const BalisePage: React.FC = () => {
           p: 1,
           display: 'flex',
           justifyContent: 'space-between',
+          alignItems: 'center',
           mb: 1,
           gap: 1,
           flexShrink: 0,
         }}
         variant="outlined"
       >
+        <Box sx={{ minWidth: '200px' }}>
+          <Box sx={{ display: selectedItems.length > 0 ? 'flex' : 'none', alignItems: 'center', gap: 1 }}>
+            <Button
+              size="small"
+              startIcon={<Download fontSize="small" />}
+              onClick={handleBulkDownload}
+              title="Lataa valitut sanomat"
+            >
+              Lataa
+            </Button>
+            <Button
+              startIcon={<Lock fontSize="small" />}
+              size="small"
+              onClick={handleBulkLock}
+              title="Lukitse/Poista lukitus"
+            >
+              Lukitse
+            </Button>
+            <Button
+              startIcon={<Delete fontSize="small" />}
+              size="small"
+              onClick={handleBulkDelete}
+              title="Poista"
+              color="error"
+            >
+              Poista
+            </Button>
+            <Typography fontSize="medium">{selectedItems.length} valittu</Typography>
+          </Box>
+        </Box>
         <Box
           sx={{
             display: 'flex',
+            justifyContent: 'center',
+            gap: 1,
           }}
         >
           <Box sx={{ minWidth: '200px' }}>
@@ -297,10 +330,12 @@ export const BalisePage: React.FC = () => {
           <Box sx={{ minWidth: '200px' }}>
             <AreaFilter areas={AREA_OPTIONS} selectedAreas={selectedAreas} onAreasSelect={setSelectedAreas} />
           </Box>
+          <Box sx={{ margin: 'auto' }}>
+            <IconButton id="add-button" onClick={handleAddSanoma} size="small">
+              <Add fontSize="inherit" />
+            </IconButton>
+          </Box>
         </Box>
-        <IconButton id="add-button" onClick={handleAddSanoma} size="small">
-          <Add fontSize="inherit" />
-        </IconButton>
       </Paper>
 
       {/* Table */}
@@ -329,38 +364,6 @@ export const BalisePage: React.FC = () => {
           totalCount={pagination?.totalCount ?? filteredData.length}
         />
       </Paper>
-
-      {/* Floating Action Bar */}
-      <Slide direction="up" in={selectedItems.length > 0} mountOnEnter unmountOnExit>
-        <Paper
-          sx={{
-            position: 'fixed',
-            bottom: 24,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            p: 2,
-            display: 'flex',
-            gap: 1,
-            alignItems: 'center',
-            boxShadow: 3,
-            borderRadius: 3,
-            zIndex: 1000,
-          }}
-        >
-          <Typography variant="body2" sx={{ mr: 2 }}>
-            {selectedItems.length} selected
-          </Typography>
-          <IconButton size="small" onClick={handleBulkDownload} title="Download Selected">
-            <Download fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={handleBulkLock} title="Lock/Unlock Selected">
-            <Lock fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={handleBulkDelete} title="Delete Selected" color="error">
-            <Delete fontSize="small" />
-          </IconButton>
-        </Paper>
-      </Slide>
     </Box>
   );
 };

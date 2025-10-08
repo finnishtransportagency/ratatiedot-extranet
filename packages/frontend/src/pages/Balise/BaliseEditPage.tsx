@@ -35,7 +35,7 @@ const saveBalise = async (data: Partial<BaliseWithHistory>): Promise<BaliseWithH
   // API call to create new balise (this would need a proper creation endpoint)
   // For now, using add endpoint with a new secondaryId
   const newSecondaryId = Date.now(); // Temporary ID generation
-  const response = await fetch(`http://localhost:3002/api/balise/${newSecondaryId}/add`, {
+  const response = await fetch(`/api/balise/${newSecondaryId}/add`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -48,7 +48,7 @@ const saveBalise = async (data: Partial<BaliseWithHistory>): Promise<BaliseWithH
 
 const updateBalise = async (secondaryId: string, data: Partial<BaliseWithHistory>): Promise<BaliseWithHistory> => {
   // API call to update existing balise
-  const response = await fetch(`http://localhost:3002/api/balise/${secondaryId}/add`, {
+  const response = await fetch(`/api/balise/${secondaryId}/add`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -60,8 +60,9 @@ const updateBalise = async (secondaryId: string, data: Partial<BaliseWithHistory
 };
 
 export const BaliseEditPage: React.FC = () => {
-  const { id, mode } = useParams<{ id?: string; mode?: 'edit' | 'view' | 'create' }>();
+  const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
+  const location = window.location;
   const [balise, setBalise] = useState<BaliseWithHistory | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +70,12 @@ export const BaliseEditPage: React.FC = () => {
   // Store action for updating balise in cache
   const { updateBalise: updateBaliseInStore } = useBaliseStore();
 
-  const currentMode = mode || (id ? 'view' : 'create');
+  // Extract mode from pathname
+  const currentMode = location.pathname.includes('/edit')
+    ? 'edit'
+    : location.pathname.includes('/view')
+    ? 'view'
+    : 'create';
 
   useEffect(() => {
     if (id && currentMode !== 'create') {

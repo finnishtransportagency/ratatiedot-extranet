@@ -55,7 +55,7 @@ const fetchBaliseAPI = async (filters?: BaliseFilters): Promise<{ data: BaliseWi
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.include_history) params.append('include_history', 'true');
     const queryString = params.toString();
-    const url = `http://localhost:3002/api/balises${queryString ? `?${queryString}` : ''}`;
+    const url = `/api/balises${queryString ? `?${queryString}` : ''}`;
 
     const response = await fetch(url);
     if (!response.ok) {
@@ -96,7 +96,7 @@ const fetchBaliseAPI = async (filters?: BaliseFilters): Promise<{ data: BaliseWi
 };
 
 const fetchSingleBaliseAPI = async (secondaryId: number): Promise<BaliseWithHistory> => {
-  const response = await fetch(`http://localhost:3002/api/balise/${secondaryId}`);
+  const response = await fetch(`/api/balise/${secondaryId}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch balise: ${response.status}`);
   }
