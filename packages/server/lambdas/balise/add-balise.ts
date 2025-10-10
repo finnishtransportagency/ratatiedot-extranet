@@ -74,27 +74,38 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     });
 
     if (existingBalise) {
-      // Create version history entry
-      await database.baliseVersion.create({
-        data: {
-          baliseId: existingBalise.id,
-          secondaryId: existingBalise.secondaryId,
-          version: existingBalise.version,
-          description: existingBalise.description,
-          bucketId: existingBalise.bucketId,
-          fileTypes: existingBalise.fileTypes,
-          createdBy: existingBalise.createdBy,
-          createdTime: existingBalise.createdTime,
-          locked: existingBalise.locked,
-          lockedBy: existingBalise.lockedBy,
-          lockedTime: existingBalise.lockedTime,
-        },
-      });
+      // Determine if this is a metadata update or just a file upload
+      const hasMetadataChange = !isFileUpload || (body.description && body.description !== existingBalise.description);
+      const currentVersion = existingBalise.version;
+      let newVersion = currentVersion;
 
-      const newVersion = existingBalise.version + 1;
+      // Only create a new version if metadata is being changed
+      if (hasMetadataChange) {
+        // Create version history entry for the OLD version
+        await database.baliseVersion.create({
+          data: {
+            baliseId: existingBalise.id,
+            secondaryId: existingBalise.secondaryId,
+            version: existingBalise.version,
+            description: existingBalise.description,
+            bucketId: existingBalise.bucketId,
+            fileTypes: existingBalise.fileTypes,
+            createdBy: existingBalise.createdBy,
+            createdTime: existingBalise.createdTime,
+            locked: existingBalise.locked,
+            lockedBy: existingBalise.lockedBy,
+            lockedTime: existingBalise.lockedTime,
+          },
+        });
+
+        newVersion = existingBalise.version + 1;
+        log.info(user, `Creating new version ${newVersion} for balise ${baliseId}`);
+      } else {
+        log.info(user, `Adding file to existing version ${currentVersion} for balise ${baliseId}`);
+      }
 
       // If file is uploaded, add its type to fileTypes array
-      let updatedFileTypes = body.fileTypes || existingBalise.fileTypes;
+      let updatedFileTypes = existingBalise.fileTypes;
       if (fileData && filename) {
         const fileExt = filename.split('.').pop()?.toUpperCase() || 'OTHER';
         if (!updatedFileTypes.includes(fileExt)) {
@@ -107,19 +118,36 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         log.info(user, `Uploaded file to S3: ${s3Key}`);
       }
 
+      // Update balise record
+      const updateData: {
+        fileTypes: string[];
+        version?: number;
+        description?: string;
+        bucketId?: string;
+        createdBy?: string;
+        createdTime?: Date;
+        locked?: boolean;
+        lockedBy?: string | null;
+        lockedTime?: Date | null;
+      } = {
+        fileTypes: updatedFileTypes,
+      };
+
+      // Only update version and metadata if this is a metadata change
+      if (hasMetadataChange) {
+        updateData.version = newVersion;
+        updateData.description = body.description || existingBalise.description;
+        updateData.bucketId = body.bucketId || existingBalise.bucketId;
+        updateData.createdBy = user.uid;
+        updateData.createdTime = new Date();
+        updateData.locked = false;
+        updateData.lockedBy = null;
+        updateData.lockedTime = null;
+      }
+
       const updatedBalise = await database.balise.update({
         where: { secondaryId: baliseId },
-        data: {
-          version: newVersion,
-          description: body.description || existingBalise.description,
-          bucketId: body.bucketId || existingBalise.bucketId,
-          fileTypes: updatedFileTypes,
-          createdBy: user.uid,
-          createdTime: new Date(),
-          locked: false,
-          lockedBy: null,
-          lockedTime: null,
-        },
+        data: updateData,
       });
 
       return {
