@@ -16,9 +16,22 @@ const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    const baliseId = parseInt(event.path.split('/').pop() || '0');
 
-    log.info(user, `Create or update balise. id: ${baliseId}`);
+    // Extract balise ID from path (e.g., /api/balise/12345/add)
+    const pathParts = event.path.split('/').filter((p) => p);
+    const baliseIdStr = pathParts[pathParts.indexOf('balise') + 1];
+    const baliseId = parseInt(baliseIdStr || '0', 10);
+
+    log.info(user, `Create or update balise. id: ${baliseId}, path: ${event.path}`);
+
+    if (!baliseId || isNaN(baliseId)) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Invalid or missing balise ID' }),
+      };
+    }
+
     validateWriteUser(user, '');
 
     // Check if this is a file upload (multipart/form-data) or metadata only (JSON)
