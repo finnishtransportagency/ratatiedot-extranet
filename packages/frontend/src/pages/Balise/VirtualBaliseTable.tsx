@@ -12,7 +12,6 @@ import {
   Typography,
   CircularProgress,
   Checkbox,
-  Tooltip,
   Menu,
   MenuItem,
   Divider,
@@ -169,36 +168,21 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
           {row.secondaryId}
         </TableCell>
         <TableCell sx={{ fontSize: '14px', width: '200px' }}>
-          {row.description.length > 50 ? (
-            <Tooltip title={row.description} arrow placement="top">
-              <Typography
-                sx={{
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  cursor: 'help',
-                  fontSize: '14px',
-                }}
-              >
-                {row.description}
-              </Typography>
-            </Tooltip>
-          ) : (
-            <Typography sx={{ fontSize: '14px' }}>{row.description}</Typography>
-          )}
+          <Typography
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: '14px',
+            }}
+          >
+            {row.description}
+          </Typography>
         </TableCell>
         <TableCell sx={{ fontSize: '14px', width: '60px' }}>{row.version}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '120px' }}>{formatDateTime(row.createdTime)}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '100px' }}>{row.createdBy}</TableCell>
-        <TableCell sx={{ fontSize: '14px', width: '120px' }}>
-          {row.locked ? (
-            <Tooltip title={row.lockedTime ? `Lukittu: ${formatDateTime(row.lockedTime)}` : 'Lukittu'}>
-              <span style={{ cursor: 'help' }}>🔒 {row.lockedBy}</span>
-            </Tooltip>
-          ) : (
-            ''
-          )}
-        </TableCell>
+        <TableCell sx={{ fontSize: '14px', width: '120px' }}>{row.locked ? `🔒 ${row.lockedBy}` : ''}</TableCell>
         <TableCell sx={{ textAlign: 'right', width: '50px' }}>
           <IconButton
             size="small"

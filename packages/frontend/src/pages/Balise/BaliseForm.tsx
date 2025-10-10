@@ -17,14 +17,14 @@ import {
   Divider,
   Avatar,
 } from '@mui/material';
-import { Save, Cancel, Upload, Download, Delete, Circle, Edit } from '@mui/icons-material';
+import { Save, Cancel, Upload, Download, Delete, Edit, ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import type { BaliseWithHistory } from './types';
 
 interface BaliseFormProps {
   mode: 'create' | 'edit' | 'view';
   balise?: BaliseWithHistory;
-  onSave?: (baliseData: Partial<BaliseWithHistory>) => Promise<void>;
+  onSave?: (baliseData: Partial<BaliseWithHistory>, files?: File[]) => Promise<void>;
   onCancel?: () => void;
 }
 
@@ -95,7 +95,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
     }));
   }, []);
 
-  const handleSubmit = useCallback(async () => {
+  const handleSave = useCallback(async () => {
     if (!onSave) return;
 
     setLoading(true);
@@ -115,7 +115,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
         fileTypes,
       };
 
-      await onSave(submitData);
+      // Pass both metadata and files to parent handler
+      await onSave(submitData, formData.files);
       navigate(Routes.BALISE);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Virhe tallentaessa');
@@ -162,7 +163,10 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
         }}
       >
         <Box sx={{ maxWidth: 900, mx: 'auto' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+            <IconButton onClick={handleCancel} size="small">
+              <ArrowBack />
+            </IconButton>
             <Box>
               <Typography variant="h6">
                 {isCreate ? 'Luo uusi baliisi' : isEdit ? 'Muokkaa baliisia' : 'Baliisi tiedot'}
@@ -171,30 +175,6 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                 <Typography variant="caption" color="text.secondary">
                   ID: {balise.secondaryId}
                 </Typography>
-              )}
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button variant="outlined" startIcon={<Cancel />} onClick={handleCancel} size="small">
-                Peruuta
-              </Button>
-
-              {isView && (
-                <Button variant="contained" startIcon={<Edit />} onClick={handleEditClick} size="small">
-                  Muokkaa
-                </Button>
-              )}
-
-              {(isEdit || isCreate) && (
-                <Button
-                  variant="contained"
-                  startIcon={loading ? <CircularProgress size={16} /> : <Save />}
-                  onClick={handleSubmit}
-                  disabled={loading || !formData.secondaryId || !formData.description}
-                  size="small"
-                >
-                  {loading ? 'Tallentaa...' : isEdit ? 'Tallenna muutokset' : 'Luo baliisi'}
-                </Button>
               )}
             </Box>
           </Box>
@@ -543,6 +523,35 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               </Box>
             </Paper>
           )}
+
+          {/* Action Buttons - Material Design pattern: Cancel (left), Primary action (right) */}
+          <Paper
+            sx={{ p: 2, display: 'flex', justifyContent: 'space-between', position: 'sticky', bottom: 0, zIndex: 1 }}
+          >
+            <Button variant="outlined" startIcon={<Cancel />} onClick={handleCancel} size="medium">
+              Peruuta
+            </Button>
+
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {isView && (
+                <Button variant="contained" startIcon={<Edit />} onClick={handleEditClick} size="medium">
+                  Muokkaa
+                </Button>
+              )}
+
+              {(isEdit || isCreate) && (
+                <Button
+                  variant="contained"
+                  startIcon={loading ? <CircularProgress size={20} /> : <Save />}
+                  onClick={handleSave}
+                  disabled={loading || !formData.secondaryId || !formData.description}
+                  size="medium"
+                >
+                  {loading ? 'Tallentaa...' : isEdit ? 'Tallenna muutokset' : 'Luo baliisi'}
+                </Button>
+              )}
+            </Box>
+          </Paper>
         </Box>
       </Box>
     </Box>

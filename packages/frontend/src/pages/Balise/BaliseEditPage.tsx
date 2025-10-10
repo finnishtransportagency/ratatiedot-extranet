@@ -4,7 +4,7 @@ import { Routes } from '../../constants/Routes';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { BaliseForm } from './BaliseForm';
 import { useBaliseStore } from '../../store/baliseStore';
-import type { Balise, BaliseVersion, BaliseWithHistory } from './types';
+import type { BaliseWithHistory } from './types';
 
 // Mock API functions - replace with actual API calls
 const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
@@ -59,6 +59,30 @@ const updateBalise = async (secondaryId: string, data: Partial<BaliseWithHistory
   return response.json();
 };
 
+// Upload a single file to balise
+const uploadFileToBalise = async (
+  secondaryId: number,
+  file: File,
+  metadata?: Partial<BaliseWithHistory>,
+): Promise<void> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  // Include metadata if provided
+  if (metadata) {
+    formData.append('baliseData', JSON.stringify(metadata));
+  }
+
+  const response = await fetch(`/api/balise/${secondaryId}/add`, {
+    method: 'PUT',
+    body: formData, // No Content-Type header - browser sets it with boundary
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to upload file: ${file.name}`);
+  }
+};
+
 export const BaliseEditPage: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
@@ -96,14 +120,32 @@ export const BaliseEditPage: React.FC = () => {
     }
   };
 
-  const handleSave = async (data: Partial<BaliseWithHistory>) => {
+  const handleSave = async (data: Partial<BaliseWithHistory>, files?: File[]) => {
     try {
       let savedBalise: BaliseWithHistory;
 
       if (currentMode === 'create') {
+        // First, create the balise with metadata only
         savedBalise = await saveBalise(data);
+
+        // Then upload files one by one if any
+        if (files && files.length > 0 && savedBalise.secondaryId) {
+          for (const file of files) {
+            await uploadFileToBalise(savedBalise.secondaryId, file);
+          }
+        }
       } else if (id) {
+        // First, update the balise with metadata only
         savedBalise = await updateBalise(id, data);
+
+        // Then upload files one by one if any
+        if (files && files.length > 0) {
+          const secondaryId = parseInt(id);
+          for (const file of files) {
+            await uploadFileToBalise(secondaryId, file);
+          }
+        }
+
         // Update the store cache with the latest data
         updateBaliseInStore(savedBalise);
       }

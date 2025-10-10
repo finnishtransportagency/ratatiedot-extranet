@@ -1,11 +1,14 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
+import { S3 } from 'aws-sdk';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 const database = await DatabaseClient.build();
-const BUCKET_NAME = process.env.BALISE_BUCKET_NAME || 'rataextra-balise-files';
+const s3 = new S3();
+const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
+// Using existing AWS SDK v2 (same as s3utils.ts) to generate presigned URLs
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
@@ -28,11 +31,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    const fileKey = `${balise.bucketId}/${fileType}`;
+    // Generate S3 file key with hierarchical structure: balise_{secondaryId}/v{version}/{fileType}
+    const fileKey = `balise_${balise.secondaryId}/v${balise.version}/${fileType}`;
 
-    // TODO: Implement S3 presigned URL generation
-    // You'll need to add @aws-sdk/client-s3 and @aws-sdk/s3-request-presigner dependencies
-    const downloadUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${fileKey}`;
+    // Generate presigned URL (expires in 1 hour)
+    const downloadUrl = s3.getSignedUrl('getObject', {
+      Bucket: BALISES_BUCKET_NAME,
+      Key: fileKey,
+      Expires: 3600, // 1 hour
+    });
 
     return {
       statusCode: 200,

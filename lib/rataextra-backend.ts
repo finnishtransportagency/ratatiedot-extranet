@@ -42,6 +42,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly alfrescoSitePath: string;
   readonly serviceUserUid?: string;
   readonly imageBucket: Bucket;
+  readonly balisesBucket: Bucket;
   readonly cloudfrontSignerPublicKeyId: string;
 }
 
@@ -100,6 +101,7 @@ export class RataExtraBackendStack extends NestedStack {
       alfrescoSitePath,
       serviceUserUid,
       imageBucket,
+      balisesBucket,
       cloudfrontSignerPublicKeyId,
     } = props;
 
@@ -161,6 +163,7 @@ export class RataExtraBackendStack extends NestedStack {
         SSM_DATABASE_DOMAIN_ID: SSM_DATABASE_DOMAIN,
         SSM_DATABASE_PASSWORD_ID: SSM_DATABASE_PASSWORD,
         DATABASE_URL: '',
+        BALISES_BUCKET_NAME: balisesBucket.bucketName,
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
@@ -438,6 +441,13 @@ export class RataExtraBackendStack extends NestedStack {
     imageBucket.grantReadWrite(postNotice);
     imageBucket.grantReadWrite(putNotice);
     imageBucket.grantReadWrite(deleteNotice);
+
+    // Grant S3 permissions for balise file operations
+    balisesBucket.grantReadWrite(addBalise);
+    balisesBucket.grantRead(getBalise);
+    balisesBucket.grantRead(getBalises);
+    balisesBucket.grantRead(getBaliseDownloadUrl);
+    balisesBucket.grantDelete(deleteBalise);
 
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {
