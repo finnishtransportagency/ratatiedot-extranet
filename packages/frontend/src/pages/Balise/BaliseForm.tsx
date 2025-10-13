@@ -13,11 +13,21 @@ import {
   ListItem,
   ListItemText,
   IconButton,
-  Collapse,
-  Divider,
-  Avatar,
+  Icon,
 } from '@mui/material';
-import { Save, Cancel, Upload, Download, Delete, Edit, ArrowBack } from '@mui/icons-material';
+import {
+  Save,
+  Upload,
+  InsertDriveFile,
+  Download,
+  Delete,
+  Edit,
+  ArrowBack,
+  ExpandMore,
+  ExpandLess,
+  CloudUpload,
+  Add,
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import type { BaliseWithHistory } from './types';
 
@@ -55,6 +65,9 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   // State for expanded version timeline items
   const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set());
 
+  // State for drag-and-drop
+  const [isDragging, setIsDragging] = useState(false);
+
   // Helper function to format dates
   const formatDate = (date: Date | string | undefined): string => {
     if (!date) return 'N/A';
@@ -85,6 +98,27 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
+    setFormData((prev) => ({ ...prev, files: [...(prev.files || []), ...files] }));
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files);
     setFormData((prev) => ({ ...prev, files: [...(prev.files || []), ...files] }));
   }, []);
 
@@ -125,17 +159,17 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
     }
   }, [formData, onSave, navigate]);
 
-  const handleCancel = useCallback(() => {
-    if (onCancel) {
-      onCancel();
-    } else {
-      navigate(Routes.BALISE);
-    }
-  }, [onCancel, navigate]);
-
   const isCreate = mode === 'create';
   const isEdit = mode === 'edit';
   const isView = mode === 'view';
+
+  const handleBack = useCallback(() => {
+    if (balise && isEdit) {
+      navigate(`${Routes.BALISE}/${balise.secondaryId}/view`);
+    } else {
+      navigate(Routes.BALISE);
+    }
+  }, [balise, isEdit, navigate]);
 
   const handleEditClick = useCallback(() => {
     if (balise) {
@@ -152,7 +186,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
         overflow: 'hidden',
       }}
     >
-      {/* Fixed Header */}
+      {/* Fixed Header with Actions */}
       <Box
         sx={{
           p: 1.5,
@@ -163,18 +197,43 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
         }}
       >
         <Box sx={{ maxWidth: 900, mx: 'auto' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-            <IconButton onClick={handleCancel} size="small">
-              <ArrowBack />
-            </IconButton>
-            <Box>
-              <Typography variant="h6">
-                {isCreate ? 'Luo uusi baliisi' : isEdit ? 'Muokkaa baliisia' : 'Baliisi tiedot'}
-              </Typography>
-              {balise && (
-                <Typography variant="caption" color="text.secondary">
-                  ID: {balise.secondaryId}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+            {/* Left: Back button and title */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <IconButton onClick={handleBack} size="small">
+                <ArrowBack />
+              </IconButton>
+              <Box>
+                <Typography variant="h6">
+                  {isCreate ? 'Luo uusi baliisi' : isEdit ? 'Muokkaa baliisia' : 'Baliisi tiedot'}
                 </Typography>
+                {balise && (
+                  <Typography variant="caption" color="text.secondary">
+                    ID: {balise.secondaryId}
+                  </Typography>
+                )}
+              </Box>
+            </Box>
+
+            {/* Right: Action buttons */}
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {isView && (
+                <Button variant="contained" startIcon={<Edit />} onClick={handleEditClick} size="medium">
+                  Muokkaa
+                </Button>
+              )}
+
+              {(isEdit || isCreate) && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Save />}
+                  onClick={handleSave}
+                  disabled={loading || !formData.secondaryId || !formData.description}
+                  size="medium"
+                >
+                  {loading ? 'Tallentaa...' : 'Tallenna'}
+                </Button>
               )}
             </Box>
           </Box>
@@ -225,53 +284,133 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               required
               size="small"
             />
-          </Paper>
-
-          {/* File Management */}
-          {(isEdit || isCreate) && (
-            <Paper sx={{ p: 2, mb: 2 }}>
-              <Typography variant="subtitle1" gutterBottom>
-                Tiedostot
-              </Typography>
-
-              <Box sx={{ mb: 2 }}>
-                <Button variant="outlined" component="label" startIcon={<Upload />} size="small">
-                  Lisää tiedostoja
-                  <input type="file" hidden multiple onChange={handleFileUpload} />
-                </Button>
+            {/* File Management */}
+            <Box sx={{ pt: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 1 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Tiedostot
+                </Typography>
+                {!isEdit && !isCreate && (
+                  <Box sx={{ margin: 'auto 0 auto 0' }}>
+                    <Button size="small" color="primary" startIcon={<Download fontSize="inherit" />}>
+                      Lataa
+                    </Button>
+                  </Box>
+                )}
               </Box>
-
-              {formData.files && formData.files.length > 0 && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Valitut tiedostot:
-                  </Typography>
-                  <List dense>
-                    {formData.files.map((file, index) => (
-                      <ListItem
-                        key={index}
-                        secondaryAction={
-                          <IconButton size="small" onClick={() => removeFile(index)} color="error">
-                            <Delete />
-                          </IconButton>
-                        }
-                      >
-                        <ListItemText
-                          primary={file.name}
-                          secondary={`${(file.size / 1024 / 1024).toFixed(2)} MB - Tyyppi: ${getFileType(file.name)}`}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
+              {/* View mode: Show current file types from database */}
+              {isView && balise && balise.fileTypes && balise.fileTypes.length > 0 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                  {balise.fileTypes.map((fileType, index) => (
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        p: 3,
+                        minWidth: '36px',
+                      }}
+                    >
+                      <Icon key={index}>
+                        <InsertDriveFile />
+                      </Icon>
+                      <Typography>.{fileType}</Typography>
+                    </Paper>
+                  ))}
                 </Box>
               )}
-            </Paper>
-          )}
+              {/* Edit/Create mode: Drag-and-drop upload area */}
+              {(isEdit || isCreate) && (
+                <>
+                  {/* Drag and Drop Area */}
+                  <Box
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    sx={{
+                      border: '2px dashed',
+                      borderColor: isDragging ? 'primary.main' : 'divider',
+                      borderRadius: 2,
+                      p: 4,
+                      mb: 2,
+                      textAlign: 'center',
+                      bgcolor: isDragging ? 'action.hover' : 'background.paper',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      position: 'relative',
+                    }}
+                  >
+                    <input
+                      type="file"
+                      hidden
+                      multiple
+                      onChange={handleFileUpload}
+                      style={{ display: 'none' }}
+                      id="file-upload-input"
+                    />
+                    <label
+                      htmlFor="file-upload-input"
+                      style={{
+                        cursor: 'pointer',
+                        display: 'block',
+                        width: '100%',
+                      }}
+                    >
+                      <CloudUpload sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+                      <Typography variant="body1" gutterBottom>
+                        Raahaa tiedostot tähän tai klikkaa valitaksesi
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Tuetut tiedostotyypit: .il, .leu ja .bis
+                      </Typography>
+                    </label>
+                  </Box>
+
+                  {/* Selected Files List */}
+                  {formData.files && formData.files.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        Valitut tiedostot ({formData.files.length}):
+                      </Typography>
+                      <List dense>
+                        {formData.files.map((file, index) => (
+                          <ListItem
+                            key={index}
+                            sx={{
+                              bgcolor: 'background.paper',
+                              mb: 0.5,
+                              borderRadius: 1,
+                              border: '1px solid',
+                              borderColor: 'divider',
+                            }}
+                            secondaryAction={
+                              <IconButton size="small" onClick={() => removeFile(index)} color="error">
+                                <Delete />
+                              </IconButton>
+                            }
+                          >
+                            <ListItemText
+                              primary={file.name}
+                              secondary={`${(file.size / 1024 / 1024).toFixed(2)} MB - Tyyppi: ${getFileType(
+                                file.name,
+                              )}`}
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
+                </>
+              )}
+            </Box>
+          </Paper>
 
           {/* Version Timeline - Material Design */}
           {balise && mode !== 'create' && (
-            <Paper sx={{ p: 2, mb: 2 }}>
-              <Typography variant="subtitle1" gutterBottom>
+            <Paper sx={{ p: 3, mb: 2 }}>
+              <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
                 Versiohistoria
               </Typography>
 
@@ -282,103 +421,141 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                   <Box
                     sx={{
                       position: 'absolute',
-                      left: '19px',
-                      top: '20px',
+                      left: '9px',
+                      top: '30px',
                       bottom: '20px',
                       width: '2px',
-                      bgcolor: 'divider',
+                      bgcolor: 'primary.main',
+                      opacity: 0.3,
                     }}
                   />
                 )}
 
                 {/* Current version (latest) */}
-                <Box sx={{ display: 'flex', gap: 2, mb: 3, position: 'relative' }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 1.5, position: 'relative' }}>
                   {/* Timeline dot */}
-                  <Avatar
+                  <Box
                     sx={{
-                      width: 40,
-                      height: 40,
-                      bgcolor: 'primary.main',
+                      width: 20,
+                      height: 20,
                       flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mt: 1.5,
                     }}
                   >
-                    <Chip label={`v${balise.version || 1}`} size="small" color="primary" />
-                  </Avatar>
+                    <Box
+                      sx={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: '50%',
+                        bgcolor: 'primary.main',
+                      }}
+                    />
+                  </Box>
 
-                  {/* Content */}
-                  <Box sx={{ flex: 1, pt: 0.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5, flexWrap: 'wrap' }}>
-                      <Chip label={balise.createdBy} size="small" variant="outlined" />
-                      <Chip label="Nykyinen versio" size="small" color="success" variant="outlined" />
-                      <Typography variant="caption" color="text.secondary">
-                        {formatDate(balise.createdTime)}
-                      </Typography>
-                    </Box>
-
-                    {/* Action buttons */}
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Button
-                        size="small"
-                        onClick={() => {
-                          setExpandedVersions((prev) => {
-                            const newSet = new Set(prev);
-                            if (newSet.has('current')) {
-                              newSet.delete('current');
-                            } else {
-                              newSet.add('current');
-                            }
-                            return newSet;
-                          });
-                        }}
-                        sx={{ textTransform: 'none' }}
-                      >
-                        {expandedVersions.has('current') ? 'Piilota tiedot' : 'Näytä tiedot'}
-                      </Button>
-                    </Box>
-
-                    <Collapse in={expandedVersions.has('current')}>
-                      <Box sx={{ mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                        <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                          Kuvaus:
+                  {/* Version card */}
+                  <Box
+                    sx={{
+                      flex: 1,
+                      bgcolor: 'white',
+                      borderRadius: 2,
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      overflow: 'hidden',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    {/* Card content */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-between',
+                        p: 1.5,
+                        cursor: 'pointer',
+                        '&:hover': {
+                          bgcolor: 'grey.50',
+                        },
+                      }}
+                      onClick={() => {
+                        setExpandedVersions((prev) => {
+                          const newSet = new Set(prev);
+                          if (newSet.has('current')) {
+                            newSet.delete('current');
+                          } else {
+                            newSet.add('current');
+                          }
+                          return newSet;
+                        });
+                      }}
+                    >
+                      <Box sx={{ flex: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.25 }}>
+                          <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
+                            v{balise.version || 1}
+                          </Typography>
+                          <Chip label="Nykyinen" size="small" color="primary" sx={{ height: 18, fontSize: '0.7rem' }} />
+                        </Box>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="block"
+                          sx={{ mb: 0.75, fontSize: '0.75rem' }}
+                        >
+                          Muokannut {balise.createdBy}, {formatDate(balise.createdTime)}
                         </Typography>
-                        <Typography variant="body2" sx={{ mb: 1.5 }}>
-                          {balise.description || 'Ei kuvausta'}
-                        </Typography>
+
+                        {/* Description - show snippet or full based on expanded state */}
+                        {!expandedVersions.has('current') ? (
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.75, fontSize: '0.85rem' }}>
+                            {(balise.description || 'Ei kuvausta').substring(0, 60)}
+                            {(balise.description || '').length > 60 && '...'}
+                          </Typography>
+                        ) : (
+                          <Typography variant="body2" sx={{ mb: 1.5, fontSize: '0.85rem' }}>
+                            {balise.description || 'Ei kuvausta'}
+                          </Typography>
+                        )}
+
+                        {/* Files - show count and download all button */}
                         {balise.fileTypes && balise.fileTypes.length > 0 && (
-                          <>
-                            <Divider sx={{ my: 1.5 }} />
-                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                              Tiedostotyypit:
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+                              {balise.fileTypes.length} tiedosto{balise.fileTypes.length > 1 ? 'a' : ''}:{' '}
+                              {balise.fileTypes.join(', ')}
                             </Typography>
-                            <Box
+                            <Button
+                              size="small"
+                              startIcon={<Download />}
+                              variant="outlined"
                               sx={{
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
+                                textTransform: 'none',
+                                fontSize: '0.75rem',
+                                py: 0.25,
+                                px: 1,
+                                minHeight: 0,
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Download all files for current version');
                               }}
                             >
-                              <Box sx={{ display: 'flex', gap: 0.5 }}>
-                                {balise.fileTypes.map((type, idx) => (
-                                  <Chip key={idx} label={type} size="small" />
-                                ))}
-                              </Box>
-                              <Button
-                                size="small"
-                                startIcon={<Download />}
-                                sx={{ textTransform: 'none' }}
-                                onClick={() => {
-                                  // TODO: Implement download current version files
-                                  console.log('Download current version files');
-                                }}
-                              >
-                                Lataa tiedostot
-                              </Button>
-                            </Box>
-                          </>
+                              Lataa tiedostot
+                            </Button>
+                          </Box>
                         )}
                       </Box>
-                    </Collapse>
+
+                      <IconButton size="small" sx={{ mt: -0.5, p: 0.5 }}>
+                        {expandedVersions.has('current') ? (
+                          <ExpandLess fontSize="small" />
+                        ) : (
+                          <ExpandMore fontSize="small" />
+                        )}
+                      </IconButton>
+                    </Box>
                   </Box>
                 </Box>
 
@@ -388,92 +565,152 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                     const isLast = index === balise.history.length - 1;
 
                     return (
-                      <Box key={version.id} sx={{ display: 'flex', gap: 2, mb: isLast ? 0 : 3, position: 'relative' }}>
+                      <Box
+                        key={version.id}
+                        sx={{ display: 'flex', gap: 2, mb: isLast ? 0 : 1.5, position: 'relative' }}
+                      >
+                        {/* Timeline line connecting dots */}
+                        {index === 0 && (
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              left: '9px',
+                              top: -12,
+                              width: 2,
+                              height: isLast ? 'calc(100% + 12px)' : 'calc(100% + 24px)',
+                              bgcolor: 'primary.main',
+                              opacity: 0.3,
+                            }}
+                          />
+                        )}
+
                         {/* Timeline dot */}
-                        <Avatar
+                        <Box
                           sx={{
-                            width: 40,
-                            height: 40,
-                            bgcolor: 'grey.300',
+                            width: 20,
+                            height: 20,
                             flexShrink: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            mt: 1.5,
+                            zIndex: 1,
                           }}
                         >
-                          <Typography color="text.secondary">v{version.version || 1}</Typography>
-                        </Avatar>
+                          <Box
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              borderRadius: '50%',
+                              bgcolor: 'primary.main',
+                            }}
+                          />
+                        </Box>
 
-                        {/* Content */}
-                        <Box sx={{ flex: 1, pt: 0.5 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5, flexWrap: 'wrap' }}>
-                            <Chip label={version.createdBy} size="small" variant="outlined" />
-                            <Typography variant="caption" color="text.secondary">
-                              {formatDate(version.createdTime)}
-                            </Typography>
-                          </Box>
-
-                          {/* Action buttons */}
-                          <Box sx={{ display: 'flex', gap: 1 }}>
-                            <Button
-                              size="small"
-                              onClick={() => {
-                                setExpandedVersions((prev) => {
-                                  const newSet = new Set(prev);
-                                  if (newSet.has(version.id)) {
-                                    newSet.delete(version.id);
-                                  } else {
-                                    newSet.add(version.id);
-                                  }
-                                  return newSet;
-                                });
-                              }}
-                              sx={{ textTransform: 'none' }}
-                            >
-                              {expandedVersions.has(version.id) ? 'Piilota tiedot' : 'Näytä tiedot'}
-                            </Button>
-                          </Box>
-
-                          <Collapse in={expandedVersions.has(version.id)}>
-                            <Box sx={{ mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                              <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                                Kuvaus:
+                        {/* Version card */}
+                        <Box
+                          sx={{
+                            flex: 1,
+                            bgcolor: 'white',
+                            borderRadius: 2,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            overflow: 'hidden',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                          }}
+                        >
+                          {/* Card content */}
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              justifyContent: 'space-between',
+                              p: 1.5,
+                              cursor: 'pointer',
+                              '&:hover': {
+                                bgcolor: 'grey.50',
+                              },
+                            }}
+                            onClick={() => {
+                              setExpandedVersions((prev) => {
+                                const newSet = new Set(prev);
+                                if (newSet.has(version.id)) {
+                                  newSet.delete(version.id);
+                                } else {
+                                  newSet.add(version.id);
+                                }
+                                return newSet;
+                              });
+                            }}
+                          >
+                            <Box sx={{ flex: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.25 }}>
+                                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
+                                  v{version.version || 1}
+                                </Typography>
+                              </Box>
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                display="block"
+                                sx={{ mb: 0.75, fontSize: '0.75rem' }}
+                              >
+                                Muokannut {version.createdBy}, {formatDate(version.createdTime)}
                               </Typography>
-                              <Typography variant="body2" sx={{ mb: 1.5 }}>
-                                {version.description || 'Ei kuvausta'}
-                              </Typography>
+
+                              {/* Description - show snippet or full based on expanded state */}
+                              {!expandedVersions.has(version.id) ? (
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{ mb: 0.75, fontSize: '0.85rem' }}
+                                >
+                                  {(version.description || 'Ei kuvausta').substring(0, 60)}
+                                  {(version.description || '').length > 60 && '...'}
+                                </Typography>
+                              ) : (
+                                <Typography variant="body2" sx={{ mb: 1.5, fontSize: '0.85rem' }}>
+                                  {version.description || 'Ei kuvausta'}
+                                </Typography>
+                              )}
+
+                              {/* Files - show count and download all button */}
                               {version.fileTypes && version.fileTypes.length > 0 && (
-                                <>
-                                  <Divider sx={{ my: 1.5 }} />
-                                  <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                                    Tiedostotyypit:
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+                                    {version.fileTypes.length} tiedosto{version.fileTypes.length > 1 ? 'a' : ''}:{' '}
+                                    {version.fileTypes.join(', ')}
                                   </Typography>
-                                  <Box
+                                  <Button
+                                    size="small"
+                                    startIcon={<Download />}
+                                    variant="outlined"
                                     sx={{
-                                      display: 'flex',
-                                      flexWrap: 'wrap',
-                                      alignItems: 'center',
-                                      justifyContent: 'space-between',
+                                      textTransform: 'none',
+                                      fontSize: '0.75rem',
+                                      py: 0.25,
+                                      px: 1,
+                                      minHeight: 0,
+                                    }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      console.log('Download all files for version', version.version);
                                     }}
                                   >
-                                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                                      {version.fileTypes.map((type, idx) => (
-                                        <Chip key={idx} label={type} size="small" />
-                                      ))}
-                                    </Box>
-                                    <Button
-                                      size="small"
-                                      startIcon={<Download />}
-                                      sx={{ textTransform: 'none' }}
-                                      onClick={() => {
-                                        // TODO: Implement download version files
-                                        console.log('Download version', version.version, 'files');
-                                      }}
-                                    >
-                                      Lataa tiedostot
-                                    </Button>
-                                  </Box>
-                                </>
+                                    Lataa tiedostot
+                                  </Button>
+                                </Box>
                               )}
                             </Box>
-                          </Collapse>
+
+                            <IconButton size="small" sx={{ mt: -0.5, p: 0.5 }}>
+                              {expandedVersions.has(version.id) ? (
+                                <ExpandLess fontSize="small" />
+                              ) : (
+                                <ExpandMore fontSize="small" />
+                              )}
+                            </IconButton>
+                          </Box>
                         </Box>
                       </Box>
                     );
@@ -523,35 +760,6 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               </Box>
             </Paper>
           )}
-
-          {/* Action Buttons - Material Design pattern: Cancel (left), Primary action (right) */}
-          <Paper
-            sx={{ p: 2, display: 'flex', justifyContent: 'space-between', position: 'sticky', bottom: 0, zIndex: 1 }}
-          >
-            <Button variant="outlined" startIcon={<Cancel />} onClick={handleCancel} size="medium">
-              Peruuta
-            </Button>
-
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {isView && (
-                <Button variant="contained" startIcon={<Edit />} onClick={handleEditClick} size="medium">
-                  Muokkaa
-                </Button>
-              )}
-
-              {(isEdit || isCreate) && (
-                <Button
-                  variant="contained"
-                  startIcon={loading ? <CircularProgress size={20} /> : <Save />}
-                  onClick={handleSave}
-                  disabled={loading || !formData.secondaryId || !formData.description}
-                  size="medium"
-                >
-                  {loading ? 'Tallentaa...' : isEdit ? 'Tallenna muutokset' : 'Luo baliisi'}
-                </Button>
-              )}
-            </Box>
-          </Paper>
         </Box>
       </Box>
     </Box>
