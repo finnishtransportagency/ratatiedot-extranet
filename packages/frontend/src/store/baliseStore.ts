@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Balise, BaliseVersion, BaliseWithHistory } from '../pages/Balise/types';
+import type { BaliseWithHistory } from '../pages/Balise/types';
 
 // Re-export for components that import from store
 export type { BaliseWithHistory };
@@ -36,6 +36,9 @@ export interface BaliseState {
   // Actions
   setBalises: (balises: BaliseWithHistory[], pagination?: any) => void;
   updateBalise: (balise: BaliseWithHistory) => void;
+  deleteBalise: (secondaryId: number) => Promise<void>;
+  lockBalise: (secondaryId: number) => Promise<void>;
+  unlockBalise: (secondaryId: number) => Promise<void>;
   setInitialLoading: (loading: boolean) => void;
   setBackgroundLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -208,6 +211,74 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
     } catch (error) {
       console.error('Failed to refresh balise:', error);
       // Don't set global error for single balise refresh failures
+    }
+  },
+
+  deleteBalise: async (secondaryId) => {
+    try {
+      const response = await fetch(`/api/balise/${secondaryId}/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete balise');
+      }
+
+      // Remove from local state after successful deletion
+      set((state) => ({
+        balises: state.balises.filter((balise) => balise.secondaryId !== secondaryId),
+      }));
+    } catch (error) {
+      console.error('Failed to delete balise:', error);
+      throw error;
+    }
+  },
+
+  lockBalise: async (secondaryId) => {
+    try {
+      const response = await fetch(`/api/balise/${secondaryId}/lock`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to lock balise');
+      }
+
+      // Refresh the balise to get updated lock status
+      await get().refreshBalise(secondaryId);
+    } catch (error) {
+      console.error('Failed to lock balise:', error);
+      throw error;
+    }
+  },
+
+  unlockBalise: async (secondaryId) => {
+    try {
+      const response = await fetch(`/api/balise/${secondaryId}/unlock`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to unlock balise');
+      }
+
+      // Refresh the balise to get updated lock status
+      await get().refreshBalise(secondaryId);
+    } catch (error) {
+      console.error('Failed to unlock balise:', error);
+      throw error;
     }
   },
 

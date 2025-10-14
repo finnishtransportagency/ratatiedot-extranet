@@ -13,12 +13,14 @@ import {
   ListItem,
   ListItemText,
   IconButton,
-  Icon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import {
   Save,
-  Upload,
-  InsertDriveFile,
   Download,
   Delete,
   Edit,
@@ -26,9 +28,12 @@ import {
   ExpandMore,
   ExpandLess,
   CloudUpload,
-  Add,
+  Lock,
+  LockOpen,
+  InsertDriveFile,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useBaliseStore } from '../../store/baliseStore';
 import type { BaliseWithHistory } from './types';
 
 interface BaliseFormProps {
@@ -52,9 +57,12 @@ const getFileType = (filename: string): string => {
 
 export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onCancel }) => {
   const navigate = useNavigate();
+  const { deleteBalise, lockBalise, unlockBalise } = useBaliseStore();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     secondaryId: '',
@@ -177,6 +185,52 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
     }
   }, [balise, navigate]);
 
+  const handleDeleteClick = useCallback(() => {
+    setDeleteDialogOpen(true);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!balise) return;
+
+    setActionLoading(true);
+    setError(null);
+
+    try {
+      await deleteBalise(balise.secondaryId);
+      setDeleteDialogOpen(false);
+      navigate(Routes.BALISE);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete balise');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [balise, deleteBalise, navigate]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteDialogOpen(false);
+  }, []);
+
+  const handleLockToggle = useCallback(async () => {
+    if (!balise) return;
+
+    setActionLoading(true);
+    setError(null);
+
+    try {
+      if (balise.locked) {
+        await unlockBalise(balise.secondaryId);
+      } else {
+        await lockBalise(balise.secondaryId);
+      }
+      // Refresh the page to get updated balise data
+      window.location.reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Failed to ${balise.locked ? 'unlock' : 'lock'} balise`);
+    } finally {
+      setActionLoading(false);
+    }
+  }, [balise, lockBalise, unlockBalise]);
+
   return (
     <Box
       sx={{
@@ -204,12 +258,24 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                 <ArrowBack />
               </IconButton>
               <Box>
-                <Typography variant="h6">
-                  {isCreate ? 'Luo uusi baliisi' : isEdit ? 'Muokkaa baliisia' : 'Baliisi tiedot'}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="h6">
+                    {isCreate ? 'Luo uusi baliisi' : isEdit ? 'Muokkaa baliisia' : 'Baliisi tiedot'}
+                  </Typography>
+                  {balise?.locked && (
+                    <Chip
+                      icon={<Lock />}
+                      label="Lukittu"
+                      size="small"
+                      color="warning"
+                      sx={{ height: 24, fontSize: '0.75rem' }}
+                    />
+                  )}
+                </Box>
                 {balise && (
                   <Typography variant="caption" color="text.secondary">
                     ID: {balise.secondaryId}
+                    {balise.locked && balise.lockedBy && ` • Lukittu: ${balise.lockedBy}`}
                   </Typography>
                 )}
               </Box>
@@ -218,9 +284,31 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             {/* Right: Action buttons */}
             <Box sx={{ display: 'flex', gap: 1 }}>
               {isView && (
-                <Button variant="contained" startIcon={<Edit />} onClick={handleEditClick} size="medium">
-                  Muokkaa
-                </Button>
+                <>
+                  <Button
+                    variant="outlined"
+                    startIcon={balise?.locked ? <LockOpen /> : <Lock />}
+                    onClick={handleLockToggle}
+                    disabled={actionLoading}
+                    size="medium"
+                    color={balise?.locked ? 'warning' : 'primary'}
+                  >
+                    {balise?.locked ? 'Avaa lukitus' : 'Lukitse'}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<Delete />}
+                    onClick={handleDeleteClick}
+                    disabled={actionLoading}
+                    size="medium"
+                  >
+                    Poista
+                  </Button>
+                  <Button variant="contained" startIcon={<Edit />} onClick={handleEditClick} size="medium">
+                    Muokkaa
+                  </Button>
+                </>
               )}
 
               {(isEdit || isCreate) && (
@@ -313,9 +401,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                         minWidth: '36px',
                       }}
                     >
-                      <Icon key={index}>
-                        <InsertDriveFile />
-                      </Icon>
+                      <InsertDriveFile key={index} sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
                       <Typography>.{fileType}</Typography>
                     </Paper>
                   ))}
@@ -762,6 +848,28 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
           )}
         </Box>
       </Box>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+        <DialogTitle>Poista baliisi</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Haluatko varmasti poistaa tämän baliisin (ID: {balise?.secondaryId})?
+            <br />
+            <br />
+            Tämä merkitsee baliisin poistetuksi ja kaikki sen versiot poistetaan. S3-tiedostoja ei poisteta, mutta ne
+            voidaan siirtää erilliseen arkistointipalveluun myöhemmin.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} disabled={actionLoading}>
+            Peruuta
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={actionLoading}>
+            {actionLoading ? 'Poistetaan...' : 'Poista'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

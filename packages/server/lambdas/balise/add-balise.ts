@@ -74,6 +74,19 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     });
 
     if (existingBalise) {
+      // Check if balise is locked - prevent editing locked balises
+      if (existingBalise.locked && existingBalise.lockedBy !== user.uid) {
+        return {
+          statusCode: 403,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            error: 'Cannot edit a locked balise. Only the user who locked it can make changes.',
+            lockedBy: existingBalise.lockedBy,
+            lockedTime: existingBalise.lockedTime,
+          }),
+        };
+      }
+
       // Determine if this is a metadata update or just a file upload
       const hasMetadataChange = !isFileUpload || (body.description && body.description !== existingBalise.description);
       const currentVersion = existingBalise.version;

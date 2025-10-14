@@ -426,6 +426,18 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/balise/delete-balise.ts',
     });
 
+    const lockBalise = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'lock-balise',
+      relativePath: '../packages/server/lambdas/balise/lock-balise.ts',
+    });
+
+    const unlockBalise = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'unlock-balise',
+      relativePath: '../packages/server/lambdas/balise/unlock-balise.ts',
+    });
+
     const addBalise = this.createNodejsLambda({
       ...prismaParameters,
       name: 'add-balise',
@@ -684,9 +696,23 @@ export class RataExtraBackendStack extends NestedStack {
       {
         lambda: deleteBalise,
         priority: 288,
-        path: ['/api/balise/*'],
+        path: ['/api/balise/*/delete'],
         httpRequestMethods: ['DELETE'],
         targetName: 'deleteBalise',
+      },
+      {
+        lambda: lockBalise,
+        priority: 289,
+        path: ['/api/balise/*/lock'],
+        httpRequestMethods: ['POST'],
+        targetName: 'lockBalise',
+      },
+      {
+        lambda: unlockBalise,
+        priority: 291,
+        path: ['/api/balise/*/unlock'],
+        httpRequestMethods: ['POST'],
+        targetName: 'unlockBalise',
       },
       {
         lambda: getBaliseDownloadUrl,

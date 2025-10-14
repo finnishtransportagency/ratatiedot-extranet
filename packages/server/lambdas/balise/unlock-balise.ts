@@ -1,26 +1,21 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { S3 } from 'aws-sdk';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateReadUser } from '../../utils/userService';
+import { getUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 const database = await DatabaseClient.build();
-const s3 = new S3();
-const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
-// Using existing AWS SDK v2 (same as s3utils.ts) to generate presigned URLs
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
 
-    // Extract balise ID from path (e.g., /api/balise/12345/download)
+    // Extract balise ID from path (e.g., /api/balise/12345/unlock)
     const pathParts = event.path.split('/').filter((p) => p);
     const baliseIdStr = pathParts[pathParts.indexOf('balise') + 1];
     const baliseId = parseInt(baliseIdStr || '0', 10);
-    const fileType = event.queryStringParameters?.fileType || 'pdf';
 
-    log.info(user, `Get download URL for balise ${baliseId}, fileType: ${fileType}, path: ${event.path}`);
+    log.info(user, `Unlock balise id: ${baliseId}, path: ${event.path}`);
 
     if (!baliseId || isNaN(baliseId)) {
       return {
@@ -30,7 +25,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    validateReadUser(user);
+    validateWriteUser(user, '');
 
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
@@ -44,38 +39,43 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Check if balise is locked - prevent downloads for locked balises
-    if (balise.locked) {
+    // Check if balise is locked
+    if (!balise.locked) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Balise is not locked' }),
+      };
+    }
+
+    // Check if user is the one who locked it (in future: or superadmin)
+    if (balise.lockedBy !== user.uid) {
       return {
         statusCode: 403,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          error: 'Cannot download files from a locked balise',
+          error: 'Only the user who locked this balise can unlock it',
           lockedBy: balise.lockedBy,
-          lockedTime: balise.lockedTime,
         }),
       };
     }
 
-    // Generate S3 file key with hierarchical structure: balise_{secondaryId}/v{version}/{fileType}
-    const fileKey = `balise_${balise.secondaryId}/v${balise.version}/${fileType}`;
-
-    // Generate presigned URL (expires in 1 hour)
-    const downloadUrl = s3.getSignedUrl('getObject', {
-      Bucket: BALISES_BUCKET_NAME,
-      Key: fileKey,
-      Expires: 3600, // 1 hour
+    // Unlock the balise
+    const unlockedBalise = await database.balise.update({
+      where: { secondaryId: baliseId },
+      data: {
+        locked: false,
+        lockedBy: null,
+        lockedTime: null,
+      },
     });
+
+    log.info(user, `Balise ${baliseId} unlocked successfully by ${user.uid}`);
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        downloadUrl,
-        expiresIn: 3600,
-        fileKey,
-        baliseId: balise.secondaryId,
-      }),
+      body: JSON.stringify({ message: 'Balise unlocked successfully', balise: unlockedBalise }),
     };
   } catch (err) {
     log.error(err);
