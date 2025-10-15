@@ -244,23 +244,7 @@ const BALISE_ROUTE: RouteObject[] = [
     },
   },
   {
-    path: `${Routes.BALISE}/:id/view`,
-    element: (
-      <AppContextProvider>
-        <ProtectedBalisePage children={<BaliseEditPage />} />
-      </AppContextProvider>
-    ),
-    errorElement: <RootBoundary />,
-    loader: async () => {
-      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
-      if (isFirstLogin === 'true') {
-        return redirect(Routes.ACCEPT_INSTRUCTIONS);
-      }
-      return null;
-    },
-  },
-  {
-    path: `${Routes.BALISE}/:id/edit`,
+    path: `${Routes.BALISE}/:id`,
     element: (
       <AppContextProvider>
         <ProtectedBalisePage children={<BaliseEditPage />} />

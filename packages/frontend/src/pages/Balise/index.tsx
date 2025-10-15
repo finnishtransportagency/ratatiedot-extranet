@@ -141,22 +141,22 @@ export const BalisePage: React.FC = () => {
     navigate(`${Routes.BALISE}/create`);
   };
 
-  // Handle row click to navigate to view/edit page and remember edited item
+  // Handle row click to navigate to detail page (unified view/edit)
   const handleRowClick = useCallback(
     (row: BaliseWithHistory) => {
       // Store the edited item ID in sessionStorage for refresh on return
       sessionStorage.setItem('editedBaliseId', row.secondaryId.toString());
-      navigate(`${Routes.BALISE}/${row.secondaryId}/view`);
+      navigate(`${Routes.BALISE}/${row.secondaryId}`);
     },
     [navigate],
   );
 
-  // Handle edit click from context menu
+  // Handle edit click from context menu (same as row click now)
   const handleEditClick = useCallback(
     (row: BaliseWithHistory) => {
       // Store the edited item ID in sessionStorage for refresh on return
       sessionStorage.setItem('editedBaliseId', row.secondaryId.toString());
-      navigate(`${Routes.BALISE}/${row.secondaryId}/edit`);
+      navigate(`${Routes.BALISE}/${row.secondaryId}`);
     },
     [navigate],
   );

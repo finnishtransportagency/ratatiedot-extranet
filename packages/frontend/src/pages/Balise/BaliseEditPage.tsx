@@ -86,7 +86,6 @@ const uploadFileToBalise = async (
 export const BaliseEditPage: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
-  const location = window.location;
   const [balise, setBalise] = useState<BaliseWithHistory | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -94,12 +93,8 @@ export const BaliseEditPage: React.FC = () => {
   // Store action for updating balise in cache
   const { updateBalise: updateBaliseInStore } = useBaliseStore();
 
-  // Extract mode from pathname
-  const currentMode = location.pathname.includes('/edit')
-    ? 'edit'
-    : location.pathname.includes('/view')
-    ? 'view'
-    : 'create';
+  // Simplified mode: if we have an ID, we're viewing/editing; otherwise creating
+  const currentMode = id ? 'view' : 'create';
 
   useEffect(() => {
     if (id && currentMode !== 'create') {
@@ -135,15 +130,23 @@ export const BaliseEditPage: React.FC = () => {
           }
         }
       } else if (id) {
-        // First, update the balise with metadata only
-        savedBalise = await updateBalise(id, data);
+        const secondaryId = parseInt(id);
 
-        // Then upload files one by one if any
+        // If there are new files, upload them WITH metadata to create a new version
         if (files && files.length > 0) {
-          const secondaryId = parseInt(id);
-          for (const file of files) {
-            await uploadFileToBalise(secondaryId, file);
+          // Upload first file with metadata to create new version
+          await uploadFileToBalise(secondaryId, files[0], data);
+
+          // Upload remaining files (they will be added to the new version)
+          for (let i = 1; i < files.length; i++) {
+            await uploadFileToBalise(secondaryId, files[i]);
           }
+
+          // Fetch the updated balise to get the latest data
+          savedBalise = await fetchBalise(id);
+        } else {
+          // No files uploaded, just update metadata
+          savedBalise = await updateBalise(id, data);
         }
 
         // Update the store cache with the latest data
