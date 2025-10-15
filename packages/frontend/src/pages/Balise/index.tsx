@@ -1,19 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
-import {
-  Box,
-  Typography,
-  Alert,
-  Button,
-  Paper,
-  Menu,
-  MenuItem,
-  Slide,
-  IconButton,
-  Chip,
-  LinearProgress,
-} from '@mui/material';
+import { Box, Alert, Button, Paper, Menu, MenuItem, Slide, IconButton, Chip, LinearProgress } from '@mui/material';
 import { Add, Download, Delete, Lock, ArrowDropDown } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
 import { AreaFilter } from './AreaFilter';
@@ -291,6 +279,8 @@ export const BalisePage: React.FC = () => {
           <Box sx={{ display: selectedItems.length > 0 ? 'flex' : 'none', alignItems: 'center', gap: 1 }}>
             <Button
               size="small"
+              variant="outlined"
+              color="primary"
               startIcon={<Download fontSize="small" />}
               onClick={handleBulkDownload}
               title="Lataa valitut sanomat"
@@ -298,6 +288,8 @@ export const BalisePage: React.FC = () => {
               Lataa
             </Button>
             <Button
+              variant="outlined"
+              color="secondary"
               startIcon={<Lock fontSize="small" />}
               size="small"
               onClick={handleBulkLock}
@@ -306,6 +298,7 @@ export const BalisePage: React.FC = () => {
               Lukitse
             </Button>
             <Button
+              variant="outlined"
               startIcon={<Delete fontSize="small" />}
               size="small"
               onClick={handleBulkDelete}
@@ -314,7 +307,7 @@ export const BalisePage: React.FC = () => {
             >
               Poista
             </Button>
-            <Typography fontSize="medium">{selectedItems.length} valittu</Typography>
+            <Chip label={`${selectedItems.length} valittu`} size="small" color="primary" />
           </Box>
         </Box>
         <Box
@@ -331,7 +324,7 @@ export const BalisePage: React.FC = () => {
             <AreaFilter areas={AREA_OPTIONS} selectedAreas={selectedAreas} onAreasSelect={setSelectedAreas} />
           </Box>
           <Box sx={{ margin: 'auto' }}>
-            <IconButton id="add-button" onClick={handleAddSanoma} size="small">
+            <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary">
               <Add fontSize="inherit" />
             </IconButton>
           </Box>
