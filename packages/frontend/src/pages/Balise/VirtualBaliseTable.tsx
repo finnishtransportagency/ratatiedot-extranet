@@ -459,7 +459,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
         </Table>
       </Box>
 
-      {/* Linear-style Context Menu */}
+      {/* Context Menu */}
       <Menu
         open={contextMenu !== null}
         onClose={handleContextMenuClose}

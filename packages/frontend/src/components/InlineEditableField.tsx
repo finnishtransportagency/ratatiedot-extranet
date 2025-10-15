@@ -13,7 +13,7 @@ interface InlineEditableFieldProps {
 }
 
 /**
- * Linear.app-style inline editable field component
+ * Inline editable field component
  * Shows as plain text until clicked, then shows editable input
  */
 export const InlineEditableField: React.FC<InlineEditableFieldProps> = ({
@@ -103,7 +103,7 @@ export const InlineEditableField: React.FC<InlineEditableFieldProps> = ({
             whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            minHeight: multiline ? '60px' : 'auto',
+            minHeight: multiline ? '32px' : 'auto',
           }}
         >
           {value || placeholder}

@@ -55,6 +55,12 @@ const LAMBDA_ROUTES = [
     description: 'Soft delete a balise',
   },
   {
+    method: 'POST',
+    path: '/api/balise/files/delete',
+    lambdaName: 'stack-backend/deletebalisefilesXXXXXXXX',
+    description: 'Delete individual files from balise',
+  },
+  {
     method: 'GET',
     path: '/api/balise/download-url',
     lambdaName: 'stack-backend/getbalisedownloadurlCD8D30F1',

@@ -83,6 +83,20 @@ const uploadFileToBalise = async (
   }
 };
 
+// Delete individual files from balise
+const deleteBaliseFiles = async (secondaryId: number, fileTypes: string[]): Promise<void> => {
+  const response = await fetch(`/api/balise/${secondaryId}/files/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fileTypes }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to delete files: ${errorText}`);
+  }
+};
+
 export const BaliseEditPage: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
@@ -115,7 +129,7 @@ export const BaliseEditPage: React.FC = () => {
     }
   };
 
-  const handleSave = async (data: Partial<BaliseWithHistory>, files?: File[]) => {
+  const handleSave = async (data: Partial<BaliseWithHistory>, files?: File[], filesToDelete?: string[]) => {
     try {
       let savedBalise: BaliseWithHistory;
 
@@ -132,6 +146,11 @@ export const BaliseEditPage: React.FC = () => {
       } else if (id) {
         const secondaryId = parseInt(id);
 
+        // If there are files to delete, send deletion request first
+        if (filesToDelete && filesToDelete.length > 0) {
+          await deleteBaliseFiles(secondaryId, filesToDelete);
+        }
+
         // If there are new files, upload them WITH metadata to create a new version
         if (files && files.length > 0) {
           // Upload first file with metadata to create new version
@@ -144,8 +163,11 @@ export const BaliseEditPage: React.FC = () => {
 
           // Fetch the updated balise to get the latest data
           savedBalise = await fetchBalise(id);
+        } else if (filesToDelete && filesToDelete.length > 0) {
+          // Only files deleted, no new files - fetch the updated balise
+          savedBalise = await fetchBalise(id);
         } else {
-          // No files uploaded, just update metadata
+          // No files uploaded or deleted, just update metadata
           savedBalise = await updateBalise(id, data);
         }
 
@@ -179,14 +201,7 @@ export const BaliseEditPage: React.FC = () => {
     );
   }
 
-  return (
-    <BaliseForm
-      mode={currentMode as 'create' | 'edit' | 'view'}
-      balise={balise || undefined}
-      onSave={handleSave}
-      onCancel={handleCancel}
-    />
-  );
+  return <BaliseForm mode={currentMode} balise={balise || undefined} onSave={handleSave} onCancel={handleCancel} />;
 };
 
 export default BaliseEditPage;

@@ -72,6 +72,11 @@ export const theme = createTheme({
       fontFamily: ['Exo2-Bold', ...DefaultFonts].join(','),
       fontSize: 16,
     },
+    h4: {
+      fontFamily: ['Exo2-Bold', ...DefaultFonts].join(','),
+      fontSize: 16,
+      lineHeight: '24px',
+    },
     body1: {
       fontFamily: ['Exo2-Regular', ...DefaultFonts].join(','),
       fontSize: 16,
