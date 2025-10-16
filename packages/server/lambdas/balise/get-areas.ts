@@ -3,7 +3,7 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 
 const prisma = new PrismaClient();
 
-export const handler = async (): Promise<APIGatewayProxyResult> => {
+export async function handleRequest(): Promise<APIGatewayProxyResult> {
   try {
     const areas = await prisma.area.findMany({
       orderBy: {
@@ -32,4 +32,4 @@ export const handler = async (): Promise<APIGatewayProxyResult> => {
       body: JSON.stringify({ message: 'Internal server error' }),
     };
   }
-};
+}
