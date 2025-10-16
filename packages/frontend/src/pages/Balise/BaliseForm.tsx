@@ -17,6 +17,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Divider,
+  ListItemIcon,
 } from '@mui/material';
 import { Tag } from '../../components/Tag';
 import { ChipWrapper } from '../../components/Chip';
@@ -26,18 +28,24 @@ import {
   ArrowBack,
   ExpandMore,
   ExpandLess,
-  CloudUpload,
   Lock,
   LockOpen,
   Undo,
   Description,
   DriveFolderUpload,
+  Add,
+  RemoveCircleOutline,
+  Check,
+  CheckBox,
+  DescriptionOutlined,
+  CheckBoxOutlineBlank,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useBaliseStore } from '../../store/baliseStore';
 import type { BaliseWithHistory } from './types';
 import { InlineEditableField } from '../../components/InlineEditableField';
 import Circle from '@mui/icons-material/Circle';
+import Close from '@mui/icons-material/Close';
 
 interface BaliseFormProps {
   mode: 'create' | 'view';
@@ -97,8 +105,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   // Track files marked for deletion
   const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
 
-  // Track selected files for bulk actions
-  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  // Track files to keep (not delete) - when user uploads new files, by default all existing files are marked for deletion
+  const [filesToKeep, setFilesToKeep] = useState<string[]>([]);
 
   // Track if there are unsaved changes
   const [hasChanges, setHasChanges] = useState(false);
@@ -125,14 +133,22 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   // Initialize form data and track original values
   useEffect(() => {
     if (balise && mode !== 'create') {
+      const dummyFiles: never[] = [];
+
       const initialData = {
         secondaryId: balise.secondaryId.toString(),
         description: balise.description,
-        files: [],
+        files: dummyFiles, // TODO: Change back to [] when done testing
       };
       setFormData(initialData);
-      setOriginalData(initialData);
+      setOriginalData({ ...initialData, files: [] }); // Original has no files
       setHasChanges(false);
+
+      // Auto-mark existing files for deletion when dummy files are present
+      if (balise.fileTypes && balise.fileTypes.length > 0) {
+        setFilesToDelete(balise.fileTypes);
+        setFilesToKeep([]);
+      }
     }
   }, [balise, mode]);
 
@@ -238,9 +254,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
       setFormData((prev) => ({ ...prev, files: [...(prev.files || []), ...allFiles] }));
 
-      // Auto-mark existing files for deletion when new files are added (in edit mode)
+      // When new files are added in edit mode, mark all existing files for deletion by default
+      // User can then choose which ones to keep
       if (mode !== 'create' && balise && balise.fileTypes && balise.fileTypes.length > 0 && allFiles.length > 0) {
         setFilesToDelete(balise.fileTypes);
+        setFilesToKeep([]); // None kept by default
         setHasChanges(true);
       }
     },
@@ -254,36 +272,25 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
     }));
   }, []);
 
-  // Toggle file selection
-  const toggleFileSelection = useCallback((fileType: string) => {
-    setSelectedFiles((prev) => (prev.includes(fileType) ? prev.filter((f) => f !== fileType) : [...prev, fileType]));
-  }, []);
-
-  // Mark selected files for deletion
-  const markSelectedForDeletion = useCallback(() => {
-    const uniqueFiles = Array.from(new Set([...filesToDelete, ...selectedFiles]));
-    setFilesToDelete(uniqueFiles);
-    setSelectedFiles([]);
-    setHasChanges(true);
-  }, [selectedFiles, filesToDelete]);
-
-  // Toggle deletion mark on a file
-  const toggleFileDeletion = useCallback((fileType: string) => {
-    setFilesToDelete((prev) => (prev.includes(fileType) ? prev.filter((f) => f !== fileType) : [...prev, fileType]));
-    setHasChanges(true);
-  }, []);
-
-  // Download selected files
-  const downloadSelectedFiles = useCallback(() => {
-    console.log('Download files:', selectedFiles);
-    // TODO: Implement file download
-  }, [selectedFiles]);
+  // Toggle whether to keep an existing file when new files are uploaded
+  const toggleFileToKeep = useCallback(
+    (fileType: string) => {
+      setFilesToKeep((prev) => {
+        const newFilesToKeep = prev.includes(fileType) ? prev.filter((f) => f !== fileType) : [...prev, fileType];
+        // Update filesToDelete accordingly
+        setFilesToDelete(balise?.fileTypes?.filter((ft) => !newFilesToKeep.includes(ft)) || []);
+        return newFilesToKeep;
+      });
+      setHasChanges(true);
+    },
+    [balise?.fileTypes],
+  );
 
   // Undo all changes (description + file deletions)
   const handleUndo = useCallback(() => {
     setFormData(originalData);
     setFilesToDelete([]);
-    setSelectedFiles([]);
+    setFilesToKeep([]);
     setHasChanges(false);
   }, [originalData]);
 
@@ -479,7 +486,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                   startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Save />}
                   onClick={handleSave}
                   disabled={loading || !formData.secondaryId || !formData.description}
-                  size="medium"
+                  size="small"
                 >
                   {loading ? 'Tallentaa...' : 'Tallenna'}
                 </Button>
@@ -525,70 +532,28 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               onChange={(value) => handleInputChange('description', value)}
               disabled={false}
               multiline
-              rows={4}
+              rows={2}
               placeholder="Syötä kuvaus"
             />
           </Paper>
           <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
-            {/* File Management */}
+            {/* File Management v2024-10-16-13:05 */}
             <Box>
-              {/* Current Files - Always show if balise exists */}
-              {!isCreate && balise && balise.fileTypes && balise.fileTypes.length > 0 && (
-                <Box sx={{ mb: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h4">Nykyiset tiedostot</Typography>
-                    {selectedFiles.length > 0 ? (
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button size="small" color="primary" variant="outlined" onClick={downloadSelectedFiles}>
-                          Lataa valitut ({selectedFiles.length})
-                        </Button>
-                        <Button size="small" color="error" variant="outlined" onClick={markSelectedForDeletion}>
-                          Poista valitut
-                        </Button>
+              {/* Show upload area when no files have been added in edit mode */}
+              {!isCreate && (!formData.files || formData.files.length === 0) && (
+                <Box>
+                  {balise && balise.fileTypes && balise.fileTypes.length > 0 && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>
+                        Nykyiset tiedostot
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+                        {balise.fileTypes.map((fileType, index) => (
+                          <ChipWrapper key={index} text={fileType} icon={<Description />} />
+                        ))}
                       </Box>
-                    ) : (
-                      <Button size="small" color="secondary" variant="outlined">
-                        Lataa tiedostot
-                      </Button>
-                    )}
-                  </Box>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, px: 1 }}>
-                    {balise.fileTypes.map((fileType, index) => {
-                      const isMarkedForDeletion = filesToDelete.includes(fileType);
-                      const isSelected = selectedFiles.includes(fileType);
-
-                      return (
-                        <ChipWrapper
-                          key={index}
-                          text={fileType}
-                          icon={<Description />}
-                          onClick={() =>
-                            isMarkedForDeletion ? toggleFileDeletion(fileType) : toggleFileSelection(fileType)
-                          }
-                          sx={{
-                            textDecoration: isMarkedForDeletion ? 'line-through' : 'none',
-                            opacity: isMarkedForDeletion ? 0.6 : 1,
-                            backgroundColor: isSelected ? 'action.selected' : undefined,
-                            border: isSelected ? '2px solid' : undefined,
-                            borderColor: isSelected ? 'primary.main' : undefined,
-                            cursor: 'pointer',
-                            '&:hover': {
-                              backgroundColor: isMarkedForDeletion ? 'error.light' : 'action.hover',
-                            },
-                          }}
-                        />
-                      );
-                    })}
-                  </Box>
-                </Box>
-              )}
-
-              {/* Drag and Drop Upload Area - Always available */}
-              {!isCreate && (
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>
-                    Korvaa tiedostot uusilla
-                  </Typography>
+                    </Box>
+                  )}
                   <Box
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -599,11 +564,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       borderRadius: 2,
                       p: 3,
                       textAlign: 'center',
-                      bgcolor: 'action.hover',
+                      bgcolor: isDragging ? 'action.selected' : 'action.hover',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
                       '&:hover': {
                         borderColor: 'primary.main',
+                        bgcolor: 'action.selected',
                       },
                     }}
                   >
@@ -623,12 +589,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                         width: '100%',
                       }}
                     >
-                      <DriveFolderUpload sx={{ fontSize: 40, color: 'secondary.light', mb: 1 }} />
-                      <Typography variant="body2" gutterBottom>
-                        Korvaa tiedostot raahaamalla kansio tähän tai klikkaa valitaksesi
+                      <DriveFolderUpload sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+                      <Typography variant="body1" gutterBottom fontWeight={500}>
+                        Lisää uusia tiedostoja
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Voit raahata koko kansion tai yksittäisiä tiedostoja. Tuetut tiedostotyypit: .il, .leu ja .bis
+                        Raahaa kansio tai tiedostot tähän, tai klikkaa valitaksesi
                       </Typography>
                     </label>
                   </Box>
@@ -647,11 +613,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                     borderRadius: 2,
                     p: 3,
                     textAlign: 'center',
-                    bgcolor: 'action.hover',
+                    bgcolor: isDragging ? 'action.selected' : 'action.hover',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     '&:hover': {
                       borderColor: 'primary.main',
+                      bgcolor: 'action.selected',
                     },
                   }}
                 >
@@ -671,43 +638,218 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       width: '100%',
                     }}
                   >
-                    <DriveFolderUpload sx={{ fontSize: 40, color: 'secondary.light', mb: 1 }} />
-                    <Typography variant="body1" gutterBottom>
-                      Raahaa kansio tai tiedostot tähän tai klikkaa valitaksesi
+                    <DriveFolderUpload sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+                    <Typography variant="body1" gutterBottom fontWeight={500}>
+                      Raahaa kansio tai tiedostot tähän
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Voit raahata koko kansion tai yksittäisiä tiedostoja. Tuetut tiedostotyypit: .il, .leu ja .bis
+                      Voit raahata koko kansion tai yksittäisiä tiedostoja
                     </Typography>
                   </label>
                 </Box>
               )}
 
-              {/* New Files List - Show uploaded files that will replace current ones */}
-              {formData.files && formData.files.length > 0 && (
+              {/* Two-list view when files have been uploaded - both as list items */}
+              {!isCreate &&
+                formData.files &&
+                formData.files.length > 0 &&
+                balise &&
+                balise.fileTypes &&
+                balise.fileTypes.length > 0 && (
+                  <Box>
+                    <Typography variant="h4" sx={{ mb: 1, fontWeight: 500 }}>
+                      Hallitse tiedostoja
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                      Valitse säilytettävät tiedostot ja vahvista uudet lisäykset.
+                    </Typography>
+                    <Divider sx={{ mx: -3, my: 3 }} />
+
+                    {/* List 1: Existing files - marked for deletion by default, click to keep */}
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="h4" sx={{ mb: 1, fontWeight: 500 }}>
+                        Nykyiset tiedostot
+                      </Typography>
+                      <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                        Nykyiset tiedostot poistetaan oletuksena. Klikkaa tiedostoa säilyttääksesi se.
+                      </Typography>
+                      <List disablePadding>
+                        {balise.fileTypes.map((fileType, index) => {
+                          const isKept = filesToKeep.includes(fileType);
+                          return (
+                            <ListItem
+                              key={index}
+                              onClick={() => toggleFileToKeep(fileType)}
+                              sx={{
+                                mb: 1,
+                                borderRadius: 2,
+                                border: 1,
+                                borderColor: isKept ? 'primary.light' : 'divider',
+                                bgcolor: isKept ? '#eff6ff' : 'divider',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease-in-out',
+                                '&:hover': {
+                                  bgcolor: isKept ? '#eff6ff' : 'action.hover',
+                                  borderColor: isKept ? 'primary.light' : 'action.hover',
+                                },
+                              }}
+                            >
+                              <ListItemIcon sx={{ minWidth: 40 }}>
+                                {isKept ? (
+                                  <CheckBox sx={{ color: 'primary.main', fontSize: 22 }} />
+                                ) : (
+                                  <CheckBoxOutlineBlank sx={{ color: 'text.disabled', fontSize: 22 }} />
+                                )}
+                              </ListItemIcon>
+
+                              <ListItemIcon sx={{ minWidth: 40 }}>
+                                <DescriptionOutlined sx={{ fontSize: 22 }} />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={fileType}
+                                primaryTypographyProps={{
+                                  sx: {
+                                    textDecoration: isKept ? 'none' : 'line-through',
+                                    color: isKept ? 'text.primary' : 'text.disabled',
+                                    fontWeight: isKept ? 500 : 400,
+                                  },
+                                }}
+                              />
+                            </ListItem>
+                          );
+                        })}
+                      </List>
+                    </Box>
+
+                    <Divider sx={{ my: 3 }} />
+
+                    {/* List 2: New uploaded files - will be added to new version */}
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="h4" sx={{ mb: 2, fontWeight: 500 }}>
+                        Uudet tiedostot
+                      </Typography>
+                      <List disablePadding>
+                        {formData.files.map((file, index) => (
+                          <ListItem
+                            key={index}
+                            sx={{
+                              mb: 1,
+                              borderRadius: 2,
+                              border: 1,
+                              borderColor: '#bbf7d0',
+                              bgcolor: '#f0fdf4',
+                            }}
+                            secondaryAction={
+                              <IconButton size="small" onClick={() => removeFile(index)} edge="end">
+                                <Close sx={{ fontSize: 20 }} />
+                              </IconButton>
+                            }
+                          >
+                            <ListItemIcon sx={{ minWidth: 40 }}>
+                              <DescriptionOutlined sx={{ color: '#2fa34b', fontSize: 22 }} />
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={file.name}
+                              secondary={`${(file.size / 1024).toFixed(0)} kB`}
+                              primaryTypographyProps={{
+                                sx: { fontWeight: 500 },
+                              }}
+                              secondaryTypographyProps={{
+                                sx: { fontSize: '0.75rem' },
+                              }}
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+
+                    <Divider sx={{ my: 3 }} />
+
+                    {/* Upload more files section */}
+                    <Box>
+                      <Typography variant="h4" sx={{ mb: 2, fontWeight: 500 }}>
+                        Lisää tiedostoja
+                      </Typography>
+                      <Box
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        sx={{
+                          border: '1px dashed',
+                          borderColor: isDragging ? 'primary.main' : 'divider',
+                          borderRadius: 1,
+                          p: 2,
+                          textAlign: 'center',
+                          bgcolor: isDragging ? 'action.hover' : 'background.paper',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            borderColor: 'primary.main',
+                            bgcolor: 'action.hover',
+                          },
+                        }}
+                      >
+                        <input
+                          type="file"
+                          hidden
+                          multiple
+                          onChange={handleFileUpload}
+                          id="file-upload-more"
+                          {...({ webkitdirectory: '', directory: '' } as any)}
+                        />
+                        <label
+                          htmlFor="file-upload-more"
+                          style={{
+                            cursor: 'pointer',
+                            display: 'block',
+                            width: '100%',
+                          }}
+                        >
+                          <DriveFolderUpload sx={{ fontSize: 32, color: 'text.secondary', mb: 0.5 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            Raahaa lisää tiedostoja tähän tai klikkaa
+                          </Typography>
+                        </label>
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+
+              {/* Show uploaded files list in create mode */}
+              {isCreate && formData.files && formData.files.length > 0 && (
                 <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2" color="primary.main" gutterBottom sx={{ fontWeight: 600 }}>
-                    Uudet tiedostot ({formData.files.length}) - Nämä korvaavat nykyiset tiedostot
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontSize: '0.875rem' }}>
+                    Valitut tiedostot ({formData.files.length})
                   </Typography>
-                  <List dense>
+                  <List dense disablePadding>
                     {formData.files.map((file, index) => (
                       <ListItem
                         key={index}
                         sx={{
-                          bgcolor: 'info.light',
-                          mb: 0.5,
+                          mb: 0.75,
                           borderRadius: 1,
                           border: 1,
-                          borderColor: 'primary.light',
+                          borderColor: 'primary.main',
+                          bgcolor: 'primary.light',
                         }}
                         secondaryAction={
-                          <IconButton size="small" onClick={() => removeFile(index)} color="error">
-                            <Delete />
+                          <IconButton size="small" onClick={() => removeFile(index)} edge="end">
+                            <Delete sx={{ fontSize: 18, color: 'error.main' }} />
                           </IconButton>
                         }
                       >
+                        <ListItemIcon sx={{ minWidth: 36 }}>
+                          <Description sx={{ color: 'primary.main', fontSize: 20 }} />
+                        </ListItemIcon>
                         <ListItemText
                           primary={file.name}
-                          secondary={`${(file.size / 1024 / 1024).toFixed(2)} MB - Tyyppi: ${getFileType(file.name)}`}
+                          secondary={`${(file.size / 1024).toFixed(0)} kB`}
+                          primaryTypographyProps={{
+                            sx: { fontSize: '0.875rem', color: 'primary.dark' },
+                          }}
+                          secondaryTypographyProps={{
+                            sx: { fontSize: '0.75rem' },
+                          }}
                         />
                       </ListItem>
                     ))}
