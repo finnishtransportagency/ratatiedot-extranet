@@ -261,6 +261,28 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
         balises: state.balises.filter((balise) => balise.secondaryId !== secondaryId),
       }));
     } catch (error) {
+      console.error('Failed to delete balise:', error);
+      throw error;
+    }
+  },
+
+  lockBalise: async (secondaryId) => {
+    try {
+      const response = await fetch(`/api/balise/${secondaryId}/lock`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to lock balise');
+      }
+
+      // Refresh the balise to get updated lock status
+      await get().refreshBalise(secondaryId);
+    } catch (error) {
       console.error('Failed to lock balise:', error);
       throw error;
     }
