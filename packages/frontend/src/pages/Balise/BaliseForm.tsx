@@ -525,7 +525,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               onChange={(value) => handleInputChange('description', value)}
               disabled={false}
               multiline
-              rows={2}
+              rows={4}
               placeholder="Syötä kuvaus"
             />
           </Paper>
@@ -645,15 +645,13 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                     border: '2px dashed',
                     borderColor: isDragging ? 'primary.main' : 'divider',
                     borderRadius: 2,
-                    p: 4,
-                    mb: 2,
+                    p: 3,
                     textAlign: 'center',
-                    bgcolor: isDragging ? 'action.hover' : 'background.paper',
+                    bgcolor: 'action.hover',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     '&:hover': {
                       borderColor: 'primary.main',
-                      bgcolor: 'action.hover',
                     },
                   }}
                 >
@@ -673,7 +671,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       width: '100%',
                     }}
                   >
-                    <CloudUpload sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+                    <DriveFolderUpload sx={{ fontSize: 40, color: 'secondary.light', mb: 1 }} />
                     <Typography variant="body1" gutterBottom>
                       Raahaa kansio tai tiedostot tähän tai klikkaa valitaksesi
                     </Typography>

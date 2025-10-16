@@ -22,7 +22,7 @@ export const InlineEditableField: React.FC<InlineEditableFieldProps> = ({
   onChange,
   disabled = false,
   multiline = false,
-  rows = 1,
+  rows = 4,
   type = 'text',
   placeholder = 'Klikkaa muokataksesi...',
 }) => {
