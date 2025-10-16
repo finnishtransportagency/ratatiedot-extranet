@@ -117,12 +117,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         log.info(user, `Adding file to existing version ${currentVersion} for balise ${baliseId}`);
       }
 
-      // If file is uploaded, add its type to fileTypes array
+      // If file is uploaded, add its filename to fileTypes array
       let updatedFileTypes = existingBalise.fileTypes;
       if (fileData && filename) {
-        const fileExt = filename.split('.').pop()?.toUpperCase() || 'OTHER';
-        if (!updatedFileTypes.includes(fileExt)) {
-          updatedFileTypes = [...updatedFileTypes, fileExt];
+        // Store full filename instead of just extension
+        if (!updatedFileTypes.includes(filename)) {
+          updatedFileTypes = [...updatedFileTypes, filename];
         }
 
         // Upload file to S3 with hierarchical path: balise_{secondaryId}/v{version}/{filename}
@@ -173,11 +173,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       const newVersion = body.version || 1;
       let fileTypes = body.fileTypes || [];
 
-      // If file is uploaded, add its type to fileTypes array
+      // If file is uploaded, add its filename to fileTypes array
       if (fileData && filename) {
-        const fileExt = filename.split('.').pop()?.toUpperCase() || 'OTHER';
-        if (!fileTypes.includes(fileExt)) {
-          fileTypes = [...fileTypes, fileExt];
+        // Store full filename instead of just extension
+        if (!fileTypes.includes(filename)) {
+          fileTypes = [...fileTypes, filename];
         }
 
         // Upload file to S3 with hierarchical path: balise_{secondaryId}/v{version}/{filename}

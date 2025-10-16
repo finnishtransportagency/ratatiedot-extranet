@@ -1,61 +1,19 @@
-export interface Balise {
-  id: string;
-  secondaryId: number;
-  version: number;
-  description: string;
-  bucketId: string;
-  fileTypes: string[];
-  createdBy: string;
-  createdTime: Date | string;
-  locked: boolean;
-  lockedBy?: string | null;
-  lockedTime?: Date | string | null;
-  deletedAt?: Date | string | null;
-  deletedBy?: string | null;
-  history?: BaliseVersion[];
-}
-
-export interface BaliseVersion {
-  id: string;
-  baliseId: string;
-  secondaryId: number;
-  version: number;
-  description: string;
-  bucketId: string;
-  fileTypes: string[];
-  createdBy: string;
-  createdTime: Date | string;
-  locked: boolean;
-  lockedBy?: string | null;
-  lockedTime?: Date | string | null;
-  versionCreatedTime: Date | string;
-}
+import { Balise as PrismaBalise, BaliseVersion } from '@prisma/client';
 
 export interface Area {
   id: string;
-  key: string;
   name: string;
   shortName: string;
-  description?: string | null;
+  key: string;
   idRangeMin: number;
   idRangeMax: number;
-  color?: string | null;
-  active: boolean;
-  createdBy: string;
-  createdTime: Date | string;
-  updatedBy?: string | null;
-  updatedTime?: Date | string | null;
 }
 
-export interface BaliseFilters {
-  searchTerm: string;
-  selectedArea: string | null;
-}
-
-export interface AreaConfig {
-  key: string;
-  name: string;
-  shortName: string;
+// We rename the imported Balise to avoid conflicts
+// And we override the types for date fields to allow for string representation from JSON
+export interface Balise extends Omit<PrismaBalise, 'createdTime' | 'lockedTime' | 'history'> {
+  createdTime: string | Date;
+  lockedTime?: string | Date | null;
 }
 
 // Extended interface that includes history for frontend usage

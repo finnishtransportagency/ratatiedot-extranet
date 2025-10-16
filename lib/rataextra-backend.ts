@@ -456,6 +456,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/balise/delete-balise-files.ts',
     });
 
+    const getAreas = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-areas',
+      relativePath: '../packages/server/lambdas/balise/get-areas.ts',
+    });
+
     imageBucket.grantReadWrite(postNotice);
     imageBucket.grantReadWrite(putNotice);
     imageBucket.grantReadWrite(deleteNotice);
@@ -678,6 +684,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/alfresco/files/*/*/move'],
         httpRequestMethods: ['POST'],
         targetName: 'alfrescoMoveNode',
+      },
+      {
+        lambda: getAreas,
+        priority: 275,
+        path: ['/api/areas'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getAreas',
       },
       {
         lambda: getBalise,

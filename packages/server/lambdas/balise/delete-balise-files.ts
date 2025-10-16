@@ -33,7 +33,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'No file types specified for deletion' }),
+        body: JSON.stringify({ error: 'No files specified for deletion' }),
       };
     }
 
@@ -64,10 +64,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Remove specified file types from the balise
-    const updatedFileTypes = existingBalise.fileTypes.filter((fileType) => !fileTypesToDelete.includes(fileType));
+    // Remove specified filenames from the balise
+    const updatedFileTypes = existingBalise.fileTypes.filter((filename) => !fileTypesToDelete.includes(filename));
 
-    // If all file types would be removed, return an error
+    // If all files would be removed, return an error
     if (updatedFileTypes.length === 0 && existingBalise.fileTypes.length > 0) {
       return {
         statusCode: 400,
@@ -99,22 +99,16 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const newVersion = existingBalise.version + 1;
 
     // Delete files from S3
-    // Files are stored at: balise_{secondaryId}/v{version}/{filename}.{ext}
-    // We need to list and delete files with matching extensions from the current version
+    // Files are stored at: balise_{secondaryId}/v{version}/{filename}
     const deletionPromises: Promise<void>[] = [];
 
-    for (const fileType of fileTypesToDelete) {
-      // Delete from the current version folder
-      // Note: We don't know the exact filename, so we'll use a wildcard approach
-      // In production, you might want to store filenames in the database or list S3 objects
-      const s3KeyPrefix = `balise_${baliseId}/v${existingBalise.version}/`;
+    for (const filename of fileTypesToDelete) {
+      // Delete from the current version folder using full filename
+      const s3Key = `balise_${baliseId}/v${existingBalise.version}/${filename}`;
+      log.info(user, `Deleting file from S3: ${s3Key}`);
 
       // For now, log the deletion intent
-      // In production, you would list objects with this prefix and extension, then delete them
-      log.info(user, `Deleting files with type ${fileType} from ${s3KeyPrefix}`);
-
-      // Example of how to delete a specific file (you'll need to implement listing first):
-      // const s3Key = `${s3KeyPrefix}filename.${fileType.toLowerCase()}`;
+      // In production, implement actual S3 deletion:
       // deletionPromises.push(deleteFromS3(BALISES_BUCKET_NAME, s3Key));
     }
 

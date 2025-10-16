@@ -33,9 +33,6 @@ import {
   Undo,
   Description,
   DriveFolderUpload,
-  Add,
-  RemoveCircleOutline,
-  Check,
   CheckBox,
   DescriptionOutlined,
   CheckBoxOutlineBlank,
@@ -59,12 +56,6 @@ interface FormData {
   description: string;
   files?: File[];
 }
-
-// Helper to detect file type from extension
-const getFileType = (filename: string): string => {
-  const ext = filename.split('.').pop()?.toUpperCase() || 'OTHER';
-  return ext;
-};
 
 const pulseAnimation = {
   '@keyframes pulse-blue': {
@@ -314,8 +305,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
       // Only add file-related data if new files are being uploaded
       if (formData.files && formData.files.length > 0) {
-        // Auto-detect file types from uploaded files
-        const fileTypes = formData.files.map((file) => getFileType(file.name));
+        // Store full filenames instead of just extensions
+        const fileTypes = formData.files.map((file) => file.name);
         // Generate bucket ID automatically: balise_{secondaryId}_{timestamp}
         const bucketId = `balise_${formData.secondaryId}_${Date.now()}`;
 
@@ -532,7 +523,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               onChange={(value) => handleInputChange('description', value)}
               disabled={false}
               multiline
-              rows={2}
+              rows={3}
               placeholder="Syötä kuvaus"
             />
           </Paper>
@@ -544,9 +535,14 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                 <Box>
                   {balise && balise.fileTypes && balise.fileTypes.length > 0 && (
                     <Box sx={{ mb: 2 }}>
-                      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>
-                        Nykyiset tiedostot
-                      </Typography>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Nykyiset tiedostot
+                        </Typography>
+                        <Button size="small" variant="outlined" color="secondary">
+                          Lataa tiedostot
+                        </Button>
+                      </Box>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
                         {balise.fileTypes.map((fileType, index) => (
                           <ChipWrapper key={index} text={fileType} icon={<Description />} />
@@ -589,11 +585,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                         width: '100%',
                       }}
                     >
-                      <DriveFolderUpload sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
-                      <Typography variant="body1" gutterBottom fontWeight={500}>
+                      <DriveFolderUpload sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+                      <Typography variant="body1" gutterBottom fontWeight={400} color="text.secondary">
                         Lisää uusia tiedostoja
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" color="text.disabled">
                         Raahaa kansio tai tiedostot tähän, tai klikkaa valitaksesi
                       </Typography>
                     </label>
@@ -638,11 +634,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       width: '100%',
                     }}
                   >
-                    <DriveFolderUpload sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
-                    <Typography variant="body1" gutterBottom fontWeight={500}>
+                    <DriveFolderUpload sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+                    <Typography variant="body1" gutterBottom fontWeight={400} color="text.secondary">
                       Raahaa kansio tai tiedostot tähän
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" color="text.disabled">
                       Voit raahata koko kansion tai yksittäisiä tiedostoja
                     </Typography>
                   </label>
@@ -806,7 +802,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                           }}
                         >
                           <DriveFolderUpload sx={{ fontSize: 32, color: 'text.secondary', mb: 0.5 }} />
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography variant="body2" color="text.disabled">
                             Raahaa lisää tiedostoja tähän tai klikkaa
                           </Typography>
                         </label>
@@ -998,6 +994,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                             <Button
                               size="small"
                               variant="outlined"
+                              color="secondary"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 console.log('Download all files for version', version.version);

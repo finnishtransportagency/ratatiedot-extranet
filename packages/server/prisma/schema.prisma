@@ -94,7 +94,7 @@ model Balise {
   version     Int
   description String
   bucketId    String
-  fileTypes   String[] // ["leu", "il", "pdf", ...]. can be used to indicate filetypes and count without making request to s3
+  fileTypes   String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
   history     BaliseVersion[]
   createdBy   String
   createdTime DateTime        @default(now())

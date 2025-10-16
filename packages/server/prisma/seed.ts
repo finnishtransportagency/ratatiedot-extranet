@@ -25,189 +25,84 @@ function getRandomUser() {
 }
 
 // Helper function to generate random description with varied lengths
-function getRandomDescription(secondaryId: number) {
-  const shortDescriptions = [
-    `Baliisi ${secondaryId} - Pääradan varsilla`,
-    `Baliisi ${secondaryId} - Sivuradan päässä`,
-    `Baliisi ${secondaryId} - Liikennepaikan kohdalla`,
-    `Baliisi ${secondaryId} - Vaihtoalueella`,
-    `Baliisi ${secondaryId} - Tunnelin suulla`,
-    `Baliisi ${secondaryId} - Sillan kohdalla`,
-    `Baliisi ${secondaryId} - Tasoristeyksessä`,
+function getRandomDescription() {
+  const descriptions = [
+    `Baliisi sijaitsee pääradan varrella km ${Math.floor(Math.random() * 600)}.`,
+    `Asennettu vuonna ${2015 + Math.floor(Math.random() * 10)}. Toimii osana ERTMS-järjestelmää.`,
+    `Sijaitsee ${Math.floor(Math.random() * 500) + 100} metriä liikennepaikan jälkeen. Huollettu viimeksi ${new Date(
+      Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000,
+    ).toLocaleDateString('fi-FI')}.`,
+    `Vaihtoalueen reunalla. Kriittinen osa junaliikenteen ohjausta.`,
+    `Tunnelin suulla, erikoissijoitus turvallisuussyistä.`,
+    `Sillan kohdalla km ${Math.floor(Math.random() * 400) + 50}. Integroitu JKV-järjestelmään.`,
+    `Sivuradan päässä. Vaatii säännöllistä huoltoa talviolosuhteissa.`,
+    `Aseman itäpäässä noin ${Math.floor(Math.random() * 800) + 200} metriä opastimesta.`,
+    `Pitkän suoran keskivaiheilla. Varustettu kaksoislähetinyksikköllä.`,
+    `Tasoristeyksessä km ${Math.floor(Math.random() * 300) + 50}. Asennettu ${2018 + Math.floor(Math.random() * 7)}.`,
   ];
 
-  const longDescriptions = [
-    `Baliisi ${secondaryId} - Sijaitsee Helsinki-Riihimäki pääradan varrella, noin 2 kilometriä Tikkurilan asemasta etelään. Baliisi on asennettu vuonna 2019 osana ERTMS-järjestelmän käyttöönottoa. Laite toimii normaalisti ja on integroitu JKV-järjestelmään.`,
-    `Baliisi ${secondaryId} - Kerava-Lahti rataosuudella sijaitsevan balisien ryhmän ensimmäinen baliisi. Asennettu erikoissijoitukseen tunnelin sisäänkäynnin läheisyyteen turvallisuussyistä. Vaatii säännöllistä huoltoa ympäristöolosuhteiden vuoksi.`,
-    `Baliisi ${secondaryId} - Tampereen liikennepaikan itäpäässä sijaitseva baliisi, joka välittää tietoja junien nopeudesta ja sijaintitiedoista. Baliisi on osa laajempaa automaatiojärjestelmää ja kommunikoi suoraan Tampere-keskuksen kanssa reaaliaikaisesti.`,
-    `Baliisi ${secondaryId} - Turku-Toijala rataosalla sijaitsevan vaihtoalueen keskiössä. Baliisi on kriittinen osa junaliikenteen ohjausta alueella ja vaatii erityistä huomiota huoltotoimenpiteissä. Integroitu paikalliseen turvalaitekannan hallintajärjestelmään.`,
-    `Baliisi ${secondaryId} - Kouvolaan johtavan sivuradan päässä, noin 500 metriä ennen asemarakennusta. Baliisi on varustettu erikoislähettimellä, joka mahdollistaa tiedonsiirron myös huonoissa sääolosuhteissa. Asennettu korkeaan betonipylvääseen näkyvyyden varmistamiseksi.`,
-    `Baliisi ${secondaryId} - Oulu-Rovaniemi rataosalla sijaitsevan pitkän suoran keskivaiheilla. Baliisi toimii tärkeänä välityspisteenä pohjoiseen suuntautuvalle liikenteelle ja on varustettu kaksoislähetinyksikköllä varmuuden lisäämiseksi.`,
-  ];
-
-  // 70% chance of short description, 30% chance of long description
-  const useShort = Math.random() < 0.7;
-  const descriptions = useShort ? shortDescriptions : longDescriptions;
   return descriptions[Math.floor(Math.random() * descriptions.length)];
 }
 
-// Helper function to generate realistic fileTypes
+// Helper function to generate realistic filenames
 function getRandomFileTypes(): string[] {
-  // 70% chance of having both common types
+  const randomId = Math.floor(Math.random() * 10000);
+  const filenamePrefixes = ['tiedot', 'data', 'config', 'info', 'params', 'setup'];
+  const prefix = filenamePrefixes[Math.floor(Math.random() * filenamePrefixes.length)];
+
+  // 70% chance of having both common file types
   if (Math.random() < 0.7) {
     // 20% chance of also having 'bis' with the common types
     if (Math.random() < 0.2) {
-      return ['leu', 'il', 'bis'];
+      return [`${prefix}_${randomId}.leu`, `${prefix}_${randomId}.il`, `${prefix}_${randomId}.bis`];
     }
-    return ['leu', 'il'];
+    return [`${prefix}_${randomId}.leu`, `${prefix}_${randomId}.il`];
   }
 
-  // 20% chance of having only one common type
+  // 20% chance of having only one common file
   if (Math.random() < 0.67) {
-    // 20% of remaining 30%
-    return Math.random() < 0.5 ? ['leu'] : ['il'];
+    return Math.random() < 0.5 ? [`${prefix}_${randomId}.leu`] : [`${prefix}_${randomId}.il`];
   }
 
   // 10% chance of having 'bis' with one common type
-  const singleCommon = Math.random() < 0.5 ? 'leu' : 'il';
-  return [singleCommon, 'bis'];
+  const singleCommon = Math.random() < 0.5 ? `${prefix}_${randomId}.leu` : `${prefix}_${randomId}.il`;
+  return [singleCommon, `${prefix}_${randomId}.bis`];
 }
 
 async function seedAreas() {
   console.log('🌱 Seeding railway areas...');
 
-  const areas = [
-    {
-      name: 'Helsinki-Riihimäki',
-      shortName: 'Alue 1',
-      key: 'area_1',
-      idRangeMin: 10000,
-      idRangeMax: 14999,
-      description: 'Helsinki-Riihimäki väli sisältää pääkaupunkiseudun ja Riihimäen välisen radan',
-      color: '#FF6B6B',
-      createdBy: 'system',
-    },
-    {
-      name: 'Riihimäki-Tampere',
-      shortName: 'Alue 2',
-      key: 'area_2',
-      idRangeMin: 15000,
-      idRangeMax: 19999,
-      description: 'Riihimäki-Tampere väli',
-      color: '#4ECDC4',
-      createdBy: 'system',
-    },
-    {
-      name: 'Tampere-Seinäjoki',
-      shortName: 'Alue 3',
-      key: 'area_3',
-      idRangeMin: 20000,
-      idRangeMax: 24999,
-      description: 'Tampere-Seinäjoki väli',
-      color: '#45B7D1',
-      createdBy: 'system',
-    },
-    {
-      name: 'Seinäjoki-Oulu',
-      shortName: 'Alue 4',
-      key: 'area_4',
-      idRangeMin: 25000,
-      idRangeMax: 29999,
-      description: 'Seinäjoki-Oulu väli',
-      color: '#96CEB4',
-      createdBy: 'system',
-    },
-    {
-      name: 'Oulu-Rovaniemi',
-      shortName: 'Alue 5',
-      key: 'area_5',
-      idRangeMin: 30000,
-      idRangeMax: 34999,
-      description: 'Oulu-Rovaniemi väli',
-      color: '#FFEAA7',
-      createdBy: 'system',
-    },
-    {
-      name: 'Rovaniemi-Kolari',
-      shortName: 'Alue 6',
-      key: 'area_6',
-      idRangeMin: 35000,
-      idRangeMax: 39999,
-      description: 'Rovaniemi-Kolari väli',
-      color: '#DDA0DD',
-      createdBy: 'system',
-    },
-    {
-      name: 'Lahti-Heinola',
-      shortName: 'Alue 7',
-      key: 'area_7',
-      idRangeMin: 40000,
-      idRangeMax: 44999,
-      description: 'Lahti-Heinola sivurata',
-      color: '#98D8C8',
-      createdBy: 'system',
-    },
-    {
-      name: 'Turku-Toijala',
-      shortName: 'Alue 8',
-      key: 'area_8',
-      idRangeMin: 45000,
-      idRangeMax: 49999,
-      description: 'Turku-Toijala väli',
-      color: '#F7DC6F',
-      createdBy: 'system',
-    },
-    {
-      name: 'Kouvola-Joensuu',
-      shortName: 'Alue 9',
-      key: 'area_9',
-      idRangeMin: 50000,
-      idRangeMax: 54999,
-      description: 'Kouvola-Joensuu väli',
-      color: '#BB8FCE',
-      createdBy: 'system',
-    },
-    {
-      name: 'Joensuu-Nurmes',
-      shortName: 'Alue 10',
-      key: 'area_10',
-      idRangeMin: 55000,
-      idRangeMax: 59999,
-      description: 'Joensuu-Nurmes väli',
-      color: '#85C1E9',
-      createdBy: 'system',
-    },
-    {
-      name: 'Pieksämäki-Joensuu',
-      shortName: 'Alue 11',
-      key: 'area_11',
-      idRangeMin: 60000,
-      idRangeMax: 64999,
-      description: 'Pieksämäki-Joensuu yhdysrata',
-      color: '#F8C471',
-      createdBy: 'system',
-    },
-    {
-      name: 'Muut alueet',
-      shortName: 'Alue 12',
-      key: 'area_12',
-      idRangeMin: 65000,
-      idRangeMax: 99999,
-      description: 'Muut ja erikoisalueet',
-      color: '#D5DBDB',
-      createdBy: 'system',
-    },
-  ];
+  // Delete existing areas
+  await prisma.area.deleteMany({});
 
-  for (const area of areas) {
-    await prisma.area.upsert({
-      where: { key: area.key },
-      update: area,
-      create: area,
+  const areas = [];
+
+  // Create 63 areas (area 10 through area 72)
+  for (let areaNum = 10; areaNum <= 72; areaNum++) {
+    const idRangeMin = areaNum * 1000;
+    const idRangeMax = areaNum * 1000 + 999;
+
+    areas.push({
+      name: `Alue ${areaNum}`,
+      shortName: `Alue ${areaNum}`,
+      key: `area_${areaNum}`,
+      idRangeMin,
+      idRangeMax,
+      description: `Rataosuus ${areaNum}, baliisi ID:t ${idRangeMin}-${idRangeMax}`,
+      color: `#${Math.floor(Math.random() * 16777215)
+        .toString(16)
+        .padStart(6, '0')}`, // Random color
+      createdBy: 'system',
     });
   }
 
-  console.log(`✅ Created/updated ${areas.length} railway areas`);
+  for (const area of areas) {
+    await prisma.area.create({
+      data: area,
+    });
+  }
+
+  console.log(`✅ Created ${areas.length} railway areas (area 10 - area 72)`);
 }
 
 async function seedBalises() {
@@ -220,36 +115,28 @@ async function seedBalises() {
   const balises = [];
   const baliseVersions = [];
 
-  // Create approximately 50,000 balises (89,999 IDs with random selection)
-  const totalBalises = 50000;
+  // Generate IDs distributed across all 63 areas (10-72)
+  // Each area gets between 100-600 balises randomly
+  const areasConfig = [];
+  for (let areaNum = 10; areaNum <= 72; areaNum++) {
+    const min = areaNum * 1000;
+    const max = areaNum * 1000 + 999;
+    const balisesInArea = Math.floor(Math.random() * 501) + 100; // Random between 100-600
+    areasConfig.push({ min, max, count: balisesInArea });
+  }
+
+  const totalBalises = areasConfig.reduce((sum, area) => sum + area.count, 0);
   const recentBaliseCount = Math.floor(totalBalises * 0.1); // 10% recent
   let recentCreated = 0;
 
-  // Generate IDs distributed across all areas to ensure good coverage
-  // Each area gets roughly equal number of balises
-  const areasConfig = [
-    { min: 10000, max: 14999 }, // area_1
-    { min: 15000, max: 19999 }, // area_2
-    { min: 20000, max: 24999 }, // area_3
-    { min: 25000, max: 29999 }, // area_4
-    { min: 30000, max: 34999 }, // area_5
-    { min: 35000, max: 39999 }, // area_6
-    { min: 40000, max: 44999 }, // area_7
-    { min: 45000, max: 49999 }, // area_8
-    { min: 50000, max: 54999 }, // area_9
-    { min: 55000, max: 59999 }, // area_10
-    { min: 60000, max: 64999 }, // area_11
-    { min: 65000, max: 99999 }, // area_12 (larger range)
-  ];
+  console.log(`Creating ${totalBalises} balises across ${areasConfig.length} areas...`);
 
   const selectedIds: number[] = [];
-  const balisesPerArea = Math.floor(totalBalises / areasConfig.length);
-  const remainder = totalBalises % areasConfig.length;
 
   for (let areaIndex = 0; areaIndex < areasConfig.length; areaIndex++) {
     const area = areasConfig[areaIndex];
     const areaRange = area.max - area.min + 1;
-    const balisesForThisArea = balisesPerArea + (areaIndex < remainder ? 1 : 0);
+    const balisesForThisArea = area.count;
 
     // Generate random IDs within this area's range
     const areaIds: number[] = [];
@@ -272,7 +159,7 @@ async function seedBalises() {
     const createdTime = shouldBeRecent ? getRecentDate() : getRandomDate();
     if (shouldBeRecent) recentCreated++;
 
-    const description = getRandomDescription(i);
+    const description = getRandomDescription();
 
     // Create main balise record
     const baliseData = {
@@ -290,30 +177,30 @@ async function seedBalises() {
 
     balises.push(baliseData);
 
-    // Create version history for this balise
-    let versionCreatedTime = createdTime;
-    for (let version = 1; version <= currentVersion; version++) {
-      const versionUser = Math.random() > 0.7 ? getRandomUser() : user; // 30% chance of different user
-      const isVersionLocked = version === currentVersion ? isLocked : Math.random() > 0.9;
+    // Create version history for this balise (versions 1 to currentVersion-1)
+    // The current version is NOT in the history - only older versions
+    let versionCreatedTime = new Date(createdTime.getTime() - currentVersion * 30 * 24 * 60 * 60 * 1000); // Start from older date
 
-      // Each version created some time after the previous one
-      if (version > 1) {
-        versionCreatedTime = new Date(versionCreatedTime.getTime() + Math.random() * 30 * 24 * 60 * 60 * 1000); // 0-30 days later
-      }
+    for (let version = 1; version < currentVersion; version++) {
+      const versionUser = Math.random() > 0.7 ? getRandomUser() : user; // 30% chance of different user
+      const isVersionLocked = false; // Old versions are never locked
 
       baliseVersions.push({
         secondaryId: i,
         version,
-        description: version === 1 ? description : `${description} (versio ${version})`,
+        description: getRandomDescription(),
         bucketId: `balise-${i}-v${version}`,
         fileTypes: getRandomFileTypes(), // Each version can have different file types
         createdBy: versionUser,
         createdTime: versionCreatedTime,
         locked: isVersionLocked,
-        lockedBy: isVersionLocked ? versionUser : null,
-        lockedTime: isVersionLocked ? new Date(versionCreatedTime.getTime() + Math.random() * 86400000) : null,
+        lockedBy: null,
+        lockedTime: null,
         versionCreatedTime,
       });
+
+      // Each subsequent version created some time after the previous one
+      versionCreatedTime = new Date(versionCreatedTime.getTime() + Math.random() * 30 * 24 * 60 * 60 * 1000); // 0-30 days later
     }
   }
 
