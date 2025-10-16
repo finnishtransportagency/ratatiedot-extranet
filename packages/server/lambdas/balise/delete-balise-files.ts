@@ -67,17 +67,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // Remove specified filenames from the balise
     const updatedFileTypes = existingBalise.fileTypes.filter((filename) => !fileTypesToDelete.includes(filename));
 
-    // If all files would be removed, return an error
-    if (updatedFileTypes.length === 0 && existingBalise.fileTypes.length > 0) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          error: 'Cannot delete all files from balise. Use delete balise endpoint instead.',
-        }),
-      };
-    }
-
     // Create a new version with the files removed
     // First, create version history entry for the OLD version
     await database.baliseVersion.create({

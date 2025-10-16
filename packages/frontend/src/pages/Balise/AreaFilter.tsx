@@ -1,10 +1,10 @@
 import React from 'react';
 import { Cancel } from '@mui/icons-material';
 import { Box, FormControl, InputLabel, Select, MenuItem, Chip, OutlinedInput } from '@mui/material';
-import { AreaConfig } from './types';
+import { Area } from './types';
 
 interface AreaFilterProps {
-  areas: AreaConfig[];
+  areas: Area[];
   selectedAreas: string[];
   onAreasSelect: (areas: string[]) => void;
 }

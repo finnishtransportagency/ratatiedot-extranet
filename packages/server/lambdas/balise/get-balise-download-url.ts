@@ -14,19 +14,23 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
 
-    // Extract balise ID from path (e.g., /api/balise/12345/download)
-    const pathParts = event.path.split('/').filter((p) => p);
-    const baliseIdStr = pathParts[pathParts.indexOf('balise') + 1];
-    const baliseId = parseInt(baliseIdStr || '0', 10);
-    const fileType = event.queryStringParameters?.fileType || 'pdf';
+    const fileName = event.queryStringParameters?.fileName;
 
-    log.info(user, `Get download URL for balise ${baliseId}, fileType: ${fileType}, path: ${event.path}`);
+    log.info(user, `Get download URL for balise ${baliseId}, fileName: ${fileName}, path: ${event.path}`);
 
     if (!baliseId || isNaN(baliseId)) {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Invalid or missing balise ID' }),
+      };
+    }
+
+    if (!fileName) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Missing fileName parameter' }),
       };
     }
 
@@ -44,6 +48,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
+    // Check if the requested file exists for this balise
+    if (!balise.fileTypes.includes(fileName)) {
+      return {
+        statusCode: 404,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: `File '${fileName}' not found for this balise` }),
+      };
+    }
+
     // Check if balise is locked - prevent downloads for locked balises
     if (balise.locked) {
       return {
@@ -57,8 +70,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Generate S3 file key with hierarchical structure: balise_{secondaryId}/v{version}/{fileType}
-    const fileKey = `balise_${balise.secondaryId}/v${balise.version}/${fileType}`;
+    // Generate S3 file key with hierarchical structure: balise_{secondaryId}/v{version}/{fileName}
+    const fileKey = `balise_${balise.secondaryId}/v${balise.version}/${fileName}`;
 
     // Generate presigned URL (expires in 1 hour)
     const downloadUrl = s3.getSignedUrl('getObject', {
@@ -73,7 +86,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       body: JSON.stringify({
         downloadUrl,
         expiresIn: 3600,
-        fileKey,
+        fileName,
         baliseId: balise.secondaryId,
       }),
     };

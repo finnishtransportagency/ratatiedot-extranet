@@ -17,14 +17,7 @@ import {
   Divider,
 } from '@mui/material';
 import { ExpandMore, ExpandLess, Edit, Lock, LockOpen, Delete, Download, Visibility } from '@mui/icons-material';
-import type { BaliseVersion, Balise } from './types';
-
-// Mock area data - in real implementation this would come from API
-
-// Type for Balise with history included
-export type BaliseWithHistory = Balise & {
-  history: BaliseVersion[];
-};
+import type { BaliseWithHistory } from './types';
 
 interface BaliseTableProps {
   items: BaliseWithHistory[];

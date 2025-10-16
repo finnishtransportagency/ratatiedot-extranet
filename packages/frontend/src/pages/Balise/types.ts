@@ -1,5 +1,3 @@
-import { Balise as PrismaBalise, BaliseVersion } from '@prisma/client';
-
 export interface Area {
   id: string;
   name: string;
@@ -9,11 +7,37 @@ export interface Area {
   idRangeMax: number;
 }
 
-// We rename the imported Balise to avoid conflicts
-// And we override the types for date fields to allow for string representation from JSON
-export interface Balise extends Omit<PrismaBalise, 'createdTime' | 'lockedTime' | 'history'> {
+export interface BaliseVersion {
+  id: string;
+  baliseId: string;
+  secondaryId: number;
+  version: number;
+  description: string;
+  bucketId: string;
+  fileTypes: string[];
+  createdBy: string;
   createdTime: string | Date;
+  locked: boolean;
+  lockedBy?: string | null;
   lockedTime?: string | Date | null;
+  versionCreatedTime: string | Date;
+}
+
+export interface Balise {
+  id: string;
+  secondaryId: number;
+  version: number;
+  description: string;
+  bucketId: string;
+  fileTypes: string[];
+  history: BaliseVersion[];
+  createdBy: string;
+  createdTime: string | Date;
+  locked: boolean;
+  lockedBy?: string | null;
+  lockedTime?: string | Date | null;
+  deletedAt?: string | Date | null;
+  deletedBy?: string | null;
 }
 
 // Extended interface that includes history for frontend usage
