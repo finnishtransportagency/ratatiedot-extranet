@@ -124,22 +124,14 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   // Initialize form data and track original values
   useEffect(() => {
     if (balise && mode !== 'create') {
-      const dummyFiles: never[] = [];
-
       const initialData = {
         secondaryId: balise.secondaryId.toString(),
         description: balise.description,
-        files: dummyFiles, // TODO: Change back to [] when done testing
+        files: [],
       };
       setFormData(initialData);
       setOriginalData({ ...initialData, files: [] }); // Original has no files
       setHasChanges(false);
-
-      // Auto-mark existing files for deletion when dummy files are present
-      if (balise.fileTypes && balise.fileTypes.length > 0) {
-        setFilesToDelete(balise.fileTypes);
-        setFilesToKeep([]);
-      }
     }
   }, [balise, mode]);
 

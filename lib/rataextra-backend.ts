@@ -702,7 +702,7 @@ export class RataExtraBackendStack extends NestedStack {
       {
         lambda: getBalises,
         priority: 285,
-        path: ['/api/balises/*'],
+        path: ['/api/balises', '/api/balises/*'],
         httpRequestMethods: ['GET'],
         targetName: 'getBalises',
       },
