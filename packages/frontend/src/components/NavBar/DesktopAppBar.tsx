@@ -13,13 +13,22 @@ import { CustomBreadcrumbs } from '../Breadcrumbs';
 import { useTranslation } from 'react-i18next';
 import { ConfirmationAppBar } from '../Editor/ConfirmationAppBar';
 import { SlateToolbar } from '../Editor/SlateToolbar';
+import { useLocation } from 'react-router-dom';
+import { Routes } from '../../constants/Routes';
 
 export const DesktopAppBar = () => {
   const { openEdit, openDesktopDrawer, openToolbar, openToolbarHandler, userRight } = useContext(AppBarContext);
   const { t } = useTranslation(['common']);
+  const location = useLocation();
 
   const userWriteRight = userRight.canWrite || userRight.isAdmin;
   const shouldEdit = userWriteRight && !openEdit && !openToolbar;
+  const isBaliseRoute = location.pathname === Routes.BALISE;
+
+  // Hide the entire app bar on Balise route
+  if (isBaliseRoute) {
+    return null;
+  }
 
   const MainAppBar = () => {
     return (

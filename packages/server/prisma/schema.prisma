@@ -78,12 +78,66 @@ model Activity {
 }
 
 model Notice {
-  id                String    @id @default(uuid())
-  title             String?
-  content           Json
-  authorId          String?
-  createdTime       DateTime  @default(now())
-  publishTimeStart  DateTime  @default(now())
-  publishTimeEnd    DateTime?
-  showAsBanner      Boolean   @default(false)
+  id               String    @id @default(uuid())
+  title            String?
+  content          Json
+  authorId         String?
+  createdTime      DateTime  @default(now())
+  publishTimeStart DateTime  @default(now())
+  publishTimeEnd   DateTime?
+  showAsBanner     Boolean   @default(false)
+}
+
+model Balise {
+  id          String          @id @default(uuid())
+  secondaryId Int             @unique
+  version     Int
+  description String
+  bucketId    String
+  fileTypes   String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
+  history     BaliseVersion[]
+  createdBy   String
+  createdTime DateTime        @default(now())
+  locked      Boolean         @default(false)
+  lockedBy    String?
+  lockedTime  DateTime?
+  deletedAt   DateTime?
+  deletedBy   String?
+}
+
+model BaliseVersion {
+  id                 String    @id @default(uuid())
+  baliseId           String
+  balise             Balise    @relation(fields: [baliseId], references: [id])
+  secondaryId        Int
+  version            Int
+  description        String
+  bucketId           String
+  fileTypes          String[]
+  createdBy          String
+  createdTime        DateTime
+  locked             Boolean
+  lockedBy           String?
+  lockedTime         DateTime?
+  versionCreatedTime DateTime  @default(now())
+
+  @@index([baliseId, version])
+}
+
+model Area {
+  id          String    @id @default(uuid())
+  name        String // e.g., "Helsinki-Riihimäki"
+  shortName   String // e.g., "Alue 1"
+  key         String    @unique // e.g., "area_1"
+  idRangeMin  Int // e.g., 10000
+  idRangeMax  Int // e.g., 19999
+  description String? // Optional description
+  color       String? // Optional color for UI
+  active      Boolean   @default(true)
+  createdBy   String
+  createdTime DateTime  @default(now())
+  updatedBy   String?
+  updatedTime DateTime?
+
+  @@index([idRangeMin, idRangeMax])
 }
