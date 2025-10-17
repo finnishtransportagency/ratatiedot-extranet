@@ -155,9 +155,7 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
     }
 
     try {
-      console.log('Fetching balises with filters:', filters);
       const result = await fetchBaliseAPI(filters);
-      console.log('Fetched balises:', result.data.length, 'pagination:', result.pagination);
 
       set({
         balises: result.data,
@@ -195,7 +193,6 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
         limit: state.pagination.limit || 200,
       };
 
-      console.log('Loading more balises with filters:', nextPageFilters);
       const result = await fetchBaliseAPI(nextPageFilters);
 
       set((currentState) => ({
