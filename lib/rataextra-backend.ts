@@ -152,10 +152,6 @@ export class RataExtraBackendStack extends NestedStack {
         RATAEXTRA_STACK_IDENTIFIER: rataExtraStackIdentifier,
         CLOUDFRONT_SIGNER_PUBLIC_KEY_ID: cloudfrontSignerPublicKeyId,
       },
-      bundling: {
-        // Optimization: Exclude AWS SDK (available in Lambda runtime)
-        externalModules: ['aws-sdk'],
-      },
       initialPolicy: [],
     };
 
@@ -178,8 +174,6 @@ export class RataExtraBackendStack extends NestedStack {
           '--conditions': 'module',
         },
         banner: ESM_REQUIRE_SHIM, // Workaround for ESM problem. https://github.com/evanw/esbuild/pull/2067#issuecomment-1073039746
-        // Optimization: Exclude AWS SDK (available in Lambda runtime)
-        externalModules: ['aws-sdk'],
         commandHooks: {
           beforeInstall(inputDir: string, outputDir: string) {
             return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
