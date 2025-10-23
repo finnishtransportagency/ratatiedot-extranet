@@ -4,9 +4,9 @@ import { log } from '../../utils/logger';
 import { getUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { uploadToS3 } from '../../utils/s3utils';
-import { parseForm } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
-import { FileInfo } from 'busboy';
+import busboy, { FileInfo } from 'busboy';
+import { Readable } from 'stream';
 
 const database = await DatabaseClient.build();
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
@@ -58,6 +58,69 @@ function groupFilesByBalise(files: FileUpload[]): Map<number, FileUpload[]> {
   }
 
   return grouped;
+}
+
+/**
+ * Parse multipart form data with multiple files
+ */
+async function parseMultipartForm(
+  buffer: Buffer | string,
+  headers: ALBEventHeaders,
+): Promise<{ files: FileUpload[]; invalidFiles: string[] }> {
+  return new Promise((resolve, reject) => {
+    const bb = busboy({
+      headers: {
+        ...headers,
+        'content-type': headers['Content-Type'] || headers['content-type'],
+      },
+    });
+
+    const fileUploads: FileUpload[] = [];
+    const invalidFiles: string[] = [];
+
+    bb.on('file', (_fieldname: string, file: Readable, fileinfo: FileInfo) => {
+      const chunks: Buffer[] = [];
+      // Convert the filename to utf-8 since latin1 preserves individual bytes
+      fileinfo.filename = Buffer.from(fileinfo.filename, 'latin1').toString('utf8');
+
+      file.on('data', (data: Buffer) => {
+        chunks.push(data);
+      });
+
+      file.on('end', () => {
+        const fileBuffer = Buffer.concat(chunks as unknown as Uint8Array[]);
+        const baliseId = parseBaliseId(fileinfo.filename);
+
+        if (baliseId === null) {
+          invalidFiles.push(fileinfo.filename);
+          log.warn('system', `Cannot parse balise ID from filename: ${fileinfo.filename}`);
+        } else {
+          fileUploads.push({
+            filename: fileinfo.filename,
+            buffer: fileBuffer,
+            baliseId,
+          });
+          log.debug(`Parsed file: ${fileinfo.filename} -> balise ${baliseId}, size: ${fileBuffer.length} bytes`);
+        }
+      });
+
+      file.on('error', (err) => {
+        log.error('system', `Error reading file ${fileinfo.filename}: ${err.message}`);
+      });
+    });
+
+    bb.on('finish', () => {
+      log.info('system', `Parsed ${fileUploads.length} valid files, ${invalidFiles.length} invalid files`);
+      resolve({ files: fileUploads, invalidFiles });
+    });
+
+    bb.on('error', (err: Error) => {
+      log.error('system', `Busboy error: ${err.message}`);
+      reject(err);
+    });
+
+    bb.end(buffer);
+  });
 }
 
 /**
@@ -153,37 +216,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Parse multipart form data
-    const buffer = event.isBase64Encoded ? base64ToBuffer(event.body as string) : event.body;
-    const formData = await parseForm(buffer ?? '', event.headers as ALBEventHeaders);
-
-    // Extract all files from form data
-    const fileUploads: FileUpload[] = [];
-    const invalidFiles: string[] = [];
-
-    // The parser returns files with keys like 'file-0', 'file-1', etc.
-    for (const key in formData) {
-      if (key.startsWith('filedata-') && formData[key] instanceof Buffer) {
-        const fileBuffer = formData[key] as Buffer;
-        const fileInfoKey = key.replace('filedata-', 'fileinfo-');
-        const fileInfo = formData[fileInfoKey] as FileInfo | undefined;
-
-        if (fileInfo && fileInfo.filename) {
-          const baliseId = parseBaliseId(fileInfo.filename);
-
-          if (baliseId === null) {
-            invalidFiles.push(fileInfo.filename);
-            log.warn(user, `Cannot parse balise ID from filename: ${fileInfo.filename}`);
-          } else {
-            fileUploads.push({
-              filename: fileInfo.filename,
-              buffer: fileBuffer,
-              baliseId,
-            });
-          }
-        }
-      }
-    }
+    // Parse multipart form data with multiple files
+    const buffer = event.isBase64Encoded
+      ? base64ToBuffer(event.body as string)
+      : Buffer.from(event.body || '', 'utf-8');
+    const { files: fileUploads, invalidFiles } = await parseMultipartForm(buffer, event.headers as ALBEventHeaders);
 
     if (fileUploads.length === 0) {
       return {
@@ -191,6 +228,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           error: 'No valid files found in upload',
+          hint: 'Check that filenames contain balise IDs (e.g., 10000.il)',
           invalidFiles,
         }),
       };
