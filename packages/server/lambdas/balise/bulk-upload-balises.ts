@@ -251,7 +251,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const groupedFiles = groupFilesByBalise(fileUploads);
     log.info(user, `Grouped ${fileUploads.length} files into ${groupedFiles.size} balise(s)`);
 
-    // Validate all balises exist before starting uploads
+    // Validate all balises exist - create missing ones automatically
     const baliseIds = Array.from(groupedFiles.keys());
     const existingBalises = await database.balise.findMany({
       where: {
@@ -263,19 +263,24 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const existingBaliseIds = new Set(existingBalises.map((b) => b.secondaryId));
     const missingBaliseIds = baliseIds.filter((id) => !existingBaliseIds.has(id));
 
+    // Auto-create missing balises
     if (missingBaliseIds.length > 0) {
-      return {
-        statusCode: 404,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          error: 'Some balises do not exist',
-          missingBalises: missingBaliseIds,
-          hint: 'All balises must exist before bulk upload. Create missing balises first.',
-        }),
-      };
+      log.info(user, `Auto-creating ${missingBaliseIds.length} missing balise(s): ${missingBaliseIds.join(', ')}`);
+
+      await database.balise.createMany({
+        data: missingBaliseIds.map((secondaryId) => ({
+          secondaryId,
+          version: 0, // Will become 1 after first upload
+          description: `Auto-created during bulk upload`,
+          bucketId: BALISES_BUCKET_NAME,
+          fileTypes: [],
+          createdBy: user.uid,
+          locked: false,
+        })),
+      });
     }
 
-    // Upload files for each balise (transaction-like: all or nothing)
+    // Upload files for each balise
     const results: UploadResult[] = [];
     let hasErrors = false;
 
