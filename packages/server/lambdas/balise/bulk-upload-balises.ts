@@ -367,7 +367,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     } else if (hasErrors) {
       // Partial success
-      let message = `Osittainen onnistuminen: ${successCount} onnistui, ${failureCount} epäonnistui`;
+      let message = `Tiedostojen päivitys: ${successCount} onnistui, ${failureCount} epäonnistui`;
       if (lockedCount > 0) {
         message += ` (${lockedCount} lukittua)`;
       }
