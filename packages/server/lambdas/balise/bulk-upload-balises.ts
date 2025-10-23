@@ -24,6 +24,8 @@ interface UploadResult {
   newVersion?: number;
   filesUploaded?: number;
   error?: string;
+  errorType?: 'locked' | 'not_found' | 'permission' | 'storage' | 'unknown';
+  lockedBy?: string;
 }
 
 /**
@@ -142,9 +144,12 @@ async function uploadFilesForBalise(
 
   // 2. Check if locked
   if (existingBalise.locked && existingBalise.lockedBy !== userId) {
-    throw new Error(
-      `Balise ${baliseId} is locked by ${existingBalise.lockedBy}. Cannot upload files to a locked balise.`,
+    const error: Error & { errorType?: string; lockedBy?: string } = new Error(
+      `Balise ${baliseId} on lukittu käyttäjän ${existingBalise.lockedBy} toimesta`,
     );
+    error.errorType = 'locked';
+    error.lockedBy = existingBalise.lockedBy || undefined;
+    throw error;
   }
 
   // 3. Create version history entry for the OLD version
@@ -302,42 +307,77 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         );
       } catch (err) {
         hasErrors = true;
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        const error = err as Error & { errorType?: string; lockedBy?: string };
+        const errorMessage = error.message || 'Unknown error';
+        const errorType = (error.errorType || 'unknown') as
+          | 'locked'
+          | 'not_found'
+          | 'permission'
+          | 'storage'
+          | 'unknown';
+        const lockedBy = error.lockedBy;
+
+        // Create user-friendly error message
+        let userMessage = errorMessage;
+        if (errorType === 'locked') {
+          userMessage = `Baliisi on lukittu${
+            lockedBy ? ` käyttäjän ${lockedBy} toimesta` : ''
+          }. Odota, että lukitus poistetaan.`;
+        } else if (errorType === 'permission') {
+          userMessage = 'Sinulla ei ole oikeuksia muokata tätä baliisia.';
+        } else if (errorType === 'storage') {
+          userMessage = 'Tiedostojen tallennus epäonnistui. Yritä uudelleen.';
+        } else if (errorType === 'not_found') {
+          userMessage = 'Baliisia ei löytynyt järjestelmästä.';
+        }
 
         results.push({
           baliseId,
           success: false,
-          error: errorMessage,
+          error: userMessage,
+          errorType,
+          lockedBy,
         });
 
-        log.error(`Failed to upload files for balise ${baliseId}: ${errorMessage}`);
+        log.error(`Failed to upload files for balise ${baliseId}: ${errorMessage} (type: ${errorType})`);
       }
     }
 
     // Determine response status
     const successCount = results.filter((r) => r.success).length;
     const failureCount = results.filter((r) => !r.success).length;
+    const lockedCount = results.filter((r) => r.errorType === 'locked').length;
 
     if (hasErrors && successCount === 0) {
       // All failed
+      let message = 'Kaikkien tiedostojen lataus epäonnistui';
+      if (lockedCount === failureCount) {
+        message = `${lockedCount} baliisia on lukittu. Odota, että lukitukset poistetaan.`;
+      }
+
       return {
         statusCode: 500,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           success: false,
-          message: 'All uploads failed',
+          message,
           results,
           invalidFiles,
         }),
       };
     } else if (hasErrors) {
       // Partial success
+      let message = `Osittainen onnistuminen: ${successCount} onnistui, ${failureCount} epäonnistui`;
+      if (lockedCount > 0) {
+        message += ` (${lockedCount} lukittua)`;
+      }
+
       return {
         statusCode: 207, // Multi-Status
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           success: false,
-          message: `Partial success: ${successCount} succeeded, ${failureCount} failed`,
+          message,
           results,
           invalidFiles,
         }),
@@ -349,7 +389,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           success: true,
-          message: `Successfully uploaded files to ${successCount} balise(s)`,
+          message: `Tiedostot ladattu onnistuneesti ${successCount} baliisiin`,
           results,
           invalidFiles,
           totalFiles: fileUploads.length,

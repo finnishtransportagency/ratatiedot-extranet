@@ -28,7 +28,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or missing balise ID' }),
+        body: JSON.stringify({ error: 'Virheellinen tai puuttuva baliisi-tunnus' }),
       };
     }
 
@@ -80,7 +80,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           statusCode: 403,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            error: 'Cannot edit a locked balise. Only the user who locked it can make changes.',
+            error: `Baliisi on lukittu käyttäjän ${existingBalise.lockedBy} toimesta. Odota, että lukitus poistetaan.`,
+            errorType: 'locked',
             lockedBy: existingBalise.lockedBy,
             lockedTime: existingBalise.lockedTime,
           }),

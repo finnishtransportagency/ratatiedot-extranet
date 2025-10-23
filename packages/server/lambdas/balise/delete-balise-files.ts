@@ -21,7 +21,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or missing balise ID' }),
+        body: JSON.stringify({ error: 'Virheellinen tai puuttuva baliisi-tunnus' }),
       };
     }
 
@@ -33,7 +33,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'No files specified for deletion' }),
+        body: JSON.stringify({ error: 'Poistettavia tiedostoja ei määritelty' }),
       };
     }
 
@@ -47,7 +47,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       return {
         statusCode: 404,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Balise not found' }),
+        body: JSON.stringify({ error: 'Baliisia ei löytynyt' }),
       };
     }
 
@@ -57,7 +57,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         statusCode: 403,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          error: 'Cannot delete files from a locked balise. Only the user who locked it can make changes.',
+          error: `Baliisi on lukittu käyttäjän ${existingBalise.lockedBy} toimesta. Odota, että lukitus poistetaan.`,
+          errorType: 'locked',
           lockedBy: existingBalise.lockedBy,
           lockedTime: existingBalise.lockedTime,
         }),

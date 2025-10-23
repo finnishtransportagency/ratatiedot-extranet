@@ -28,6 +28,7 @@ import {
   ExpandMore,
   ExpandLess,
   Description,
+  Lock,
 } from '@mui/icons-material';
 
 interface FileWithBaliseId {
@@ -42,6 +43,8 @@ interface UploadResult {
   newVersion?: number;
   filesUploaded?: number;
   error?: string;
+  errorType?: 'locked' | 'not_found' | 'permission' | 'storage' | 'unknown';
+  lockedBy?: string;
 }
 
 interface UploadResponse {
@@ -352,6 +355,8 @@ export const BulkUploadPage: React.FC = () => {
                       <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                         {result.success ? (
                           <CheckCircle sx={{ color: 'success.main', fontSize: 20 }} />
+                        ) : result.errorType === 'locked' ? (
+                          <Lock sx={{ color: 'warning.main', fontSize: 20 }} />
                         ) : (
                           <ErrorIcon sx={{ color: 'error.main', fontSize: 20 }} />
                         )}
@@ -365,6 +370,7 @@ export const BulkUploadPage: React.FC = () => {
                             color="success"
                           />
                         )}
+                        {result.errorType === 'locked' && <Chip label="Lukittu" size="small" color="warning" />}
                       </Box>
                       <IconButton size="small">
                         {expandedBalises.has(result.baliseId) ? <ExpandLess /> : <ExpandMore />}
@@ -373,9 +379,18 @@ export const BulkUploadPage: React.FC = () => {
                     <Collapse in={expandedBalises.has(result.baliseId)}>
                       <Box sx={{ mt: 1, pl: 4 }}>
                         {result.error && (
-                          <Typography variant="body2" color="error">
-                            Virhe: {result.error}
-                          </Typography>
+                          <Alert
+                            severity={result.errorType === 'locked' ? 'info' : 'error'}
+                            sx={{ py: 0.5 }}
+                            icon={result.errorType === 'locked' ? <Lock fontSize="small" /> : undefined}
+                          >
+                            {result.error}
+                            {result.lockedBy && (
+                              <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
+                                Lukituksen voi poistaa käyttäjä {result.lockedBy} tai järjestelmän ylläpitäjä.
+                              </Typography>
+                            )}
+                          </Alert>
                         )}
                       </Box>
                     </Collapse>

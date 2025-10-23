@@ -74,6 +74,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<'locked' | 'already_locked' | 'error' | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [saveConfirmDialogOpen, setSaveConfirmDialogOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -340,6 +341,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
     setActionLoading(true);
     setError(null);
+    setErrorType(null);
 
     try {
       if (balise.locked) {
@@ -350,7 +352,27 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       // Refresh the page to get updated balise data
       window.location.reload();
     } catch (err) {
-      setError(err instanceof Error ? err.message : `Failed to ${balise.locked ? 'unlock' : 'lock'} balise`);
+      // Try to parse error response for errorType
+      if (err instanceof Error) {
+        try {
+          // Check if the error message is a JSON string from the backend
+          const errorData = JSON.parse(err.message);
+          if (errorData.errorType) {
+            setErrorType(errorData.errorType);
+            setError(errorData.error || errorData.message || err.message);
+          } else {
+            setErrorType('error');
+            setError(err.message);
+          }
+        } catch {
+          // Not JSON, just use the message
+          setErrorType('error');
+          setError(err.message);
+        }
+      } else {
+        setErrorType('error');
+        setError(`Failed to ${balise.locked ? 'unlock' : 'lock'} balise`);
+      }
     } finally {
       setActionLoading(false);
     }
@@ -456,7 +478,15 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
           </Box>
 
           {error && (
-            <Alert severity="error" sx={{ mt: 1.5 }} onClose={() => setError(null)}>
+            <Alert
+              severity={errorType === 'locked' || errorType === 'already_locked' ? 'info' : 'error'}
+              sx={{ mt: 1.5 }}
+              onClose={() => {
+                setError(null);
+                setErrorType(null);
+              }}
+              icon={errorType === 'locked' || errorType === 'already_locked' ? <Lock fontSize="small" /> : undefined}
+            >
               {error}
             </Alert>
           )}
