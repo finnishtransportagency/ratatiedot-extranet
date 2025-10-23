@@ -16,6 +16,7 @@ import {
   Collapse,
   Chip,
   Divider,
+  TextField,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -29,6 +30,8 @@ import {
   ExpandLess,
   Description,
   Lock,
+  Add,
+  Update,
 } from '@mui/icons-material';
 
 interface FileWithBaliseId {
@@ -41,10 +44,12 @@ interface UploadResult {
   baliseId: number;
   success: boolean;
   newVersion?: number;
+  previousVersion?: number;
   filesUploaded?: number;
   error?: string;
   errorType?: 'locked' | 'not_found' | 'permission' | 'storage' | 'unknown';
   lockedBy?: string;
+  isNewBalise?: boolean;
 }
 
 interface UploadResponse {
@@ -77,6 +82,10 @@ export const BulkUploadPage: React.FC = () => {
   const [uploadResult, setUploadResult] = useState<UploadResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedBalises, setExpandedBalises] = useState<Set<number>>(new Set());
+  const [globalDescription, setGlobalDescription] = useState<string>('');
+  const [baliseDescriptions, setBaliseDescriptions] = useState<Record<number, string>>({});
+  const [existingBalises, setExistingBalises] = useState<Record<number, { version: number; description: string }>>({});
+  const [loadingBaliseData, setLoadingBaliseData] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -90,34 +99,73 @@ export const BulkUploadPage: React.FC = () => {
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+  // Fetch existing balise data for preview
+  const fetchBaliseData = useCallback(async (baliseIds: number[]) => {
+    if (baliseIds.length === 0) return;
 
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    processFiles(droppedFiles);
+    setLoadingBaliseData(true);
+    try {
+      const response = await fetch(`/api/balises?ids=${baliseIds.join(',')}`);
+      if (response.ok) {
+        const balises = await response.json();
+        const baliseMap: Record<number, { version: number; description: string }> = {};
+        balises.forEach((b: { secondaryId: number; version: number; description: string }) => {
+          baliseMap[b.secondaryId] = { version: b.version, description: b.description };
+        });
+        setExistingBalises(baliseMap);
+      }
+    } catch (err) {
+      console.error('Failed to fetch balise data:', err);
+    } finally {
+      setLoadingBaliseData(false);
+    }
   }, []);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || []);
-    processFiles(selectedFiles);
-  }, []);
+  const processFiles = useCallback(
+    (newFiles: File[]) => {
+      const processedFiles: FileWithBaliseId[] = newFiles.map((file) => {
+        const baliseId = parseBaliseId(file.name);
+        return {
+          file,
+          baliseId,
+          isValid: baliseId !== null,
+        };
+      });
 
-  const processFiles = (newFiles: File[]) => {
-    const processedFiles: FileWithBaliseId[] = newFiles.map((file) => {
-      const baliseId = parseBaliseId(file.name);
-      return {
-        file,
-        baliseId,
-        isValid: baliseId !== null,
-      };
-    });
+      setFiles((prev) => {
+        const updated = [...prev, ...processedFiles];
+        // Extract unique balise IDs to fetch data
+        const baliseIds = Array.from(
+          new Set(updated.filter((f) => f.isValid && f.baliseId).map((f) => f.baliseId as number)),
+        );
+        fetchBaliseData(baliseIds);
+        return updated;
+      });
+      setError(null);
+      setUploadResult(null);
+    },
+    [fetchBaliseData],
+  );
 
-    setFiles((prev) => [...prev, ...processedFiles]);
-    setError(null);
-    setUploadResult(null);
-  };
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+
+      const droppedFiles = Array.from(e.dataTransfer.files);
+      processFiles(droppedFiles);
+    },
+    [processFiles],
+  );
+
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFiles = Array.from(e.target.files || []);
+      processFiles(selectedFiles);
+    },
+    [processFiles],
+  );
 
   const removeFile = useCallback((index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
@@ -171,11 +219,23 @@ export const BulkUploadPage: React.FC = () => {
     setUploadResult(null);
 
     try {
-      // Create FormData with all files
+      // Create FormData with all files and descriptions
       const formData = new FormData();
       files.forEach((item, index) => {
         if (item.isValid) {
           formData.append(`file-${index}`, item.file);
+        }
+      });
+
+      // Add global description if provided
+      if (globalDescription.trim()) {
+        formData.append('globalDescription', globalDescription.trim());
+      }
+
+      // Add per-balise descriptions if provided
+      Object.entries(baliseDescriptions).forEach(([baliseId, description]) => {
+        if (description.trim()) {
+          formData.append(`description_${baliseId}`, description.trim());
         }
       });
 
@@ -244,7 +304,7 @@ export const BulkUploadPage: React.FC = () => {
               <IconButton onClick={handleBack} size="small">
                 <ArrowBack fontSize="inherit" />
               </IconButton>
-              <Typography variant="h6">Balise Massa-lataus</Typography>
+              <Typography variant="h6">Lähetä tiedostoja</Typography>
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
               {files.length > 0 && !uploadResult && (
@@ -364,11 +424,19 @@ export const BulkUploadPage: React.FC = () => {
                           Baliisi {result.baliseId}
                         </Typography>
                         {result.success && (
-                          <Chip
-                            label={`v${result.newVersion} • ${result.filesUploaded} tiedostoa`}
-                            size="small"
-                            color="success"
-                          />
+                          <>
+                            {result.isNewBalise ? (
+                              <Chip label="UUSI" size="small" color="success" icon={<Add />} />
+                            ) : (
+                              <Chip
+                                label={`v${result.previousVersion} → v${result.newVersion}`}
+                                size="small"
+                                color="primary"
+                                icon={<Update />}
+                              />
+                            )}
+                            <Chip label={`${result.filesUploaded} tiedostoa`} size="small" variant="outlined" />
+                          </>
                         )}
                         {result.errorType === 'locked' && <Chip label="Lukittu" size="small" color="warning" />}
                       </Box>
@@ -459,55 +527,108 @@ export const BulkUploadPage: React.FC = () => {
               {/* Grouped Files Display */}
               {baliseCount > 0 && (
                 <Paper sx={{ p: 3 }} variant="outlined">
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignments: 'center', mb: 2 }}>
                     <Typography variant="h6">
                       Valitut tiedostot ({validFileCount} tiedostoa, {baliseCount} baliisia)
                     </Typography>
                   </Box>
 
+                  {/* Global Description Field */}
+                  <TextField
+                    label="Kuvaus kaikille muutoksille"
+                    value={globalDescription}
+                    onChange={(e) => setGlobalDescription(e.target.value)}
+                    fullWidth
+                    multiline
+                    rows={2}
+                    sx={{ mb: 3 }}
+                    helperText="Tämä kuvaus lisätään kaikille muutoksille, ellei yksittäiselle balisille ole määritetty omaa kuvausta"
+                  />
+
                   {Object.entries(groupedFiles)
                     .sort(([a], [b]) => parseInt(a) - parseInt(b))
-                    .map(([baliseId, baliseFiles]) => (
-                      <Box key={baliseId} sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-                          Baliisi {baliseId} ({baliseFiles.length} tiedostoa)
-                        </Typography>
-                        <List dense disablePadding>
-                          {baliseFiles.map((file, index) => {
-                            const globalIndex = files.findIndex((f) => f.file === file);
-                            return (
-                              <ListItem
-                                key={index}
-                                sx={{
-                                  mb: 0.5,
-                                  borderRadius: 1,
-                                  border: 1,
-                                  borderColor: 'primary.light',
-                                  bgcolor: 'primary.lighter',
-                                }}
-                                secondaryAction={
-                                  <IconButton size="small" onClick={() => removeFile(globalIndex)} edge="end">
-                                    <Close sx={{ fontSize: 18 }} />
-                                  </IconButton>
-                                }
-                              >
-                                <Description sx={{ color: 'primary.main', fontSize: 20, mr: 1.5 }} />
-                                <ListItemText
-                                  primary={file.name}
-                                  secondary={`${(file.size / 1024).toFixed(1)} KB`}
-                                  primaryTypographyProps={{
-                                    sx: { fontSize: '0.875rem', fontWeight: 500 },
+                    .map(([baliseId, baliseFiles]) => {
+                      const bId = parseInt(baliseId);
+                      const existingData = existingBalises[bId];
+                      const isNew = !existingData;
+                      const currentDescription = baliseDescriptions[bId] || '';
+
+                      return (
+                        <Box key={baliseId} sx={{ mb: 3, pb: 2, borderBottom: 1, borderColor: 'divider' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                              Baliisi {baliseId}
+                            </Typography>
+                            {isNew ? (
+                              <Chip label="UUSI" size="small" color="success" icon={<Add />} />
+                            ) : (
+                              <Chip
+                                label={`PÄIVITYS v${existingData.version} → v${existingData.version + 1}`}
+                                size="small"
+                                color="primary"
+                                icon={<Update />}
+                              />
+                            )}
+                            <Chip label={`${baliseFiles.length} tiedostoa`} size="small" variant="outlined" />
+                          </Box>
+
+                          {/* Per-Balise Description Field */}
+                          <TextField
+                            label={`Kuvaus balisille ${baliseId}`}
+                            value={currentDescription}
+                            onChange={(e) =>
+                              setBaliseDescriptions((prev) => ({
+                                ...prev,
+                                [bId]: e.target.value,
+                              }))
+                            }
+                            fullWidth
+                            multiline
+                            rows={2}
+                            size="small"
+                            sx={{ mb: 1 }}
+                            placeholder={
+                              globalDescription
+                                ? `Käytetään yleistä kuvausta: "${globalDescription}"`
+                                : existingData
+                                ? `Nykyinen kuvaus säilyy: "${existingData.description}"`
+                                : 'Lisää kuvaus...'
+                            }
+                          />
+
+                          <List dense disablePadding>
+                            {baliseFiles.map((file, index) => {
+                              const globalIndex = files.findIndex((f) => f.file === file);
+                              return (
+                                <ListItem
+                                  key={index}
+                                  sx={{
+                                    mb: 0.5,
+                                    borderRadius: 1,
+                                    border: 1,
+                                    borderColor: 'primary.light',
+                                    bgcolor: 'primary.lighter',
                                   }}
-                                  secondaryTypographyProps={{
-                                    sx: { fontSize: '0.75rem' },
-                                  }}
-                                />
-                              </ListItem>
-                            );
-                          })}
-                        </List>
-                      </Box>
-                    ))}
+                                  secondaryAction={
+                                    <IconButton size="small" onClick={() => removeFile(globalIndex)} edge="end">
+                                      <Close sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                  }
+                                >
+                                  <Description sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
+                                  <ListItemText
+                                    primary={file.name}
+                                    secondary={`${(file.size / 1024).toFixed(1)} KB`}
+                                    primaryTypographyProps={{ variant: 'body2' }}
+                                    secondaryTypographyProps={{ variant: 'caption' }}
+                                  />
+                                </ListItem>
+                              );
+                            })}
+                          </List>
+                        </Box>
+                      );
+                    })}
                 </Paper>
               )}
 

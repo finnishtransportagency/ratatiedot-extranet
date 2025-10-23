@@ -22,10 +22,12 @@ interface UploadResult {
   baliseId: number;
   success: boolean;
   newVersion?: number;
+  previousVersion?: number; // undefined for new balises
   filesUploaded?: number;
   error?: string;
   errorType?: 'locked' | 'not_found' | 'permission' | 'storage' | 'unknown';
   lockedBy?: string;
+  isNewBalise?: boolean; // true if balise was created, false if updated
 }
 
 /**
@@ -63,12 +65,17 @@ function groupFilesByBalise(files: FileUpload[]): Map<number, FileUpload[]> {
 }
 
 /**
- * Parse multipart form data with multiple files
+ * Parse multipart form data with multiple files and optional metadata
  */
 async function parseMultipartForm(
   buffer: Buffer | string,
   headers: ALBEventHeaders,
-): Promise<{ files: FileUpload[]; invalidFiles: string[] }> {
+): Promise<{
+  files: FileUpload[];
+  invalidFiles: string[];
+  globalDescription?: string;
+  baliseDescriptions?: Record<number, string>;
+}> {
   return new Promise((resolve, reject) => {
     const bb = busboy({
       headers: {
@@ -79,6 +86,19 @@ async function parseMultipartForm(
 
     const fileUploads: FileUpload[] = [];
     const invalidFiles: string[] = [];
+    let globalDescription: string | undefined;
+    const baliseDescriptions: Record<number, string> = {};
+
+    bb.on('field', (fieldname: string, value: string) => {
+      if (fieldname === 'globalDescription') {
+        globalDescription = value;
+      } else if (fieldname.startsWith('description_')) {
+        const baliseId = parseInt(fieldname.replace('description_', ''), 10);
+        if (!isNaN(baliseId)) {
+          baliseDescriptions[baliseId] = value;
+        }
+      }
+    });
 
     bb.on('file', (_fieldname: string, file: Readable, fileinfo: FileInfo) => {
       const chunks: Buffer[] = [];
@@ -113,7 +133,7 @@ async function parseMultipartForm(
 
     bb.on('finish', () => {
       log.info('system', `Parsed ${fileUploads.length} valid files, ${invalidFiles.length} invalid files`);
-      resolve({ files: fileUploads, invalidFiles });
+      resolve({ files: fileUploads, invalidFiles, globalDescription, baliseDescriptions });
     });
 
     bb.on('error', (err: Error) => {
@@ -132,7 +152,8 @@ async function uploadFilesForBalise(
   baliseId: number,
   files: FileUpload[],
   userId: string,
-): Promise<{ newVersion: number; filesUploaded: number }> {
+  description?: string,
+): Promise<{ newVersion: number; previousVersion: number; filesUploaded: number }> {
   // 1. Get current balise
   const existingBalise = await database.balise.findUnique({
     where: { secondaryId: baliseId },
@@ -142,10 +163,12 @@ async function uploadFilesForBalise(
     throw new Error(`Balise ${baliseId} not found`);
   }
 
+  const previousVersion = existingBalise.version;
+
   // 2. Check if locked
   if (existingBalise.locked && existingBalise.lockedBy !== userId) {
     const error: Error & { errorType?: string; lockedBy?: string } = new Error(
-      `Balise ${baliseId} on lukittu käyttäjän ${existingBalise.lockedBy} toimesta`,
+      `Baliisi ${baliseId} on lukittu käyttäjän ${existingBalise.lockedBy} toimesta. Odota, että lukitus poistetaan.`,
     );
     error.errorType = 'locked';
     error.lockedBy = existingBalise.lockedBy || undefined;
@@ -187,6 +210,7 @@ async function uploadFilesForBalise(
     data: {
       version: newVersion,
       fileTypes: uploadedFilenames,
+      description: description || existingBalise.description, // Use provided description or keep existing
       createdBy: userId,
       createdTime: new Date(),
       locked: false,
@@ -197,6 +221,7 @@ async function uploadFilesForBalise(
 
   return {
     newVersion,
+    previousVersion,
     filesUploaded: uploadedFilenames.length,
   };
 }
@@ -225,7 +250,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const buffer = event.isBase64Encoded
       ? base64ToBuffer(event.body as string)
       : Buffer.from(event.body || '', 'utf-8');
-    const { files: fileUploads, invalidFiles } = await parseMultipartForm(buffer, event.headers as ALBEventHeaders);
+    const {
+      files: fileUploads,
+      invalidFiles,
+      globalDescription,
+      baliseDescriptions,
+    } = await parseMultipartForm(buffer, event.headers as ALBEventHeaders);
 
     if (fileUploads.length === 0) {
       return {
@@ -276,7 +306,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         data: missingBaliseIds.map((secondaryId) => ({
           secondaryId,
           version: 0, // Will become 1 after first upload
-          description: `Auto-created during bulk upload`,
+          description: baliseDescriptions?.[secondaryId] || globalDescription || `Auto-created during bulk upload`,
           bucketId: BALISES_BUCKET_NAME,
           fileTypes: [],
           createdBy: user.uid,
@@ -290,15 +320,20 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     let hasErrors = false;
 
     for (const [baliseId, files] of groupedFiles.entries()) {
+      const isNewBalise = missingBaliseIds.includes(baliseId);
+      const description = baliseDescriptions?.[baliseId] || globalDescription;
+
       try {
         log.info(user, `Uploading ${files.length} files for balise ${baliseId}`);
-        const result = await uploadFilesForBalise(baliseId, files, user.uid);
+        const result = await uploadFilesForBalise(baliseId, files, user.uid, description);
 
         results.push({
           baliseId,
           success: true,
           newVersion: result.newVersion,
+          previousVersion: result.previousVersion,
           filesUploaded: result.filesUploaded,
+          isNewBalise,
         });
 
         log.info(
@@ -337,6 +372,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           error: userMessage,
           errorType,
           lockedBy,
+          isNewBalise,
         });
 
         log.error(`Failed to upload files for balise ${baliseId}: ${errorMessage} (type: ${errorType})`);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Routes } from '../../constants/Routes';
+import { downloadBaliseFiles } from '../../utils/download';
 import {
   Box,
   Paper,
@@ -945,9 +946,19 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                               size="small"
                               variant="outlined"
                               color="secondary"
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
-                                console.log('Download all files for version', version.version);
+                                try {
+                                  if (version.fileTypes.length > 0) {
+                                    await downloadBaliseFiles(
+                                      balise.secondaryId,
+                                      version.fileTypes,
+                                      version.version, // Pass the version number
+                                    );
+                                  }
+                                } catch (error) {
+                                  console.error('Error downloading version files:', error);
+                                }
                               }}
                             >
                               Lataa tiedostot

@@ -8,6 +8,7 @@ import { AreaFilter } from './AreaFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useAreaStore } from '../../store/areaStore';
+import { downloadBaliseFiles, downloadMultipleBaliseFiles } from '../../utils/download';
 
 export const BalisePage: React.FC = () => {
   const navigate = useNavigate();
@@ -113,8 +114,16 @@ export const BalisePage: React.FC = () => {
     console.log('Delete:', id);
   }, []);
 
-  const handleDownload = useCallback((row: BaliseWithHistory) => {
-    console.log('Download:', row);
+  const handleDownload = useCallback(async (row: BaliseWithHistory) => {
+    try {
+      if (row.fileTypes.length === 0) {
+        console.warn('No files to download for balise', row.secondaryId);
+        return;
+      }
+      await downloadBaliseFiles(row.secondaryId, row.fileTypes);
+    } catch (error) {
+      console.error('Error downloading balise files:', error);
+    }
   }, []);
 
   const handleLoadHistory = useCallback(
@@ -148,10 +157,27 @@ export const BalisePage: React.FC = () => {
     setSelectedItems([]);
   }, [selectedItems]);
 
-  const handleBulkDownload = useCallback(() => {
-    console.log('Bulk download:', selectedItems);
-    setSelectedItems([]);
-  }, [selectedItems]);
+  const handleBulkDownload = useCallback(async () => {
+    try {
+      const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+      const downloadData = selectedBalises
+        .filter((b) => b.fileTypes.length > 0)
+        .map((b) => ({
+          baliseId: b.secondaryId,
+          files: b.fileTypes,
+        }));
+
+      if (downloadData.length === 0) {
+        console.warn('No files to download from selected balises');
+        return;
+      }
+
+      await downloadMultipleBaliseFiles(downloadData);
+      setSelectedItems([]);
+    } catch (error) {
+      console.error('Error downloading files:', error);
+    }
+  }, [selectedItems, balises]);
 
   // Error handling for initial load
   if (error && balises.length === 0) {
