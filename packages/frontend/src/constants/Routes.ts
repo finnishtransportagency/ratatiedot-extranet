@@ -12,6 +12,7 @@ export const Routes = {
   LOGOUT: 'logout',
   LOGOUT_REDIRECT: '/sso/*',
   BALISE: '/baliisisanomat',
+  BALISE_BULK_UPLOAD: '/baliisisanomat/massa-lataus',
   LINE_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.LINE_DIAGRAMS)}`,
   SPEED_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.SPEED_DIAGRAMS)}`,
   TRACK_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.TRACK_DIAGRAMS)}`,

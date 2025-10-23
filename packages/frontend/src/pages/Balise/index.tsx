@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { Box, Alert, Button, Paper, IconButton, Chip, LinearProgress } from '@mui/material';
-import { Add, Download, Delete, Lock } from '@mui/icons-material';
+import { Add, Download, Delete, Lock, Upload } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
 import { AreaFilter } from './AreaFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
@@ -66,10 +66,13 @@ export const BalisePage: React.FC = () => {
     }
   }, [refreshBalise]);
 
-  const handleAddSanoma = () => {
+  const handleAddSanoma = useCallback(() => {
     navigate(`${Routes.BALISE}/create`);
-  };
+  }, [navigate]);
 
+  const handleBulkUpload = useCallback(() => {
+    navigate(Routes.BALISE_BULK_UPLOAD);
+  }, [navigate]);
   const handleRowClick = useCallback(
     (row: BaliseWithHistory) => {
       sessionStorage.setItem('editedBaliseId', row.secondaryId.toString());
@@ -247,7 +250,16 @@ export const BalisePage: React.FC = () => {
           <Box sx={{ minWidth: '200px' }}>
             <AreaFilter areas={areaOptions} selectedAreas={selectedAreas} onAreasSelect={setSelectedAreas} />
           </Box>
-          <Box sx={{ margin: 'auto' }}>
+          <Box sx={{ margin: 'auto', display: 'flex', gap: 1 }}>
+            <IconButton
+              id="bulk-upload-button"
+              onClick={handleBulkUpload}
+              size="small"
+              color="secondary"
+              title="Massa-lataus"
+            >
+              <Upload fontSize="inherit" />
+            </IconButton>
             <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary">
               <Add fontSize="inherit" />
             </IconButton>
