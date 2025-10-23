@@ -438,9 +438,9 @@ async function replaceBaliseFiles(secondaryId: number, files: File[]): Promise<v
 
 ### Phase 1: Fix Single Upload UX
 
-- [ ] Remove "keep files" checkbox UI
-- [ ] Show simple message: "Uploading new files will replace existing files"
-- [ ] Add confirmation: "Replace X existing files?"
+- [x] Remove "keep files" checkbox UI
+- [x] Show simple message: "Uploading new files will replace existing files"
+- [x] Add confirmation: "Replace X existing files?"
 
 ### Phase 2: Backend Bulk Upload
 

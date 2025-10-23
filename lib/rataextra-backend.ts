@@ -700,6 +700,13 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'getAreas',
       },
       {
+        lambda: bulkUploadBalises,
+        priority: 278,
+        path: ['/api/balise/bulk-upload'],
+        httpRequestMethods: ['POST'],
+        targetName: 'bulkUploadBalises',
+      },
+      {
         lambda: getBalise,
         priority: 280,
         path: ['/api/balise/*'],
@@ -712,13 +719,6 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/balises', '/api/balises/*'],
         httpRequestMethods: ['GET'],
         targetName: 'getBalises',
-      },
-      {
-        lambda: bulkUploadBalises,
-        priority: 286,
-        path: ['/api/balise/bulk-upload'],
-        httpRequestMethods: ['POST'],
-        targetName: 'bulkUploadBalises',
       },
       {
         lambda: addBalise,
