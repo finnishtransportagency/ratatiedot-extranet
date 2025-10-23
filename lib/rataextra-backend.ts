@@ -715,7 +715,7 @@ export class RataExtraBackendStack extends NestedStack {
       },
       {
         lambda: bulkUploadBalises,
-        priority: 285,
+        priority: 286,
         path: ['/api/balise/bulk-upload'],
         httpRequestMethods: ['POST'],
         targetName: 'bulkUploadBalises',
