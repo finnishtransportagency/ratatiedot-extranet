@@ -66,7 +66,7 @@ export class RataExtraPipelineStack extends Stack {
       codePipeline: pipeline,
       synth: new ShellStep('Synth', {
         input: github,
-        installCommands: ['npm install'],
+        installCommands: ['npm ci'],
         commands: [
           `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} npm run build:frontend`,
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,

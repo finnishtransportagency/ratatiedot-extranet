@@ -21,7 +21,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or missing balise ID' }),
+        body: JSON.stringify({ error: 'Virheellinen tai puuttuva baliisi-tunnus' }),
       };
     }
 
@@ -35,19 +35,21 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       return {
         statusCode: 404,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Balise not found' }),
+        body: JSON.stringify({ error: 'Baliisia ei löytynyt' }),
       };
     }
 
     // Check if balise is already locked
     if (balise.locked) {
       return {
-        statusCode: 409,
+        statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          error: 'Balise is already locked',
+          message: `Baliisi on jo lukittu käyttäjän ${balise.lockedBy} toimesta.`,
+          errorType: 'already_locked',
           lockedBy: balise.lockedBy,
           lockedTime: balise.lockedTime,
+          balise: balise,
         }),
       };
     }

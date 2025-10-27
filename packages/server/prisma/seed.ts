@@ -44,31 +44,6 @@ function getRandomDescription() {
   return descriptions[Math.floor(Math.random() * descriptions.length)];
 }
 
-// Helper function to generate realistic filenames
-function getRandomFileTypes(): string[] {
-  const randomId = Math.floor(Math.random() * 10000);
-  const filenamePrefixes = ['tiedot', 'data', 'config', 'info', 'params', 'setup'];
-  const prefix = filenamePrefixes[Math.floor(Math.random() * filenamePrefixes.length)];
-
-  // 70% chance of having both common file types
-  if (Math.random() < 0.7) {
-    // 20% chance of also having 'bis' with the common types
-    if (Math.random() < 0.2) {
-      return [`${prefix}_${randomId}.leu`, `${prefix}_${randomId}.il`, `${prefix}_${randomId}.bis`];
-    }
-    return [`${prefix}_${randomId}.leu`, `${prefix}_${randomId}.il`];
-  }
-
-  // 20% chance of having only one common file
-  if (Math.random() < 0.67) {
-    return Math.random() < 0.5 ? [`${prefix}_${randomId}.leu`] : [`${prefix}_${randomId}.il`];
-  }
-
-  // 10% chance of having 'bis' with one common type
-  const singleCommon = Math.random() < 0.5 ? `${prefix}_${randomId}.leu` : `${prefix}_${randomId}.il`;
-  return [singleCommon, `${prefix}_${randomId}.bis`];
-}
-
 async function seedAreas() {
   console.log('🌱 Seeding railway areas...');
 
@@ -166,8 +141,7 @@ async function seedBalises() {
       secondaryId: i,
       version: currentVersion,
       description,
-      bucketId: `balise-${i}`,
-      fileTypes: getRandomFileTypes(), // Realistic varied file types
+      fileTypes: [], // No dummy files - represents empty S3 state
       createdBy: user,
       createdTime,
       locked: isLocked,
@@ -189,8 +163,7 @@ async function seedBalises() {
         secondaryId: i,
         version,
         description: getRandomDescription(),
-        bucketId: `balise-${i}-v${version}`,
-        fileTypes: getRandomFileTypes(), // Each version can have different file types
+        fileTypes: [], // No dummy files - represents empty S3 state
         createdBy: versionUser,
         createdTime: versionCreatedTime,
         locked: isVersionLocked,

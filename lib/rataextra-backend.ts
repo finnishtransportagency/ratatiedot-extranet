@@ -444,6 +444,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/balise/add-balise.ts',
     });
 
+    const bulkUploadBalises = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'bulk-upload-balises',
+      relativePath: '../packages/server/lambdas/balise/bulk-upload-balises.ts',
+    });
+
     const getBaliseDownloadUrl = this.createNodejsLambda({
       ...prismaParameters,
       name: 'get-balise-download-url',
@@ -468,6 +474,7 @@ export class RataExtraBackendStack extends NestedStack {
 
     // Grant S3 permissions for balise file operations
     balisesBucket.grantReadWrite(addBalise);
+    balisesBucket.grantReadWrite(bulkUploadBalises);
     balisesBucket.grantRead(getBalise);
     balisesBucket.grantRead(getBalises);
     balisesBucket.grantRead(getBaliseDownloadUrl);
@@ -691,6 +698,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/areas'],
         httpRequestMethods: ['GET'],
         targetName: 'getAreas',
+      },
+      {
+        lambda: bulkUploadBalises,
+        priority: 278,
+        path: ['/api/balise/bulk-upload'],
+        httpRequestMethods: ['POST'],
+        targetName: 'bulkUploadBalises',
       },
       {
         lambda: getBalise,

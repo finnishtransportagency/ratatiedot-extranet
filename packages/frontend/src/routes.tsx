@@ -49,6 +49,7 @@ import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
 import Balise from './pages/Balise/index';
 import BaliseEditPage from './pages/Balise/BaliseEditPage';
+import BulkUploadPage from './pages/Balise/BulkUploadPage';
 import { RailwayCategory } from './pages/Others/RailwayCategory';
 import { OtherRailway } from './pages/Others/OtherRailway';
 
@@ -216,6 +217,22 @@ const BALISE_ROUTE: RouteObject[] = [
     element: (
       <AppContextProvider>
         <ProtectedBalisePage children={<Balise />} />
+      </AppContextProvider>
+    ),
+    errorElement: <RootBoundary />,
+    loader: async () => {
+      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+      if (isFirstLogin === 'true') {
+        return redirect(Routes.ACCEPT_INSTRUCTIONS);
+      }
+      return null;
+    },
+  },
+  {
+    path: `${Routes.BALISE}/massa-lataus`,
+    element: (
+      <AppContextProvider>
+        <ProtectedBalisePage children={<BulkUploadPage />} />
       </AppContextProvider>
     ),
     errorElement: <RootBoundary />,

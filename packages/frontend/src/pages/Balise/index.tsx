@@ -2,12 +2,13 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { Box, Alert, Button, Paper, IconButton, Chip, LinearProgress } from '@mui/material';
-import { Add, Download, Delete, Lock } from '@mui/icons-material';
+import { Add, Download, Delete, Lock, Upload } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
 import { AreaFilter } from './AreaFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useAreaStore } from '../../store/areaStore';
+import { downloadBaliseFiles, downloadMultipleBaliseFiles } from '../../utils/download';
 
 export const BalisePage: React.FC = () => {
   const navigate = useNavigate();
@@ -66,10 +67,13 @@ export const BalisePage: React.FC = () => {
     }
   }, [refreshBalise]);
 
-  const handleAddSanoma = () => {
+  const handleAddSanoma = useCallback(() => {
     navigate(`${Routes.BALISE}/create`);
-  };
+  }, [navigate]);
 
+  const handleBulkUpload = useCallback(() => {
+    navigate(Routes.BALISE_BULK_UPLOAD);
+  }, [navigate]);
   const handleRowClick = useCallback(
     (row: BaliseWithHistory) => {
       sessionStorage.setItem('editedBaliseId', row.secondaryId.toString());
@@ -110,8 +114,16 @@ export const BalisePage: React.FC = () => {
     console.log('Delete:', id);
   }, []);
 
-  const handleDownload = useCallback((row: BaliseWithHistory) => {
-    console.log('Download:', row);
+  const handleDownload = useCallback(async (row: BaliseWithHistory) => {
+    try {
+      if (row.fileTypes.length === 0) {
+        console.warn('No files to download for balise', row.secondaryId);
+        return;
+      }
+      await downloadBaliseFiles(row.secondaryId, row.fileTypes);
+    } catch (error) {
+      console.error('Error downloading balise files:', error);
+    }
   }, []);
 
   const handleLoadHistory = useCallback(
@@ -145,10 +157,27 @@ export const BalisePage: React.FC = () => {
     setSelectedItems([]);
   }, [selectedItems]);
 
-  const handleBulkDownload = useCallback(() => {
-    console.log('Bulk download:', selectedItems);
-    setSelectedItems([]);
-  }, [selectedItems]);
+  const handleBulkDownload = useCallback(async () => {
+    try {
+      const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+      const downloadData = selectedBalises
+        .filter((b) => b.fileTypes.length > 0)
+        .map((b) => ({
+          baliseId: b.secondaryId,
+          files: b.fileTypes,
+        }));
+
+      if (downloadData.length === 0) {
+        console.warn('No files to download from selected balises');
+        return;
+      }
+
+      await downloadMultipleBaliseFiles(downloadData);
+      setSelectedItems([]);
+    } catch (error) {
+      console.error('Error downloading files:', error);
+    }
+  }, [selectedItems, balises]);
 
   // Error handling for initial load
   if (error && balises.length === 0) {
@@ -247,7 +276,16 @@ export const BalisePage: React.FC = () => {
           <Box sx={{ minWidth: '200px' }}>
             <AreaFilter areas={areaOptions} selectedAreas={selectedAreas} onAreasSelect={setSelectedAreas} />
           </Box>
-          <Box sx={{ margin: 'auto' }}>
+          <Box sx={{ margin: 'auto', display: 'flex', gap: 1 }}>
+            <IconButton
+              id="bulk-upload-button"
+              onClick={handleBulkUpload}
+              size="small"
+              color="secondary"
+              title="Massa-lataus"
+            >
+              <Upload fontSize="inherit" />
+            </IconButton>
             <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary">
               <Add fontSize="inherit" />
             </IconButton>

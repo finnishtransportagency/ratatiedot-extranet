@@ -28,7 +28,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or missing balise ID' }),
+        body: JSON.stringify({ error: 'Virheellinen tai puuttuva baliisi-tunnus' }),
       };
     }
 
@@ -40,7 +40,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     let body: {
       description?: string;
-      bucketId?: string;
       fileTypes?: string[];
       version?: number;
       baliseData?: string;
@@ -80,20 +79,25 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           statusCode: 403,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            error: 'Cannot edit a locked balise. Only the user who locked it can make changes.',
+            error: `Baliisi on lukittu käyttäjän ${existingBalise.lockedBy} toimesta. Odota, että lukitus poistetaan.`,
+            errorType: 'locked',
             lockedBy: existingBalise.lockedBy,
             lockedTime: existingBalise.lockedTime,
           }),
         };
       }
 
-      // Determine if this is a metadata update or just a file upload
-      const hasMetadataChange = !isFileUpload || (body.description && body.description !== existingBalise.description);
+      // Determine if we should create a new version
+      // Create new version ONLY if:
+      // - File is being uploaded AND metadata is provided (first file in replacement flow)
+      // Do NOT create version for metadata-only changes (description edits)
+      const isFirstFileInReplacementFlow = isFileUpload && body.description !== undefined;
+      const shouldCreateNewVersion = isFirstFileInReplacementFlow;
       const currentVersion = existingBalise.version;
       let newVersion = currentVersion;
 
-      // Only create a new version if metadata is being changed
-      if (hasMetadataChange) {
+      // Create a new version if needed
+      if (shouldCreateNewVersion) {
         // Create version history entry for the OLD version
         await database.baliseVersion.create({
           data: {
@@ -101,7 +105,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
             secondaryId: existingBalise.secondaryId,
             version: existingBalise.version,
             description: existingBalise.description,
-            bucketId: existingBalise.bucketId,
             fileTypes: existingBalise.fileTypes,
             createdBy: existingBalise.createdBy,
             createdTime: existingBalise.createdTime,
@@ -112,12 +115,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         });
 
         newVersion = existingBalise.version + 1;
-        log.info(user, `Creating new version ${newVersion} for balise ${baliseId}`);
+        log.info(user, `Creating new version ${newVersion} for balise ${baliseId} (first file in replacement flow)`);
       } else {
-        log.info(user, `Adding file to existing version ${currentVersion} for balise ${baliseId}`);
+        log.info(user, `Adding to existing version ${currentVersion} for balise ${baliseId}`);
       }
 
-      // If file is uploaded, add its filename to fileTypes array
+      // If file is uploaded, handle the fileTypes array
       let updatedFileTypes = existingBalise.fileTypes;
       if (fileData && filename) {
         // Store full filename instead of just extension
@@ -136,7 +139,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         fileTypes: string[];
         version?: number;
         description?: string;
-        bucketId?: string;
         createdBy?: string;
         createdTime?: Date;
         locked?: boolean;
@@ -146,16 +148,19 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         fileTypes: updatedFileTypes,
       };
 
-      // Only update version and metadata if this is a metadata change
-      if (hasMetadataChange) {
+      // Update version and metadata if we created a new version
+      if (shouldCreateNewVersion) {
         updateData.version = newVersion;
         updateData.description = body.description || existingBalise.description;
-        updateData.bucketId = body.bucketId || existingBalise.bucketId;
         updateData.createdBy = user.uid;
         updateData.createdTime = new Date();
         updateData.locked = false;
         updateData.lockedBy = null;
         updateData.lockedTime = null;
+      } else if (body.description) {
+        // Metadata-only update (no version change, just update description)
+        updateData.description = body.description;
+        log.info(user, `Updating description for balise ${baliseId} without version change`);
       }
 
       const updatedBalise = await database.balise.update({
@@ -191,7 +196,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           secondaryId: baliseId,
           version: newVersion,
           description: body.description || '',
-          bucketId: body.bucketId || `balise-${baliseId}`,
           fileTypes,
           createdBy: user.uid,
           createdTime: new Date(),
