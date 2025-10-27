@@ -93,7 +93,6 @@ model Balise {
   secondaryId Int             @unique
   version     Int
   description String
-  bucketId    String
   fileTypes   String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
   history     BaliseVersion[]
   createdBy   String
@@ -112,7 +111,6 @@ model BaliseVersion {
   secondaryId        Int
   version            Int
   description        String
-  bucketId           String
   fileTypes          String[]
   createdBy          String
   createdTime        DateTime

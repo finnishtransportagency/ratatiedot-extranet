@@ -185,7 +185,7 @@ async function reseedBalises() {
             ? `Detailed balise description for ${secondaryId}. This balise is located at a critical junction in the Finnish railway network, providing essential signaling information for train operations. The balise contains multiple data elements including speed restrictions, gradient information, and route-specific operational instructions that ensure safe and efficient train movements through this section of track.`
             : `Baliisi ${secondaryId}`,
           bucketId: `bucket_${secondaryId}`,
-          fileTypes: ['xml', 'pdf'],
+          fileTypes: [], // No dummy files - represents empty S3 state
           locked: Math.random() < 0.1, // 10% locked
           lockedBy: Math.random() < 0.5 ? 'test.user' : 'admin.user',
           lockedTime: Math.random() < 0.8 ? new Date() : null,
@@ -216,7 +216,7 @@ async function reseedBalises() {
           createdTime: new Date(balise.createdTime.getTime() + v * 24 * 60 * 60 * 1000),
           createdBy: v === versionCount ? balise.createdBy : 'previous.user',
           bucketId: `${balise.bucketId}_v${v}`,
-          fileTypes: balise.fileTypes,
+          fileTypes: [], // No dummy files in version history either
           locked: balise.locked,
         });
 
