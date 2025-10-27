@@ -76,7 +76,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         secondaryId: existingBalise.secondaryId,
         version: existingBalise.version,
         description: existingBalise.description,
-        bucketId: existingBalise.bucketId,
         fileTypes: existingBalise.fileTypes,
         createdBy: existingBalise.createdBy,
         createdTime: existingBalise.createdTime,

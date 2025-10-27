@@ -40,7 +40,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     let body: {
       description?: string;
-      bucketId?: string;
       fileTypes?: string[];
       version?: number;
       baliseData?: string;
@@ -106,7 +105,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
             secondaryId: existingBalise.secondaryId,
             version: existingBalise.version,
             description: existingBalise.description,
-            bucketId: existingBalise.bucketId,
             fileTypes: existingBalise.fileTypes,
             createdBy: existingBalise.createdBy,
             createdTime: existingBalise.createdTime,
@@ -141,7 +139,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         fileTypes: string[];
         version?: number;
         description?: string;
-        bucketId?: string;
         createdBy?: string;
         createdTime?: Date;
         locked?: boolean;
@@ -155,7 +152,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       if (shouldCreateNewVersion) {
         updateData.version = newVersion;
         updateData.description = body.description || existingBalise.description;
-        updateData.bucketId = body.bucketId || existingBalise.bucketId;
         updateData.createdBy = user.uid;
         updateData.createdTime = new Date();
         updateData.locked = false;
@@ -200,7 +196,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           secondaryId: baliseId,
           version: newVersion,
           description: body.description || '',
-          bucketId: body.bucketId || `balise-${baliseId}`,
           fileTypes,
           createdBy: user.uid,
           createdTime: new Date(),

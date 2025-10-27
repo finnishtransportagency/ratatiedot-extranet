@@ -13,7 +13,6 @@ export interface BaliseVersion {
   secondaryId: number;
   version: number;
   description: string;
-  bucketId: string;
   fileTypes: string[];
   createdBy: string;
   createdTime: string | Date;
@@ -28,7 +27,6 @@ export interface Balise {
   secondaryId: number;
   version: number;
   description: string;
-  bucketId: string;
   fileTypes: string[];
   history: BaliseVersion[];
   createdBy: string;

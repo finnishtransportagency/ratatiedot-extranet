@@ -279,10 +279,6 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       if (formData.files && formData.files.length > 0) {
         // Store full filenames instead of just extensions
         const fileTypes = formData.files.map((file) => file.name);
-        // Generate bucket ID automatically: balise_{secondaryId}_{timestamp}
-        const bucketId = `balise_${formData.secondaryId}_${Date.now()}`;
-
-        submitData.bucketId = bucketId;
         submitData.fileTypes = fileTypes;
       }
 

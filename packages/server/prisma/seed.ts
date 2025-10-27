@@ -44,12 +44,6 @@ function getRandomDescription() {
   return descriptions[Math.floor(Math.random() * descriptions.length)];
 }
 
-// Helper function to generate realistic filenames
-function getRandomFileTypes(): string[] {
-  // Return empty array to represent clean S3 state with no dummy files
-  return [];
-}
-
 async function seedAreas() {
   console.log('🌱 Seeding railway areas...');
 
@@ -147,8 +141,7 @@ async function seedBalises() {
       secondaryId: i,
       version: currentVersion,
       description,
-      bucketId: `balise-${i}`,
-      fileTypes: getRandomFileTypes(), // Realistic varied file types
+      fileTypes: [], // No dummy files - represents empty S3 state
       createdBy: user,
       createdTime,
       locked: isLocked,
@@ -170,8 +163,7 @@ async function seedBalises() {
         secondaryId: i,
         version,
         description: getRandomDescription(),
-        bucketId: `balise-${i}-v${version}`,
-        fileTypes: getRandomFileTypes(), // Each version can have different file types
+        fileTypes: [], // No dummy files - represents empty S3 state
         createdBy: versionUser,
         createdTime: versionCreatedTime,
         locked: isVersionLocked,
