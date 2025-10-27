@@ -4,11 +4,12 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateAdminUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
-import { Notice, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { FileInfo } from 'busboy';
 import { parseForm } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import { uploadToS3 } from '../../utils/s3utils';
+import type { NoticeWithContentArray } from '../../types';
 
 const database = await DatabaseClient.build();
 const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
@@ -38,7 +39,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       filename = `images/${Date.now()}_${fileInfo.filename}`;
     }
 
-    const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: Notice = JSON.parse(
+    const { title, content, publishTimeStart, publishTimeEnd, showAsBanner }: NoticeWithContentArray = JSON.parse(
       formData.notice as string,
     );
 

@@ -96,7 +96,9 @@ Check node version. You can use `nvm use` to automatically set the right version
 To bootstrap the project, run:
 
 ```
-npm run bootstrap
+npm ci && (cd packages/node-server && npm ci)
+npm run prisma:generate
+npm run build
 ```
 
 Create `.env` file in server package and copy from `.env.example` to `.env`.

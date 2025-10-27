@@ -94,7 +94,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     const options = await getAlfrescoOptions(user.uid, { 'Content-Type': 'application/json' });
     const requestOptions = (await folderCreateRequestBuilder(event, options.headers)) as unknown as AxiosRequestOptions;
 
-    const folderName = JSON.parse(event.body).name;
+    const folderName = JSON.parse(event.body || '{}').name;
     const nodes = await getNodes(targetNode, options);
 
     const nodeAlreadyExists = nodes?.data.list.entries.some((node: AlfrescoResponse) => node.entry.name === folderName);

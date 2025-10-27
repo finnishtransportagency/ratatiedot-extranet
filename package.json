@@ -6,8 +6,7 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky install",
-    "bootstrap": "npx lerna bootstrap --force-local",
-    "build": "npx lerna run build",
+    "build": "lerna run build",
     "build:frontend": "npm --prefix packages/frontend run build",
     "ci": "npm ci",
     "dev-client": "cd packages/frontend && npm start",
