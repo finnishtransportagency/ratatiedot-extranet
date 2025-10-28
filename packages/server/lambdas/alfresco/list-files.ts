@@ -6,18 +6,10 @@ import { log } from '../../utils/logger';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import {
-  AdditionalFields,
-  IFolderSearchParameter,
-  IParentSearchParameter,
-  QueryLanguage,
-  SearchParameterName,
-  SortingFieldParameter,
-} from './searchQueryBuilder/types';
+import { AdditionalFields, QueryLanguage } from './searchQueryBuilder/types';
 import { get } from 'lodash';
 import { validateQueryParameters } from '../../utils/validation';
-import { alfrescoApiVersion, alfrescoAxios, alfrescoSearchApiVersion } from '../../utils/axios';
-import { searchQueryBuilder } from './searchQueryBuilder';
+import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 
 export type TNode = {
   entry: {
@@ -39,43 +31,6 @@ const listFiles = async (uid: string, nodeId: string, page: number, ascending: b
     const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?skipCount=${skipCount}&maxItems=50&include=${AdditionalFields.PROPERTIES}&orderBy=name ${order}`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
-    return response.data;
-  } catch (err) {
-    throw err;
-  }
-};
-
-const searchByTermWithParent = async (
-  uid: string,
-  alfrescoParent: string,
-  alfrescoChildFolder = '',
-  page: number,
-  language: QueryLanguage,
-) => {
-  try {
-    const searchParameters = [];
-    const parent: IParentSearchParameter = {
-      parameterName: SearchParameterName.PARENT,
-      parent: alfrescoParent,
-    };
-    searchParameters.push(parent);
-    if (alfrescoChildFolder) {
-      const folder: IFolderSearchParameter = {
-        parameterName: SearchParameterName.FOLDER,
-        name: alfrescoChildFolder,
-      };
-      searchParameters.push(folder);
-    }
-    const bodyRequest = searchQueryBuilder({
-      searchParameters: searchParameters,
-      page: page,
-      language: language,
-      additionalFields: [AdditionalFields.PROPERTIES],
-      sort: { field: SortingFieldParameter.name, ascending: true },
-    });
-    const url = alfrescoSearchApiVersion;
-    const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
-    const response = await alfrescoAxios.post(url, bodyRequest, options);
     return response.data;
   } catch (err) {
     throw err;
@@ -123,8 +78,6 @@ let fileEndpointsCache: Array<CategoryDataBase> = [];
  * Example: /api/alfresco/files?category=linjakaaviot&order=ascending
  * Case 2: Get the list of files and folders embedded to any folder that is a descendant of category page.
  * Example: /api/alfresco/files?category=linjakaaviot&nestedFolderId=123
- * Case 3: Get the list of files and folders embedded to direct child folder of category page
- * Example: /api/alfresco/files?category=linjakaaviot&childFolderName=vuosi_2023
  * @param {ALBEvent} event
  * @param {{category: string, page?: number, language?: QueryLanguage }} event.queryStringParameters
  * @param {string} event.queryStringParameters.category Page to be searched for
@@ -135,10 +88,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     const params = event.queryStringParameters;
     // only listed parameters are accepted
-    validateQueryParameters(params, ['category', 'nestedFolderId', 'childFolderName', 'page', 'language', 'order']);
+    validateQueryParameters(params, ['category', 'nestedFolderId', 'page', 'language', 'order']);
     const category = params?.category;
     const nestedFolderId = params?.nestedFolderId;
-    const childFolderName = params?.childFolderName;
     const order = params?.order;
     let ascendingOrder = true;
 
@@ -153,9 +105,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(
       user,
-      `Fetching files for page ${category} ${nestedFolderId ? `, nested folder id ${nestedFolderId}` : ''} ${
-        childFolderName ? `, category's child folder name ${childFolderName}` : ''
-      }`,
+      `Fetching files for page ${category} ${nestedFolderId ? `, nested folder id ${nestedFolderId}` : ''}`,
     );
 
     validateReadUser(user);
@@ -163,12 +113,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('Category missing', 400);
     }
 
-    if (nestedFolderId && childFolderName) {
-      throw new RataExtraLambdaError(
-        'Both nestedFolderId and childFolderName parameters cannot be present simultaneously. Please use only one.',
-        400,
-      );
-    }
     const page = params?.page ? parseInt(params?.page) : 0;
     const language = (params?.language as QueryLanguage) ?? QueryLanguage.LUCENE;
     if (!Object.values(QueryLanguage).includes(language)) {
@@ -193,18 +137,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       if (isFolderDescendantOfCategory) {
         data = await listFiles(user.uid, nestedFolderId, page, ascendingOrder);
       }
-    }
-
-    if (childFolderName) {
-      // Check if the folder is a direct child of the category
-      const childFolder = await searchByTermWithParent(user.uid, alfrescoParent, childFolderName, 0, language); // direct child folder name is given, default page should be 0
-      const childFolderId = get(childFolder, 'list.entries[0].entry.id');
-      if (childFolderId) {
-        data = await listFiles(user.uid, childFolderId, page, ascendingOrder);
-      }
-    }
-
-    if (!nestedFolderId && !childFolderName) {
+    } else {
       data = await listFiles(user.uid, alfrescoParent, page, ascendingOrder);
     }
 
