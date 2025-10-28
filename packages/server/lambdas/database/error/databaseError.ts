@@ -1,8 +1,7 @@
 import { Prisma } from '@prisma/client';
-import { PrismaClientKnownRequestError, PrismaClientUnknownRequestError } from '@prisma/client/runtime';
 import { RataExtraLambdaError } from '../../../utils/errors';
 
-export type PrismaError = PrismaClientKnownRequestError | PrismaClientUnknownRequestError;
+export type PrismaError = Prisma.PrismaClientKnownRequestError | Prisma.PrismaClientUnknownRequestError;
 
 export const handlePrismaError = (error: PrismaError) => {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

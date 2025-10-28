@@ -5,6 +5,7 @@ import { log } from '../../utils/logger';
 import { getUser, validateAdminUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 import { deleteFromS3 } from '../../utils/s3utils';
+import type { NoticeWithContentArray } from '../../types';
 
 const database = await DatabaseClient.build();
 const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
@@ -27,7 +28,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.info(user, 'Delete notice by id' + noticeId);
     validateAdminUser(user);
 
-    const notice = await database.notice.delete({ where: { id: noticeId } });
+    const notice = (await database.notice.delete({
+      where: { id: noticeId },
+    })) as NoticeWithContentArray;
 
     const bucket = `s3-${RATAEXTRA_STACK_IDENTIFIER}-images`;
     const imageElement = notice.content.find((element) => element.type === 'image');

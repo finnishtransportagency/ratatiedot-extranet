@@ -13,6 +13,7 @@ import { FileInfo } from 'busboy';
 import { parseForm } from '../../utils/parser';
 import { uploadToS3 } from '../../utils/s3utils';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
+import type { CategoryDataContentFieldObjects } from '../../types';
 
 const database = await DatabaseClient.build();
 const RATAEXTRA_STACK_IDENTIFIER = process.env.RATAEXTRA_STACK_IDENTIFIER;
@@ -73,7 +74,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       filename = `images/${Date.now()}_${fileInfo.filename}`;
     }
 
-    const pagecontent = JSON.parse(formData.pagecontent as string);
+    const pagecontent: CategoryDataContentFieldObjects = JSON.parse(formData.pagecontent as string);
 
     const imageElement = pagecontent.find((element) => element.type === 'image');
 
