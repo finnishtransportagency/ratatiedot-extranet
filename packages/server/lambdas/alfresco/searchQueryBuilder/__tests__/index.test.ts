@@ -8,7 +8,7 @@ describe('searchQueryBuilder', () => {
         language: QueryLanguage.LUCENE,
         searchParameters: [],
         page: 0,
-        sort: [{ field: SortingFieldParameter.name, ascending: true }],
+        sort: { field: SortingFieldParameter.name, ascending: true },
       }),
     ).toEqual({
       query: {

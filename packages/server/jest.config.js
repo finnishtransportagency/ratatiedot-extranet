@@ -3,6 +3,8 @@
 
 const config = {
   verbose: true,
+  testPathIgnorePatterns: ['/node_modules/', '/build/'],
+  testMatch: ['**/*.test.ts'],
 };
 
 export default config;
