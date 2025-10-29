@@ -20,12 +20,6 @@ export const LoginAndPermissionsInstructions = () => {
       </ParagraphWrapper>
       <ContactEditorCardPaperWrapper>
         <HighlightedTitle>Yhteystiedot</HighlightedTitle>
-        <Typography variant="subtitle2">Käyttäjätunnukset</Typography>
-        <Typography variant="body1">Taina Lind</Typography>
-        <Typography variant="body1">
-          <a href="mailto:taina.lind@vayla.fi">taina.lind@vayla.fi</a>
-        </Typography>
-        <Typography variant="subtitle2">Sisältö</Typography>
         <Typography variant="body1">Merja Hyvärinen</Typography>
         <Typography variant="body1">
           <a href="mailto:merja.hyvarinen@vayla.fi">merja.hyvarinen@vayla.fi</a>
