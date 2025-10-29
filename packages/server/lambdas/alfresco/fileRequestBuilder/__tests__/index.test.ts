@@ -4,7 +4,6 @@ import {
   updateFileMetadataRequestBuilder,
   deleteFileRequestBuilder,
 } from '../../fileRequestBuilder';
-import { mockFormDataOptions } from './__mocks__/lambdaMockFormOptions';
 
 type jsonBody = {
   name: string;
@@ -18,6 +17,7 @@ const options = {
   },
   httpMethod: '',
   path: '',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: '' as any,
   isBase64Encoded: true,
   headers: {
@@ -28,11 +28,23 @@ const options = {
 
 describe('fileRequestBuilder', () => {
   it('returns file-upload body based on given values', async () => {
+    const boundary = 'someBoundaryString';
+    const fileContent = Buffer.from('test file content');
+    const filename = 'test.pdf';
+
+    // Create proper multipart form data
+    const multiPartBody = Buffer.from(
+      `--${boundary}\r\n` +
+        `Content-Disposition: form-data; name="filedata"; filename="${filename}"\r\n` +
+        `Content-type: application/pdf\r\n\r\n` +
+        `${fileContent.toString()}\r\n` +
+        `--${boundary}--\r\n`,
+    );
     options.httpMethod = 'POST';
     options.path = '/api/alfresco/file/hallintaraportit';
-    options.headers['content-type'] = 'multipart/form-data';
+    options.headers['content-type'] = `multipart/form-data; boundary=${boundary}`;
     options.isBase64Encoded = false;
-    options.body = mockFormDataOptions;
+    options.body = multiPartBody;
 
     const requestOptions = await fileRequestBuilder(options, {
       'X-API-Key': '',
@@ -40,7 +52,7 @@ describe('fileRequestBuilder', () => {
     });
     type Options = {
       method: string;
-      body?: FormData | any;
+      body?: FormData;
       headers?: { 'X-API-Key': string; 'OAM-REMOTE-USER': string };
     };
 
