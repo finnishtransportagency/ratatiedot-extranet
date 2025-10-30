@@ -9,6 +9,7 @@ import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
 import { SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY } from '../../../../lib/config';
 import { getSecuredStringParameter } from '../../utils/parameterStore';
+import type { CategoryDataContentsWithFieldsArray } from '../../types';
 
 const database = await DatabaseClient.build();
 const cfKeyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
@@ -46,7 +47,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       throw new RataExtraLambdaError('Category not found', 404);
     }
 
-    const contents = await database.categoryDataContents.findUnique({ where: { baseId: categoryData.id } });
+    const contents = (await database.categoryDataContents.findUnique({
+      where: { baseId: categoryData.id },
+    })) as CategoryDataContentsWithFieldsArray;
 
     const imageElement = contents?.fields.find((element) => element.type === 'image');
     if (imageElement) {

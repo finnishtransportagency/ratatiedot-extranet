@@ -42,6 +42,7 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly alfrescoSitePath: string;
   readonly serviceUserUid?: string;
   readonly imageBucket: Bucket;
+  readonly balisesBucket: Bucket;
   readonly cloudfrontSignerPublicKeyId: string;
 }
 
@@ -100,6 +101,7 @@ export class RataExtraBackendStack extends NestedStack {
       alfrescoSitePath,
       serviceUserUid,
       imageBucket,
+      balisesBucket,
       cloudfrontSignerPublicKeyId,
     } = props;
 
@@ -161,6 +163,7 @@ export class RataExtraBackendStack extends NestedStack {
         SSM_DATABASE_DOMAIN_ID: SSM_DATABASE_DOMAIN,
         SSM_DATABASE_PASSWORD_ID: SSM_DATABASE_PASSWORD,
         DATABASE_URL: '',
+        BALISES_BUCKET_NAME: balisesBucket.bucketName,
       },
       bundling: {
         nodeModules: ['prisma', '@prisma/client'],
@@ -405,9 +408,78 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/alfresco/move-node.ts',
     });
 
+    const getBalises = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-balises',
+      relativePath: '../packages/server/lambdas/balise/get-balises.ts',
+    });
+
+    const getBalise = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-balise',
+      relativePath: '../packages/server/lambdas/balise/get-balise.ts',
+    });
+
+    const deleteBalise = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'delete-balise',
+      relativePath: '../packages/server/lambdas/balise/delete-balise.ts',
+    });
+
+    const lockBalise = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'lock-balise',
+      relativePath: '../packages/server/lambdas/balise/lock-balise.ts',
+    });
+
+    const unlockBalise = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'unlock-balise',
+      relativePath: '../packages/server/lambdas/balise/unlock-balise.ts',
+    });
+
+    const addBalise = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'add-balise',
+      relativePath: '../packages/server/lambdas/balise/add-balise.ts',
+    });
+
+    const bulkUploadBalises = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'bulk-upload-balises',
+      relativePath: '../packages/server/lambdas/balise/bulk-upload-balises.ts',
+    });
+
+    const getBaliseDownloadUrl = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-balise-download-url',
+      relativePath: '../packages/server/lambdas/balise/get-balise-download-url.ts',
+    });
+
+    const deleteBaliseFiles = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'delete-balise-files',
+      relativePath: '../packages/server/lambdas/balise/delete-balise-files.ts',
+    });
+
+    const getAreas = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'get-areas',
+      relativePath: '../packages/server/lambdas/balise/get-areas.ts',
+    });
+
     imageBucket.grantReadWrite(postNotice);
     imageBucket.grantReadWrite(putNotice);
     imageBucket.grantReadWrite(deleteNotice);
+
+    // Grant S3 permissions for balise file operations
+    balisesBucket.grantReadWrite(addBalise);
+    balisesBucket.grantReadWrite(bulkUploadBalises);
+    balisesBucket.grantRead(getBalise);
+    balisesBucket.grantRead(getBalises);
+    balisesBucket.grantRead(getBaliseDownloadUrl);
+    balisesBucket.grantDelete(deleteBalise);
+    balisesBucket.grantDelete(deleteBaliseFiles);
 
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {
@@ -619,6 +691,76 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/alfresco/files/*/*/move'],
         httpRequestMethods: ['POST'],
         targetName: 'alfrescoMoveNode',
+      },
+      {
+        lambda: getAreas,
+        priority: 275,
+        path: ['/api/balise/areas'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getAreas',
+      },
+      {
+        lambda: bulkUploadBalises,
+        priority: 278,
+        path: ['/api/balise/bulk-upload'],
+        httpRequestMethods: ['POST'],
+        targetName: 'bulkUploadBalises',
+      },
+      {
+        lambda: getBalise,
+        priority: 280,
+        path: ['/api/balise/*'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getBalise',
+      },
+      {
+        lambda: getBalises,
+        priority: 285,
+        path: ['/api/balises'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getBalises',
+      },
+      {
+        lambda: addBalise,
+        priority: 287,
+        path: ['/api/balise/*/add'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'addBalise',
+      },
+      {
+        lambda: deleteBalise,
+        priority: 288,
+        path: ['/api/balise/*/delete'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'deleteBalise',
+      },
+      {
+        lambda: deleteBaliseFiles,
+        priority: 286,
+        path: ['/api/balise/*/files/delete'],
+        httpRequestMethods: ['POST'],
+        targetName: 'deleteBaliseFiles',
+      },
+      {
+        lambda: lockBalise,
+        priority: 289,
+        path: ['/api/balise/*/lock'],
+        httpRequestMethods: ['POST'],
+        targetName: 'lockBalise',
+      },
+      {
+        lambda: unlockBalise,
+        priority: 291,
+        path: ['/api/balise/*/unlock'],
+        httpRequestMethods: ['POST'],
+        targetName: 'unlockBalise',
+      },
+      {
+        lambda: getBaliseDownloadUrl,
+        priority: 290,
+        path: ['/api/balise/*/download'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getBaliseDownloadUrl',
       },
     ];
 

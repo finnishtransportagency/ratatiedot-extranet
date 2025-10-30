@@ -126,7 +126,7 @@ describe('Lucene Query Builder', () => {
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+(TEXT:"hello*" AND TEXT:"world*" OR @cm\\:name:"hello*" AND @cm\\:name:"world*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
+        '+(@cm\\:name:("hello* world*" OR "hello world"~3)^4 OR @cm\\:title:("hello* world*" OR "hello world"~3)^4 OR @cm\\:description:("hello* world*" OR "hello world"~3)^2 OR TEXT:"hello world"~3^1)+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
       );
     });
     it('should return query for content search from "mysite" workspace', () => {
@@ -138,7 +138,7 @@ describe('Lucene Query Builder', () => {
         },
       ];
       expect(luceneQueryBuilder.queryBuilder(parameters)).toEqual(
-        '+(TEXT:"hello*" AND TEXT:"world*")+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
+        '+(TEXT:"hello world"~3^1)+TYPE:"cm:content"+PATH:"/app:company_home/st:sites/cm:mysite//*"',
       );
     });
     it('should return query for parent', () => {
@@ -176,7 +176,7 @@ describe('Lucene Query Builder', () => {
       expect(luceneQueryBuilder.sorting()).toEqual([]);
     });
     it('should return name sorting by ascending', () => {
-      expect(luceneQueryBuilder.sorting([{ field: SortingFieldParameter.name, ascending: true }])).toEqual([
+      expect(luceneQueryBuilder.sorting({ field: SortingFieldParameter.name, ascending: true })).toEqual([
         {
           field: 'cm:name',
           ascending: true,
@@ -185,17 +185,7 @@ describe('Lucene Query Builder', () => {
       ]);
     });
     it('should return modified sorting by descending', () => {
-      expect(
-        luceneQueryBuilder.sorting([
-          { field: SortingFieldParameter.name, ascending: true },
-          { field: SortingFieldParameter.modified, ascending: false },
-        ]),
-      ).toEqual([
-        {
-          field: 'cm:name',
-          ascending: true,
-          type: 'FIELD',
-        },
+      expect(luceneQueryBuilder.sorting({ field: SortingFieldParameter.modified, ascending: false })).toEqual([
         {
           field: 'cm:modified',
           ascending: false,

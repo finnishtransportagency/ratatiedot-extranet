@@ -71,7 +71,7 @@ const searchByTermWithParent = async (
       page: page,
       language: language,
       additionalFields: [AdditionalFields.PROPERTIES],
-      sort: [{ field: SortingFieldParameter.name, ascending: true }],
+      sort: { field: SortingFieldParameter.name, ascending: true },
     });
     const url = alfrescoSearchApiVersion;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });

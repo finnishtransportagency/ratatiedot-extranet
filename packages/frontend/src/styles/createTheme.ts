@@ -22,9 +22,39 @@ export const theme = createTheme({
   palette: {
     primary: {
       main: Colors.darkblue,
+      light: Colors.lightblue,
+      dark: Colors.darkblue,
     },
     secondary: {
       main: Colors.extrablack,
+      light: Colors.darkgrey,
+    },
+    error: {
+      main: Colors.darkred,
+      light: Colors.lightred,
+    },
+    warning: {
+      main: Colors.yellow,
+    },
+    success: {
+      main: Colors.darkgreen,
+      light: Colors.lightgreen,
+    },
+    info: {
+      main: Colors.midblue,
+      light: Colors.aliceblue,
+    },
+    grey: {
+      50: Colors.lightgrey,
+      100: Colors.lightgrey,
+      200: Colors.midgrey,
+      300: Colors.midgrey,
+      500: Colors.darkgrey,
+      600: Colors.darkgrey,
+    },
+    background: {
+      default: Colors.white,
+      paper: Colors.white,
     },
     transparent: {
       main: Colors.white,
@@ -41,6 +71,11 @@ export const theme = createTheme({
     subtitle2: {
       fontFamily: ['Exo2-Bold', ...DefaultFonts].join(','),
       fontSize: 16,
+    },
+    h4: {
+      fontFamily: ['Exo2-Bold', ...DefaultFonts].join(','),
+      fontSize: 16,
+      lineHeight: '24px',
     },
     body1: {
       fontFamily: ['Exo2-Regular', ...DefaultFonts].join(','),

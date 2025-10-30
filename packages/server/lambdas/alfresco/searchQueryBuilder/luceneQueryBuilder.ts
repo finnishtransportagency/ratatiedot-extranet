@@ -185,7 +185,8 @@ export class LuceneQueryBuilder implements SearchQueryBuilder {
     };
   }
 
-  public sorting(param: SortingParameter): Sorting[] {
+  public sorting(param?: SortingParameter): Sorting[] {
+    if (!param) return [];
     return [
       {
         type: 'FIELD',

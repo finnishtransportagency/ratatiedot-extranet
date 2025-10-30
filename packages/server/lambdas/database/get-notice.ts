@@ -7,6 +7,7 @@ import { getUser, validateAdminUser, validateReadUser } from '../../utils/userSe
 import { DatabaseClient } from './client';
 import { SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY } from '../../../../lib/config';
 import { getSecuredStringParameter } from '../../utils/parameterStore';
+import type { NoticeWithContentArray } from '../../types';
 
 const database = await DatabaseClient.build();
 const cfKeyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
@@ -32,7 +33,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.info(user, 'Get notice by id' + noticeId);
     validateReadUser(user);
 
-    const notice = await database.notice.findUnique({ where: { id: noticeId } });
+    const notice = (await database.notice.findUnique({ where: { id: noticeId } })) as NoticeWithContentArray;
     const imageElement = notice.content.find((element) => element.type === 'image');
     if (imageElement) {
       const encodedUrl = encodeURIComponent(imageElement.url);
