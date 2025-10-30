@@ -37,8 +37,8 @@ This guide explains how to reseed the Balise and Area data in your local databas
 ### Option 1: Using the Script (Recommended)
 
 ```bash
-cd packages/server
-./reseed-balise.sh
+cd packages/server/prisma
+./reseed-balises.sh
 ```
 
 The script will:
