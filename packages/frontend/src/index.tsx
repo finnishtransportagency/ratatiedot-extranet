@@ -11,9 +11,6 @@ import { theme } from './styles/createTheme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './i18n';
 
-import axios from 'axios';
-axios.defaults.baseURL = '/';
-
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
