@@ -695,7 +695,7 @@ export class RataExtraBackendStack extends NestedStack {
       {
         lambda: getAreas,
         priority: 275,
-        path: ['/api/areas'],
+        path: ['/api/balise/areas'],
         httpRequestMethods: ['GET'],
         targetName: 'getAreas',
       },
@@ -716,7 +716,7 @@ export class RataExtraBackendStack extends NestedStack {
       {
         lambda: getBalises,
         priority: 285,
-        path: ['/api/balises', '/api/balises/*'],
+        path: ['/api/balises'],
         httpRequestMethods: ['GET'],
         targetName: 'getBalises',
       },
