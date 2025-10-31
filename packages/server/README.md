@@ -41,10 +41,11 @@ This will set up a pipe to the bastion host using AWS SSM on localhost:5433. The
 
 > [!NOTE]  
 > If you have configured `.env.bastion` file with desired bastion `﻿INSTANCE_ID` and aws `PROFILE`, updated your AWS credentials in `~/.aws/credentials` file and have correct database credentials in `/packages/server/.env` file but still are not able to connect to desired database through bastion host, check that `nohup socat` process is running in the instance. You can use AWS EC2 console to login to bastion host terminal.
+>
 > - login to bastion host terminal and list all running processes `sudo lsof -i -P -n`
 >   - see if process listening port `*:5432` is in the list
 > - If not, run following command with database DNS address copied from Parameter Store
-> 
+>
 > `nohup socat TCP4-LISTEN:5432,reuseaddr,fork TCP:{DATABASE_DNS}:5432 &`
 
 #### Connecting to feature ALB
@@ -211,7 +212,6 @@ Note! Naming of certain AWS resources must be globally unique, these resources i
 
 To set up a new pipeline, run the deployment script `pipeline:deploy` providing environment, branch and stackId as command line arguments with optionally also providing your AWS profile (here environment, branch and stackid correspond to variables explained above):
 
-    npm run pipeline:deploy --environment=feat --branch=feature/RTENU-07-test --stackid=mytestbranch
     npm run pipeline:deploy --environment=feat --branch=feature/RTENU-07-test --stackid=mytestbranch -- --profile myFavouriteAWSProfile
 
 The script will deploy CodePipeline, which will automatically set up the environment. You need to have the changes pushed to GitHub for the pipeline to work. Once set up, the pipeline will automatically update itself and deploy any changes made to the app when commits are pushed to the branch defined in deploy. You can access pipeline resources through the bastion host. See "Connecting to feature ALB".
@@ -230,18 +230,20 @@ Reference for pipeline setup: https://docs.aws.amazon.com/cdk/v2/guide/cdk_pipel
 >
 > Deleting the stack takes care of most of the created components. After that remember to delete S3 bucket by hand.
 
-> [!TIP]
-> **Issues with pipeline not running latest changes?**
-> 
+> [!TIP] > **Issues with pipeline not running latest changes?**
+>
 > For example, pipeline is failing and changes you make to fix that includes the changes to the pipeline itself.
 >
 > merge cdk changes to desired branch (main -> dev, prod -> production)
-> 
+>
 > dev
+>
 > ```
 > npm run pipeline:deploy --environment=dev --branch=main --stackid=main -- --profile XXXXXXXXXX_Rataextra-dev
 > ```
+>
 > prod
+>
 > ```
 > npm run pipeline:deploy --environment=prod --branch=prod --stackid=prod -- --profile XXXXXXXXXX_Rataextra-prod
 > ```
