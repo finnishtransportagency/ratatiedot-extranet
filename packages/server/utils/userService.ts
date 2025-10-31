@@ -25,7 +25,7 @@ export type RataExtraUser = {
 
 export function parseRoles(roles: string): string[] | undefined {
   return roles
-    ? roles
+    ? (roles
         .replace(/[\"\[\]\\]/g, '')
         .split(',')
         .map((s) => {
@@ -33,10 +33,9 @@ export function parseRoles(roles: string): string[] | undefined {
           if (s1) {
             return s1;
           }
-          // tsc fails if undefined is returned here
           return '';
         })
-        .filter((s) => s)
+        .filter(Boolean) as string[])
     : undefined;
 }
 
