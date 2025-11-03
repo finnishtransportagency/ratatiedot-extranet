@@ -1,41 +1,43 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../utils/logger';
+import { getRataExtraLambdaError } from '../../utils/errors';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 const database = await DatabaseClient.build();
 
+/**
+ * Get an array of areas. Example request: /api/balises/areas
+ * @param {ALBEvent} event
+ * @param {{QueryRequest}} event.body JSON stringified
+ * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
+ */
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
 
-    log.info(user, 'Get list of areas');
+    log.info(user, `Get all areas. params: ${JSON.stringify(event.queryStringParameters)}`);
     validateReadUser(user);
+
     const areas = await database.area.findMany({
       orderBy: {
         key: 'asc',
       },
     });
 
+    const response = {
+      data: areas,
+    };
+
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
       },
-      body: JSON.stringify(areas),
+      body: JSON.stringify(response),
     };
-  } catch (error) {
-    console.error('Error fetching areas:', error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-      body: JSON.stringify({ message: 'Internal server error' }),
-    };
+  } catch (err) {
+    log.error(err);
+    return getRataExtraLambdaError(err);
   }
 }
