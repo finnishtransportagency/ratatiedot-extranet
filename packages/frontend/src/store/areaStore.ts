@@ -8,7 +8,7 @@ export interface AreaState {
 }
 
 const fetchAreasAPI = async (): Promise<Area[]> => {
-  const response = await fetch('/api/areas');
+  const response = await fetch('/api/balise/areas');
   if (!response.ok) {
     throw new Error(`Failed to fetch areas: ${response.status}`);
   }
