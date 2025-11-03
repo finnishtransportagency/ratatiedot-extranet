@@ -1,11 +1,17 @@
-import { PrismaClient } from '@prisma/client';
-import { APIGatewayProxyResult } from 'aws-lambda';
+import { ALBEvent, ALBResult } from 'aws-lambda';
+import { log } from '../../utils/logger';
+import { getUser, validateReadUser } from '../../utils/userService';
+import { DatabaseClient } from '../database/client';
 
-const prisma = new PrismaClient();
+const database = await DatabaseClient.build();
 
-export async function handleRequest(): Promise<APIGatewayProxyResult> {
+export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
-    const areas = await prisma.area.findMany({
+    const user = await getUser(event);
+
+    log.info(user, 'Get list of areas');
+    validateReadUser(user);
+    const areas = await database.area.findMany({
       orderBy: {
         key: 'asc',
       },
