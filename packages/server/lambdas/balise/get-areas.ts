@@ -19,15 +19,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.info(user, `Get all areas. params: ${JSON.stringify(event.queryStringParameters)}`);
     validateReadUser(user);
 
-    const areas = await database.area.findMany({
+    const response = await database.area.findMany({
       orderBy: {
         key: 'asc',
       },
     });
-
-    const response = {
-      data: areas,
-    };
 
     return {
       statusCode: 200,
