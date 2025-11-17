@@ -1,33 +1,33 @@
 import React from 'react';
 import { Cancel } from '@mui/icons-material';
 import { Box, FormControl, InputLabel, Select, MenuItem, Chip, OutlinedInput } from '@mui/material';
-import { Area } from './types';
+import { Section } from './types';
 
-interface AreaFilterProps {
-  areas: Area[];
-  selectedAreas: string[];
-  onAreasSelect: (areas: string[]) => void;
+interface SectionFilterProps {
+  sections: Section[];
+  selectedSections: string[];
+  onSectionsSelect: (sections: string[]) => void;
 }
 
-export const AreaFilter: React.FC<AreaFilterProps> = ({ areas, selectedAreas, onAreasSelect }) => {
+export const SectionFilter: React.FC<SectionFilterProps> = ({ sections, selectedSections, onSectionsSelect }) => {
   const handleChange = (event: any) => {
     const value = event.target.value;
-    onAreasSelect(typeof value === 'string' ? value.split(',') : value);
+    onSectionsSelect(typeof value === 'string' ? value.split(',') : value);
   };
 
-  const handleDelete = (areaToDelete: string) => {
-    onAreasSelect(selectedAreas.filter((area) => area !== areaToDelete));
+  const handleDelete = (sectionToDelete: string) => {
+    onSectionsSelect(selectedSections.filter((section) => section !== sectionToDelete));
   };
 
   return (
     <Box sx={{ minWidth: '180px' }}>
       <FormControl fullWidth size="small">
-        <InputLabel>Alueet</InputLabel>
+        <InputLabel>Rataosat</InputLabel>
         <Select
           multiple
-          value={selectedAreas}
+          value={selectedSections}
           onChange={handleChange}
-          input={<OutlinedInput label="Alueet" />}
+          input={<OutlinedInput label="Rataosat" />}
           MenuProps={{
             PaperProps: {
               style: {
@@ -39,11 +39,11 @@ export const AreaFilter: React.FC<AreaFilterProps> = ({ areas, selectedAreas, on
           renderValue={(selected) => (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
               {(selected as string[]).map((value) => {
-                const area = areas.find((a) => a.key === value);
+                const section = sections.find((a) => a.key === value);
                 return (
                   <Chip
                     key={value}
-                    label={area?.shortName || value}
+                    label={section?.shortName || value}
                     size="small"
                     onDelete={() => handleDelete(value)}
                     deleteIcon={
@@ -65,9 +65,9 @@ export const AreaFilter: React.FC<AreaFilterProps> = ({ areas, selectedAreas, on
             </Box>
           )}
         >
-          {areas.map((area) => (
-            <MenuItem key={area.key} value={area.key}>
-              {area.name}
+          {sections.map((section) => (
+            <MenuItem key={section.key} value={section.key}>
+              {section.name}
             </MenuItem>
           ))}
         </Select>

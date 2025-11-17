@@ -1,4 +1,4 @@
-export interface Area {
+export interface Section {
   id: string;
   name: string;
   shortName: string;

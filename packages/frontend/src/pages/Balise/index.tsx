@@ -4,44 +4,44 @@ import { Routes } from '../../constants/Routes';
 import { Box, Alert, Button, Paper, IconButton, Chip, LinearProgress } from '@mui/material';
 import { Add, Download, Delete, Lock, Upload } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
-import { AreaFilter } from './AreaFilter';
+import { SectionFilter } from './SectionFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
-import { useAreaStore } from '../../store/areaStore';
+import { useSectionStore } from '../../store/sectionStore';
 import { downloadBaliseFiles, downloadMultipleBaliseFiles } from '../../utils/download';
 
 export const BalisePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  // Area store
-  const { areas: areaOptions, fetchAreas: fetchAreaOptions, error: areaError } = useAreaStore();
+  // Section store
+  const { sections: sectionOptions, fetchSections: fetchSectionOptions, error: sectionError } = useSectionStore();
 
   // Balise store state and actions
   const { balises, pagination, isBackgroundLoading, error, fetchBalises, loadMoreBalises, refreshBalise, clearCache } =
     useBaliseStore();
 
-  // Load area options on mount
+  // Load section options on mount
   useEffect(() => {
-    fetchAreaOptions();
-  }, [fetchAreaOptions]);
+    fetchSectionOptions();
+  }, [fetchSectionOptions]);
 
-  // Load initial data based on area selection
+  // Load initial data based on section selection
   const loadInitialData = useCallback(
     async (background = false) => {
       clearCache(); // Always clear cache before loading new data set
-      if (selectedAreas.length === 0) {
-        // Load all data if no area is selected
+      if (selectedSections.length === 0) {
+        // Load all data if no section is selected
         await fetchBalises({ limit: 200, page: 1 }, background);
       } else {
-        // Load data for the first selected area
-        const selectedAreaDetails = areaOptions.find((area) => area.key === selectedAreas[0]);
-        if (selectedAreaDetails) {
+        // Load data for the first selected section
+        const selectedSectionDetails = sectionOptions.find((section) => section.key === selectedSections[0]);
+        if (selectedSectionDetails) {
           const filter = {
-            id_min: selectedAreaDetails.idRangeMin,
-            id_max: selectedAreaDetails.idRangeMax,
+            id_min: selectedSectionDetails.idRangeMin,
+            id_max: selectedSectionDetails.idRangeMax,
             limit: 200,
             page: 1,
           };
@@ -49,14 +49,14 @@ export const BalisePage: React.FC = () => {
         }
       }
     },
-    [selectedAreas, fetchBalises, areaOptions, clearCache],
+    [selectedSections, fetchBalises, sectionOptions, clearCache],
   );
 
-  // Initial data load and re-load on area change
+  // Initial data load and re-load on section change
   useEffect(() => {
     loadInitialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAreas]); // Re-run when area selection changes
+  }, [selectedSections]); // Re-run when section selection changes
 
   // Check for recently edited balise and refresh it
   useEffect(() => {
@@ -206,9 +206,9 @@ export const BalisePage: React.FC = () => {
       }}
     >
       {isBackgroundLoading && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000 }} />}
-      {areaError && (
+      {sectionError && (
         <Alert severity="error" sx={{ mb: 1 }}>
-          Failed to load areas: {areaError}
+          Failed to load sections: {sectionError}
         </Alert>
       )}
       {error && balises.length > 0 && (
@@ -274,7 +274,11 @@ export const BalisePage: React.FC = () => {
             <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
           </Box>
           <Box sx={{ minWidth: '200px' }}>
-            <AreaFilter areas={areaOptions} selectedAreas={selectedAreas} onAreasSelect={setSelectedAreas} />
+            <SectionFilter
+              sections={sectionOptions}
+              selectedSections={selectedSections}
+              onSectionsSelect={setSelectedSections}
+            />
           </Box>
           <Box sx={{ margin: 'auto', display: 'flex', gap: 1 }}>
             <IconButton

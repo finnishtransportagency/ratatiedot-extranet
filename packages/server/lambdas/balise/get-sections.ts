@@ -7,7 +7,7 @@ import { DatabaseClient } from '../database/client';
 const database = await DatabaseClient.build();
 
 /**
- * Get an array of areas. Example request: /api/balises/areas
+ * Get an array of sections. Example request: /api/balises/sections
  * @param {ALBEvent} event
  * @param {{QueryRequest}} event.body JSON stringified
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
@@ -16,10 +16,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
 
-    log.info(user, `Get all areas. params: ${JSON.stringify(event.queryStringParameters)}`);
+    log.info(user, `Get all sections. params: ${JSON.stringify(event.queryStringParameters)}`);
     validateReadUser(user);
 
-    const response = await database.area.findMany({
+    const response = await database.section.findMany({
       orderBy: {
         key: 'asc',
       },
