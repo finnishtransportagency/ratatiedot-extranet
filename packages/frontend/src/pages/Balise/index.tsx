@@ -31,22 +31,19 @@ export const BalisePage: React.FC = () => {
   // Load initial data based on section selection
   const loadInitialData = useCallback(
     async (background = false) => {
-      clearCache(); // Always clear cache before loading new data set
+      clearCache();
       if (selectedSections.length === 0) {
-        // Load all data if no section is selected
         await fetchBalises({ limit: 200, page: 1 }, background);
       } else {
-        // Load data for the first selected section
-        const selectedSectionDetails = sectionOptions.find((section) => section.key === selectedSections[0]);
-        if (selectedSectionDetails) {
-          const filter = {
-            id_min: selectedSectionDetails.idRangeMin,
-            id_max: selectedSectionDetails.idRangeMax,
-            limit: 200,
-            page: 1,
-          };
-          await fetchBalises(filter, background);
-        }
+        // Get all selected section ranges
+        const selectedSectionDetails = sectionOptions.filter((section) => selectedSections.includes(section.key));
+        const filter = {
+          id_min: selectedSectionDetails.map((s) => s.idRangeMin),
+          id_max: selectedSectionDetails.map((s) => s.idRangeMax),
+          limit: 200,
+          page: 1,
+        };
+        await fetchBalises(filter, background);
       }
     },
     [selectedSections, fetchBalises, sectionOptions, clearCache],
@@ -74,6 +71,11 @@ export const BalisePage: React.FC = () => {
   const handleBulkUpload = useCallback(() => {
     navigate(Routes.BALISE_BULK_UPLOAD);
   }, [navigate]);
+
+  const handleAddSection = useCallback(() => {
+    navigate(`${Routes.BALISE}/lisaa-rataosa`);
+  }, [navigate]);
+
   const handleRowClick = useCallback(
     (row: BaliseWithHistory) => {
       sessionStorage.setItem('editedBaliseId', row.secondaryId.toString());
@@ -290,7 +292,16 @@ export const BalisePage: React.FC = () => {
             >
               <Upload fontSize="inherit" />
             </IconButton>
-            <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary">
+            <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary" title="Lisää sanoma">
+              <Add fontSize="inherit" />
+            </IconButton>
+            <IconButton
+              id="edit-button"
+              onClick={handleAddSection}
+              size="small"
+              color="secondary"
+              title="Muokkaa rataosia"
+            >
               <Add fontSize="inherit" />
             </IconButton>
           </Box>

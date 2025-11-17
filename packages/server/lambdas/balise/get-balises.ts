@@ -17,18 +17,32 @@ function getQueryParamAsInt(event: ALBEvent, key: string, defaultValue?: number)
   return isNaN(parsed) ? defaultValue : parsed;
 }
 
-const hasMinAndMaxParams = (event: ALBEvent) => {
-  if (event.queryStringParameters) {
-    const queryParams = Object.keys(event.queryStringParameters);
-    return queryParams.includes('id_min') && queryParams.includes('id_max');
-  }
-};
+const getMultipleRangesFromParams = (event: ALBEvent) => {
+  // Support format: id_min=1000,2000&id_max=1500,2500
+  const minStr = getQueryParam(event, 'id_min');
+  const maxStr = getQueryParam(event, 'id_max');
 
-const getMinMaxParamsAsPrismaQuery = (event: ALBEvent) => {
-  return {
-    gte: getQueryParamAsInt(event, 'id_min'),
-    lte: getQueryParamAsInt(event, 'id_max'),
-  };
+  if (!minStr || !maxStr) return [];
+
+  const mins = minStr
+    .split(',')
+    .map((v) => parseInt(v, 10))
+    .filter((v) => !isNaN(v));
+  const maxs = maxStr
+    .split(',')
+    .map((v) => parseInt(v, 10))
+    .filter((v) => !isNaN(v));
+
+  const ranges = [];
+  for (let i = 0; i < Math.min(mins.length, maxs.length); i++) {
+    if (mins[i] <= maxs[i]) {
+      ranges.push({
+        AND: [{ secondaryId: { gte: mins[i] } }, { secondaryId: { lte: maxs[i] } }],
+      });
+    }
+  }
+  console.log('ranges:', JSON.stringify(ranges, null, 2));
+  return ranges;
 };
 
 const database = await DatabaseClient.build();
@@ -60,12 +74,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       deletedAt: null, // Only get non-deleted balises
     };
 
-    const whereClause = hasMinAndMaxParams(event)
-      ? {
-          ...baseWhere,
-          secondaryId: getMinMaxParamsAsPrismaQuery(event),
-        }
-      : baseWhere;
+    const ranges = getMultipleRangesFromParams(event);
+    const whereClause =
+      ranges.length > 0
+        ? {
+            ...baseWhere,
+            OR: ranges,
+          }
+        : baseWhere;
 
     // Get total count for pagination info
     const totalCount = await database.balise.count({
