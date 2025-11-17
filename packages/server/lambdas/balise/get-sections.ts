@@ -7,7 +7,7 @@ import { DatabaseClient } from '../database/client';
 const database = await DatabaseClient.build();
 
 /**
- * Get an array of sections. Example request: /api/balises/sections
+ * Get an array of sections. Example request: /api/balise/sections
  * @param {ALBEvent} event
  * @param {{QueryRequest}} event.body JSON stringified
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
