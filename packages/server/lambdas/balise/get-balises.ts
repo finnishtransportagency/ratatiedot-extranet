@@ -10,6 +10,13 @@ function getQueryParam(event: ALBEvent, key: string, defaultValue?: string): str
   return event.queryStringParameters?.[key] ?? defaultValue;
 }
 
+function getQueryParamMulti(event: ALBEvent, key: string): string[] {
+  const multi = event.multiValueQueryStringParameters?.[key];
+  if (multi) return multi;
+  const single = event.queryStringParameters?.[key];
+  return single ? [single] : [];
+}
+
 function getQueryParamAsInt(event: ALBEvent, key: string, defaultValue?: number): number | undefined {
   const value = getQueryParam(event, key);
   if (value === undefined) return defaultValue;
@@ -19,19 +26,19 @@ function getQueryParamAsInt(event: ALBEvent, key: string, defaultValue?: number)
 
 const getMultipleRangesFromParams = (event: ALBEvent) => {
   // Support format: id_min=1000,2000&id_max=1500,2500
-  const minStr = getQueryParam(event, 'id_min');
-  const maxStr = getQueryParam(event, 'id_max');
+  const mins = getQueryParamMulti(event, 'id_min').flatMap((v) =>
+    v
+      .split(',')
+      .map(Number)
+      .filter((n) => !isNaN(n)),
+  );
 
-  if (!minStr || !maxStr) return [];
-
-  const mins = minStr
-    .split(',')
-    .map((v) => parseInt(v, 10))
-    .filter((v) => !isNaN(v));
-  const maxs = maxStr
-    .split(',')
-    .map((v) => parseInt(v, 10))
-    .filter((v) => !isNaN(v));
+  const maxs = getQueryParamMulti(event, 'id_max').flatMap((v) =>
+    v
+      .split(',')
+      .map(Number)
+      .filter((n) => !isNaN(n)),
+  );
 
   const ranges = [];
   for (let i = 0; i < Math.min(mins.length, maxs.length); i++) {
