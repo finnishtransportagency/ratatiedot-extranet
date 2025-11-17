@@ -44,26 +44,26 @@ function getRandomDescription() {
   return descriptions[Math.floor(Math.random() * descriptions.length)];
 }
 
-async function seedAreas() {
-  console.log('🌱 Seeding railway areas...');
+async function seedSections() {
+  console.log('🌱 Seeding railway sections...');
 
-  // Delete existing areas
-  await prisma.area.deleteMany({});
+  // Delete existing sections
+  await prisma.section.deleteMany({});
 
-  const areas = [];
+  const sections = [];
 
-  // Create 63 areas (area 10 through area 72)
-  for (let areaNum = 10; areaNum <= 72; areaNum++) {
-    const idRangeMin = areaNum * 1000;
-    const idRangeMax = areaNum * 1000 + 999;
+  // Create 63 sections (section 10 through section 72)
+  for (let sectionNum = 10; sectionNum <= 72; sectionNum++) {
+    const idRangeMin = sectionNum * 1000;
+    const idRangeMax = sectionNum * 1000 + 999;
 
-    areas.push({
-      name: `Alue ${areaNum}`,
-      shortName: `Alue ${areaNum}`,
-      key: `area_${areaNum}`,
+    sections.push({
+      name: `Rataosa ${sectionNum}`,
+      shortName: `Rataosa ${sectionNum}`,
+      key: `section_${sectionNum}`,
       idRangeMin,
       idRangeMax,
-      description: `Rataosuus ${areaNum}, baliisi ID:t ${idRangeMin}-${idRangeMax}`,
+      description: `Rataosa ${sectionNum}, baliisi ID:t ${idRangeMin}-${idRangeMax}`,
       color: `#${Math.floor(Math.random() * 16777215)
         .toString(16)
         .padStart(6, '0')}`, // Random color
@@ -71,13 +71,13 @@ async function seedAreas() {
     });
   }
 
-  for (const area of areas) {
-    await prisma.area.create({
-      data: area,
+  for (const section of sections) {
+    await prisma.section.create({
+      data: section,
     });
   }
 
-  console.log(`✅ Created ${areas.length} railway areas (area 10 - area 72)`);
+  console.log(`✅ Created ${sections.length} railway sections (section 10 - section 72)`);
 }
 
 async function seedBalises() {
@@ -90,38 +90,38 @@ async function seedBalises() {
   const balises = [];
   const baliseVersions = [];
 
-  // Generate IDs distributed across all 63 areas (10-72)
-  // Each area gets between 100-600 balises randomly
-  const areasConfig = [];
-  for (let areaNum = 10; areaNum <= 72; areaNum++) {
-    const min = areaNum * 1000;
-    const max = areaNum * 1000 + 999;
-    const balisesInArea = Math.floor(Math.random() * 501) + 100; // Random between 100-600
-    areasConfig.push({ min, max, count: balisesInArea });
+  // Generate IDs distributed across all 63 sections (10-72)
+  // Each section gets between 100-600 balises randomly
+  const sectionsConfig = [];
+  for (let sectionNum = 10; sectionNum <= 72; sectionNum++) {
+    const min = sectionNum * 1000;
+    const max = sectionNum * 1000 + 999;
+    const balisesInSection = Math.floor(Math.random() * 501) + 100; // Random between 100-600
+    sectionsConfig.push({ min, max, count: balisesInSection });
   }
 
-  const totalBalises = areasConfig.reduce((sum, area) => sum + area.count, 0);
+  const totalBalises = sectionsConfig.reduce((sum, section) => sum + section.count, 0);
   const recentBaliseCount = Math.floor(totalBalises * 0.1); // 10% recent
   let recentCreated = 0;
 
-  console.log(`Creating ${totalBalises} balises across ${areasConfig.length} areas...`);
+  console.log(`Creating ${totalBalises} balises across ${sectionsConfig.length} sections...`);
 
   const selectedIds: number[] = [];
 
-  for (let areaIndex = 0; areaIndex < areasConfig.length; areaIndex++) {
-    const area = areasConfig[areaIndex];
-    const areaRange = area.max - area.min + 1;
-    const balisesForThisArea = area.count;
+  for (let sectionIndex = 0; sectionIndex < sectionsConfig.length; sectionIndex++) {
+    const section = sectionsConfig[sectionIndex];
+    const sectionRange = section.max - section.min + 1;
+    const balisesForThisSection = section.count;
 
-    // Generate random IDs within this area's range
-    const areaIds: number[] = [];
-    while (areaIds.length < Math.min(balisesForThisArea, areaRange)) {
-      const randomId = area.min + Math.floor(Math.random() * areaRange);
-      if (!areaIds.includes(randomId)) {
-        areaIds.push(randomId);
+    // Generate random IDs within this section's range
+    const sectionIds: number[] = [];
+    while (sectionIds.length < Math.min(balisesForThisSection, sectionRange)) {
+      const randomId = section.min + Math.floor(Math.random() * sectionRange);
+      if (!sectionIds.includes(randomId)) {
+        sectionIds.push(randomId);
       }
     }
-    selectedIds.push(...areaIds);
+    selectedIds.push(...sectionIds);
   }
 
   for (const i of selectedIds) {
@@ -180,10 +180,10 @@ async function seedBalises() {
   console.log(`Creating ${balises.length} test balises with ${baliseVersions.length} version records...`);
   console.log(`Recent balises (last 24h): ${recentCreated} (${((recentCreated / balises.length) * 100).toFixed(1)}%)`);
 
-  // Show distribution across areas
-  const distribution = areasConfig.map((area, index) => {
-    const count = selectedIds.filter((id) => id >= area.min && id <= area.max).length;
-    return `Area ${index + 1}: ${count} balises (${area.min}-${area.max})`;
+  // Show distribution across sections
+  const distribution = sectionsConfig.map((section, index) => {
+    const count = selectedIds.filter((id) => id >= section.min && id <= section.max).length;
+    return `Section ${index + 1}: ${count} balises (${section.min}-${section.max})`;
   });
   console.log('Distribution:', distribution.join(', '));
 
@@ -231,8 +231,8 @@ async function seedBalises() {
 }
 
 async function main() {
-  // Seed railway areas first
-  await seedAreas();
+  // Seed railway sections first
+  await seedSections();
 
   // Seed existing category data
   await prisma.categoryDataBase.upsert({

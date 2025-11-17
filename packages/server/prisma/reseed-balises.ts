@@ -8,7 +8,7 @@ async function reseedBalises() {
 
     // Get current counts
     const beforeStats = {
-      areas: await prisma.area.count(),
+      sections: await prisma.section.count(),
       balises: await prisma.balise.count(),
       versions: await prisma.baliseVersion.count(),
     };
@@ -21,12 +21,12 @@ async function reseedBalises() {
     console.log('🗑️ Deleting balises...');
     await prisma.balise.deleteMany({});
 
-    console.log('🗑️ Deleting areas...');
-    await prisma.area.deleteMany({});
+    console.log('🗑️ Deleting sections...');
+    await prisma.section.deleteMany({});
 
     // Verify cleanup
     const afterCleanup = {
-      areas: await prisma.area.count(),
+      sections: await prisma.section.count(),
       balises: await prisma.balise.count(),
       versions: await prisma.baliseVersion.count(),
     };
@@ -35,135 +35,135 @@ async function reseedBalises() {
     // Now create fresh test data
     console.log('🌱 Creating fresh balise data...');
 
-    // Create areas with all required fields
-    console.log('📍 Creating areas...');
-    const areas = [
+    // Create sections with all required fields
+    console.log('📍 Creating sections...');
+    const sections = [
       {
-        key: 'area_1',
+        key: 'section_1',
         name: 'Helsinki-Riihimäki',
         shortName: 'HKI-RI',
         idRangeMin: 10000,
         idRangeMax: 14999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Helsinki-Riihimäki railway area',
+        description: 'Helsinki-Riihimäki railway section',
       },
       {
-        key: 'area_2',
+        key: 'section_2',
         name: 'Riihimäki-Tampere',
         shortName: 'RI-TRE',
         idRangeMin: 15000,
         idRangeMax: 19999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Riihimäki-Tampere railway area',
+        description: 'Riihimäki-Tampere railway section',
       },
       {
-        key: 'area_3',
+        key: 'section_3',
         name: 'Tampere-Seinäjoki',
         shortName: 'TRE-SK',
         idRangeMin: 20000,
         idRangeMax: 24999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Tampere-Seinäjoki railway area',
+        description: 'Tampere-Seinäjoki railway section',
       },
       {
-        key: 'area_4',
+        key: 'section_4',
         name: 'Helsinki-Turku',
         shortName: 'HKI-TKU',
         idRangeMin: 25000,
         idRangeMax: 29999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Helsinki-Turku railway area',
+        description: 'Helsinki-Turku railway section',
       },
       {
-        key: 'area_5',
+        key: 'section_5',
         name: 'Lahti-Heinola',
         shortName: 'LH-HN',
         idRangeMin: 30000,
         idRangeMax: 34999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Lahti-Heinola railway area',
+        description: 'Lahti-Heinola railway section',
       },
       {
-        key: 'area_6',
+        key: 'section_6',
         name: 'Kouvola-Joensuu',
         shortName: 'KV-JNS',
         idRangeMin: 35000,
         idRangeMax: 39999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Kouvola-Joensuu railway area',
+        description: 'Kouvola-Joensuu railway section',
       },
       {
-        key: 'area_7',
+        key: 'section_7',
         name: 'Pieksämäki-Kontiomäki',
         shortName: 'PM-KM',
         idRangeMin: 40000,
         idRangeMax: 44999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Pieksämäki-Kontiomäki railway area',
+        description: 'Pieksämäki-Kontiomäki railway section',
       },
       {
-        key: 'area_8',
+        key: 'section_8',
         name: 'Oulu-Kolari',
         shortName: 'OL-KLR',
         idRangeMin: 45000,
         idRangeMax: 49999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Oulu-Kolari railway area',
+        description: 'Oulu-Kolari railway section',
       },
       {
-        key: 'area_9',
+        key: 'section_9',
         name: 'Tampere-Jyväskylä',
         shortName: 'TRE-JY',
         idRangeMin: 50000,
         idRangeMax: 54999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Tampere-Jyväskylä railway area',
+        description: 'Tampere-Jyväskylä railway section',
       },
       {
-        key: 'area_10',
+        key: 'section_10',
         name: 'Jyväskylä-Äänekoski',
         shortName: 'JY-ÄS',
         idRangeMin: 55000,
         idRangeMax: 59999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Jyväskylä-Äänekoski railway area',
+        description: 'Jyväskylä-Äänekoski railway section',
       },
       {
-        key: 'area_11',
+        key: 'section_11',
         name: 'Turku-Toijala',
         shortName: 'TKU-TL',
         idRangeMin: 60000,
         idRangeMax: 64999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Turku-Toijala railway area',
+        description: 'Turku-Toijala railway section',
       },
       {
-        key: 'area_12',
+        key: 'section_12',
         name: 'Vaasa-Seinäjoki',
         shortName: 'VS-SK',
         idRangeMin: 65000,
         idRangeMax: 69999,
         createdBy: 'seed.user',
         createdTime: new Date(),
-        description: 'Vaasa-Seinäjoki railway area',
+        description: 'Vaasa-Seinäjoki railway section',
       },
     ];
 
-    for (const areaData of areas) {
-      await prisma.area.create({ data: areaData });
+    for (const sectionData of sections) {
+      await prisma.section.create({ data: sectionData });
     }
-    console.log(`✅ Created ${areas.length} areas`);
+    console.log(`✅ Created ${sections.length} sections`);
 
     // Create balises
     console.log('🎯 Creating balises...');
@@ -235,7 +235,7 @@ async function reseedBalises() {
 
     // Final stats
     const finalStats = {
-      areas: await prisma.area.count(),
+      sections: await prisma.section.count(),
       balises: await prisma.balise.count(),
       versions: await prisma.baliseVersion.count(),
     };
