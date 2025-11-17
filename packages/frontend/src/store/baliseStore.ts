@@ -5,8 +5,8 @@ import type { BaliseWithHistory } from '../pages/Balise/types';
 export type { BaliseWithHistory };
 
 export interface BaliseFilters {
-  id_min?: number;
-  id_max?: number;
+  id_min?: number | number[];
+  id_max?: number | number[];
   page?: number;
   limit?: number;
   include_history?: boolean;
@@ -53,8 +53,15 @@ export interface BaliseState {
 const fetchBaliseAPI = async (filters?: BaliseFilters): Promise<{ data: BaliseWithHistory[]; pagination: any }> => {
   try {
     const params = new URLSearchParams();
-    if (filters?.id_min) params.append('id_min', filters.id_min.toString());
-    if (filters?.id_max) params.append('id_max', filters.id_max.toString());
+
+    if (filters?.id_min) {
+      const mins = Array.isArray(filters.id_min) ? filters.id_min : [filters.id_min];
+      params.append('id_min', mins.join(','));
+    }
+    if (filters?.id_max) {
+      const maxs = Array.isArray(filters.id_max) ? filters.id_max : [filters.id_max];
+      params.append('id_max', maxs.join(','));
+    }
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.include_history) params.append('include_history', 'true');
