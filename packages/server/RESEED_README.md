@@ -2,23 +2,23 @@
 
 ## Overview
 
-This guide explains how to reseed the Balise and Area data in your local database.
+This guide explains how to reseed the Balise and Section data in your local database.
 
 ## What Gets Created
 
-### Areas
+### Sections
 
-- **63 areas** numbered from 10 to 72
-- Each area covers 1000 balise IDs:
-  - Area 10: IDs 10000-10999
-  - Area 11: IDs 11000-11999
+- **63 sections** numbered from 10 to 72
+- Each section covers 1000 balise IDs:
+  - Section 10: IDs 10000-10999
+  - Section 11: IDs 11000-11999
   - ...
-  - Area 72: IDs 72000-72999
+  - Section 72: IDs 72000-72999
 
 ### Balises
 
-- **100-600 balises per area** (random distribution)
-- **Total: ~20,000-25,000 balises** across all areas
+- **100-600 balises per section** (random distribution)
+- **Total: ~20,000-25,000 balises** across all sections
 - Each balise has:
   - Short Finnish description (1-3 lines)
   - 1-4 versions with version history
@@ -45,8 +45,8 @@ The script will:
 
 1. Check if DATABASE_URL is set (from .env or environment)
 2. Check migration status and run migrations if needed
-3. Delete existing Balise and Area data
-4. Create 63 new areas
+3. Delete existing Balise and Section data
+4. Create 63 new sections
 5. Create balises with realistic Finnish data
 6. Show a summary of created records
 
@@ -69,7 +69,7 @@ npx prisma migrate deploy
 npx prisma db execute --stdin <<'EOF'
 DELETE FROM "BaliseVersion";
 DELETE FROM "Balise";
-DELETE FROM "Area";
+DELETE FROM "Section";
 EOF
 
 # Seed new data
@@ -78,7 +78,7 @@ npx prisma db seed
 # Check results
 npx prisma db execute --stdin <<'EOF'
 SELECT
-  (SELECT COUNT(*) FROM "Area") as areas,
+  (SELECT COUNT(*) FROM "Section") as sections,
   (SELECT COUNT(*) FROM "Balise") as balises,
   (SELECT COUNT(*) FROM "BaliseVersion") as balise_versions;
 EOF
@@ -166,17 +166,17 @@ Prisma schema loaded from prisma/schema.prisma
 
 Database schema is up to date!
 
-🗑️  Deleting existing Balise and Area data...
+🗑️  Deleting existing Balise and Section data...
 
-🌱 Seeding new Area and Balise data...
-  - 63 areas (area 10 through area 72)
-  - 100-600 balises per area (random)
+🌱 Seeding new Section and Balise data...
+  - 63 sections (section 10 through section 72)
+  - 100-600 balises per section (random)
   - Version history for balises with multiple versions
 
-🌱 Seeding railway areas...
-✅ Created 63 railway areas (area 10 - area 72)
+🌱 Seeding railway sections...
+✅ Created 63 railway sections (section 10 - section 72)
 🌱 Seeding balises for testing...
-Creating ~22000 balises across 63 areas...
+Creating ~22000 balises across 63 sections...
 ✅ Created balise batch 1/220
 ...
 🎉 Balise seeding complete! Created 22143 balises with 18234 version records
@@ -184,7 +184,7 @@ Creating ~22000 balises across 63 areas...
 ✅ Data reseeded successfully!
 
 📈 Summary:
- areas | balises | balise_versions
+ sections | balises | balise_versions
 -------+---------+-----------------
     63 |   22143 |           18234
 
@@ -198,4 +198,4 @@ After reseeding:
 1. Restart your backend server
 2. Refresh the frontend
 3. Navigate to the Balise page
-4. You should see the new areas and balises with Finnish descriptions
+4. You should see the new sections and balises with Finnish descriptions
