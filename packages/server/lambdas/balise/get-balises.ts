@@ -18,7 +18,6 @@ function getQueryParamAsInt(event: ALBEvent, key: string, defaultValue?: number)
 }
 
 const getMultipleRangesFromParams = (event: ALBEvent) => {
-  // Support format: id_min=1000,2000&id_max=1500,2500
   const minStr = getQueryParam(event, 'id_min');
   const maxStr = getQueryParam(event, 'id_max');
 
@@ -48,7 +47,7 @@ const getMultipleRangesFromParams = (event: ALBEvent) => {
 const database = await DatabaseClient.build();
 
 /**
- * Get an array of balises. Example request: /api/balises?id_min=22000&id_max=23000&page=1&limit=100
+ * Get an array of balises. Example request: /api/balises?id_min=14000,22000&id_max=14999,23999&page=1&limit=100
  * @param {ALBEvent} event
  * @param {{QueryRequest}} event.body JSON stringified
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
@@ -74,6 +73,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       deletedAt: null, // Only get non-deleted balises
     };
 
+    // Handle multiple ranges for secondaryId filtering
     const ranges = getMultipleRangesFromParams(event);
     const whereClause =
       ranges.length > 0
