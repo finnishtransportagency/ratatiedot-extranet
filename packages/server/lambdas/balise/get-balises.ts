@@ -5,43 +5,41 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
-// Helper function to safely get query parameters
-function getQueryParam(event: ALBEvent, key: string, defaultValue?: string): string | undefined {
-  return event.queryStringParameters?.[key] ?? defaultValue;
-}
+// Helper to safely get a string query parameter
+const getQueryParam = (event: ALBEvent, key: string, defaultValue?: string): string | undefined =>
+  event.queryStringParameters?.[key] ?? defaultValue;
 
-function getQueryParamAsInt(event: ALBEvent, key: string, defaultValue?: number): number | undefined {
+// Helper to parse a single number query parameter with default
+const getQueryParamAsInt = (event: ALBEvent, key: string, defaultValue?: number): number =>
+  (() => {
+    const value = getQueryParam(event, key);
+    if (!value) return defaultValue ?? 0;
+    const parsed = parseInt(value, 10);
+    return isNaN(parsed) ? defaultValue ?? 0 : parsed;
+  })();
+
+// Helper to parse a single or comma-separated list of numbers
+const getQueryParamAsIntArray = (event: ALBEvent, key: string): number[] => {
   const value = getQueryParam(event, key);
-  if (value === undefined) return defaultValue;
-  const parsed = parseInt(value, 10);
-  return isNaN(parsed) ? defaultValue : parsed;
-}
+  if (!value) return [];
+  console.log('value ', JSON.stringify(value));
+  return decodeURIComponent(value)
+    .split(',')
+    .map((v) => parseInt(v, 10))
+    .filter((n) => !isNaN(n));
+};
 
+// Helper to get multiple ranges from query parameters
 const getMultipleRangesFromParams = (event: ALBEvent) => {
-  const minStr = getQueryParam(event, 'id_min');
-  const maxStr = getQueryParam(event, 'id_max');
+  const mins = getQueryParamAsIntArray(event, 'id_min');
+  const maxs = getQueryParamAsIntArray(event, 'id_max');
 
-  if (!minStr || !maxStr) return [];
-
-  const mins = minStr
-    .split(',')
-    .map((v) => parseInt(v, 10))
-    .filter((v) => !isNaN(v));
-  const maxs = maxStr
-    .split(',')
-    .map((v) => parseInt(v, 10))
-    .filter((v) => !isNaN(v));
-
-  const ranges = [];
-  for (let i = 0; i < Math.min(mins.length, maxs.length); i++) {
-    if (mins[i] <= maxs[i]) {
-      ranges.push({
-        AND: [{ secondaryId: { gte: mins[i] } }, { secondaryId: { lte: maxs[i] } }],
-      });
-    }
-  }
-
-  return ranges;
+  return mins
+    .map((min, i) => ({ min, max: maxs[i] }))
+    .filter(({ min, max }) => min <= max && max !== undefined)
+    .map(({ min, max }) => ({
+      AND: [{ secondaryId: { gte: min } }, { secondaryId: { lte: max } }],
+    }));
 };
 
 const database = await DatabaseClient.build();
