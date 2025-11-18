@@ -22,7 +22,6 @@ const getQueryParamAsInt = (event: ALBEvent, key: string, defaultValue?: number)
 const getQueryParamAsIntArray = (event: ALBEvent, key: string): number[] => {
   const value = getQueryParam(event, key);
   if (!value) return [];
-  console.log('value ', JSON.stringify(value));
   return decodeURIComponent(value)
     .split(',')
     .map((v) => parseInt(v, 10))
