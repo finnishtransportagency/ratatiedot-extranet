@@ -31,8 +31,9 @@ export const BalisePage: React.FC = () => {
   // Load initial data based on section selection
   const loadInitialData = useCallback(
     async (background = false) => {
-      clearCache();
+      clearCache(); // Always clear cache before loading new data set
       if (selectedSections.length === 0) {
+        // Load all data if no section is selected
         await fetchBalises({ limit: 200, page: 1 }, background);
       } else {
         // Get all selected section ranges
@@ -70,10 +71,6 @@ export const BalisePage: React.FC = () => {
 
   const handleBulkUpload = useCallback(() => {
     navigate(Routes.BALISE_BULK_UPLOAD);
-  }, [navigate]);
-
-  const handleAddSection = useCallback(() => {
-    navigate(`${Routes.BALISE}/lisaa-rataosa`);
   }, [navigate]);
 
   const handleRowClick = useCallback(
@@ -293,15 +290,6 @@ export const BalisePage: React.FC = () => {
               <Upload fontSize="inherit" />
             </IconButton>
             <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary" title="Lisää sanoma">
-              <Add fontSize="inherit" />
-            </IconButton>
-            <IconButton
-              id="edit-button"
-              onClick={handleAddSection}
-              size="small"
-              color="secondary"
-              title="Muokkaa rataosia"
-            >
               <Add fontSize="inherit" />
             </IconButton>
           </Box>
