@@ -65,7 +65,7 @@ const fetchBaliseAPI = async (filters?: BaliseFilters): Promise<{ data: BaliseWi
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.include_history) params.append('include_history', 'true');
-    const queryString = params.toString();
+    const queryString = decodeURIComponent(params.toString());
     const url = `/api/balises${queryString ? `?${queryString}` : ''}`;
 
     const response = await fetch(url);
