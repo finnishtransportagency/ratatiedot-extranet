@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -12,14 +12,18 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowBack, Edit, ExpandLess } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { useSectionStore } from '../../store/sectionStore';
+import type { Section } from './types';
+import { SectionEditForm } from './SectionEditForm';
 
 export const SectionPage: React.FC = () => {
   const navigate = useNavigate();
   const { sections, error, fetchSections } = useSectionStore();
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState<Partial<Section>>({});
 
   useEffect(() => {
     fetchSections();
@@ -27,6 +31,30 @@ export const SectionPage: React.FC = () => {
 
   const handleBack = () => {
     navigate(Routes.BALISE);
+  };
+
+  const handleEditSection = (section: Section) => {
+    setEditingSection(section.id);
+    setEditFormData(section);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingSection(null);
+    setEditFormData({});
+  };
+
+  const handleSaveSection = async () => {
+    // TODO: Implement save functionality with API call
+    console.log('Saving section:', editFormData);
+    setEditingSection(null);
+    setEditFormData({});
+  };
+
+  const handleFieldChange = (field: keyof Section, value: string | number) => {
+    setEditFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   return (
@@ -90,36 +118,67 @@ export const SectionPage: React.FC = () => {
                   <TableCell sx={{ fontSize: '12px', width: '300px', padding: '12px 16px' }}>Kuvaus</TableCell>
                   <TableCell sx={{ fontSize: '12px', width: '120px', padding: '12px 16px' }}>Min ID</TableCell>
                   <TableCell sx={{ fontSize: '12px', width: '120px', padding: '12px 16px' }}>Max ID</TableCell>
+                  <TableCell sx={{ fontSize: '12px', width: '80px', padding: '12px 16px', textAlign: 'center' }}>
+                    Muokkaa
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody sx={{ fontSize: '12px' }}>
                 {sections.map((section) => (
-                  <TableRow key={section.id} hover sx={{ height: '56px' }}>
-                    <TableCell sx={{ fontSize: '14px', width: '200px', padding: '12px 16px' }}>
-                      {section.name}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '14px', width: '100px', padding: '12px 16px' }}>
-                      {section.shortName}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '14px', width: '300px', padding: '12px 16px' }}>
-                      <Typography
-                        sx={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          fontSize: '14px',
-                        }}
-                      >
-                        {section.description}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '14px', width: '120px', padding: '12px 16px' }}>
-                      {section.idRangeMin.toLocaleString()}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '14px', width: '120px', padding: '12px 16px' }}>
-                      {section.idRangeMax.toLocaleString()}
-                    </TableCell>
-                  </TableRow>
+                  <React.Fragment key={section.id}>
+                    <TableRow
+                      hover={editingSection !== section.id}
+                      sx={{
+                        height: '56px',
+                        backgroundColor: editingSection === section.id ? 'action.selected' : 'inherit',
+                      }}
+                    >
+                      {' '}
+                      <TableCell sx={{ fontSize: '14px', width: '200px', padding: '12px 16px' }}>
+                        {section.name}
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '14px', width: '100px', padding: '12px 16px' }}>
+                        {section.shortName}
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '14px', width: '300px', padding: '12px 16px' }}>
+                        <Typography
+                          sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            fontSize: '14px',
+                          }}
+                        >
+                          {section.description}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '14px', width: '120px', padding: '12px 16px' }}>
+                        {section.idRangeMin.toLocaleString()}
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '14px', width: '120px', padding: '12px 16px' }}>
+                        {section.idRangeMax.toLocaleString()}
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '14px', width: '80px', padding: '12px 16px', textAlign: 'center' }}>
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            editingSection === section.id ? handleCancelEdit() : handleEditSection(section)
+                          }
+                          title={editingSection === section.id ? 'Peruuta muokkaus' : 'Muokkaa rataosaa'}
+                        >
+                          {editingSection === section.id ? <ExpandLess fontSize="small" /> : <Edit fontSize="small" />}
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                    <SectionEditForm
+                      section={section}
+                      isOpen={editingSection === section.id}
+                      formData={editFormData}
+                      onFieldChange={handleFieldChange}
+                      onSave={handleSaveSection}
+                      onCancel={handleCancelEdit}
+                    />
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>
