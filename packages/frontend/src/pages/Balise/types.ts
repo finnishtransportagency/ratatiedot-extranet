@@ -3,6 +3,7 @@ export interface Section {
   name: string;
   shortName: string;
   key: string;
+  description: string;
   idRangeMin: number;
   idRangeMax: number;
 }
