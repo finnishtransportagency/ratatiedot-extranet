@@ -24,7 +24,7 @@ import { SectionCreateForm } from './SectionCreateForm';
 export const SectionPage: React.FC = () => {
   const navigate = useNavigate();
   const { sections, error, fetchSections } = useSectionStore();
-  const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [editingSection, setEditingSection] = useState<string | 'new' | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<Section>>({});
 
   useEffect(() => {
