@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { Box, Alert, Button, Paper, IconButton, Chip, LinearProgress } from '@mui/material';
-import { Add, Download, Delete, Lock, Upload } from '@mui/icons-material';
+import { Add, Download, Delete, Lock, Upload, Build } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
 import { SectionFilter } from './SectionFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
@@ -71,6 +71,10 @@ export const BalisePage: React.FC = () => {
 
   const handleBulkUpload = useCallback(() => {
     navigate(Routes.BALISE_BULK_UPLOAD);
+  }, [navigate]);
+
+  const handleAddSection = useCallback(() => {
+    navigate(`${Routes.BALISE}/rataosat`);
   }, [navigate]);
 
   const handleRowClick = useCallback(
@@ -202,6 +206,7 @@ export const BalisePage: React.FC = () => {
         mt: 1,
         mb: 1,
         overflow: 'hidden',
+        minHeight: 0, // Allows flex children to shrink below content size
       }}
     >
       {isBackgroundLoading && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000 }} />}
@@ -224,51 +229,13 @@ export const BalisePage: React.FC = () => {
           mb: 1,
           gap: 1,
           flexShrink: 0,
+          position: 'relative',
+          zIndex: 10,
         }}
         variant="outlined"
       >
-        <Box sx={{ minWidth: '200px' }}>
-          <Box sx={{ display: selectedItems.length > 0 ? 'flex' : 'none', alignItems: 'center', gap: 1 }}>
-            <Button
-              size="small"
-              variant="outlined"
-              color="primary"
-              startIcon={<Download fontSize="small" />}
-              onClick={handleBulkDownload}
-              title="Lataa valitut sanomat"
-            >
-              Lataa
-            </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              startIcon={<Lock fontSize="small" />}
-              size="small"
-              onClick={handleBulkLock}
-              title="Lukitse/Poista lukitus"
-            >
-              Lukitse
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<Delete fontSize="small" />}
-              size="small"
-              onClick={handleBulkDelete}
-              title="Poista"
-              color="error"
-            >
-              Poista
-            </Button>
-            <Chip label={`${selectedItems.length} valittu`} size="small" color="primary" />
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 1,
-          }}
-        >
+        {/* Left side: Search, Filter, and Section Edit button */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ minWidth: '200px' }}>
             <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
           </Box>
@@ -279,24 +246,97 @@ export const BalisePage: React.FC = () => {
               onSectionsSelect={setSelectedSections}
             />
           </Box>
-          <Box sx={{ margin: 'auto', display: 'flex', gap: 1 }}>
-            <IconButton
-              id="bulk-upload-button"
-              onClick={handleBulkUpload}
-              size="small"
-              color="secondary"
-              title="Massa-lataus"
-            >
-              <Upload fontSize="inherit" />
-            </IconButton>
-            <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary" title="Lisää sanoma">
-              <Add fontSize="inherit" />
-            </IconButton>
-          </Box>
+          <IconButton
+            id="section-edit-button"
+            onClick={handleAddSection}
+            size="small"
+            color="secondary"
+            title="Muokkaa rataosia"
+          >
+            <Build fontSize="inherit" transform="scale(0.85)" />
+          </IconButton>
+        </Box>
+
+        {/* Right side: Mass Upload and Add buttons */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton
+            id="bulk-upload-button"
+            onClick={handleBulkUpload}
+            size="small"
+            color="secondary"
+            title="Massa-lataus"
+          >
+            <Upload fontSize="inherit" />
+          </IconButton>
+          <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary" title="Lisää sanoma">
+            <Add fontSize="inherit" />
+          </IconButton>
         </Box>
       </Paper>
 
-      <Paper variant="outlined" sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      {/* Bulk selection actions - shown when items are selected with animation */}
+      {selectedItems.length > 0 && (
+        <Paper
+          sx={{
+            p: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            mb: 1,
+            flexShrink: 0,
+            backgroundColor: 'action.selected',
+            animation: 'slideIn 0.3s ease-in-out',
+            '@keyframes slideIn': {
+              '0%': {
+                opacity: 0,
+                transform: 'translateY(-10px)',
+              },
+              '100%': {
+                opacity: 1,
+                transform: 'translateY(0)',
+              },
+            },
+          }}
+          variant="outlined"
+        >
+          <Button
+            size="small"
+            variant="outlined"
+            color="primary"
+            startIcon={<Download fontSize="small" />}
+            onClick={handleBulkDownload}
+            title="Lataa valitut sanomat"
+          >
+            Lataa
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<Lock fontSize="small" />}
+            size="small"
+            onClick={handleBulkLock}
+            title="Lukitse/Poista lukitus"
+          >
+            Lukitse
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<Delete fontSize="small" />}
+            size="small"
+            onClick={handleBulkDelete}
+            title="Poista"
+            color="error"
+          >
+            Poista
+          </Button>
+          <Chip label={`${selectedItems.length} valittu`} size="small" color="primary" />
+        </Paper>
+      )}
+
+      <Paper
+        variant="outlined"
+        sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
+      >
         <VirtualBaliseTable
           items={filteredData}
           hasNextPage={pagination?.hasNextPage ?? false}
