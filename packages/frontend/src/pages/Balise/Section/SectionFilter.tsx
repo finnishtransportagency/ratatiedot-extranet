@@ -1,7 +1,7 @@
 import React from 'react';
 import { Cancel } from '@mui/icons-material';
 import { Box, FormControl, InputLabel, Select, MenuItem, Chip, OutlinedInput } from '@mui/material';
-import { Section } from './types';
+import type { Section } from '../types';
 
 interface SectionFilterProps {
   sections: Section[];
