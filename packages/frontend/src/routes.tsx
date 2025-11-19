@@ -50,7 +50,7 @@ import { NewNotice } from './pages/Notices/NewNotice';
 import Balise from './pages/Balise/index';
 import BaliseEditPage from './pages/Balise/BaliseEditPage';
 import BulkUploadPage from './pages/Balise/BulkUploadPage';
-import SectionPage from './pages/Balise/SectionPage';
+import SectionPage from './pages/Balise/Section/SectionPage';
 import { RailwayCategory } from './pages/Others/RailwayCategory';
 import { OtherRailway } from './pages/Others/OtherRailway';
 

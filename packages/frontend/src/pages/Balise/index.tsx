@@ -4,7 +4,7 @@ import { Routes } from '../../constants/Routes';
 import { Box, Alert, Button, Paper, IconButton, Chip, LinearProgress } from '@mui/material';
 import { Add, Download, Delete, Lock, Upload, Build } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
-import { SectionFilter } from './SectionFilter';
+import { SectionFilter } from './Section/SectionFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';

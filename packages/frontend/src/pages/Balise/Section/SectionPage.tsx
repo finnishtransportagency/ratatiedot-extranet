@@ -11,13 +11,15 @@ import {
   TableRow,
   Alert,
   CircularProgress,
+  Button,
 } from '@mui/material';
-import { ArrowBack, Edit, ExpandLess } from '@mui/icons-material';
+import { ArrowBack, Edit, ExpandLess, Add } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { Routes } from '../../constants/Routes';
-import { useSectionStore } from '../../store/sectionStore';
-import type { Section } from './types';
+import { Routes } from '../../../constants/Routes';
+import { useSectionStore } from '../../../store/sectionStore';
+import type { Section } from '../types';
 import { SectionEditForm } from './SectionEditForm';
+import { SectionCreateForm } from './SectionCreateForm';
 
 export const SectionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -45,16 +47,35 @@ export const SectionPage: React.FC = () => {
 
   const handleSaveSection = async () => {
     // TODO: Implement save functionality with API call
-    console.log('Saving section:', editFormData);
+    if (editingSection === 'new') {
+      console.log('Creating new section:', editFormData);
+      // TODO: Call API to create new section
+    } else {
+      console.log('Updating section:', editFormData);
+      // TODO: Call API to update existing section
+    }
     setEditingSection(null);
     setEditFormData({});
   };
 
   const handleFieldChange = (field: keyof Section, value: string | number) => {
-    setEditFormData((prev) => ({
+    setEditFormData((prev: Partial<Section>) => ({
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleAddSection = () => {
+    const newSection: Partial<Section> = {
+      name: '',
+      shortName: '',
+      description: '',
+      idRangeMin: 0,
+      idRangeMax: 0,
+      key: '',
+    };
+    setEditingSection('new');
+    setEditFormData(newSection);
   };
 
   return (
@@ -81,11 +102,16 @@ export const SectionPage: React.FC = () => {
           mb: 1,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 1 }}>
-          <IconButton onClick={handleBack} size="small">
-            <ArrowBack fontSize="inherit" />
-          </IconButton>
-          <Typography variant="h6">Rataosat</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, px: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <IconButton onClick={handleBack} size="small">
+              <ArrowBack fontSize="inherit" />
+            </IconButton>
+            <Typography variant="h6">Rataosat</Typography>
+          </Box>
+          <Button variant="contained" size="small" startIcon={<Add />} onClick={handleAddSection}>
+            Lisää rataosa
+          </Button>
         </Box>
       </Box>
 
@@ -94,6 +120,15 @@ export const SectionPage: React.FC = () => {
           Virhe ladatessa rataosia: {error}
         </Alert>
       )}
+
+      {/* New section form */}
+      <SectionCreateForm
+        isOpen={editingSection === 'new'}
+        formData={editFormData}
+        onFieldChange={handleFieldChange}
+        onSave={handleSaveSection}
+        onCancel={handleCancelEdit}
+      />
 
       {sections.length === 0 && !error ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
