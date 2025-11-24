@@ -158,6 +158,7 @@ export class RataExtraCloudFrontStack extends NestedStack {
         '/api*': backendProxyBehavior,
         '/oauth2*': backendProxyBehavior,
         '/sso*': backendProxyBehavior,
+        '/jwtclaims': backendProxyBehavior, // Test EntraID
         '/images*': {
           origin: new S3Origin(imageBucket, { originAccessIdentity: cloudfrontOAI }),
           originRequestPolicy: trueClientIp,
