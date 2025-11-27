@@ -17,6 +17,7 @@ interface SectionCreateFormProps {
   onSave: () => void;
   onCancel: () => void;
   validationErrors?: ValidationErrors;
+  isLoading?: boolean;
 }
 
 export const SectionCreateForm: React.FC<SectionCreateFormProps> = ({
@@ -26,6 +27,7 @@ export const SectionCreateForm: React.FC<SectionCreateFormProps> = ({
   onSave,
   onCancel,
   validationErrors,
+  isLoading = false,
 }) => {
   return (
     <Collapse in={isOpen} timeout="auto" unmountOnExit>
@@ -37,6 +39,8 @@ export const SectionCreateForm: React.FC<SectionCreateFormProps> = ({
             onFieldChange={onFieldChange}
             onSave={onSave}
             onCancel={onCancel}
+            validationErrors={validationErrors}
+            isLoading={isLoading}
           />
         </Box>
       </Paper>

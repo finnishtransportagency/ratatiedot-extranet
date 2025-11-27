@@ -4,6 +4,10 @@ import type { Section } from '../pages/Balise/types';
 export interface SectionState {
   sections: Section[];
   error: string | null;
+  isLoading: boolean;
+  isCreating: boolean;
+  isUpdating: boolean;
+  isDeleting: boolean;
   fetchSections: () => Promise<void>;
   createSection: (
     section: Omit<Section, 'id' | 'createdBy' | 'createdTime' | 'updatedBy' | 'updatedTime' | 'active'>,
@@ -73,52 +77,60 @@ const deleteSectionAPI = async (id: string): Promise<void> => {
 export const useSectionStore = create<SectionState>()((set, get) => ({
   sections: [],
   error: null,
+  isLoading: false,
+  isCreating: false,
+  isUpdating: false,
+  isDeleting: false,
   fetchSections: async () => {
+    set({ isLoading: true, error: null });
     try {
       const sections = await fetchSectionsAPI();
-      set({ sections, error: null });
+      set({ sections, error: null, isLoading: false });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch sections';
-      set({ error: errorMessage });
+      set({ error: errorMessage, isLoading: false });
       console.error(error);
     }
   },
   createSection: async (section) => {
+    set({ isCreating: true, error: null });
     try {
       const newSection = await createSectionAPI(section);
       const { sections } = get();
-      set({ sections: [...sections, newSection], error: null });
+      set({ sections: [...sections, newSection], error: null, isCreating: false });
       return newSection;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to create section';
-      set({ error: errorMessage });
+      set({ error: errorMessage, isCreating: false });
       console.error(error);
       throw error;
     }
   },
   updateSection: async (id, section) => {
+    set({ isUpdating: true, error: null });
     try {
       const updatedSection = await updateSectionAPI(id, section);
       const { sections } = get();
       const updatedSections = sections.map((s) => (s.id === id ? updatedSection : s));
-      set({ sections: updatedSections, error: null });
+      set({ sections: updatedSections, error: null, isUpdating: false });
       return updatedSection;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to update section';
-      set({ error: errorMessage });
+      set({ error: errorMessage, isUpdating: false });
       console.error(error);
       throw error;
     }
   },
   deleteSection: async (id) => {
+    set({ isDeleting: true, error: null });
     try {
       await deleteSectionAPI(id);
       const { sections } = get();
       const updatedSections = sections.filter((s) => s.id !== id);
-      set({ sections: updatedSections, error: null });
+      set({ sections: updatedSections, error: null, isDeleting: false });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete section';
-      set({ error: errorMessage });
+      set({ error: errorMessage, isDeleting: false });
       console.error(error);
       throw error;
     }
