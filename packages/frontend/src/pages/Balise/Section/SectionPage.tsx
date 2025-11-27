@@ -35,7 +35,18 @@ interface ValidationErrors {
 
 export const SectionPage: React.FC = () => {
   const navigate = useNavigate();
-  const { sections, error, fetchSections, createSection, updateSection, deleteSection } = useSectionStore();
+  const {
+    sections,
+    error,
+    isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    fetchSections,
+    createSection,
+    updateSection,
+    deleteSection,
+  } = useSectionStore();
   const [editingSection, setEditingSection] = useState<string | 'new' | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<Section>>({});
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
@@ -199,12 +210,19 @@ export const SectionPage: React.FC = () => {
         onFieldChange={handleFieldChange}
         onSave={handleSaveSection}
         onCancel={handleCancelEdit}
+        isLoading={isCreating}
         validationErrors={validationErrors}
       />
 
-      {sections.length === 0 && !error ? (
+      {isLoading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
           <CircularProgress />
+        </Box>
+      ) : sections.length === 0 && !error ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column' }}>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Rataosia ei löytynyt
+          </Typography>
         </Box>
       ) : (
         <Paper
@@ -286,6 +304,7 @@ export const SectionPage: React.FC = () => {
                       onCancel={handleCancelEdit}
                       onDelete={() => handleDeleteClick(section)}
                       validationErrors={validationErrors}
+                      isLoading={isUpdating}
                     />
                   </React.Fragment>
                 ))}
@@ -307,9 +326,12 @@ export const SectionPage: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteCancel}>Peruuta</Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
-            Poista
+          <Button onClick={handleDeleteCancel} disabled={isDeleting}>
+            Peruuta
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={isDeleting}>
+            {isDeleting ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            {isDeleting ? 'Poistetaan' : 'Poista'}
           </Button>
         </DialogActions>
       </Dialog>

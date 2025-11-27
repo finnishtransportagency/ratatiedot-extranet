@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, TextField, Button } from '@mui/material';
+import { Box, Typography, TextField, Button, CircularProgress } from '@mui/material';
 import { Save, Cancel, Delete } from '@mui/icons-material';
 import type { Section } from '../types';
 
@@ -18,6 +18,7 @@ interface SectionFormFieldsProps {
   onCancel: () => void;
   onDelete?: () => void;
   validationErrors?: ValidationErrors;
+  isLoading?: boolean;
 }
 
 export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
@@ -27,7 +28,8 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
   onSave,
   onCancel,
   onDelete,
-  validationErrors = {},
+  validationErrors,
+  isLoading = false,
 }) => {
   const validateForm = (): ValidationErrors => {
     const errors: ValidationErrors = {};
@@ -137,11 +139,17 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
           )}
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button variant="outlined" size="small" onClick={onCancel} startIcon={<Cancel />}>
+          <Button variant="outlined" size="small" onClick={onCancel} startIcon={<Cancel />} disabled={isLoading}>
             Peruuta
           </Button>
-          <Button variant="contained" size="small" onClick={handleSave} startIcon={<Save />} disabled={hasErrors}>
-            Tallenna
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleSave}
+            startIcon={isLoading ? <CircularProgress size={16} /> : <Save />}
+            disabled={hasErrors || isLoading}
+          >
+            {isLoading ? 'Tallennetaan' : 'Tallenna'}
           </Button>
         </Box>
       </Box>

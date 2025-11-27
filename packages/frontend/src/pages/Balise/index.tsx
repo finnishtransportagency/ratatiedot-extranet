@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
-import { Box, Alert, Button, Paper, IconButton, Chip, LinearProgress } from '@mui/material';
+import { Box, Alert, Button, Paper, IconButton, Chip, LinearProgress, CircularProgress } from '@mui/material';
 import { Add, Download, Delete, Lock, Upload, Build } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
 import { SectionFilter } from './Section/SectionFilter';
@@ -20,8 +20,17 @@ export const BalisePage: React.FC = () => {
   const { sections: sectionOptions, fetchSections: fetchSectionOptions, error: sectionError } = useSectionStore();
 
   // Balise store state and actions
-  const { balises, pagination, isBackgroundLoading, error, fetchBalises, loadMoreBalises, refreshBalise, clearCache } =
-    useBaliseStore();
+  const {
+    balises,
+    pagination,
+    isInitialLoading,
+    isBackgroundLoading,
+    error,
+    fetchBalises,
+    loadMoreBalises,
+    refreshBalise,
+    clearCache,
+  } = useBaliseStore();
 
   // Load section options on mount
   useEffect(() => {
@@ -181,6 +190,15 @@ export const BalisePage: React.FC = () => {
       console.error('Error downloading files:', error);
     }
   }, [selectedItems, balises]);
+
+  // Initial loading state
+  if (isInitialLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <CircularProgress size={40} />
+      </Box>
+    );
+  }
 
   // Error handling for initial load
   if (error && balises.length === 0) {

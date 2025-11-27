@@ -19,6 +19,7 @@ interface SectionEditFormProps {
   onCancel: () => void;
   onDelete?: () => void;
   validationErrors?: ValidationErrors;
+  isLoading?: boolean;
 }
 
 export const SectionEditForm: React.FC<SectionEditFormProps> = ({
@@ -29,6 +30,7 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
   onCancel,
   onDelete,
   validationErrors,
+  isLoading = false,
 }) => {
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +68,7 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
               onCancel={onCancel}
               onDelete={onDelete}
               validationErrors={validationErrors}
+              isLoading={isLoading}
             />
           </Box>
         </Collapse>
