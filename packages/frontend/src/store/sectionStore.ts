@@ -14,6 +14,7 @@ export interface SectionState {
       Omit<Section, 'id' | 'createdBy' | 'createdTime' | 'updatedBy' | 'updatedTime' | 'key' | 'active'>
     >,
   ) => Promise<Section>;
+  deleteSection: (id: string) => Promise<void>;
 }
 
 const fetchSectionsAPI = async (): Promise<Section[]> => {
@@ -59,6 +60,16 @@ const updateSectionAPI = async (
   return response.json();
 };
 
+const deleteSectionAPI = async (id: string): Promise<void> => {
+  const response = await fetch(`/api/balise/sections/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || `Failed to delete section: ${response.status}`);
+  }
+};
+
 export const useSectionStore = create<SectionState>()((set, get) => ({
   sections: [],
   error: null,
@@ -94,6 +105,19 @@ export const useSectionStore = create<SectionState>()((set, get) => ({
       return updatedSection;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to update section';
+      set({ error: errorMessage });
+      console.error(error);
+      throw error;
+    }
+  },
+  deleteSection: async (id) => {
+    try {
+      await deleteSectionAPI(id);
+      const { sections } = get();
+      const updatedSections = sections.filter((s) => s.id !== id);
+      set({ sections: updatedSections, error: null });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete section';
       set({ error: errorMessage });
       console.error(error);
       throw error;
