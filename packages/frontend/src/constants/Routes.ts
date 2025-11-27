@@ -96,4 +96,7 @@ export const STATIC_ROUTES = [
   getRouterName(SubCategoryNames.FAVORITES),
   getRouterName(SubCategoryNames.LOGIN_AND_PERMISSIONS),
   getRouterName(SubCategoryNames.EDIT_TOOL),
+  'baliisisanomat',
+  'rataosat',
+  'massa-lataus',
 ];
