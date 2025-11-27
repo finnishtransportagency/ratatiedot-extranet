@@ -190,7 +190,16 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
         <TableCell sx={{ fontSize: '14px', width: '60px' }}>{row.version}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '120px' }}>{formatDateTime(row.createdTime)}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '100px' }}>{row.createdBy}</TableCell>
-        <TableCell sx={{ fontSize: '14px', width: '120px' }}>{row.locked ? `🔒 ${row.lockedBy}` : ''}</TableCell>
+        <TableCell sx={{ fontSize: '14px', width: '120px' }}>
+          {row.locked ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Lock fontSize="small" sx={{ color: 'text.secondary', transform: 'scale(0.80)' }} />
+              {row.lockedBy}
+            </Box>
+          ) : (
+            ''
+          )}
+        </TableCell>
         <TableCell sx={{ textAlign: 'right', width: '50px' }}>
           <IconButton
             size="small"
@@ -396,7 +405,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
       >
         <Table size="small" sx={{ tableLayout: 'fixed' }}>
           {/* Fixed header */}
-          <TableHead sx={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'background.paper' }}>
+          <TableHead sx={{ position: 'sticky', top: 0, zIndex: 20, backgroundColor: 'background.paper' }}>
             <TableRow>
               <TableCell sx={{ fontSize: '12px', width: '50px' }}>
                 <Checkbox checked={isAllSelected} indeterminate={isIndeterminate} onChange={onSelectAll} size="small" />
