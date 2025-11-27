@@ -258,7 +258,6 @@ export const SectionPage: React.FC = () => {
                         backgroundColor: editingSection === section.id ? 'action.selected' : 'inherit',
                       }}
                     >
-                      {' '}
                       <TableCell sx={{ fontSize: '14px', width: '200px', padding: '12px 16px' }}>
                         {section.name}
                       </TableCell>
