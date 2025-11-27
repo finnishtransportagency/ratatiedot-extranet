@@ -143,7 +143,7 @@ model Area {
 model Section {
   id          String    @id @default(uuid())
   name        String // e.g., "Helsinki-Riihimäki"
-  shortName   String // e.g., "Rataosa 1"
+  shortName   String // e.g., "JKV-rataosa 1"
   key         String    @unique // e.g., "section_1"
   idRangeMin  Int // e.g., 10000
   idRangeMax  Int // e.g., 19999

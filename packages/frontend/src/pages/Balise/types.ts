@@ -3,8 +3,15 @@ export interface Section {
   name: string;
   shortName: string;
   key: string;
+  description?: string;
   idRangeMin: number;
   idRangeMax: number;
+  color?: string;
+  active: boolean;
+  createdBy: string;
+  createdTime: string | Date;
+  updatedBy?: string;
+  updatedTime?: string | Date;
 }
 
 export interface BaliseVersion {

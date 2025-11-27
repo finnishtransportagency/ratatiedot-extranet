@@ -465,7 +465,25 @@ export class RataExtraBackendStack extends NestedStack {
     const getSections = this.createNodejsLambda({
       ...prismaParameters,
       name: 'get-sections',
-      relativePath: '../packages/server/lambdas/balise/get-sections.ts',
+      relativePath: '../packages/server/lambdas/balise/sections/get-sections.ts',
+    });
+
+    const createSection = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'create-section',
+      relativePath: '../packages/server/lambdas/balise/sections/create-section.ts',
+    });
+
+    const updateSection = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'update-section',
+      relativePath: '../packages/server/lambdas/balise/sections/update-section.ts',
+    });
+
+    const deleteSection = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'delete-section',
+      relativePath: '../packages/server/lambdas/balise/sections/delete-section.ts',
     });
 
     imageBucket.grantReadWrite(postNotice);
@@ -700,8 +718,29 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'getSections',
       },
       {
-        lambda: bulkUploadBalises,
+        lambda: createSection,
+        priority: 276,
+        path: ['/api/balise/sections'],
+        httpRequestMethods: ['POST'],
+        targetName: 'createSection',
+      },
+      {
+        lambda: updateSection,
+        priority: 277,
+        path: ['/api/balise/sections/*'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'updateSection',
+      },
+      {
+        lambda: deleteSection,
         priority: 278,
+        path: ['/api/balise/sections/*'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'deleteSection',
+      },
+      {
+        lambda: bulkUploadBalises,
+        priority: 279,
         path: ['/api/balise/bulk-upload'],
         httpRequestMethods: ['POST'],
         targetName: 'bulkUploadBalises',

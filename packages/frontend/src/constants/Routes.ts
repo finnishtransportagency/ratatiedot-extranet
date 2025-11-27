@@ -13,6 +13,7 @@ export const Routes = {
   LOGOUT_REDIRECT: '/sso/*',
   BALISE: '/baliisisanomat',
   BALISE_BULK_UPLOAD: '/baliisisanomat/massa-lataus',
+  BALISE_SECTION_MANAGEMENT: '/baliisisanomat/rataosat',
   LINE_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.LINE_DIAGRAMS)}`,
   SPEED_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.SPEED_DIAGRAMS)}`,
   TRACK_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.TRACK_DIAGRAMS)}`,
@@ -95,4 +96,7 @@ export const STATIC_ROUTES = [
   getRouterName(SubCategoryNames.FAVORITES),
   getRouterName(SubCategoryNames.LOGIN_AND_PERMISSIONS),
   getRouterName(SubCategoryNames.EDIT_TOOL),
+  'baliisisanomat',
+  'rataosat',
+  'massa-lataus',
 ];

@@ -50,6 +50,7 @@ import { NewNotice } from './pages/Notices/NewNotice';
 import Balise from './pages/Balise/index';
 import BaliseEditPage from './pages/Balise/BaliseEditPage';
 import BulkUploadPage from './pages/Balise/BulkUploadPage';
+import SectionPage from './pages/Balise/Section/SectionPage';
 import { RailwayCategory } from './pages/Others/RailwayCategory';
 import { OtherRailway } from './pages/Others/OtherRailway';
 
@@ -265,6 +266,22 @@ const BALISE_ROUTE: RouteObject[] = [
     element: (
       <AppContextProvider>
         <ProtectedBalisePage children={<BaliseEditPage />} />
+      </AppContextProvider>
+    ),
+    errorElement: <RootBoundary />,
+    loader: async () => {
+      const isFirstLogin = localStorage.getItem('isFirstLogin') || 'true';
+      if (isFirstLogin === 'true') {
+        return redirect(Routes.ACCEPT_INSTRUCTIONS);
+      }
+      return null;
+    },
+  },
+  {
+    path: `${Routes.BALISE_SECTION_MANAGEMENT}`,
+    element: (
+      <AppContextProvider>
+        <ProtectedBalisePage children={<SectionPage />} />
       </AppContextProvider>
     ),
     errorElement: <RootBoundary />,

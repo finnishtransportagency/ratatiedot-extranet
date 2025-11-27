@@ -1,8 +1,8 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { log } from '../../utils/logger';
-import { getRataExtraLambdaError } from '../../utils/errors';
-import { getUser, validateReadUser } from '../../utils/userService';
-import { DatabaseClient } from '../database/client';
+import { log } from '../../../utils/logger';
+import { getRataExtraLambdaError } from '../../../utils/errors';
+import { getUser, validateReadUser } from '../../../utils/userService';
+import { DatabaseClient } from '../../database/client';
 
 const database = await DatabaseClient.build();
 
