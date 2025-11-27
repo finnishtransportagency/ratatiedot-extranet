@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Box, Collapse, TableRow, TableCell } from '@mui/material';
 import type { Section } from '../types';
 import { SectionFormFields } from './SectionFormFields';
@@ -30,13 +30,31 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
   onDelete,
   validationErrors,
 }) => {
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && formRef.current) {
+      // Delay to allow the Collapse animation to complete
+      const timer = setTimeout(() => {
+        formRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   return (
     <TableRow>
       <TableCell sx={{ pb: 0, pt: 0 }} colSpan={6}>
         <Collapse in={isOpen} timeout="auto" unmountOnExit>
           <Box
+            ref={formRef}
             sx={{
               margin: 2,
+              scrollMargin: 16,
               backgroundColor: 'background.default',
             }}
           >
