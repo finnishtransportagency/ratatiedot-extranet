@@ -465,19 +465,19 @@ export class RataExtraBackendStack extends NestedStack {
     const getSections = this.createNodejsLambda({
       ...prismaParameters,
       name: 'get-sections',
-      relativePath: '../packages/server/lambdas/balise/get-sections.ts',
+      relativePath: '../packages/server/lambdas/balise/sections/get-sections.ts',
     });
 
     const createSection = this.createNodejsLambda({
       ...prismaParameters,
       name: 'create-section',
-      relativePath: '../packages/server/lambdas/balise/create-section.ts',
+      relativePath: '../packages/server/lambdas/balise/sections/create-section.ts',
     });
 
     const updateSection = this.createNodejsLambda({
       ...prismaParameters,
       name: 'update-section',
-      relativePath: '../packages/server/lambdas/balise/update-section.ts',
+      relativePath: '../packages/server/lambdas/balise/sections/update-section.ts',
     });
 
     imageBucket.grantReadWrite(postNotice);
