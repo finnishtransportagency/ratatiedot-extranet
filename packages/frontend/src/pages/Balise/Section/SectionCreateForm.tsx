@@ -34,7 +34,7 @@ export const SectionCreateForm: React.FC<SectionCreateFormProps> = ({
       <Paper sx={{ mb: 2 }} variant="outlined">
         <Box sx={{ p: 2 }}>
           <SectionFormFields
-            title="Luo uusi rataosa"
+            title="Lisää uusi JKV-rataosa"
             formData={formData}
             onFieldChange={onFieldChange}
             onSave={onSave}

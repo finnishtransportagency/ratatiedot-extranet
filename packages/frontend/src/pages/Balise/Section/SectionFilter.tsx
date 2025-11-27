@@ -22,12 +22,12 @@ export const SectionFilter: React.FC<SectionFilterProps> = ({ sections, selected
   return (
     <Box sx={{ minWidth: '180px' }}>
       <FormControl fullWidth size="small">
-        <InputLabel>Rataosat</InputLabel>
+        <InputLabel>JKV-rataosat</InputLabel>
         <Select
           multiple
           value={selectedSections}
           onChange={handleChange}
-          input={<OutlinedInput label="Rataosat" />}
+          input={<OutlinedInput label="JKV-rataosat" />}
           MenuProps={{
             PaperProps: {
               style: {

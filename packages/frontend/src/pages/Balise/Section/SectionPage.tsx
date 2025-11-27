@@ -189,17 +189,17 @@ export const SectionPage: React.FC = () => {
             <IconButton onClick={handleBack} size="small">
               <ArrowBack fontSize="inherit" />
             </IconButton>
-            <Typography variant="h6">Rataosat</Typography>
+            <Typography variant="h6">JKV-rataosat</Typography>
           </Box>
           <Button variant="contained" size="small" startIcon={<Add />} onClick={handleAddSection}>
-            Lisää rataosa
+            Lisää JKV-rataosa
           </Button>
         </Box>
       </Box>
 
       {error && (
         <Alert severity="error" sx={{ mb: 1 }}>
-          Virhe ladatessa rataosia: {error}
+          Virhe ladatessa JKV-rataosia: {error}
         </Alert>
       )}
 
@@ -221,7 +221,7 @@ export const SectionPage: React.FC = () => {
       ) : sections.length === 0 && !error ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column' }}>
           <Typography variant="body1" sx={{ mb: 2 }}>
-            Rataosia ei löytynyt
+            JKV-rataosia ei löytynyt
           </Typography>
         </Box>
       ) : (
@@ -288,7 +288,7 @@ export const SectionPage: React.FC = () => {
                           onClick={() =>
                             editingSection === section.id ? handleCancelEdit() : handleEditSection(section)
                           }
-                          title={editingSection === section.id ? 'Peruuta muokkaus' : 'Muokkaa rataosaa'}
+                          title={editingSection === section.id ? 'Peruuta muokkaus' : 'Muokkaa JKV-rataosaa'}
                         >
                           {editingSection === section.id ? <ExpandLess fontSize="small" /> : <Edit fontSize="small" />}
                         </IconButton>
@@ -315,10 +315,10 @@ export const SectionPage: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
-        <DialogTitle>Poista rataosa</DialogTitle>
+        <DialogTitle>Poista JKV-rataosa</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Haluatko varmasti poistaa rataosan "{sectionToDelete?.name}"?
+            Haluatko varmasti poistaa JKV-rataosan "{sectionToDelete?.name}"?
             <br />
             <br />
             Tämä toiminto ei ole peruutettavissa.
