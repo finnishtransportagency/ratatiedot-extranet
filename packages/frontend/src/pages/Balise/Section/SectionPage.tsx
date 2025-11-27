@@ -23,7 +23,7 @@ import { SectionCreateForm } from './SectionCreateForm';
 
 export const SectionPage: React.FC = () => {
   const navigate = useNavigate();
-  const { sections, error, fetchSections } = useSectionStore();
+  const { sections, error, fetchSections, createSection, updateSection } = useSectionStore();
   const [editingSection, setEditingSection] = useState<string | 'new' | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<Section>>({});
 
@@ -46,16 +46,39 @@ export const SectionPage: React.FC = () => {
   };
 
   const handleSaveSection = async () => {
-    // TODO: Implement save functionality with API call
-    if (editingSection === 'new') {
-      console.log('Creating new section:', editFormData);
-      // TODO: Call API to create new section
-    } else {
-      console.log('Updating section:', editFormData);
-      // TODO: Call API to update existing section
+    try {
+      if (editingSection === 'new') {
+        // Generate key from name
+        const key = (editFormData.name || '')
+          .toLowerCase()
+          .replace(/[^a-z0-9äöå]/g, '_')
+          .replace(/_+/g, '_')
+          .replace(/^_|_$/g, '');
+        await createSection({
+          name: editFormData.name || '',
+          shortName: editFormData.shortName || '',
+          key,
+          description: editFormData.description || '',
+          idRangeMin: editFormData.idRangeMin || 0,
+          idRangeMax: editFormData.idRangeMax || 0,
+          color: editFormData.color,
+        });
+      } else if (typeof editingSection === 'string') {
+        await updateSection(editingSection, {
+          name: editFormData.name,
+          shortName: editFormData.shortName,
+          description: editFormData.description,
+          idRangeMin: editFormData.idRangeMin,
+          idRangeMax: editFormData.idRangeMax,
+          color: editFormData.color,
+        });
+      }
+      setEditingSection(null);
+      setEditFormData({});
+    } catch (error) {
+      // Error is already handled in the store, just log it
+      console.error('Failed to save section:', error);
     }
-    setEditingSection(null);
-    setEditFormData({});
   };
 
   const handleFieldChange = (field: keyof Section, value: string | number) => {
@@ -72,7 +95,6 @@ export const SectionPage: React.FC = () => {
       description: '',
       idRangeMin: 0,
       idRangeMax: 0,
-      key: '',
     };
     setEditingSection('new');
     setEditFormData(newSection);
