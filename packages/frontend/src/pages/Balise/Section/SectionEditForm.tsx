@@ -3,6 +3,13 @@ import { Box, Collapse, TableRow, TableCell } from '@mui/material';
 import type { Section } from '../types';
 import { SectionFormFields } from './SectionFormFields';
 
+interface ValidationErrors {
+  name?: string;
+  shortName?: string;
+  idRangeMin?: string;
+  idRangeMax?: string;
+}
+
 interface SectionEditFormProps {
   section: Section;
   isOpen: boolean;
@@ -10,6 +17,7 @@ interface SectionEditFormProps {
   onFieldChange: (field: keyof Section, value: string | number) => void;
   onSave: () => void;
   onCancel: () => void;
+  validationErrors?: ValidationErrors;
 }
 
 export const SectionEditForm: React.FC<SectionEditFormProps> = ({
@@ -18,6 +26,7 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
   onFieldChange,
   onSave,
   onCancel,
+  validationErrors,
 }) => {
   return (
     <TableRow>
@@ -35,6 +44,7 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
               onFieldChange={onFieldChange}
               onSave={onSave}
               onCancel={onCancel}
+              validationErrors={validationErrors}
             />
           </Box>
         </Collapse>

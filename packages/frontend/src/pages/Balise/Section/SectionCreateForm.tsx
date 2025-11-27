@@ -3,12 +3,20 @@ import { Box, Collapse, Paper } from '@mui/material';
 import type { Section } from '../types';
 import { SectionFormFields } from './SectionFormFields';
 
+interface ValidationErrors {
+  name?: string;
+  shortName?: string;
+  idRangeMin?: string;
+  idRangeMax?: string;
+}
+
 interface SectionCreateFormProps {
   isOpen: boolean;
   formData: Partial<Section>;
   onFieldChange: (field: keyof Section, value: string | number) => void;
   onSave: () => void;
   onCancel: () => void;
+  validationErrors?: ValidationErrors;
 }
 
 export const SectionCreateForm: React.FC<SectionCreateFormProps> = ({
@@ -17,6 +25,7 @@ export const SectionCreateForm: React.FC<SectionCreateFormProps> = ({
   onFieldChange,
   onSave,
   onCancel,
+  validationErrors,
 }) => {
   return (
     <Collapse in={isOpen} timeout="auto" unmountOnExit>

@@ -21,11 +21,19 @@ import type { Section } from '../types';
 import { SectionEditForm } from './SectionEditForm';
 import { SectionCreateForm } from './SectionCreateForm';
 
+interface ValidationErrors {
+  name?: string;
+  shortName?: string;
+  idRangeMin?: string;
+  idRangeMax?: string;
+}
+
 export const SectionPage: React.FC = () => {
   const navigate = useNavigate();
   const { sections, error, fetchSections, createSection, updateSection } = useSectionStore();
   const [editingSection, setEditingSection] = useState<string | 'new' | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<Section>>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
   useEffect(() => {
     fetchSections();
@@ -43,9 +51,13 @@ export const SectionPage: React.FC = () => {
   const handleCancelEdit = () => {
     setEditingSection(null);
     setEditFormData({});
+    setValidationErrors({});
   };
 
   const handleSaveSection = async () => {
+    // Clear previous validation errors
+    setValidationErrors({});
+
     try {
       if (editingSection === 'new') {
         // Generate key from name
@@ -75,6 +87,7 @@ export const SectionPage: React.FC = () => {
       }
       setEditingSection(null);
       setEditFormData({});
+      setValidationErrors({});
     } catch (error) {
       // Error is already handled in the store, just log it
       console.error('Failed to save section:', error);
@@ -150,6 +163,7 @@ export const SectionPage: React.FC = () => {
         onFieldChange={handleFieldChange}
         onSave={handleSaveSection}
         onCancel={handleCancelEdit}
+        validationErrors={validationErrors}
       />
 
       {sections.length === 0 && !error ? (
@@ -234,6 +248,7 @@ export const SectionPage: React.FC = () => {
                       onFieldChange={handleFieldChange}
                       onSave={handleSaveSection}
                       onCancel={handleCancelEdit}
+                      validationErrors={validationErrors}
                     />
                   </React.Fragment>
                 ))}
