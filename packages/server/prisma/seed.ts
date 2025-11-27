@@ -58,12 +58,12 @@ async function seedSections() {
     const idRangeMax = sectionNum * 1000 + 999;
 
     sections.push({
-      name: `Rataosa ${sectionNum}`,
-      shortName: `Rataosa ${sectionNum}`,
+      name: `JKV-rataosa ${sectionNum}`,
+      shortName: `JKV-rataosa ${sectionNum}`,
       key: `section_${sectionNum}`,
       idRangeMin,
       idRangeMax,
-      description: `Rataosa ${sectionNum}, baliisi ID:t ${idRangeMin}-${idRangeMax}`,
+      description: `JKV-rataosa ${sectionNum}, baliisi ID:t ${idRangeMin}-${idRangeMax}`,
       color: `#${Math.floor(Math.random() * 16777215)
         .toString(16)
         .padStart(6, '0')}`, // Random color

@@ -269,7 +269,7 @@ export const BalisePage: React.FC = () => {
             onClick={handleAddSection}
             size="small"
             color="secondary"
-            title="Muokkaa rataosia"
+            title="Muokkaa JKV-rataosia"
           >
             <Build fontSize="inherit" transform="scale(0.85)" />
           </IconButton>

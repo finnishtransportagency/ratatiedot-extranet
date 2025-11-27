@@ -61,7 +61,7 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
             }}
           >
             <SectionFormFields
-              title={'Muokkaa rataosaa'}
+              title={'Muokkaa JKV-rataosaa'}
               formData={formData}
               onFieldChange={onFieldChange}
               onSave={onSave}
