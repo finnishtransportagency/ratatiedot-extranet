@@ -3,6 +3,14 @@ import { log } from '../../../utils/logger';
 import { getRataExtraLambdaError } from '../../../utils/errors';
 import { getUser, validateWriteUser } from '../../../utils/userService';
 import { DatabaseClient } from '../../database/client';
+import {
+  generateKeyFromName,
+  validateRequiredFields,
+  validateIdRange,
+  validateNameUniqueness,
+  validateKeyUniqueness,
+  createErrorResponse,
+} from '../../../utils/sectionValidation';
 
 const database = await DatabaseClient.build();
 
@@ -54,25 +62,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const body: UpdateSectionRequest = JSON.parse(event.body);
 
     // Validate required fields
-    if (!body.name || !body.shortName || body.idRangeMin === undefined || body.idRangeMax === undefined) {
-      return {
-        statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ error: 'Name, shortName, idRangeMin, and idRangeMax are required' }),
-      };
+    const requiredFieldsValidation = validateRequiredFields(body);
+    if (!requiredFieldsValidation.isValid) {
+      return createErrorResponse(requiredFieldsValidation.error!, requiredFieldsValidation.statusCode!);
     }
 
     // Validate ID range
-    if (body.idRangeMin >= body.idRangeMax) {
-      return {
-        statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ error: 'idRangeMin must be less than idRangeMax' }),
-      };
+    const idRangeValidation = validateIdRange(body.idRangeMin, body.idRangeMax);
+    if (!idRangeValidation.isValid) {
+      return createErrorResponse(idRangeValidation.error!, idRangeValidation.statusCode!);
     }
 
     // Check if section exists
@@ -92,21 +90,20 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     // Check if name is unique (excluding current section)
     if (body.name !== existingSection.name) {
-      const existingNameSection = await database.section.findFirst({
-        where: {
-          name: body.name,
-          id: { not: sectionId },
-        },
-      });
+      const nameUniquenessValidation = await validateNameUniqueness(database, body.name, sectionId);
+      if (!nameUniquenessValidation.isValid) {
+        return createErrorResponse(nameUniquenessValidation.error!, nameUniquenessValidation.statusCode!);
+      }
+    }
 
-      if (existingNameSection) {
-        return {
-          statusCode: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ error: 'Section name already exists' }),
-        };
+    // Generate new key from name
+    const key = generateKeyFromName(body.name);
+
+    // Check if key would conflict with another section (excluding current section)
+    if (key !== existingSection.key) {
+      const keyUniquenessValidation = await validateKeyUniqueness(database, key, sectionId);
+      if (!keyUniquenessValidation.isValid) {
+        return createErrorResponse(keyUniquenessValidation.error!, keyUniquenessValidation.statusCode!);
       }
     }
 
@@ -116,6 +113,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       data: {
         name: body.name,
         shortName: body.shortName,
+        key,
         description: body.description,
         idRangeMin: body.idRangeMin,
         idRangeMax: body.idRangeMax,
