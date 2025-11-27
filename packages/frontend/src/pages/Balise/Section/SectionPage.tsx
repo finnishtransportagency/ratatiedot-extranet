@@ -12,6 +12,11 @@ import {
   Alert,
   CircularProgress,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import { ArrowBack, Edit, ExpandLess, Add } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -30,10 +35,12 @@ interface ValidationErrors {
 
 export const SectionPage: React.FC = () => {
   const navigate = useNavigate();
-  const { sections, error, fetchSections, createSection, updateSection } = useSectionStore();
+  const { sections, error, fetchSections, createSection, updateSection, deleteSection } = useSectionStore();
   const [editingSection, setEditingSection] = useState<string | 'new' | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<Section>>({});
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [sectionToDelete, setSectionToDelete] = useState<Section | null>(null);
 
   useEffect(() => {
     fetchSections();
@@ -92,6 +99,35 @@ export const SectionPage: React.FC = () => {
       // Error is already handled in the store, just log it
       console.error('Failed to save section:', error);
     }
+  };
+
+  const handleDeleteClick = (section: Section) => {
+    setSectionToDelete(section);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!sectionToDelete) return;
+
+    try {
+      await deleteSection(sectionToDelete.id);
+      setDeleteDialogOpen(false);
+      setSectionToDelete(null);
+      // Close edit form if we're deleting the currently edited section
+      if (editingSection === sectionToDelete.id) {
+        setEditingSection(null);
+        setEditFormData({});
+        setValidationErrors({});
+      }
+    } catch (error) {
+      // Error is already handled in the store
+      console.error('Failed to delete section:', error);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setSectionToDelete(null);
   };
 
   const handleFieldChange = (field: keyof Section, value: string | number) => {
@@ -248,6 +284,7 @@ export const SectionPage: React.FC = () => {
                       onFieldChange={handleFieldChange}
                       onSave={handleSaveSection}
                       onCancel={handleCancelEdit}
+                      onDelete={() => handleDeleteClick(section)}
                       validationErrors={validationErrors}
                     />
                   </React.Fragment>
@@ -257,6 +294,25 @@ export const SectionPage: React.FC = () => {
           </Box>
         </Paper>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+        <DialogTitle>Poista rataosa</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Haluatko varmasti poistaa rataosan "{sectionToDelete?.name}"?
+            <br />
+            <br />
+            Tämä toiminto ei ole peruutettavissa.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel}>Peruuta</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            Poista
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

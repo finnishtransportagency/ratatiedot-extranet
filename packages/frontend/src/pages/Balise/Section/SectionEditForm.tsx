@@ -17,6 +17,7 @@ interface SectionEditFormProps {
   onFieldChange: (field: keyof Section, value: string | number) => void;
   onSave: () => void;
   onCancel: () => void;
+  onDelete?: () => void;
   validationErrors?: ValidationErrors;
 }
 
@@ -26,6 +27,7 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
   onFieldChange,
   onSave,
   onCancel,
+  onDelete,
   validationErrors,
 }) => {
   return (
@@ -44,6 +46,7 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
               onFieldChange={onFieldChange}
               onSave={onSave}
               onCancel={onCancel}
+              onDelete={onDelete}
               validationErrors={validationErrors}
             />
           </Box>

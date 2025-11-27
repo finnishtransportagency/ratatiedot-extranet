@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, TextField, Button } from '@mui/material';
-import { Save, Cancel } from '@mui/icons-material';
+import { Save, Cancel, Delete } from '@mui/icons-material';
 import type { Section } from '../types';
 
 interface ValidationErrors {
@@ -16,6 +16,7 @@ interface SectionFormFieldsProps {
   onFieldChange: (field: keyof Section, value: string | number) => void;
   onSave: () => void;
   onCancel: () => void;
+  onDelete?: () => void;
   validationErrors?: ValidationErrors;
 }
 
@@ -25,6 +26,7 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
   onFieldChange,
   onSave,
   onCancel,
+  onDelete,
   validationErrors = {},
 }) => {
   const validateForm = (): ValidationErrors => {
@@ -126,13 +128,22 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
           helperText={currentErrors.idRangeMax}
         />
       </Box>
-      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-        <Button variant="outlined" size="small" onClick={onCancel} startIcon={<Cancel />}>
-          Peruuta
-        </Button>
-        <Button variant="contained" size="small" onClick={handleSave} startIcon={<Save />} disabled={hasErrors}>
-          Tallenna
-        </Button>
+      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
+        <Box>
+          {onDelete && (
+            <Button variant="outlined" size="small" onClick={onDelete} startIcon={<Delete />} color="error">
+              Poista
+            </Button>
+          )}
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button variant="outlined" size="small" onClick={onCancel} startIcon={<Cancel />}>
+            Peruuta
+          </Button>
+          <Button variant="contained" size="small" onClick={handleSave} startIcon={<Save />} disabled={hasErrors}>
+            Tallenna
+          </Button>
+        </Box>
       </Box>
     </>
   );
