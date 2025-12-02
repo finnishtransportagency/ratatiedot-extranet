@@ -19,6 +19,7 @@ interface SectionFormFieldsProps {
   onDelete?: () => void;
   validationErrors?: ValidationErrors;
   isLoading?: boolean;
+  isOpen?: boolean;
 }
 
 export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
@@ -30,6 +31,7 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
   onDelete,
   validationErrors,
   isLoading = false,
+  isOpen = true,
 }) => {
   const validateForm = (): ValidationErrors => {
     const errors: ValidationErrors = {};
@@ -62,7 +64,7 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
     return errors;
   };
 
-  const currentErrors = { ...validateForm(), ...validationErrors };
+  const currentErrors = isOpen ? { ...validateForm(), ...validationErrors } : {};
   const hasErrors = Object.keys(currentErrors).length > 0;
 
   const handleSave = () => {

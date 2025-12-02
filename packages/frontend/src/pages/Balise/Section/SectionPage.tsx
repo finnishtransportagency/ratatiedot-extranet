@@ -67,12 +67,9 @@ export const SectionPage: React.FC = () => {
   };
 
   const handleCancelEdit = () => {
+    setValidationErrors({});
     setEditingSection(null);
-    // Delay clearing data to avoid validation errors flashing during collapse animation
-    setTimeout(() => {
-      setEditFormData({});
-      setValidationErrors({});
-    }, 300);
+    setEditFormData({});
   };
 
   const handleSaveSection = async () => {
@@ -107,11 +104,8 @@ export const SectionPage: React.FC = () => {
         });
       }
       setEditingSection(null);
-      // Delay clearing data to avoid validation errors flashing during collapse animation
-      setTimeout(() => {
-        setEditFormData({});
-        setValidationErrors({});
-      }, 300);
+      setEditFormData({});
+      setValidationErrors({});
     } catch (error) {
       // Error is already handled in the store, just log it
       console.error('Failed to save section:', error);
