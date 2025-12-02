@@ -41,6 +41,7 @@ export const SectionCreateForm: React.FC<SectionCreateFormProps> = ({
             onCancel={onCancel}
             validationErrors={validationErrors}
             isLoading={isLoading}
+            isOpen={isOpen}
           />
         </Box>
       </Paper>

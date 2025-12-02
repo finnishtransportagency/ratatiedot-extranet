@@ -116,19 +116,13 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
   const [loadingHistory, setLoadingHistory] = useState(false);
   const historyRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isExpanded && historyRef.current) {
-      // Delay to allow the Collapse animation to complete
-      const timer = setTimeout(() => {
-        historyRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-        });
-      }, 300);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isExpanded]);
+  const handleCollapseEntered = () => {
+    // Scroll into view after the Collapse animation completes
+    historyRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  };
 
   const handleToggleExpand = async () => {
     if (!isExpanded && (!row.history || row.history.length === 0) && onLoadHistory) {
@@ -143,6 +137,7 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
     }
     onToggleExpanded(row.id);
   };
+
   const handleCheckboxClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     onSelectItem(row.id);
@@ -215,7 +210,7 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
-          <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+          <Collapse in={isExpanded} timeout="auto" unmountOnExit onEntered={handleCollapseEntered}>
             <Box ref={historyRef} sx={{ margin: 1, scrollMargin: 16 }}>
               <Typography variant="body1" gutterBottom component="div">
                 Historia

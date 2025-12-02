@@ -34,24 +34,18 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
 }) => {
   const formRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isOpen && formRef.current) {
-      // Delay to allow the Collapse animation to complete
-      const timer = setTimeout(() => {
-        formRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-        });
-      }, 300);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
+  const handleCollapseEntered = () => {
+    // Scroll into view after the Collapse animation completes
+    formRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  };
 
   return (
     <TableRow>
       <TableCell sx={{ pb: 0, pt: 0 }} colSpan={6}>
-        <Collapse in={isOpen} timeout="auto" unmountOnExit>
+        <Collapse in={isOpen} timeout="auto" unmountOnExit onEntered={handleCollapseEntered}>
           <Box
             ref={formRef}
             sx={{
@@ -69,6 +63,7 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
               onDelete={onDelete}
               validationErrors={validationErrors}
               isLoading={isLoading}
+              isOpen={isOpen}
             />
           </Box>
         </Collapse>
