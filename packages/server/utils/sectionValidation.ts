@@ -35,6 +35,13 @@ export function validateRequiredFields(data: Partial<SectionData>): ValidationRe
 }
 
 export function validateIdRange(idRangeMin: number, idRangeMax: number): ValidationResult {
+  if (idRangeMin < 0 || idRangeMax < 0) {
+    return {
+      isValid: false,
+      error: 'ID ranges must be non-negative',
+      statusCode: 400,
+    };
+  }
   if (idRangeMin >= idRangeMax) {
     return {
       isValid: false,
