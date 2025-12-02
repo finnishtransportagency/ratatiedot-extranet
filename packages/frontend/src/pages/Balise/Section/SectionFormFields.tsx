@@ -46,15 +46,21 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
 
     if (formData.idRangeMin === undefined || formData.idRangeMin === null) {
       errors.idRangeMin = 'Min ID on pakollinen';
+    } else if (formData.idRangeMin < 0) {
+      errors.idRangeMin = 'Min ID ei voi olla negatiivinen';
     }
 
     if (formData.idRangeMax === undefined || formData.idRangeMax === null) {
       errors.idRangeMax = 'Max ID on pakollinen';
+    } else if (formData.idRangeMax < 0) {
+      errors.idRangeMax = 'Max ID ei voi olla negatiivinen';
     }
 
     if (
       formData.idRangeMin !== undefined &&
       formData.idRangeMax !== undefined &&
+      formData.idRangeMin >= 0 &&
+      formData.idRangeMax >= 0 &&
       formData.idRangeMin >= formData.idRangeMax
     ) {
       errors.idRangeMin = 'Min ID tulee olla pienempi kuin Max ID';
@@ -119,6 +125,7 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
           required
           error={!!currentErrors.idRangeMin}
           helperText={currentErrors.idRangeMin}
+          inputProps={{ min: 0 }}
         />
         <TextField
           label="Max ID"
@@ -130,6 +137,7 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
           required
           error={!!currentErrors.idRangeMax}
           helperText={currentErrors.idRangeMax}
+          inputProps={{ min: 0 }}
         />
       </Box>
       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
