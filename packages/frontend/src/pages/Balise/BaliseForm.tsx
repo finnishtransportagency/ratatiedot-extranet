@@ -311,14 +311,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       });
       setFilesToDelete([]);
       setHasChanges(false);
-
-      navigate(Routes.BALISE);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Virhe tallentaessa');
     } finally {
       setLoading(false);
     }
-  }, [formData, onSave, navigate, filesToDelete]);
+  }, [formData, onSave, filesToDelete]);
 
   const isCreate = mode === 'create';
 
