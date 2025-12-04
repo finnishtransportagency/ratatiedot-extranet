@@ -4,7 +4,7 @@ import { log } from '../../utils/logger';
 import { getUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { uploadToS3 } from '../../utils/s3utils';
-import { parseForm } from '../../utils/parser';
+import { parseForm, FileUpload } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import { FileInfo } from 'busboy';
 
@@ -44,8 +44,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       version?: number;
       baliseData?: string;
     } = {};
-    let fileData: Buffer | null = null;
-    let filename = '';
+    let uploadedFiles: FileUpload[] = [];
 
     if (isFileUpload) {
       // Handle file upload
@@ -58,10 +57,17 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       }
 
       // Extract file data
-      fileData = formData.filedata as Buffer;
-      if (formData.fileinfo) {
+      uploadedFiles = (formData.files as FileUpload[]) || [];
+
+      // For backwards compatibility, also check the old single file format
+      if (uploadedFiles.length === 0 && formData.filedata && formData.fileinfo) {
         const fileInfo = formData.fileinfo as FileInfo;
-        filename = fileInfo.filename;
+        uploadedFiles = [
+          {
+            filename: fileInfo.filename,
+            buffer: formData.filedata as Buffer,
+          },
+        ];
       }
     } else {
       // Handle JSON metadata only
@@ -88,11 +94,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       }
 
       // Determine if we should create a new version
-      // Create new version ONLY when:
-      // 1. File upload WITH metadata (first file in replacement batch)
-      // 2. Do NOT create version for file-only uploads (subsequent files in batch)
-      const isFileWithMetadata = isFileUpload && fileData && filename && body.description !== undefined;
-      const shouldCreateNewVersion = isFileWithMetadata;
+      // Create new version ONLY when files are uploaded
+      const shouldCreateNewVersion = isFileUpload && uploadedFiles.length > 0;
       const currentVersion = existingBalise.version;
       let newVersion = currentVersion;
 
@@ -115,38 +118,37 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         });
 
         newVersion = existingBalise.version + 1;
-        log.info(user, `Creating new version ${newVersion} for balise ${baliseId} (first file with metadata)`);
+        log.info(user, `Creating new version ${newVersion} for balise ${baliseId} due to file upload`);
       } else {
-        log.info(
-          user,
-          `Adding to existing version ${currentVersion} for balise ${baliseId} (${
-            fileData ? 'subsequent file' : 'metadata only'
-          })`,
-        );
+        log.info(user, `Updating existing version ${currentVersion} for balise ${baliseId} (metadata only)`);
       }
 
       // Handle fileTypes array
       let updatedFileTypes = existingBalise.fileTypes;
 
       if (shouldCreateNewVersion) {
-        // New version with first file upload: use the complete fileTypes list from metadata if provided
+        // New version with file upload: replace ALL existing files with new uploaded files
         if (body.fileTypes && Array.isArray(body.fileTypes)) {
+          // Use the complete fileTypes list from metadata if provided (handles multiple files)
           updatedFileTypes = body.fileTypes;
-        } else if (fileData && filename) {
-          // Fallback: start with just the uploaded file (replaces all existing files)
-          updatedFileTypes = [filename];
-        }
-      } else if (fileData && filename) {
-        // Subsequent file upload (same version): add to current fileTypes
-        if (!updatedFileTypes.includes(filename)) {
-          updatedFileTypes = [...updatedFileTypes, filename];
+        } else if (uploadedFiles.length > 0) {
+          // Replace all existing files with uploaded files
+          updatedFileTypes = uploadedFiles.map((file) => file.filename);
         }
       }
-      // Upload file to S3 if we have file data
-      if (fileData && filename) {
-        const s3Key = `balise_${baliseId}/v${newVersion}/${filename}`;
-        await uploadToS3(BALISES_BUCKET_NAME, s3Key, fileData);
-        log.info(user, `Uploaded file to S3: ${s3Key}`);
+      // Note: If no files are uploaded (!shouldCreateNewVersion), we keep existing fileTypes unchanged
+
+      // Upload all files to S3 if we have file data
+      if (uploadedFiles.length > 0) {
+        const uploadPromises = uploadedFiles.map(async (file) => {
+          const s3Key = `balise_${baliseId}/v${newVersion}/${file.filename}`;
+          await uploadToS3(BALISES_BUCKET_NAME, s3Key, file.buffer);
+          log.info(user, `Uploaded file to S3: ${s3Key}`);
+          return file.filename;
+        });
+
+        await Promise.all(uploadPromises);
+        log.info(user, `Successfully uploaded ${uploadedFiles.length} files for balise ${baliseId}`);
       }
 
       // Update balise record
@@ -172,7 +174,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         updateData.locked = false;
         updateData.lockedBy = null;
         updateData.lockedTime = null;
-      } else if (body.description) {
+      } else if (body.description !== undefined) {
         // Metadata-only update (no version change, just update description)
         updateData.description = body.description;
         log.info(user, `Updating description for balise ${baliseId} without version change`);
@@ -193,17 +195,23 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       const newVersion = body.version || 1;
       let fileTypes = body.fileTypes || [];
 
-      // If file is uploaded, add its filename to fileTypes array
-      if (fileData && filename) {
-        // Store full filename instead of just extension
-        if (!fileTypes.includes(filename)) {
-          fileTypes = [...fileTypes, filename];
+      // If files are uploaded, add their filenames to fileTypes array
+      if (uploadedFiles.length > 0) {
+        // Use uploaded filenames if no fileTypes provided in metadata
+        if (fileTypes.length === 0) {
+          fileTypes = uploadedFiles.map((file) => file.filename);
         }
 
-        // Upload file to S3 with hierarchical path: balise_{secondaryId}/v{version}/{filename}
-        const s3Key = `balise_${baliseId}/v${newVersion}/${filename}`;
-        await uploadToS3(BALISES_BUCKET_NAME, s3Key, fileData);
-        log.info(user, `Uploaded file to S3: ${s3Key}`);
+        // Upload all files to S3 with hierarchical path: balise_{secondaryId}/v{version}/{filename}
+        const uploadPromises = uploadedFiles.map(async (file) => {
+          const s3Key = `balise_${baliseId}/v${newVersion}/${file.filename}`;
+          await uploadToS3(BALISES_BUCKET_NAME, s3Key, file.buffer);
+          log.info(user, `Uploaded file to S3: ${s3Key}`);
+          return file.filename;
+        });
+
+        await Promise.all(uploadPromises);
+        log.info(user, `Successfully uploaded ${uploadedFiles.length} files for new balise ${baliseId}`);
       }
 
       const newBalise = await database.balise.create({
