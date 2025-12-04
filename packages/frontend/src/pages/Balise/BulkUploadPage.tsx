@@ -107,7 +107,8 @@ export const BulkUploadPage: React.FC = () => {
     try {
       const response = await fetch(`/api/balises?ids=${baliseIds.join(',')}`);
       if (response.ok) {
-        const balises = await response.json();
+        const responseData = await response.json();
+        const balises = responseData.data || responseData; // Handle both paginated and direct array response
         const baliseMap: Record<number, { version: number; description: string }> = {};
         balises.forEach((b: { secondaryId: number; version: number; description: string }) => {
           baliseMap[b.secondaryId] = { version: b.version, description: b.description };
@@ -588,10 +589,12 @@ export const BulkUploadPage: React.FC = () => {
                             size="small"
                             sx={{ mb: 1 }}
                             placeholder={
-                              globalDescription
+                              currentDescription
+                                ? ''
+                                : globalDescription
                                 ? `Käytetään yleistä kuvausta: "${globalDescription}"`
-                                : existingData
-                                ? `Nykyinen kuvaus säilyy: "${existingData.description}"`
+                                : existingData?.description
+                                ? existingData.description
                                 : 'Lisää kuvaus...'
                             }
                           />

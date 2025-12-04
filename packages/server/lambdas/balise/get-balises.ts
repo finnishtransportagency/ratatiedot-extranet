@@ -65,19 +65,32 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const maxLimit = 5000;
     const effectiveLimit = Math.min(limit, maxLimit);
 
-    const baseWhere = {
-      deletedAt: null, // Only get non-deleted balises
-    };
+    // Handle specific IDs filter (for bulk upload preview)
+    const specificIds = getQueryParamAsIntArray(event, 'ids');
 
     // Handle multiple ranges for secondaryId filtering
     const ranges = getMultipleRangesFromParams(event);
-    const whereClause =
-      ranges.length > 0
-        ? {
-            ...baseWhere,
-            OR: ranges,
-          }
-        : baseWhere;
+
+    // Build where clause based on query parameters
+    let whereClause;
+    if (specificIds.length > 0) {
+      // Filter by specific IDs
+      whereClause = {
+        deletedAt: null,
+        secondaryId: { in: specificIds },
+      };
+    } else if (ranges.length > 0) {
+      // Filter by ranges
+      whereClause = {
+        deletedAt: null,
+        OR: ranges,
+      };
+    } else {
+      // Default filter
+      whereClause = {
+        deletedAt: null,
+      };
+    }
 
     // Get total count for pagination info
     const totalCount = await database.balise.count({
