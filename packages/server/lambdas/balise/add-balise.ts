@@ -88,11 +88,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       }
 
       // Determine if we should create a new version
-      // Create new version ONLY if:
-      // - File is being uploaded AND metadata is provided (first file in replacement flow)
+      // Create new version ONLY when files are being uploaded
       // Do NOT create version for metadata-only changes (description edits)
-      const isFirstFileInReplacementFlow = isFileUpload && body.description !== undefined;
-      const shouldCreateNewVersion = isFirstFileInReplacementFlow;
+      const shouldCreateNewVersion = isFileUpload && fileData && filename;
       const currentVersion = existingBalise.version;
       let newVersion = currentVersion;
 
@@ -115,20 +113,25 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         });
 
         newVersion = existingBalise.version + 1;
-        log.info(user, `Creating new version ${newVersion} for balise ${baliseId} (first file in replacement flow)`);
+        log.info(user, `Creating new version ${newVersion} for balise ${baliseId} (file upload)`);
       } else {
-        log.info(user, `Adding to existing version ${currentVersion} for balise ${baliseId}`);
+        log.info(user, `Updating existing version ${currentVersion} for balise ${baliseId} (metadata only)`);
       }
 
-      // If file is uploaded, handle the fileTypes array
+      // Handle fileTypes array - files always replace existing ones when uploaded
       let updatedFileTypes = existingBalise.fileTypes;
-      if (fileData && filename) {
-        // Store full filename instead of just extension
-        if (!updatedFileTypes.includes(filename)) {
-          updatedFileTypes = [...updatedFileTypes, filename];
-        }
 
-        // Upload file to S3 with hierarchical path: balise_{secondaryId}/v{version}/{filename}
+      if (shouldCreateNewVersion) {
+        // New version with file upload: use the complete fileTypes list from metadata if provided
+        if (body.fileTypes && Array.isArray(body.fileTypes)) {
+          updatedFileTypes = body.fileTypes;
+        } else if (fileData && filename) {
+          // Fallback: start with just the uploaded file (replaces all existing files)
+          updatedFileTypes = [filename];
+        }
+      }
+      // Upload file to S3 if we have file data
+      if (fileData && filename) {
         const s3Key = `balise_${baliseId}/v${newVersion}/${filename}`;
         await uploadToS3(BALISES_BUCKET_NAME, s3Key, fileData);
         log.info(user, `Uploaded file to S3: ${s3Key}`);
