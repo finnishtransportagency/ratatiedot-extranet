@@ -46,27 +46,18 @@ const saveBalise = async (data: Partial<BaliseWithHistory>): Promise<BaliseWithH
   return response.json();
 };
 
-const updateBalise = async (secondaryId: string, data: Partial<BaliseWithHistory>): Promise<BaliseWithHistory> => {
-  // API call to update existing balise
-  const response = await fetch(`/api/balise/${secondaryId}/add`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to update balise');
-  }
-  return response.json();
-};
-
-// Upload a single file to balise
-const uploadFileToBalise = async (
+// Upload multiple files to balise in single request
+const uploadFilesToBalise = async (
   secondaryId: number,
-  file: File,
+  files: File[],
   metadata?: Partial<BaliseWithHistory>,
 ): Promise<void> => {
   const formData = new FormData();
-  formData.append('file', file);
+
+  // Add all files to the form data
+  files.forEach((file) => {
+    formData.append('files', file);
+  });
 
   // Include metadata if provided
   if (metadata) {
@@ -79,8 +70,28 @@ const uploadFileToBalise = async (
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to upload file: ${file.name}`);
+    const errorText = await response.text();
+    throw new Error(`Failed to upload files: ${errorText}`);
   }
+};
+
+// Update metadata only (no files)
+const updateBaliseMetadata = async (
+  secondaryId: number,
+  metadata: Partial<BaliseWithHistory>,
+): Promise<BaliseWithHistory> => {
+  const response = await fetch(`/api/balise/${secondaryId}/add`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(metadata),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to update balise: ${errorText}`);
+  }
+
+  return response.json();
 };
 
 // Delete individual files from balise
@@ -134,45 +145,38 @@ export const BaliseEditPage: React.FC = () => {
       let savedBalise: BaliseWithHistory;
 
       if (currentMode === 'create') {
-        // First, create the balise with metadata only
-        savedBalise = await saveBalise(data);
-
-        // Then upload files one by one if any
-        if (files && files.length > 0 && savedBalise.secondaryId) {
-          for (const file of files) {
-            await uploadFileToBalise(savedBalise.secondaryId, file);
+        // For new balise creation
+        if (files && files.length > 0) {
+          // Create balise with files - this will be version 1
+          savedBalise = await saveBalise(data);
+          if (savedBalise.secondaryId) {
+            await uploadFilesToBalise(savedBalise.secondaryId, files, data);
+            savedBalise = await fetchBalise(savedBalise.secondaryId.toString());
           }
+        } else {
+          // Create balise with metadata only
+          savedBalise = await saveBalise(data);
         }
+        setBalise(savedBalise);
       } else if (id) {
         const secondaryId = parseInt(id);
 
-        // If there are files to delete, send deletion request first
         if (filesToDelete && filesToDelete.length > 0) {
           await deleteBaliseFiles(secondaryId, filesToDelete);
         }
 
-        // If there are new files, upload them WITH metadata to create a new version
         if (files && files.length > 0) {
-          // Upload first file with metadata to create new version
-          await uploadFileToBalise(secondaryId, files[0], data);
-
-          // Upload remaining files (they will be added to the new version)
-          for (let i = 1; i < files.length; i++) {
-            await uploadFileToBalise(secondaryId, files[i]);
-          }
-
-          // Fetch the updated balise to get the latest data
-          savedBalise = await fetchBalise(id);
-        } else if (filesToDelete && filesToDelete.length > 0) {
-          // Only files deleted, no new files - fetch the updated balise
+          // Files uploaded: create new version and replace ALL existing files
+          await uploadFilesToBalise(secondaryId, files, data);
           savedBalise = await fetchBalise(id);
         } else {
-          // No files uploaded or deleted, just update metadata
-          savedBalise = await updateBalise(id, data);
+          // No files uploaded: update description only (no new version)
+          savedBalise = await updateBaliseMetadata(secondaryId, data);
         }
 
-        // Update the store cache with the latest data
+        // Update both the store cache and local state with the latest data
         updateBaliseInStore(savedBalise);
+        setBalise(savedBalise);
       }
     } catch (err) {
       throw err; // Re-throw to let BaliseForm handle the error display
