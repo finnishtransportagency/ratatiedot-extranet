@@ -196,7 +196,10 @@ export const BulkUploadPage: React.FC = () => {
   const validFileCount = files.filter((f) => f.isValid).length;
   const baliseCount = Object.keys(groupedFiles).length;
 
-  const toggleBaliseExpand = (baliseId: number) => {
+  const toggleBaliseExpand = (baliseId: number, hasError: boolean) => {
+    // Only allow expanding balises that have errors
+    if (!hasError) return;
+
     setExpandedBalises((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(baliseId)) {
@@ -253,17 +256,32 @@ export const BulkUploadPage: React.FC = () => {
       clearInterval(progressInterval);
       setUploadProgress(100);
 
+      // Handle both success and structured error responses
+      const responseData = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        // Check if this is a structured error response with results
+        if (responseData.results && Array.isArray(responseData.results)) {
+          // This is a structured response with detailed results (e.g., some locked balises)
+          const result: UploadResponse = responseData;
+          setUploadResult(result);
+
+          // Auto-expand failed balises
+          const failedBaliseIds = result.results.filter((r) => !r.success).map((r) => r.baliseId);
+          setExpandedBalises(new Set(failedBaliseIds));
+        } else {
+          // This is a plain error response
+          throw new Error(responseData.error || responseData.message || `HTTP error! status: ${response.status}`);
+        }
+      } else {
+        // Success response
+        const result: UploadResponse = responseData;
+        setUploadResult(result);
+
+        // Auto-expand failed balises
+        const failedBaliseIds = result.results.filter((r) => !r.success).map((r) => r.baliseId);
+        setExpandedBalises(new Set(failedBaliseIds));
       }
-
-      const result: UploadResponse = await response.json();
-      setUploadResult(result);
-
-      // Auto-expand failed balises
-      const failedBaliseIds = result.results.filter((r) => !r.success).map((r) => r.baliseId);
-      setExpandedBalises(new Set(failedBaliseIds));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lataus epäonnistui');
       setUploadProgress(0);
@@ -410,8 +428,13 @@ export const BulkUploadPage: React.FC = () => {
                     }}
                   >
                     <Box
-                      sx={{ display: 'flex', alignItems: 'center', width: '100%', cursor: 'pointer' }}
-                      onClick={() => toggleBaliseExpand(result.baliseId)}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                        cursor: result.success ? 'default' : 'pointer',
+                      }}
+                      onClick={() => toggleBaliseExpand(result.baliseId, !result.success)}
                     >
                       <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                         {result.success ? (
@@ -441,9 +464,11 @@ export const BulkUploadPage: React.FC = () => {
                         )}
                         {result.errorType === 'locked' && <Chip label="Lukittu" size="small" color="warning" />}
                       </Box>
-                      <IconButton size="small">
-                        {expandedBalises.has(result.baliseId) ? <ExpandLess /> : <ExpandMore />}
-                      </IconButton>
+                      {!result.success && (
+                        <IconButton size="small">
+                          {expandedBalises.has(result.baliseId) ? <ExpandLess /> : <ExpandMore />}
+                        </IconButton>
+                      )}
                     </Box>
                     <Collapse in={expandedBalises.has(result.baliseId)}>
                       <Box sx={{ mt: 1, pl: 4 }}>

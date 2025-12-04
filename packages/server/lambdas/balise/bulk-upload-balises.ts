@@ -384,14 +384,27 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const lockedCount = results.filter((r) => r.errorType === 'locked').length;
 
     if (hasErrors && successCount === 0) {
-      // All failed
+      // All failed - use appropriate status code based on error types
       let message = 'Kaikkien tiedostojen lataus epäonnistui';
+      let statusCode = 400; // Client error by default
+
       if (lockedCount === failureCount) {
-        message = `${lockedCount} baliisia on lukittu. Odota, että lukitukset poistetaan.`;
+        message = `${lockedCount} ${
+          lockedCount === 1 ? 'baliisi' : 'baliisia'
+        } on lukittu. Odota, että lukitukset poistetaan.`;
+        statusCode = 409; // Conflict - resource is locked
+      } else {
+        // Check if there are other error types that warrant 500
+        const serverErrors = results.filter(
+          (r) => !r.success && r.errorType && ['storage', 'unknown'].includes(r.errorType),
+        ).length;
+        if (serverErrors > 0) {
+          statusCode = 500; // Server error
+        }
       }
 
       return {
-        statusCode: 500,
+        statusCode,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           success: false,
