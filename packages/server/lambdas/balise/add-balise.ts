@@ -88,9 +88,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       }
 
       // Determine if we should create a new version
-      // Create new version ONLY when files are being uploaded
-      // Do NOT create version for metadata-only changes (description edits)
-      const shouldCreateNewVersion = isFileUpload && fileData && filename;
+      // Create new version ONLY when:
+      // 1. File upload WITH metadata (first file in replacement batch)
+      // 2. Do NOT create version for file-only uploads (subsequent files in batch)
+      const isFileWithMetadata = isFileUpload && fileData && filename && body.description !== undefined;
+      const shouldCreateNewVersion = isFileWithMetadata;
       const currentVersion = existingBalise.version;
       let newVersion = currentVersion;
 
@@ -113,21 +115,31 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         });
 
         newVersion = existingBalise.version + 1;
-        log.info(user, `Creating new version ${newVersion} for balise ${baliseId} (file upload)`);
+        log.info(user, `Creating new version ${newVersion} for balise ${baliseId} (first file with metadata)`);
       } else {
-        log.info(user, `Updating existing version ${currentVersion} for balise ${baliseId} (metadata only)`);
+        log.info(
+          user,
+          `Adding to existing version ${currentVersion} for balise ${baliseId} (${
+            fileData ? 'subsequent file' : 'metadata only'
+          })`,
+        );
       }
 
-      // Handle fileTypes array - files always replace existing ones when uploaded
+      // Handle fileTypes array
       let updatedFileTypes = existingBalise.fileTypes;
 
       if (shouldCreateNewVersion) {
-        // New version with file upload: use the complete fileTypes list from metadata if provided
+        // New version with first file upload: use the complete fileTypes list from metadata if provided
         if (body.fileTypes && Array.isArray(body.fileTypes)) {
           updatedFileTypes = body.fileTypes;
         } else if (fileData && filename) {
           // Fallback: start with just the uploaded file (replaces all existing files)
           updatedFileTypes = [filename];
+        }
+      } else if (fileData && filename) {
+        // Subsequent file upload (same version): add to current fileTypes
+        if (!updatedFileTypes.includes(filename)) {
+          updatedFileTypes = [...updatedFileTypes, filename];
         }
       }
       // Upload file to S3 if we have file data
