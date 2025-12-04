@@ -309,6 +309,13 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
         description: formData.description,
         files: [],
       });
+
+      // Clear the uploaded files from form data since they've been saved
+      setFormData((prev) => ({
+        ...prev,
+        files: [],
+      }));
+
       setFilesToDelete([]);
       setHasChanges(false);
     } catch (err) {
