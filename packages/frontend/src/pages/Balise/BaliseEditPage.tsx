@@ -171,7 +171,9 @@ export const BaliseEditPage: React.FC = () => {
           savedBalise = await fetchBalise(id);
         } else {
           // No files uploaded: update description only (no new version)
-          savedBalise = await updateBaliseMetadata(secondaryId, data);
+          await updateBaliseMetadata(secondaryId, data);
+          // Fetch the complete balise with history after metadata update
+          savedBalise = await fetchBalise(id);
         }
 
         // Update both the store cache and local state with the latest data
