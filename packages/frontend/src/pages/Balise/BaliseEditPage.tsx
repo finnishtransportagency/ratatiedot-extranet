@@ -174,8 +174,6 @@ export const BaliseEditPage: React.FC = () => {
         // Update the store cache with the latest data
         updateBaliseInStore(savedBalise);
       }
-
-      navigate(Routes.BALISE);
     } catch (err) {
       throw err; // Re-throw to let BaliseForm handle the error display
     }
