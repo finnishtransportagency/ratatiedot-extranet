@@ -600,7 +600,7 @@ export const BulkUploadPage: React.FC = () => {
 
                           {/* Per-Balise Description Field */}
                           <TextField
-                            label={`Kuvaus balisille ${baliseId}`}
+                            label={`Kuvaus baliisille ${baliseId}`}
                             value={currentDescription}
                             onChange={(e) =>
                               setBaliseDescriptions((prev) => ({
