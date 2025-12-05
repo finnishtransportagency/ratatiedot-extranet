@@ -306,7 +306,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           secondaryId,
           version: 0, // Will become 1 after first upload
           description: baliseDescriptions?.[secondaryId] || globalDescription || `Auto-created during bulk upload`,
-          bucketId: BALISES_BUCKET_NAME,
           fileTypes: [],
           createdBy: user.uid,
           locked: false,
