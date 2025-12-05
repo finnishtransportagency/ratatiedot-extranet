@@ -862,11 +862,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       display: 'flex',
                       gap: 1.75,
                       position: 'relative',
-                      pb: index === (balise.history || []).length ? 0 : 2.5, // Add padding-bottom to all but the last item
+                      pb: index === balise.history.length ? 0 : 2.5, // Add padding-bottom to all but the last item
                     }}
                   >
                     {/* Vertical timeline line */}
-                    {index < (balise.history || []).length && (
+                    {index < balise.history.length && (
                       <Box
                         sx={{
                           position: 'absolute',
