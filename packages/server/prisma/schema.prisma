@@ -74,7 +74,7 @@ model Activity {
   timestamp        DateTime
   action           String
   mimeType         String
-  activityId       Int               @unique
+  activityId       BigInt            @unique
 }
 
 model Notice {
