@@ -2,17 +2,14 @@ import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateWriteUser } from '../../utils/userService';
-import { DatabaseClient } from '../database/client';
-import { uploadToS3 } from '../../utils/s3utils';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
+import { updateOrCreateBalise, createMultipleBalises, getExistingBaliseIds, FileUpload } from '../../utils/baliseUtils';
 
-const database = await DatabaseClient.build();
-const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
 const MAX_FILES_PER_REQUEST = 1000; // Limit to prevent timeout
 
-interface FileUpload {
+interface BulkFileUpload {
   filename: string;
   buffer: Buffer;
   baliseId: number;
@@ -50,8 +47,8 @@ function parseBaliseId(filename: string): number | null {
 /**
  * Group files by balise ID based on filename parsing
  */
-function groupFilesByBalise(files: FileUpload[]): Map<number, FileUpload[]> {
-  const grouped = new Map<number, FileUpload[]>();
+function groupFilesByBalise(files: BulkFileUpload[]): Map<number, BulkFileUpload[]> {
+  const grouped = new Map<number, BulkFileUpload[]>();
 
   for (const file of files) {
     const baliseId = file.baliseId;
@@ -71,7 +68,7 @@ async function parseMultipartForm(
   buffer: Buffer | string,
   headers: ALBEventHeaders,
 ): Promise<{
-  files: FileUpload[];
+  files: BulkFileUpload[];
   invalidFiles: string[];
   globalDescription?: string;
   baliseDescriptions?: Record<number, string>;
@@ -84,7 +81,7 @@ async function parseMultipartForm(
       },
     });
 
-    const fileUploads: FileUpload[] = [];
+    const fileUploads: BulkFileUpload[] = [];
     const invalidFiles: string[] = [];
     let globalDescription: string | undefined;
     const baliseDescriptions: Record<number, string> = {};
@@ -143,88 +140,6 @@ async function parseMultipartForm(
 
     bb.end(buffer);
   });
-}
-
-/**
- * Upload files for a single balise (creates new version)
- */
-async function uploadFilesForBalise(
-  baliseId: number,
-  files: FileUpload[],
-  userId: string,
-  description?: string,
-): Promise<{ newVersion: number; previousVersion: number; filesUploaded: number }> {
-  // 1. Get current balise
-  const existingBalise = await database.balise.findUnique({
-    where: { secondaryId: baliseId },
-  });
-
-  if (!existingBalise) {
-    throw new Error(`Balise ${baliseId} not found`);
-  }
-
-  const previousVersion = existingBalise.version;
-
-  // 2. Check if locked
-  if (existingBalise.locked && existingBalise.lockedBy !== userId) {
-    const error: Error & { errorType?: string; lockedBy?: string } = new Error(
-      `Baliisi ${baliseId} on lukittu käyttäjän ${existingBalise.lockedBy} toimesta. Odota, että lukitus poistetaan.`,
-    );
-    error.errorType = 'locked';
-    error.lockedBy = existingBalise.lockedBy || undefined;
-    throw error;
-  }
-
-  // 3. Create version history entry for the OLD version (only if it has files)
-  if (existingBalise.version > 0 && existingBalise.fileTypes.length > 0) {
-    await database.baliseVersion.create({
-      data: {
-        baliseId: existingBalise.id,
-        secondaryId: existingBalise.secondaryId,
-        version: existingBalise.version,
-        description: existingBalise.description,
-        fileTypes: existingBalise.fileTypes,
-        createdBy: existingBalise.createdBy,
-        createdTime: existingBalise.createdTime,
-        locked: existingBalise.locked,
-        lockedBy: existingBalise.lockedBy,
-        lockedTime: existingBalise.lockedTime,
-      },
-    });
-  }
-
-  // 4. Increment version
-  const newVersion = existingBalise.version + 1;
-
-  // 5. Upload all files to S3
-  const uploadPromises = files.map(async (file) => {
-    const s3Key = `balise_${baliseId}/v${newVersion}/${file.filename}`;
-    await uploadToS3(BALISES_BUCKET_NAME, s3Key, file.buffer);
-    return file.filename;
-  });
-
-  const uploadedFilenames = await Promise.all(uploadPromises);
-
-  // 6. Update balise record with new version and file list
-  await database.balise.update({
-    where: { secondaryId: baliseId },
-    data: {
-      version: newVersion,
-      fileTypes: uploadedFilenames,
-      description: description || existingBalise.description, // Use provided description or keep existing
-      createdBy: userId,
-      createdTime: new Date(),
-      locked: false,
-      lockedBy: null,
-      lockedTime: null,
-    },
-  });
-
-  return {
-    newVersion,
-    previousVersion,
-    filesUploaded: uploadedFilenames.length,
-  };
 }
 
 /**
@@ -289,31 +204,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     // Validate all balises exist - create missing ones automatically
     const baliseIds = Array.from(groupedFiles.keys());
-    const existingBalises = await database.balise.findMany({
-      where: {
-        secondaryId: { in: baliseIds },
-      },
-      select: { secondaryId: true },
-    });
-
-    const existingBaliseIds = new Set(existingBalises.map((b) => b.secondaryId));
+    const existingBaliseIds = await getExistingBaliseIds(baliseIds);
     const missingBaliseIds = baliseIds.filter((id) => !existingBaliseIds.has(id));
 
     // Auto-create missing balises
     if (missingBaliseIds.length > 0) {
-      log.info(user, `Auto-creating ${missingBaliseIds.length} missing balise(s): ${missingBaliseIds.join(', ')}`);
-
-      await database.balise.createMany({
-        data: missingBaliseIds.map((secondaryId) => ({
-          secondaryId,
-          version: 0, // Will become 1 after first upload
-          description:
-            baliseDescriptions?.[secondaryId] || globalDescription || `Luotu automaattisesti massalatauksessa`,
-          fileTypes: [],
-          createdBy: user.uid,
-          locked: false,
-        })),
-      });
+      await createMultipleBalises(missingBaliseIds, user.uid, globalDescription, baliseDescriptions);
     }
 
     // Upload files for each balise
@@ -326,7 +222,19 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
       try {
         log.info(user, `Uploading ${files.length} files for balise ${baliseId}`);
-        const result = await uploadFilesForBalise(baliseId, files, user.uid, description);
+
+        // Convert BulkFileUpload format to FileUpload format (remove baliseId)
+        const sharedFiles: FileUpload[] = files.map((file) => ({
+          filename: file.filename,
+          buffer: file.buffer,
+        }));
+
+        const result = await updateOrCreateBalise({
+          baliseId,
+          files: sharedFiles,
+          description,
+          userId: user.uid,
+        });
 
         results.push({
           baliseId,
@@ -334,7 +242,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           newVersion: result.newVersion,
           previousVersion: result.previousVersion,
           filesUploaded: result.filesUploaded,
-          isNewBalise,
+          isNewBalise: result.isNewBalise,
         });
 
         log.info(
