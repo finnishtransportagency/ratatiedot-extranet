@@ -305,7 +305,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         data: missingBaliseIds.map((secondaryId) => ({
           secondaryId,
           version: 0, // Will become 1 after first upload
-          description: baliseDescriptions?.[secondaryId] || globalDescription || `Auto-created during bulk upload`,
+          description:
+            baliseDescriptions?.[secondaryId] || globalDescription || `Luotu automaattisesti massalatauksessa`,
           fileTypes: [],
           createdBy: user.uid,
           locked: false,
