@@ -39,7 +39,7 @@ Do `.env.bastion` steps above if you have not done so already. Refresh local AWS
 
 This will set up a pipe to the bastion host using AWS SSM on localhost:5433. These are then piped to the DB. For this to keep working, `bastion-database-pipe.sh` locally needs to be up and running.
 
-> [!NOTE]  
+> [!NOTE]
 > If you have configured `.env.bastion` file with desired bastion `﻿INSTANCE_ID` and aws `PROFILE`, updated your AWS credentials in `~/.aws/credentials` file and have correct database credentials in `/packages/server/.env` file but still are not able to connect to desired database through bastion host, check that `nohup socat` process is running in the instance. You can use AWS EC2 console to login to bastion host terminal.
 >
 > - login to bastion host terminal and list all running processes `sudo lsof -i -P -n`
@@ -166,7 +166,7 @@ Once pipeline is up, make sure you have correct env variable in ⁠packages/serv
 DATABASE_URL="postgresql://...{production database connection URL}"
 ```
 
-[follow guide on how to run prisma migration](https://www.prisma.io/docs/concepts/components/prisma-migrate/migrate-development-production#production-and-testing-environments)
+[follow guide on how to run prisma migration](https://www.prisma.io/docs/orm/prisma-migrate/workflows/development-and-production)
 
 You can inspect database using for example [psql](https://www.postgresql.org/docs/current/app-psql.html) or [Prisma Studio](https://www.prisma.io/blog/prisma-studio-3rtf78dg99fe)
 
