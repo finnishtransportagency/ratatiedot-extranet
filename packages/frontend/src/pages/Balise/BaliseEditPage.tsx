@@ -32,16 +32,19 @@ const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
 };
 
 const saveBalise = async (data: Partial<BaliseWithHistory>): Promise<BaliseWithHistory> => {
-  // API call to create new balise (this would need a proper creation endpoint)
-  // For now, using add endpoint with a new secondaryId
-  const newSecondaryId = Date.now(); // Temporary ID generation
-  const response = await fetch(`/api/balise/${newSecondaryId}/add`, {
+  // API call to create new balise using the secondaryId from the form data
+  if (!data.secondaryId) {
+    throw new Error('Secondary ID is required to create a balise');
+  }
+
+  const response = await fetch(`/api/balise/${data.secondaryId}/add`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error('Failed to save balise');
+    const errorText = await response.text();
+    throw new Error(`Failed to save balise: ${errorText}`);
   }
   return response.json();
 };
@@ -158,6 +161,11 @@ export const BaliseEditPage: React.FC = () => {
           savedBalise = await saveBalise(data);
         }
         setBalise(savedBalise);
+
+        // Navigate to the newly created balise
+        if (savedBalise.secondaryId) {
+          navigate(`${Routes.BALISE}/${savedBalise.secondaryId}`);
+        }
       } else if (id) {
         const secondaryId = parseInt(id);
 
