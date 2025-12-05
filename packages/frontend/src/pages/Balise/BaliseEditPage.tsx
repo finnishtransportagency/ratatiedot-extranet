@@ -31,70 +31,50 @@ const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
   }
 };
 
-const saveBalise = async (data: Partial<BaliseWithHistory>): Promise<BaliseWithHistory> => {
-  // API call to create new balise using the secondaryId from the form data
+// Unified function to handle balise operations (create/update with optional files)
+const saveOrUpdateBalise = async (
+  data: Partial<BaliseWithHistory>,
+  files?: File[],
+  expectResponse: boolean = true,
+): Promise<BaliseWithHistory | void> => {
   if (!data.secondaryId) {
     throw new Error('Secondary ID is required to create a balise');
   }
 
-  const response = await fetch(`/api/balise/${data.secondaryId}/add`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to save balise: ${errorText}`);
+  let response: Response;
+
+  if (files && files.length > 0) {
+    // Use FormData for file uploads
+    const formData = new FormData();
+
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+
+    formData.append('baliseData', JSON.stringify(data));
+
+    response = await fetch(`/api/balise/${data.secondaryId}/add`, {
+      method: 'PUT',
+      body: formData, // No Content-Type header - browser sets it with boundary
+    });
+  } else {
+    // Use JSON for metadata-only requests
+    response = await fetch(`/api/balise/${data.secondaryId}/add`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
   }
-  return response.json();
-};
-
-// Upload multiple files to balise in single request
-const uploadFilesToBalise = async (
-  secondaryId: number,
-  files: File[],
-  metadata?: Partial<BaliseWithHistory>,
-): Promise<void> => {
-  const formData = new FormData();
-
-  // Add all files to the form data
-  files.forEach((file) => {
-    formData.append('files', file);
-  });
-
-  // Include metadata if provided
-  if (metadata) {
-    formData.append('baliseData', JSON.stringify(metadata));
-  }
-
-  const response = await fetch(`/api/balise/${secondaryId}/add`, {
-    method: 'PUT',
-    body: formData, // No Content-Type header - browser sets it with boundary
-  });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Failed to upload files: ${errorText}`);
-  }
-};
-
-// Update metadata only (no files)
-const updateBaliseMetadata = async (
-  secondaryId: number,
-  metadata: Partial<BaliseWithHistory>,
-): Promise<BaliseWithHistory> => {
-  const response = await fetch(`/api/balise/${secondaryId}/add`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(metadata),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to update balise: ${errorText}`);
+    const operation = files?.length ? 'upload files to' : 'save';
+    throw new Error(`Failed to ${operation} balise: ${errorText}`);
   }
 
-  return response.json();
+  if (expectResponse) {
+    return response.json();
+  }
 };
 
 // Delete individual files from balise
@@ -149,17 +129,7 @@ export const BaliseEditPage: React.FC = () => {
 
       if (currentMode === 'create') {
         // For new balise creation
-        if (files && files.length > 0) {
-          // Create balise with files - this will be version 1
-          savedBalise = await saveBalise(data);
-          if (savedBalise.secondaryId) {
-            await uploadFilesToBalise(savedBalise.secondaryId, files, data);
-            savedBalise = await fetchBalise(savedBalise.secondaryId.toString());
-          }
-        } else {
-          // Create balise with metadata only
-          savedBalise = await saveBalise(data);
-        }
+        savedBalise = (await saveOrUpdateBalise(data, files)) as BaliseWithHistory;
         setBalise(savedBalise);
 
         // Navigate to the newly created balise
@@ -175,12 +145,11 @@ export const BaliseEditPage: React.FC = () => {
 
         if (files && files.length > 0) {
           // Files uploaded: create new version and replace ALL existing files
-          await uploadFilesToBalise(secondaryId, files, data);
+          await saveOrUpdateBalise(data, files, false); // Don't expect response for file uploads to existing balise
           savedBalise = await fetchBalise(id);
         } else {
           // No files uploaded: update description only (no new version)
-          await updateBaliseMetadata(secondaryId, data);
-          // Fetch the complete balise with history after metadata update
+          await saveOrUpdateBalise(data, undefined, false); // Don't expect response
           savedBalise = await fetchBalise(id);
         }
 
