@@ -87,6 +87,63 @@ const handleDownloadBaliseFiles = async (
   }
 };
 
+interface UploadedFilesListProps {
+  files: File[];
+  title: string;
+  onRemoveFile: (index: number) => void;
+}
+
+const UploadedFilesList: React.FC<UploadedFilesListProps> = ({ files, title, onRemoveFile }) => {
+  return (
+    <Box sx={{ mb: 3 }}>
+      <Typography
+        variant="h4"
+        sx={{
+          mb: 2,
+          fontWeight: 500,
+        }}
+      >
+        {title}
+      </Typography>
+      <List disablePadding>
+        {files.map((file, index) => (
+          <ListItem
+            key={index}
+            sx={{
+              mb: 1,
+              borderRadius: 2,
+              border: 1,
+              borderColor: '#bbf7d0',
+              bgcolor: '#f0fdf4',
+            }}
+            secondaryAction={
+              <IconButton size="small" onClick={() => onRemoveFile(index)} edge="end">
+                <Close sx={{ fontSize: 20 }} />
+              </IconButton>
+            }
+          >
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              <DescriptionOutlined sx={{ color: '#2fa34b', fontSize: 22 }} />
+            </ListItemIcon>
+            <ListItemText
+              primary={file.name}
+              secondary={`${(file.size / 1024).toFixed(0)} kB`}
+              primaryTypographyProps={{
+                sx: {
+                  fontWeight: 500,
+                },
+              }}
+              secondaryTypographyProps={{
+                sx: { fontSize: '0.75rem' },
+              }}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
+};
+
 export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onCancel }) => {
   const navigate = useNavigate();
   const { deleteBalise, lockBalise, unlockBalise } = useBaliseStore();
@@ -715,44 +772,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                   )}
 
                   {/* New uploaded files - will become the new set */}
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="h4" sx={{ mb: 2, fontWeight: 500 }}>
-                      Uudet tiedostot
-                    </Typography>
-                    <List disablePadding>
-                      {formData.files.map((file, index) => (
-                        <ListItem
-                          key={index}
-                          sx={{
-                            mb: 1,
-                            borderRadius: 2,
-                            border: 1,
-                            borderColor: '#bbf7d0',
-                            bgcolor: '#f0fdf4',
-                          }}
-                          secondaryAction={
-                            <IconButton size="small" onClick={() => removeFile(index)} edge="end">
-                              <Close sx={{ fontSize: 20 }} />
-                            </IconButton>
-                          }
-                        >
-                          <ListItemIcon sx={{ minWidth: 40 }}>
-                            <DescriptionOutlined sx={{ color: '#2fa34b', fontSize: 22 }} />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={file.name}
-                            secondary={`${(file.size / 1024).toFixed(0)} kB`}
-                            primaryTypographyProps={{
-                              sx: { fontWeight: 500 },
-                            }}
-                            secondaryTypographyProps={{
-                              sx: { fontSize: '0.75rem' },
-                            }}
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
+                  <UploadedFilesList files={formData.files} title="Uudet tiedostot" onRemoveFile={removeFile} />
 
                   <Divider sx={{ my: 3 }} />
 
@@ -802,42 +822,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               {/* Show uploaded files list in create mode */}
               {isCreate && formData.files && formData.files.length > 0 && (
                 <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontSize: '0.875rem' }}>
-                    Valitut tiedostot ({formData.files.length})
-                  </Typography>
-                  <List dense disablePadding>
-                    {formData.files.map((file, index) => (
-                      <ListItem
-                        key={index}
-                        sx={{
-                          mb: 0.75,
-                          borderRadius: 1,
-                          border: 1,
-                          borderColor: 'primary.main',
-                          bgcolor: 'primary.light',
-                        }}
-                        secondaryAction={
-                          <IconButton size="small" onClick={() => removeFile(index)} edge="end">
-                            <Delete sx={{ fontSize: 18, color: 'error.main' }} />
-                          </IconButton>
-                        }
-                      >
-                        <ListItemIcon sx={{ minWidth: 36 }}>
-                          <Description sx={{ color: 'primary.main', fontSize: 20 }} />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={file.name}
-                          secondary={`${(file.size / 1024).toFixed(0)} kB`}
-                          primaryTypographyProps={{
-                            sx: { fontSize: '0.875rem', color: 'primary.dark' },
-                          }}
-                          secondaryTypographyProps={{
-                            sx: { fontSize: '0.75rem' },
-                          }}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
+                  <UploadedFilesList
+                    files={formData.files}
+                    title={`Valitut tiedostot (${formData.files.length})`}
+                    onRemoveFile={removeFile}
+                  />
                 </Box>
               )}
             </Box>
