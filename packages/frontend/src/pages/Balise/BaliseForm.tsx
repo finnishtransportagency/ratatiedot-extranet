@@ -1034,7 +1034,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
           <Button onClick={handleDeleteCancel} disabled={actionLoading}>
             Peruuta
           </Button>
-          <Button onClick={handleDeleteConfirm} color="warning" variant="contained" disabled={actionLoading}>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={actionLoading}>
+            {actionLoading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
             {actionLoading ? 'Poistetaan...' : 'Poista'}
           </Button>
         </DialogActions>
