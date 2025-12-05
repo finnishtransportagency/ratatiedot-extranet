@@ -33,6 +33,7 @@ import { DriverActivity } from './pages/Others/DriverActivity';
 import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
 import { AppContextProvider } from './contexts/AppContextProvider';
+import { BaliseContextProvider } from './contexts/BaliseContextProvider';
 import { AcceptInstructions } from './pages/AcceptInstructions';
 import { AreaPage } from './pages/ProtectedPage/AreaPage';
 import { ProtectedSubPage } from './pages/ProtectedPage/ProtectedSubPage';
@@ -216,9 +217,9 @@ const BALISE_ROUTE: RouteObject[] = [
   {
     path: Routes.BALISE,
     element: (
-      <AppContextProvider>
+      <BaliseContextProvider>
         <ProtectedBalisePage children={<Balise />} />
-      </AppContextProvider>
+      </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,
     loader: async () => {
@@ -232,9 +233,9 @@ const BALISE_ROUTE: RouteObject[] = [
   {
     path: `${Routes.BALISE}/massa-lataus`,
     element: (
-      <AppContextProvider>
+      <BaliseContextProvider>
         <ProtectedBalisePage children={<BulkUploadPage />} />
-      </AppContextProvider>
+      </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,
     loader: async () => {
@@ -248,9 +249,9 @@ const BALISE_ROUTE: RouteObject[] = [
   {
     path: `${Routes.BALISE}/create`,
     element: (
-      <AppContextProvider>
+      <BaliseContextProvider>
         <ProtectedBalisePage children={<BaliseEditPage />} />
-      </AppContextProvider>
+      </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,
     loader: async () => {
@@ -264,9 +265,9 @@ const BALISE_ROUTE: RouteObject[] = [
   {
     path: `${Routes.BALISE}/:id`,
     element: (
-      <AppContextProvider>
+      <BaliseContextProvider>
         <ProtectedBalisePage children={<BaliseEditPage />} />
-      </AppContextProvider>
+      </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,
     loader: async () => {
@@ -280,9 +281,9 @@ const BALISE_ROUTE: RouteObject[] = [
   {
     path: `${Routes.BALISE_SECTION_MANAGEMENT}`,
     element: (
-      <AppContextProvider>
+      <BaliseContextProvider>
         <ProtectedBalisePage children={<SectionPage />} />
-      </AppContextProvider>
+      </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,
     loader: async () => {
