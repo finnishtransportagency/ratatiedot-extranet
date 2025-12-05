@@ -1,10 +1,46 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
+import { S3 } from 'aws-sdk';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 const database = await DatabaseClient.build();
+const s3 = new S3();
+const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
+
+// Helper function to copy S3 object from active to archive path
+async function copyS3ObjectToArchive(bucket: string, sourceKey: string, destKey: string) {
+  const copyParams = {
+    Bucket: bucket,
+    CopySource: `${bucket}/${sourceKey}`,
+    Key: destKey,
+  };
+
+  try {
+    await s3.copyObject(copyParams).promise();
+    log.info(`Copied S3 object from ${sourceKey} to ${destKey}`);
+  } catch (error) {
+    log.error(`Failed to copy S3 object from ${sourceKey} to ${destKey}:`, error);
+    throw error;
+  }
+}
+
+// Helper function to delete S3 object
+async function deleteS3Object(bucket: string, key: string) {
+  const deleteParams = {
+    Bucket: bucket,
+    Key: key,
+  };
+
+  try {
+    await s3.deleteObject(deleteParams).promise();
+    log.info(`Deleted S3 object: ${key}`);
+  } catch (error) {
+    log.error(`Failed to delete S3 object ${key}:`, error);
+    throw error;
+  }
+}
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
@@ -15,7 +51,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const baliseIdStr = pathParts[pathParts.indexOf('balise') + 1];
     const baliseId = parseInt(baliseIdStr || '0', 10);
 
-    log.info(user, `Soft delete balise id: ${baliseId}, path: ${event.path}`);
+    log.info(user, `Archive balise id: ${baliseId}, path: ${event.path}`);
 
     if (!baliseId || isNaN(baliseId)) {
       return {
@@ -27,8 +63,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     validateWriteUser(user, '');
 
+    // Fetch balise with all version history
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
+      include: {
+        history: true,
+      },
     });
 
     if (!balise) {
@@ -39,18 +79,109 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    const deletedBalise = await database.balise.update({
-      where: { secondaryId: baliseId },
-      data: {
-        deletedAt: new Date(),
-        deletedBy: user.uid,
-      },
+    // Generate timestamped archive ID to ensure uniqueness across multiple archival events
+    // Format: balise_12345_20231205143022 (YYYYMMDDHHMMSS)
+    const timestamp = new Date().toISOString().replace(/[-:T]/g, '').substring(0, 14); // YYYYMMDDHHMMSS
+    const archivedSecondaryId = `balise_${baliseId}_${timestamp}`;
+
+    // Start database transaction for atomic operation
+    await database.$transaction(async (tx) => {
+      // 1. Create archive entry for the main balise
+      const archivedBalise = await tx.baliseArchive.create({
+        data: {
+          originalId: balise.id,
+          originalSecondaryId: balise.secondaryId,
+          archivedSecondaryId: archivedSecondaryId,
+          version: balise.version,
+          description: balise.description,
+          fileTypes: balise.fileTypes,
+          createdBy: balise.createdBy,
+          createdTime: balise.createdTime,
+          locked: balise.locked,
+          lockedBy: balise.lockedBy,
+          lockedTime: balise.lockedTime,
+          deletedAt: balise.deletedAt,
+          deletedBy: balise.deletedBy,
+          archivedBy: user.uid,
+        },
+      });
+
+      // 2. Archive all version history
+      for (const version of balise.history) {
+        await tx.baliseArchiveVersion.create({
+          data: {
+            baliseArchiveId: archivedBalise.id,
+            originalVersionId: version.id,
+            originalSecondaryId: version.secondaryId,
+            archivedSecondaryId: archivedSecondaryId,
+            version: version.version,
+            description: version.description,
+            fileTypes: version.fileTypes,
+            createdBy: version.createdBy,
+            createdTime: version.createdTime,
+            locked: version.locked,
+            lockedBy: version.lockedBy,
+            lockedTime: version.lockedTime,
+            versionCreatedTime: version.versionCreatedTime,
+          },
+        });
+      }
+
+      // 3. Delete version history from active table
+      await tx.baliseVersion.deleteMany({
+        where: { baliseId: balise.id },
+      });
+
+      // 4. Delete main balise from active table
+      await tx.balise.delete({
+        where: { id: balise.id },
+      });
+
+      log.info(user, `Successfully moved balise ${baliseId} to archive with ${balise.history.length} versions`);
     });
+
+    // 5. Move S3 files from active to archive paths
+    // Current structure: balise_{secondaryId}/v{version}/{filename}
+    // Archive structure: archive/balise_{secondaryId}_{timestamp}/v{version}/{filename}
+    const s3Operations: Promise<void>[] = [];
+
+    // Collect all versions including current version and history
+    const allVersions = [
+      { version: balise.version, fileTypes: balise.fileTypes },
+      ...balise.history.map((h) => ({ version: h.version, fileTypes: h.fileTypes })),
+    ];
+
+    // Remove duplicates by version number
+    const uniqueVersions = Array.from(new Map(allVersions.map((v) => [v.version, v])).values());
+
+    for (const versionData of uniqueVersions) {
+      for (const fileName of versionData.fileTypes) {
+        const activeKey = `balise_${baliseId}/v${versionData.version}/${fileName}`;
+        const archiveKey = `archive/${archivedSecondaryId}/v${versionData.version}/${fileName}`;
+
+        s3Operations.push(
+          copyS3ObjectToArchive(BALISES_BUCKET_NAME, activeKey, archiveKey).then(() =>
+            deleteS3Object(BALISES_BUCKET_NAME, activeKey),
+          ),
+        );
+      }
+    }
+
+    // Execute all S3 operations
+    await Promise.all(s3Operations);
+
+    log.info(user, `Successfully archived balise ${baliseId} and moved ${s3Operations.length} S3 files to archive`);
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'Balise deleted successfully', balise: deletedBalise }),
+      body: JSON.stringify({
+        message: 'Balise archived successfully - secondary ID is now available for reuse',
+        originalSecondaryId: baliseId,
+        archivedSecondaryId: archivedSecondaryId,
+        archivedVersions: uniqueVersions.length,
+        archivedFiles: s3Operations.length,
+      }),
     };
   } catch (err) {
     log.error(err);

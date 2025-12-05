@@ -1017,15 +1017,24 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             Haluatko varmasti poistaa tämän baliisin (ID: {balise?.secondaryId})?
             <br />
             <br />
-            Tämä merkitsee baliisin poistetuksi ja kaikki sen versiot poistetaan. S3-tiedostoja ei poisteta, mutta ne
-            voidaan siirtää erilliseen arkistointipalveluun myöhemmin.
+            <strong>Mitä tapahtuu:</strong>
+            <br />
+            • Baliisi poistetaan aktiivisesta käytöstä ja siirretään arkistoon
+            <br />• Tunniste (ID {balise?.secondaryId}) vapautuu välittömästi uudelleenkäyttöön
+            <br />
+            • Kaikki versiot ja tiedostot säilyvät arkistossa
+            <br />
+            • Tiedostot siirretään arkistointipolkuun turvallisesti
+            <br />
+            <br />
+            Poistettua baliisia ei voi palauttaa käyttöön.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteCancel} disabled={actionLoading}>
             Peruuta
           </Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={actionLoading}>
+          <Button onClick={handleDeleteConfirm} color="warning" variant="contained" disabled={actionLoading}>
             {actionLoading ? 'Poistetaan...' : 'Poista'}
           </Button>
         </DialogActions>
