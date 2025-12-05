@@ -2,16 +2,10 @@ import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateWriteUser } from '../../utils/userService';
-import { DatabaseClient } from '../database/client';
-import { uploadToS3 } from '../../utils/s3utils';
-import { parseForm, FileUpload } from '../../utils/parser';
+import { parseForm, FileUpload as ParsedFileUpload } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import { FileInfo } from 'busboy';
-
-const database = await DatabaseClient.build();
-const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
-// File uploads will use the existing uploadToS3 utility from s3utils.ts
-// S3 path structure: balise_{secondaryId}/v{version}/{filename}
+import { updateOrCreateBalise, FileUpload } from '../../utils/baliseUtils';
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
@@ -44,7 +38,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       version?: number;
       baliseData?: string;
     } = {};
-    let uploadedFiles: FileUpload[] = [];
+    let uploadedFiles: ParsedFileUpload[] = [];
 
     if (isFileUpload) {
       // Handle file upload
@@ -74,163 +68,44 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       body = event.body ? JSON.parse(event.body) : {};
     }
 
-    const existingBalise = await database.balise.findUnique({
-      where: { secondaryId: baliseId },
-    });
+    // Convert to FileUpload format
+    const files: FileUpload[] = uploadedFiles.map((file) => ({
+      filename: file.filename,
+      buffer: file.buffer,
+    }));
 
-    if (existingBalise) {
-      // Check if balise is locked - prevent editing locked balises
-      if (existingBalise.locked && existingBalise.lockedBy !== user.uid) {
+    try {
+      const result = await updateOrCreateBalise({
+        baliseId,
+        files,
+        description: body.description,
+        userId: user.uid,
+      });
+
+      const statusCode = result.isNewBalise ? 201 : 200;
+
+      return {
+        statusCode,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result.balise),
+      };
+    } catch (err) {
+      const error = err as Error & { errorType?: string; lockedBy?: string };
+
+      if (error.errorType === 'locked') {
         return {
           statusCode: 403,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            error: `Baliisi on lukittu käyttäjän ${existingBalise.lockedBy} toimesta. Odota, että lukitus poistetaan.`,
+            error: error.message,
             errorType: 'locked',
-            lockedBy: existingBalise.lockedBy,
-            lockedTime: existingBalise.lockedTime,
+            lockedBy: error.lockedBy,
           }),
         };
       }
 
-      // Determine if we should create a new version
-      // Create new version ONLY when files are uploaded
-      const shouldCreateNewVersion = isFileUpload && uploadedFiles.length > 0;
-      const currentVersion = existingBalise.version;
-      let newVersion = currentVersion;
-
-      // Create a new version if needed
-      if (shouldCreateNewVersion) {
-        // Create version history entry for the OLD version
-        await database.baliseVersion.create({
-          data: {
-            baliseId: existingBalise.id,
-            secondaryId: existingBalise.secondaryId,
-            version: existingBalise.version,
-            description: existingBalise.description,
-            fileTypes: existingBalise.fileTypes,
-            createdBy: existingBalise.createdBy,
-            createdTime: existingBalise.createdTime,
-            locked: existingBalise.locked,
-            lockedBy: existingBalise.lockedBy,
-            lockedTime: existingBalise.lockedTime,
-          },
-        });
-
-        newVersion = existingBalise.version + 1;
-        log.info(user, `Creating new version ${newVersion} for balise ${baliseId} due to file upload`);
-      } else {
-        log.info(user, `Updating existing version ${currentVersion} for balise ${baliseId} (metadata only)`);
-      }
-
-      // Handle fileTypes array
-      let updatedFileTypes = existingBalise.fileTypes;
-
-      if (shouldCreateNewVersion) {
-        // New version with file upload: replace ALL existing files with new uploaded files
-        if (body.fileTypes && Array.isArray(body.fileTypes)) {
-          // Use the complete fileTypes list from metadata if provided (handles multiple files)
-          updatedFileTypes = body.fileTypes;
-        } else if (uploadedFiles.length > 0) {
-          // Replace all existing files with uploaded files
-          updatedFileTypes = uploadedFiles.map((file) => file.filename);
-        }
-      }
-      // Note: If no files are uploaded (!shouldCreateNewVersion), we keep existing fileTypes unchanged
-
-      // Upload all files to S3 if we have file data
-      if (uploadedFiles.length > 0) {
-        const uploadPromises = uploadedFiles.map(async (file) => {
-          const s3Key = `balise_${baliseId}/v${newVersion}/${file.filename}`;
-          await uploadToS3(BALISES_BUCKET_NAME, s3Key, file.buffer);
-          log.info(user, `Uploaded file to S3: ${s3Key}`);
-          return file.filename;
-        });
-
-        await Promise.all(uploadPromises);
-        log.info(user, `Successfully uploaded ${uploadedFiles.length} files for balise ${baliseId}`);
-      }
-
-      // Update balise record
-      const updateData: {
-        fileTypes: string[];
-        version?: number;
-        description?: string;
-        createdBy?: string;
-        createdTime?: Date;
-        locked?: boolean;
-        lockedBy?: string | null;
-        lockedTime?: Date | null;
-      } = {
-        fileTypes: updatedFileTypes,
-      };
-
-      // Update version and metadata if we created a new version
-      if (shouldCreateNewVersion) {
-        updateData.version = newVersion;
-        updateData.description = body.description || existingBalise.description;
-        updateData.createdBy = user.uid;
-        updateData.createdTime = new Date();
-        updateData.locked = false;
-        updateData.lockedBy = null;
-        updateData.lockedTime = null;
-      } else if (body.description !== undefined) {
-        // Metadata-only update (no version change, just update description)
-        updateData.description = body.description;
-        log.info(user, `Updating description for balise ${baliseId} without version change`);
-      }
-
-      const updatedBalise = await database.balise.update({
-        where: { secondaryId: baliseId },
-        data: updateData,
-      });
-
-      return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedBalise),
-      };
-    } else {
-      // Creating new balise
-      const newVersion = body.version || 1;
-      let fileTypes = body.fileTypes || [];
-
-      // If files are uploaded, add their filenames to fileTypes array
-      if (uploadedFiles.length > 0) {
-        // Use uploaded filenames if no fileTypes provided in metadata
-        if (fileTypes.length === 0) {
-          fileTypes = uploadedFiles.map((file) => file.filename);
-        }
-
-        // Upload all files to S3 with hierarchical path: balise_{secondaryId}/v{version}/{filename}
-        const uploadPromises = uploadedFiles.map(async (file) => {
-          const s3Key = `balise_${baliseId}/v${newVersion}/${file.filename}`;
-          await uploadToS3(BALISES_BUCKET_NAME, s3Key, file.buffer);
-          log.info(user, `Uploaded file to S3: ${s3Key}`);
-          return file.filename;
-        });
-
-        await Promise.all(uploadPromises);
-        log.info(user, `Successfully uploaded ${uploadedFiles.length} files for new balise ${baliseId}`);
-      }
-
-      const newBalise = await database.balise.create({
-        data: {
-          secondaryId: baliseId,
-          version: newVersion,
-          description: body.description || '',
-          fileTypes,
-          createdBy: user.uid,
-          createdTime: new Date(),
-          locked: false,
-        },
-      });
-
-      return {
-        statusCode: 201,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newBalise),
-      };
+      // Re-throw other errors to be handled by outer catch
+      throw error;
     }
   } catch (err) {
     log.error(err);
