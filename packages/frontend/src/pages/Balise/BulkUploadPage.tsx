@@ -589,7 +589,7 @@ export const BulkUploadPage: React.FC = () => {
                               <Chip label="UUSI" size="small" color="success" icon={<Add />} />
                             ) : (
                               <Chip
-                                label={`PÄIVITYS v${existingData.version} → v${existingData.version + 1}`}
+                                label={`v${existingData.version} → v${existingData.version + 1}`}
                                 size="small"
                                 color="primary"
                                 icon={<Update />}
