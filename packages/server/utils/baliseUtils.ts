@@ -121,12 +121,15 @@ export async function updateOrCreateBalise(options: BaliseUpdateOptions): Promis
     // Updating existing balise
     validateBaliseNotLocked(existingBalise, userId);
 
+    // Determine if this is effectively a new balise (version 0 getting its first files)
+    const isEffectivelyNew = existingBalise.version === 0 && files.length > 0;
+
     // Determine if we should create a new version (only when files are uploaded)
     const shouldCreateNewVersion = files.length > 0;
     let newVersion = existingBalise.version;
 
     if (shouldCreateNewVersion) {
-      // Create version history entry for the OLD version (only if it has content)
+      // Create version history entry for the OLD version (only if it has content and version > 0)
       if (existingBalise.version > 0) {
         await createVersionHistory(existingBalise);
       }
@@ -180,9 +183,9 @@ export async function updateOrCreateBalise(options: BaliseUpdateOptions): Promis
 
     return {
       newVersion,
-      previousVersion: existingBalise.version,
+      previousVersion: isEffectivelyNew ? undefined : existingBalise.version,
       filesUploaded: files.length,
-      isNewBalise: false,
+      isNewBalise: isEffectivelyNew,
       balise: updatedBalise,
     };
   } else {
