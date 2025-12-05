@@ -175,21 +175,23 @@ async function uploadFilesForBalise(
     throw error;
   }
 
-  // 3. Create version history entry for the OLD version
-  await database.baliseVersion.create({
-    data: {
-      baliseId: existingBalise.id,
-      secondaryId: existingBalise.secondaryId,
-      version: existingBalise.version,
-      description: existingBalise.description,
-      fileTypes: existingBalise.fileTypes,
-      createdBy: existingBalise.createdBy,
-      createdTime: existingBalise.createdTime,
-      locked: existingBalise.locked,
-      lockedBy: existingBalise.lockedBy,
-      lockedTime: existingBalise.lockedTime,
-    },
-  });
+  // 3. Create version history entry for the OLD version (only if it has files)
+  if (existingBalise.version > 0 && existingBalise.fileTypes.length > 0) {
+    await database.baliseVersion.create({
+      data: {
+        baliseId: existingBalise.id,
+        secondaryId: existingBalise.secondaryId,
+        version: existingBalise.version,
+        description: existingBalise.description,
+        fileTypes: existingBalise.fileTypes,
+        createdBy: existingBalise.createdBy,
+        createdTime: existingBalise.createdTime,
+        locked: existingBalise.locked,
+        lockedBy: existingBalise.lockedBy,
+        lockedTime: existingBalise.lockedTime,
+      },
+    });
+  }
 
   // 4. Increment version
   const newVersion = existingBalise.version + 1;
