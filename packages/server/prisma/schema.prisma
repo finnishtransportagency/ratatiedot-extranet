@@ -157,3 +157,51 @@ model Section {
 
   @@index([idRangeMin, idRangeMax])
 }
+
+model BaliseArchive {
+  id                 String                  @id @default(uuid())
+  originalId         String                  @unique // Original balise ID for reference
+  originalSecondaryId Int                    // Original secondary ID (may not be unique across archives)
+  archivedSecondaryId String                 @unique // Unique archive ID: "balise_12345_20231205143022"
+  version            Int
+  description        String
+  fileTypes          String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
+  history            BaliseArchiveVersion[]
+  createdBy          String
+  createdTime        DateTime
+  locked             Boolean
+  lockedBy           String?
+  lockedTime         DateTime?
+  deletedAt          DateTime?
+  deletedBy          String?
+  archivedAt         DateTime                @default(now())
+  archivedBy         String
+
+  @@index([originalSecondaryId])
+  @@index([archivedSecondaryId])
+  @@index([archivedAt])
+  @@index([originalId])
+}
+
+model BaliseArchiveVersion {
+  id                  String        @id @default(uuid())
+  baliseArchiveId     String
+  baliseArchive       BaliseArchive @relation(fields: [baliseArchiveId], references: [id])
+  originalVersionId   String        @unique // Original version ID for reference
+  originalSecondaryId Int           // Original secondary ID (may not be unique across archives)
+  archivedSecondaryId String        // References parent BaliseArchive.archivedSecondaryId
+  version             Int
+  description         String
+  fileTypes           String[]
+  createdBy           String
+  createdTime         DateTime
+  locked              Boolean
+  lockedBy            String?
+  lockedTime          DateTime?
+  versionCreatedTime  DateTime
+  archivedAt          DateTime      @default(now())
+
+  @@index([baliseArchiveId, version])
+  @@index([originalSecondaryId, version])
+  @@index([archivedSecondaryId, version])
+}
