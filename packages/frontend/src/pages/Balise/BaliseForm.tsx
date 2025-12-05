@@ -227,6 +227,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setFormData((prev) => ({ ...prev, files: [...(prev.files || []), ...files] }));
+    // Clear the input value to allow re-uploading the same file
+    event.target.value = '';
   }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
