@@ -53,7 +53,7 @@ interface BaliseFormProps {
 interface FormData {
   secondaryId: string;
   description: string;
-  files?: File[];
+  files: File[];
 }
 
 const pulseAnimation = {
@@ -215,7 +215,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       const changed =
         formData.secondaryId !== originalData.secondaryId ||
         formData.description !== originalData.description ||
-        !!(formData.files && formData.files.length > 0);
+        formData.files.length > 0;
       setHasChanges(changed);
     }
   }, [formData, originalData, mode]);
@@ -226,7 +226,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    setFormData((prev) => ({ ...prev, files: [...(prev.files || []), ...files] }));
+    setFormData((prev) => ({ ...prev, files: [...prev.files, ...files] }));
     // Clear the input value to allow re-uploading the same file
     event.target.value = '';
   }, []);
@@ -323,7 +323,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   const removeFile = useCallback((index: number) => {
     setFormData((prev) => ({
       ...prev,
-      files: prev.files?.filter((_, i) => i !== index) || [],
+      files: prev.files.filter((_, i) => i !== index),
     }));
   }, []);
 
@@ -353,7 +353,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       };
 
       // Only add file-related data if new files are being uploaded
-      if (formData.files && formData.files.length > 0) {
+      if (formData.files.length > 0) {
         // Store full filenames instead of just extensions
         const fileTypes = formData.files.map((file) => file.name);
         submitData.fileTypes = fileTypes;
@@ -610,7 +610,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             {/* File Management v2024-10-16-13:05 */}
             <Box>
               {/* Show upload area when no files have been added in edit mode */}
-              {!isCreate && (!formData.files || formData.files.length === 0) && (
+              {!isCreate && formData.files.length === 0 && (
                 <Box>
                   {balise && balise.fileTypes && balise.fileTypes.length > 0 && (
                     <Box sx={{ mb: 2 }}>
@@ -716,7 +716,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               )}
 
               {/* File upload visualization for edit mode - shows files being uploaded */}
-              {!isCreate && formData.files && formData.files.length > 0 && (
+              {!isCreate && formData.files.length > 0 && (
                 <Box>
                   {/* Show different messaging based on whether there are existing files */}
                   {balise && balise.fileTypes && balise.fileTypes.length > 0 ? (
@@ -822,7 +822,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               )}
 
               {/* Show uploaded files list in create mode */}
-              {isCreate && formData.files && formData.files.length > 0 && (
+              {isCreate && formData.files.length > 0 && (
                 <Box sx={{ mt: 2 }}>
                   <UploadedFilesList
                     files={formData.files}
@@ -854,6 +854,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               {[balise, ...(balise.history || [])].map((version, index) => {
                 const isCurrent = index === 0;
                 const isExpanded = expandedVersions.has(isCurrent ? 'current' : version.id);
+                const historyLength = balise.history?.length || 0;
 
                 return (
                   <Box
@@ -862,11 +863,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       display: 'flex',
                       gap: 1.75,
                       position: 'relative',
-                      pb: index === balise.history.length ? 0 : 2.5, // Add padding-bottom to all but the last item
+                      pb: index === historyLength ? 0 : 2.5, // Add padding-bottom to all but the last item
                     }}
                   >
                     {/* Vertical timeline line */}
-                    {index < balise.history.length && (
+                    {index < historyLength && (
                       <Box
                         sx={{
                           position: 'absolute',
@@ -1046,7 +1047,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                 />
               </ListItem>
             )}
-            {filesToDelete.length > 0 && formData.files && formData.files.length > 0 && (
+            {filesToDelete.length > 0 && formData.files.length > 0 && (
               <ListItem>
                 <ListItemText
                   primary={`Korvaa ${filesToDelete.length} tiedosto(a) → ${formData.files.length} uudella tiedostolla`}
