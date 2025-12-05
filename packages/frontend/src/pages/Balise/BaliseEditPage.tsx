@@ -9,10 +9,7 @@ import type { BaliseWithHistory } from './types';
 // Mock API functions - replace with actual API calls
 const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
   // API call to get single balise by secondaryId
-  console.log('Fetching balise with secondaryId:', secondaryId);
   const response = await fetch(`/api/balise/${secondaryId}`);
-  console.log('Response status:', response.status);
-  console.log('Response headers:', response.headers);
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -21,7 +18,6 @@ const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
   }
 
   const responseText = await response.text();
-  console.log('Raw response:', responseText);
 
   try {
     return JSON.parse(responseText);
