@@ -7,6 +7,7 @@ import { DatabaseClient } from '../database/client';
 import { AlfrescoActivityResponse } from '../database/get-activities';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
 import { CategoryDataBase, Prisma } from '@prisma/client';
+import { bigIntToNumber } from '../../utils/bigint';
 
 const database = await DatabaseClient.build();
 let fileEndpointsCache: Array<CategoryDataBase> = [];
@@ -105,8 +106,10 @@ export async function handleRequest(): Promise<unknown> {
 
     let filteredActivityList: AlfrescoActivityResponse[] = [];
     if (latestActivityInDb) {
+      // Convert BigInt to number, accepting that Number can't accurately represent all BigInt values
+      const latestActivityInDbAsNumber = bigIntToNumber(latestActivityInDb.activityId);
       // A filtered list of items that are newer than the ones in DB, only these will be inserted
-      filteredActivityList = activityList.filter((activity) => activity.entry.id > latestActivityInDb.activityId);
+      filteredActivityList = activityList.filter((activity) => activity.entry.id > latestActivityInDbAsNumber);
     }
 
     let combinedData: Prisma.ActivityCreateManyInput[] = [];
