@@ -5,6 +5,7 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { AlfrescoEntry } from '../alfresco/fileRequestBuilder/types';
 import { DatabaseClient } from './client';
+import { bigIntToNumber } from '../../utils/bigint';
 
 const database = await DatabaseClient.build();
 
@@ -69,8 +70,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       },
     });
 
+    const activitiesIdBigIntToNumber = activities.map((activity) => ({
+      ...activity,
+      // Convert BigInt to number, accepting that Number can't accurately represent all BigInt values
+      activityId: bigIntToNumber(activity.activityId),
+    }));
+
     const responseBody = {
-      data: activities ?? {
+      data: activitiesIdBigIntToNumber ?? {
         list: {
           pagination: {
             count: 0,
