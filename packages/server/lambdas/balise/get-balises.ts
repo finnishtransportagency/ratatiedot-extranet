@@ -5,36 +5,45 @@ import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
-// Helper function to safely get query parameters
-function getQueryParam(event: ALBEvent, key: string, defaultValue?: string): string | undefined {
-  return event.queryStringParameters?.[key] ?? defaultValue;
-}
+// Helper to safely get a string query parameter
+const getQueryParam = (event: ALBEvent, key: string, defaultValue?: string): string | undefined =>
+  event.queryStringParameters?.[key] ?? defaultValue;
 
-function getQueryParamAsInt(event: ALBEvent, key: string, defaultValue?: number): number | undefined {
+// Helper to parse a single number query parameter with default
+const getQueryParamAsInt = (event: ALBEvent, key: string, defaultValue?: number): number => {
   const value = getQueryParam(event, key);
-  if (value === undefined) return defaultValue;
+  if (!value) return defaultValue ?? 0;
   const parsed = parseInt(value, 10);
-  return isNaN(parsed) ? defaultValue : parsed;
-}
-
-const hasMinAndMaxParams = (event: ALBEvent) => {
-  if (event.queryStringParameters) {
-    const queryParams = Object.keys(event.queryStringParameters);
-    return queryParams.includes('id_min') && queryParams.includes('id_max');
-  }
+  return isNaN(parsed) ? defaultValue ?? 0 : parsed;
 };
 
-const getMinMaxParamsAsPrismaQuery = (event: ALBEvent) => {
-  return {
-    gte: getQueryParamAsInt(event, 'id_min'),
-    lte: getQueryParamAsInt(event, 'id_max'),
-  };
+// Helper to parse a single or comma-separated list of numbers
+const getQueryParamAsIntArray = (event: ALBEvent, key: string): number[] => {
+  const value = getQueryParam(event, key);
+  if (!value) return [];
+  return decodeURIComponent(value)
+    .split(',')
+    .map((v) => parseInt(v, 10))
+    .filter((n) => !isNaN(n));
+};
+
+// Helper to get multiple ranges from query parameters
+const getMultipleRangesFromParams = (event: ALBEvent) => {
+  const mins = getQueryParamAsIntArray(event, 'id_min');
+  const maxs = getQueryParamAsIntArray(event, 'id_max');
+
+  return mins
+    .map((min, i) => ({ min, max: maxs[i] }))
+    .filter(({ min, max }) => min <= max && max !== undefined)
+    .map(({ min, max }) => ({
+      AND: [{ secondaryId: { gte: min } }, { secondaryId: { lte: max } }],
+    }));
 };
 
 const database = await DatabaseClient.build();
 
 /**
- * Get an array of balises. Example request: /api/balises?id_min=22000&id_max=23000&page=1&limit=100
+ * Get an array of balises. Example request: /api/balises?id_min=14000,22000&id_max=14999,23999&page=1&limit=100
  * @param {ALBEvent} event
  * @param {{QueryRequest}} event.body JSON stringified
  * @returns  {Promise<ALBResult>} JSON stringified object of contents inside body
@@ -60,12 +69,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       deletedAt: null, // Only get non-deleted balises
     };
 
-    const whereClause = hasMinAndMaxParams(event)
-      ? {
-          ...baseWhere,
-          secondaryId: getMinMaxParamsAsPrismaQuery(event),
-        }
-      : baseWhere;
+    // Handle multiple ranges for secondaryId filtering
+    const ranges = getMultipleRangesFromParams(event);
+    const whereClause =
+      ranges.length > 0
+        ? {
+            ...baseWhere,
+            OR: ranges,
+          }
+        : baseWhere;
 
     // Get total count for pagination info
     const totalCount = await database.balise.count({

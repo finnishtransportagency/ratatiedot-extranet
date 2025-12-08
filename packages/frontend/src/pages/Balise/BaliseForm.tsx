@@ -38,7 +38,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useBaliseStore } from '../../store/baliseStore';
-import type { BaliseWithHistory } from './types';
+import type { Balise, BaliseVersion, BaliseWithHistory } from './types';
 import { InlineEditableField } from '../../components/InlineEditableField';
 import Circle from '@mui/icons-material/Circle';
 import Close from '@mui/icons-material/Close';
@@ -67,6 +67,24 @@ const pulseAnimation = {
       opacity: 0.7,
     },
   },
+};
+
+const handleDownloadBaliseFiles = async (
+  e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  balise: Balise | BaliseVersion,
+) => {
+  e.stopPropagation();
+  try {
+    if (balise.fileTypes.length > 0) {
+      await downloadBaliseFiles(
+        balise.secondaryId,
+        balise.fileTypes,
+        balise.version, // Pass the version number
+      );
+    }
+  } catch (error) {
+    console.error('Error downloading version files:', error);
+  }
 };
 
 export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onCancel }) => {
@@ -536,7 +554,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                         <Typography variant="subtitle2" color="text.secondary">
                           Nykyiset tiedostot
                         </Typography>
-                        <Button size="small" variant="outlined" color="secondary">
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="secondary"
+                          onClick={(e) => handleDownloadBaliseFiles(e, balise)}
+                        >
                           Lataa tiedostot
                         </Button>
                       </Box>
@@ -943,18 +966,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                               variant="outlined"
                               color="secondary"
                               onClick={async (e) => {
-                                e.stopPropagation();
-                                try {
-                                  if (version.fileTypes.length > 0) {
-                                    await downloadBaliseFiles(
-                                      balise.secondaryId,
-                                      version.fileTypes,
-                                      version.version, // Pass the version number
-                                    );
-                                  }
-                                } catch (error) {
-                                  console.error('Error downloading version files:', error);
-                                }
+                                handleDownloadBaliseFiles(e, version);
                               }}
                             >
                               Lataa tiedostot

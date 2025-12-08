@@ -21,11 +21,10 @@ import { FileEditDialogButton } from './FileEditDialogButton';
 import { MoveDialogButton } from './MoveDialogButton';
 import { useStore } from './RefreshKeyStore';
 type TCategoryFilesProps = {
-  childFolderName?: string;
   nestedFolderId?: string;
 };
 
-export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFilesProps) => {
+export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
   const { t } = useTranslation(['common', 'search']);
   const location = useLocation();
   const [fileList, setFileList] = useState<TNode[]>([]);
@@ -53,11 +52,10 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
 
     try {
       setLoading(true);
-      const childFolderNameQuery = childFolderName ? `&childFolderName=${childFolderName}` : '';
       const nestedFolderIdQuery = nestedFolderId ? `&nestedFolderId=${nestedFolderId}` : '';
       const order = pagesWithDescendingFileListOrder.includes(categoryName) ? 'descending' : 'ascending';
       const response = await axios.get(
-        `/api/alfresco/files?category=${categoryName}${childFolderNameQuery}${nestedFolderIdQuery}&page=${page}&order=${order}`,
+        `/api/alfresco/files?category=${categoryName}${nestedFolderIdQuery}&page=${page}&order=${order}`,
       );
       const { data, hasClassifiedContent, hasConfidentialContent } = response.data;
       const totalFiles = get(data, 'list.entries', []);
@@ -80,7 +78,6 @@ export const CategoryFiles = ({ childFolderName, nestedFolderId }: TCategoryFile
     }
   }, [
     categoryName,
-    childFolderName,
     fileUploadDisabledHandler,
     hasClassifiedContentHandler,
     hasConfidentialContentHandler,

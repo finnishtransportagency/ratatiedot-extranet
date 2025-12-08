@@ -22,18 +22,17 @@ export type RataExtraUser = {
 
 function parseRoles(roles: string): string[] | undefined {
   return roles
-    ? roles
-        .replace('\\', '')
+    ? (roles
+        .replace(/[\"\[\]\\]/g, '')
         .split(',')
         .map((s) => {
           const s1 = s.split('/').pop();
           if (s1) {
             return s1;
           }
-          // tsc fails if undefined is returned here
           return '';
         })
-        .filter((s) => s)
+        .filter(Boolean) as string[])
     : undefined;
 }
 

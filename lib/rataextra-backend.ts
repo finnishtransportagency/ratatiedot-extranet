@@ -462,10 +462,28 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/balise/delete-balise-files.ts',
     });
 
-    const getAreas = this.createNodejsLambda({
+    const getSections = this.createNodejsLambda({
       ...prismaParameters,
-      name: 'get-areas',
-      relativePath: '../packages/server/lambdas/balise/get-areas.ts',
+      name: 'get-balise-rail-sections',
+      relativePath: '../packages/server/lambdas/balise/sections/get-balise-rail-sections.ts',
+    });
+
+    const createSection = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'create-balise-rail-section',
+      relativePath: '../packages/server/lambdas/balise/sections/create-balise-rail-section.ts',
+    });
+
+    const updateSection = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'update-balise-rail-section',
+      relativePath: '../packages/server/lambdas/balise/sections/update-balise-rail-section.ts',
+    });
+
+    const deleteSection = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'delete-balise-rail-section',
+      relativePath: '../packages/server/lambdas/balise/sections/delete-balise-rail-section.ts',
     });
 
     imageBucket.grantReadWrite(postNotice);
@@ -693,15 +711,36 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'alfrescoMoveNode',
       },
       {
-        lambda: getAreas,
+        lambda: getSections,
         priority: 275,
-        path: ['/api/balise/areas'],
+        path: ['/api/balise/sections'],
         httpRequestMethods: ['GET'],
-        targetName: 'getAreas',
+        targetName: 'getBaliseRailSections',
+      },
+      {
+        lambda: createSection,
+        priority: 276,
+        path: ['/api/balise/sections'],
+        httpRequestMethods: ['POST'],
+        targetName: 'createBaliseRailSection',
+      },
+      {
+        lambda: updateSection,
+        priority: 277,
+        path: ['/api/balise/sections/*'],
+        httpRequestMethods: ['PUT'],
+        targetName: 'updateBaliseRailSection',
+      },
+      {
+        lambda: deleteSection,
+        priority: 278,
+        path: ['/api/balise/sections/*'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'deleteBaliseRailSection',
       },
       {
         lambda: bulkUploadBalises,
-        priority: 278,
+        priority: 279,
         path: ['/api/balise/bulk-upload'],
         httpRequestMethods: ['POST'],
         targetName: 'bulkUploadBalises',

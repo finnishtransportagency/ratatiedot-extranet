@@ -114,6 +114,15 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
   onRowClick,
 }) => {
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const historyRef = useRef<HTMLDivElement>(null);
+
+  const handleCollapseEntered = () => {
+    // Scroll into view after the Collapse animation completes
+    historyRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  };
 
   const handleToggleExpand = async () => {
     if (!isExpanded && (!row.history || row.history.length === 0) && onLoadHistory) {
@@ -128,6 +137,7 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
     }
     onToggleExpanded(row.id);
   };
+
   const handleCheckboxClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     onSelectItem(row.id);
@@ -175,7 +185,16 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
         <TableCell sx={{ fontSize: '14px', width: '60px' }}>{row.version}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '120px' }}>{formatDateTime(row.createdTime)}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '100px' }}>{row.createdBy}</TableCell>
-        <TableCell sx={{ fontSize: '14px', width: '120px' }}>{row.locked ? `🔒 ${row.lockedBy}` : ''}</TableCell>
+        <TableCell sx={{ fontSize: '14px', width: '120px' }}>
+          {row.locked ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Lock fontSize="small" sx={{ color: 'text.secondary', transform: 'scale(0.80)' }} />
+              {row.lockedBy}
+            </Box>
+          ) : (
+            ''
+          )}
+        </TableCell>
         <TableCell sx={{ textAlign: 'right', width: '50px' }}>
           <IconButton
             size="small"
@@ -191,8 +210,8 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
-          <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 1 }}>
+          <Collapse in={isExpanded} timeout="auto" unmountOnExit onEntered={handleCollapseEntered}>
+            <Box ref={historyRef} sx={{ margin: 1, scrollMargin: 16 }}>
               <Typography variant="body1" gutterBottom component="div">
                 Historia
               </Typography>
@@ -381,7 +400,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
       >
         <Table size="small" sx={{ tableLayout: 'fixed' }}>
           {/* Fixed header */}
-          <TableHead sx={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'background.paper' }}>
+          <TableHead sx={{ position: 'sticky', top: 0, zIndex: 20, backgroundColor: 'background.paper' }}>
             <TableRow>
               <TableCell sx={{ fontSize: '12px', width: '50px' }}>
                 <Checkbox checked={isAllSelected} indeterminate={isIndeterminate} onChange={onSelectAll} size="small" />

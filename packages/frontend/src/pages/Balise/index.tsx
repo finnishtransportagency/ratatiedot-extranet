@@ -1,62 +1,69 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
-import { Box, Alert, Button, Paper, IconButton, Chip, LinearProgress } from '@mui/material';
-import { Add, Download, Delete, Lock, Upload } from '@mui/icons-material';
+import { Box, Alert, Button, Paper, IconButton, Chip, LinearProgress, CircularProgress } from '@mui/material';
+import { Add, Download, Delete, Lock, Upload, Build } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
-import { AreaFilter } from './AreaFilter';
+import { SectionFilter } from './Section/SectionFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
-import { useAreaStore } from '../../store/areaStore';
+import { useSectionStore } from '../../store/sectionStore';
 import { downloadBaliseFiles, downloadMultipleBaliseFiles } from '../../utils/download';
 
 export const BalisePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  // Area store
-  const { areas: areaOptions, fetchAreas: fetchAreaOptions, error: areaError } = useAreaStore();
+  // Section store
+  const { sections: sectionOptions, fetchSections: fetchSectionOptions, error: sectionError } = useSectionStore();
 
   // Balise store state and actions
-  const { balises, pagination, isBackgroundLoading, error, fetchBalises, loadMoreBalises, refreshBalise, clearCache } =
-    useBaliseStore();
+  const {
+    balises,
+    pagination,
+    isInitialLoading,
+    isBackgroundLoading,
+    error,
+    fetchBalises,
+    loadMoreBalises,
+    refreshBalise,
+    clearCache,
+  } = useBaliseStore();
 
-  // Load area options on mount
+  // Load section options on mount
   useEffect(() => {
-    fetchAreaOptions();
-  }, [fetchAreaOptions]);
+    fetchSectionOptions();
+  }, [fetchSectionOptions]);
 
-  // Load initial data based on area selection
+  // Load initial data based on section selection
   const loadInitialData = useCallback(
     async (background = false) => {
       clearCache(); // Always clear cache before loading new data set
-      if (selectedAreas.length === 0) {
-        // Load all data if no area is selected
+      if (selectedSections.length === 0) {
+        // Load all data if no section is selected
         await fetchBalises({ limit: 200, page: 1 }, background);
       } else {
-        // Load data for the first selected area
-        const selectedAreaDetails = areaOptions.find((area) => area.key === selectedAreas[0]);
-        if (selectedAreaDetails) {
-          const filter = {
-            id_min: selectedAreaDetails.idRangeMin,
-            id_max: selectedAreaDetails.idRangeMax,
-            limit: 200,
-            page: 1,
-          };
-          await fetchBalises(filter, background);
-        }
+        // Get all selected section ranges
+        const selectedSectionDetails = sectionOptions.filter((section) => selectedSections.includes(section.key));
+        const filter = {
+          id_min: selectedSectionDetails.map((s) => s.idRangeMin),
+          id_max: selectedSectionDetails.map((s) => s.idRangeMax),
+          limit: 200,
+          page: 1,
+        };
+        await fetchBalises(filter, background);
       }
     },
-    [selectedAreas, fetchBalises, areaOptions, clearCache],
+    [selectedSections, fetchBalises, sectionOptions, clearCache],
   );
 
-  // Initial data load and re-load on area change
+  // Initial data load and re-load on section change
   useEffect(() => {
     loadInitialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAreas]); // Re-run when area selection changes
+  }, [selectedSections]); // Re-run when section selection changes
 
   // Check for recently edited balise and refresh it
   useEffect(() => {
@@ -74,6 +81,11 @@ export const BalisePage: React.FC = () => {
   const handleBulkUpload = useCallback(() => {
     navigate(Routes.BALISE_BULK_UPLOAD);
   }, [navigate]);
+
+  const handleAddSection = useCallback(() => {
+    navigate(`${Routes.BALISE}/rataosat`);
+  }, [navigate]);
+
   const handleRowClick = useCallback(
     (row: BaliseWithHistory) => {
       sessionStorage.setItem('editedBaliseId', row.secondaryId.toString());
@@ -179,6 +191,15 @@ export const BalisePage: React.FC = () => {
     }
   }, [selectedItems, balises]);
 
+  // Initial loading state
+  if (isInitialLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <CircularProgress size={40} />
+      </Box>
+    );
+  }
+
   // Error handling for initial load
   if (error && balises.length === 0) {
     return (
@@ -203,12 +224,13 @@ export const BalisePage: React.FC = () => {
         mt: 1,
         mb: 1,
         overflow: 'hidden',
+        minHeight: 0, // Allows flex children to shrink below content size
       }}
     >
       {isBackgroundLoading && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000 }} />}
-      {areaError && (
+      {sectionError && (
         <Alert severity="error" sx={{ mb: 1 }}>
-          Failed to load areas: {areaError}
+          Failed to load sections: {sectionError}
         </Alert>
       )}
       {error && balises.length > 0 && (
@@ -225,75 +247,114 @@ export const BalisePage: React.FC = () => {
           mb: 1,
           gap: 1,
           flexShrink: 0,
+          position: 'relative',
+          zIndex: 10,
         }}
         variant="outlined"
       >
-        <Box sx={{ minWidth: '200px' }}>
-          <Box sx={{ display: selectedItems.length > 0 ? 'flex' : 'none', alignItems: 'center', gap: 1 }}>
-            <Button
-              size="small"
-              variant="outlined"
-              color="primary"
-              startIcon={<Download fontSize="small" />}
-              onClick={handleBulkDownload}
-              title="Lataa valitut sanomat"
-            >
-              Lataa
-            </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              startIcon={<Lock fontSize="small" />}
-              size="small"
-              onClick={handleBulkLock}
-              title="Lukitse/Poista lukitus"
-            >
-              Lukitse
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<Delete fontSize="small" />}
-              size="small"
-              onClick={handleBulkDelete}
-              title="Poista"
-              color="error"
-            >
-              Poista
-            </Button>
-            <Chip label={`${selectedItems.length} valittu`} size="small" color="primary" />
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 1,
-          }}
-        >
+        {/* Left side: Search, Filter, and Section Edit button */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ minWidth: '200px' }}>
             <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
           </Box>
           <Box sx={{ minWidth: '200px' }}>
-            <AreaFilter areas={areaOptions} selectedAreas={selectedAreas} onAreasSelect={setSelectedAreas} />
+            <SectionFilter
+              sections={sectionOptions}
+              selectedSections={selectedSections}
+              onSectionsSelect={setSelectedSections}
+            />
           </Box>
-          <Box sx={{ margin: 'auto', display: 'flex', gap: 1 }}>
-            <IconButton
-              id="bulk-upload-button"
-              onClick={handleBulkUpload}
-              size="small"
-              color="secondary"
-              title="Massa-lataus"
-            >
-              <Upload fontSize="inherit" />
-            </IconButton>
-            <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary">
-              <Add fontSize="inherit" />
-            </IconButton>
-          </Box>
+          <IconButton
+            id="section-edit-button"
+            onClick={handleAddSection}
+            size="small"
+            color="secondary"
+            title="Muokkaa JKV-rataosia"
+          >
+            <Build fontSize="inherit" transform="scale(0.85)" />
+          </IconButton>
+        </Box>
+
+        {/* Right side: Mass Upload and Add buttons */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton
+            id="bulk-upload-button"
+            onClick={handleBulkUpload}
+            size="small"
+            color="secondary"
+            title="Massa-lataus"
+          >
+            <Upload fontSize="inherit" />
+          </IconButton>
+          <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary" title="Lisää sanoma">
+            <Add fontSize="inherit" />
+          </IconButton>
         </Box>
       </Paper>
 
-      <Paper variant="outlined" sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      {/* Bulk selection actions - shown when items are selected with animation */}
+      {selectedItems.length > 0 && (
+        <Paper
+          sx={{
+            p: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            mb: 1,
+            flexShrink: 0,
+            backgroundColor: 'action.selected',
+            animation: 'slideIn 0.3s ease-in-out',
+            '@keyframes slideIn': {
+              '0%': {
+                opacity: 0,
+                transform: 'translateY(-10px)',
+              },
+              '100%': {
+                opacity: 1,
+                transform: 'translateY(0)',
+              },
+            },
+          }}
+          variant="outlined"
+        >
+          <Button
+            size="small"
+            variant="outlined"
+            color="primary"
+            startIcon={<Download fontSize="small" />}
+            onClick={handleBulkDownload}
+            title="Lataa valitut sanomat"
+          >
+            Lataa
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<Lock fontSize="small" />}
+            size="small"
+            onClick={handleBulkLock}
+            title="Lukitse/Poista lukitus"
+          >
+            Lukitse
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<Delete fontSize="small" />}
+            size="small"
+            onClick={handleBulkDelete}
+            title="Poista"
+            color="error"
+          >
+            Poista
+          </Button>
+          <Chip label={`${selectedItems.length} valittu`} size="small" color="primary" />
+        </Paper>
+      )}
+
+      <Paper
+        variant="outlined"
+        sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
+      >
         <VirtualBaliseTable
           items={filteredData}
           hasNextPage={pagination?.hasNextPage ?? false}
