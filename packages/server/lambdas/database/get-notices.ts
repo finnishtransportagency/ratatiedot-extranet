@@ -8,7 +8,7 @@ import { Notice, Prisma } from '@prisma/client';
 
 const database = await DatabaseClient.build();
 
-const getStatus = (notice: Notice) => {
+export const getStatus = (notice: Notice) => {
   if (notice.publishTimeStart > new Date()) {
     return 'scheduled';
   } else if (notice.publishTimeEnd && notice.publishTimeEnd < new Date()) {
@@ -29,6 +29,63 @@ const extendNotices = (notices: Notice[]) => {
   return extendedNotices;
 };
 
+export const buildNoticesQuery = (isAdmin: boolean, resultCount: number, skip: number) => {
+  const baseQuery = {
+    take: resultCount,
+    skip,
+    orderBy: {
+      publishTimeStart: Prisma.SortOrder.desc,
+    },
+  };
+
+  if (isAdmin) {
+    return baseQuery;
+  }
+
+  return {
+    ...baseQuery,
+    where: {
+      publishTimeStart: {
+        lte: new Date(),
+      },
+      OR: [
+        {
+          publishTimeEnd: {
+            gte: new Date(),
+          },
+        },
+        {
+          publishTimeEnd: null,
+        },
+      ],
+    },
+  };
+};
+
+export const buildNoticesCountQuery = (isAdmin: boolean) => {
+  if (isAdmin) {
+    return undefined;
+  }
+
+  return {
+    where: {
+      publishTimeStart: {
+        lte: new Date(),
+      },
+      OR: [
+        {
+          publishTimeEnd: {
+            gte: new Date(),
+          },
+        },
+        {
+          publishTimeEnd: null,
+        },
+      ],
+    },
+  };
+};
+
 /**
  * Get list of notices. Example request: /api/notices?published=true?count=10
  * @param {ALBEvent} event
@@ -46,43 +103,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const resultCount = parseInt(queryParams?.count || '10');
     const skip = queryParams?.page ? (parseInt(queryParams?.page) - 1) * resultCount : 0;
 
-    const whereDefaultOptions = {
-      where: {
-        publishTimeStart: {
-          lte: new Date(),
-        },
-        OR: [
-          {
-            publishTimeEnd: {
-              gte: new Date(),
-            },
-          },
-          {
-            publishTimeEnd: null,
-          },
-        ],
-      },
-    };
+    const isUserAdmin = Boolean(isAdmin(user));
+    const noticesQuery = buildNoticesQuery(isUserAdmin, resultCount, skip);
 
-    const defaultOptions = {
-      ...whereDefaultOptions,
-      take: resultCount,
-      skip,
-      orderBy: {
-        publishTimeStart: Prisma.SortOrder.desc,
-      },
-    };
-
-    const adminOptions = {
-      take: resultCount,
-      skip,
-      orderBy: {
-        publishTimeStart: Prisma.SortOrder.desc,
-      },
-    };
-
-    const noticesResponse = await database.notice.findMany(isAdmin(user) ? adminOptions : defaultOptions);
-    const totalItems = await database.notice.count(isAdmin(user) ? undefined : whereDefaultOptions);
+    const noticesResponse = await database.notice.findMany(noticesQuery);
+    // noticesResponse can be paginated, get total count separately
+    const totalNoticesCount = await database.notice.count(buildNoticesCountQuery(isUserAdmin));
 
     const notices = extendNotices(noticesResponse);
 
@@ -91,7 +117,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ notices, totalItems }),
+      body: JSON.stringify({ notices, totalItems: totalNoticesCount }),
     };
   } catch (err) {
     log.error(err);
