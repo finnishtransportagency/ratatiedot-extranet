@@ -146,7 +146,7 @@ describe('Section Validation', () => {
   });
 
   describe('validateNameUniqueness', () => {
-    const mockFindFirst = jest.fn();
+    const mockFindFirst = vi.fn();
     const mockDatabase = {
       section: {
         findFirst: mockFindFirst,
@@ -154,7 +154,7 @@ describe('Section Validation', () => {
     } as unknown as PrismaClient;
 
     beforeEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it('should pass when name is unique', async () => {
@@ -192,7 +192,7 @@ describe('Section Validation', () => {
   });
 
   describe('validateKeyUniqueness', () => {
-    const mockFindFirst = jest.fn();
+    const mockFindFirst = vi.fn();
     const mockDatabase = {
       section: {
         findFirst: mockFindFirst,
@@ -200,7 +200,7 @@ describe('Section Validation', () => {
     } as unknown as PrismaClient;
 
     beforeEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it('should pass when key is unique', async () => {

@@ -4,7 +4,7 @@
     "experimentalDecorators": true,
     "module": "esnext",
     "moduleResolution": "node",
-    "types": ["node", "jest", "mocha"],
+    "types": ["node", "vitest/globals"],
     "resolveJsonModule": true,
     "sourceMap": true,
     "outDir": "./build",
