@@ -54,7 +54,11 @@ async function combineData(childData: AlfrescoActivityResponse[], options: Axios
 
   // Only fetch additional info for items that are present in Alfresco
   for (const child of childData) {
-    const nodeId = child.entry.activitySummary.objectId!;
+    const nodeId = child.entry.activitySummary.objectId;
+    if (!nodeId) {
+      console.log('No nodeId found for activity:', child.entry?.id, 'activitySummary:', child.entry?.activitySummary);
+      continue;
+    }
     const nodePromise = getNode(nodeId, options, ['path']).then((node) => {
       // eg. "/Company Home/Sites/site/root/category1"
       // where category1 is the actual categoryName we want to know
