@@ -258,5 +258,5 @@ export async function getExistingBaliseIds(baliseIds: number[]): Promise<Set<num
     select: { secondaryId: true },
   });
 
-  return new Set(existingBalises.map((b) => b.secondaryId));
+  return new Set(existingBalises.map((b: { secondaryId: number }) => b.secondaryId));
 }
