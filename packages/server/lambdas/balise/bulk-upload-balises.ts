@@ -260,36 +260,33 @@ async function processBaliseFiles(
  * Handle errors during balise processing
  */
 function handleProcessingError(baliseId: number, error: unknown, user: RataExtraUser): UploadResult {
-  let errorType: UploadResult['errorType'] = 'unknown';
-  let message = 'Tuntematon virhe';
-  let lockedBy: string | undefined;
+  const err = error as Error & { errorType?: string; lockedBy?: string };
+  const errorMessage = err.message || 'Unknown error';
+  const errorType = (err.errorType || 'unknown') as 'locked' | 'not_found' | 'permission' | 'storage' | 'unknown';
+  const lockedBy = err.lockedBy;
 
-  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-  if (errorMessage.includes('locked')) {
-    errorType = 'locked';
-    message = errorMessage;
-    const lockedByMatch = errorMessage.match(/lukittu käyttäjän (.+) toimesta/);
-    if (lockedByMatch) {
-      lockedBy = lockedByMatch[1];
-    }
-  } else if (errorMessage.includes('not found') || errorMessage.includes('ei löytynyt')) {
-    errorType = 'not_found';
-    message = errorMessage;
-  } else if (errorMessage.includes('storage') || errorMessage.includes('S3')) {
-    errorType = 'storage';
-    message = 'Tiedoston tallennus epäonnistui';
-  } else if (errorMessage.includes('permission') || errorMessage.includes('käyttöoikeus')) {
-    errorType = 'permission';
-    message = errorMessage;
+  // Create user-friendly error message
+  let userMessage = errorMessage;
+  if (errorType === 'locked') {
+    userMessage = `Baliisi on lukittu${
+      lockedBy ? ` käyttäjän ${lockedBy} toimesta` : ''
+    }. Odota, että lukitus poistetaan.`;
+  } else if (errorType === 'permission') {
+    userMessage = `Sinulla ei ole oikeuksia muokata tätä baliisia.`;
+  } else if (errorType === 'storage') {
+    userMessage = `Tiedostojen tallennus epäonnistui. Yritä uudelleen.`;
+  } else if (errorType === 'not_found') {
+    userMessage = `Baliisia ei löytynyt järjestelmästä.`;
+  } else {
+    userMessage = errorMessage;
   }
 
-  log.error(user, `Error processing balise ${baliseId}: ${errorMessage}`, error);
+  log.error(user, `Failed to upload files for balise ${baliseId}: ${errorMessage} (type: ${errorType})`);
 
   return {
     baliseId,
     success: false,
-    error: message,
+    error: userMessage,
     errorType,
     lockedBy,
   };
