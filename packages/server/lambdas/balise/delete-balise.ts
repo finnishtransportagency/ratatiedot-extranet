@@ -267,7 +267,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // Calculate unique versions count for response
     const allVersions = [
       { version: balise.version, fileTypes: balise.fileTypes },
-      ...balise.history.map((h) => ({
+      ...balise.history.map((h: BaliseWithHistory['history'][0]) => ({
         version: h.version,
         fileTypes: h.fileTypes,
       })),
