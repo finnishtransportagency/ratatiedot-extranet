@@ -53,7 +53,7 @@ interface BaliseFormProps {
 interface FormData {
   secondaryId: string;
   description: string;
-  files?: File[];
+  files: File[];
 }
 
 const pulseAnimation = {
@@ -85,6 +85,63 @@ const handleDownloadBaliseFiles = async (
   } catch (error) {
     console.error('Error downloading version files:', error);
   }
+};
+
+interface UploadedFilesListProps {
+  files: File[];
+  title: string;
+  onRemoveFile: (index: number) => void;
+}
+
+const UploadedFilesList: React.FC<UploadedFilesListProps> = ({ files, title, onRemoveFile }) => {
+  return (
+    <Box sx={{ mb: 3 }}>
+      <Typography
+        variant="h4"
+        sx={{
+          mb: 2,
+          fontWeight: 500,
+        }}
+      >
+        {title}
+      </Typography>
+      <List disablePadding>
+        {files.map((file, index) => (
+          <ListItem
+            key={index}
+            sx={{
+              mb: 1,
+              borderRadius: 2,
+              border: 1,
+              borderColor: '#bbf7d0',
+              bgcolor: '#f0fdf4',
+            }}
+            secondaryAction={
+              <IconButton size="small" onClick={() => onRemoveFile(index)} edge="end">
+                <Close sx={{ fontSize: 20 }} />
+              </IconButton>
+            }
+          >
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              <DescriptionOutlined sx={{ color: '#2fa34b', fontSize: 22 }} />
+            </ListItemIcon>
+            <ListItemText
+              primary={file.name}
+              secondary={`${(file.size / 1024).toFixed(0)} kB`}
+              primaryTypographyProps={{
+                sx: {
+                  fontWeight: 500,
+                },
+              }}
+              secondaryTypographyProps={{
+                sx: { fontSize: '0.75rem' },
+              }}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
 };
 
 export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onCancel }) => {
@@ -158,7 +215,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       const changed =
         formData.secondaryId !== originalData.secondaryId ||
         formData.description !== originalData.description ||
-        !!(formData.files && formData.files.length > 0);
+        formData.files.length > 0;
       setHasChanges(changed);
     }
   }, [formData, originalData, mode]);
@@ -169,7 +226,9 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    setFormData((prev) => ({ ...prev, files: [...(prev.files || []), ...files] }));
+    setFormData((prev) => ({ ...prev, files: [...prev.files, ...files] }));
+    // Clear the input value to allow re-uploading the same file
+    event.target.value = '';
   }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -264,7 +323,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   const removeFile = useCallback((index: number) => {
     setFormData((prev) => ({
       ...prev,
-      files: prev.files?.filter((_, i) => i !== index) || [],
+      files: prev.files.filter((_, i) => i !== index),
     }));
   }, []);
 
@@ -294,7 +353,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       };
 
       // Only add file-related data if new files are being uploaded
-      if (formData.files && formData.files.length > 0) {
+      if (formData.files.length > 0) {
         // Store full filenames instead of just extensions
         const fileTypes = formData.files.map((file) => file.name);
         submitData.fileTypes = fileTypes;
@@ -309,16 +368,21 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
         description: formData.description,
         files: [],
       });
+
+      // Clear the uploaded files from form data since they've been saved
+      setFormData((prev) => ({
+        ...prev,
+        files: [],
+      }));
+
       setFilesToDelete([]);
       setHasChanges(false);
-
-      navigate(Routes.BALISE);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Virhe tallentaessa');
     } finally {
       setLoading(false);
     }
-  }, [formData, onSave, navigate, filesToDelete]);
+  }, [formData, onSave, filesToDelete]);
 
   const isCreate = mode === 'create';
 
@@ -546,7 +610,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             {/* File Management v2024-10-16-13:05 */}
             <Box>
               {/* Show upload area when no files have been added in edit mode */}
-              {!isCreate && (!formData.files || formData.files.length === 0) && (
+              {!isCreate && formData.files.length === 0 && (
                 <Box>
                   {balise && balise.fileTypes && balise.fileTypes.length > 0 && (
                     <Box sx={{ mb: 2 }}>
@@ -651,175 +715,120 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                 </Box>
               )}
 
-              {/* Two-list view when files have been uploaded - simplified */}
-              {!isCreate &&
-                formData.files &&
-                formData.files.length > 0 &&
-                balise &&
-                balise.fileTypes &&
-                balise.fileTypes.length > 0 && (
-                  <Box>
-                    <Typography variant="h4" sx={{ mb: 1, fontWeight: 500 }}>
-                      Korvaa tiedostot
-                    </Typography>
-                    <Alert severity="warning" sx={{ mb: 3 }}>
-                      <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-                        Uudet tiedostot korvaavat kaikki nykyiset tiedostot
+              {/* File upload visualization for edit mode - shows files being uploaded */}
+              {!isCreate && formData.files.length > 0 && (
+                <Box>
+                  {/* Show different messaging based on whether there are existing files */}
+                  {balise && balise.fileTypes && balise.fileTypes.length > 0 ? (
+                    <>
+                      <Typography variant="h4" sx={{ mb: 1, fontWeight: 500 }}>
+                        Korvaa tiedostot
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Ladatessasi uudet tiedostot, kaikki {balise.fileTypes.length} nykyistä tiedostoa korvataan.
-                        Vanhat tiedostot säilytetään versiohistoriassa.
-                      </Typography>
-                    </Alert>
+                      <Alert severity="warning" sx={{ mb: 3 }}>
+                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                          Uudet tiedostot korvaavat kaikki nykyiset tiedostot
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Ladatessasi uudet tiedostot, kaikki {balise.fileTypes.length} nykyistä tiedostoa korvataan.
+                          Vanhat tiedostot säilytetään versiohistoriassa.
+                        </Typography>
+                      </Alert>
 
-                    <Divider sx={{ mx: -3, my: 3 }} />
+                      <Divider sx={{ mx: -3, my: 3 }} />
 
-                    {/* Current files - will be replaced */}
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>
-                        Nykyiset tiedostot (korvataan):
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-                        {balise.fileTypes.map((fileType, index) => (
-                          <ChipWrapper
-                            key={index}
-                            text={fileType}
-                            icon={<Description />}
-                            sx={{
-                              textDecoration: 'line-through',
-                              opacity: 0.6,
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    </Box>
-
-                    <Divider sx={{ my: 3 }} />
-
-                    {/* New uploaded files - will become the new set */}
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="h4" sx={{ mb: 2, fontWeight: 500 }}>
-                        Uudet tiedostot
-                      </Typography>
-                      <List disablePadding>
-                        {formData.files.map((file, index) => (
-                          <ListItem
-                            key={index}
-                            sx={{
-                              mb: 1,
-                              borderRadius: 2,
-                              border: 1,
-                              borderColor: '#bbf7d0',
-                              bgcolor: '#f0fdf4',
-                            }}
-                            secondaryAction={
-                              <IconButton size="small" onClick={() => removeFile(index)} edge="end">
-                                <Close sx={{ fontSize: 20 }} />
-                              </IconButton>
-                            }
-                          >
-                            <ListItemIcon sx={{ minWidth: 40 }}>
-                              <DescriptionOutlined sx={{ color: '#2fa34b', fontSize: 22 }} />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary={file.name}
-                              secondary={`${(file.size / 1024).toFixed(0)} kB`}
-                              primaryTypographyProps={{
-                                sx: { fontWeight: 500 },
-                              }}
-                              secondaryTypographyProps={{
-                                sx: { fontSize: '0.75rem' },
+                      {/* Current files - will be replaced */}
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>
+                          Nykyiset tiedostot (korvataan):
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+                          {balise.fileTypes.map((fileType, index) => (
+                            <ChipWrapper
+                              key={index}
+                              text={fileType}
+                              icon={<Description />}
+                              sx={{
+                                textDecoration: 'line-through',
+                                opacity: 0.6,
                               }}
                             />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Box>
+                          ))}
+                        </Box>
+                      </Box>
 
-                    <Divider sx={{ my: 3 }} />
-
-                    {/* Upload more files section */}
-                    <Box>
-                      <Typography variant="h4" sx={{ mb: 2, fontWeight: 500 }}>
-                        Lisää tiedostoja
+                      <Divider sx={{ my: 3 }} />
+                    </>
+                  ) : (
+                    <>
+                      <Typography variant="h4" sx={{ mb: 1, fontWeight: 500 }}>
+                        Lisää tiedostot
                       </Typography>
-                      <Box
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                        sx={{
-                          border: '1px dashed',
-                          borderColor: isDragging ? 'primary.main' : 'divider',
-                          borderRadius: 1,
-                          p: 2,
-                          textAlign: 'center',
-                          bgcolor: isDragging ? 'action.hover' : 'background.paper',
+                      <Alert severity="info" sx={{ mb: 3 }}>
+                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                          Lisäät uusia tiedostoja balisille
+                        </Typography>
+                      </Alert>
+
+                      <Divider sx={{ mx: -3, my: 3 }} />
+                    </>
+                  )}
+
+                  {/* New uploaded files - will become the new set */}
+                  <UploadedFilesList files={formData.files} title="Uudet tiedostot" onRemoveFile={removeFile} />
+
+                  <Divider sx={{ my: 3 }} />
+
+                  {/* Upload more files section */}
+                  <Box>
+                    <Typography variant="h4" sx={{ mb: 2, fontWeight: 500 }}>
+                      Lisää tiedostoja
+                    </Typography>
+                    <Box
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      sx={{
+                        border: '1px dashed',
+                        borderColor: isDragging ? 'primary.main' : 'divider',
+                        borderRadius: 1,
+                        p: 2,
+                        textAlign: 'center',
+                        bgcolor: isDragging ? 'action.hover' : 'background.paper',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          borderColor: 'primary.main',
+                          bgcolor: 'action.hover',
+                        },
+                      }}
+                    >
+                      <input type="file" hidden multiple onChange={handleFileUpload} id="file-upload-more" />
+                      <label
+                        htmlFor="file-upload-more"
+                        style={{
                           cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          '&:hover': {
-                            borderColor: 'primary.main',
-                            bgcolor: 'action.hover',
-                          },
+                          display: 'block',
+                          width: '100%',
                         }}
                       >
-                        <input type="file" hidden multiple onChange={handleFileUpload} id="file-upload-more" />
-                        <label
-                          htmlFor="file-upload-more"
-                          style={{
-                            cursor: 'pointer',
-                            display: 'block',
-                            width: '100%',
-                          }}
-                        >
-                          <DriveFolderUpload sx={{ fontSize: 32, color: 'text.secondary', mb: 0.5 }} />
-                          <Typography variant="body2" color="text.disabled">
-                            Raahaa lisää tiedostoja tähän tai klikkaa
-                          </Typography>
-                        </label>
-                      </Box>
+                        <DriveFolderUpload sx={{ fontSize: 32, color: 'text.secondary', mb: 0.5 }} />
+                        <Typography variant="body2" color="text.disabled">
+                          Raahaa lisää tiedostoja tähän tai klikkaa
+                        </Typography>
+                      </label>
                     </Box>
                   </Box>
-                )}
+                </Box>
+              )}
 
               {/* Show uploaded files list in create mode */}
-              {isCreate && formData.files && formData.files.length > 0 && (
+              {isCreate && formData.files.length > 0 && (
                 <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontSize: '0.875rem' }}>
-                    Valitut tiedostot ({formData.files.length})
-                  </Typography>
-                  <List dense disablePadding>
-                    {formData.files.map((file, index) => (
-                      <ListItem
-                        key={index}
-                        sx={{
-                          mb: 0.75,
-                          borderRadius: 1,
-                          border: 1,
-                          borderColor: 'primary.main',
-                          bgcolor: 'primary.light',
-                        }}
-                        secondaryAction={
-                          <IconButton size="small" onClick={() => removeFile(index)} edge="end">
-                            <Delete sx={{ fontSize: 18, color: 'error.main' }} />
-                          </IconButton>
-                        }
-                      >
-                        <ListItemIcon sx={{ minWidth: 36 }}>
-                          <Description sx={{ color: 'primary.main', fontSize: 20 }} />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={file.name}
-                          secondary={`${(file.size / 1024).toFixed(0)} kB`}
-                          primaryTypographyProps={{
-                            sx: { fontSize: '0.875rem', color: 'primary.dark' },
-                          }}
-                          secondaryTypographyProps={{
-                            sx: { fontSize: '0.75rem' },
-                          }}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
+                  <UploadedFilesList
+                    files={formData.files}
+                    title={`Valitut tiedostot (${formData.files.length})`}
+                    onRemoveFile={removeFile}
+                  />
                 </Box>
               )}
             </Box>
@@ -845,6 +854,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               {[balise, ...(balise.history || [])].map((version, index) => {
                 const isCurrent = index === 0;
                 const isExpanded = expandedVersions.has(isCurrent ? 'current' : version.id);
+                const historyLength = balise.history?.length || 0;
 
                 return (
                   <Box
@@ -853,11 +863,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       display: 'flex',
                       gap: 1.75,
                       position: 'relative',
-                      pb: index === balise.history.length ? 0 : 2.5, // Add padding-bottom to all but the last item
+                      pb: index === historyLength ? 0 : 2.5, // Add padding-bottom to all but the last item
                     }}
                   >
                     {/* Vertical timeline line */}
-                    {index < balise.history.length && (
+                    {index < historyLength && (
                       <Box
                         sx={{
                           position: 'absolute',
@@ -999,8 +1009,17 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             Haluatko varmasti poistaa tämän baliisin (ID: {balise?.secondaryId})?
             <br />
             <br />
-            Tämä merkitsee baliisin poistetuksi ja kaikki sen versiot poistetaan. S3-tiedostoja ei poisteta, mutta ne
-            voidaan siirtää erilliseen arkistointipalveluun myöhemmin.
+            <strong>Mitä tapahtuu:</strong>
+            <br />
+            • Baliisi poistetaan aktiivisesta käytöstä ja siirretään arkistoon
+            <br />• Tunniste (ID {balise?.secondaryId}) vapautuu välittömästi uudelleenkäyttöön
+            <br />
+            • Kaikki versiot ja tiedostot säilyvät arkistossa
+            <br />
+            • Tiedostot siirretään arkistointipolkuun turvallisesti
+            <br />
+            <br />
+            Poistettua baliisia ei voi palauttaa käyttöön.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -1008,6 +1027,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             Peruuta
           </Button>
           <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={actionLoading}>
+            {actionLoading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
             {actionLoading ? 'Poistetaan...' : 'Poista'}
           </Button>
         </DialogActions>
@@ -1027,7 +1047,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                 />
               </ListItem>
             )}
-            {filesToDelete.length > 0 && formData.files && formData.files.length > 0 && (
+            {filesToDelete.length > 0 && formData.files.length > 0 && (
               <ListItem>
                 <ListItemText
                   primary={`Korvaa ${filesToDelete.length} tiedosto(a) → ${formData.files.length} uudella tiedostolla`}

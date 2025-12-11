@@ -9,10 +9,7 @@ import type { BaliseWithHistory } from './types';
 // Mock API functions - replace with actual API calls
 const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
   // API call to get single balise by secondaryId
-  console.log('Fetching balise with secondaryId:', secondaryId);
   const response = await fetch(`/api/balise/${secondaryId}`);
-  console.log('Response status:', response.status);
-  console.log('Response headers:', response.headers);
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -21,7 +18,6 @@ const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
   }
 
   const responseText = await response.text();
-  console.log('Raw response:', responseText);
 
   try {
     return JSON.parse(responseText);
@@ -31,55 +27,49 @@ const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
   }
 };
 
-const saveBalise = async (data: Partial<BaliseWithHistory>): Promise<BaliseWithHistory> => {
-  // API call to create new balise (this would need a proper creation endpoint)
-  // For now, using add endpoint with a new secondaryId
-  const newSecondaryId = Date.now(); // Temporary ID generation
-  const response = await fetch(`/api/balise/${newSecondaryId}/add`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save balise');
-  }
-  return response.json();
-};
-
-const updateBalise = async (secondaryId: string, data: Partial<BaliseWithHistory>): Promise<BaliseWithHistory> => {
-  // API call to update existing balise
-  const response = await fetch(`/api/balise/${secondaryId}/add`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to update balise');
-  }
-  return response.json();
-};
-
-// Upload a single file to balise
-const uploadFileToBalise = async (
-  secondaryId: number,
-  file: File,
-  metadata?: Partial<BaliseWithHistory>,
-): Promise<void> => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  // Include metadata if provided
-  if (metadata) {
-    formData.append('baliseData', JSON.stringify(metadata));
+// Unified function to handle balise operations (create/update with optional files)
+const saveOrUpdateBalise = async (
+  data: Partial<BaliseWithHistory>,
+  files?: File[],
+  expectResponse: boolean = true,
+): Promise<BaliseWithHistory | void> => {
+  if (!data.secondaryId) {
+    throw new Error('Secondary ID is required to create a balise');
   }
 
-  const response = await fetch(`/api/balise/${secondaryId}/add`, {
-    method: 'PUT',
-    body: formData, // No Content-Type header - browser sets it with boundary
-  });
+  let response: Response;
+
+  if (files && files.length > 0) {
+    // Use FormData for file uploads
+    const formData = new FormData();
+
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+
+    formData.append('baliseData', JSON.stringify(data));
+
+    response = await fetch(`/api/balise/${data.secondaryId}/add`, {
+      method: 'PUT',
+      body: formData, // No Content-Type header - browser sets it with boundary
+    });
+  } else {
+    // Use JSON for metadata-only requests
+    response = await fetch(`/api/balise/${data.secondaryId}/add`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  }
 
   if (!response.ok) {
-    throw new Error(`Failed to upload file: ${file.name}`);
+    const errorText = await response.text();
+    const operation = files?.length ? 'upload files to' : 'save';
+    throw new Error(`Failed to ${operation} balise: ${errorText}`);
+  }
+
+  if (expectResponse) {
+    return response.json();
   }
 };
 
@@ -134,48 +124,35 @@ export const BaliseEditPage: React.FC = () => {
       let savedBalise: BaliseWithHistory;
 
       if (currentMode === 'create') {
-        // First, create the balise with metadata only
-        savedBalise = await saveBalise(data);
+        // For new balise creation
+        savedBalise = (await saveOrUpdateBalise(data, files)) as BaliseWithHistory;
+        setBalise(savedBalise);
 
-        // Then upload files one by one if any
-        if (files && files.length > 0 && savedBalise.secondaryId) {
-          for (const file of files) {
-            await uploadFileToBalise(savedBalise.secondaryId, file);
-          }
+        // Navigate to the newly created balise
+        if (savedBalise.secondaryId) {
+          navigate(`${Routes.BALISE}/${savedBalise.secondaryId}`);
         }
       } else if (id) {
         const secondaryId = parseInt(id);
 
-        // If there are files to delete, send deletion request first
         if (filesToDelete && filesToDelete.length > 0) {
           await deleteBaliseFiles(secondaryId, filesToDelete);
         }
 
-        // If there are new files, upload them WITH metadata to create a new version
         if (files && files.length > 0) {
-          // Upload first file with metadata to create new version
-          await uploadFileToBalise(secondaryId, files[0], data);
-
-          // Upload remaining files (they will be added to the new version)
-          for (let i = 1; i < files.length; i++) {
-            await uploadFileToBalise(secondaryId, files[i]);
-          }
-
-          // Fetch the updated balise to get the latest data
-          savedBalise = await fetchBalise(id);
-        } else if (filesToDelete && filesToDelete.length > 0) {
-          // Only files deleted, no new files - fetch the updated balise
+          // Files uploaded: create new version and replace ALL existing files
+          await saveOrUpdateBalise(data, files, false); // Don't expect response for file uploads to existing balise
           savedBalise = await fetchBalise(id);
         } else {
-          // No files uploaded or deleted, just update metadata
-          savedBalise = await updateBalise(id, data);
+          // No files uploaded: update description only (no new version)
+          await saveOrUpdateBalise(data, undefined, false); // Don't expect response
+          savedBalise = await fetchBalise(id);
         }
 
-        // Update the store cache with the latest data
+        // Update both the store cache and local state with the latest data
         updateBaliseInStore(savedBalise);
+        setBalise(savedBalise);
       }
-
-      navigate(Routes.BALISE);
     } catch (err) {
       throw err; // Re-throw to let BaliseForm handle the error display
     }

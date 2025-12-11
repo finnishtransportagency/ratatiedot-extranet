@@ -41,8 +41,6 @@ export interface Balise {
   locked: boolean;
   lockedBy?: string | null;
   lockedTime?: string | Date | null;
-  deletedAt?: string | Date | null;
-  deletedBy?: string | null;
 }
 
 // Extended interface that includes history for frontend usage

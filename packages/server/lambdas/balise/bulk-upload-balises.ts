@@ -1,18 +1,15 @@
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateWriteUser } from '../../utils/userService';
-import { DatabaseClient } from '../database/client';
-import { uploadToS3 } from '../../utils/s3utils';
+import { getUser, validateWriteUser, RataExtraUser } from '../../utils/userService';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
+import { updateOrCreateBalise, createMultipleBalises, getExistingBaliseIds, FileUpload } from '../../utils/baliseUtils';
 
-const database = await DatabaseClient.build();
-const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
 const MAX_FILES_PER_REQUEST = 1000; // Limit to prevent timeout
 
-interface FileUpload {
+interface BulkFileUpload {
   filename: string;
   buffer: Buffer;
   baliseId: number;
@@ -48,10 +45,39 @@ function parseBaliseId(filename: string): number | null {
 }
 
 /**
+ * Create a standardized error response
+ */
+function createErrorResponse(
+  statusCode: number,
+  message: string,
+  results: UploadResult[],
+  invalidFiles: string[],
+  success: boolean = false,
+): ALBResult {
+  const responseBody: {
+    success: boolean;
+    message: string;
+    results: UploadResult[];
+    invalidFiles: string[];
+  } = {
+    success,
+    message,
+    results,
+    invalidFiles,
+  };
+
+  return {
+    statusCode,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(responseBody),
+  };
+}
+
+/**
  * Group files by balise ID based on filename parsing
  */
-function groupFilesByBalise(files: FileUpload[]): Map<number, FileUpload[]> {
-  const grouped = new Map<number, FileUpload[]>();
+function groupFilesByBalise(files: BulkFileUpload[]): Map<number, BulkFileUpload[]> {
+  const grouped = new Map<number, BulkFileUpload[]>();
 
   for (const file of files) {
     const baliseId = file.baliseId;
@@ -71,7 +97,7 @@ async function parseMultipartForm(
   buffer: Buffer | string,
   headers: ALBEventHeaders,
 ): Promise<{
-  files: FileUpload[];
+  files: BulkFileUpload[];
   invalidFiles: string[];
   globalDescription?: string;
   baliseDescriptions?: Record<number, string>;
@@ -84,7 +110,7 @@ async function parseMultipartForm(
       },
     });
 
-    const fileUploads: FileUpload[] = [];
+    const fileUploads: BulkFileUpload[] = [];
     const invalidFiles: string[] = [];
     let globalDescription: string | undefined;
     const baliseDescriptions: Record<number, string> = {};
@@ -146,83 +172,207 @@ async function parseMultipartForm(
 }
 
 /**
- * Upload files for a single balise (creates new version)
+ * Validate request content type
  */
-async function uploadFilesForBalise(
+function validateContentType(contentType: string): ALBResult | null {
+  if (!contentType.includes('multipart/form-data')) {
+    return {
+      statusCode: 400,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Content-Type must be multipart/form-data for bulk upload' }),
+    };
+  }
+  return null;
+}
+
+/**
+ * Validate uploaded files
+ */
+function validateFiles(fileUploads: BulkFileUpload[], invalidFiles: string[]): ALBResult | null {
+  if (fileUploads.length === 0) {
+    return {
+      statusCode: 400,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error: 'No valid files found in upload',
+        hint: 'Check that filenames contain balise IDs (e.g., 10000.il)',
+        invalidFiles,
+      }),
+    };
+  }
+
+  if (fileUploads.length > MAX_FILES_PER_REQUEST) {
+    return {
+      statusCode: 400,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error: `Too many files. Maximum allowed: ${MAX_FILES_PER_REQUEST}`,
+        totalFiles: fileUploads.length,
+      }),
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Process files for a single balise
+ */
+async function processBaliseFiles(
   baliseId: number,
-  files: FileUpload[],
-  userId: string,
-  description?: string,
-): Promise<{ newVersion: number; previousVersion: number; filesUploaded: number }> {
-  // 1. Get current balise
-  const existingBalise = await database.balise.findUnique({
-    where: { secondaryId: baliseId },
+  files: BulkFileUpload[],
+  baliseDescriptions: Record<number, string> | undefined,
+  globalDescription: string | undefined,
+  user: RataExtraUser,
+): Promise<UploadResult> {
+  const description = baliseDescriptions?.[baliseId] || globalDescription;
+
+  log.info(user, `Uploading ${files.length} files for balise ${baliseId}`);
+
+  const sharedFiles: FileUpload[] = files.map((file) => ({
+    filename: file.filename,
+    buffer: file.buffer,
+  }));
+
+  const result = await updateOrCreateBalise({
+    baliseId,
+    files: sharedFiles,
+    description,
+    userId: user.uid,
   });
 
-  if (!existingBalise) {
-    throw new Error(`Balise ${baliseId} not found`);
-  }
-
-  const previousVersion = existingBalise.version;
-
-  // 2. Check if locked
-  if (existingBalise.locked && existingBalise.lockedBy !== userId) {
-    const error: Error & { errorType?: string; lockedBy?: string } = new Error(
-      `Baliisi ${baliseId} on lukittu käyttäjän ${existingBalise.lockedBy} toimesta. Odota, että lukitus poistetaan.`,
-    );
-    error.errorType = 'locked';
-    error.lockedBy = existingBalise.lockedBy || undefined;
-    throw error;
-  }
-
-  // 3. Create version history entry for the OLD version
-  await database.baliseVersion.create({
-    data: {
-      baliseId: existingBalise.id,
-      secondaryId: existingBalise.secondaryId,
-      version: existingBalise.version,
-      description: existingBalise.description,
-      fileTypes: existingBalise.fileTypes,
-      createdBy: existingBalise.createdBy,
-      createdTime: existingBalise.createdTime,
-      locked: existingBalise.locked,
-      lockedBy: existingBalise.lockedBy,
-      lockedTime: existingBalise.lockedTime,
-    },
-  });
-
-  // 4. Increment version
-  const newVersion = existingBalise.version + 1;
-
-  // 5. Upload all files to S3
-  const uploadPromises = files.map(async (file) => {
-    const s3Key = `balise_${baliseId}/v${newVersion}/${file.filename}`;
-    await uploadToS3(BALISES_BUCKET_NAME, s3Key, file.buffer);
-    return file.filename;
-  });
-
-  const uploadedFilenames = await Promise.all(uploadPromises);
-
-  // 6. Update balise record with new version and file list
-  await database.balise.update({
-    where: { secondaryId: baliseId },
-    data: {
-      version: newVersion,
-      fileTypes: uploadedFilenames,
-      description: description || existingBalise.description, // Use provided description or keep existing
-      createdBy: userId,
-      createdTime: new Date(),
-      locked: false,
-      lockedBy: null,
-      lockedTime: null,
-    },
-  });
+  log.info(
+    user,
+    `Successfully uploaded ${result.filesUploaded} files to balise ${baliseId}, version ${result.newVersion}`,
+  );
 
   return {
-    newVersion,
-    previousVersion,
-    filesUploaded: uploadedFilenames.length,
+    baliseId,
+    success: true,
+    newVersion: result.newVersion,
+    previousVersion: result.previousVersion,
+    filesUploaded: result.filesUploaded,
+    isNewBalise: result.isNewBalise,
   };
+}
+
+/**
+ * Handle errors during balise processing
+ */
+function handleProcessingError(baliseId: number, error: unknown, user: RataExtraUser): UploadResult {
+  const err = error as Error & { errorType?: string; lockedBy?: string };
+  const errorMessage = err.message || 'Unknown error';
+  const errorType = (err.errorType || 'unknown') as 'locked' | 'not_found' | 'permission' | 'storage' | 'unknown';
+  const lockedBy = err.lockedBy;
+
+  // Create user-friendly error message
+  let userMessage = errorMessage;
+  if (errorType === 'locked') {
+    userMessage = `Baliisi on lukittu${
+      lockedBy ? ` käyttäjän ${lockedBy} toimesta` : ''
+    }. Odota, että lukitus poistetaan.`;
+  } else if (errorType === 'permission') {
+    userMessage = `Sinulla ei ole oikeuksia muokata tätä baliisia.`;
+  } else if (errorType === 'storage') {
+    userMessage = `Tiedostojen tallennus epäonnistui. Yritä uudelleen.`;
+  } else if (errorType === 'not_found') {
+    userMessage = `Baliisia ei löytynyt järjestelmästä.`;
+  } else {
+    userMessage = errorMessage;
+  }
+
+  log.error(user, `Failed to upload files for balise ${baliseId}: ${errorMessage} (type: ${errorType})`);
+
+  return {
+    baliseId,
+    success: false,
+    error: userMessage,
+    errorType,
+    lockedBy,
+  };
+}
+
+/**
+ * Process all balise files and return results
+ */
+async function processAllBalises(
+  groupedFiles: Map<number, BulkFileUpload[]>,
+  baliseDescriptions: Record<number, string> | undefined,
+  globalDescription: string | undefined,
+  user: RataExtraUser,
+): Promise<UploadResult[]> {
+  const results: UploadResult[] = [];
+
+  for (const [baliseId, files] of groupedFiles) {
+    try {
+      const result = await processBaliseFiles(baliseId, files, baliseDescriptions, globalDescription, user);
+      results.push(result);
+    } catch (error) {
+      const errorResult = handleProcessingError(baliseId, error, user);
+      results.push(errorResult);
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Determines the appropriate HTTP response based on processing results
+ */
+function determineResponse(
+  results: UploadResult[],
+  invalidFiles: string[],
+  fileUploads: BulkFileUpload[],
+  groupedFiles: Map<number, BulkFileUpload[]>,
+): ALBResult {
+  const hasErrors = results.some((r) => !r.success);
+
+  // Determine response status
+  const successCount = results.filter((r) => r.success).length;
+  const failureCount = results.filter((r) => !r.success).length;
+  const lockedCount = results.filter((r) => r.errorType === 'locked').length;
+
+  // All succeeded
+  if (!hasErrors) {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        success: true,
+        message: `Tiedostot ladattu onnistuneesti ${successCount} baliisiin`,
+        results,
+        invalidFiles,
+        totalFiles: fileUploads.length,
+        totalBalises: groupedFiles.size,
+      }),
+    };
+  }
+
+  // Partial success
+  if (successCount > 0) {
+    const message = `Tiedostojen päivitys: ${successCount} onnistui, ${failureCount} epäonnistui`;
+    return createErrorResponse(207, message, results, invalidFiles);
+  }
+
+  // All failures are due to locked balises
+  if (lockedCount === failureCount) {
+    const message = `${lockedCount} ${
+      lockedCount === 1 ? 'baliisi' : 'baliisia'
+    } on lukittu. Odota, että lukitukset poistetaan.`;
+    return createErrorResponse(409, message, results, invalidFiles);
+  }
+
+  // Check if there are server errors that warrant 500
+  const serverErrors = results.filter(
+    (r) => !r.success && r.errorType && ['storage', 'unknown'].includes(r.errorType),
+  ).length;
+
+  if (serverErrors > 0) {
+    return createErrorResponse(500, 'Kaikkien tiedostojen lataus epäonnistui', results, invalidFiles);
+  }
+
+  // Default client error for all other failure cases
+  return createErrorResponse(400, 'Kaikkien tiedostojen lataus epäonnistui', results, invalidFiles);
 }
 
 /**
@@ -235,17 +385,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Bulk upload balises request. Path: ${event.path}`);
 
-    // Check if this is a file upload (multipart/form-data)
+    // Validate content type
     const contentType = event.headers?.['content-type'] || event.headers?.['Content-Type'] || '';
-    if (!contentType.includes('multipart/form-data')) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Content-Type must be multipart/form-data for bulk upload' }),
-      };
-    }
+    const contentTypeError = validateContentType(contentType);
+    if (contentTypeError) return contentTypeError;
 
-    // Parse multipart form data with multiple files
+    // Parse multipart form data
     const buffer = event.isBase64Encoded
       ? base64ToBuffer(event.body as string)
       : Buffer.from(event.body || '', 'utf-8');
@@ -256,30 +401,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       baliseDescriptions,
     } = await parseMultipartForm(buffer, event.headers as ALBEventHeaders);
 
-    if (fileUploads.length === 0) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          error: 'No valid files found in upload',
-          hint: 'Check that filenames contain balise IDs (e.g., 10000.il)',
-          invalidFiles,
-        }),
-      };
-    }
-
-    // Check file count limit
-    if (fileUploads.length > MAX_FILES_PER_REQUEST) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          error: `Too many files. Maximum ${MAX_FILES_PER_REQUEST} files per request.`,
-          filesReceived: fileUploads.length,
-          hint: `Split your upload into multiple batches of max ${MAX_FILES_PER_REQUEST} files.`,
-        }),
-      };
-    }
+    // Validate files
+    const fileValidationError = validateFiles(fileUploads, invalidFiles);
+    if (fileValidationError) return fileValidationError;
 
     // Group files by balise ID
     const groupedFiles = groupFilesByBalise(fileUploads);
@@ -287,151 +411,19 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     // Validate all balises exist - create missing ones automatically
     const baliseIds = Array.from(groupedFiles.keys());
-    const existingBalises = await database.balise.findMany({
-      where: {
-        secondaryId: { in: baliseIds },
-      },
-      select: { secondaryId: true },
-    });
-
-    const existingBaliseIds = new Set(existingBalises.map((b) => b.secondaryId));
+    const existingBaliseIds = await getExistingBaliseIds(baliseIds);
     const missingBaliseIds = baliseIds.filter((id) => !existingBaliseIds.has(id));
 
     // Auto-create missing balises
     if (missingBaliseIds.length > 0) {
-      log.info(user, `Auto-creating ${missingBaliseIds.length} missing balise(s): ${missingBaliseIds.join(', ')}`);
-
-      await database.balise.createMany({
-        data: missingBaliseIds.map((secondaryId) => ({
-          secondaryId,
-          version: 0, // Will become 1 after first upload
-          description: baliseDescriptions?.[secondaryId] || globalDescription || `Auto-created during bulk upload`,
-          bucketId: BALISES_BUCKET_NAME,
-          fileTypes: [],
-          createdBy: user.uid,
-          locked: false,
-        })),
-      });
+      await createMultipleBalises(missingBaliseIds, user.uid, globalDescription, baliseDescriptions);
     }
 
-    // Upload files for each balise
-    const results: UploadResult[] = [];
-    let hasErrors = false;
+    // Process all balises
+    const results = await processAllBalises(groupedFiles, baliseDescriptions, globalDescription, user);
 
-    for (const [baliseId, files] of groupedFiles.entries()) {
-      const isNewBalise = missingBaliseIds.includes(baliseId);
-      const description = baliseDescriptions?.[baliseId] || globalDescription;
-
-      try {
-        log.info(user, `Uploading ${files.length} files for balise ${baliseId}`);
-        const result = await uploadFilesForBalise(baliseId, files, user.uid, description);
-
-        results.push({
-          baliseId,
-          success: true,
-          newVersion: result.newVersion,
-          previousVersion: result.previousVersion,
-          filesUploaded: result.filesUploaded,
-          isNewBalise,
-        });
-
-        log.info(
-          user,
-          `Successfully uploaded ${result.filesUploaded} files to balise ${baliseId}, version ${result.newVersion}`,
-        );
-      } catch (err) {
-        hasErrors = true;
-        const error = err as Error & { errorType?: string; lockedBy?: string };
-        const errorMessage = error.message || 'Unknown error';
-        const errorType = (error.errorType || 'unknown') as
-          | 'locked'
-          | 'not_found'
-          | 'permission'
-          | 'storage'
-          | 'unknown';
-        const lockedBy = error.lockedBy;
-
-        // Create user-friendly error message
-        let userMessage = errorMessage;
-        if (errorType === 'locked') {
-          userMessage = `Baliisi on lukittu${
-            lockedBy ? ` käyttäjän ${lockedBy} toimesta` : ''
-          }. Odota, että lukitus poistetaan.`;
-        } else if (errorType === 'permission') {
-          userMessage = 'Sinulla ei ole oikeuksia muokata tätä baliisia.';
-        } else if (errorType === 'storage') {
-          userMessage = 'Tiedostojen tallennus epäonnistui. Yritä uudelleen.';
-        } else if (errorType === 'not_found') {
-          userMessage = 'Baliisia ei löytynyt järjestelmästä.';
-        }
-
-        results.push({
-          baliseId,
-          success: false,
-          error: userMessage,
-          errorType,
-          lockedBy,
-          isNewBalise,
-        });
-
-        log.error(`Failed to upload files for balise ${baliseId}: ${errorMessage} (type: ${errorType})`);
-      }
-    }
-
-    // Determine response status
-    const successCount = results.filter((r) => r.success).length;
-    const failureCount = results.filter((r) => !r.success).length;
-    const lockedCount = results.filter((r) => r.errorType === 'locked').length;
-
-    if (hasErrors && successCount === 0) {
-      // All failed
-      let message = 'Kaikkien tiedostojen lataus epäonnistui';
-      if (lockedCount === failureCount) {
-        message = `${lockedCount} baliisia on lukittu. Odota, että lukitukset poistetaan.`;
-      }
-
-      return {
-        statusCode: 500,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: false,
-          message,
-          results,
-          invalidFiles,
-        }),
-      };
-    } else if (hasErrors) {
-      // Partial success
-      let message = `Tiedostojen päivitys: ${successCount} onnistui, ${failureCount} epäonnistui`;
-      if (lockedCount > 0) {
-        message += ` (${lockedCount} lukittua)`;
-      }
-
-      return {
-        statusCode: 207, // Multi-Status
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: false,
-          message,
-          results,
-          invalidFiles,
-        }),
-      };
-    } else {
-      // All succeeded
-      return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: true,
-          message: `Tiedostot ladattu onnistuneesti ${successCount} baliisiin`,
-          results,
-          invalidFiles,
-          totalFiles: fileUploads.length,
-          totalBalises: groupedFiles.size,
-        }),
-      };
-    }
+    // Determine appropriate response based on results
+    return determineResponse(results, invalidFiles, fileUploads, groupedFiles);
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);
