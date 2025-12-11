@@ -393,9 +393,13 @@ export const BulkUploadPage: React.FC = () => {
                 )}
                 <Box>
                   <Typography variant="h6">{uploadResult.message}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Yhteensä {uploadResult.totalFiles} tiedostoa, {uploadResult.totalBalises} baliisia
-                  </Typography>
+                  {uploadResult.success &&
+                    uploadResult.totalFiles !== undefined &&
+                    uploadResult.totalBalises !== undefined && (
+                      <Typography variant="body2" color="text.secondary">
+                        Yhteensä {uploadResult.totalFiles} tiedostoa, {uploadResult.totalBalises} baliisia
+                      </Typography>
+                    )}
                 </Box>
               </Box>
 

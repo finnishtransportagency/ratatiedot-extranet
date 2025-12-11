@@ -45,6 +45,35 @@ function parseBaliseId(filename: string): number | null {
 }
 
 /**
+ * Create a standardized error response
+ */
+function createErrorResponse(
+  statusCode: number,
+  message: string,
+  results: UploadResult[],
+  invalidFiles: string[],
+  success: boolean = false,
+): ALBResult {
+  const responseBody: {
+    success: boolean;
+    message: string;
+    results: UploadResult[];
+    invalidFiles: string[];
+  } = {
+    success,
+    message,
+    results,
+    invalidFiles,
+  };
+
+  return {
+    statusCode,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(responseBody),
+  };
+}
+
+/**
  * Group files by balise ID based on filename parsing
  */
 function groupFilesByBalise(files: BulkFileUpload[]): Map<number, BulkFileUpload[]> {
@@ -293,55 +322,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const failureCount = results.filter((r) => !r.success).length;
     const lockedCount = results.filter((r) => r.errorType === 'locked').length;
 
-    if (hasErrors && successCount === 0) {
-      // All failed - use appropriate status code based on error types
-      let message = 'Kaikkien tiedostojen lataus epäonnistui';
-      let statusCode = 400; // Client error by default
-
-      if (lockedCount === failureCount) {
-        message = `${lockedCount} ${
-          lockedCount === 1 ? 'baliisi' : 'baliisia'
-        } on lukittu. Odota, että lukitukset poistetaan.`;
-        statusCode = 409; // Conflict - resource is locked
-      } else {
-        // Check if there are other error types that warrant 500
-        const serverErrors = results.filter(
-          (r) => !r.success && r.errorType && ['storage', 'unknown'].includes(r.errorType),
-        ).length;
-        if (serverErrors > 0) {
-          statusCode = 500; // Server error
-        }
-      }
-
-      return {
-        statusCode,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: false,
-          message,
-          results,
-          invalidFiles,
-        }),
-      };
-    } else if (hasErrors) {
-      // Partial success
-      let message = `Tiedostojen päivitys: ${successCount} onnistui, ${failureCount} epäonnistui`;
-      if (lockedCount > 0) {
-        message += ` (${lockedCount} lukittua)`;
-      }
-
-      return {
-        statusCode: 207, // Multi-Status
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: false,
-          message,
-          results,
-          invalidFiles,
-        }),
-      };
-    } else {
-      // All succeeded
+    // All succeeded
+    if (!hasErrors) {
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -355,6 +337,35 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         }),
       };
     }
+
+    // Partial success
+    if (successCount > 0) {
+      const message = `Tiedostojen päivitys: ${successCount} onnistui, ${failureCount} epäonnistui`;
+
+      return createErrorResponse(207, message, results, invalidFiles);
+    }
+
+    // All failed - determine appropriate error code and message
+    let message = 'Kaikkien tiedostojen lataus epäonnistui';
+    let statusCode = 400; // Client error by default
+
+    // All failures are due to locked balises
+    if (lockedCount === failureCount) {
+      message = `${lockedCount} ${
+        lockedCount === 1 ? 'baliisi' : 'baliisia'
+      } on lukittu. Odota, että lukitukset poistetaan.`;
+      statusCode = 409; // Conflict - resource is locked
+    } else {
+      // Check if there are server errors that warrant 500
+      const serverErrors = results.filter(
+        (r) => !r.success && r.errorType && ['storage', 'unknown'].includes(r.errorType),
+      ).length;
+      if (serverErrors > 0) {
+        statusCode = 500; // Server error
+      }
+    }
+
+    return createErrorResponse(statusCode, message, results, invalidFiles);
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);
