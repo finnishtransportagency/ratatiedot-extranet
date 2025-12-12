@@ -46,7 +46,7 @@
     "vite": "^4.4.9",
     "vite-plugin-svgr": "^3.2.0",
     "vite-tsconfig-paths": "^4.2.0",
-    "vitest": "^0.34.2"
+    "vitest": "^4.0.15"
   },
   "scripts": {
     "start": "vite",
