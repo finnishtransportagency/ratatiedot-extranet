@@ -1,14 +1,9 @@
 import { log } from './logger';
 import { DatabaseClient } from '../lambdas/database/client';
-import { uploadToS3 } from './s3utils';
+import { FileUpload, uploadFilesToS3WithCleanup } from './s3utils';
 
 const database = await DatabaseClient.build();
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
-
-export interface FileUpload {
-  filename: string;
-  buffer: Buffer;
-}
 
 export interface BaliseUpdateResult {
   newVersion: number;
@@ -68,7 +63,7 @@ async function createVersionHistory(existingBalise: {
 }
 
 /**
- * Uploads files to S3 with consistent path structure
+ * Uploads files to S3 for a specific balise version
  */
 async function uploadFilesToS3(
   files: FileUpload[],
@@ -76,14 +71,8 @@ async function uploadFilesToS3(
   version: number,
   userId: string,
 ): Promise<string[]> {
-  const uploadPromises = files.map(async (file) => {
-    const s3Key = `balise_${baliseId}/v${version}/${file.filename}`;
-    await uploadToS3(BALISES_BUCKET_NAME, s3Key, file.buffer);
-    log.info(userId, `Uploaded file to S3: ${s3Key}`);
-    return file.filename;
-  });
-
-  return await Promise.all(uploadPromises);
+  const pathPrefix = `balise_${baliseId}/v${version}`;
+  return await uploadFilesToS3WithCleanup(BALISES_BUCKET_NAME, files, pathPrefix, userId);
 }
 
 /**
