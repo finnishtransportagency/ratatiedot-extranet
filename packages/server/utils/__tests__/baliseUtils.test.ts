@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { updateOrCreateBalise, createMultipleBalises, type BaliseUpdateOptions } from '../baliseUtils';
-import { uploadToS3 } from '../s3utils';
+import { uploadFilesToS3WithCleanup } from '../s3utils';
 
 // Define mock database interface
 interface MockDatabase {
@@ -17,7 +17,7 @@ interface MockDatabase {
 }
 
 vi.mock('../s3utils', () => ({
-  uploadToS3: vi.fn(),
+  uploadFilesToS3WithCleanup: vi.fn(),
 }));
 
 vi.mock('../../lambdas/database/client', () => {
@@ -50,6 +50,14 @@ describe('baliseUtils', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Set up default successful mock for uploadFilesToS3WithCleanup
+    vi.mocked(uploadFilesToS3WithCleanup).mockImplementation(async (bucket, files, pathPrefix, userId) => {
+      // Explicitly ignore unused parameters to satisfy ESLint
+      void bucket;
+      void pathPrefix;
+      void userId;
+      return files.map((file) => file.filename);
+    });
   });
 
   describe('updateOrCreateBalise', () => {
@@ -67,7 +75,12 @@ describe('baliseUtils', () => {
       expect(result.newVersion).toBe(1);
       expect(result.filesUploaded).toBe(1);
       expect(result.previousVersion).toBeUndefined();
-      expect(uploadToS3).toHaveBeenCalledWith('', 'balise_123/v1/test.txt', Buffer.from('test content'));
+      expect(uploadFilesToS3WithCleanup).toHaveBeenCalledWith(
+        '',
+        [{ filename: 'test.txt', buffer: Buffer.from('test content') }],
+        'balise_123/v1',
+        'test-user',
+      );
       expect(mockDatabase.balise.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           secondaryId: 123,
@@ -116,7 +129,12 @@ describe('baliseUtils', () => {
           version: 2,
         }),
       });
-      expect(uploadToS3).toHaveBeenCalledWith('', 'balise_456/v3/update.pdf', Buffer.from('pdf content'));
+      expect(uploadFilesToS3WithCleanup).toHaveBeenCalledWith(
+        '',
+        [{ filename: 'update.pdf', buffer: Buffer.from('pdf content') }],
+        'balise_456/v3',
+        'test-user',
+      );
     });
 
     it('should update description only without creating new version when no files provided', async () => {
@@ -148,7 +166,7 @@ describe('baliseUtils', () => {
       expect(result.previousVersion).toBe(1);
       expect(result.filesUploaded).toBe(0);
       expect(mockDatabase.baliseVersion.create).not.toHaveBeenCalled();
-      expect(uploadToS3).not.toHaveBeenCalled();
+      expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
     });
 
     it('should throw error when balise is locked by another user', async () => {
@@ -175,7 +193,7 @@ describe('baliseUtils', () => {
 
       await expect(updateOrCreateBalise(options)).rejects.toThrow(/lukittu/);
       expect(mockDatabase.balise.update).not.toHaveBeenCalled();
-      expect(uploadToS3).not.toHaveBeenCalled();
+      expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
     });
   });
 
@@ -274,7 +292,7 @@ describe('baliseUtils', () => {
       };
 
       mockDatabase.balise.findUnique.mockResolvedValue(null);
-      vi.mocked(uploadToS3).mockRejectedValue(new Error('S3 upload failed'));
+      vi.mocked(uploadFilesToS3WithCleanup).mockRejectedValue(new Error('S3 upload failed'));
 
       await expect(updateOrCreateBalise(options)).rejects.toThrow('S3 upload failed');
       expect(mockDatabase.balise.create).not.toHaveBeenCalled();
