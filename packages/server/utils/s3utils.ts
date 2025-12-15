@@ -141,3 +141,102 @@ export async function uploadFilesToS3WithCleanup(
     throw error; // Re-throw the original error
   }
 }
+
+/**
+ * Copies an S3 object from one location to another
+ */
+export async function copyS3Object(bucket: string, sourceKey: string, destKey: string) {
+  const copyParams = {
+    Bucket: bucket,
+    CopySource: `${bucket}/${sourceKey}`,
+    Key: destKey,
+  };
+
+  await s3.copyObject(copyParams).promise();
+}
+
+/**
+ * Copies an S3 object with retry logic
+ */
+export async function copyS3ObjectWithRetry(
+  bucket: string,
+  sourceKey: string,
+  destKey: string,
+  userId: string,
+): Promise<void> {
+  await retryOperation(
+    async () => {
+      await copyS3Object(bucket, sourceKey, destKey);
+    },
+    3, // max retries
+    1000, // base delay in ms
+  );
+
+  log.info(userId, `Copied S3 object from ${sourceKey} to ${destKey}`);
+}
+
+/**
+ * Archives files by copying to archive location and then deleting originals
+ * Implements proper error handling to avoid partial states
+ */
+export async function archiveS3FilesWithCleanup(
+  bucket: string,
+  filesToArchive: Array<{ sourceKey: string; archiveKey: string }>,
+  userId: string,
+): Promise<{ successCount: number; failureCount: number }> {
+  const results = {
+    successCount: 0,
+    failureCount: 0,
+    copiedFiles: [] as string[],
+  };
+
+  // Phase 1: Copy all files to archive
+  for (const { sourceKey, archiveKey } of filesToArchive) {
+    try {
+      await copyS3ObjectWithRetry(bucket, sourceKey, archiveKey, userId);
+      results.copiedFiles.push(sourceKey);
+      log.info(userId, `Successfully archived ${sourceKey} to ${archiveKey}`);
+    } catch (error) {
+      log.error(userId, `Failed to archive ${sourceKey} to ${archiveKey}`, error);
+      results.failureCount++;
+
+      // If copy fails, we don't want to proceed with deletion
+      // Clean up any files we've already copied in this batch
+      if (results.copiedFiles.length > 0) {
+        log.warn(userId, `Cleaning up ${results.copiedFiles.length} partially copied archive files`);
+        const cleanupPromises = results.copiedFiles.map(async (copiedSourceKey) => {
+          const correspondingArchiveKey = filesToArchive.find((f) => f.sourceKey === copiedSourceKey)?.archiveKey;
+          if (correspondingArchiveKey) {
+            try {
+              await deleteFromS3WithRetry(bucket, correspondingArchiveKey, userId);
+            } catch (cleanupError) {
+              log.error(userId, `Failed to cleanup archived file: ${correspondingArchiveKey}`, cleanupError);
+            }
+          }
+        });
+        await Promise.allSettled(cleanupPromises);
+      }
+
+      throw new Error(`Archive operation failed at ${sourceKey}: ${error}`);
+    }
+  }
+
+  // Phase 2: Delete original files (only if all copies succeeded)
+  for (const { sourceKey } of filesToArchive) {
+    try {
+      await deleteFromS3WithRetry(bucket, sourceKey, userId);
+      results.successCount++;
+      log.info(userId, `Successfully deleted original file: ${sourceKey}`);
+    } catch (error) {
+      log.error(userId, `Failed to delete original file: ${sourceKey}`, error);
+      results.failureCount++;
+      // Continue with other deletions even if one fails
+      // The archived copy exists, so we're not losing data
+    }
+  }
+
+  return {
+    successCount: results.successCount,
+    failureCount: results.failureCount,
+  };
+}
