@@ -1,10 +1,10 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { S3 } from 'aws-sdk';
 import { Prisma } from '@prisma/client';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
+import { archiveS3FilesWithCleanup } from '../../utils/s3utils';
 
 // Type for balise with included history
 type BaliseWithHistory = {
@@ -36,41 +36,7 @@ type BaliseWithHistory = {
 };
 
 const database = await DatabaseClient.build();
-const s3 = new S3();
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
-
-// Helper function to copy S3 object from active to archive path
-async function copyS3ObjectToArchive(bucket: string, sourceKey: string, destKey: string) {
-  const copyParams = {
-    Bucket: bucket,
-    CopySource: `${bucket}/${sourceKey}`,
-    Key: destKey,
-  };
-
-  try {
-    await s3.copyObject(copyParams).promise();
-    log.info(`Copied S3 object from ${sourceKey} to ${destKey}`);
-  } catch (error) {
-    log.error(`Failed to copy S3 object from ${sourceKey} to ${destKey}:`, error);
-    throw error;
-  }
-}
-
-// Helper function to delete S3 object
-async function deleteS3Object(bucket: string, key: string) {
-  const deleteParams = {
-    Bucket: bucket,
-    Key: key,
-  };
-
-  try {
-    await s3.deleteObject(deleteParams).promise();
-    log.info(`Deleted S3 object: ${key}`);
-  } catch (error) {
-    log.error(`Failed to delete S3 object ${key}:`, error);
-    throw error;
-  }
-}
 
 // Extract and validate balise ID from the request path
 async function parseAndValidateBaliseId(event: ALBEvent): Promise<number> {
@@ -162,8 +128,10 @@ async function archiveS3Files(
   balise: BaliseWithHistory,
   baliseId: number,
   archivedSecondaryId: string,
+  userId: string,
 ): Promise<number> {
-  const s3Operations: Promise<void>[] = [];
+  // Collect all files that need to be archived
+  const filesToArchive: Array<{ sourceKey: string; archiveKey: string }> = [];
 
   // Collect all versions including current version and history
   const allVersions = [
@@ -179,21 +147,24 @@ async function archiveS3Files(
 
   for (const versionData of uniqueVersions) {
     for (const fileName of versionData.fileTypes) {
-      const activeKey = `balise_${baliseId}/v${versionData.version}/${fileName}`;
+      const sourceKey = `balise_${baliseId}/v${versionData.version}/${fileName}`;
       const archiveKey = `archive/${archivedSecondaryId}/v${versionData.version}/${fileName}`;
 
-      s3Operations.push(
-        copyS3ObjectToArchive(BALISES_BUCKET_NAME, activeKey, archiveKey).then(() =>
-          deleteS3Object(BALISES_BUCKET_NAME, activeKey),
-        ),
-      );
+      filesToArchive.push({ sourceKey, archiveKey });
     }
   }
 
-  // Execute all S3 operations
-  await Promise.all(s3Operations);
+  // Execute archiving with proper error handling and cleanup
+  const archiveResults = await archiveS3FilesWithCleanup(BALISES_BUCKET_NAME, filesToArchive, userId);
 
-  return s3Operations.length;
+  if (archiveResults.failureCount > 0) {
+    log.warn(
+      userId,
+      `Archive completed with ${archiveResults.failureCount} failures out of ${filesToArchive.length} files`,
+    );
+  }
+
+  return archiveResults.successCount;
 }
 
 // Generate archive success response
@@ -260,7 +231,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Successfully moved balise ${baliseId} to archive with ${balise.history.length} versions`);
 
-    const archivedFilesCount = await archiveS3Files(balise, baliseId, archivedSecondaryId);
+    const archivedFilesCount = await archiveS3Files(balise, baliseId, archivedSecondaryId, user.uid);
 
     log.info(user, `Successfully archived balise ${baliseId} and moved ${archivedFilesCount} S3 files to archive`);
 
