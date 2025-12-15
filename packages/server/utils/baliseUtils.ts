@@ -105,6 +105,192 @@ function validateBaliseNotLocked(
   }
 }
 
+interface VersionManagementResult {
+  shouldCreateNewVersion: boolean;
+  newVersion: number;
+  isEffectivelyNew: boolean;
+}
+
+/**
+ * Determines version management strategy based on existing balise and files
+ */
+function determineVersionManagement(existingBalise: { version: number }, hasFiles: boolean): VersionManagementResult {
+  const isEffectivelyNew = existingBalise.version === 0 && hasFiles;
+  const shouldCreateNewVersion = hasFiles;
+  const newVersion = shouldCreateNewVersion ? existingBalise.version + 1 : existingBalise.version;
+
+  return {
+    isEffectivelyNew,
+    shouldCreateNewVersion,
+    newVersion,
+  };
+}
+
+/**
+ * Handles file type management for balise updates
+ */
+async function handleFileTypeUpdate(
+  files: FileUpload[],
+  existingFileTypes: string[],
+  baliseId: number,
+  version: number,
+  userId: string,
+  shouldCreateNewVersion: boolean,
+): Promise<string[]> {
+  if (files.length === 0) {
+    return existingFileTypes;
+  }
+
+  const uploadedFilenames = await uploadFilesToS3(files, baliseId, version, userId);
+  log.info(userId, `Successfully uploaded ${files.length} files for balise ${baliseId}`);
+
+  return shouldCreateNewVersion ? uploadedFilenames : [...existingFileTypes, ...uploadedFilenames];
+}
+
+/**
+ * Prepares update data for existing balise
+ */
+function prepareUpdateData(
+  fileTypes: string[],
+  shouldCreateNewVersion: boolean,
+  newVersion: number,
+  userId: string,
+  description?: string,
+) {
+  const updateData: {
+    fileTypes: string[];
+    version?: number;
+    createdBy?: string;
+    createdTime?: Date;
+    locked?: boolean;
+    lockedBy?: string | null;
+    lockedTime?: Date | null;
+    description?: string;
+  } = {
+    fileTypes,
+  };
+
+  if (shouldCreateNewVersion) {
+    updateData.version = newVersion;
+    updateData.createdBy = userId;
+    updateData.createdTime = new Date();
+    updateData.locked = false;
+    updateData.lockedBy = null;
+    updateData.lockedTime = null;
+  }
+
+  if (description !== undefined) {
+    updateData.description = description;
+  }
+
+  return updateData;
+}
+
+/**
+ * Updates an existing balise with new files and/or metadata
+ */
+async function updateExistingBalise(
+  existingBalise: {
+    id: string;
+    secondaryId: number;
+    version: number;
+    description: string;
+    fileTypes: string[];
+    createdBy: string;
+    createdTime: Date;
+    locked: boolean;
+    lockedBy?: string | null;
+    lockedTime?: Date | null;
+  },
+  files: FileUpload[],
+  description: string | undefined,
+  userId: string,
+): Promise<BaliseUpdateResult> {
+  validateBaliseNotLocked(existingBalise, userId);
+
+  const versionManagement = determineVersionManagement(existingBalise, files.length > 0);
+  const { shouldCreateNewVersion, newVersion, isEffectivelyNew } = versionManagement;
+
+  if (shouldCreateNewVersion) {
+    // Create version history entry for the OLD version (only if it has content and version > 0)
+    if (existingBalise.version > 0) {
+      await createVersionHistory(existingBalise);
+    }
+    log.info(userId, `Creating new version ${newVersion} for balise ${existingBalise.secondaryId}`);
+  } else {
+    log.info(
+      userId,
+      `Updating existing version ${newVersion} for balise ${existingBalise.secondaryId} (metadata only)`,
+    );
+  }
+
+  // Handle file uploads and type management
+  const fileTypes = await handleFileTypeUpdate(
+    files,
+    existingBalise.fileTypes,
+    existingBalise.secondaryId,
+    newVersion,
+    userId,
+    shouldCreateNewVersion,
+  );
+
+  // Prepare and apply update
+  const updateData = prepareUpdateData(fileTypes, shouldCreateNewVersion, newVersion, userId, description);
+
+  const updatedBalise = await database.balise.update({
+    where: { secondaryId: existingBalise.secondaryId },
+    data: updateData,
+  });
+
+  return {
+    newVersion,
+    previousVersion: isEffectivelyNew ? undefined : existingBalise.version,
+    filesUploaded: files.length,
+    isNewBalise: isEffectivelyNew,
+    balise: updatedBalise,
+  };
+}
+
+/**
+ * Creates a new balise with optional files
+ */
+async function createNewBalise(
+  baliseId: number,
+  files: FileUpload[],
+  description: string | undefined,
+  userId: string,
+): Promise<BaliseUpdateResult> {
+  const newVersion = 1;
+  let fileTypes: string[] = [];
+
+  // Upload files if provided
+  if (files.length > 0) {
+    fileTypes = await uploadFilesToS3(files, baliseId, newVersion, userId);
+    log.info(userId, `Successfully uploaded ${files.length} files for new balise ${baliseId}`);
+  }
+
+  // Create new balise
+  const newBalise = await database.balise.create({
+    data: {
+      secondaryId: baliseId,
+      version: newVersion,
+      description: description || '',
+      fileTypes,
+      createdBy: userId,
+      createdTime: new Date(),
+      locked: false,
+    },
+  });
+
+  return {
+    newVersion,
+    previousVersion: undefined,
+    filesUploaded: files.length,
+    isNewBalise: true,
+    balise: newBalise,
+  };
+}
+
 /**
  * Updates or creates a balise with file uploads and version management
  * Handles both single balise updates and bulk operations
@@ -118,107 +304,9 @@ export async function updateOrCreateBalise(options: BaliseUpdateOptions): Promis
   });
 
   if (existingBalise) {
-    // Updating existing balise
-    validateBaliseNotLocked(existingBalise, userId);
-
-    // Determine if this is effectively a new balise (version 0 getting its first files)
-    const isEffectivelyNew = existingBalise.version === 0 && files.length > 0;
-
-    // Determine if we should create a new version (only when files are uploaded)
-    const shouldCreateNewVersion = files.length > 0;
-    let newVersion = existingBalise.version;
-
-    if (shouldCreateNewVersion) {
-      // Create version history entry for the OLD version (only if it has content and version > 0)
-      if (existingBalise.version > 0) {
-        await createVersionHistory(existingBalise);
-      }
-
-      newVersion = existingBalise.version + 1;
-      log.info(userId, `Creating new version ${newVersion} for balise ${baliseId}`);
-    } else {
-      log.info(userId, `Updating existing version ${newVersion} for balise ${baliseId} (metadata only)`);
-    }
-
-    // Handle file uploads
-    let fileTypes = existingBalise.fileTypes;
-    if (files.length > 0) {
-      const uploadedFilenames = await uploadFilesToS3(files, baliseId, newVersion, userId);
-      fileTypes = shouldCreateNewVersion ? uploadedFilenames : [...fileTypes, ...uploadedFilenames];
-      log.info(userId, `Successfully uploaded ${files.length} files for balise ${baliseId}`);
-    }
-
-    // Prepare update data
-    const updateData: {
-      fileTypes: string[];
-      version?: number;
-      createdBy?: string;
-      createdTime?: Date;
-      locked?: boolean;
-      lockedBy?: string | null;
-      lockedTime?: Date | null;
-      description?: string;
-    } = {
-      fileTypes,
-    };
-
-    if (shouldCreateNewVersion) {
-      updateData.version = newVersion;
-      updateData.createdBy = userId;
-      updateData.createdTime = new Date();
-      updateData.locked = false;
-      updateData.lockedBy = null;
-      updateData.lockedTime = null;
-    }
-
-    if (description !== undefined) {
-      updateData.description = description;
-    }
-
-    // Update balise record
-    const updatedBalise = await database.balise.update({
-      where: { secondaryId: baliseId },
-      data: updateData,
-    });
-
-    return {
-      newVersion,
-      previousVersion: isEffectivelyNew ? undefined : existingBalise.version,
-      filesUploaded: files.length,
-      isNewBalise: isEffectivelyNew,
-      balise: updatedBalise,
-    };
+    return await updateExistingBalise(existingBalise, files, description, userId);
   } else {
-    // Creating new balise
-    const newVersion = 1;
-    let fileTypes: string[] = [];
-
-    // Upload files if provided
-    if (files.length > 0) {
-      fileTypes = await uploadFilesToS3(files, baliseId, newVersion, userId);
-      log.info(userId, `Successfully uploaded ${files.length} files for new balise ${baliseId}`);
-    }
-
-    // Create new balise
-    const newBalise = await database.balise.create({
-      data: {
-        secondaryId: baliseId,
-        version: newVersion,
-        description: description || '',
-        fileTypes,
-        createdBy: userId,
-        createdTime: new Date(),
-        locked: false,
-      },
-    });
-
-    return {
-      newVersion,
-      previousVersion: undefined,
-      filesUploaded: files.length,
-      isNewBalise: true,
-      balise: newBalise,
-    };
+    return await createNewBalise(baliseId, files, description, userId);
   }
 }
 
