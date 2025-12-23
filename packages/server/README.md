@@ -204,11 +204,19 @@ pipeline - either use your cli default profile or specify the profile with --pro
 
 There are three variables that determine how the pipeline and the application itself are deployed to the AWS Account. These variables are listed below in format [ENVIRONMENT VARIABLE] --> [deduced stack variable]
 
-- **ENVIRONMENT --> env**: Required environment variable that determines stack **env**. Allowed values `dev`, `feat`, `local` and `prod`. Determines the stack resource performance characteristics and also how other environment variables, BRANCH and STACK_ID work. Also sets removalPolicy for stack resources. Use `feat` for any feature branches while `local` is only for local development. `dev`and `prod` are to be used for only specific, permanent environments.
-- **BRANCH --> branch**: Required environment variable that determines **branch** variable which controls from which Github branch source code is pulled for the deployment. The value must correspond to a branch that exists in Github repository. Note: If ENVIRONMENT is `prod`, the branch is always fixed to follow production branch and this environment variable is ignored. If ENVIRONMENT is anything else than `prod`, BRANCH must be given.
-- **STACK_ID --> stackId**: Required environment variable that determines **stackId** which gives name to the stack and is basis for naming of the stack resources. Production branch and development main branch are special cases where the **STACK_ID** name must match with the **BRANCH**. The STACK_ID can only contain alphanumeric characters and hyphens.
-
-Note! Naming of certain AWS resources must be globally unique, these resources in RataExtra Stack include S3 buckets. Current naming scheme does not support using the same stackId in multiple AWS Accounts. Using the same name will lead into naming collisions and thus deployment failure.
+- **ENVIRONMENT --> environment**: Required environment variable that determines stack **env**.
+  - Determines the stack resource performance characteristics and also how other environment variables, BRANCH and STACK_ID work.
+  - Allowed values `dev`, `feat`, `local` and `prod`. `dev`and `prod` are to be used for only specific, permanent environments.
+  - Sets removalPolicy for stack resources. Use `feat` for any feature branches while `local` is only for local development.
+- **BRANCH --> branch**: Required environment variable that determines **branch** variable which controls from which Github branch source code is pulled for the deployment.
+  - The value must correspond to a branch that exists in Github repository. Note: If ENVIRONMENT is `prod`, the branch is always fixed to follow production branch and this environment variable is ignored. If ENVIRONMENT is anything else than `prod`, BRANCH must be given.
+- **STACK_ID --> stackid**: Required environment variable that determines **stackId** which gives name to the stack and is basis for naming of the stack resources.
+  - It must only contain alphanumeric characters and hyphens.
+  - It must be short.\
+    AWS resources names might have length limits of 32 or 64 characters. If a name exceeds the limit, pipeline deployment will fail. For example, stack ID `some-testing` is too long, because the resulting ALB name `alb-rataextra-feat-some-testing-api` exceeds 32 characters.
+  - It must be unique.\
+    Naming of certain AWS resources must be globally unique, these resources in RataExtra Stack include S3 buckets. Current naming scheme does not support using the same stackId in multiple AWS Accounts. Using the same name will lead into naming collisions and thus deployment failure.
+  - Production branch and development main branch are special cases where the **STACK_ID** name must match with the **BRANCH**.
 
 To set up a new pipeline, run the deployment script `pipeline:deploy` providing environment, branch and stackId as command line arguments with optionally also providing your AWS profile (here environment, branch and stackid correspond to variables explained above):
 

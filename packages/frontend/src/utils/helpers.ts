@@ -118,7 +118,13 @@ export const getSubCategoryData = (): SubCategoryData => {
  * @returns
  */
 export const getRouterName = (name: string = '') => {
-  return name.replace(/\s/g, '-').replace(/[()]/g, '').toLowerCase().replace(/ä/g, 'a').replace(/ö/g, 'o');
+  // if (name === null || name === undefined) return '';
+  try {
+    return name.replace(/\s/g, '-').replace(/[()]/g, '').toLowerCase().replace(/ä/g, 'a').replace(/ö/g, 'o');
+  } catch (e) {
+    console.log('Error in getRouterName with name:', name);
+    return '';
+  }
 };
 
 export const parseRouterName = (routerName: string = '') => {

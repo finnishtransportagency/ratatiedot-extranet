@@ -9,8 +9,6 @@ export const Routes = {
   ACCESS_DENIED: '/paasy-kielletty',
   NOT_FOUND: '/*',
   SEARCH_RESULT: '/haku',
-  LOGOUT: 'logout',
-  LOGOUT_REDIRECT: '/sso/*',
   BALISE: '/baliisisanomat',
   BALISE_BULK_UPLOAD: '/baliisisanomat/massa-lataus',
   BALISE_SECTION_MANAGEMENT: '/baliisisanomat/rataosat',

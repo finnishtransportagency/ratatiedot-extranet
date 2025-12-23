@@ -48,8 +48,8 @@
     "frontpage": "Etusivu",
     "favorite": "Suosikit",
     "balise": "Baliisisanomat",
-    "logout": "Kirjaudu ulos",
-    "instructions": "Käyttöohjeet"
+    "instructions": "Käyttöohjeet",
+    "extranet": "Poistu Extranetiin"
   },
   "file": {
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",

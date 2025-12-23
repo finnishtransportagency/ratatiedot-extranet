@@ -316,19 +316,6 @@ const routes: RouteObject[] = [
   ...SINGLE_NOTICE_ROUTE,
   ...NEW_NOTICE,
   ...BALISE_ROUTE,
-  {
-    path: Routes.LOGOUT_REDIRECT,
-    loader: () => {
-      document.cookie = 'Return=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      // check if cookie is removed
-      if (document.cookie.indexOf('Return') !== -1) {
-        // TODO: What do we do if we ever get here? Now user might get stuck.
-        throw new Error('Could not remove cookie.');
-      }
-      // redirect to logout url after succesfull cookie removal
-      return redirectDocument(`${window.location.origin}/sso/logout?auth=1`);
-    },
-  },
 ];
 
 const combinedRoutes = routes.concat(categoryRoutes);
