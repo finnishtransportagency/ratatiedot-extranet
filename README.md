@@ -2,8 +2,6 @@
 
 Ratatieto is an extranet service of the Finnish Railways Agency, which distributes track maintenance documents to internal and external stakeholders.
 
-_(To-do: Demo link will be published here...)_
-
 ## Table of Contents
 
 - [Project Structure](#project-structure)
@@ -17,7 +15,7 @@ _(To-do: Demo link will be published here...)_
 - Monorepo uses a single repository for the source code management version control system
 - Monorepo standardizes styling, code and tooling accross the team
 
-## Tech Stack:
+## Tech Stack
 
 In Ratatiedot Extranet, we use:
 
@@ -31,7 +29,7 @@ In Ratatiedot Extranet, we use:
 
 ### Branch management and naming
 
-Based on GitLab Flow (see: https://docs.gitlab.com/ee/topics/gitlab_flow.html). Feature branches are branched from `main`.
+Based on GitLab Flow (see: <https://docs.gitlab.com/ee/topics/gitlab_flow.html>). Feature branches are branched from `main`.
 
 Feature branchers should be name with the following naming convention:
 commit_type/project_code-issue_number-feature_descriptive_name
@@ -40,13 +38,12 @@ If there is no issue, skip that part.
 
 ### Commit naming
 
-Conventional commits (see: https://www.conventionalcommits.org/en/v1.0.0/), with the addition of a ticketing issue (if applicable/available).
+Conventional commits (see: <https://www.conventionalcommits.org/en/v1.0.0/>), with the addition of a ticketing issue (if applicable/available).
 E.g.
 
-```
-feat(api)!: RTENU-12345 Awesome new feature
-Remade API to be more awesome, but with breaking changes
-```
+> feat(api)!: RTENU-12345 Awesome new feature
+>
+> Remade API to be more awesome, but with breaking changes
 
 ### Pull request
 
@@ -63,31 +60,31 @@ Prettier is used for automatic linter fixing for obvious cases. Otherwise, linte
 
 ### Prerequisites
 
-**AWS SAM CLI**
+#### AWS SAM CLI
 
-Example for MacOs with pre-installed brew, check https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html for further instructions and other platforms
+Example for MacOs with pre-installed brew, check <https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html> for further instructions and other platforms
 
-```
+```shell
 brew tap aws/tap
 brew install aws-sam-cli
 ```
 
-**Note! AWS SAM CLI requires Docker to run functions locally. If you are using a Docker Desktop alternative, remember to set DOCKER_HOST to env. MacOs example:**
+**Note! AWS SAM CLI requires Docker to run functions locally.** If you are using a Docker Desktop alternative, remember to set DOCKER_HOST to env. MacOs example:
 
-```
+```shell
 export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
 ```
 
-**AWS CLI & Session Manager plugin**
+#### AWS CLI & Session Manager plugin
 
 Install AWS CLI and Session Manager plugin. Example for MacOS:
 
-```
+```shell
 brew install awscli
 brew install --cask session-manager-plugin
 ```
 
-For other platforms, please see https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html and https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
+For other platforms, please see <https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html> and <https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html>
 
 ### Installation
 
@@ -95,7 +92,7 @@ Check node version. You can use `nvm use` to automatically set the right version
 
 To bootstrap the project, run:
 
-```
+```shell
 npm ci && (cd packages/node-server && npm ci)
 npm run prisma:generate
 npm run build
@@ -105,13 +102,13 @@ Create `.env` file in server package and copy from `.env.example` to `.env`.
 
 To install dependencies that only frontend or backend use, run command in the root repository:
 
-```
+```shell
 npx lerna add <npm_package> [--dev] --scope=[frontend/server]
 ```
 
 To install a common dependency that both frontend and server can use, run command in the root repository:
 
-```
+```shell
 npm install <npm_package>
 ```
 
@@ -126,7 +123,7 @@ For detailed examples on how to setup and run the application, please refer to p
 
 If Husky's pre-commit hook fails to use nvm with the following error when using VS Code's integrated source control:
 
-```
+```shell
 > git -c user.useConfigOnly=true commit --quiet --allow-empty-message --file -
 .husky/pre-commit: line 4: npx: command not found
 husky - pre-commit hook exited with code 127 (error)
@@ -134,7 +131,7 @@ husky - pre-commit hook exited with code 127 (error)
 
 It can be fixed by using `~/.huskyrc` to load the necessary stuff before running the hook:
 
-```sh
+```shell
 # ~/.huskyrc
 # This loads nvm.sh and sets the correct PATH before running hook
 export NVM_DIR="$HOME/.nvm"
