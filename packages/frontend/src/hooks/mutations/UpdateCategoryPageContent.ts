@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { queryClient } from '../..';
+import { queryClient } from '../../utils/query-client';
 import { QueryKeys } from '../../constants/QueryKeys';
 import { getRouterName } from '../../utils/helpers';
 

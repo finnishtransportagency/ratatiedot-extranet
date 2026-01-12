@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { QueryKeys } from '../../constants/QueryKeys';
-import { queryClient } from '../..';
+import { queryClient } from '../../utils/query-client';
 
 export const useUpdateNoticePageContents = (noticeId: string) => {
   return useMutation({
