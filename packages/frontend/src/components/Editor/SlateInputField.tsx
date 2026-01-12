@@ -72,7 +72,9 @@ export const SlateInputField = () => {
   );
 };
 
-const SlateInputFieldPaperWrapper = styled(Paper)<DrawerWrapperProps>(({ theme, opentoolbar }) => ({
+const SlateInputFieldPaperWrapper = styled(Paper, {
+  shouldForwardProp: (prop) => prop !== 'opentoolbar',
+})<DrawerWrapperProps>(({ theme, opentoolbar }) => ({
   boxShadow: 'none',
   border: opentoolbar ? `1px dashed ${Colors.darkblue}` : 'none',
   padding: opentoolbar ? '10px' : 0,

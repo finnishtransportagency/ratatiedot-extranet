@@ -1,41 +1,92 @@
-import { vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import renderer, { act } from 'react-test-renderer';
+import { vi, Mock } from 'vitest';
+import { render, screen, waitFor, act } from '@testing-library/react';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import axios from 'axios';
+
 import { MenuContextProvider } from '../../../contexts/MenuContext';
+import { AppBarContext } from '../../../contexts/AppBarContext';
 import { MenuList } from '../MenuList';
 
-const mockedUsedNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...(actual as Record<string, unknown>),
-    useNavigate: () => mockedUsedNavigate,
-  };
+vi.mock('axios');
+
+beforeEach(() => {
+  // Mock the favorites API call (MenuContext) to return empty array
+  (axios.get as Mock).mockResolvedValue({ data: [] });
 });
 
-test('MenuList renders properly', () => {
-  render(<MenuList />);
+afterEach(() => {
+  vi.clearAllMocks();
 });
 
-test('MenuList matches snapshot', () => {
-  const menuList = renderer.create(<MenuList />).toJSON();
-  expect(menuList).toMatchSnapshot();
+const mockAppBarContext = {
+  openMiniDrawer: true,
+  openDesktopDrawer: true,
+  toggleMiniDrawer: vi.fn(),
+  toggleDesktopDrawer: vi.fn(),
+  openSearch: false,
+  toggleSearch: vi.fn(),
+  openFilter: false,
+  toggleFilter: vi.fn(),
+  closeFilter: vi.fn(),
+  openEdit: false,
+  toggleEdit: vi.fn(),
+  openToolbar: false,
+  openToolbarHandler: vi.fn(),
+  closeToolbarHandler: vi.fn(),
+  closeToolbarWithoutSaveHandler: vi.fn(),
+  userRight: { canRead: false, canWrite: false, isAdmin: false },
+  userRightHandler: vi.fn(),
+  closeEdit: vi.fn(),
+};
+
+const withProviders = (
+  <AppBarContext.Provider value={mockAppBarContext}>
+    <MenuContextProvider>
+      <MenuList />
+    </MenuContextProvider>
+  </AppBarContext.Provider>
+);
+
+const renderWithRouter = (initialEntries = ['/']) => {
+  const router = createMemoryRouter(
+    [
+      {
+        path: '/',
+        element: withProviders,
+      },
+    ],
+    { initialEntries },
+  );
+  return render(<RouterProvider router={router} />);
+};
+
+test('MenuList renders properly', async () => {
+  renderWithRouter();
+  expect(await screen.findByText('Kaaviot')).toBeInTheDocument();
+});
+
+test('MenuList matches snapshot', async () => {
+  const { asFragment } = renderWithRouter();
+  // Wait for the async state updates of the component to complete, e.g. fetching favorites
+  await waitFor(() => {
+    expect(screen.getByText('Kaaviot')).toBeInTheDocument();
+  });
+  expect(asFragment()).toMatchSnapshot();
 });
 
 test('MenuList, open a menu and check that new item is visible', async () => {
-  // const view =
-  render(
-    <MenuContextProvider>
-      <MenuList />
-    </MenuContextProvider>,
-  );
-  // TODO: Replace closest with something better to fix linter error
-  const charts = screen.getByText('Kaaviot').closest('li'); // eslint-disable-line testing-library/no-node-access
-  act(() => {
-    // Open Kaaviot
-    charts?.click();
+  renderWithRouter();
+
+  const charts = await screen.findByText('Kaaviot');
+  expect(screen.queryByText('Linjakaaviot')).not.toBeInTheDocument();
+
+  await act(async () => {
+    charts.click();
   });
-  const lineCharts = screen.getByText('Linjakaaviot').closest('a'); // eslint-disable-line testing-library/no-node-access
+
+  const lineCharts = await screen.findByText('Linjakaaviot');
   expect(lineCharts).toBeVisible();
-  expect(lineCharts).toHaveAttribute('href', '/kaaviot/linjakaaviot');
+
+  const lineChartsLink = screen.getByRole('link', { name: /linjakaaviot/i });
+  expect(lineChartsLink).toHaveAttribute('href', '/kaaviot/linjakaaviot');
 });

@@ -1,30 +1,30 @@
-import { vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, act } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { createEditor } from 'slate';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createEditorWithPlugins, EditorContextProvider } from '../../../contexts/EditorContext';
 
 import { SlateInputField } from '../SlateInputField';
 import { theme } from '../../../styles/createTheme';
 import { AppBarContextProvider } from '../../../contexts/AppBarContext';
 
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...(actual as Record<string, unknown>),
-    useLocation: () => ({
-      pathname: '/',
-    }),
-  };
-});
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
 
-vi.mock('@tanstack/react-query', async () => {
-  const actual = await vi.importActual('@tanstack/react-query');
-  return {
-    ...(actual as Record<string, unknown>),
-    useQuery: () => vi.fn(),
-  };
-});
+const renderWithRouter = (ui: React.ReactElement) => {
+  const queryClient = createTestQueryClient();
+  const router = createMemoryRouter(
+    [{ path: '/', element: <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider> }],
+    { initialEntries: ['/'] },
+  );
+  return render(<RouterProvider router={router} />);
+};
 
 const customSlatInputFieldRender = (ui: any, { providerProps, ...renderOptions }: any) => {
   const { openToolbar = false } = providerProps;
@@ -33,14 +33,20 @@ const customSlatInputFieldRender = (ui: any, { providerProps, ...renderOptions }
     value = [{ children: [{ text: '' }] }],
     valueHandler = () => {},
   } = providerProps;
-  return render(
-    <AppBarContextProvider openToolbar={openToolbar}>
-      <EditorContextProvider editor={editor} value={value} valueHandler={valueHandler}>
-        {ui}
-      </EditorContextProvider>
-    </AppBarContextProvider>,
-    renderOptions,
+
+  const queryClient = createTestQueryClient();
+  const wrappedUI = (
+    <QueryClientProvider client={queryClient}>
+      <AppBarContextProvider openToolbar={openToolbar}>
+        <EditorContextProvider editor={editor} value={value} valueHandler={valueHandler}>
+          {ui}
+        </EditorContextProvider>
+      </AppBarContextProvider>
+    </QueryClientProvider>
   );
+
+  const router = createMemoryRouter([{ path: '/', element: wrappedUI }], { initialEntries: ['/'] });
+  return render(<RouterProvider router={router} />, renderOptions);
 };
 
 describe('SlateInputField component', () => {
@@ -65,12 +71,18 @@ describe('SlateInputField component', () => {
     cleanup();
   });
 
-  test('SlateInputField should render properly', () => {
-    render(component);
+  test('SlateInputField should render properly', async () => {
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      renderWithRouter(component);
+    });
   });
 
-  test('SlateInputField should render properly in contexts', () => {
-    customSlatInputFieldRender(component, { providerProps });
+  test('SlateInputField should render properly in contexts', async () => {
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      customSlatInputFieldRender(component, { providerProps });
+    });
     expect(screen.getByTestId('slate-editor')).toBeTruthy();
   });
 });
