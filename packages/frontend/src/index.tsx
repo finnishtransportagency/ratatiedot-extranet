@@ -8,20 +8,12 @@ import 'leaflet/dist/leaflet.css';
 import reportWebVitals from './reportWebVitals';
 import { router } from './routes';
 import { theme } from './styles/createTheme';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './utils/query-client';
 import './i18n';
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      refetchOnMount: true,
-      refetchOnReconnect: true,
-      retry: false,
-      staleTime: 0,
-    },
-  },
-});
+// Re-export for backwards compatibility
+export { queryClient };
 
 const root = ReactDOM.createRoot(document.getElementById('root') || document.createElement('div')); // for testing purposes
 root.render(
