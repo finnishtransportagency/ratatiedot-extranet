@@ -1,35 +1,21 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`MenuList matches snapshot 1`] = `
-Array [
+<DocumentFragment>
   <li
-    className="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
-    disabled={false}
-    onClick={[Function]}
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
   >
     <a
-      className="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-16ac5r2-MuiButtonBase-root-MuiListItemButton-root"
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters Mui-selected MuiListItemButton-root MuiListItemButton-gutters Mui-selected css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
       href="/"
-      onBlur={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
+      tabindex="0"
     >
       <div
-        className="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
       >
         <svg
-          aria-hidden={true}
-          className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
           data-testid="InfoIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -40,45 +26,83 @@ Array [
         </svg>
       </div>
       <div
-        className="MuiListItemText-root css-1cag644-MuiListItemText-root"
+        class="MuiListItemText-root css-1q6lfif-MuiListItemText-root"
       >
         <span
-          className="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
         >
           Etusivu
         </span>
       </div>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
     </a>
-  </li>,
+  </li>
   <li
-    className="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
-    disabled={false}
-    onClick={[Function]}
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
   >
     <div
-      className="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-16ac5r2-MuiButtonBase-root-MuiListItemButton-root"
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
       href=""
-      onBlur={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
       role="button"
-      tabIndex={0}
+      tabindex="0"
     >
       <div
-        className="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
       >
         <svg
-          aria-hidden={true}
-          className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          data-testid="StarBorderIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="m22 9.24-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"
+          />
+        </svg>
+      </div>
+      <div
+        class="MuiListItemText-root css-1deko95-MuiListItemText-root"
+      >
+        <span
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
+        >
+          Suosikit
+        </span>
+      </div>
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        data-testid="ExpandMoreIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </div>
+  </li>
+  <li
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
+  >
+    <div
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
+      href=""
+      role="button"
+      tabindex="0"
+    >
+      <div
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
           data-testid="SsidChartIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -89,17 +113,17 @@ Array [
         </svg>
       </div>
       <div
-        className="MuiListItemText-root css-1cag644-MuiListItemText-root"
+        class="MuiListItemText-root css-1deko95-MuiListItemText-root"
       >
         <span
-          className="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
         >
           Kaaviot
         </span>
       </div>
       <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
         data-testid="ExpandMoreIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -108,37 +132,26 @@ Array [
           d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
         />
       </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
     </div>
-  </li>,
+  </li>
   <li
-    className="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
-    disabled={false}
-    onClick={[Function]}
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
   >
     <div
-      className="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-16ac5r2-MuiButtonBase-root-MuiListItemButton-root"
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
       href=""
-      onBlur={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
       role="button"
-      tabIndex={0}
+      tabindex="0"
     >
       <div
-        className="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
       >
         <svg
-          aria-hidden={true}
-          className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
           data-testid="DirectionsIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -149,17 +162,17 @@ Array [
         </svg>
       </div>
       <div
-        className="MuiListItemText-root css-1cag644-MuiListItemText-root"
+        class="MuiListItemText-root css-1deko95-MuiListItemText-root"
       >
         <span
-          className="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
         >
           Liikennöinti
         </span>
       </div>
       <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
         data-testid="ExpandMoreIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -168,37 +181,26 @@ Array [
           d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
         />
       </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
     </div>
-  </li>,
+  </li>
   <li
-    className="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
-    disabled={false}
-    onClick={[Function]}
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
   >
     <div
-      className="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-16ac5r2-MuiButtonBase-root-MuiListItemButton-root"
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
       href=""
-      onBlur={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
       role="button"
-      tabIndex={0}
+      tabindex="0"
     >
       <div
-        className="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
       >
         <svg
-          aria-hidden={true}
-          className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
           data-testid="SubwayIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -219,17 +221,17 @@ Array [
         </svg>
       </div>
       <div
-        className="MuiListItemText-root css-1cag644-MuiListItemText-root"
+        class="MuiListItemText-root css-1deko95-MuiListItemText-root"
       >
         <span
-          className="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
         >
           Taitorakenteet
         </span>
       </div>
       <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
         data-testid="ExpandMoreIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -238,37 +240,26 @@ Array [
           d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
         />
       </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
     </div>
-  </li>,
+  </li>
   <li
-    className="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
-    disabled={false}
-    onClick={[Function]}
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
   >
     <div
-      className="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-16ac5r2-MuiButtonBase-root-MuiListItemButton-root"
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
       href=""
-      onBlur={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
       role="button"
-      tabIndex={0}
+      tabindex="0"
     >
       <div
-        className="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
       >
         <svg
-          aria-hidden={true}
-          className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
           data-testid="ShieldIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -279,17 +270,17 @@ Array [
         </svg>
       </div>
       <div
-        className="MuiListItemText-root css-1cag644-MuiListItemText-root"
+        class="MuiListItemText-root css-1deko95-MuiListItemText-root"
       >
         <span
-          className="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
         >
           Turvalaitteet
         </span>
       </div>
       <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
         data-testid="ExpandMoreIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -298,37 +289,75 @@ Array [
           d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
         />
       </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
     </div>
-  </li>,
+  </li>
   <li
-    className="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
-    disabled={false}
-    onClick={[Function]}
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
   >
     <div
-      className="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-16ac5r2-MuiButtonBase-root-MuiListItemButton-root"
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
       href=""
-      onBlur={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
       role="button"
-      tabIndex={0}
+      tabindex="0"
     >
       <div
-        className="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
       >
         <svg
-          aria-hidden={true}
-          className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          data-testid="BoltIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"
+          />
+        </svg>
+      </div>
+      <div
+        class="MuiListItemText-root css-1deko95-MuiListItemText-root"
+      >
+        <span
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
+        >
+          Sähkörata
+        </span>
+      </div>
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        data-testid="ExpandMoreIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </div>
+  </li>
+  <li
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
+  >
+    <div
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
+      href=""
+      role="button"
+      tabindex="0"
+    >
+      <div
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
           data-testid="AlternateEmailIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -339,17 +368,17 @@ Array [
         </svg>
       </div>
       <div
-        className="MuiListItemText-root css-1cag644-MuiListItemText-root"
+        class="MuiListItemText-root css-1deko95-MuiListItemText-root"
       >
         <span
-          className="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
         >
           Yhteystiedot
         </span>
       </div>
       <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
         data-testid="ExpandMoreIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -358,37 +387,26 @@ Array [
           d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
         />
       </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
     </div>
-  </li>,
+  </li>
   <li
-    className="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
-    disabled={false}
-    onClick={[Function]}
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
   >
     <div
-      className="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-16ac5r2-MuiButtonBase-root-MuiListItemButton-root"
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
       href=""
-      onBlur={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
       role="button"
-      tabIndex={0}
+      tabindex="0"
     >
       <div
-        className="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
       >
         <svg
-          aria-hidden={true}
-          className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
           data-testid="WidgetsIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -399,17 +417,17 @@ Array [
         </svg>
       </div>
       <div
-        className="MuiListItemText-root css-1cag644-MuiListItemText-root"
+        class="MuiListItemText-root css-1deko95-MuiListItemText-root"
       >
         <span
-          className="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
         >
           Muut
         </span>
       </div>
       <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
         data-testid="ExpandMoreIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -418,36 +436,74 @@ Array [
           d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
         />
       </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
     </div>
-  </li>,
+  </li>
   <li
-    className="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
-    disabled={false}
-    onClick={[Function]}
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
   >
-    <a
-      className="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-16ac5r2-MuiButtonBase-root-MuiListItemButton-root"
-      href="http://localhost/sso/logout?auth=1"
-      onBlur={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
+    <div
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
+      href=""
+      role="button"
+      tabindex="0"
     >
       <div
-        className="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
       >
         <svg
-          aria-hidden={true}
-          className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          data-testid="HelpIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"
+          />
+        </svg>
+      </div>
+      <div
+        class="MuiListItemText-root css-1deko95-MuiListItemText-root"
+      >
+        <span
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
+        >
+          Käyttöohjeet
+        </span>
+      </div>
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        data-testid="ExpandMoreIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </div>
+  </li>
+  <li
+    class="MuiListItem-root MuiListItem-gutters MuiListItem-alignItemsFlexStart css-dwve99-MuiListItem-root"
+  >
+    <a
+      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
+      href="http://localhost:3000/sso/logout?auth=1"
+      tabindex="0"
+    >
+      <div
+        class="MuiListItemIcon-root css-cveggr-MuiListItemIcon-root"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
           data-testid="LogoutIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -458,15 +514,18 @@ Array [
         </svg>
       </div>
       <div
-        className="MuiListItemText-root css-1cag644-MuiListItemText-root"
+        class="MuiListItemText-root css-1deko95-MuiListItemText-root"
       >
         <h6
-          className="MuiTypography-root MuiTypography-subtitle2 css-ati914-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-subtitle2 css-ati914-MuiTypography-root"
         >
           Kirjaudu ulos
         </h6>
       </div>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
     </a>
-  </li>,
-]
+  </li>
+</DocumentFragment>
 `;

@@ -1,329 +1,337 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`SlateToolbar component SlateToolbar should match snapshot 1`] = `
-<div
-  aria-label="työkalupalkki"
-  className="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1qnc7df-MuiPaper-root"
->
+exports[`SlateToolbar component > SlateToolbar should match snapshot 1`] = `
+<DocumentFragment>
   <div
-    aria-label="Valitse fontin koko"
-    className="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary css-n0xngz-MuiInputBase-root-MuiOutlinedInput-root"
-    onClick={[Function]}
+    aria-label="työkalupalkki"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-rei1fw-MuiPaper-root"
   >
     <div
-      aria-expanded="false"
-      aria-haspopup="listbox"
-      className="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
-      onBlur={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onMouseDown={[Function]}
-      role="button"
-      tabIndex={0}
+      aria-label="Valitse fontin koko"
+      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary css-118w3vs-MuiInputBase-root-MuiOutlinedInput-root"
     >
-      Leipäteksti
-    </div>
-    <input
-      aria-hidden={true}
-      className="MuiSelect-nativeInput css-yf8vq0-MuiSelect-nativeInput"
-      onAnimationStart={[Function]}
-      onChange={[Function]}
-      tabIndex={-1}
-      value="paragraph-two"
-    />
-    <svg
-      aria-hidden={true}
-      className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rejtkv-MuiSvgIcon-root-MuiSelect-icon"
-      data-testid="ArrowDropDownIcon"
-      focusable="false"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M7 10l5 5 5-5z"
+      <div
+        aria-expanded="false"
+        aria-haspopup="listbox"
+        class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-jcfq8n-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+        role="button"
+        tabindex="0"
+      >
+        Leipäteksti
+      </div>
+      <input
+        aria-hidden="true"
+        aria-invalid="false"
+        class="MuiSelect-nativeInput css-yf8vq0-MuiSelect-nativeInput"
+        tabindex="-1"
+        value="paragraph-two"
       />
-    </svg>
-    <fieldset
-      aria-hidden={true}
-      className="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-    >
-      <legend
-        className="css-ihdtdm"
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rejtkv-MuiSvgIcon-root-MuiSelect-icon"
+        data-testid="ArrowDropDownIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
       >
-        <span
-          className="notranslate"
+        <path
+          d="M7 10l5 5 5-5z"
+        />
+      </svg>
+      <fieldset
+        aria-hidden="true"
+        class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+      >
+        <legend
+          class="css-ihdtdm"
         >
-          ​
-        </span>
-      </legend>
-    </fieldset>
+          <span
+            class="notranslate"
+          >
+            ​
+          </span>
+        </legend>
+      </fieldset>
+    </div>
+    <hr
+      class="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
+    />
+    <button
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ifbsno-MuiButtonBase-root-MuiIconButton-root"
+      tabindex="0"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
+        data-testid="UndoIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+    <button
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ifbsno-MuiButtonBase-root-MuiIconButton-root"
+      tabindex="0"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
+        data-testid="RedoIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+    <hr
+      class="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
+    />
+    <div
+      class="MuiToggleButtonGroup-root css-4hldsh-MuiToggleButtonGroup-root"
+      role="group"
+    >
+      <button
+        aria-label="lihavoitu"
+        class="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
+        tabindex="0"
+        type="button"
+        value="bold"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
+          data-testid="FormatBoldIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"
+          />
+        </svg>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+      <button
+        aria-label="kursivoitu"
+        class="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
+        tabindex="0"
+        type="button"
+        value="italic"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
+          data-testid="FormatItalicIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"
+          />
+        </svg>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+      <button
+        aria-label="alleviivattu"
+        class="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
+        tabindex="0"
+        type="button"
+        value="underlined"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
+          data-testid="FormatUnderlinedIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z"
+          />
+        </svg>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+      <img
+        alt="link"
+        aria-label="Lisää linkki"
+        class="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-1kj8fy2"
+        color="standard"
+        src="data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20height='48'%20viewBox='0%2096%20960%20960'%20width='48'%3e%3cpath%20d='M450%20776H280q-83%200-141.5-58.5T80%20576q0-83%2058.5-141.5T280%20376h170v60H280q-58.333%200-99.167%2040.765-40.833%2040.764-40.833%2099Q140%20634%20180.833%20675q40.834%2041%2099.167%2041h170v60ZM324%20606v-60h310v60H324Zm556-30h-60q0-58-40.833-99-40.834-41-99.167-41H510v-60h170q83%200%20141.5%2058.5T880%20576ZM699%20896V776H579v-60h120V596h60v120h120v60H759v120h-60Z'/%3e%3c/svg%3e"
+      />
+      <button
+        aria-label="numeroitu lista"
+        aria-pressed="false"
+        class="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
+        tabindex="0"
+        type="button"
+        value="numbered-list"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
+          data-testid="FormatListNumberedIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"
+          />
+        </svg>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+      <button
+        aria-label="numeroimaton lista"
+        aria-pressed="false"
+        class="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
+        tabindex="0"
+        type="button"
+        value="bulleted-list"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
+          data-testid="FormatListBulletedIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"
+          />
+        </svg>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+    </div>
+    <hr
+      class="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
+    />
+    <img
+      alt="color"
+      aria-label="väri"
+      class="css-us34y6"
+      src="data:image/svg+xml,%3csvg%20width='18'%20height='18'%20viewBox='0%200%2018%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M9%2017.6253C7.81945%2017.6253%206.70486%2017.3996%205.65625%2016.9482C4.60764%2016.4969%203.69097%2015.8788%202.90625%2015.0941C2.12153%2014.3094%201.50347%2013.3927%201.05208%2012.3441C0.600695%2011.2955%200.375%2010.1809%200.375%209.00033C0.375%207.7781%200.604167%206.64269%201.0625%205.59408C1.52083%204.54546%202.14931%203.63227%202.94792%202.85449C3.74653%202.07671%204.67708%201.4656%205.73958%201.02116C6.80208%200.576714%207.94445%200.354492%209.16667%200.354492C10.3056%200.354492%2011.3854%200.548937%2012.4063%200.937826C13.4271%201.32671%2014.3264%201.86144%2015.1042%202.54199C15.8819%203.22255%2016.5%204.0281%2016.9583%204.95866C17.4167%205.88921%2017.6458%206.9031%2017.6458%208.00033C17.6458%209.54199%2017.2049%2010.7885%2016.3229%2011.7399C15.441%2012.6913%2014.2361%2013.167%2012.7083%2013.167H11.3542C11.1181%2013.167%2010.9132%2013.2607%2010.7396%2013.4482C10.566%2013.6357%2010.4792%2013.8406%2010.4792%2014.0628C10.4792%2014.4239%2010.5625%2014.7017%2010.7292%2014.8962C10.8958%2015.0906%2010.9792%2015.3475%2010.9792%2015.667C10.9792%2016.2364%2010.7986%2016.7052%2010.4375%2017.0732C10.0764%2017.4413%209.59722%2017.6253%209%2017.6253ZM4.25%209.54199C4.52778%209.54199%204.77083%209.43783%204.97917%209.22949C5.1875%209.02116%205.29167%208.7781%205.29167%208.50033C5.29167%208.22255%205.1875%207.97949%204.97917%207.77116C4.77083%207.56283%204.52778%207.45866%204.25%207.45866C3.97222%207.45866%203.72917%207.56283%203.52083%207.77116C3.3125%207.97949%203.20833%208.22255%203.20833%208.50033C3.20833%208.7781%203.3125%209.02116%203.52083%209.22949C3.72917%209.43783%203.97222%209.54199%204.25%209.54199ZM6.83333%206.08366C7.11111%206.08366%207.35417%205.97949%207.5625%205.77116C7.77083%205.56283%207.875%205.31977%207.875%205.04199C7.875%204.75033%207.77083%204.5038%207.5625%204.30241C7.35417%204.10102%207.11111%204.00033%206.83333%204.00033C6.54167%204.00033%206.29514%204.10102%206.09375%204.30241C5.89236%204.5038%205.79167%204.75033%205.79167%205.04199C5.79167%205.31977%205.89236%205.56283%206.09375%205.77116C6.29514%205.97949%206.54167%206.08366%206.83333%206.08366ZM11.1667%206.08366C11.4583%206.08366%2011.7083%205.97949%2011.9167%205.77116C12.125%205.56283%2012.2292%205.31977%2012.2292%205.04199C12.2292%204.75033%2012.125%204.5038%2011.9167%204.30241C11.7083%204.10102%2011.4653%204.00033%2011.1875%204.00033C10.8958%204.00033%2010.6493%204.10102%2010.4479%204.30241C10.2465%204.5038%2010.1458%204.75033%2010.1458%205.04199C10.1458%205.31977%2010.2465%205.56283%2010.4479%205.77116C10.6493%205.97949%2010.8889%206.08366%2011.1667%206.08366ZM13.8333%209.54199C14.1111%209.54199%2014.3542%209.43783%2014.5625%209.22949C14.7708%209.02116%2014.875%208.7781%2014.875%208.50033C14.875%208.22255%2014.7708%207.97949%2014.5625%207.77116C14.3542%207.56283%2014.1111%207.45866%2013.8333%207.45866C13.5417%207.45866%2013.2951%207.56283%2013.0938%207.77116C12.8924%207.97949%2012.7917%208.22255%2012.7917%208.50033C12.7917%208.7781%2012.8924%209.02116%2013.0938%209.22949C13.2951%209.43783%2013.5417%209.54199%2013.8333%209.54199ZM8.95833%2015.9795C9.08333%2015.9795%209.17361%2015.9517%209.22917%2015.8962C9.28472%2015.8406%209.3125%2015.7503%209.3125%2015.6253C9.3125%2015.4309%209.21181%2015.2607%209.01042%2015.1149C8.80903%2014.9691%208.70833%2014.6184%208.70833%2014.0628C8.70833%2013.3962%208.92708%2012.8059%209.36458%2012.292C9.80208%2011.7781%2010.3542%2011.5212%2011.0208%2011.5212H12.7083C13.75%2011.5212%2014.5556%2011.2121%2015.125%2010.5941C15.6944%209.97602%2015.9792%209.13227%2015.9792%208.06283C15.9792%206.22949%2015.2917%204.76421%2013.9167%203.66699C12.5417%202.56977%2010.9583%202.02116%209.16667%202.02116C7.18056%202.02116%205.49306%202.69824%204.10417%204.05241C2.71528%205.40658%202.02083%207.05588%202.02083%209.00033C2.02083%2010.9309%202.69792%2012.5767%204.05208%2013.9378C5.40625%2015.2989%207.04167%2015.9795%208.95833%2015.9795Z'%20fill='%230064AF'/%3e%3c/svg%3e"
+    />
+    <hr
+      class="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
+    />
+    <div
+      class="css-k008qs"
+    >
+      <img
+        alt="info"
+        aria-label="info"
+        class="MuiBox-root css-4g6ai3"
+        src="data:image/svg+xml,%3csvg%20width='55'%20height='54'%20viewBox='0%200%2055%2054'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20filter='url(%23filter0_d_910_37550)'%3e%3crect%20x='8.5'%20y='6'%20width='38'%20height='38'%20rx='19'%20fill='%230064AF'%20shape-rendering='crispEdges'/%3e%3cpath%20d='M27.5%2029.3333C27.7917%2029.3333%2028.0314%2029.2394%2028.2192%2029.0516C28.4064%2028.8644%2028.5%2028.6249%2028.5%2028.3333V25.1458C28.5%2024.868%2028.4064%2024.6352%2028.2192%2024.4474C28.0314%2024.2602%2027.7917%2024.1666%2027.5%2024.1666C27.2083%2024.1666%2026.9689%2024.2638%2026.7817%2024.4583C26.5939%2024.6527%2026.5%2024.8888%2026.5%2025.1666V28.3541C26.5%2028.6319%2026.5939%2028.8644%2026.7817%2029.0516C26.9689%2029.2394%2027.2083%2029.3333%2027.5%2029.3333ZM27.5%2022.7291C27.8056%2022.7291%2028.0592%2022.6283%2028.2608%2022.4266C28.4619%2022.2255%2028.5625%2021.9721%2028.5625%2021.6666C28.5625%2021.361%2028.4619%2021.1074%2028.2608%2020.9058C28.0592%2020.7046%2027.8056%2020.6041%2027.5%2020.6041C27.1944%2020.6041%2026.9411%2020.7046%2026.74%2020.9058C26.5383%2021.1074%2026.4375%2021.361%2026.4375%2021.6666C26.4375%2021.9721%2026.5383%2022.2255%2026.74%2022.4266C26.9411%2022.6283%2027.1944%2022.7291%2027.5%2022.7291ZM27.5%2033.7291C26.2778%2033.7291%2025.1389%2033.4999%2024.0833%2033.0416C23.0278%2032.5833%2022.1078%2031.9619%2021.3233%2031.1774C20.5383%2030.3924%2019.9167%2029.4721%2019.4583%2028.4166C19%2027.361%2018.7708%2026.2221%2018.7708%2024.9999C18.7708%2023.7777%2019%2022.6388%2019.4583%2021.5833C19.9167%2020.5277%2020.5383%2019.6074%2021.3233%2018.8224C22.1078%2018.038%2023.0278%2017.4166%2024.0833%2016.9583C25.1389%2016.4999%2026.2778%2016.2708%2027.5%2016.2708C28.7222%2016.2708%2029.8611%2016.4999%2030.9167%2016.9583C31.9722%2017.4166%2032.8925%2018.038%2033.6775%2018.8224C34.4619%2019.6074%2035.0833%2020.5277%2035.5417%2021.5833C36%2022.6388%2036.2292%2023.7777%2036.2292%2024.9999C36.2292%2026.2221%2036%2027.361%2035.5417%2028.4166C35.0833%2029.4721%2034.4619%2030.3924%2033.6775%2031.1774C32.8925%2031.9619%2031.9722%2032.5833%2030.9167%2033.0416C29.8611%2033.4999%2028.7222%2033.7291%2027.5%2033.7291ZM27.5%2031.5208C29.3056%2031.5208%2030.8439%2030.8888%2032.115%2029.6249C33.3856%2028.361%2034.0208%2026.8194%2034.0208%2024.9999C34.0208%2023.1805%2033.3856%2021.6388%2032.115%2020.3749C30.8439%2019.111%2029.3056%2018.4791%2027.5%2018.4791C25.6944%2018.4791%2024.1564%2019.111%2022.8858%2020.3749C21.6147%2021.6388%2020.9792%2023.1805%2020.9792%2024.9999C20.9792%2026.8194%2021.6147%2028.361%2022.8858%2029.6249C24.1564%2030.8888%2025.6944%2031.5208%2027.5%2031.5208Z'%20fill='white'/%3e%3c/g%3e%3cdefs%3e%3cfilter%20id='filter0_d_910_37550'%20x='0.5'%20y='0'%20width='54'%20height='54'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset%20dy='2'/%3e%3cfeGaussianBlur%20stdDeviation='4'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.1%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_910_37550'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_910_37550'%20result='shape'/%3e%3c/filter%3e%3c/defs%3e%3c/svg%3e"
+      />
+      <img
+        alt="warning"
+        aria-label="varoitus"
+        class="MuiBox-root css-4g6ai3"
+        src="data:image/svg+xml,%3csvg%20width='55'%20height='54'%20viewBox='0%200%2055%2054'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20filter='url(%23filter0_d_910_37551)'%3e%3crect%20x='8.5'%20y='6'%20width='38'%20height='38'%20rx='19'%20fill='%23FFC300'%20shape-rendering='crispEdges'/%3e%3cpath%20d='M18%2032.7083L27.5%2016.2708L37%2032.7083H18ZM21.5%2030.6666H33.5L27.5%2020.3333L21.5%2030.6666ZM27.5%2029.9583C27.75%2029.9583%2027.9619%2029.8713%2028.1358%2029.6974C28.3092%2029.5241%2028.3958%2029.3124%2028.3958%2029.0624C28.3958%2028.8263%2028.3092%2028.6213%2028.1358%2028.4474C27.9619%2028.2741%2027.75%2028.1874%2027.5%2028.1874C27.25%2028.1874%2027.0383%2028.2741%2026.865%2028.4474C26.6911%2028.6213%2026.6042%2028.8263%2026.6042%2029.0624C26.6042%2029.3124%2026.6911%2029.5241%2026.865%2029.6974C27.0383%2029.8713%2027.25%2029.9583%2027.5%2029.9583ZM26.6667%2027.4999H28.3333V23.4583H26.6667V27.4999Z'%20fill='%23242222'/%3e%3c/g%3e%3cdefs%3e%3cfilter%20id='filter0_d_910_37551'%20x='0.5'%20y='0'%20width='54'%20height='54'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset%20dy='2'/%3e%3cfeGaussianBlur%20stdDeviation='4'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.1%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_910_37551'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_910_37551'%20result='shape'/%3e%3c/filter%3e%3c/defs%3e%3c/svg%3e"
+      />
+      <img
+        alt="error"
+        aria-label="virhe"
+        class="MuiBox-root css-4g6ai3"
+        src="data:image/svg+xml,%3csvg%20width='55'%20height='54'%20viewBox='0%200%2055%2054'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20filter='url(%23filter0_d_910_37552)'%3e%3crect%20x='8.5'%20y='6'%20width='38'%20height='38'%20rx='19'%20fill='%23C73F00'%20shape-rendering='crispEdges'/%3e%3cpath%20d='M27.5%2029.3542C27.7361%2029.3542%2027.9375%2029.2674%2028.1042%2029.0938C28.2708%2028.9201%2028.3542%2028.7153%2028.3542%2028.4792C28.3542%2028.2569%2028.2708%2028.059%2028.1042%2027.8854C27.9375%2027.7118%2027.7361%2027.625%2027.5%2027.625C27.2639%2027.625%2027.0625%2027.7118%2026.8958%2027.8854C26.7292%2028.059%2026.6458%2028.2569%2026.6458%2028.4792C26.6458%2028.7153%2026.7292%2028.9201%2026.8958%2029.0938C27.0625%2029.2674%2027.2639%2029.3542%2027.5%2029.3542ZM26.8125%2026.3958H28.1875V20.5H26.8125V26.3958ZM24.25%2032.7917L19.7083%2028.25V21.75L24.25%2017.1875H30.75L35.3125%2021.75V28.25L30.75%2032.7917H24.25ZM24.9375%2031.1458H30.0625L33.6458%2027.5625V22.4375L30.0625%2018.8542H24.9375L21.3542%2022.4375V27.5625L24.9375%2031.1458Z'%20fill='white'/%3e%3c/g%3e%3cdefs%3e%3cfilter%20id='filter0_d_910_37552'%20x='0.5'%20y='0'%20width='54'%20height='54'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset%20dy='2'/%3e%3cfeGaussianBlur%20stdDeviation='4'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.1%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_910_37552'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_910_37552'%20result='shape'/%3e%3c/filter%3e%3c/defs%3e%3c/svg%3e"
+      />
+      <img
+        alt="check"
+        aria-label="oikein-merkki"
+        class="MuiBox-root css-4g6ai3"
+        src="data:image/svg+xml,%3csvg%20width='55'%20height='54'%20viewBox='0%200%2055%2054'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20filter='url(%23filter0_d_910_37553)'%3e%3crect%20x='8.5'%20y='6'%20width='38'%20height='38'%20rx='19'%20fill='%23207A43'%20shape-rendering='crispEdges'/%3e%3cpath%20d='M25.375%2030.1667L20.4167%2025.2084L21.625%2024.0209L25.375%2027.7709L33.3542%2019.7917L34.5625%2020.9792L25.375%2030.1667Z'%20fill='white'/%3e%3c/g%3e%3cdefs%3e%3cfilter%20id='filter0_d_910_37553'%20x='0.5'%20y='0'%20width='54'%20height='54'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset%20dy='2'/%3e%3cfeGaussianBlur%20stdDeviation='4'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.1%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_910_37553'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_910_37553'%20result='shape'/%3e%3c/filter%3e%3c/defs%3e%3c/svg%3e"
+      />
+    </div>
+    <hr
+      class="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
+    />
+    <div
+      class="css-k008qs"
+    >
+      <img
+        alt="card"
+        aria-label="kortti"
+        class="MuiBox-root css-4g6ai3"
+        src="data:image/svg+xml,%3csvg%20width='39'%20height='38'%20viewBox='0%200%2039%2038'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M11.4792%2010.9792H18.9375V18.4376H11.4792V10.9792ZM13.125%2012.6042V16.3126V12.6042ZM20.0625%2010.9792H27.5208V18.4376H20.0625V10.9792ZM22.1875%2012.6042V16.3126V12.6042ZM11.4792%2019.5626H18.9375V27.0209H11.4792V19.5626ZM13.125%2021.6459V25.3751V21.6459ZM22.9583%2019.5626H24.625V22.4584H27.5208V24.1251H24.625V27.0209H22.9583V24.1251H20.0625V22.4584H22.9583V19.5626ZM21.7083%2012.6251V16.7917H25.875V12.6251H21.7083ZM13.125%2012.6251V16.7917H17.2917V12.6251H13.125ZM13.125%2021.2084V25.3751H17.2917V21.2084H13.125Z'%20fill='%230064AF'/%3e%3crect%20x='1'%20y='0.5'%20width='37'%20height='37'%20rx='18.5'%20stroke='%230064AF'/%3e%3c/svg%3e"
+      />
+      <img
+        alt="text"
+        aria-label="teksti"
+        class="MuiBox-root css-4g6ai3"
+        src="data:image/svg+xml,%3csvg%20width='39'%20height='38'%20viewBox='0%200%2039%2038'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M19.2917%2026.7083V24.9375L23.8542%2020.375L25.625%2022.1458L21.0625%2026.7083H19.2917ZM11.7917%2022.4583V20.7917H18.5833V22.4583H11.7917ZM26.5208%2021.25L24.75%2019.4792L25.3542%2018.875C25.5069%2018.7222%2025.7014%2018.6458%2025.9375%2018.6458C26.1736%2018.6458%2026.3681%2018.7222%2026.5208%2018.875L27.125%2019.4792C27.2778%2019.6319%2027.3542%2019.8264%2027.3542%2020.0625C27.3542%2020.2986%2027.2778%2020.4931%2027.125%2020.6458L26.5208%2021.25ZM11.7917%2018.7292V17.0833H22V18.7292H11.7917ZM11.7917%2015.0208V13.375H22V15.0208H11.7917Z'%20fill='%230064AF'/%3e%3crect%20x='1'%20y='0.5'%20width='37'%20height='37'%20rx='18.5'%20stroke='%230064AF'/%3e%3c/svg%3e"
+      />
+      <img
+        alt="image"
+        aria-label="kuva"
+        class="MuiBox-root css-4g6ai3"
+        src="data:image/svg+xml,%3csvg%20width='39'%20height='39'%20viewBox='0%200%2038%2038'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20x='0.5'%20y='0.5'%20width='37'%20height='37'%20rx='18.5'%20stroke='%230064AF'/%3e%3cpath%20d='M27%2013V15.99C27%2015.99%2025.01%2016%2025%2015.99V13H22C22%2013%2022.01%2011.01%2022%2011H25V8H27V11H30V13H27ZM24%2017V14H21V11H13C11.9%2011%2011%2011.9%2011%2013V25C11%2026.1%2011.9%2027%2013%2027H25C26.1%2027%2027%2026.1%2027%2025V17H24ZM13%2025L16%2021L18%2024L21%2020L25%2025H13Z'%20fill='%230064AF'/%3e%3c/svg%3e"
+      />
+      <input
+        accept="image/*"
+        style="display: none;"
+        type="file"
+      />
+    </div>
+    <hr
+      class="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
+    />
+    <button
+      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1gl0g0w-MuiButtonBase-root-MuiButton-root"
+      tabindex="0"
+      type="button"
+    >
+      Hylkää
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+    <button
+      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-a1hphw-MuiButtonBase-root-MuiButton-root"
+      tabindex="0"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
+        data-testid="CheckIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        />
+      </svg>
+      Tallenna
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+    <img
+      alt="close"
+      aria-label="Sulje"
+      class="MuiBox-root css-1yceefw"
+      src="data:image/svg+xml,%3csvg%20width='12'%20height='12'%20viewBox='0%200%2012%2012'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M6%207.54167L2.10417%2011.4375C1.89583%2011.6458%201.63889%2011.75%201.33333%2011.75C1.02778%2011.75%200.770833%2011.6458%200.5625%2011.4375C0.354167%2011.2292%200.25%2010.9722%200.25%2010.6667C0.25%2010.3611%200.354167%2010.1042%200.5625%209.89583L4.45833%206L0.5625%202.10417C0.354167%201.89583%200.25%201.63889%200.25%201.33333C0.25%201.02778%200.354167%200.770833%200.5625%200.5625C0.770833%200.354167%201.02778%200.25%201.33333%200.25C1.63889%200.25%201.89583%200.354167%202.10417%200.5625L6%204.45833L9.89583%200.5625C10.1042%200.354167%2010.3611%200.25%2010.6667%200.25C10.9722%200.25%2011.2292%200.354167%2011.4375%200.5625C11.6458%200.770833%2011.75%201.02778%2011.75%201.33333C11.75%201.63889%2011.6458%201.89583%2011.4375%202.10417L7.54167%206L11.4375%209.89583C11.6458%2010.1042%2011.75%2010.3611%2011.75%2010.6667C11.75%2010.9722%2011.6458%2011.2292%2011.4375%2011.4375C11.2292%2011.6458%2010.9722%2011.75%2010.6667%2011.75C10.3611%2011.75%2010.1042%2011.6458%209.89583%2011.4375L6%207.54167Z'%20fill='%23242222'/%3e%3c/svg%3e"
+    />
   </div>
-  <div
-    className="MuiToggleButtonGroup-root css-4hldsh-MuiToggleButtonGroup-root"
-    role="group"
-  >
-    <button
-      aria-label="lihavoitu"
-      aria-pressed={null}
-      className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
-      disabled={false}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onClick={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
-      type="button"
-      value="bold"
-    >
-      <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
-        data-testid="FormatBoldIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"
-        />
-      </svg>
-    </button>
-    <button
-      aria-label="kursivoitu"
-      aria-pressed={null}
-      className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
-      disabled={false}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onClick={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
-      type="button"
-      value="italic"
-    >
-      <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
-        data-testid="FormatItalicIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"
-        />
-      </svg>
-    </button>
-    <button
-      aria-label="alleviivattu"
-      aria-pressed={null}
-      className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
-      disabled={false}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onClick={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
-      type="button"
-      value="underlined"
-    >
-      <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
-        data-testid="FormatUnderlinedIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z"
-        />
-      </svg>
-    </button>
-    <img
-      alt="link"
-      aria-label="Lisää linkki"
-      className="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiBox-root css-1xst3u4"
-      disabled={false}
-      fullWidth={false}
-      onChange={[Function]}
-      onClick={[Function]}
-      selected={false}
-      size="small"
-      src="Link.svg"
-    />
-    <button
-      aria-label="numeroitu lista"
-      aria-pressed={false}
-      className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
-      disabled={false}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onClick={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
-      type="button"
-      value="numbered-list"
-    >
-      <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
-        data-testid="FormatListNumberedIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"
-        />
-      </svg>
-    </button>
-    <button
-      aria-label="numeroimaton lista"
-      aria-pressed={false}
-      className="MuiButtonBase-root MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-aaezgw-MuiButtonBase-root-MuiToggleButton-root"
-      disabled={false}
-      onBlur={[Function]}
-      onChange={[Function]}
-      onClick={[Function]}
-      onContextMenu={[Function]}
-      onDragLeave={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchMove={[Function]}
-      onTouchStart={[Function]}
-      tabIndex={0}
-      type="button"
-      value="bulleted-list"
-    >
-      <svg
-        aria-hidden={true}
-        className="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-y3v3gx-MuiSvgIcon-root"
-        data-testid="FormatListBulletedIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"
-        />
-      </svg>
-    </button>
-  </div>
-  <hr
-    className="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
-  />
-  <img
-    alt="color"
-    aria-label="väri"
-    className="MuiBox-root css-us34y6"
-    onClick={[Function]}
-    src="Palette.svg"
-  />
-  <hr
-    className="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
-  />
-  <div
-    className="css-k008qs"
-  >
-    <img
-      alt="info"
-      aria-label="info"
-      className="MuiBox-root css-4g6ai3"
-      onClick={[Function]}
-      src="Add_info.svg"
-    />
-    <img
-      alt="warning"
-      aria-label="varoitus"
-      className="MuiBox-root css-4g6ai3"
-      onClick={[Function]}
-      src="Add_varoitus.svg"
-    />
-    <img
-      alt="error"
-      aria-label="virhe"
-      className="MuiBox-root css-4g6ai3"
-      onClick={[Function]}
-      src="Add_virhe.svg"
-    />
-    <img
-      alt="check"
-      aria-label="oikein-merkki"
-      className="MuiBox-root css-4g6ai3"
-      onClick={[Function]}
-      src="Add_vahvistus.svg"
-    />
-  </div>
-  <hr
-    className="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
-  />
-  <div
-    className="css-k008qs"
-  >
-    <img
-      alt="card"
-      aria-label="kortti"
-      className="MuiBox-root css-4g6ai3"
-      onClick={[Function]}
-      src="Add_kortti.svg"
-    />
-    <img
-      alt="text"
-      aria-label="teksti"
-      className="MuiBox-root css-4g6ai3"
-      onClick={[Function]}
-      src="Add_teksti.svg"
-    />
-  </div>
-  <hr
-    className="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-1dpfv1n-MuiDivider-root"
-  />
-  <img
-    alt="close"
-    aria-label="Sulje"
-    className="MuiBox-root css-1yceefw"
-    onClick={[Function]}
-    src="Close.svg"
-  />
-</div>
+</DocumentFragment>
 `;

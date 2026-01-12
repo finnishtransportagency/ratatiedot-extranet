@@ -18,5 +18,8 @@ jobs:
       - name: Generate Prisma schema
         run: npm run prisma:generate
 
-      - name: Run tests
+      - name: Run server tests
         run: npm run test:server
+
+      - name: Run frontend tests
+        run: npm run test:client
