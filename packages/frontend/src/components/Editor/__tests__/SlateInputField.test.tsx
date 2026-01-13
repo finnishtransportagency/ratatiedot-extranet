@@ -26,7 +26,7 @@ const renderWithRouter = (ui: React.ReactElement) => {
   return render(<RouterProvider router={router} />);
 };
 
-const customSlatInputFieldRender = (ui: any, { providerProps, ...renderOptions }: any) => {
+const customSlateInputFieldRender = (ui: any, { providerProps, ...renderOptions }: any) => {
   const { openToolbar = false } = providerProps;
   const {
     editor = createEditorWithPlugins(createEditor()),
@@ -81,7 +81,7 @@ describe('SlateInputField component', () => {
   test('SlateInputField should render properly in contexts', async () => {
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
-      customSlatInputFieldRender(component, { providerProps });
+      customSlateInputFieldRender(component, { providerProps });
     });
     expect(screen.getByTestId('slate-editor')).toBeTruthy();
   });
