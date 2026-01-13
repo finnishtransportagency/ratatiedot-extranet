@@ -17,6 +17,7 @@
     "cy:open": "cypress open",
     "test": "lerna run test --no-sort",
     "test:client": "cd packages/frontend && npm run test",
+    "test:client:ci": "cd packages/frontend && npm run test:no-watch",
     "test:server": "cd packages/server && npm run test",
     "cdk": "cdk",
     "local:synth": "ENVIRONMENT=local BRANCH=local STACK_ID=local cdk --app \"ts-node bin/rataextra\" -o cdk.rataextra synth",
