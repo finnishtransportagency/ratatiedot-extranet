@@ -86,7 +86,9 @@ export class RatatietoNodeBackendConstruct extends Construct {
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
       vpc,
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-02c64a3b42a74f093' }),
+      // AWS Marketplace image:
+      // CIS Amazon Linux 2023 Benchmark - Level 1 - v12 -prod-fvm47vekg24oc
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-05cb83d12c5e97eb0' }),
       allowAllOutbound: true,
       role: asgRole,
       healthCheck: HealthCheck.elb({ grace: Duration.minutes(10) }),
