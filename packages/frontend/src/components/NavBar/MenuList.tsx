@@ -36,7 +36,8 @@ export const MenuList = () => {
         const { key, primary, icon, to, children } = item;
 
         const selected =
-          (key !== t('common:menu.logout') && capitalize(getRouterName(primary as string)) === capitalize(routeName)) ||
+          (key !== t('common:menu.extranet') &&
+            capitalize(getRouterName(primary as string)) === capitalize(routeName)) ||
           (key === t('common:menu.frontpage') && pathname === '/');
         return (
           <Fragment key={key}>

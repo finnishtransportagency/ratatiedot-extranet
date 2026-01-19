@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import SsidChartIcon from '@mui/icons-material/SsidChart';
 import DirectionsIcon from '@mui/icons-material/Directions';
 import SubwayIcon from '@mui/icons-material/Subway';
@@ -15,6 +15,7 @@ import { toast } from 'react-toastify';
 
 import { Routes } from '../constants/Routes';
 import categoryData from '../assets/data/FinnishCategories.json';
+import Sharepoint from '../assets/icons/Sharepoint.svg';
 import { getRouterName, getTranslatedCategoryData, matchRouteWithCategory, parseRouterName } from '../utils/helpers';
 import axios from 'axios';
 import { get } from 'lodash';
@@ -158,12 +159,17 @@ export const MenuContextProvider = (props: any) => {
       children: favoriteCategories,
     },
     ...fetchMaterialClass(),
-    // Logout should always be the last menu item
+    // Extranet link should always be the last menu item
     {
-      key: t('common:menu.logout'),
-      primary: <Typography variant="subtitle2">{t('common:menu.logout')}</Typography>,
+      key: t('common:menu.extranet'),
+      primary: (
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <Typography variant="subtitle2">{t('common:menu.extranet')}</Typography>
+          <Box component="img" src={Sharepoint} alt="Sharepoint" />
+        </Box>
+      ),
       icon: <LogoutIcon />,
-      to: `${window.location.origin}/sso/logout?auth=1`,
+      to: `https://extranet.vayla.fi/`,
     },
   ];
 
