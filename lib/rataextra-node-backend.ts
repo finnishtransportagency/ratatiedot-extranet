@@ -14,7 +14,14 @@ import {
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
-import { AutoScalingGroup, CfnAutoScalingGroup, HealthCheck, Signals, UpdatePolicy } from 'aws-cdk-lib/aws-autoscaling';
+import {
+  AdditionalHealthCheckType,
+  AutoScalingGroup,
+  CfnAutoScalingGroup,
+  HealthChecks,
+  Signals,
+  UpdatePolicy,
+} from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import {
   RataExtraEnvironment,
@@ -91,7 +98,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
       machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-05cb83d12c5e97eb0' }),
       allowAllOutbound: true,
       role: asgRole,
-      healthCheck: HealthCheck.elb({ grace: Duration.minutes(10) }),
+      healthChecks: HealthChecks.withAdditionalChecks({
+        gracePeriod: Duration.minutes(10),
+        additionalTypes: [AdditionalHealthCheckType.ELB],
+      }),
       minCapacity: 1,
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
