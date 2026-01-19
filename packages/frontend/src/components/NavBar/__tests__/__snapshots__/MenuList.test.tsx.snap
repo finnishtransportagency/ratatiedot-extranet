@@ -495,7 +495,7 @@ exports[`MenuList matches snapshot 1`] = `
   >
     <a
       class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters MuiListItemButton-root MuiListItemButton-gutters css-u4lbfj-MuiButtonBase-root-MuiListItemButton-root"
-      href="http://localhost:3000/sso/logout?auth=1"
+      href="https://extranet.vayla.fi/"
       tabindex="0"
     >
       <div
@@ -516,11 +516,24 @@ exports[`MenuList matches snapshot 1`] = `
       <div
         class="MuiListItemText-root css-1deko95-MuiListItemText-root"
       >
-        <h6
-          class="MuiTypography-root MuiTypography-subtitle2 css-ati914-MuiTypography-root"
+        <span
+          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary css-10hburv-MuiTypography-root"
         >
-          Kirjaudu ulos
-        </h6>
+          <div
+            class="MuiBox-root css-1bntj9o"
+          >
+            <h6
+              class="MuiTypography-root MuiTypography-subtitle2 css-ati914-MuiTypography-root"
+            >
+              Poistu Extranetiin
+            </h6>
+            <img
+              alt="Sharepoint"
+              class="MuiBox-root css-0"
+              src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='utf-8'?%3e%3c!--%20Uploaded%20to:%20SVG%20Repo,%20www.svgrepo.com,%20Generator:%20SVG%20Repo%20Mixer%20Tools%20--%3e%3csvg%20width='32px'%20height='32px'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20cx='15.5'%20cy='11.5'%20r='9.5'%20fill='url(%23paint0_linear_87_7767)'/%3e%3ccircle%20cx='24'%20cy='17'%20r='8'%20fill='url(%23paint1_linear_87_7767)'/%3e%3cmask%20id='mask0_87_7767'%20style='mask-type:alpha'%20maskUnits='userSpaceOnUse'%20x='10'%20y='6'%20width='13'%20height='24'%3e%3cpath%20d='M23%2023.5C23%2027.0899%2020.0899%2030%2016.5%2030C12.9101%2030%2010%2027.0899%2010%2023.5C10%2019.9102%2010%206%2010%206H23C23%206%2023%2021.1988%2023%2023.5Z'%20fill='%23C4C4C4'/%3e%3c/mask%3e%3cg%20mask='url(%23mask0_87_7767)'%3e%3ccircle%20cx='16.5'%20cy='23.5'%20r='6.5'%20fill='url(%23paint2_linear_87_7767)'/%3e%3cpath%20d='M7%2012C7%2010.3431%208.34315%209%2010%209H17C18.6569%209%2020%2010.3431%2020%2012V24C20%2025.6569%2018.6569%2027%2017%2027H7V12Z'%20fill='%23000000'%20fill-opacity='0.3'/%3e%3c/g%3e%3crect%20y='7'%20width='18'%20height='18'%20rx='2'%20fill='url(%23paint3_linear_87_7767)'/%3e%3cpath%20d='M13%2018.1229C13%2016.5726%2011.9602%2015.8883%209.79665%2015.0922C8.10273%2014.4637%207.70021%2014.2821%207.70021%2013.6816C7.70021%2013.1648%208.20335%2012.8156%209.0587%2012.8156C9.93082%2012.8156%2010.7526%2013.1089%2011.6751%2013.6117L12.6143%2011.9497C11.6247%2011.3352%2010.4507%2011%209.02516%2011C6.84486%2011%205.28512%2012.1173%205.28512%2013.8212C5.28512%2015.567%206.52621%2016.1257%208.60587%2016.8659C10.2662%2017.4525%2010.5849%2017.7458%2010.5849%2018.2626C10.5849%2018.8771%209.9979%2019.1844%209.07547%2019.1844C7.98532%2019.1844%207.02935%2018.8073%206.07338%2018.1927L5%2019.7849C6.174%2020.595%207.63312%2021%209.12579%2021C11.3732%2021%2013%2019.9385%2013%2018.1229Z'%20fill='white'/%3e%3cdefs%3e%3clinearGradient%20id='paint0_linear_87_7767'%20x1='6'%20y1='11.5'%20x2='26.5833'%20y2='11.5'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23103A3B'/%3e%3cstop%20offset='1'%20stop-color='%23116B6E'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint1_linear_87_7767'%20x1='18'%20y1='13'%20x2='32'%20y2='21'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%231D9097'/%3e%3cstop%20offset='1'%20stop-color='%2329BBC2'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint2_linear_87_7767'%20x1='12'%20y1='21.5'%20x2='23'%20y2='26.5'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%2328A6B5'/%3e%3cstop%20offset='1'%20stop-color='%2331D6EC'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint3_linear_87_7767'%20x1='0'%20y1='16'%20x2='19.5'%20y2='16'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23105557'/%3e%3cstop%20offset='1'%20stop-color='%23116B6E'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e"
+            />
+          </div>
+        </span>
       </div>
       <span
         class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
