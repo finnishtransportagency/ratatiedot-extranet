@@ -17,6 +17,12 @@ const STATIC_ROLES = {
   admin: 'Ratatieto_admin',
 };
 
+const BALISE_ROLES = {
+  read: 'Ratatieto_luku_Baliisisanomat',
+  write: 'Ratatieto_kirjoitus_Baliisisanomat',
+  admin: 'Ratatieto_admin_Baliisisanomat',
+};
+
 export type RataExtraUser = {
   uid: string;
   roles?: string[];
@@ -41,7 +47,7 @@ export function parseRoles(roles: string): string[] | undefined {
 
 export const getMockUser = (): RataExtraUser => ({
   uid: MOCK_UID,
-  roles: [STATIC_ROLES.read, STATIC_ROLES.admin],
+  roles: [STATIC_ROLES.read, STATIC_ROLES.admin, BALISE_ROLES.read, BALISE_ROLES.write, BALISE_ROLES.admin],
   isMockUser: true,
 });
 
@@ -78,6 +84,12 @@ export const isAdmin = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLE
 
 const isWriteUser = (user: RataExtraUser, writeRole: string) =>
   user.roles?.includes(writeRole) || user.roles?.includes(STATIC_ROLES.write);
+
+const isBaliseReadUser = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.read);
+
+const isBaliseWriteUser = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.write);
+
+const isBaliseAdmin = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.admin);
 
 export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
   if (!STACK_ID || !ENVIRONMENT) {
@@ -127,6 +139,48 @@ export const validateAdminUser = (user: RataExtraUser): void => {
     return;
   } else {
     log.error(user, 'Forbidden: User is not admin');
+    // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
+    throw new RataExtraLambdaError('Forbidden', 401);
+  }
+};
+
+/**
+ * Checks if the user has necessary role for balise read access. Throws 403 Forbidden if not authorised.
+ * @param {RataExtraUser} user User being validated
+ */
+export const validateBaliseReadUser = (user: RataExtraUser): void => {
+  if (isBaliseReadUser(user)) {
+    return;
+  } else {
+    log.error(user, 'Forbidden: User is not a balise read user');
+    // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
+    throw new RataExtraLambdaError('Forbidden', 401);
+  }
+};
+
+/**
+ * Checks if the user has necessary role for balise write access. Also checks for balise admin rights. Throws 403 Forbidden if not authorised.
+ * @param {RataExtraUser} user User being validated
+ */
+export const validateBaliseWriteUser = (user: RataExtraUser): void => {
+  if (isBaliseWriteUser(user) || isBaliseAdmin(user)) {
+    return;
+  } else {
+    log.error(user, 'Forbidden: User is not a balise write user');
+    // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
+    throw new RataExtraLambdaError('Forbidden', 401);
+  }
+};
+
+/**
+ * Checks if the user has necessary role for balise admin access. Throws 403 Forbidden if not authorised.
+ * @param {RataExtraUser} user User being validated
+ */
+export const validateBaliseAdminUser = (user: RataExtraUser): void => {
+  if (isBaliseAdmin(user)) {
+    return;
+  } else {
+    log.error(user, 'Forbidden: User is not a balise admin user');
     // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
     throw new RataExtraLambdaError('Forbidden', 401);
   }
