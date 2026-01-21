@@ -149,7 +149,7 @@ export const validateAdminUser = (user: RataExtraUser): void => {
  * @param {RataExtraUser} user User being validated
  */
 export const validateBaliseReadUser = (user: RataExtraUser): void => {
-  if (isBaliseReadUser(user)) {
+  if (isBaliseReadUser(user) || isBaliseWriteUser(user) || isBaliseAdmin(user)) {
     return;
   } else {
     log.error(user, 'Forbidden: User is not a balise read user');
