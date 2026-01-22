@@ -5,7 +5,8 @@ import { getUser, validateWriteUser, RataExtraUser } from '../../utils/userServi
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
-import { updateOrCreateBalise, createMultipleBalises, getExistingBaliseIds, FileUpload } from '../../utils/baliseUtils';
+import { updateOrCreateBalise, createMultipleBalises, getExistingBaliseIds } from '../../utils/baliseUtils';
+import type { FileUpload } from '../../utils/s3utils';
 
 const MAX_FILES_PER_REQUEST = 1000; // Limit to prevent timeout
 

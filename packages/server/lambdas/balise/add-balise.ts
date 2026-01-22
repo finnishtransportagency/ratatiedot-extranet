@@ -5,7 +5,8 @@ import { getUser, validateWriteUser } from '../../utils/userService';
 import { parseForm, FileUpload as ParsedFileUpload } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import { FileInfo } from 'busboy';
-import { updateOrCreateBalise, FileUpload } from '../../utils/baliseUtils';
+import { updateOrCreateBalise } from '../../utils/baliseUtils';
+import type { FileUpload } from '../../utils/s3utils';
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
