@@ -2,7 +2,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { S3 } from 'aws-sdk';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseReadUser } from '../../utils/userService';
+import { getUser, validateBaliseReadUser, validateBaliseAdminUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 const database = await DatabaseClient.build();
@@ -55,6 +55,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Baliisia ei löytynyt' }),
       };
+    }
+
+    // If requesting a historical version (not current), require admin access
+    if (requestedVersion !== undefined && !isNaN(requestedVersion) && requestedVersion !== balise.version) {
+      validateBaliseAdminUser(user);
     }
 
     // Check if the requested file exists for this balise
