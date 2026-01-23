@@ -67,7 +67,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     // Remove specified filenames from the balise
-    const updatedFileTypes = existingBalise.fileTypes.filter((filename) => !fileTypesToDelete.includes(filename));
+    const updatedFileTypes = existingBalise.fileTypes.filter(
+      (filename: string) => !fileTypesToDelete.includes(filename),
+    );
 
     // Create a new version with the files removed
     // First, create version history entry for the OLD version
