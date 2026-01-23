@@ -44,3 +44,4 @@ cdk.rataextra
 
 .clj-kondo/
 .lsp/
+*.pem
