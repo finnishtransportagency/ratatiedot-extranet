@@ -47,7 +47,7 @@
     "concurrently": "^8.2.1",
     "constructs": "^10.2.69",
     "date-fns": "^2.30.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "pretty-bytes": "^6.1.1",
     "slate-history": "^0.93.0"
   },
