@@ -9,12 +9,16 @@ import { VirtualBaliseTable } from './VirtualBaliseTable';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
 import { downloadBaliseFiles, downloadMultipleBaliseFiles } from '../../utils/download';
+import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 
 export const BalisePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
+  // Permissions
+  const { permissions } = useBalisePermissions();
 
   // Section store
   const { sections: sectionOptions, fetchSections: fetchSectionOptions, error: sectionError } = useSectionStore();
@@ -264,32 +268,36 @@ export const BalisePage: React.FC = () => {
               onSectionsSelect={setSelectedSections}
             />
           </Box>
-          <IconButton
-            id="section-edit-button"
-            onClick={handleAddSection}
-            size="small"
-            color="secondary"
-            title="Muokkaa JKV-rataosia"
-          >
-            <Build fontSize="inherit" transform="scale(0.85)" />
-          </IconButton>
+          {permissions?.canWrite && (
+            <IconButton
+              id="section-edit-button"
+              onClick={handleAddSection}
+              size="small"
+              color="secondary"
+              title="Muokkaa JKV-rataosia"
+            >
+              <Build fontSize="inherit" transform="scale(0.85)" />
+            </IconButton>
+          )}
         </Box>
 
         {/* Right side: Mass Upload and Add buttons */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton
-            id="bulk-upload-button"
-            onClick={handleBulkUpload}
-            size="small"
-            color="secondary"
-            title="Massa-lataus"
-          >
-            <Upload fontSize="inherit" />
-          </IconButton>
-          <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary" title="Lisää sanoma">
-            <Add fontSize="inherit" />
-          </IconButton>
-        </Box>
+        {permissions?.canWrite && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton
+              id="bulk-upload-button"
+              onClick={handleBulkUpload}
+              size="small"
+              color="secondary"
+              title="Massa-lataus"
+            >
+              <Upload fontSize="inherit" />
+            </IconButton>
+            <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary" title="Lisää sanoma">
+              <Add fontSize="inherit" />
+            </IconButton>
+          </Box>
+        )}
       </Paper>
 
       {/* Bulk selection actions - shown when items are selected with animation */}
@@ -327,26 +335,30 @@ export const BalisePage: React.FC = () => {
           >
             Lataa
           </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            startIcon={<Lock fontSize="small" />}
-            size="small"
-            onClick={handleBulkLock}
-            title="Lukitse/Poista lukitus"
-          >
-            Lukitse
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<Delete fontSize="small" />}
-            size="small"
-            onClick={handleBulkDelete}
-            title="Poista"
-            color="error"
-          >
-            Poista
-          </Button>
+          {permissions?.canWrite && (
+            <Button
+              variant="outlined"
+              color="secondary"
+              startIcon={<Lock fontSize="small" />}
+              size="small"
+              onClick={handleBulkLock}
+              title="Lukitse/Poista lukitus"
+            >
+              Lukitse
+            </Button>
+          )}
+          {permissions?.isAdmin && (
+            <Button
+              variant="outlined"
+              startIcon={<Delete fontSize="small" />}
+              size="small"
+              onClick={handleBulkDelete}
+              title="Poista"
+              color="error"
+            >
+              Poista
+            </Button>
+          )}
           <Chip label={`${selectedItems.length} valittu`} size="small" color="primary" />
         </Paper>
       )}
@@ -368,6 +380,7 @@ export const BalisePage: React.FC = () => {
           onSelectAll={handleSelectAll}
           onSelectItem={handleSelectItem}
           onLoadHistory={handleLoadHistory}
+          permissions={permissions ?? undefined}
           loadMoreItems={async () => {
             if (searchTerm === '') {
               await loadMoreBalises();
