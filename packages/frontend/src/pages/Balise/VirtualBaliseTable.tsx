@@ -34,6 +34,11 @@ interface BaliseTableProps {
   onLoadHistory?: (id: string) => Promise<void>;
   onRowClick?: (row: BaliseWithHistory) => void;
   onEditClick?: (row: BaliseWithHistory) => void;
+  permissions?: {
+    canRead: boolean;
+    canWrite: boolean;
+    isAdmin: boolean;
+  };
 }
 
 interface ExpandedRows {
@@ -52,6 +57,11 @@ interface CollapsibleRowProps {
   onLoadHistory?: (id: string) => Promise<void>;
   onContextMenu?: (event: React.MouseEvent, row: BaliseWithHistory) => void;
   onRowClick?: (row: BaliseWithHistory) => void;
+  permissions?: {
+    canRead: boolean;
+    canWrite: boolean;
+    isAdmin: boolean;
+  };
 }
 
 const getBestLocale = (): string => {
@@ -112,6 +122,7 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
   onLoadHistory,
   onContextMenu,
   onRowClick,
+  permissions,
 }) => {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const historyRef = useRef<HTMLDivElement>(null);
@@ -196,16 +207,18 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
           )}
         </TableCell>
         <TableCell sx={{ textAlign: 'right', width: '50px' }}>
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleExpand();
-            }}
-            disabled={loadingHistory}
-          >
-            {loadingHistory ? <CircularProgress size={16} /> : isExpanded ? <ExpandLess /> : <ExpandMore />}
-          </IconButton>
+          {permissions?.isAdmin && (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleExpand();
+              }}
+              disabled={loadingHistory}
+            >
+              {loadingHistory ? <CircularProgress size={16} /> : isExpanded ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          )}
         </TableCell>
       </TableRow>
       <TableRow>
@@ -275,6 +288,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
   onLoadHistory,
   onRowClick,
   onEditClick,
+  permissions,
 }) => {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows>({});
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -431,6 +445,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
                 onLoadHistory={onLoadHistory}
                 onContextMenu={handleRowContextMenu}
                 onRowClick={onRowClick}
+                permissions={permissions}
               />
             ))}
 
@@ -488,30 +503,36 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
           },
         }}
       >
-        <MenuItem onClick={handleContextEdit} sx={{ fontSize: '14px', py: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-            <Edit fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
-            Muokkaa
-          </Box>
-        </MenuItem>
+        {permissions?.isAdmin && (
+          <MenuItem onClick={handleContextEdit} sx={{ fontSize: '14px', py: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+              <Edit fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
+              Muokkaa
+            </Box>
+          </MenuItem>
+        )}
 
-        <MenuItem onClick={handleContextLock} sx={{ fontSize: '14px', py: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-            {contextMenu?.rowData.locked ? (
-              <LockOpen fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
-            ) : (
-              <Lock fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
-            )}
-            {contextMenu?.rowData.locked ? 'Avaa lukitus' : 'Lukitse'}
-          </Box>
-        </MenuItem>
+        {permissions?.canWrite && (
+          <MenuItem onClick={handleContextLock} sx={{ fontSize: '14px', py: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+              {contextMenu?.rowData.locked ? (
+                <LockOpen fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
+              ) : (
+                <Lock fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
+              )}
+              {contextMenu?.rowData.locked ? 'Avaa lukitus' : 'Lukitse'}
+            </Box>
+          </MenuItem>
+        )}
 
-        <MenuItem onClick={handleContextViewHistory} sx={{ fontSize: '14px', py: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-            <Visibility fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
-            Näytä historia
-          </Box>
-        </MenuItem>
+        {permissions?.isAdmin && (
+          <MenuItem onClick={handleContextViewHistory} sx={{ fontSize: '14px', py: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+              <Visibility fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
+              Näytä historia
+            </Box>
+          </MenuItem>
+        )}
 
         <MenuItem onClick={handleContextDownload} sx={{ fontSize: '14px', py: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -520,14 +541,18 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
           </Box>
         </MenuItem>
 
-        <Divider sx={{ my: 0.5 }} />
+        {permissions?.isAdmin && (
+          <>
+            <Divider sx={{ my: 0.5 }} />
 
-        <MenuItem onClick={handleContextDelete} sx={{ fontSize: '14px', py: 1, color: 'error.main' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-            <Delete fontSize="small" sx={{ mr: 1.5, color: 'error.main' }} />
-            Poista
-          </Box>
-        </MenuItem>
+            <MenuItem onClick={handleContextDelete} sx={{ fontSize: '14px', py: 1, color: 'error.main' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                <Delete fontSize="small" sx={{ mr: 1.5, color: 'error.main' }} />
+                Poista
+              </Box>
+            </MenuItem>
+          </>
+        )}
       </Menu>
     </Paper>
   );
