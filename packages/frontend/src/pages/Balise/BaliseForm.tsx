@@ -612,77 +612,36 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               placeholder="Syötä kuvaus"
             />
           </Paper>
-          {permissions?.canWrite && (
+          {!isCreate && (permissions?.canRead || permissions?.canWrite) && (
             <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
               {/* File Management v2024-10-16-13:05 */}
               <Box>
-                {/* Show upload area when no files have been added in edit mode */}
-                {!isCreate && formData.files.length === 0 && (
-                  <Box>
-                    {balise && balise.fileTypes && balise.fileTypes.length > 0 && (
-                      <Box sx={{ mb: 2 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Nykyiset tiedostot
-                          </Typography>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            color="secondary"
-                            onClick={(e) => handleDownloadBaliseFiles(e, balise)}
-                          >
-                            Lataa tiedostot
-                          </Button>
-                        </Box>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-                          {balise.fileTypes.map((fileType, index) => (
-                            <ChipWrapper key={index} text={fileType} icon={<Description />} />
-                          ))}
-                        </Box>
-                      </Box>
-                    )}
-                    <Box
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      sx={{
-                        border: '2px dashed',
-                        borderColor: isDragging ? 'primary.main' : 'divider',
-                        borderRadius: 2,
-                        p: 3,
-                        textAlign: 'center',
-                        bgcolor: isDragging ? 'action.selected' : 'action.hover',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        '&:hover': {
-                          borderColor: 'primary.main',
-                          bgcolor: 'action.selected',
-                        },
-                      }}
-                    >
-                      <input type="file" hidden multiple onChange={handleFileUpload} id="file-upload-input" />
-                      <label
-                        htmlFor="file-upload-input"
-                        style={{
-                          cursor: 'pointer',
-                          display: 'block',
-                          width: '100%',
-                        }}
+                {/* Show current files for read/write users */}
+                {formData.files.length === 0 && balise && balise.fileTypes && balise.fileTypes.length > 0 && (
+                  <Box sx={{ mb: permissions?.canWrite ? 2 : 0 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        Nykyiset tiedostot
+                      </Typography>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="secondary"
+                        onClick={(e) => handleDownloadBaliseFiles(e, balise)}
                       >
-                        <DriveFolderUpload sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
-                        <Typography variant="body1" gutterBottom fontWeight={400} color="text.secondary">
-                          Lisää uusia tiedostoja
-                        </Typography>
-                        <Typography variant="caption" color="text.disabled">
-                          Raahaa tiedostot/kansio tähän, tai klikkaa valitaksesi
-                        </Typography>
-                      </label>
+                        Lataa tiedostot
+                      </Button>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+                      {balise.fileTypes.map((fileType, index) => (
+                        <ChipWrapper key={index} text={fileType} icon={<Description />} />
+                      ))}
                     </Box>
                   </Box>
                 )}
 
-                {/* Create Mode Upload Area */}
-                {isCreate && (
+                {/* Upload area - write access only */}
+                {permissions?.canWrite && formData.files.length === 0 && (
                   <Box
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -713,17 +672,62 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                     >
                       <DriveFolderUpload sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
                       <Typography variant="body1" gutterBottom fontWeight={400} color="text.secondary">
-                        Raahaa tiedostot/kansio tähän
+                        Lisää uusia tiedostoja
                       </Typography>
                       <Typography variant="caption" color="text.disabled">
-                        Voit valita yksittäisiä tiedostoja tai kokonaisen kansion
+                        Raahaa tiedostot/kansio tähän, tai klikkaa valitaksesi
                       </Typography>
                     </label>
                   </Box>
                 )}
+              </Box>
+            </Paper>
+          )}
+
+          {/* Create Mode File Upload */}
+          {isCreate && permissions?.canWrite && (
+            <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
+              <Box>
+                <Box
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  sx={{
+                    border: '2px dashed',
+                    borderColor: isDragging ? 'primary.main' : 'divider',
+                    borderRadius: 2,
+                    p: 3,
+                    textAlign: 'center',
+                    bgcolor: isDragging ? 'action.selected' : 'action.hover',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      bgcolor: 'action.selected',
+                    },
+                  }}
+                >
+                  <input type="file" hidden multiple onChange={handleFileUpload} id="file-upload-input" />
+                  <label
+                    htmlFor="file-upload-input"
+                    style={{
+                      cursor: 'pointer',
+                      display: 'block',
+                      width: '100%',
+                    }}
+                  >
+                    <DriveFolderUpload sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+                    <Typography variant="body1" gutterBottom fontWeight={400} color="text.secondary">
+                      Raahaa tiedostot/kansio tähän
+                    </Typography>
+                    <Typography variant="caption" color="text.disabled">
+                      Voit valita yksittäisiä tiedostoja tai kokonaisen kansion
+                    </Typography>
+                  </label>
+                </Box>
 
                 {/* File upload visualization for edit mode - shows files being uploaded */}
-                {!isCreate && formData.files.length > 0 && (
+                {formData.files.length > 0 && (
                   <Box>
                     {/* Show different messaging based on whether there are existing files */}
                     {balise && balise.fileTypes && balise.fileTypes.length > 0 ? (
@@ -828,8 +832,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                   </Box>
                 )}
 
-                {/* Show uploaded files list in create mode */}
-                {isCreate && formData.files.length > 0 && (
+                {/* Show uploaded files list */}
+                {formData.files.length > 0 && (
                   <Box sx={{ mt: 2 }}>
                     <UploadedFilesList
                       files={formData.files}
@@ -842,8 +846,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             </Paper>
           )}
 
-          {/* Version Timeline - Material Design */}
-          {balise && mode !== 'create' && (
+          {/* Version History - Admin View */}
+          {balise && mode !== 'create' && permissions?.isAdmin && (
             <Paper
               elevation={0}
               sx={{
