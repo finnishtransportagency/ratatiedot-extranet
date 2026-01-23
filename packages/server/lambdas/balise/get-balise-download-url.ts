@@ -43,7 +43,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // TODO: Specify validation requirements later
     validateBaliseReadUser(user);
 
     const balise = await database.balise.findUnique({
