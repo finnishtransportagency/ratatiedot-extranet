@@ -1,7 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../../utils/logger';
 import { getRataExtraLambdaError } from '../../../utils/errors';
-import { getUser, validateReadUser } from '../../../utils/userService';
+import { getUser, validateBaliseAdminUser } from '../../../utils/userService';
 import { DatabaseClient } from '../../database/client';
 
 const database = await DatabaseClient.build();
@@ -17,7 +17,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
 
     log.info(user, `Get all sections. params: ${JSON.stringify(event.queryStringParameters)}`);
-    validateReadUser(user);
+
+    // TODO: Specify validation requirements later
+    validateBaliseAdminUser(user);
 
     const response = await database.section.findMany({
       orderBy: {

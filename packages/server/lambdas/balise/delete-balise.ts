@@ -2,7 +2,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { Prisma } from '@prisma/client';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateWriteUser } from '../../utils/userService';
+import { getUser, validateBaliseAdminUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { archiveS3FilesWithCleanup } from '../../utils/s3utils';
 
@@ -218,7 +218,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Archive balise id: ${baliseId}, path: ${event.path}`);
 
-    validateWriteUser(user, '');
+    // TODO: Specify validation requirements later
+    validateBaliseAdminUser(user);
 
     const balise = await fetchBaliseWithHistory(baliseId);
 

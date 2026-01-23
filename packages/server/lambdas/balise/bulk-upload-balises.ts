@@ -1,7 +1,7 @@
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateWriteUser, RataExtraUser } from '../../utils/userService';
+import { getUser, validateBaliseAdminUser, RataExtraUser } from '../../utils/userService';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
@@ -382,7 +382,9 @@ function determineResponse(
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    validateWriteUser(user, '');
+
+    // TODO: Specify validation requirements later
+    validateBaliseAdminUser(user);
 
     log.info(user, `Bulk upload balises request. Path: ${event.path}`);
 

@@ -1,7 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateReadUser } from '../../utils/userService';
+import { getUser, validateBaliseAdminUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 const database = await DatabaseClient.build();
@@ -25,7 +25,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    validateReadUser(user);
+    // TODO: Specify validation requirements later
+    validateBaliseAdminUser(user);
 
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
