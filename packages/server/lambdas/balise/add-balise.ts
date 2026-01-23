@@ -1,7 +1,7 @@
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseAdminUser } from '../../utils/userService';
+import { getUser, validateBaliseWriteUser } from '../../utils/userService';
 import { parseForm, FileUpload as ParsedFileUpload } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import { FileInfo } from 'busboy';
@@ -28,7 +28,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     // TODO: Specify validation requirements later
-    validateBaliseAdminUser(user);
+    validateBaliseWriteUser(user);
 
     // Check if this is a file upload (multipart/form-data) or metadata only (JSON)
     const contentType = event.headers?.['content-type'] || event.headers?.['Content-Type'] || '';
