@@ -2,7 +2,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseAdminUser } from '../../utils/userService';
+import { getUser, validateBaliseReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 // Helper to safely get a string query parameter
@@ -55,7 +55,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.info(user, `Get all balises. params: ${JSON.stringify(event.queryStringParameters)}`);
 
     // TODO: Specify validation requirements later
-    validateBaliseAdminUser(user);
+    validateBaliseReadUser(user);
 
     // Get pagination parameters
     const page = getQueryParamAsInt(event, 'page', 1) ?? 1;
