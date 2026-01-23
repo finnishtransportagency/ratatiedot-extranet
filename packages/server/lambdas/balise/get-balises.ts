@@ -54,7 +54,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Get all balises. params: ${JSON.stringify(event.queryStringParameters)}`);
 
-    // TODO: Specify validation requirements later
     validateBaliseReadUser(user);
 
     // Get pagination parameters

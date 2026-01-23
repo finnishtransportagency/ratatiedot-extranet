@@ -27,7 +27,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // TODO: Specify validation requirements later
     validateBaliseWriteUser(user);
 
     // Check if this is a file upload (multipart/form-data) or metadata only (JSON)

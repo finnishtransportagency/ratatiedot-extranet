@@ -18,7 +18,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Get all sections. params: ${JSON.stringify(event.queryStringParameters)}`);
 
-    // TODO: Specify validation requirements later
     validateBaliseReadUser(user);
 
     const response = await database.section.findMany({

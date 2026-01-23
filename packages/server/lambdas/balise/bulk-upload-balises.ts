@@ -383,7 +383,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
 
-    // TODO: Specify validation requirements later
     validateBaliseWriteUser(user);
 
     log.info(user, `Bulk upload balises request. Path: ${event.path}`);
