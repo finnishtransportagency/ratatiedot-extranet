@@ -1,7 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../../utils/logger';
 import { getRataExtraLambdaError } from '../../../utils/errors';
-import { getUser, validateWriteUser } from '../../../utils/userService';
+import { getUser, validateBaliseAdminUser } from '../../../utils/userService';
 import { DatabaseClient } from '../../database/client';
 import {
   generateKeyFromName,
@@ -47,7 +47,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     log.info(user, `Update section. id: ${sectionId}, path: ${event.path}`);
-    validateWriteUser(user, '');
+
+    // TODO: Specify validation requirements later
+    validateBaliseAdminUser(user);
 
     if (!event.body) {
       return {
