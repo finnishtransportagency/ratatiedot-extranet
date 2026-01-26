@@ -21,7 +21,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Delete section. id: ${sectionId}, path: ${event.path}`);
 
-    // TODO: Specify validation requirements later
     validateBaliseAdminUser(user);
 
     if (!sectionId) {
