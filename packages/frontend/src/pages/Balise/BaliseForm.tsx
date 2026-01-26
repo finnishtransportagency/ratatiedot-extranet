@@ -612,7 +612,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               placeholder="Syötä kuvaus"
             />
           </Paper>
-          {!isCreate && (permissions?.canRead || permissions?.canWrite) && (
+          {!isCreate && ((balise && balise.fileTypes && balise.fileTypes.length > 0) || permissions?.canWrite) && (
             <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
               {/* File Management v2024-10-16-13:05 */}
               <Box>
