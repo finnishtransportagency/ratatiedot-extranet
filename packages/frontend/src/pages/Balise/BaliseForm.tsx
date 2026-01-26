@@ -509,7 +509,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       {balise?.locked ? 'Avaa lukitus' : 'Lukitse'}
                     </Button>
                   )}
-                  {permissions?.isAdmin && (
+                  {permissions?.canWrite && (
                     <Button
                       variant="outlined"
                       color="error"

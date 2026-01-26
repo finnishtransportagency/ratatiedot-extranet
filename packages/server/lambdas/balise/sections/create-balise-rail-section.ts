@@ -35,7 +35,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Create section. path: ${event.path}`);
 
-    // TODO: Specify validation requirements later
     validateBaliseAdminUser(user);
 
     if (!event.body) {
