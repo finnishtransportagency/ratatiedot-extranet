@@ -23,3 +23,6 @@ jobs:
 
       - name: Run frontend tests
         run: npm run test:client:ci
+
+      - name: Build frontend
+        run: npm run build:frontend
