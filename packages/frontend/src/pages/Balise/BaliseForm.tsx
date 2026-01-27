@@ -314,7 +314,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       setFormData((prev) => ({ ...prev, files: [...(prev.files || []), ...allFiles] }));
 
       // In edit mode with existing files, mark all for deletion (full replacement)
-      if (mode !== 'create' && balise && balise.fileTypes && balise.fileTypes.length > 0 && allFiles.length > 0) {
+      if (mode !== 'create' && balise?.fileTypes?.length && allFiles.length > 0) {
         setFilesToDelete(balise.fileTypes);
         setHasChanges(true);
       }
@@ -612,12 +612,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               placeholder="Syötä kuvaus"
             />
           </Paper>
-          {!isCreate && ((balise && balise.fileTypes && balise.fileTypes.length > 0) || permissions?.canWrite) && (
+          {!isCreate && (balise?.fileTypes?.length || permissions?.canWrite) && (
             <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
               {/* File Management v2024-10-16-13:05 */}
               <Box>
                 {/* Show current files for read/write users */}
-                {formData.files.length === 0 && balise && balise.fileTypes && balise.fileTypes.length > 0 && (
+                {formData.files.length === 0 && balise?.fileTypes?.length && (
                   <Box sx={{ mb: permissions?.canWrite ? 2 : 0 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                       <Typography variant="subtitle2" color="text.secondary">
@@ -730,7 +730,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                 {formData.files.length > 0 && (
                   <Box>
                     {/* Show different messaging based on whether there are existing files */}
-                    {balise && balise.fileTypes && balise.fileTypes.length > 0 ? (
+                    {balise?.fileTypes?.length ? (
                       <>
                         <Typography variant="h4" sx={{ mb: 1, fontWeight: 500 }}>
                           Korvaa tiedostot
