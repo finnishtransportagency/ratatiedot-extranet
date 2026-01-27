@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { MenuItem, OutlinedInput, Select } from '@mui/material';
+import { MenuItem, OutlinedInput, Select, type OutlinedSelectProps } from '@mui/material';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Colors } from '../../../constants/Colors';
@@ -20,12 +20,12 @@ export const FontSizeDropdown = () => {
 
   return (
     <SelectWrapper
-      aria-label={t('common:edit.choose_fontsize')}
       value={fontSize}
       onChange={(event) => {
         fontSizeHandler(event.target.value as ElementType);
       }}
       input={<OutlinedInput />}
+      inputProps={{ 'aria-label': t('common:edit.choose_fontsize') }}
       sx={{ width: '100%' }}
     >
       <MenuItem value={ElementType.PARAGRAPH_TWO} aria-label={t('common:element.paragraph-two')}>
@@ -56,7 +56,7 @@ export const FontSizeDropdown = () => {
   );
 };
 
-const SelectWrapper = styled(Select)(({ theme }) => ({
+const SelectWrapper = styled(Select)<OutlinedSelectProps>(({ theme }) => ({
   backgroundColor: Colors.white,
   alignSelf: 'center',
   height: '50px',

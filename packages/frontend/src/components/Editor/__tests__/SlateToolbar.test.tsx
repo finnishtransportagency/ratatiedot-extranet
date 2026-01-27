@@ -24,7 +24,7 @@ const renderWithRouter = (ui: React.ReactElement) => {
 };
 
 describe('SlateToolbar component', () => {
-  let component = null as any;
+  let component: React.ReactElement;
   beforeEach(() => {
     component = (
       <ThemeProvider theme={theme}>
@@ -34,7 +34,6 @@ describe('SlateToolbar component', () => {
   });
 
   afterEach(() => {
-    component = null;
     cleanup();
   });
 
@@ -49,8 +48,9 @@ describe('SlateToolbar component', () => {
 
   test('SlateToolbar should have a list of control buttons', () => {
     renderWithRouter(component);
-    expect(screen.getByLabelText(/Valitse fontin koko/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Leipäteksti/i })).toBeInTheDocument();
+    const combobox = screen.getByRole('combobox', { name: /Valitse fontin koko/i });
+    expect(combobox).toBeInTheDocument();
+    expect(combobox).toHaveTextContent(/Leipäteksti/i);
     expect(screen.getByRole('button', { name: /lihavoitu/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /kursivoitu/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /alleviivattu/i })).toBeInTheDocument();
