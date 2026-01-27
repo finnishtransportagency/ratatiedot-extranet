@@ -483,6 +483,8 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
         onClose={handleContextMenuClose}
         anchorReference="anchorPosition"
         anchorPosition={contextMenu !== null ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined}
+        disableAutoFocus
+        disableEnforceFocus
         slotProps={{
           paper: {
             sx: {
