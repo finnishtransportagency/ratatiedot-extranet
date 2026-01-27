@@ -145,7 +145,7 @@ const UploadedFilesList: React.FC<UploadedFilesListProps> = ({ files, title, onR
   );
 };
 
-export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onCancel }) => {
+export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave }) => {
   const navigate = useNavigate();
   const { deleteBalise, lockBalise, unlockBalise } = useBaliseStore();
   const { permissions } = useBalisePermissions();
@@ -222,7 +222,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
     }
   }, [formData, originalData, mode]);
 
-  const handleInputChange = useCallback((field: keyof FormData, value: any) => {
+  const handleInputChange = useCallback((field: keyof FormData, value: string | File[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }, []);
 
@@ -958,7 +958,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                             const id = isCurrent ? 'current' : version.id;
                             setExpandedVersions((prev) => {
                               const newSet = new Set(prev);
-                              newSet.has(id) ? newSet.delete(id) : newSet.add(id);
+                              if (newSet.has(id)) {
+                                newSet.delete(id);
+                              } else {
+                                newSet.add(id);
+                              }
                               return newSet;
                             });
                           }}
