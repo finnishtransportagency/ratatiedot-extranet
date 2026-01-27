@@ -1,7 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateWriteUser } from '../../utils/userService';
+import { getUser, validateBaliseWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 const database = await DatabaseClient.build();
@@ -37,7 +37,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    validateWriteUser(user, '');
+    validateBaliseWriteUser(user);
 
     const existingBalise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
@@ -66,7 +66,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     // Remove specified filenames from the balise
-    const updatedFileTypes = existingBalise.fileTypes.filter((filename) => !fileTypesToDelete.includes(filename));
+    const updatedFileTypes = existingBalise.fileTypes.filter(
+      (filename: string) => !fileTypesToDelete.includes(filename),
+    );
 
     // Create a new version with the files removed
     // First, create version history entry for the OLD version

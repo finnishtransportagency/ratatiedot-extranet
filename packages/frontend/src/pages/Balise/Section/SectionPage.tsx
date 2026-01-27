@@ -22,6 +22,7 @@ import { ArrowBack, Edit, ExpandLess, Add } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../../constants/Routes';
 import { useSectionStore } from '../../../store/sectionStore';
+import { useBalisePermissions } from '../../../contexts/BalisePermissionsContext';
 import type { Section } from '../types';
 import { SectionEditForm } from './SectionEditForm';
 import { SectionCreateForm } from './SectionCreateForm';
@@ -35,6 +36,7 @@ interface ValidationErrors {
 
 export const SectionPage: React.FC = () => {
   const navigate = useNavigate();
+  const { permissions } = useBalisePermissions();
   const {
     sections,
     error,
@@ -191,9 +193,11 @@ export const SectionPage: React.FC = () => {
             </IconButton>
             <Typography variant="h6">JKV-rataosat</Typography>
           </Box>
-          <Button variant="contained" size="small" startIcon={<Add />} onClick={handleAddSection}>
-            Lisää JKV-rataosa
-          </Button>
+          {permissions?.isAdmin && (
+            <Button variant="contained" size="small" startIcon={<Add />} onClick={handleAddSection}>
+              Lisää JKV-rataosa
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -243,8 +247,17 @@ export const SectionPage: React.FC = () => {
                   <TableCell sx={{ fontSize: '12px', width: '300px', padding: '12px 16px' }}>Kuvaus</TableCell>
                   <TableCell sx={{ fontSize: '12px', width: '120px', padding: '12px 16px' }}>Min ID</TableCell>
                   <TableCell sx={{ fontSize: '12px', width: '120px', padding: '12px 16px' }}>Max ID</TableCell>
-                  <TableCell sx={{ fontSize: '12px', width: '80px', padding: '12px 16px', textAlign: 'center' }}>
-                    Muokkaa
+                  <TableCell
+                    sx={{
+                      fontSize: '12px',
+                      width: permissions?.isAdmin ? '80px' : '0px',
+                      padding: permissions?.isAdmin ? '12px 16px' : '0',
+                      textAlign: 'center',
+                      opacity: permissions?.isAdmin ? 1 : 0,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {permissions?.isAdmin && 'Muokkaa'}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -282,16 +295,31 @@ export const SectionPage: React.FC = () => {
                       <TableCell sx={{ fontSize: '14px', width: '120px', padding: '12px 16px' }}>
                         {section.idRangeMax.toLocaleString()}
                       </TableCell>
-                      <TableCell sx={{ fontSize: '14px', width: '80px', padding: '12px 16px', textAlign: 'center' }}>
-                        <IconButton
-                          size="small"
-                          onClick={() =>
-                            editingSection === section.id ? handleCancelEdit() : handleEditSection(section)
-                          }
-                          title={editingSection === section.id ? 'Peruuta muokkaus' : 'Muokkaa JKV-rataosaa'}
-                        >
-                          {editingSection === section.id ? <ExpandLess fontSize="small" /> : <Edit fontSize="small" />}
-                        </IconButton>
+                      <TableCell
+                        sx={{
+                          fontSize: '14px',
+                          width: permissions?.isAdmin ? '80px' : '0px',
+                          padding: permissions?.isAdmin ? '12px 16px' : '0',
+                          textAlign: 'center',
+                          opacity: permissions?.isAdmin ? 1 : 0,
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {permissions?.isAdmin && (
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              editingSection === section.id ? handleCancelEdit() : handleEditSection(section)
+                            }
+                            title={editingSection === section.id ? 'Peruuta muokkaus' : 'Muokkaa JKV-rataosaa'}
+                          >
+                            {editingSection === section.id ? (
+                              <ExpandLess fontSize="small" />
+                            ) : (
+                              <Edit fontSize="small" />
+                            )}
+                          </IconButton>
+                        )}
                       </TableCell>
                     </TableRow>
                     <SectionEditForm
