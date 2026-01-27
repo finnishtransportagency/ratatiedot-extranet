@@ -268,7 +268,7 @@ export const BalisePage: React.FC = () => {
               onSectionsSelect={setSelectedSections}
             />
           </Box>
-          {permissions?.canWrite && (
+          {permissions?.isAdmin && (
             <IconButton
               id="section-edit-button"
               onClick={handleAddSection}
