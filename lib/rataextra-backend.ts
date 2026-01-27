@@ -320,7 +320,7 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/database/check-admin-right.ts',
     });
 
-    const checkUserPermissions = this.createNodejsLambda({
+    const checkBalisePermissions = this.createNodejsLambda({
       ...prismaParameters,
       name: 'check-balise-permissions',
       relativePath: '../packages/server/lambdas/database/check-user-permissions.ts',
@@ -626,8 +626,8 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'checkAdminRight',
       },
       {
-        lambda: checkUserPermissions,
-        priority: 213,
+        lambda: checkBalisePermissions,
+        priority: 214,
         path: ['/api/balise/permissions'],
         httpRequestMethods: ['GET'],
         targetName: 'checkBalisePermissions',
