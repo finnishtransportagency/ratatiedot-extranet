@@ -47,9 +47,6 @@ interface ExpandedRows {
 
 interface CollapsibleRowProps {
   row: BaliseWithHistory;
-  onLockToggle: (id: string) => void;
-  onDelete: (id: string) => void;
-  onDownload: (row: BaliseWithHistory) => void;
   isExpanded: boolean;
   onToggleExpanded: (id: string) => void;
   isSelected: boolean;
@@ -112,9 +109,6 @@ const formatDateTime = (dateString: string | Date, useRelative = true) => {
 
 const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
   row,
-  onLockToggle,
-  onDelete,
-  onDownload,
   isExpanded,
   onToggleExpanded,
   isSelected,
@@ -435,9 +429,6 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
               <CollapsibleRow
                 key={row.id}
                 row={row}
-                onLockToggle={onLockToggle}
-                onDelete={onDelete}
-                onDownload={onDownload}
                 isExpanded={expandedRows[row.id] || false}
                 onToggleExpanded={handleToggleExpanded}
                 isSelected={selectedItems.includes(row.id)}
@@ -541,17 +532,15 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
           </Box>
         </MenuItem>
 
-        {permissions?.isAdmin && (
-          <>
-            <Divider sx={{ my: 0.5 }} />
+        {permissions?.isAdmin && <Divider sx={{ my: 0.5 }} />}
 
-            <MenuItem onClick={handleContextDelete} sx={{ fontSize: '14px', py: 1, color: 'error.main' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                <Delete fontSize="small" sx={{ mr: 1.5, color: 'error.main' }} />
-                Poista
-              </Box>
-            </MenuItem>
-          </>
+        {permissions?.isAdmin && (
+          <MenuItem onClick={handleContextDelete} sx={{ fontSize: '14px', py: 1, color: 'error.main' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+              <Delete fontSize="small" sx={{ mr: 1.5, color: 'error.main' }} />
+              Poista
+            </Box>
+          </MenuItem>
         )}
       </Menu>
     </Paper>
