@@ -7,7 +7,7 @@ export const ListWrapper = styled(List)(() => ({
   marginTop: theme.spacing(3),
   padding: theme.spacing(2),
   backgroundColor: Colors.lightgrey,
-  textAlign: 'left',
+  textAlign: 'left' as React.CSSProperties['textAlign'],
 }));
 
 export const ListItemWrapper = styled(ListItem)(() => ({
