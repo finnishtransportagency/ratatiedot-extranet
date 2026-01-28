@@ -20,6 +20,7 @@
     "test:client:ci": "cd packages/frontend && npm run test:no-watch",
     "test:server": "cd packages/server && npm run test",
     "cdk": "cdk",
+    "prelocal:synth": "npm run prisma:generate",
     "local:synth": "ENVIRONMENT=local BRANCH=local STACK_ID=local cdk --app \"tsx bin/rataextra\" -o cdk.rataextra synth",
     "sam:invoke": "ENVIRONMENT=local sam local invoke -t ./cdk.rataextra/rataextra.template.json $npm_config_handler --profile $npm_config_profile",
     "sam:synthinvoke": "npm run local:synth && npm run sam:invoke",
