@@ -1,5 +1,5 @@
-import { Construct } from 'constructs';
-import { /* StringListParameter */ StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import type { Construct } from 'constructs';
 import { getEnvOrFail } from '../utils';
 // Inspiration from https://github.com/finnishtransportagency/hassu/blob/main/deployment/lib/config.ts
 
@@ -25,34 +25,29 @@ export const ENVIRONMENTS = {
   local: 'local',
   feat: 'feat',
 } as const;
+import {
+  PRODUCTION_BRANCH,
+  DEVELOPMENT_MAIN_BRANCH,
+  SSM_CLOUDFRONT_CERTIFICATE_ARN,
+  SSM_CLOUDFRONT_DOMAIN_NAME,
+  SSM_DMZ_API_DOMAIN_NAME,
+  SSM_JWT_TOKEN_ISSUER,
+  SSM_JWT_TOKEN_ISSUERS,
+  SSM_ALFRESCO_DOWNLOAD_URL,
+  SSM_ALFRESCO_API_ANCESTOR,
+  SSM_MOCK_UID,
+  SSM_ALFRESCO_SITE_PATH,
+  SSM_SONARQUBE_URL,
+  SSM_SONARQUBE_TOKEN,
+  SSM_SERVICE_USER_UID,
+  SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY_ID,
+  SSM_DATABASE_DOMAIN,
+  SSM_ALFRESCO_API_KEY,
+  SSM_ALFRESCO_API_URL,
+} from './constants';
 
-const PRODUCTION_BRANCH = 'prod';
 export const PRODUCTION_STACK_ID = PRODUCTION_BRANCH;
-const DEVELOPMENT_MAIN_BRANCH = 'main';
 export const DEVELOPMENT_MAIN_STACK_ID = DEVELOPMENT_MAIN_BRANCH;
-const SSM_CLOUDFRONT_CERTIFICATE_ARN = 'rataextra-cloudfront-certificate-arn';
-const SSM_CLOUDFRONT_DOMAIN_NAME = 'rataextra-cloudfront-domain-name';
-const SSM_DMZ_API_DOMAIN_NAME = 'rataextra-dmz-api-domain-name';
-const SSM_JWT_TOKEN_ISSUER = 'rataextra-jwt-token-issuer';
-const SSM_JWT_TOKEN_ISSUERS = 'rataextra-jwt-token-issuers';
-export const SSM_DATABASE_DOMAIN = 'rataextra-database-domain';
-export const SSM_DATABASE_NAME = 'rataextra-database-name';
-export const SSM_DATABASE_PASSWORD = 'rataextra-rdspg13-rataextradev-password';
-export const SSM_ALFRESCO_API_KEY = 'rataextra-alfresco-api-key';
-export const SSM_ALFRESCO_API_URL = 'rataextra-alfresco-api-url';
-const SSM_ALFRESCO_DOWNLOAD_URL = 'rataextra-alfresco-download-url';
-const SSM_ALFRESCO_API_ANCESTOR = 'rataextra-alfresco-ancestor';
-const SSM_MOCK_UID = 'rataextra-static-test-user';
-const SSM_ALFRESCO_SITE_PATH = 'rataextra-alfresco-site-path';
-const SSM_SONARQUBE_URL = 'rataextra-sonarqube-url';
-const SSM_SONARQUBE_TOKEN = 'rataextra-sonarqube-token';
-const SSM_SERVICE_USER_UID = 'rataextra-service-user';
-const SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY_ID = 'rataextra-cloudfront-signer-public-key-id';
-export const SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY = 'rataextra-cloudfront-signer-private-key';
-
-// Minified JS code that is used to make ES modules working
-// Also handles __dirname & import.meta.url
-export const ESM_REQUIRE_SHIM = `await(async()=>{let{dirname:e}=await import("path"),{fileURLToPath:i}=await import("url");if(typeof globalThis.__filename>"u"&&(globalThis.__filename=i(import.meta.url)),typeof globalThis.__dirname>"u"&&(globalThis.__dirname=e(globalThis.__filename)),typeof globalThis.require>"u"){let{default:a}=await import("module");globalThis.require=a.createRequire(import.meta.url)}})();`;
 
 function getStackId(branch: string): string {
   const stackId = getEnvOrFail('STACK_ID');

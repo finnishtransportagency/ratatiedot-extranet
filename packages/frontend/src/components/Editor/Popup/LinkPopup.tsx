@@ -9,14 +9,12 @@ import { useContext } from 'react';
 import { AppBarContext } from '../../../contexts/AppBarContext';
 import { ILinkElement } from '../../../utils/types';
 
-interface LinkPopupProps extends SlateElementProps {}
-
-export const LinkPopup = ({ attributes, element, children }: LinkPopupProps) => {
+export const LinkPopup = ({ attributes, element, children }: SlateElementProps) => {
   const editor = useSlateStatic();
   const selected = useSelected();
   const focused = useFocused();
 
-  const { openToolbar } = useContext(AppBarContext);
+  useContext(AppBarContext);
   const url = (element as ILinkElement).href;
   return (
     <LinkPopUpContainer {...attributes}>
@@ -47,7 +45,7 @@ const LinkPopUpContainer = styled('div')({
 });
 
 const PopupWrapper = styled('div')(() => ({
-  position: 'absolute',
+  position: 'absolute' as const,
   left: 0,
   display: 'flex',
   alignItems: 'center',

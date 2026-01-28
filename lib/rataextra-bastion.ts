@@ -1,8 +1,8 @@
 import { Stack, Fn } from 'aws-cdk-lib';
-import { StackProps } from 'aws-cdk-lib';
+import type { StackProps } from 'aws-cdk-lib';
 import {
-  ISecurityGroup,
-  IVpc,
+  type ISecurityGroup,
+  type IVpc,
   Instance,
   InstanceType,
   InstanceClass,
@@ -11,8 +11,8 @@ import {
   UserData,
 } from 'aws-cdk-lib/aws-ec2';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { Construct } from 'constructs';
-import { RataExtraEnvironment } from './config';
+import type { Construct } from 'constructs';
+import type { RataExtraEnvironment } from './config';
 
 interface RataExtraBastionStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;

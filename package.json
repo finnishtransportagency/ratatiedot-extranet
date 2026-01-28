@@ -20,6 +20,7 @@
     "test:client:ci": "cd packages/frontend && npm run test:no-watch",
     "test:server": "cd packages/server && npm run test",
     "cdk": "cdk",
+    "prelocal:synth": "npm run prisma:generate",
     "local:synth": "ENVIRONMENT=local BRANCH=local STACK_ID=local cdk --app \"tsx bin/rataextra\" -o cdk.rataextra synth",
     "sam:invoke": "ENVIRONMENT=local sam local invoke -t ./cdk.rataextra/rataextra.template.json $npm_config_handler --profile $npm_config_profile",
     "sam:synthinvoke": "npm run local:synth && npm run sam:invoke",
@@ -42,13 +43,9 @@
   },
   "homepage": "https://github.com/finnishtransportagency/ratatiedot-extranet#readme",
   "dependencies": {
-    "aws-cdk-lib": "^2.235.1",
     "axios": "1.13.2",
-    "constructs": "^10.2.69",
     "date-fns": "^2.30.0",
-    "lodash": "4.17.23",
-    "pretty-bytes": "^6.1.1",
-    "slate-history": "^0.93.0"
+    "lodash": "4.17.23"
   },
   "devDependencies": {
     "@types/lodash": "4.17.23",
@@ -56,7 +53,9 @@
     "@typescript-eslint/eslint-plugin": "8.53.1",
     "@typescript-eslint/parser": "8.53.1",
     "aws-cdk": "^2.1101.0",
+    "aws-cdk-lib": "2.235.1",
     "concurrently": "9.2.1",
+    "constructs": "10.2.69",
     "cross-env": "10.1.0",
     "cypress": "15.9.0",
     "esbuild": "0.27.2",
