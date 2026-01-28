@@ -173,26 +173,9 @@ export class RataExtraBackendStack extends NestedStack {
       },
       bundling: {
         ...genericLambdaParameters.bundling,
-        nodeModules: ['prisma', '@prisma/client'],
         mainFields: ['module', 'main'],
         esbuildArgs: {
           '--conditions': 'module',
-        },
-        commandHooks: {
-          beforeInstall(inputDir: string, outputDir: string) {
-            return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
-          },
-          beforeBundling() {
-            return [];
-          },
-          afterBundling(_inputDir: string, outputDir: string) {
-            return [
-              `cd ${outputDir}`,
-              'npx prisma generate',
-              'rm -rf node_modules/@prisma/engines',
-              'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
-            ];
-          },
         },
       },
       initialPolicy: [ssmDatabaseParameterPolicy, kmsDecryptPolicy],
@@ -213,6 +196,10 @@ export class RataExtraBackendStack extends NestedStack {
     const prismaAlfrescoCombinedParameters: GeneralLambdaParameters = {
       ...prismaParameters,
       ...alfrescoParameters,
+      bundling: {
+        ...alfrescoParameters.bundling,
+        ...prismaParameters.bundling,
+      },
       environment: {
         ...prismaParameters.environment,
         ...alfrescoParameters.environment,
