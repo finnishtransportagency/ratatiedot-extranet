@@ -23,7 +23,7 @@ import {
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 import { RataExtraEnvironment } from './config';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';

@@ -7,7 +7,7 @@ import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
-import { SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY } from '../../../../lib/config';
+import { SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY } from '../../../../lib/constants';
 import { getSecuredStringParameter } from '../../utils/parameterStore';
 import type { CategoryDataContentsWithFieldsArray } from '../../types';
 

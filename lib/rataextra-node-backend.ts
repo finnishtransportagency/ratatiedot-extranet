@@ -23,13 +23,8 @@ import {
   UpdatePolicy,
 } from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import {
-  RataExtraEnvironment,
-  getPipelineConfig,
-  SSM_DATABASE_DOMAIN,
-  SSM_DATABASE_NAME,
-  SSM_DATABASE_PASSWORD,
-} from './config';
+import { RataExtraEnvironment, getPipelineConfig } from './config';
+import { SSM_DATABASE_DOMAIN, SSM_DATABASE_NAME, SSM_DATABASE_PASSWORD } from './constants';
 import { readFileSync } from 'fs';
 
 interface RatatietoNodeBackendStackProps extends StackProps {

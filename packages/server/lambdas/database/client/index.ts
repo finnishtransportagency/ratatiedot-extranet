@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { ENVIRONMENTS } from '../../../../../lib/config';
+import { ENVIRONMENTS } from '../../../utils/environments';
 import { getParameter, getSecuredStringParameter } from '../../../utils/parameterStore';
 
 const environment = process.env.ENVIRONMENT;
