@@ -1,8 +1,7 @@
 import { ALBEvent } from 'aws-lambda';
 import { RataExtraLambdaError } from './errors';
 import { validateJwtToken } from './validateJwtToken';
-import { isFeatOrLocalStack } from '../../../lib/utils';
-import { RataExtraEnvironment } from '../../../lib/config';
+import { isFeatOrLocalStack, type RataExtraEnvironment } from './environments';
 import { log } from './logger';
 
 const ISSUERS = process.env.JWT_TOKEN_ISSUERS?.split(',');

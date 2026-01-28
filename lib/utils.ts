@@ -1,11 +1,5 @@
-import { RemovalPolicy } from 'aws-cdk-lib';
 import { DEVELOPMENT_MAIN_STACK_ID, ENVIRONMENTS, PRODUCTION_STACK_ID, RataExtraEnvironment } from './config';
 
-/**
- * Returns RemovalPolicy property value for stack resources based on given RataExtra environment value
- */
-export const getRemovalPolicy = (rataExtraEnv: RataExtraEnvironment): RemovalPolicy.RETAIN | RemovalPolicy.DESTROY =>
-  rataExtraEnv === 'prod' ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY;
 /**
  * Returns whether the stack is the main development stack
  */
