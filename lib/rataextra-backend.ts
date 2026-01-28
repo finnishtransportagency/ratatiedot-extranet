@@ -8,7 +8,6 @@ import {
   SSM_DATABASE_DOMAIN,
   SSM_DATABASE_NAME,
   SSM_DATABASE_PASSWORD,
-  ESM_REQUIRE_SHIM,
   SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY,
 } from './config';
 import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -153,6 +152,13 @@ export class RataExtraBackendStack extends NestedStack {
         CLOUDFRONT_SIGNER_PUBLIC_KEY_ID: cloudfrontSignerPublicKeyId,
       },
       initialPolicy: [],
+      bundling: {
+        target: 'node22',
+        format: OutputFormat.ESM,
+        externalModules: ['aws-cdk-lib', 'aws-sdk'],
+        minify: false,
+        sourceMap: false,
+      },
     };
 
     const prismaParameters: GeneralLambdaParameters = {
@@ -166,14 +172,12 @@ export class RataExtraBackendStack extends NestedStack {
         BALISES_BUCKET_NAME: balisesBucket.bucketName,
       },
       bundling: {
+        ...genericLambdaParameters.bundling,
         nodeModules: ['prisma', '@prisma/client'],
-        format: OutputFormat.ESM,
-        target: 'node18',
         mainFields: ['module', 'main'],
         esbuildArgs: {
           '--conditions': 'module',
         },
-        banner: ESM_REQUIRE_SHIM, // Workaround for ESM problem. https://github.com/evanw/esbuild/pull/2067#issuecomment-1073039746
         commandHooks: {
           beforeInstall(inputDir: string, outputDir: string) {
             return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
