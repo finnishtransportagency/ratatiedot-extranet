@@ -155,7 +155,6 @@ export class RataExtraBackendStack extends NestedStack {
       bundling: {
         target: 'node22',
         format: OutputFormat.ESM,
-        externalModules: ['aws-sdk'],
         minify: false,
         sourceMap: false,
       },
