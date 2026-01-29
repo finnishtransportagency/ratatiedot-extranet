@@ -1,4 +1,4 @@
-import { CloudFront } from 'aws-sdk';
+import { getSignedUrl } from '@aws-sdk/cloudfront-signer';
 import { CategoryDataBase } from '@prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
@@ -14,7 +14,6 @@ import type { CategoryDataContentsWithFieldsArray } from '../../types';
 const database = await DatabaseClient.build();
 const cfKeyPairId = process.env.CLOUDFRONT_SIGNER_PUBLIC_KEY_ID || '';
 const cfPrivateKey = await getSecuredStringParameter(SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY);
-const cloudfront = new CloudFront.Signer(cfKeyPairId, cfPrivateKey);
 const CLOUDFRONT_DOMAIN_NAME = process.env.CLOUDFRONT_DOMAIN_NAME;
 
 let fileEndpointsCache: Array<CategoryDataBase> = [];
@@ -54,9 +53,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const imageElement = contents?.fields.find((element) => element.type === 'image');
     if (imageElement) {
       const encodedUrl = encodeURIComponent(imageElement.url);
-      const signedUrl = await cloudfront.getSignedUrl({
+      const signedUrl = getSignedUrl({
         url: `https://${CLOUDFRONT_DOMAIN_NAME}/${encodedUrl}`,
-        expires: Math.floor(Date.now() / 1000) + 3600,
+        keyPairId: cfKeyPairId,
+        privateKey: cfPrivateKey,
+        dateLessThan: new Date(Date.now() + 3600 * 1000),
       });
       imageElement.signedUrl = signedUrl;
     }
