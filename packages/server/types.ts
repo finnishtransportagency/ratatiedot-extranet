@@ -1,4 +1,4 @@
-import type { Notice, CategoryDataContents } from '@prisma/client';
+import type { Notice, CategoryDataContents } from './generated/prisma/client';
 
 type NoticeContentObject = {
   type: 'image';

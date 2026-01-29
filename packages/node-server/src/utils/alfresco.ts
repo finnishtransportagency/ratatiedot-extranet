@@ -1,4 +1,4 @@
-import { CategoryDataBase } from '@prisma/client';
+import type { CategoryDataBase } from '../../generated/prisma/client';
 import { getSecuredStringParameter } from './parameterStore.js';
 
 const alfrescoAPIKeyName = process.env.ALFRESCO_API_KEY_NAME || '';

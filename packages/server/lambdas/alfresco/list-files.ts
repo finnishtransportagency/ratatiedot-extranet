@@ -1,4 +1,4 @@
-import { CategoryDataBase } from '@prisma/client';
+import { CategoryDataBase } from '../../generated/prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';

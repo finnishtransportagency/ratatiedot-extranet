@@ -4,7 +4,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateAdminUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '../../generated/prisma/client';
 import { FileInfo } from 'busboy';
 import { parseForm } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';

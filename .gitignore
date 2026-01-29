@@ -45,3 +45,7 @@ cdk.rataextra
 .clj-kondo/
 .lsp/
 *.pem
+
+# Prisma generated client
+packages/server/generated/
+packages/node-server/generated/

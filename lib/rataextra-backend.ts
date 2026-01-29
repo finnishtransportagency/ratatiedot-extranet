@@ -174,10 +174,6 @@ export class RataExtraBackendStack extends NestedStack {
       },
       bundling: {
         ...genericLambdaParameters.bundling,
-        mainFields: ['module', 'main'],
-        esbuildArgs: {
-          '--conditions': 'module',
-        },
       },
       initialPolicy: [ssmDatabaseParameterPolicy, kmsDecryptPolicy],
     };

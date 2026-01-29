@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { type Notice, Prisma } from '@prisma/client';
+import { type Notice, Prisma } from '../../../generated/prisma/client';
 import { buildNoticesQuery, buildNoticesCountQuery, getStatus } from '../get-notices';
 
 vi.mock('../client', () => ({
