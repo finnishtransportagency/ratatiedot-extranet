@@ -11,7 +11,7 @@ import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 import type { Bucket } from 'aws-cdk-lib/aws-s3';
-import { RataExtraEnvironment } from './config';
+import { RataExtraEnvironment, ESM_REQUIRE_SHIM } from './config';
 import {
   SSM_DATABASE_DOMAIN,
   SSM_DATABASE_NAME,
@@ -158,6 +158,7 @@ export class RataExtraBackendStack extends NestedStack {
         minify: false,
         sourceMap: false,
         externalModules: ['@aws-sdk/*'],
+        banner: ESM_REQUIRE_SHIM, // Workaround for ESM problem. https://github.com/evanw/esbuild/pull/2067#issuecomment-1073039746
       },
     };
 
