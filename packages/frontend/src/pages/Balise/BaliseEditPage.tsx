@@ -73,20 +73,6 @@ const saveOrUpdateBalise = async (
   }
 };
 
-// Delete individual files from balise
-const deleteBaliseFiles = async (secondaryId: number, fileTypes: string[]): Promise<void> => {
-  const response = await fetch(`/api/balise/${secondaryId}/files/delete`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fileTypes }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to delete files: ${errorText}`);
-  }
-};
-
 export const BaliseEditPage: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
@@ -119,7 +105,7 @@ export const BaliseEditPage: React.FC = () => {
     }
   };
 
-  const handleSave = async (data: Partial<BaliseWithHistory>, files?: File[], filesToDelete?: string[]) => {
+  const handleSave = async (data: Partial<BaliseWithHistory>, files?: File[]) => {
     try {
       let savedBalise: BaliseWithHistory;
 
@@ -133,12 +119,6 @@ export const BaliseEditPage: React.FC = () => {
           navigate(`${Routes.BALISE}/${savedBalise.secondaryId}`);
         }
       } else if (id) {
-        const secondaryId = parseInt(id);
-
-        if (filesToDelete && filesToDelete.length > 0) {
-          await deleteBaliseFiles(secondaryId, filesToDelete);
-        }
-
         if (files && files.length > 0) {
           // Files uploaded: create new version and replace ALL existing files
           await saveOrUpdateBalise(data, files, false); // Don't expect response for file uploads to existing balise
