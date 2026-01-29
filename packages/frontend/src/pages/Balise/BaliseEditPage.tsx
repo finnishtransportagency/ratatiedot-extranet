@@ -4,6 +4,7 @@ import { Routes } from '../../constants/Routes';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { BaliseForm } from './BaliseForm';
 import { useBaliseStore } from '../../store/baliseStore';
+import { BalisePermissionGuard } from './BalisePermissionGuard';
 import type { BaliseWithHistory } from './types';
 
 // Mock API functions - replace with actual API calls
@@ -158,7 +159,11 @@ export const BaliseEditPage: React.FC = () => {
     );
   }
 
-  return <BaliseForm mode={currentMode} balise={balise || undefined} onSave={handleSave} onCancel={handleCancel} />;
+  return (
+    <BalisePermissionGuard requiredPermission={currentMode === 'create' ? 'canWrite' : 'canRead'}>
+      <BaliseForm mode={currentMode} balise={balise || undefined} onSave={handleSave} onCancel={handleCancel} />
+    </BalisePermissionGuard>
+  );
 };
 
 export default BaliseEditPage;
