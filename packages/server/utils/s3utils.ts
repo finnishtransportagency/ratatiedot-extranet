@@ -75,7 +75,7 @@ export async function uploadToS3WithRetry(
     1000, // base delay in ms
   );
 
-  log.info(userId, `Uploaded file to S3: ${fileName}`);
+  log.info(`[${userId}] Uploaded file to S3: ${fileName}`);
 }
 
 /**
@@ -90,7 +90,7 @@ export async function deleteFromS3WithRetry(bucket: string, fileName: string, us
     500, // shorter delay for cleanup
   );
 
-  log.info(userId, `Deleted file from S3: ${fileName}`);
+  log.info(`[${userId}] Deleted file from S3: ${fileName}`);
 }
 
 /**
@@ -112,7 +112,7 @@ export async function uploadFilesToS3WithCleanup(
       uploadResults.push({ filename: file.filename, s3Key, success: true });
       return file.filename;
     } catch (error) {
-      log.error(userId, `Failed to upload file to S3 after retries: ${s3Key}`, error);
+      log.error(`[${userId}] Failed to upload file to S3 after retries: ${s3Key}, ${error}`);
       uploadResults.push({ filename: file.filename, s3Key, success: false });
       throw error;
     }
@@ -124,14 +124,14 @@ export async function uploadFilesToS3WithCleanup(
     // If any upload failed, clean up the successfully uploaded files
     const successfulUploads = uploadResults.filter((result) => result.success);
     if (successfulUploads.length > 0) {
-      log.warn(userId, `Cleaning up ${successfulUploads.length} successfully uploaded files due to batch failure`);
+      log.warn(`[${userId}] Cleaning up ${successfulUploads.length} successfully uploaded files due to batch failure`);
 
       // Attempt cleanup but don't fail the entire operation if cleanup fails
       const cleanupPromises = successfulUploads.map(async (result) => {
         try {
           await deleteFromS3WithRetry(bucket, result.s3Key, userId);
         } catch (cleanupError) {
-          log.error(userId, `Failed to cleanup S3 file: ${result.s3Key}`, cleanupError);
+          log.error(`[${userId}] Failed to cleanup S3 file: ${result.s3Key}, ${cleanupError}`);
         }
       });
 
@@ -172,7 +172,7 @@ export async function copyS3ObjectWithRetry(
     1000, // base delay in ms
   );
 
-  log.info(userId, `Copied S3 object from ${sourceKey} to ${destKey}`);
+  log.info(`[${userId}] Copied S3 object from ${sourceKey} to ${destKey}`);
 }
 
 /**
@@ -195,22 +195,22 @@ export async function archiveS3FilesWithCleanup(
     try {
       await copyS3ObjectWithRetry(bucket, sourceKey, archiveKey, userId);
       results.copiedFiles.push(sourceKey);
-      log.info(userId, `Successfully archived ${sourceKey} to ${archiveKey}`);
+      log.info(`[${userId}] Successfully archived ${sourceKey} to ${archiveKey}`);
     } catch (error) {
-      log.error(userId, `Failed to archive ${sourceKey} to ${archiveKey}`, error);
+      log.error(`[${userId}] Failed to archive ${sourceKey} to ${archiveKey}, ${error}`);
       results.failureCount++;
 
       // If copy fails, we don't want to proceed with deletion
       // Clean up any files we've already copied in this batch
       if (results.copiedFiles.length > 0) {
-        log.warn(userId, `Cleaning up ${results.copiedFiles.length} partially copied archive files`);
+        log.warn(`[${userId}] Cleaning up ${results.copiedFiles.length} partially copied archive files`);
         const cleanupPromises = results.copiedFiles.map(async (copiedSourceKey) => {
           const correspondingArchiveKey = filesToArchive.find((f) => f.sourceKey === copiedSourceKey)?.archiveKey;
           if (correspondingArchiveKey) {
             try {
               await deleteFromS3WithRetry(bucket, correspondingArchiveKey, userId);
             } catch (cleanupError) {
-              log.error(userId, `Failed to cleanup archived file: ${correspondingArchiveKey}`, cleanupError);
+              log.error(`[${userId}] Failed to cleanup archived file: ${correspondingArchiveKey}, ${cleanupError}`);
             }
           }
         });
@@ -226,9 +226,9 @@ export async function archiveS3FilesWithCleanup(
     try {
       await deleteFromS3WithRetry(bucket, sourceKey, userId);
       results.successCount++;
-      log.info(userId, `Successfully deleted original file: ${sourceKey}`);
+      log.info(`[${userId}] Successfully deleted original file: ${sourceKey}`);
     } catch (error) {
-      log.error(userId, `Failed to delete original file: ${sourceKey}`, error);
+      log.error(`[${userId}] Failed to delete original file: ${sourceKey}, ${error}`);
       results.failureCount++;
       // Continue with other deletions even if one fails
       // The archived copy exists, so we're not losing data
