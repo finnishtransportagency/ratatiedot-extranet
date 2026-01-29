@@ -10,6 +10,7 @@ import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore'
 import { useSectionStore } from '../../store/sectionStore';
 import { downloadBaliseFiles, downloadMultipleBaliseFiles } from '../../utils/download';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
+import { BalisePermissionGuard } from './BalisePermissionGuard';
 
 export const BalisePage: React.FC = () => {
   const navigate = useNavigate();
@@ -66,8 +67,7 @@ export const BalisePage: React.FC = () => {
   // Initial data load and re-load on section change
   useEffect(() => {
     loadInitialData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSections]); // Re-run when section selection changes
+  }, [selectedSections, loadInitialData]); // Re-run when section selection changes
 
   // Check for recently edited balise and refresh it
   useEffect(() => {
@@ -219,177 +219,181 @@ export const BalisePage: React.FC = () => {
   }
 
   return (
-    <Box
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: 0,
-        mt: 1,
-        mb: 1,
-        overflow: 'hidden',
-        minHeight: 0, // Allows flex children to shrink below content size
-      }}
-    >
-      {isBackgroundLoading && <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000 }} />}
-      {sectionError && (
-        <Alert severity="error" sx={{ mb: 1 }}>
-          Failed to load sections: {sectionError}
-        </Alert>
-      )}
-      {error && balises.length > 0 && (
-        <Alert severity="warning" sx={{ mb: 1 }}>
-          Background refresh failed: {error}
-        </Alert>
-      )}
-      <Paper
+    <BalisePermissionGuard requiredPermission="canRead">
+      <Box
         sx={{
-          p: 1,
+          height: '100%',
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          flexDirection: 'column',
+          padding: 0,
+          mt: 1,
           mb: 1,
-          gap: 1,
-          flexShrink: 0,
-          position: 'relative',
-          zIndex: 10,
+          overflow: 'hidden',
+          minHeight: 0, // Allows flex children to shrink below content size
         }}
-        variant="outlined"
       >
-        {/* Left side: Search, Filter, and Section Edit button */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ minWidth: '200px' }}>
-            <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-          </Box>
-          <Box sx={{ minWidth: '200px' }}>
-            <SectionFilter
-              sections={sectionOptions}
-              selectedSections={selectedSections}
-              onSectionsSelect={setSelectedSections}
-            />
-          </Box>
-          {permissions?.isAdmin && (
-            <IconButton
-              id="section-edit-button"
-              onClick={handleAddSection}
-              size="small"
-              color="secondary"
-              title="Muokkaa JKV-rataosia"
-            >
-              <Build fontSize="inherit" transform="scale(0.85)" />
-            </IconButton>
-          )}
-        </Box>
-
-        {/* Right side: Mass Upload and Add buttons */}
-        {permissions?.canWrite && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton
-              id="bulk-upload-button"
-              onClick={handleBulkUpload}
-              size="small"
-              color="secondary"
-              title="Massa-lataus"
-            >
-              <Upload fontSize="inherit" />
-            </IconButton>
-            <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary" title="Lisää sanoma">
-              <Add fontSize="inherit" />
-            </IconButton>
-          </Box>
+        {isBackgroundLoading && (
+          <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000 }} />
         )}
-      </Paper>
-
-      {/* Bulk selection actions - shown when items are selected with animation */}
-      {selectedItems.length > 0 && (
+        {sectionError && (
+          <Alert severity="error" sx={{ mb: 1 }}>
+            Failed to load sections: {sectionError}
+          </Alert>
+        )}
+        {error && balises.length > 0 && (
+          <Alert severity="warning" sx={{ mb: 1 }}>
+            Background refresh failed: {error}
+          </Alert>
+        )}
         <Paper
           sx={{
             p: 1,
             display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            gap: 1,
             mb: 1,
+            gap: 1,
             flexShrink: 0,
-            backgroundColor: 'action.selected',
-            animation: 'slideIn 0.3s ease-in-out',
-            '@keyframes slideIn': {
-              '0%': {
-                opacity: 0,
-                transform: 'translateY(-10px)',
-              },
-              '100%': {
-                opacity: 1,
-                transform: 'translateY(0)',
-              },
-            },
+            position: 'relative',
+            zIndex: 10,
           }}
           variant="outlined"
         >
-          <Button
-            size="small"
-            variant="outlined"
-            color="primary"
-            startIcon={<Download fontSize="small" />}
-            onClick={handleBulkDownload}
-            title="Lataa valitut sanomat"
-          >
-            Lataa
-          </Button>
-          {permissions?.canWrite && (
-            <Button
-              variant="outlined"
-              color="secondary"
-              startIcon={<Lock fontSize="small" />}
-              size="small"
-              onClick={handleBulkLock}
-              title="Lukitse/Poista lukitus"
-            >
-              Lukitse
-            </Button>
-          )}
-          {permissions?.isAdmin && (
-            <Button
-              variant="outlined"
-              startIcon={<Delete fontSize="small" />}
-              size="small"
-              onClick={handleBulkDelete}
-              title="Poista"
-              color="error"
-            >
-              Poista
-            </Button>
-          )}
-          <Chip label={`${selectedItems.length} valittu`} size="small" color="primary" />
-        </Paper>
-      )}
+          {/* Left side: Search, Filter, and Section Edit button */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ minWidth: '200px' }}>
+              <BaliseSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+            </Box>
+            <Box sx={{ minWidth: '200px' }}>
+              <SectionFilter
+                sections={sectionOptions}
+                selectedSections={selectedSections}
+                onSectionsSelect={setSelectedSections}
+              />
+            </Box>
+            {permissions?.isAdmin && (
+              <IconButton
+                id="section-edit-button"
+                onClick={handleAddSection}
+                size="small"
+                color="secondary"
+                title="Muokkaa JKV-rataosia"
+              >
+                <Build fontSize="inherit" transform="scale(0.85)" />
+              </IconButton>
+            )}
+          </Box>
 
-      <Paper
-        variant="outlined"
-        sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
-      >
-        <VirtualBaliseTable
-          items={filteredData}
-          hasNextPage={pagination?.hasNextPage ?? false}
-          isBackgroundLoading={isBackgroundLoading}
-          selectedItems={selectedItems}
-          onRowClick={handleRowClick}
-          onEditClick={handleEditClick}
-          onLockToggle={handleLockToggle}
-          onDelete={handleDelete}
-          onDownload={handleDownload}
-          onSelectAll={handleSelectAll}
-          onSelectItem={handleSelectItem}
-          onLoadHistory={handleLoadHistory}
-          permissions={permissions ?? undefined}
-          loadMoreItems={async () => {
-            if (searchTerm === '') {
-              await loadMoreBalises();
-            }
-          }}
-          totalCount={pagination?.totalCount ?? filteredData.length}
-        />
-      </Paper>
-    </Box>
+          {/* Right side: Mass Upload and Add buttons */}
+          {permissions?.canWrite && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <IconButton
+                id="bulk-upload-button"
+                onClick={handleBulkUpload}
+                size="small"
+                color="secondary"
+                title="Massa-lataus"
+              >
+                <Upload fontSize="inherit" />
+              </IconButton>
+              <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary" title="Lisää sanoma">
+                <Add fontSize="inherit" />
+              </IconButton>
+            </Box>
+          )}
+        </Paper>
+
+        {/* Bulk selection actions - shown when items are selected with animation */}
+        {selectedItems.length > 0 && (
+          <Paper
+            sx={{
+              p: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              mb: 1,
+              flexShrink: 0,
+              backgroundColor: 'action.selected',
+              animation: 'slideIn 0.3s ease-in-out',
+              '@keyframes slideIn': {
+                '0%': {
+                  opacity: 0,
+                  transform: 'translateY(-10px)',
+                },
+                '100%': {
+                  opacity: 1,
+                  transform: 'translateY(0)',
+                },
+              },
+            }}
+            variant="outlined"
+          >
+            <Button
+              size="small"
+              variant="outlined"
+              color="primary"
+              startIcon={<Download fontSize="small" />}
+              onClick={handleBulkDownload}
+              title="Lataa valitut sanomat"
+            >
+              Lataa
+            </Button>
+            {permissions?.canWrite && (
+              <Button
+                variant="outlined"
+                color="secondary"
+                startIcon={<Lock fontSize="small" />}
+                size="small"
+                onClick={handleBulkLock}
+                title="Lukitse/Poista lukitus"
+              >
+                Lukitse
+              </Button>
+            )}
+            {permissions?.isAdmin && (
+              <Button
+                variant="outlined"
+                startIcon={<Delete fontSize="small" />}
+                size="small"
+                onClick={handleBulkDelete}
+                title="Poista"
+                color="error"
+              >
+                Poista
+              </Button>
+            )}
+            <Chip label={`${selectedItems.length} valittu`} size="small" color="primary" />
+          </Paper>
+        )}
+
+        <Paper
+          variant="outlined"
+          sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
+        >
+          <VirtualBaliseTable
+            items={filteredData}
+            hasNextPage={pagination?.hasNextPage ?? false}
+            isBackgroundLoading={isBackgroundLoading}
+            selectedItems={selectedItems}
+            onRowClick={handleRowClick}
+            onEditClick={handleEditClick}
+            onLockToggle={handleLockToggle}
+            onDelete={handleDelete}
+            onDownload={handleDownload}
+            onSelectAll={handleSelectAll}
+            onSelectItem={handleSelectItem}
+            onLoadHistory={handleLoadHistory}
+            permissions={permissions ?? undefined}
+            loadMoreItems={async () => {
+              if (searchTerm === '') {
+                await loadMoreBalises();
+              }
+            }}
+            totalCount={pagination?.totalCount ?? filteredData.length}
+          />
+        </Paper>
+      </Box>
+    </BalisePermissionGuard>
   );
 };
 

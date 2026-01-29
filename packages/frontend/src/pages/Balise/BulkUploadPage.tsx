@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
+import { BalisePermissionGuard } from './BalisePermissionGuard';
 import {
   Box,
   Paper,
@@ -299,384 +300,394 @@ export const BulkUploadPage: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Fixed Header */}
+    <BalisePermissionGuard requiredPermission="canWrite">
       <Box
         sx={{
-          p: 1.5,
-          bgcolor: 'background.paper',
-          borderBottom: 1,
-          borderColor: 'divider',
-          flexShrink: 0,
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
         }}
       >
-        <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <IconButton onClick={handleBack} size="small">
-                <ArrowBack fontSize="inherit" />
-              </IconButton>
-              <Typography variant="h6">Lähetä tiedostoja</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {files.length > 0 && !uploadResult && (
-                <>
-                  <Button variant="outlined" onClick={clearAll} disabled={uploading} size="small">
-                    Tyhjennä
+        {/* Fixed Header */}
+        <Box
+          sx={{
+            p: 1.5,
+            bgcolor: 'background.paper',
+            borderBottom: 1,
+            borderColor: 'divider',
+            flexShrink: 0,
+          }}
+        >
+          <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <IconButton onClick={handleBack} size="small">
+                  <ArrowBack fontSize="inherit" />
+                </IconButton>
+                <Typography variant="h6">Lähetä tiedostoja</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                {files.length > 0 && !uploadResult && (
+                  <>
+                    <Button variant="outlined" onClick={clearAll} disabled={uploading} size="small">
+                      Tyhjennä
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      startIcon={uploading ? <CircularProgress size={20} color="inherit" /> : <CloudUpload />}
+                      onClick={handleUpload}
+                      disabled={uploading || validFileCount === 0}
+                      size="small"
+                    >
+                      {uploading ? 'Ladataan...' : `Lataa ${validFileCount} tiedostoa`}
+                    </Button>
+                  </>
+                )}
+                {uploadResult && (
+                  <Button variant="contained" color="primary" onClick={handleUploadAnother} size="small">
+                    Lataa lisää
                   </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={uploading ? <CircularProgress size={20} color="inherit" /> : <CloudUpload />}
-                    onClick={handleUpload}
-                    disabled={uploading || validFileCount === 0}
-                    size="small"
-                  >
-                    {uploading ? 'Ladataan...' : `Lataa ${validFileCount} tiedostoa`}
-                  </Button>
-                </>
-              )}
-              {uploadResult && (
-                <Button variant="contained" color="primary" onClick={handleUploadAnother} size="small">
-                  Lataa lisää
-                </Button>
-              )}
+                )}
+              </Box>
             </Box>
           </Box>
         </Box>
-      </Box>
 
-      {/* Scrollable Content */}
-      <Box
-        sx={{
-          flex: 1,
-          overflow: 'auto',
-          p: 2,
-          bgcolor: 'grey.50',
-        }}
-      >
-        <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-              {error}
-            </Alert>
-          )}
+        {/* Scrollable Content */}
+        <Box
+          sx={{
+            flex: 1,
+            overflow: 'auto',
+            p: 2,
+            bgcolor: 'grey.50',
+          }}
+        >
+          <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+                {error}
+              </Alert>
+            )}
 
-          {/* Upload Progress */}
-          {uploading && (
-            <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
-              <Typography variant="h6" gutterBottom>
-                Ladataan tiedostoja...
-              </Typography>
-              <LinearProgress variant="determinate" value={uploadProgress} sx={{ mb: 1 }} />
-              <Typography variant="body2" color="text.secondary">
-                {uploadProgress}% valmis
-              </Typography>
-            </Paper>
-          )}
+            {/* Upload Progress */}
+            {uploading && (
+              <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
+                <Typography variant="h6" gutterBottom>
+                  Ladataan tiedostoja...
+                </Typography>
+                <LinearProgress variant="determinate" value={uploadProgress} sx={{ mb: 1 }} />
+                <Typography variant="body2" color="text.secondary">
+                  {uploadProgress}% valmis
+                </Typography>
+              </Paper>
+            )}
 
-          {/* Upload Result */}
-          {uploadResult && (
-            <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                {uploadResult.success ? (
-                  <CheckCircle sx={{ fontSize: 40, color: 'success.main' }} />
-                ) : (
-                  <Warning sx={{ fontSize: 40, color: 'warning.main' }} />
-                )}
-                <Box>
-                  <Typography variant="h6">{uploadResult.message}</Typography>
-                  {uploadResult.success &&
-                    uploadResult.totalFiles !== undefined &&
-                    uploadResult.totalBalises !== undefined && (
-                      <Typography variant="body2" color="text.secondary">
-                        Yhteensä {uploadResult.totalFiles} tiedostoa, {uploadResult.totalBalises} baliisia
-                      </Typography>
-                    )}
-                </Box>
-              </Box>
-
-              {uploadResult.invalidFiles && uploadResult.invalidFiles.length > 0 && (
-                <Alert severity="warning" sx={{ mb: 2 }}>
-                  <Typography variant="body2" fontWeight={500}>
-                    Virheelliset tiedostonimet ({uploadResult.invalidFiles.length}):
-                  </Typography>
-                  <Typography variant="body2">{uploadResult.invalidFiles.join(', ')}</Typography>
-                </Alert>
-              )}
-
-              <Divider sx={{ my: 2 }} />
-
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                Tulokset baliseittain:
-              </Typography>
-              <List dense disablePadding>
-                {uploadResult.results.map((result) => (
-                  <ListItem
-                    key={result.baliseId}
-                    sx={{
-                      mb: 1,
-                      borderRadius: 1,
-                      border: 1,
-                      borderColor: result.success ? 'success.light' : 'error.light',
-                      bgcolor: result.success ? 'success.lighter' : 'error.lighter',
-                      flexDirection: 'column',
-                      alignItems: 'stretch',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        width: '100%',
-                        cursor: result.success ? 'default' : 'pointer',
-                      }}
-                      onClick={() => toggleBaliseExpand(result.baliseId, !result.success)}
-                    >
-                      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {result.success ? (
-                          <CheckCircle sx={{ color: 'success.main', fontSize: 20 }} />
-                        ) : result.errorType === 'locked' ? (
-                          <Lock sx={{ color: 'warning.main', fontSize: 20 }} />
-                        ) : (
-                          <ErrorIcon sx={{ color: 'error.main', fontSize: 20 }} />
-                        )}
-                        <Typography variant="body2" fontWeight={500}>
-                          Baliisi {result.baliseId}
+            {/* Upload Result */}
+            {uploadResult && (
+              <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  {uploadResult.success ? (
+                    <CheckCircle sx={{ fontSize: 40, color: 'success.main' }} />
+                  ) : (
+                    <Warning sx={{ fontSize: 40, color: 'warning.main' }} />
+                  )}
+                  <Box>
+                    <Typography variant="h6">{uploadResult.message}</Typography>
+                    {uploadResult.success &&
+                      uploadResult.totalFiles !== undefined &&
+                      uploadResult.totalBalises !== undefined && (
+                        <Typography variant="body2" color="text.secondary">
+                          Yhteensä {uploadResult.totalFiles} tiedostoa, {uploadResult.totalBalises} baliisia
                         </Typography>
-                        {result.success && (
-                          <>
-                            {result.isNewBalise ? (
-                              <Chip label="UUSI" size="small" color="success" icon={<Add />} />
-                            ) : (
-                              <Chip
-                                label={`v${result.previousVersion} → v${result.newVersion}`}
-                                size="small"
-                                color="primary"
-                                icon={<Update />}
-                              />
-                            )}
-                            <Chip label={`${result.filesUploaded} tiedostoa`} size="small" variant="outlined" />
-                          </>
-                        )}
-                        {result.errorType === 'locked' && <Chip label="Lukittu" size="small" color="warning" />}
-                      </Box>
-                      {!result.success && (
-                        <IconButton size="small">
-                          {expandedBalises.has(result.baliseId) ? <ExpandLess /> : <ExpandMore />}
-                        </IconButton>
                       )}
-                    </Box>
-                    <Collapse in={expandedBalises.has(result.baliseId)}>
-                      <Box sx={{ mt: 1, pl: 4 }}>
-                        {result.error && (
-                          <Alert
-                            severity={result.errorType === 'locked' ? 'info' : 'error'}
-                            sx={{ py: 0.5 }}
-                            icon={result.errorType === 'locked' ? <Lock fontSize="small" /> : undefined}
-                          >
-                            {result.error}
-                            {result.lockedBy && (
-                              <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                                Lukituksen voi poistaa käyttäjä {result.lockedBy} tai järjestelmän ylläpitäjä.
-                              </Typography>
-                            )}
-                          </Alert>
+                  </Box>
+                </Box>
+
+                {uploadResult.invalidFiles && uploadResult.invalidFiles.length > 0 && (
+                  <Alert severity="warning" sx={{ mb: 2 }}>
+                    <Typography variant="body2" fontWeight={500}>
+                      Virheelliset tiedostonimet ({uploadResult.invalidFiles.length}):
+                    </Typography>
+                    <Typography variant="body2">{uploadResult.invalidFiles.join(', ')}</Typography>
+                  </Alert>
+                )}
+
+                <Divider sx={{ my: 2 }} />
+
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  Tulokset baliseittain:
+                </Typography>
+                <List dense disablePadding>
+                  {uploadResult.results.map((result) => (
+                    <ListItem
+                      key={result.baliseId}
+                      sx={{
+                        mb: 1,
+                        borderRadius: 1,
+                        border: 1,
+                        borderColor: result.success ? 'success.light' : 'error.light',
+                        bgcolor: result.success ? 'success.lighter' : 'error.lighter',
+                        flexDirection: 'column',
+                        alignItems: 'stretch',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          width: '100%',
+                          cursor: result.success ? 'default' : 'pointer',
+                        }}
+                        onClick={() => toggleBaliseExpand(result.baliseId, !result.success)}
+                      >
+                        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {result.success ? (
+                            <CheckCircle sx={{ color: 'success.main', fontSize: 20 }} />
+                          ) : result.errorType === 'locked' ? (
+                            <Lock sx={{ color: 'warning.main', fontSize: 20 }} />
+                          ) : (
+                            <ErrorIcon sx={{ color: 'error.main', fontSize: 20 }} />
+                          )}
+                          <Typography variant="body2" fontWeight={500}>
+                            Baliisi {result.baliseId}
+                          </Typography>
+                          {result.success && (
+                            <>
+                              {result.isNewBalise ? (
+                                <Chip label="UUSI" size="small" color="success" icon={<Add />} />
+                              ) : (
+                                <Chip
+                                  label={`v${result.previousVersion} → v${result.newVersion}`}
+                                  size="small"
+                                  color="primary"
+                                  icon={<Update />}
+                                />
+                              )}
+                              <Chip label={`${result.filesUploaded} tiedostoa`} size="small" variant="outlined" />
+                            </>
+                          )}
+                          {result.errorType === 'locked' && <Chip label="Lukittu" size="small" color="warning" />}
+                        </Box>
+                        {!result.success && (
+                          <IconButton size="small">
+                            {expandedBalises.has(result.baliseId) ? <ExpandLess /> : <ExpandMore />}
+                          </IconButton>
                         )}
                       </Box>
-                    </Collapse>
-                  </ListItem>
-                ))}
-              </List>
-            </Paper>
-          )}
+                      <Collapse in={expandedBalises.has(result.baliseId)}>
+                        <Box sx={{ mt: 1, pl: 4 }}>
+                          {result.error && (
+                            <Alert
+                              severity={result.errorType === 'locked' ? 'info' : 'error'}
+                              sx={{ py: 0.5 }}
+                              icon={result.errorType === 'locked' ? <Lock fontSize="small" /> : undefined}
+                            >
+                              {result.error}
+                              {result.lockedBy && (
+                                <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
+                                  Lukituksen voi poistaa käyttäjä {result.lockedBy} tai järjestelmän ylläpitäjä.
+                                </Typography>
+                              )}
+                            </Alert>
+                          )}
+                        </Box>
+                      </Collapse>
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            )}
 
-          {/* File Drop Zone (shown when no results) */}
-          {!uploadResult && (
-            <>
-              <Paper
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                sx={{
-                  p: 4,
-                  mb: 3,
-                  textAlign: 'center',
-                  border: '2px dashed',
-                  borderColor: isDragging ? 'primary.main' : 'divider',
-                  bgcolor: isDragging ? 'action.hover' : 'background.paper',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  '&:hover': {
-                    borderColor: 'primary.main',
-                    bgcolor: 'action.hover',
-                  },
-                }}
-              >
-                <input type="file" hidden multiple onChange={handleFileSelect} id="bulk-file-upload" />
-                <label
-                  htmlFor="bulk-file-upload"
-                  style={{
+            {/* File Drop Zone (shown when no results) */}
+            {!uploadResult && (
+              <>
+                <Paper
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  sx={{
+                    p: 4,
+                    mb: 3,
+                    textAlign: 'center',
+                    border: '2px dashed',
+                    borderColor: isDragging ? 'primary.main' : 'divider',
+                    bgcolor: isDragging ? 'action.hover' : 'background.paper',
                     cursor: 'pointer',
-                    display: 'block',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      bgcolor: 'action.hover',
+                    },
                   }}
                 >
-                  <DriveFolderUpload sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-                  <Typography variant="h6" gutterBottom>
-                    Raahaa tiedostot tähän tai klikkaa valitaksesi
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" paragraph>
-                    Tiedostojen nimet määrittävät baliisin: esim. <strong>10000.il</strong> → baliisi 10000
-                  </Typography>
-                  <Typography variant="caption" color="text.disabled">
-                    Tuetut tiedostot: .il, .leu, .bis, .pdf, .xlsx ja muut
-                  </Typography>
-                </label>
-              </Paper>
+                  <input type="file" hidden multiple onChange={handleFileSelect} id="bulk-file-upload" />
+                  <label
+                    htmlFor="bulk-file-upload"
+                    style={{
+                      cursor: 'pointer',
+                      display: 'block',
+                    }}
+                  >
+                    <DriveFolderUpload sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+                    <Typography variant="h6" gutterBottom>
+                      Raahaa tiedostot tähän tai klikkaa valitaksesi
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" paragraph>
+                      Tiedostojen nimet määrittävät baliisin: esim. <strong>10000.il</strong> → baliisi 10000
+                    </Typography>
+                    <Typography variant="caption" color="text.disabled">
+                      Tuetut tiedostot: .il, .leu, .bis, .pdf, .xlsx ja muut
+                    </Typography>
+                  </label>
+                </Paper>
 
-              {/* Invalid Files Warning */}
-              {invalidFiles.length > 0 && (
-                <Alert severity="warning" sx={{ mb: 2 }}>
-                  <Typography variant="body2" fontWeight={500}>
-                    {invalidFiles.length} tiedostoa, joista ei voida tunnistaa baliisi-ID:tä:
-                  </Typography>
-                  <Typography variant="body2">{invalidFiles.map((f) => f.file.name).join(', ')}</Typography>
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Nämä tiedostot ohitetaan. Varmista, että tiedostonimessä on baliisi-ID (esim. 10000.il).
-                  </Typography>
-                </Alert>
-              )}
+                {/* Invalid Files Warning */}
+                {invalidFiles.length > 0 && (
+                  <Alert severity="warning" sx={{ mb: 2 }}>
+                    <Typography variant="body2" fontWeight={500}>
+                      {invalidFiles.length} tiedostoa, joista ei voida tunnistaa baliisi-ID:tä:
+                    </Typography>
+                    <Typography variant="body2">{invalidFiles.map((f) => f.file.name).join(', ')}</Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      Nämä tiedostot ohitetaan. Varmista, että tiedostonimessä on baliisi-ID (esim. 10000.il).
+                    </Typography>
+                  </Alert>
+                )}
 
-              {/* Grouped Files Display */}
-              {baliseCount > 0 && (
-                <Paper sx={{ p: 3 }} variant="outlined">
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignments: 'center', mb: 2 }}>
-                    <Typography variant="h6">
-                      Valitut tiedostot ({validFileCount} tiedostoa, {baliseCount} baliisia)
+                {/* Grouped Files Display */}
+                {baliseCount > 0 && (
+                  <Paper sx={{ p: 3 }} variant="outlined">
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6">
+                        Valitut tiedostot ({validFileCount} tiedostoa, {baliseCount} baliisia)
+                      </Typography>
+                      {loadingBaliseData && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <CircularProgress size={16} />
+                          <Typography variant="caption" color="text.secondary">
+                            Ladataan baliiseja...
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+
+                    {/* Global Description Field */}
+                    <TextField
+                      label="Kuvaus kaikille muutoksille"
+                      value={globalDescription}
+                      onChange={(e) => setGlobalDescription(e.target.value)}
+                      fullWidth
+                      multiline
+                      rows={2}
+                      sx={{ mb: 3 }}
+                      helperText="Tämä kuvaus lisätään kaikille muutoksille, ellei yksittäiselle balisille ole määritetty omaa kuvausta"
+                    />
+
+                    {Object.entries(groupedFiles)
+                      .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                      .map(([baliseId, baliseFiles]) => {
+                        const bId = parseInt(baliseId);
+                        const existingData = existingBalises[bId];
+                        const isNew = !existingData;
+                        const currentDescription = baliseDescriptions[bId] || '';
+
+                        return (
+                          <Box key={baliseId} sx={{ mb: 3, pb: 2, borderBottom: 1, borderColor: 'divider' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                Baliisi {baliseId}
+                              </Typography>
+                              {isNew ? (
+                                <Chip label="UUSI" size="small" color="success" icon={<Add />} />
+                              ) : (
+                                <Chip
+                                  label={`v${existingData.version} → v${existingData.version + 1}`}
+                                  size="small"
+                                  color="primary"
+                                  icon={<Update />}
+                                />
+                              )}
+                              <Chip label={`${baliseFiles.length} tiedostoa`} size="small" variant="outlined" />
+                            </Box>
+
+                            {/* Per-Balise Description Field */}
+                            <TextField
+                              label={`Kuvaus baliisille ${baliseId}`}
+                              value={currentDescription}
+                              onChange={(e) =>
+                                setBaliseDescriptions((prev) => ({
+                                  ...prev,
+                                  [bId]: e.target.value,
+                                }))
+                              }
+                              fullWidth
+                              multiline
+                              rows={2}
+                              size="small"
+                              sx={{ mb: 1 }}
+                              placeholder={
+                                currentDescription
+                                  ? ''
+                                  : globalDescription
+                                    ? `Käytetään yleistä kuvausta: "${globalDescription}"`
+                                    : existingData?.description
+                                      ? existingData.description
+                                      : 'Lisää kuvaus...'
+                              }
+                            />
+
+                            <List dense disablePadding>
+                              {baliseFiles.map((file, index) => {
+                                const globalIndex = files.findIndex((f) => f.file === file);
+                                return (
+                                  <ListItem
+                                    key={index}
+                                    sx={{
+                                      mb: 0.5,
+                                      borderRadius: 1,
+                                      border: 1,
+                                      borderColor: 'primary.light',
+                                      bgcolor: 'primary.lighter',
+                                    }}
+                                    secondaryAction={
+                                      <IconButton size="small" onClick={() => removeFile(globalIndex)} edge="end">
+                                        <Close sx={{ fontSize: 18 }} />
+                                      </IconButton>
+                                    }
+                                  >
+                                    <Description sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
+                                    <ListItemText
+                                      primary={file.name}
+                                      secondary={`${(file.size / 1024).toFixed(1)} KB`}
+                                      primaryTypographyProps={{ variant: 'body2' }}
+                                      secondaryTypographyProps={{ variant: 'caption' }}
+                                    />
+                                  </ListItem>
+                                );
+                              })}
+                            </List>
+                          </Box>
+                        );
+                      })}
+                  </Paper>
+                )}
+
+                {/* Empty State */}
+                {files.length === 0 && (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="body1" color="text.secondary">
+                      Ei valittuja tiedostoja. Raahaa tiedostot yllä olevaan alueeseen aloittaaksesi.
                     </Typography>
                   </Box>
-
-                  {/* Global Description Field */}
-                  <TextField
-                    label="Kuvaus kaikille muutoksille"
-                    value={globalDescription}
-                    onChange={(e) => setGlobalDescription(e.target.value)}
-                    fullWidth
-                    multiline
-                    rows={2}
-                    sx={{ mb: 3 }}
-                    helperText="Tämä kuvaus lisätään kaikille muutoksille, ellei yksittäiselle balisille ole määritetty omaa kuvausta"
-                  />
-
-                  {Object.entries(groupedFiles)
-                    .sort(([a], [b]) => parseInt(a) - parseInt(b))
-                    .map(([baliseId, baliseFiles]) => {
-                      const bId = parseInt(baliseId);
-                      const existingData = existingBalises[bId];
-                      const isNew = !existingData;
-                      const currentDescription = baliseDescriptions[bId] || '';
-
-                      return (
-                        <Box key={baliseId} sx={{ mb: 3, pb: 2, borderBottom: 1, borderColor: 'divider' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                              Baliisi {baliseId}
-                            </Typography>
-                            {isNew ? (
-                              <Chip label="UUSI" size="small" color="success" icon={<Add />} />
-                            ) : (
-                              <Chip
-                                label={`v${existingData.version} → v${existingData.version + 1}`}
-                                size="small"
-                                color="primary"
-                                icon={<Update />}
-                              />
-                            )}
-                            <Chip label={`${baliseFiles.length} tiedostoa`} size="small" variant="outlined" />
-                          </Box>
-
-                          {/* Per-Balise Description Field */}
-                          <TextField
-                            label={`Kuvaus baliisille ${baliseId}`}
-                            value={currentDescription}
-                            onChange={(e) =>
-                              setBaliseDescriptions((prev) => ({
-                                ...prev,
-                                [bId]: e.target.value,
-                              }))
-                            }
-                            fullWidth
-                            multiline
-                            rows={2}
-                            size="small"
-                            sx={{ mb: 1 }}
-                            placeholder={
-                              currentDescription
-                                ? ''
-                                : globalDescription
-                                ? `Käytetään yleistä kuvausta: "${globalDescription}"`
-                                : existingData?.description
-                                ? existingData.description
-                                : 'Lisää kuvaus...'
-                            }
-                          />
-
-                          <List dense disablePadding>
-                            {baliseFiles.map((file, index) => {
-                              const globalIndex = files.findIndex((f) => f.file === file);
-                              return (
-                                <ListItem
-                                  key={index}
-                                  sx={{
-                                    mb: 0.5,
-                                    borderRadius: 1,
-                                    border: 1,
-                                    borderColor: 'primary.light',
-                                    bgcolor: 'primary.lighter',
-                                  }}
-                                  secondaryAction={
-                                    <IconButton size="small" onClick={() => removeFile(globalIndex)} edge="end">
-                                      <Close sx={{ fontSize: 18 }} />
-                                    </IconButton>
-                                  }
-                                >
-                                  <Description sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
-                                  <ListItemText
-                                    primary={file.name}
-                                    secondary={`${(file.size / 1024).toFixed(1)} KB`}
-                                    primaryTypographyProps={{ variant: 'body2' }}
-                                    secondaryTypographyProps={{ variant: 'caption' }}
-                                  />
-                                </ListItem>
-                              );
-                            })}
-                          </List>
-                        </Box>
-                      );
-                    })}
-                </Paper>
-              )}
-
-              {/* Empty State */}
-              {files.length === 0 && (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="body1" color="text.secondary">
-                    Ei valittuja tiedostoja. Raahaa tiedostot yllä olevaan alueeseen aloittaaksesi.
-                  </Typography>
-                </Box>
-              )}
-            </>
-          )}
+                )}
+              </>
+            )}
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </BalisePermissionGuard>
   );
 };
 
