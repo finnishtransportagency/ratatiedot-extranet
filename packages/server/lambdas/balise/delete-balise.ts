@@ -1,5 +1,5 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '../../generated/prisma/client';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseWriteUser } from '../../utils/userService';

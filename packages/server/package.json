@@ -18,7 +18,8 @@
     "@aws-sdk/client-ssm": "^3.978.0",
     "@aws-sdk/cloudfront-signer": "^3.978.0",
     "@aws-sdk/s3-request-presigner": "^3.978.0",
-    "@prisma/client": "6.19.2",
+    "@prisma/adapter-pg": "7.3.0",
+    "@prisma/client": "7.3.0",
     "busboy": "^1.6.0",
     "form-data": "4.0.5",
     "jsonwebtoken": "9.0.3",
@@ -31,10 +32,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/jwk-to-pem": "^2.0.3",
     "@types/node": "^22.19.7",
-    "prisma": "^6.19.2",
+    "prisma": "7.3.0",
     "vitest": "^4.0.15"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

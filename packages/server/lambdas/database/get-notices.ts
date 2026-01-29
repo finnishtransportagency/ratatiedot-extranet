@@ -4,7 +4,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, isAdmin, validateReadUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
-import { Notice, Prisma } from '@prisma/client';
+import { type Notice, Prisma } from '../../generated/prisma/client';
 
 const database = await DatabaseClient.build();
 

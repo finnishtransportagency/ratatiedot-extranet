@@ -1,4 +1,4 @@
-import { CategoryDataBase } from '@prisma/client';
+import type { CategoryDataBase } from '../../generated/prisma/client';
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
 

@@ -1,12 +1,10 @@
-import { CategoryDataBase } from '@prisma/client';
+import type { Prisma, CategoryDataBase } from '../../generated/prisma/client';
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
-
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
-import { Prisma } from '@prisma/client';
 import { isEmpty } from 'lodash';
 import { handlePrismaError, PrismaError } from './error/databaseError';
 import { FileInfo } from 'busboy';
