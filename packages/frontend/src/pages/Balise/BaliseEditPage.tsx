@@ -21,7 +21,7 @@ const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
 
   try {
     return JSON.parse(responseText);
-  } catch (parseError) {
+  } catch {
     console.error('JSON parse error. Raw response was:', responseText);
     throw new Error(`Invalid JSON response: ${responseText.substring(0, 200)}...`);
   }
