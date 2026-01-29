@@ -1,7 +1,7 @@
-import { S3 } from 'aws-sdk';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand } from '@aws-sdk/client-s3';
 import { log } from './logger';
 
-const s3 = new S3();
+const s3Client = new S3Client({});
 
 export interface FileUpload {
   filename: string;
@@ -9,24 +9,24 @@ export interface FileUpload {
 }
 
 export async function uploadToS3(bucket: string, fileName: string, fileData: Buffer) {
-  const params = {
+  const command = new PutObjectCommand({
     Bucket: bucket,
     Key: fileName,
     Body: fileData,
     ACL: 'private',
-  };
+  });
 
-  await s3.upload(params).promise();
+  await s3Client.send(command);
 }
 
 // a function to delete a file from S3
 export async function deleteFromS3(bucket: string, fileName: string) {
-  const params = {
+  const command = new DeleteObjectCommand({
     Bucket: bucket,
     Key: fileName,
-  };
+  });
 
-  await s3.deleteObject(params).promise();
+  await s3Client.send(command);
 }
 
 /**
@@ -146,13 +146,13 @@ export async function uploadFilesToS3WithCleanup(
  * Copies an S3 object from one location to another
  */
 export async function copyS3Object(bucket: string, sourceKey: string, destKey: string) {
-  const copyParams = {
+  const command = new CopyObjectCommand({
     Bucket: bucket,
     CopySource: `${bucket}/${sourceKey}`,
     Key: destKey,
-  };
+  });
 
-  await s3.copyObject(copyParams).promise();
+  await s3Client.send(command);
 }
 
 /**
