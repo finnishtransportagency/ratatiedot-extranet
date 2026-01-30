@@ -113,7 +113,7 @@ async function parseMultipartForm(
 
         if (baliseId === null) {
           invalidFiles.push(fileinfo.filename);
-          log.warn('system', `Cannot parse balise ID from filename: ${fileinfo.filename}`);
+          log.warn({ system: true }, `Cannot parse balise ID from filename: ${fileinfo.filename}`);
         } else {
           fileUploads.push({
             filename: fileinfo.filename,
@@ -125,17 +125,17 @@ async function parseMultipartForm(
       });
 
       file.on('error', (err) => {
-        log.error('system', `Error reading file ${fileinfo.filename}: ${err.message}`);
+        log.error({ system: true }, `Error reading file ${fileinfo.filename}: ${err.message}`);
       });
     });
 
     bb.on('finish', () => {
-      log.info('system', `Parsed ${fileUploads.length} valid files, ${invalidFiles.length} invalid files`);
+      log.info({ system: true }, `Parsed ${fileUploads.length} valid files, ${invalidFiles.length} invalid files`);
       resolve({ files: fileUploads, invalidFiles, globalDescription, baliseDescriptions });
     });
 
     bb.on('error', (err: Error) => {
-      log.error('system', `Busboy error: ${err.message}`);
+      log.error({ system: true }, `Busboy error: ${err.message}`);
       reject(err);
     });
 
