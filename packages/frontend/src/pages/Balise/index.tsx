@@ -66,8 +66,10 @@ export const BalisePage: React.FC = () => {
 
   // Initial data load and re-load on section change
   useEffect(() => {
-    loadInitialData();
-  }, [selectedSections, loadInitialData]); // Re-run when section selection changes
+    if (permissions?.canRead) {
+      loadInitialData();
+    }
+  }, [selectedSections, loadInitialData, permissions?.canRead]); // Re-run when section selection changes
 
   // Check for recently edited balise and refresh it
   useEffect(() => {
