@@ -109,9 +109,9 @@ describe('baliseUtils', () => {
         fileTypes: ['old-file.txt'],
         createdBy: 'previous-user',
         createdTime: new Date('2023-01-01'),
-        locked: false,
-        lockedBy: null,
-        lockedTime: null,
+        locked: true,
+        lockedBy: 'test-user',
+        lockedTime: new Date(),
       };
 
       mockDatabase.balise.findUnique.mockResolvedValue(existingBalise);
@@ -152,9 +152,9 @@ describe('baliseUtils', () => {
         fileTypes: ['existing-file.txt'],
         createdBy: 'previous-user',
         createdTime: new Date('2023-01-01'),
-        locked: false,
-        lockedBy: null,
-        lockedTime: null,
+        locked: true,
+        lockedBy: 'test-user',
+        lockedTime: new Date(),
       };
 
       mockDatabase.balise.findUnique.mockResolvedValue(existingBalise);
@@ -194,6 +194,104 @@ describe('baliseUtils', () => {
       await expect(updateOrCreateBalise(options)).rejects.toThrow(/lukittu/);
       expect(mockDatabase.balise.update).not.toHaveBeenCalled();
       expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
+    });
+
+    it('should throw error when balise is not locked', async () => {
+      const options: BaliseUpdateOptions = {
+        baliseId: 888,
+        files: [{ filename: 'test.txt', buffer: Buffer.from('content') }],
+        userId: 'test-user',
+      };
+
+      const unlockedBalise = {
+        id: 'unlocked-uuid',
+        secondaryId: 888,
+        version: 1,
+        description: 'Unlocked balise',
+        fileTypes: [],
+        createdBy: 'test-user',
+        createdTime: new Date(),
+        locked: false,
+        lockedBy: null,
+        lockedTime: null,
+      };
+
+      mockDatabase.balise.findUnique.mockResolvedValue(unlockedBalise);
+
+      const result = updateOrCreateBalise(options);
+      await expect(result).rejects.toThrow(/ei ole lukittu/);
+      await expect(result).rejects.toMatchObject({ errorType: 'not_locked' });
+      expect(mockDatabase.balise.update).not.toHaveBeenCalled();
+      expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
+    });
+
+    it('should throw error when balise is locked by another user', async () => {
+      const options: BaliseUpdateOptions = {
+        baliseId: 777,
+        files: [{ filename: 'test.txt', buffer: Buffer.from('content') }],
+        userId: 'current-user',
+      };
+
+      const lockedByOtherBalise = {
+        id: 'locked-by-other-uuid',
+        secondaryId: 777,
+        version: 1,
+        description: 'Locked by other user',
+        fileTypes: [],
+        createdBy: 'other-user',
+        createdTime: new Date(),
+        locked: true,
+        lockedBy: 'other-user',
+        lockedTime: new Date(),
+      };
+
+      mockDatabase.balise.findUnique.mockResolvedValue(lockedByOtherBalise);
+
+      const result = updateOrCreateBalise(options);
+      await expect(result).rejects.toThrow(/lukittu käyttäjän other-user toimesta/);
+      await expect(result).rejects.toMatchObject({
+        errorType: 'locked_by_other',
+        lockedBy: 'other-user',
+      });
+      expect(mockDatabase.balise.update).not.toHaveBeenCalled();
+      expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
+    });
+
+    it('should successfully update when balise is locked by current user', async () => {
+      const options: BaliseUpdateOptions = {
+        baliseId: 666,
+        files: [{ filename: 'success.txt', buffer: Buffer.from('success content') }],
+        userId: 'current-user',
+      };
+
+      const lockedByCurrentUserBalise = {
+        id: 'locked-by-current-uuid',
+        secondaryId: 666,
+        version: 2,
+        description: 'Locked by current user',
+        fileTypes: ['existing.txt'],
+        createdBy: 'previous-user',
+        createdTime: new Date('2023-01-01'),
+        locked: true,
+        lockedBy: 'current-user',
+        lockedTime: new Date(),
+      };
+
+      mockDatabase.balise.findUnique.mockResolvedValue(lockedByCurrentUserBalise);
+
+      const result = await updateOrCreateBalise(options);
+
+      expect(result.isNewBalise).toBe(false);
+      expect(result.newVersion).toBe(3);
+      expect(result.filesUploaded).toBe(1);
+      expect(mockDatabase.baliseVersion.create).toHaveBeenCalled();
+      expect(uploadFilesToS3WithCleanup).toHaveBeenCalledWith(
+        '',
+        [{ filename: 'success.txt', buffer: Buffer.from('success content') }],
+        'balise_666/v3',
+        'current-user',
+      );
+      expect(mockDatabase.balise.update).toHaveBeenCalled();
     });
   });
 
