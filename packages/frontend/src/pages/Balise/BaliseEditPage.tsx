@@ -4,6 +4,7 @@ import { Routes } from '../../constants/Routes';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { BaliseForm } from './BaliseForm';
 import { useBaliseStore } from '../../store/baliseStore';
+import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { BalisePermissionGuard } from './BalisePermissionGuard';
 import type { BaliseWithHistory } from './types';
 
@@ -81,6 +82,8 @@ export const BaliseEditPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { permissions } = useBalisePermissions();
+
   // Store action for updating balise in cache
   const { updateBalise: updateBaliseInStore } = useBaliseStore();
 
@@ -88,10 +91,10 @@ export const BaliseEditPage: React.FC = () => {
   const currentMode = id ? 'view' : 'create';
 
   useEffect(() => {
-    if (id && currentMode !== 'create') {
+    if (id && currentMode !== 'create' && permissions?.canRead) {
       loadBalise(id);
     }
-  }, [id, currentMode]);
+  }, [id, currentMode, permissions?.canRead]);
 
   const loadBalise = async (baliseId: string) => {
     setLoading(true);
