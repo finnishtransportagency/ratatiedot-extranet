@@ -93,13 +93,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     } catch (err) {
       const error = err as Error & { errorType?: string; lockedBy?: string };
 
-      if (error.errorType === 'locked') {
+      if (error.errorType === 'not_locked' || error.errorType === 'locked_by_other') {
         return {
           statusCode: 403,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             error: error.message,
-            errorType: 'locked',
+            errorType: error.errorType,
             lockedBy: error.lockedBy,
           }),
         };
