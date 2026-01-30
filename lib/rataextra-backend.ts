@@ -311,7 +311,7 @@ export class RataExtraBackendStack extends NestedStack {
     const checkBalisePermissions = this.createNodejsLambda({
       ...prismaParameters,
       name: 'check-balise-permissions',
-      relativePath: '../packages/server/lambdas/database/check-user-permissions.ts',
+      relativePath: '../packages/server/lambdas/balise/check-balise-permissions.ts',
     });
 
     const dbGetFavoritePages = this.createNodejsLambda({
