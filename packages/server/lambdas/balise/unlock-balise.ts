@@ -1,7 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseWriteUser } from '../../utils/userService';
+import { getUser, validateBaliseWriteUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 const database = await DatabaseClient.build();
@@ -48,8 +48,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Check if user is the one who locked it (in future: or superadmin)
-    if (balise.lockedBy !== user.uid) {
+    // Check if user is the one who locked it or is an admin
+    const isAdmin = isBaliseAdmin(user);
+    if (balise.lockedBy !== user.uid && !isAdmin) {
       return {
         statusCode: 403,
         headers: { 'Content-Type': 'application/json' },
