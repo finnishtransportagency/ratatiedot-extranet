@@ -197,7 +197,7 @@ async function processBaliseFiles(
   globalDescription: string | undefined,
   user: RataExtraUser,
 ): Promise<UploadResult> {
-  const description = baliseDescriptions?.[baliseId] || globalDescription;
+  const description = baliseDescriptions?.[baliseId] || globalDescription || 'Luotu automaattisesti massalatauksessa';
 
   log.info(user, `Uploading ${files.length} files for balise ${baliseId}`);
 

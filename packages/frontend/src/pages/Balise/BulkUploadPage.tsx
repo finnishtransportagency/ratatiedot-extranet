@@ -576,12 +576,14 @@ export const BulkUploadPage: React.FC = () => {
                     {/* Global Description Field */}
                     <TextField
                       label="Kuvaus kaikille muutoksille"
+                      placeholder="Luotu automaattisesti massalatauksessa"
                       value={globalDescription}
                       onChange={(e) => setGlobalDescription(e.target.value)}
                       fullWidth
                       multiline
                       rows={2}
                       sx={{ mb: 3 }}
+                      InputLabelProps={{ shrink: true }}
                       helperText="Tämä kuvaus lisätään kaikille muutoksille, ellei yksittäiselle balisille ole määritetty omaa kuvausta"
                     />
 
