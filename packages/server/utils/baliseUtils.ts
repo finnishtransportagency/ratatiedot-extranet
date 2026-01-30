@@ -208,6 +208,9 @@ function prepareUpdateData(
   newVersion: number,
   userId: string,
   description?: string,
+  currentLocked?: boolean,
+  currentLockedBy?: string | null,
+  currentLockedTime?: Date | null,
 ) {
   const updateData: {
     fileTypes: string[];
@@ -226,9 +229,9 @@ function prepareUpdateData(
     updateData.version = newVersion;
     updateData.createdBy = userId;
     updateData.createdTime = new Date();
-    updateData.locked = false;
-    updateData.lockedBy = null;
-    updateData.lockedTime = null;
+    updateData.locked = currentLocked!;
+    updateData.lockedBy = currentLockedBy!;
+    updateData.lockedTime = currentLockedTime!;
   }
 
   if (description !== undefined) {
@@ -285,7 +288,16 @@ async function updateExistingBalise(
   );
 
   // Prepare and apply update
-  const updateData = prepareUpdateData(fileTypes, shouldCreateNewVersion, newVersion, userId, description);
+  const updateData = prepareUpdateData(
+    fileTypes,
+    shouldCreateNewVersion,
+    newVersion,
+    userId,
+    description,
+    existingBalise.locked,
+    existingBalise.lockedBy,
+    existingBalise.lockedTime,
+  );
 
   const updatedBalise = await database.balise.update({
     where: { secondaryId: existingBalise.secondaryId },
