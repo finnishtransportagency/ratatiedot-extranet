@@ -5,7 +5,7 @@ import { getUser, validateBaliseWriteUser } from '../../utils/userService';
 import { parseForm, FileUpload as ParsedFileUpload } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import { FileInfo } from 'busboy';
-import { updateOrCreateBalise } from '../../utils/baliseUtils';
+import { updateOrCreateBalise, validateBalisesLockedByUser } from '../../utils/baliseUtils';
 import type { FileUpload } from '../../utils/s3utils';
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
@@ -75,40 +75,37 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       buffer: file.buffer,
     }));
 
-    try {
-      const result = await updateOrCreateBalise({
-        baliseId,
-        files,
-        description: body.description,
-        userId: user.uid,
-      });
+    // Validate balise lock upfront before processing
+    await validateBalisesLockedByUser(baliseId, user.uid);
 
-      const statusCode = result.isNewBalise ? 201 : 200;
+    const result = await updateOrCreateBalise({
+      baliseId,
+      files,
+      description: body.description,
+      userId: user.uid,
+    });
 
-      return {
-        statusCode,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(result.balise),
-      };
-    } catch (err) {
-      const error = err as Error & { errorType?: string; lockedBy?: string };
+    const statusCode = result.isNewBalise ? 201 : 200;
 
-      if (error.errorType === 'not_locked' || error.errorType === 'locked_by_other') {
-        return {
-          statusCode: 403,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            error: error.message,
-            errorType: error.errorType,
-            lockedBy: error.lockedBy,
-          }),
-        };
-      }
-
-      // Re-throw other errors to be handled by outer catch
-      throw error;
-    }
+    return {
+      statusCode,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(result.balise),
+    };
   } catch (err) {
+    const error = err as Error & { errorType?: string; lockedBy?: string };
+
+    if (error.errorType === 'not_locked' || error.errorType === 'locked_by_other') {
+      return {
+        statusCode: 403,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: error.message,
+          errorType: error.errorType,
+          lockedBy: error.lockedBy,
+        }),
+      };
+    }
     log.error(err);
     return getRataExtraLambdaError(err);
   }
