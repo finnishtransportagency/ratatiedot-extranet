@@ -151,17 +151,15 @@ export const BaliseEditPage: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
-    );
-  }
-
   return (
     <BalisePermissionGuard requiredPermission={currentMode === 'create' ? 'canWrite' : 'canRead'}>
-      <BaliseForm mode={currentMode} balise={balise || undefined} onSave={handleSave} onCancel={handleCancel} />
+      {error ? (
+        <Box sx={{ p: 3 }}>
+          <Alert severity="error">{error}</Alert>
+        </Box>
+      ) : (
+        <BaliseForm mode={currentMode} balise={balise || undefined} onSave={handleSave} onCancel={handleCancel} />
+      )}
     </BalisePermissionGuard>
   );
 };
