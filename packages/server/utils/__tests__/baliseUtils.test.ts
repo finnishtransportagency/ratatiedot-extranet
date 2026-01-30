@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { updateOrCreateBalise, createMultipleBalises, type BaliseUpdateOptions } from '../baliseUtils';
+import {
+  updateOrCreateBalise,
+  createMultipleBalises,
+  validateBalisesLockedByUser,
+  type BaliseUpdateOptions,
+  type BaliseValidationFailure,
+} from '../baliseUtils';
 import { uploadFilesToS3WithCleanup } from '../s3utils';
 
 // Define mock database interface
@@ -169,94 +175,6 @@ describe('baliseUtils', () => {
       expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
     });
 
-    it('should throw error when balise is locked by another user', async () => {
-      const options: BaliseUpdateOptions = {
-        baliseId: 999,
-        files: [{ filename: 'test.txt', buffer: Buffer.from('content') }],
-        userId: 'test-user',
-      };
-
-      const lockedBalise = {
-        id: 'locked-uuid',
-        secondaryId: 999,
-        version: 1,
-        description: 'Locked balise',
-        fileTypes: [],
-        createdBy: 'other-user',
-        createdTime: new Date(),
-        locked: true,
-        lockedBy: 'other-user',
-        lockedTime: new Date(),
-      };
-
-      mockDatabase.balise.findUnique.mockResolvedValue(lockedBalise);
-
-      await expect(updateOrCreateBalise(options)).rejects.toThrow(/lukittu/);
-      expect(mockDatabase.balise.update).not.toHaveBeenCalled();
-      expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
-    });
-
-    it('should throw error when balise is not locked', async () => {
-      const options: BaliseUpdateOptions = {
-        baliseId: 888,
-        files: [{ filename: 'test.txt', buffer: Buffer.from('content') }],
-        userId: 'test-user',
-      };
-
-      const unlockedBalise = {
-        id: 'unlocked-uuid',
-        secondaryId: 888,
-        version: 1,
-        description: 'Unlocked balise',
-        fileTypes: [],
-        createdBy: 'test-user',
-        createdTime: new Date(),
-        locked: false,
-        lockedBy: null,
-        lockedTime: null,
-      };
-
-      mockDatabase.balise.findUnique.mockResolvedValue(unlockedBalise);
-
-      const result = updateOrCreateBalise(options);
-      await expect(result).rejects.toThrow(/ei ole lukittu/);
-      await expect(result).rejects.toMatchObject({ errorType: 'not_locked' });
-      expect(mockDatabase.balise.update).not.toHaveBeenCalled();
-      expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
-    });
-
-    it('should throw error when balise is locked by another user', async () => {
-      const options: BaliseUpdateOptions = {
-        baliseId: 777,
-        files: [{ filename: 'test.txt', buffer: Buffer.from('content') }],
-        userId: 'current-user',
-      };
-
-      const lockedByOtherBalise = {
-        id: 'locked-by-other-uuid',
-        secondaryId: 777,
-        version: 1,
-        description: 'Locked by other user',
-        fileTypes: [],
-        createdBy: 'other-user',
-        createdTime: new Date(),
-        locked: true,
-        lockedBy: 'other-user',
-        lockedTime: new Date(),
-      };
-
-      mockDatabase.balise.findUnique.mockResolvedValue(lockedByOtherBalise);
-
-      const result = updateOrCreateBalise(options);
-      await expect(result).rejects.toThrow(/lukittu käyttäjän other-user toimesta/);
-      await expect(result).rejects.toMatchObject({
-        errorType: 'locked_by_other',
-        lockedBy: 'other-user',
-      });
-      expect(mockDatabase.balise.update).not.toHaveBeenCalled();
-      expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
-    });
-
     it('should successfully update when balise is locked by current user', async () => {
       const options: BaliseUpdateOptions = {
         baliseId: 666,
@@ -394,6 +312,137 @@ describe('baliseUtils', () => {
 
       await expect(updateOrCreateBalise(options)).rejects.toThrow('S3 upload failed');
       expect(mockDatabase.balise.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('validateBalisesLockedByUser', () => {
+    it('should pass validation when all existing balises are locked by current user', async () => {
+      const baliseIds = [1001, 1002, 1003];
+      const userId = 'test-user';
+
+      // Mock finding two existing balises, both locked by test-user
+      mockDatabase.balise.findMany.mockResolvedValue([
+        { secondaryId: 1001, locked: true, lockedBy: 'test-user' },
+        { secondaryId: 1002, locked: true, lockedBy: 'test-user' },
+        // 1003 doesn't exist yet (new balise)
+      ]);
+
+      // Should not throw
+      await expect(validateBalisesLockedByUser(baliseIds, userId)).resolves.toBeUndefined();
+
+      expect(mockDatabase.balise.findMany).toHaveBeenCalledWith({
+        where: { secondaryId: { in: baliseIds } },
+        select: { secondaryId: true, locked: true, lockedBy: true },
+      });
+    });
+
+    it('should fail validation when one balise is not locked', async () => {
+      const baliseIds = [2001, 2002];
+      const userId = 'test-user';
+
+      mockDatabase.balise.findMany.mockResolvedValue([
+        { secondaryId: 2001, locked: true, lockedBy: 'test-user' },
+        { secondaryId: 2002, locked: false, lockedBy: null },
+      ]);
+
+      const promise = validateBalisesLockedByUser(baliseIds, userId);
+
+      await expect(promise).rejects.toThrow('Lataus epäonnistui 1 baliisille');
+
+      // Check error structure
+      try {
+        await promise;
+      } catch (error) {
+        const err = error as Error & { errorType?: string; failures?: BaliseValidationFailure[] };
+        expect(err.errorType).toBe('validation_failed');
+        expect(err.failures).toHaveLength(1);
+        expect(err.failures?.[0]).toEqual({
+          baliseId: 2002,
+          errorType: 'not_locked',
+          message: 'Baliisi 2002 ei ole lukittu. Lukitse baliisi ennen muokkaamista.',
+        });
+      }
+    });
+
+    it('should fail validation when one balise is locked by another user', async () => {
+      const baliseIds = [3001, 3002, 3003];
+      const userId = 'current-user';
+
+      mockDatabase.balise.findMany.mockResolvedValue([
+        { secondaryId: 3001, locked: true, lockedBy: 'current-user' },
+        { secondaryId: 3002, locked: true, lockedBy: 'other-user' },
+        { secondaryId: 3003, locked: true, lockedBy: 'current-user' },
+      ]);
+
+      const promise = validateBalisesLockedByUser(baliseIds, userId);
+
+      await expect(promise).rejects.toThrow('Lataus epäonnistui 1 baliisille');
+
+      // Check error structure
+      try {
+        await promise;
+      } catch (error) {
+        const err = error as Error & { errorType?: string; failures?: BaliseValidationFailure[] };
+        expect(err.errorType).toBe('validation_failed');
+        expect(err.failures).toHaveLength(1);
+        expect(err.failures?.[0]).toEqual({
+          baliseId: 3002,
+          errorType: 'locked_by_other',
+          lockedBy: 'other-user',
+          message:
+            'Baliisi 3002 on lukittu käyttäjän other-user toimesta. Vain lukituksen tehnyt käyttäjä voi muokata baliisia.',
+        });
+      }
+    });
+
+    it('should collect multiple validation failures', async () => {
+      const baliseIds = [5001, 5002, 5003, 5004];
+      const userId = 'current-user';
+
+      mockDatabase.balise.findMany.mockResolvedValue([
+        { secondaryId: 5001, locked: true, lockedBy: 'current-user' },
+        { secondaryId: 5002, locked: false, lockedBy: null },
+        { secondaryId: 5003, locked: true, lockedBy: 'other-user' },
+        { secondaryId: 5004, locked: false, lockedBy: null },
+      ]);
+
+      const promise = validateBalisesLockedByUser(baliseIds, userId);
+
+      await expect(promise).rejects.toThrow('Lataus epäonnistui 3 baliisille');
+
+      // Check all failures are collected
+      try {
+        await promise;
+      } catch (error) {
+        const err = error as Error & { errorType?: string; failures?: BaliseValidationFailure[] };
+        expect(err.errorType).toBe('validation_failed');
+        expect(err.failures).toHaveLength(3);
+
+        // Check that all failed balises are included
+        const failedIds = err.failures?.map((f) => f.baliseId);
+        expect(failedIds).toEqual([5002, 5003, 5004]);
+
+        // Check error types
+        expect(err.failures?.[0].errorType).toBe('not_locked');
+        expect(err.failures?.[1].errorType).toBe('locked_by_other');
+        expect(err.failures?.[1].lockedBy).toBe('other-user');
+        expect(err.failures?.[2].errorType).toBe('not_locked');
+      }
+    });
+
+    it('should handle empty balise ID array', async () => {
+      await expect(validateBalisesLockedByUser([], 'test-user')).resolves.toBeUndefined();
+      expect(mockDatabase.balise.findMany).not.toHaveBeenCalled();
+    });
+
+    it('should pass when all balises are new (none exist in database)', async () => {
+      const baliseIds = [4001, 4002, 4003];
+      const userId = 'test-user';
+
+      // No existing balises found
+      mockDatabase.balise.findMany.mockResolvedValue([]);
+
+      await expect(validateBalisesLockedByUser(baliseIds, userId)).resolves.toBeUndefined();
     });
   });
 });

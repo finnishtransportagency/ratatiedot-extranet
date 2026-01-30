@@ -5,7 +5,11 @@ import { getUser, validateBaliseWriteUser, RataExtraUser } from '../../utils/use
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
-import { updateOrCreateBalise, createMultipleBalises, getExistingBaliseIds } from '../../utils/baliseUtils';
+import {
+  updateOrCreateBalise,
+  validateBalisesLockedByUser,
+  type BaliseValidationFailure,
+} from '../../utils/baliseUtils';
 import type { FileUpload } from '../../utils/s3utils';
 
 const MAX_FILES_PER_REQUEST = 1000; // Limit to prevent timeout
@@ -18,14 +22,10 @@ interface BulkFileUpload {
 
 interface UploadResult {
   baliseId: number;
-  success: boolean;
-  newVersion?: number;
+  newVersion: number;
   previousVersion?: number; // undefined for new balises
-  filesUploaded?: number;
-  error?: string;
-  errorType?: 'locked' | 'not_found' | 'permission' | 'storage' | 'unknown';
-  lockedBy?: string;
-  isNewBalise?: boolean; // true if balise was created, false if updated
+  filesUploaded: number;
+  isNewBalise: boolean; // true if balise was created, false if updated
 }
 
 /**
@@ -43,35 +43,6 @@ function parseBaliseId(filename: string): number | null {
   }
   const id = parseInt(match[1], 10);
   return isNaN(id) ? null : id;
-}
-
-/**
- * Create a standardized error response
- */
-function createErrorResponse(
-  statusCode: number,
-  message: string,
-  results: UploadResult[],
-  invalidFiles: string[],
-  success: boolean = false,
-): ALBResult {
-  const responseBody: {
-    success: boolean;
-    message: string;
-    results: UploadResult[];
-    invalidFiles: string[];
-  } = {
-    success,
-    message,
-    results,
-    invalidFiles,
-  };
-
-  return {
-    statusCode,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(responseBody),
-  };
 }
 
 /**
@@ -249,47 +220,10 @@ async function processBaliseFiles(
 
   return {
     baliseId,
-    success: true,
     newVersion: result.newVersion,
     previousVersion: result.previousVersion,
     filesUploaded: result.filesUploaded,
     isNewBalise: result.isNewBalise,
-  };
-}
-
-/**
- * Handle errors during balise processing
- */
-function handleProcessingError(baliseId: number, error: unknown, user: RataExtraUser): UploadResult {
-  const err = error as Error & { errorType?: string; lockedBy?: string };
-  const errorMessage = err.message || 'Unknown error';
-  const errorType = (err.errorType || 'unknown') as 'locked' | 'not_found' | 'permission' | 'storage' | 'unknown';
-  const lockedBy = err.lockedBy;
-
-  // Create user-friendly error message
-  let userMessage = errorMessage;
-  if (errorType === 'locked') {
-    userMessage = `Baliisi on lukittu${
-      lockedBy ? ` käyttäjän ${lockedBy} toimesta` : ''
-    }. Odota, että lukitus poistetaan.`;
-  } else if (errorType === 'permission') {
-    userMessage = `Sinulla ei ole oikeuksia muokata tätä baliisia.`;
-  } else if (errorType === 'storage') {
-    userMessage = `Tiedostojen tallennus epäonnistui. Yritä uudelleen.`;
-  } else if (errorType === 'not_found') {
-    userMessage = `Baliisia ei löytynyt järjestelmästä.`;
-  } else {
-    userMessage = errorMessage;
-  }
-
-  log.error(user, `Failed to upload files for balise ${baliseId}: ${errorMessage} (type: ${errorType})`);
-
-  return {
-    baliseId,
-    success: false,
-    error: userMessage,
-    errorType,
-    lockedBy,
   };
 }
 
@@ -305,75 +239,11 @@ async function processAllBalises(
   const results: UploadResult[] = [];
 
   for (const [baliseId, files] of groupedFiles) {
-    try {
-      const result = await processBaliseFiles(baliseId, files, baliseDescriptions, globalDescription, user);
-      results.push(result);
-    } catch (error) {
-      const errorResult = handleProcessingError(baliseId, error, user);
-      results.push(errorResult);
-    }
+    const result = await processBaliseFiles(baliseId, files, baliseDescriptions, globalDescription, user);
+    results.push(result);
   }
 
   return results;
-}
-
-/**
- * Determines the appropriate HTTP response based on processing results
- */
-function determineResponse(
-  results: UploadResult[],
-  invalidFiles: string[],
-  fileUploads: BulkFileUpload[],
-  groupedFiles: Map<number, BulkFileUpload[]>,
-): ALBResult {
-  const hasErrors = results.some((r) => !r.success);
-
-  // Determine response status
-  const successCount = results.filter((r) => r.success).length;
-  const failureCount = results.filter((r) => !r.success).length;
-  const lockedCount = results.filter((r) => r.errorType === 'locked').length;
-
-  // All succeeded
-  if (!hasErrors) {
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        success: true,
-        message: `Tiedostot ladattu onnistuneesti ${successCount} baliisiin`,
-        results,
-        invalidFiles,
-        totalFiles: fileUploads.length,
-        totalBalises: groupedFiles.size,
-      }),
-    };
-  }
-
-  // Partial success
-  if (successCount > 0) {
-    const message = `Tiedostojen päivitys: ${successCount} onnistui, ${failureCount} epäonnistui`;
-    return createErrorResponse(207, message, results, invalidFiles);
-  }
-
-  // All failures are due to locked balises
-  if (lockedCount === failureCount) {
-    const message = `${lockedCount} ${
-      lockedCount === 1 ? 'baliisi' : 'baliisia'
-    } on lukittu. Odota, että lukitukset poistetaan.`;
-    return createErrorResponse(409, message, results, invalidFiles);
-  }
-
-  // Check if there are server errors that warrant 500
-  const serverErrors = results.filter(
-    (r) => !r.success && r.errorType && ['storage', 'unknown'].includes(r.errorType),
-  ).length;
-
-  if (serverErrors > 0) {
-    return createErrorResponse(500, 'Kaikkien tiedostojen lataus epäonnistui', results, invalidFiles);
-  }
-
-  // Default client error for all other failure cases
-  return createErrorResponse(400, 'Kaikkien tiedostojen lataus epäonnistui', results, invalidFiles);
 }
 
 /**
@@ -411,22 +281,45 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const groupedFiles = groupFilesByBalise(fileUploads);
     log.info(user, `Grouped ${fileUploads.length} files into ${groupedFiles.size} balise(s)`);
 
-    // Validate all balises exist - create missing ones automatically
+    // Validate all balises upfront - ensures all are locked by current user before processing
     const baliseIds = Array.from(groupedFiles.keys());
-    const existingBaliseIds = await getExistingBaliseIds(baliseIds);
-    const missingBaliseIds = baliseIds.filter((id) => !existingBaliseIds.has(id));
+    await validateBalisesLockedByUser(baliseIds, user.uid);
 
-    // Auto-create missing balises
-    if (missingBaliseIds.length > 0) {
-      await createMultipleBalises(missingBaliseIds, user.uid, globalDescription, baliseDescriptions);
-    }
-
-    // Process all balises
     const results = await processAllBalises(groupedFiles, baliseDescriptions, globalDescription, user);
 
-    // Determine appropriate response based on results
-    return determineResponse(results, invalidFiles, fileUploads, groupedFiles);
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        success: true,
+        message: `Tiedostot ladattu onnistuneesti ${results.length} baliisiin`,
+        results,
+        invalidFiles,
+        totalFiles: fileUploads.length,
+        totalBalises: groupedFiles.size,
+      }),
+    };
   } catch (err) {
+    const error = err as Error & {
+      errorType?: string;
+      lockedBy?: string;
+      failures?: BaliseValidationFailure[];
+    };
+
+    // Handle batch validation errors with all failures
+    if (error.errorType === 'validation_failed' && error.failures) {
+      return {
+        statusCode: 403,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: false,
+          error: error.message,
+          errorType: error.errorType,
+          failures: error.failures,
+        }),
+      };
+    }
+
     log.error(err);
     return getRataExtraLambdaError(err);
   }

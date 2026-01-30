@@ -75,29 +75,86 @@ async function uploadFilesToS3(
   return await uploadFilesToS3WithCleanup(BALISES_BUCKET_NAME, files, pathPrefix, userId);
 }
 
+export interface BaliseValidationFailure {
+  baliseId: number;
+  errorType: 'not_locked' | 'locked_by_other';
+  lockedBy?: string;
+  message: string;
+}
+
 /**
- * Validates that a balise is locked by the current user before allowing updates
+ * Validates that balises are locked by the current user before allowing updates
+ * Only validates existing balises - new balises don't need lock validation
+ * @param baliseIds - Single balise ID or array of balise IDs
+ * @param userId - User ID to validate against
+ * @throws Error with errorType 'validation_failed' and failures array (or single error for single ID)
  */
-function validateBaliseNotLocked(
-  balise: { secondaryId: number; locked: boolean; lockedBy?: string | null },
-  userId: string,
-): void {
-  if (!balise.locked) {
-    const error: Error & { errorType?: string; lockedBy?: string } = new Error(
-      `Baliisi ${balise.secondaryId} ei ole lukittu. Lukitse baliisi ennen muokkaamista.`,
-    );
-    error.errorType = 'not_locked';
-    throw error;
+export async function validateBalisesLockedByUser(baliseIds: number | number[], userId: string): Promise<void> {
+  const idsArray = Array.isArray(baliseIds) ? baliseIds : [baliseIds];
+  const isSingleId = !Array.isArray(baliseIds);
+
+  if (idsArray.length === 0) {
+    return;
   }
 
-  if (balise.lockedBy !== userId) {
-    const error: Error & { errorType?: string; lockedBy?: string } = new Error(
-      `Baliisi ${balise.secondaryId} on lukittu käyttäjän ${balise.lockedBy} toimesta. Vain lukituksen tehnyt käyttäjä voi muokata baliisia.`,
-    );
-    error.errorType = 'locked_by_other';
-    error.lockedBy = balise.lockedBy || undefined;
-    throw error;
+  // Fetch all existing balises in one query
+  const existingBalises = await database.balise.findMany({
+    where: {
+      secondaryId: { in: idsArray },
+    },
+    select: {
+      secondaryId: true,
+      locked: true,
+      lockedBy: true,
+    },
+  });
+
+  // Collect all validation failures instead of throwing on first error
+  const failures: BaliseValidationFailure[] = [];
+
+  for (const balise of existingBalises) {
+    if (!balise.locked) {
+      failures.push({
+        baliseId: balise.secondaryId,
+        errorType: 'not_locked',
+        message: `Baliisi ${balise.secondaryId} ei ole lukittu. Lukitse baliisi ennen muokkaamista.`,
+      });
+    } else if (balise.lockedBy !== userId) {
+      failures.push({
+        baliseId: balise.secondaryId,
+        errorType: 'locked_by_other',
+        lockedBy: balise.lockedBy || undefined,
+        message: `Baliisi ${balise.secondaryId} on lukittu käyttäjän ${balise.lockedBy} toimesta. Vain lukituksen tehnyt käyttäjä voi muokata baliisia.`,
+      });
+    }
   }
+
+  // If any failures occurred, throw error with all failures
+  if (failures.length > 0) {
+    if (isSingleId) {
+      // For single ID, throw error with single failure properties
+      const failure = failures[0];
+      const error: Error & { errorType?: string; lockedBy?: string } = new Error(failure.message);
+      error.errorType = failure.errorType;
+      if (failure.lockedBy) {
+        error.lockedBy = failure.lockedBy;
+      }
+      throw error;
+    } else {
+      // For multiple IDs, throw error with failures array
+      const error: Error & { errorType?: string; failures?: BaliseValidationFailure[] } = new Error(
+        `Lataus epäonnistui ${failures.length} baliisille`,
+      );
+      error.errorType = 'validation_failed';
+      error.failures = failures;
+      throw error;
+    }
+  }
+
+  log.info(
+    { userId },
+    `Validated ${existingBalises.length} existing balises (${idsArray.length - existingBalises.length} new) for user ${userId}`,
+  );
 }
 
 interface VersionManagementResult {
@@ -137,7 +194,7 @@ async function handleFileTypeUpdate(
   }
 
   const uploadedFilenames = await uploadFilesToS3(files, baliseId, version, userId);
-  log.info(userId, `Successfully uploaded ${files.length} files for balise ${baliseId}`);
+  log.info({ userId }, `Successfully uploaded ${files.length} files for balise ${baliseId}`);
 
   return shouldCreateNewVersion ? uploadedFilenames : [...existingFileTypes, ...uploadedFilenames];
 }
@@ -201,8 +258,6 @@ async function updateExistingBalise(
   description: string | undefined,
   userId: string,
 ): Promise<BaliseUpdateResult> {
-  validateBaliseNotLocked(existingBalise, userId);
-
   const versionManagement = determineVersionManagement(existingBalise, files.length > 0);
   const { shouldCreateNewVersion, newVersion, isEffectivelyNew } = versionManagement;
 
@@ -211,10 +266,10 @@ async function updateExistingBalise(
     if (existingBalise.version > 0) {
       await createVersionHistory(existingBalise);
     }
-    log.info(userId, `Creating new version ${newVersion} for balise ${existingBalise.secondaryId}`);
+    log.info({ userId }, `Creating new version ${newVersion} for balise ${existingBalise.secondaryId}`);
   } else {
     log.info(
-      userId,
+      { userId },
       `Updating existing version ${newVersion} for balise ${existingBalise.secondaryId} (metadata only)`,
     );
   }
@@ -261,7 +316,7 @@ async function createNewBalise(
   // Upload files if provided
   if (files.length > 0) {
     fileTypes = await uploadFilesToS3(files, baliseId, newVersion, userId);
-    log.info(userId, `Successfully uploaded ${files.length} files for new balise ${baliseId}`);
+    log.info({ userId }, `Successfully uploaded ${files.length} files for new balise ${baliseId}`);
   }
 
   // Create new balise
@@ -327,7 +382,7 @@ export async function createMultipleBalises(
     })),
   });
 
-  log.info(userId, `Auto-created ${baliseIds.length} missing balise(s): ${baliseIds.join(', ')}`);
+  log.info({ userId }, `Auto-created ${baliseIds.length} missing balise(s): ${baliseIds.join(', ')}`);
 }
 
 /**
