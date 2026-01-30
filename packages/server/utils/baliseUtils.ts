@@ -76,19 +76,25 @@ async function uploadFilesToS3(
 }
 
 /**
- * Checks if a balise is locked by another user
+ * Validates that a balise is locked by the current user before allowing updates
  */
-
-// TODO Lock functionality will be modified later, this works as is for now but lock requirements work incorrectly
 function validateBaliseNotLocked(
   balise: { secondaryId: number; locked: boolean; lockedBy?: string | null },
   userId: string,
 ): void {
-  if (balise.locked && balise.lockedBy !== userId) {
+  if (!balise.locked) {
     const error: Error & { errorType?: string; lockedBy?: string } = new Error(
-      `Baliisi ${balise.secondaryId} on lukittu käyttäjän ${balise.lockedBy} toimesta. Odota, että lukitus poistetaan.`,
+      `Baliisi ${balise.secondaryId} ei ole lukittu. Lukitse baliisi ennen muokkaamista.`,
     );
-    error.errorType = 'locked';
+    error.errorType = 'not_locked';
+    throw error;
+  }
+
+  if (balise.lockedBy !== userId) {
+    const error: Error & { errorType?: string; lockedBy?: string } = new Error(
+      `Baliisi ${balise.secondaryId} on lukittu käyttäjän ${balise.lockedBy} toimesta. Vain lukituksen tehnyt käyttäjä voi muokata baliisia.`,
+    );
+    error.errorType = 'locked_by_other';
     error.lockedBy = balise.lockedBy || undefined;
     throw error;
   }
