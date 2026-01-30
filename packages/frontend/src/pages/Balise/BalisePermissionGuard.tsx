@@ -19,7 +19,7 @@ export const BalisePermissionGuard: React.FC<BalisePermissionGuardProps> = ({
   requiredPermission,
   errorMessage,
 }) => {
-  const { permissions, isLoading: permissionsLoading } = useBalisePermissions();
+  const { permissions, isLoading: permissionsLoading, error } = useBalisePermissions();
 
   if (permissionsLoading) {
     return (
@@ -29,10 +29,16 @@ export const BalisePermissionGuard: React.FC<BalisePermissionGuardProps> = ({
     );
   }
 
+  // If permissions failed to load, pass through to let page-level error handling take over
+  if (error) {
+    return <>{children}</>;
+  }
+
+  // If permissions loaded successfully but user lacks required permission, deny access
   if (!permissions?.[requiredPermission]) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error">{errorMessage || DEFAULT_ERROR_MESSAGES[requiredPermission]}</Alert>
+        <Alert severity="warning">{errorMessage || DEFAULT_ERROR_MESSAGES[requiredPermission]}</Alert>
       </Box>
     );
   }
