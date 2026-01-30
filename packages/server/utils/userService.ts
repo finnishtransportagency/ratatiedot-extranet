@@ -88,7 +88,7 @@ const isBaliseReadUser = (user: RataExtraUser) => user.roles?.includes(BALISE_RO
 
 const isBaliseWriteUser = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.write);
 
-const isBaliseAdmin = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.admin);
+export const isBaliseAdmin = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.admin);
 
 export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
   if (!STACK_ID || !ENVIRONMENT) {
