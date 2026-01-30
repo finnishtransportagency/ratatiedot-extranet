@@ -22,6 +22,7 @@ import { ArrowBack, Edit, ExpandLess, Add } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../../constants/Routes';
 import { useSectionStore } from '../../../store/sectionStore';
+import { useBalisePermissions } from '../../../contexts/BalisePermissionsContext';
 import { BalisePermissionGuard } from '../BalisePermissionGuard';
 import type { Section } from '../types';
 import { SectionEditForm } from './SectionEditForm';
@@ -36,6 +37,7 @@ interface ValidationErrors {
 
 export const SectionPage: React.FC = () => {
   const navigate = useNavigate();
+  const { permissions } = useBalisePermissions();
   const {
     sections,
     error,
@@ -55,8 +57,10 @@ export const SectionPage: React.FC = () => {
   const [sectionToDelete, setSectionToDelete] = useState<Section | null>(null);
 
   useEffect(() => {
-    fetchSections();
-  }, [fetchSections]);
+    if (permissions?.isAdmin) {
+      fetchSections();
+    }
+  }, [fetchSections, permissions?.isAdmin]);
 
   const handleBack = () => {
     navigate(Routes.BALISE);

@@ -39,8 +39,10 @@ export const BalisePage: React.FC = () => {
 
   // Load section options on mount
   useEffect(() => {
-    fetchSectionOptions();
-  }, [fetchSectionOptions]);
+    if (permissions?.canRead) {
+      fetchSectionOptions();
+    }
+  }, [fetchSectionOptions, permissions?.canRead]);
 
   // Load initial data based on section selection
   const loadInitialData = useCallback(
