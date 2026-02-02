@@ -4,6 +4,7 @@ export interface BalisePermissions {
   canRead: boolean;
   canWrite: boolean;
   isAdmin: boolean;
+  currentUserUid: string;
 }
 
 export const getBalisePermissions = async (): Promise<BalisePermissions> => {
