@@ -62,14 +62,31 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Unlock the balise
-    const unlockedBalise = await database.balise.update({
-      where: { secondaryId: baliseId },
-      data: {
-        locked: false,
-        lockedBy: null,
-        lockedTime: null,
-      },
+    // Unlock the balise and promote all unconfirmed versions to official
+    // Use a transaction to ensure atomicity
+    const unlockedBalise = await database.$transaction(async (tx) => {
+      await tx.baliseVersion.updateMany({
+        where: {
+          baliseId: balise.id,
+          versionStatus: 'UNCONFIRMED',
+        },
+        data: {
+          versionStatus: 'OFFICIAL',
+        },
+      });
+
+      const unlockedBalise = await tx.balise.update({
+        where: { secondaryId: baliseId },
+        data: {
+          locked: false,
+          lockedBy: null,
+          lockedTime: null,
+          lockedAtVersion: null,
+          versionStatus: 'OFFICIAL',
+        },
+      });
+
+      return unlockedBalise;
     });
 
     log.info(user, `Balise ${baliseId} unlocked successfully by ${user.uid}`);
