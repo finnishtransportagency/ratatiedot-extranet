@@ -1,6 +1,7 @@
 import { log } from './logger';
 import { DatabaseClient } from '../lambdas/database/client';
 import { FileUpload, uploadFilesToS3WithCleanup } from './s3utils';
+import { VersionStatus } from '../generated/prisma/client';
 
 const database = await DatabaseClient.build();
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
@@ -14,6 +15,7 @@ export interface BaliseUpdateResult {
     id: string;
     secondaryId: number;
     version: number;
+    versionStatus: VersionStatus;
     description: string;
     fileTypes: string[];
     createdBy: string;
@@ -21,6 +23,7 @@ export interface BaliseUpdateResult {
     locked: boolean;
     lockedBy?: string | null;
     lockedTime?: Date | null;
+    lockedAtVersion?: number | null;
   };
 }
 
@@ -38,6 +41,7 @@ async function createVersionHistory(existingBalise: {
   id: string;
   secondaryId: number;
   version: number;
+  versionStatus: VersionStatus;
   description: string;
   fileTypes: string[];
   createdBy: string;
@@ -51,6 +55,7 @@ async function createVersionHistory(existingBalise: {
       baliseId: existingBalise.id,
       secondaryId: existingBalise.secondaryId,
       version: existingBalise.version,
+      versionStatus: existingBalise.versionStatus,
       description: existingBalise.description,
       fileTypes: existingBalise.fileTypes,
       createdBy: existingBalise.createdBy,
@@ -200,15 +205,18 @@ function prepareUpdateData(
   currentLocked?: boolean,
   currentLockedBy?: string | null,
   currentLockedTime?: Date | null,
+  currentLockedAtVersion?: number | null,
 ) {
   const updateData: {
     fileTypes: string[];
     version?: number;
+    versionStatus?: VersionStatus;
     createdBy?: string;
     createdTime?: Date;
     locked?: boolean;
     lockedBy?: string | null;
     lockedTime?: Date | null;
+    lockedAtVersion?: number | null;
     description?: string;
   } = {
     fileTypes,
@@ -221,6 +229,8 @@ function prepareUpdateData(
     updateData.locked = currentLocked!;
     updateData.lockedBy = currentLockedBy!;
     updateData.lockedTime = currentLockedTime!;
+    updateData.lockedAtVersion = currentLockedAtVersion!;
+    updateData.versionStatus = VersionStatus.UNCONFIRMED;
   }
 
   if (description !== undefined) {
@@ -238,6 +248,7 @@ async function updateExistingBalise(
     id: string;
     secondaryId: number;
     version: number;
+    versionStatus: VersionStatus;
     description: string;
     fileTypes: string[];
     createdBy: string;
@@ -245,6 +256,7 @@ async function updateExistingBalise(
     locked: boolean;
     lockedBy?: string | null;
     lockedTime?: Date | null;
+    lockedAtVersion?: number | null;
   },
   files: FileUpload[],
   description: string | undefined,
@@ -286,6 +298,7 @@ async function updateExistingBalise(
     existingBalise.locked,
     existingBalise.lockedBy,
     existingBalise.lockedTime,
+    existingBalise.lockedAtVersion,
   );
 
   const updatedBalise = await database.balise.update({
@@ -325,6 +338,7 @@ async function createNewBalise(
     data: {
       secondaryId: baliseId,
       version: newVersion,
+      versionStatus: VersionStatus.OFFICIAL,
       description: description || '',
       fileTypes,
       createdBy: userId,
