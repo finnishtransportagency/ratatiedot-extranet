@@ -392,7 +392,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                         disabled={loading || !formData.secondaryId || !formData.description}
                         size="small"
                       >
-                        {loading ? 'Tallentaa...' : 'Tallenna'}
+                        {loading ? 'Tallennetaan...' : 'Tallenna'}
                       </Button>
                     </>
                   )}
@@ -408,7 +408,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                   disabled={loading || !formData.secondaryId || !formData.description}
                   size="small"
                 >
-                  {loading ? 'Tallentaa...' : 'Tallenna'}
+                  {loading ? 'Tallennetaan...' : 'Tallenna'}
                 </Button>
               )}
             </Box>
@@ -458,7 +458,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               label="Kuvaus"
               value={formData.description}
               onChange={(value) => handleInputChange('description', value)}
-              disabled={!permissions?.canWrite}
+              disabled={
+                !permissions?.canWrite ||
+                (mode !== 'create' &&
+                  !!balise &&
+                  (!balise.locked || (!!balise.lockedBy && balise.lockedBy !== permissions?.currentUserUid)))
+              }
               multiline
               rows={3}
               placeholder="Syötä kuvaus"
