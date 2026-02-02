@@ -161,7 +161,13 @@ export const BaliseEditPage: React.FC = () => {
           <Alert severity="error">{error}</Alert>
         </Box>
       ) : (
-        <BaliseForm mode={currentMode} balise={balise || undefined} onSave={handleSave} onCancel={handleCancel} />
+        <BaliseForm
+          mode={currentMode}
+          balise={balise || undefined}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          onRefresh={id ? () => loadBalise(id) : undefined}
+        />
       )}
     </BalisePermissionGuard>
   );
