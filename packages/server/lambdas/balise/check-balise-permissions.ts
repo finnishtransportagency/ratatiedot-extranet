@@ -28,6 +28,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       canRead: isBaliseReadUser(user) || isBaliseWriteUser(user) || isBaliseAdmin(user),
       canWrite: isBaliseWriteUser(user) || isBaliseAdmin(user),
       isAdmin: isBaliseAdmin(user),
+      currentUserUid: user.uid,
     };
 
     return {
