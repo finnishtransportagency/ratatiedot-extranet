@@ -150,6 +150,7 @@ interface BaliseFileUploadProps {
   formData: { files: File[] };
   permissions?: {
     canWrite: boolean;
+    currentUserUid?: string;
   } | null;
   onFileUpload: (files: File[]) => void;
   onRemoveFile: (index: number) => void;

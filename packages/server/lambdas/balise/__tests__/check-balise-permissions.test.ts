@@ -31,7 +31,7 @@ describe('check-balise-permissions', () => {
 
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body!);
-    expect(body).toEqual({ canRead: true, canWrite: true, isAdmin: true });
+    expect(body).toEqual({ canRead: true, canWrite: true, isAdmin: true, currentUserUid: 'admin-user' });
   });
 
   it('should return limited permissions for balise write user', async () => {
@@ -44,7 +44,7 @@ describe('check-balise-permissions', () => {
 
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body!);
-    expect(body).toEqual({ canRead: true, canWrite: true, isAdmin: false });
+    expect(body).toEqual({ canRead: true, canWrite: true, isAdmin: false, currentUserUid: 'write-user' });
   });
 
   it('should return read-only permissions for balise read user', async () => {
@@ -57,7 +57,7 @@ describe('check-balise-permissions', () => {
 
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body!);
-    expect(body).toEqual({ canRead: true, canWrite: false, isAdmin: false });
+    expect(body).toEqual({ canRead: true, canWrite: false, isAdmin: false, currentUserUid: 'read-user' });
   });
 
   it('should return no balise permissions for user without balise roles', async () => {
@@ -70,7 +70,7 @@ describe('check-balise-permissions', () => {
 
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body!);
-    expect(body).toEqual({ canRead: false, canWrite: false, isAdmin: false });
+    expect(body).toEqual({ canRead: false, canWrite: false, isAdmin: false, currentUserUid: 'regular-user' });
   });
 
   it('should return no permissions for user with no roles', async () => {
@@ -83,6 +83,6 @@ describe('check-balise-permissions', () => {
 
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body!);
-    expect(body).toEqual({ canRead: false, canWrite: false, isAdmin: false });
+    expect(body).toEqual({ canRead: false, canWrite: false, isAdmin: false, currentUserUid: 'no-roles-user' });
   });
 });
