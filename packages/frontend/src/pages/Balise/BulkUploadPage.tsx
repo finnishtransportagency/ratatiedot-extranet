@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { BalisePermissionGuard } from './BalisePermissionGuard';
+import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import {
   Box,
   Paper,
@@ -101,8 +102,12 @@ export const BulkUploadPage: React.FC = () => {
   const [unchangedBaliseIds, setUnchangedBaliseIds] = useState<number[]>([]);
   const [globalDescription, setGlobalDescription] = useState<string>('');
   const [baliseDescriptions, setBaliseDescriptions] = useState<Record<number, string>>({});
-  const [existingBalises, setExistingBalises] = useState<Record<number, { version: number; description: string }>>({});
+  const [existingBalises, setExistingBalises] = useState<
+    Record<number, { version: number; description: string; locked: boolean; lockedBy?: string | null }>
+  >({});
   const [loadingBaliseData, setLoadingBaliseData] = useState(false);
+
+  const { permissions } = useBalisePermissions();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -126,10 +131,26 @@ export const BulkUploadPage: React.FC = () => {
       if (response.ok) {
         const responseData = await response.json();
         const balises = responseData.data || responseData; // Handle both paginated and direct array response
-        const baliseMap: Record<number, { version: number; description: string }> = {};
-        balises.forEach((b: { secondaryId: number; version: number; description: string }) => {
-          baliseMap[b.secondaryId] = { version: b.version, description: b.description };
-        });
+        const baliseMap: Record<
+          number,
+          { version: number; description: string; locked: boolean; lockedBy?: string | null }
+        > = {};
+        balises.forEach(
+          (b: {
+            secondaryId: number;
+            version: number;
+            description: string;
+            locked: boolean;
+            lockedBy?: string | null;
+          }) => {
+            baliseMap[b.secondaryId] = {
+              version: b.version,
+              description: b.description,
+              locked: b.locked,
+              lockedBy: b.lockedBy,
+            };
+          },
+        );
         setExistingBalises(baliseMap);
       }
     } catch (err) {
@@ -189,6 +210,10 @@ export const BulkUploadPage: React.FC = () => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
+  const removeBaliseFiles = useCallback((baliseId: number) => {
+    setFiles((prev) => prev.filter((f) => f.baliseId !== baliseId));
+  }, []);
+
   const clearAll = useCallback(() => {
     setFiles([]);
     setUploadResult(null);
@@ -217,6 +242,32 @@ export const BulkUploadPage: React.FC = () => {
   const invalidFiles = files.filter((f) => !f.isValid);
   const validFileCount = files.filter((f) => f.isValid).length;
   const baliseCount = Object.keys(groupedFiles).length;
+
+  // Check if any balises have lock issues
+  const hasLockIssues = Object.entries(groupedFiles).some(([baliseId]) => {
+    const bId = parseInt(baliseId);
+    const existing = existingBalises[bId];
+    return existing && (!existing.locked || (existing.lockedBy && existing.lockedBy !== permissions?.currentUserUid));
+  });
+
+  // Count balises with lock issues
+  const lockIssueCount = Object.entries(groupedFiles).filter(([baliseId]) => {
+    const bId = parseInt(baliseId);
+    const existing = existingBalises[bId];
+    return existing && (!existing.locked || (existing.lockedBy && existing.lockedBy !== permissions?.currentUserUid));
+  }).length;
+
+  // Count files only from balises without lock issues
+  const validBaliseFileCount = Object.entries(groupedFiles)
+    .filter(([baliseId]) => {
+      const bId = parseInt(baliseId);
+      const existingData = existingBalises[bId];
+      return (
+        !existingData ||
+        (existingData.locked && (!existingData.lockedBy || existingData.lockedBy === permissions?.currentUserUid))
+      );
+    })
+    .reduce((count, [, baliseFiles]) => count + baliseFiles.length, 0);
 
   const toggleBaliseExpand = (baliseId: number, hasError: boolean) => {
     // Only allow expanding balises that have errors
@@ -396,7 +447,7 @@ export const BulkUploadPage: React.FC = () => {
                       color="primary"
                       startIcon={uploading ? <CircularProgress size={20} color="inherit" /> : <CloudUpload />}
                       onClick={handleUpload}
-                      disabled={uploading || validFileCount === 0}
+                      disabled={uploading || validFileCount === 0 || hasLockIssues}
                       size="small"
                     >
                       {uploading ? 'Ladataan...' : `Lataa ${validFileCount} tiedostoa`}
@@ -651,12 +702,68 @@ export const BulkUploadPage: React.FC = () => {
                   </Alert>
                 )}
 
+                {/* Lock Issues Warning */}
+                {lockIssueCount > 0 && (
+                  <Alert severity="warning" sx={{ mb: 2 }}>
+                    Baliiseja lukitsematta tai lukittu toisen käyttäjän toimesta. Lukitse baliisit lisätäksesi niille
+                    tiedostoja.
+                  </Alert>
+                )}
+
+                {/* Balises with Lock Issues */}
+                {lockIssueCount > 0 && (
+                  <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                      Baliisit joita ei voida muokata ({lockIssueCount})
+                    </Typography>
+                    {Object.entries(groupedFiles)
+                      .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                      .filter(([baliseId]) => {
+                        const bId = parseInt(baliseId);
+                        const existingData = existingBalises[bId];
+                        return (
+                          existingData &&
+                          (!existingData.locked ||
+                            (existingData.lockedBy && existingData.lockedBy !== permissions?.currentUserUid))
+                        );
+                      })
+                      .map(([baliseId]) => {
+                        const bId = parseInt(baliseId);
+                        const existingData = existingBalises[bId];
+
+                        return (
+                          <Box key={baliseId} sx={{ mb: 1.5, pb: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+                            <Box
+                              sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'space-between' }}
+                            >
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                  Baliisi {baliseId}
+                                </Typography>
+                                <Chip
+                                  label={!existingData.locked ? 'Lukitsematon' : `Lukittu: ${existingData.lockedBy}`}
+                                  size="small"
+                                  color="warning"
+                                  icon={<Warning />}
+                                  sx={{ px: 1 }}
+                                />
+                              </Box>
+                              <IconButton size="small" onClick={() => removeBaliseFiles(bId)} edge="end">
+                                <Close sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            </Box>
+                          </Box>
+                        );
+                      })}
+                  </Paper>
+                )}
+
                 {/* Grouped Files Display */}
                 {baliseCount > 0 && (
                   <Paper sx={{ p: 3 }} variant="outlined">
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                       <Typography variant="h6">
-                        Valitut tiedostot ({validFileCount} tiedostoa, {baliseCount} baliisia)
+                        Valitut tiedostot ({validBaliseFileCount} tiedostoa, {baliseCount - lockIssueCount} baliisia)
                       </Typography>
                       {loadingBaliseData && (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -683,6 +790,15 @@ export const BulkUploadPage: React.FC = () => {
                     />
 
                     {Object.entries(groupedFiles)
+                      .filter(([baliseId]) => {
+                        const bId = parseInt(baliseId);
+                        const existingData = existingBalises[bId];
+                        return (
+                          !existingData ||
+                          (existingData.locked &&
+                            (!existingData.lockedBy || existingData.lockedBy === permissions?.currentUserUid))
+                        );
+                      })
                       .sort(([a], [b]) => parseInt(a) - parseInt(b))
                       .map(([baliseId, baliseFiles]) => {
                         const bId = parseInt(baliseId);
