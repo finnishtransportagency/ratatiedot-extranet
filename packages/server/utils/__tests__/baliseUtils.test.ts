@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   updateOrCreateBalise,
-  createMultipleBalises,
   validateBalisesLockedByUser,
   type BaliseUpdateOptions,
 } from '../baliseUtils';
@@ -209,92 +208,6 @@ describe('baliseUtils', () => {
         'current-user',
       );
       expect(mockDatabase.balise.update).toHaveBeenCalled();
-    });
-  });
-
-  describe('createMultipleBalises', () => {
-    it('should create multiple balises with default descriptions', async () => {
-      const baliseIds = [1001, 1002, 1003];
-      const userId = 'batch-user';
-      const globalDescription = 'Batch created balises';
-
-      await createMultipleBalises(baliseIds, userId, globalDescription);
-
-      expect(mockDatabase.balise.createMany).toHaveBeenCalledWith({
-        data: [
-          {
-            secondaryId: 1001,
-            version: 0,
-            description: globalDescription,
-            fileTypes: [],
-            createdBy: userId,
-            locked: false,
-          },
-          {
-            secondaryId: 1002,
-            version: 0,
-            description: globalDescription,
-            fileTypes: [],
-            createdBy: userId,
-            locked: false,
-          },
-          {
-            secondaryId: 1003,
-            version: 0,
-            description: globalDescription,
-            fileTypes: [],
-            createdBy: userId,
-            locked: false,
-          },
-        ],
-      });
-    });
-
-    it('should use individual descriptions when provided', async () => {
-      const baliseIds = [2001, 2002];
-      const userId = 'individual-user';
-      const globalDescription = 'Default description';
-      const baliseDescriptions = {
-        2001: 'Special description for 2001',
-        2002: 'Custom description for 2002',
-      };
-
-      await createMultipleBalises(baliseIds, userId, globalDescription, baliseDescriptions);
-
-      expect(mockDatabase.balise.createMany).toHaveBeenCalledWith({
-        data: [
-          expect.objectContaining({
-            secondaryId: 2001,
-            description: 'Special description for 2001',
-          }),
-          expect.objectContaining({
-            secondaryId: 2002,
-            description: 'Custom description for 2002',
-          }),
-        ],
-      });
-    });
-
-    it('should do nothing when given empty array', async () => {
-      await createMultipleBalises([], 'test-user');
-
-      expect(mockDatabase.balise.createMany).not.toHaveBeenCalled();
-    });
-
-    it('should use default message when no descriptions provided', async () => {
-      const baliseIds = [3001];
-      const userId = 'auto-user';
-
-      await createMultipleBalises(baliseIds, userId);
-
-      expect(mockDatabase.balise.createMany).toHaveBeenCalledWith({
-        data: [
-          expect.objectContaining({
-            secondaryId: 3001,
-            description: 'Luotu automaattisesti massalatauksessa',
-          }),
-        ],
-      });
     });
   });
 
