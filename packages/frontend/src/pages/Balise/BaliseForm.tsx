@@ -34,6 +34,7 @@ interface BaliseFormProps {
   balise?: BaliseWithHistory;
   onSave?: (baliseData: Partial<BaliseWithHistory>, files?: File[], filesToDelete?: string[]) => Promise<void>;
   onCancel?: () => void;
+  onRefresh?: () => Promise<void>;
 }
 
 interface FormData {
@@ -73,7 +74,7 @@ const handleDownloadBaliseFiles = async (
   }
 };
 
-export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave }) => {
+export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onRefresh }) => {
   const navigate = useNavigate();
   const { deleteBalise, lockBalise, unlockBalise } = useBaliseStore();
   const { permissions } = useBalisePermissions();
@@ -266,8 +267,9 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave }) 
       } else {
         await lockBalise(balise.secondaryId);
       }
-      // Refresh the page to get updated balise data
-      window.location.reload();
+      if (onRefresh) {
+        await onRefresh();
+      }
     } catch (err) {
       // Try to parse error response for errorType
       if (err instanceof Error) {
@@ -293,7 +295,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave }) 
     } finally {
       setActionLoading(false);
     }
-  }, [balise, lockBalise, unlockBalise]);
+  }, [balise, lockBalise, unlockBalise, onRefresh]);
 
   return (
     <Box
@@ -336,13 +338,27 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave }) 
                   {permissions?.canWrite && (
                     <Button
                       variant="outlined"
-                      startIcon={balise?.locked ? <LockOpen /> : <Lock />}
+                      startIcon={
+                        actionLoading ? (
+                          <CircularProgress size={20} color="inherit" />
+                        ) : balise?.locked ? (
+                          <LockOpen />
+                        ) : (
+                          <Lock />
+                        )
+                      }
                       onClick={handleLockToggle}
                       disabled={actionLoading}
                       size="small"
                       color={balise?.locked ? 'primary' : 'secondary'}
                     >
-                      {balise?.locked ? 'Avaa lukitus' : 'Lukitse'}
+                      {actionLoading
+                        ? balise?.locked
+                          ? 'Avataan...'
+                          : 'Lukitaan...'
+                        : balise?.locked
+                          ? 'Avaa lukitus'
+                          : 'Lukitse'}
                     </Button>
                   )}
                   {permissions?.canWrite && (
