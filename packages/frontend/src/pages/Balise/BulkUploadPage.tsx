@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { BalisePermissionGuard } from './BalisePermissionGuard';
@@ -48,7 +48,7 @@ interface UploadResult {
   previousVersion?: number;
   filesUploaded?: number;
   error?: string;
-  errorType?: 'locked' | 'not_found' | 'permission' | 'storage' | 'unknown';
+  errorType?: 'not_locked' | 'locked_by_other' | 'not_found' | 'permission' | 'storage' | 'unknown';
   lockedBy?: string;
   isNewBalise?: boolean;
 }
@@ -60,6 +60,20 @@ interface UploadResponse {
   invalidFiles?: string[];
   totalFiles?: number;
   totalBalises?: number;
+}
+
+interface ValidationFailure {
+  baliseId: number;
+  errorType: 'not_locked' | 'locked_by_other';
+  lockedBy?: string;
+  message: string;
+}
+
+interface ValidationErrorResponse {
+  success: false;
+  error: string;
+  errorType: 'validation_failed';
+  failures: ValidationFailure[];
 }
 
 /**
@@ -75,6 +89,7 @@ function parseBaliseId(filename: string): number | null {
 
 export const BulkUploadPage: React.FC = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [files, setFiles] = useState<FileWithBaliseId[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -83,6 +98,7 @@ export const BulkUploadPage: React.FC = () => {
   const [uploadResult, setUploadResult] = useState<UploadResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedBalises, setExpandedBalises] = useState<Set<number>>(new Set());
+  const [unchangedBaliseIds, setUnchangedBaliseIds] = useState<number[]>([]);
   const [globalDescription, setGlobalDescription] = useState<string>('');
   const [baliseDescriptions, setBaliseDescriptions] = useState<Record<number, string>>({});
   const [existingBalises, setExistingBalises] = useState<Record<number, { version: number; description: string }>>({});
@@ -177,6 +193,11 @@ export const BulkUploadPage: React.FC = () => {
     setFiles([]);
     setUploadResult(null);
     setError(null);
+    setUnchangedBaliseIds([]);
+    // Reset file input to allow re-selecting the same files
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   }, []);
 
   // Group files by balise ID for display
@@ -218,10 +239,15 @@ export const BulkUploadPage: React.FC = () => {
       return;
     }
 
+    const requestedBaliseIds = Object.keys(groupedFiles)
+      .map((id) => parseInt(id, 10))
+      .sort((a, b) => a - b);
+
     setUploading(true);
     setUploadProgress(0);
     setError(null);
     setUploadResult(null);
+    setUnchangedBaliseIds([]);
 
     try {
       // Create FormData with all files and descriptions
@@ -261,11 +287,40 @@ export const BulkUploadPage: React.FC = () => {
       const responseData = await response.json();
 
       if (!response.ok) {
-        // Check if this is a structured error response with results
-        if (responseData.results && Array.isArray(responseData.results)) {
-          // This is a structured response with detailed results (e.g., some locked balises)
+        // Check if this is a validation error with failures array
+        if (responseData.errorType === 'validation_failed' && responseData.failures) {
+          // Convert failures to results format for UI display
+          const validationError = responseData as ValidationErrorResponse;
+          const convertedResults: UploadResult[] = validationError.failures.map((f: ValidationFailure) => ({
+            baliseId: f.baliseId,
+            success: false,
+            error: f.message,
+            errorType: f.errorType,
+            lockedBy: f.lockedBy,
+          }));
+
+          const result: UploadResponse = {
+            success: false,
+            message: validationError.error,
+            results: convertedResults,
+            invalidFiles: [],
+          };
+          setUploadResult(result);
+          setUnchangedBaliseIds(requestedBaliseIds);
+
+          // Auto-expand all failed balises
+          const failedBaliseIds = convertedResults.map((r) => r.baliseId);
+          setExpandedBalises(new Set(failedBaliseIds));
+        } else if (responseData.results && Array.isArray(responseData.results)) {
+          // This is a structured response with results (e.g., partial success)
           const result: UploadResponse = responseData;
           setUploadResult(result);
+          if (result.results.some((r) => !r.success)) {
+            const unchangedIds = requestedBaliseIds.filter(
+              (id) => !result.results.some((r) => r.success && r.baliseId === id),
+            );
+            setUnchangedBaliseIds(unchangedIds);
+          }
 
           // Auto-expand failed balises
           const failedBaliseIds = result.results.filter((r) => !r.success).map((r) => r.baliseId);
@@ -275,8 +330,11 @@ export const BulkUploadPage: React.FC = () => {
           throw new Error(responseData.error || responseData.message || `HTTP error! status: ${response.status}`);
         }
       } else {
-        // Success response
-        const result: UploadResponse = responseData;
+        // Success response - backend doesn't include 'success' field in individual results, so add it
+        const result: UploadResponse = {
+          ...responseData,
+          results: responseData.results.map((r: UploadResult) => ({ ...r, success: true })),
+        };
         setUploadResult(result);
 
         // Auto-expand failed balises
@@ -386,7 +444,7 @@ export const BulkUploadPage: React.FC = () => {
 
             {/* Upload Result */}
             {uploadResult && (
-              <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
+              <Paper sx={{ p: 3, mb: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                   {uploadResult.success ? (
                     <CheckCircle sx={{ fontSize: 40, color: 'success.main' }} />
@@ -414,88 +472,118 @@ export const BulkUploadPage: React.FC = () => {
                   </Alert>
                 )}
 
+                {unchangedBaliseIds.length > 0 && (
+                  <Alert severity="info" sx={{ mb: 2 }}>
+                    <Typography variant="body2" fontWeight={500}>
+                      Seuraavia baliiseja ei luotu/muokattu:
+                    </Typography>
+                    <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {unchangedBaliseIds.map((baliseId) => (
+                        <Chip
+                          key={baliseId}
+                          label={baliseId}
+                          size="small"
+                          color="info"
+                          variant="outlined"
+                          sx={{ cursor: 'default' }}
+                        />
+                      ))}
+                    </Box>
+                  </Alert>
+                )}
+
                 <Divider sx={{ my: 2 }} />
 
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Tulokset baliseittain:
+                  {uploadResult.success ? 'Tulokset baliiseittain:' : 'Virheet baliiseittain:'}
                 </Typography>
                 <List dense disablePadding>
-                  {uploadResult.results.map((result) => (
-                    <ListItem
-                      key={result.baliseId}
-                      sx={{
-                        mb: 1,
-                        borderRadius: 1,
-                        border: 1,
-                        borderColor: result.success ? 'success.light' : 'error.light',
-                        bgcolor: result.success ? 'success.lighter' : 'error.lighter',
-                        flexDirection: 'column',
-                        alignItems: 'stretch',
-                      }}
-                    >
-                      <Box
+                  {uploadResult.results.map((result) => {
+                    // Determine if this is a lock-related error (yellow) or system error (red)
+                    const isLockError = result.errorType === 'locked_by_other' || result.errorType === 'not_locked';
+
+                    return (
+                      <ListItem
+                        key={result.baliseId}
                         sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          width: '100%',
-                          cursor: result.success ? 'default' : 'pointer',
+                          mb: 1,
+                          borderRadius: 1,
+                          border: 1,
+                          borderColor: result.success ? 'success.light' : isLockError ? 'warning.light' : 'error.light',
+                          bgcolor: result.success
+                            ? 'success.lighter'
+                            : isLockError
+                              ? 'warning.lighter'
+                              : 'error.lighter',
+                          flexDirection: 'column',
+                          alignItems: 'stretch',
                         }}
-                        onClick={() => toggleBaliseExpand(result.baliseId, !result.success)}
                       >
-                        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                          {result.success ? (
-                            <CheckCircle sx={{ color: 'success.main', fontSize: 20 }} />
-                          ) : result.errorType === 'locked' ? (
-                            <Lock sx={{ color: 'warning.main', fontSize: 20 }} />
-                          ) : (
-                            <ErrorIcon sx={{ color: 'error.main', fontSize: 20 }} />
-                          )}
-                          <Typography variant="body2" fontWeight={500}>
-                            Baliisi {result.baliseId}
-                          </Typography>
-                          {result.success && (
-                            <>
-                              {result.isNewBalise ? (
-                                <Chip label="UUSI" size="small" color="success" icon={<Add />} />
-                              ) : (
-                                <Chip
-                                  label={`v${result.previousVersion} → v${result.newVersion}`}
-                                  size="small"
-                                  color="primary"
-                                  icon={<Update />}
-                                />
-                              )}
-                              <Chip label={`${result.filesUploaded} tiedostoa`} size="small" variant="outlined" />
-                            </>
-                          )}
-                          {result.errorType === 'locked' && <Chip label="Lukittu" size="small" color="warning" />}
-                        </Box>
-                        {!result.success && (
-                          <IconButton size="small">
-                            {expandedBalises.has(result.baliseId) ? <ExpandLess /> : <ExpandMore />}
-                          </IconButton>
-                        )}
-                      </Box>
-                      <Collapse in={expandedBalises.has(result.baliseId)}>
-                        <Box sx={{ mt: 1, pl: 4 }}>
-                          {result.error && (
-                            <Alert
-                              severity={result.errorType === 'locked' ? 'info' : 'error'}
-                              sx={{ py: 0.5 }}
-                              icon={result.errorType === 'locked' ? <Lock fontSize="small" /> : undefined}
-                            >
-                              {result.error}
-                              {result.lockedBy && (
-                                <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                                  Lukituksen voi poistaa käyttäjä {result.lockedBy} tai järjestelmän ylläpitäjä.
-                                </Typography>
-                              )}
-                            </Alert>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            width: '100%',
+                            cursor: result.success ? 'default' : 'pointer',
+                          }}
+                          onClick={() => toggleBaliseExpand(result.baliseId, !result.success)}
+                        >
+                          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                            {result.success ? (
+                              <CheckCircle sx={{ color: 'success.main', fontSize: 20 }} />
+                            ) : result.errorType === 'locked_by_other' || result.errorType === 'not_locked' ? (
+                              <Lock sx={{ color: 'warning.main', fontSize: 20 }} />
+                            ) : (
+                              <ErrorIcon sx={{ color: 'error.main', fontSize: 20 }} />
+                            )}
+                            <Typography variant="body2" fontWeight={500}>
+                              Baliisi {result.baliseId}
+                            </Typography>
+                            {result.success && (
+                              <>
+                                {result.isNewBalise ? (
+                                  <Chip label="UUSI" size="small" color="success" icon={<Add />} />
+                                ) : (
+                                  <Chip
+                                    label={`v${result.previousVersion} → v${result.newVersion}`}
+                                    size="small"
+                                    color="primary"
+                                    icon={<Update />}
+                                  />
+                                )}
+                                <Chip label={`${result.filesUploaded} tiedostoa`} size="small" variant="outlined" />
+                              </>
+                            )}
+                            {result.errorType === 'locked_by_other' && (
+                              <Chip label="Lukittu" size="small" color="warning" />
+                            )}
+                            {result.errorType === 'not_locked' && (
+                              <Chip label="Lukitsematon" size="small" color="warning" />
+                            )}
+                          </Box>
+                          {!result.success && (
+                            <IconButton size="small">
+                              {expandedBalises.has(result.baliseId) ? <ExpandLess /> : <ExpandMore />}
+                            </IconButton>
                           )}
                         </Box>
-                      </Collapse>
-                    </ListItem>
-                  ))}
+                        <Collapse in={expandedBalises.has(result.baliseId)}>
+                          <Box sx={{ mt: 1, pl: 4, pb: 1 }}>
+                            {result.error && (
+                              <Alert severity={isLockError ? 'warning' : 'error'} sx={{ py: 0.5 }}>
+                                {result.error}
+                                {result.lockedBy && result.errorType === 'locked_by_other' && (
+                                  <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
+                                    Lukituksen voi poistaa käyttäjä {result.lockedBy} tai järjestelmän ylläpitäjä.
+                                  </Typography>
+                                )}
+                              </Alert>
+                            )}
+                          </Box>
+                        </Collapse>
+                      </ListItem>
+                    );
+                  })}
                 </List>
               </Paper>
             )}
@@ -522,7 +610,14 @@ export const BulkUploadPage: React.FC = () => {
                     },
                   }}
                 >
-                  <input type="file" hidden multiple onChange={handleFileSelect} id="bulk-file-upload" />
+                  <input
+                    type="file"
+                    hidden
+                    multiple
+                    onChange={handleFileSelect}
+                    id="bulk-file-upload"
+                    ref={fileInputRef}
+                  />
                   <label
                     htmlFor="bulk-file-upload"
                     style={{
