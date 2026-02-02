@@ -3,6 +3,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseWriteUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
+import { VersionStatus } from '../../generated/prisma/client';
 
 const database = await DatabaseClient.build();
 
@@ -68,10 +69,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       await tx.baliseVersion.updateMany({
         where: {
           baliseId: balise.id,
-          versionStatus: 'UNCONFIRMED',
+          versionStatus: VersionStatus.UNCONFIRMED,
         },
         data: {
-          versionStatus: 'OFFICIAL',
+          versionStatus: VersionStatus.OFFICIAL,
         },
       });
 
@@ -82,7 +83,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           lockedBy: null,
           lockedTime: null,
           lockedAtVersion: null,
-          versionStatus: 'OFFICIAL',
+          versionStatus: VersionStatus.OFFICIAL,
         },
       });
 
