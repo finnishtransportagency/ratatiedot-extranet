@@ -243,31 +243,21 @@ export const BulkUploadPage: React.FC = () => {
   const validFileCount = files.filter((f) => f.isValid).length;
   const baliseCount = Object.keys(groupedFiles).length;
 
-  // Check if any balises have lock issues
-  const hasLockIssues = Object.entries(groupedFiles).some(([baliseId]) => {
+  // Get balises with lock issues
+  const balisesWithLockIssues = Object.entries(groupedFiles).filter(([baliseId]) => {
     const bId = parseInt(baliseId);
     const existing = existingBalises[bId];
     return existing && (!existing.locked || (existing.lockedBy && existing.lockedBy !== permissions?.currentUserUid));
   });
 
-  // Count balises with lock issues
-  const lockIssueCount = Object.entries(groupedFiles).filter(([baliseId]) => {
-    const bId = parseInt(baliseId);
-    const existing = existingBalises[bId];
-    return existing && (!existing.locked || (existing.lockedBy && existing.lockedBy !== permissions?.currentUserUid));
-  }).length;
+  const lockIssueCount = balisesWithLockIssues.length;
+  const hasLockIssues = lockIssueCount > 0;
+
+  // Count files from balises with lock issues
+  const lockedBaliseFileCount = balisesWithLockIssues.reduce((count, [, baliseFiles]) => count + baliseFiles.length, 0);
 
   // Count files only from balises without lock issues
-  const validBaliseFileCount = Object.entries(groupedFiles)
-    .filter(([baliseId]) => {
-      const bId = parseInt(baliseId);
-      const existingData = existingBalises[bId];
-      return (
-        !existingData ||
-        (existingData.locked && (!existingData.lockedBy || existingData.lockedBy === permissions?.currentUserUid))
-      );
-    })
-    .reduce((count, [, baliseFiles]) => count + baliseFiles.length, 0);
+  const validBaliseFileCount = validFileCount - lockedBaliseFileCount;
 
   const toggleBaliseExpand = (baliseId: number, hasError: boolean) => {
     // Only allow expanding balises that have errors
