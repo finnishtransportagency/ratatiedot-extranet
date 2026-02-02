@@ -592,6 +592,7 @@ export const BulkUploadPage: React.FC = () => {
                       .map(([baliseId, baliseFiles]) => {
                         const bId = parseInt(baliseId);
                         const existingData = existingBalises[bId];
+                        const isLoadingStatus = loadingBaliseData && !existingData;
                         const isNew = !existingData;
                         const currentDescription = baliseDescriptions[bId] || '';
 
@@ -601,7 +602,14 @@ export const BulkUploadPage: React.FC = () => {
                               <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                                 Baliisi {baliseId}
                               </Typography>
-                              {isNew ? (
+                              {isLoadingStatus ? (
+                                <Chip
+                                  label="Ladataan..."
+                                  size="small"
+                                  color="default"
+                                  icon={<CircularProgress size={12} />}
+                                />
+                              ) : isNew ? (
                                 <Chip label="UUSI" size="small" color="success" icon={<Add />} />
                               ) : (
                                 <Chip
