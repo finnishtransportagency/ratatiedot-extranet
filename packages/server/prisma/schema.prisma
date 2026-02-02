@@ -10,6 +10,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum VersionStatus {
+  OFFICIAL
+  UNCONFIRMED
+}
+
 model CategoryDataBase {
   id                     String                @id @default(uuid())
   rataextraRequestPage   String
@@ -88,27 +93,30 @@ model Notice {
 }
 
 model Balise {
-  id          String          @id @default(uuid())
-  secondaryId Int             @unique
-  version     Int
-  description String
-  fileTypes   String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
-  history     BaliseVersion[]
-  createdBy   String
-  createdTime DateTime        @default(now())
-  locked      Boolean         @default(false)
-  lockedBy    String?
-  lockedTime  DateTime?
-  deletedAt   DateTime?
-  deletedBy   String?
+  id              String          @id @default(uuid())
+  secondaryId     Int             @unique
+  version         Int
+  versionStatus   VersionStatus   @default(OFFICIAL)
+  description     String
+  fileTypes       String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
+  history         BaliseVersion[]
+  createdBy       String
+  createdTime     DateTime        @default(now())
+  locked          Boolean         @default(false)
+  lockedBy        String?
+  lockedTime      DateTime?
+  lockedAtVersion Int?
+  deletedAt       DateTime?
+  deletedBy       String?
 }
 
 model BaliseVersion {
-  id                 String    @id @default(uuid())
+  id                 String        @id @default(uuid())
   baliseId           String
-  balise             Balise    @relation(fields: [baliseId], references: [id])
+  balise             Balise        @relation(fields: [baliseId], references: [id])
   secondaryId        Int
   version            Int
+  versionStatus      VersionStatus @default(OFFICIAL)
   description        String
   fileTypes          String[]
   createdBy          String
@@ -116,7 +124,7 @@ model BaliseVersion {
   locked             Boolean
   lockedBy           String?
   lockedTime         DateTime?
-  versionCreatedTime DateTime  @default(now())
+  versionCreatedTime DateTime      @default(now())
 
   @@index([baliseId, version])
 }
@@ -158,23 +166,25 @@ model Section {
 }
 
 model BaliseArchive {
-  id                 String                  @id @default(uuid())
-  originalId         String                  @unique // Original balise ID for reference
-  originalSecondaryId Int                    // Original secondary ID (may not be unique across archives)
-  archivedSecondaryId String                 @unique // Unique archive ID: "balise_12345_20231205143022"
-  version            Int
-  description        String
-  fileTypes          String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
-  history            BaliseArchiveVersion[]
-  createdBy          String
-  createdTime        DateTime
-  locked             Boolean
-  lockedBy           String?
-  lockedTime         DateTime?
-  deletedAt          DateTime?
-  deletedBy          String?
-  archivedAt         DateTime                @default(now())
-  archivedBy         String
+  id                  String                  @id @default(uuid())
+  originalId          String                  @unique // Original balise ID for reference
+  originalSecondaryId Int                     // Original secondary ID (may not be unique across archives)
+  archivedSecondaryId String                  @unique // Unique archive ID: "balise_12345_20231205143022"
+  version             Int
+  versionStatus       VersionStatus           @default(OFFICIAL)
+  description         String
+  fileTypes           String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
+  history             BaliseArchiveVersion[]
+  createdBy           String
+  createdTime         DateTime
+  locked              Boolean
+  lockedBy            String?
+  lockedTime          DateTime?
+  lockedAtVersion     Int?
+  deletedAt           DateTime?
+  deletedBy           String?
+  archivedAt          DateTime                @default(now())
+  archivedBy          String
 
   @@index([originalSecondaryId])
   @@index([archivedSecondaryId])
@@ -190,6 +200,7 @@ model BaliseArchiveVersion {
   originalSecondaryId Int           // Original secondary ID (may not be unique across archives)
   archivedSecondaryId String        // References parent BaliseArchive.archivedSecondaryId
   version             Int
+  versionStatus       VersionStatus @default(OFFICIAL)
   description         String
   fileTypes           String[]
   createdBy           String
