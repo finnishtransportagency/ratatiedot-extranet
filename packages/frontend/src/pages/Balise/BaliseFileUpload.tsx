@@ -264,6 +264,13 @@ export const BaliseFileUpload: React.FC<BaliseFileUploadProps> = ({
   const hasExistingFiles = balise && balise.fileTypes?.length > 0;
   const hasNewFiles = formData.files.length > 0;
   const canWrite = permissions?.canWrite;
+
+  // Check if balise is properly locked for editing
+  const isLockedByCurrentUser =
+    isCreate || !balise || (balise.locked && balise.lockedBy && balise.lockedBy === permissions?.currentUserUid); // Locked by current user
+
+  const canUpload = canWrite && isLockedByCurrentUser;
+  const showLockWarning = canWrite && !isLockedByCurrentUser;
   const showContent = hasExistingFiles || canWrite;
 
   if (!showContent) return null;
@@ -299,21 +306,37 @@ export const BaliseFileUpload: React.FC<BaliseFileUploadProps> = ({
 
         {/* Initial upload zone - shown when no files uploaded yet */}
         {canWrite && !hasNewFiles && (
-          <FileUploadZone
-            inputId="file-upload-input"
-            onFileChange={handleFileChange}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            isDragging={isDragging}
-            variant="large"
-            title={isCreate ? 'Raahaa tiedostot/kansio tähän' : 'Lisää uusia tiedostoja'}
-            subtitle={
-              isCreate
-                ? 'Voit valita yksittäisiä tiedostoja tai kokonaisen kansion'
-                : 'Raahaa tiedostot/kansio tähän, tai klikkaa valitaksesi'
-            }
-          />
+          <>
+            {showLockWarning && (
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Tiedostojen lisäys estetty
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 0.5 }}>
+                  {!balise?.locked
+                    ? 'Lukitse baliisi ennen tiedostojen lisäämistä.'
+                    : `Baliisi on lukittu käyttäjän ${balise.lockedBy} toimesta. Vain lukituksen tehnyt käyttäjä voi lisätä tiedostoja.`}
+                </Typography>
+              </Alert>
+            )}
+            {canUpload && (
+              <FileUploadZone
+                inputId="file-upload-input"
+                onFileChange={handleFileChange}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                isDragging={isDragging}
+                variant="large"
+                title={isCreate ? 'Raahaa tiedostot/kansio tähän' : 'Lisää uusia tiedostoja'}
+                subtitle={
+                  isCreate
+                    ? 'Voit valita yksittäisiä tiedostoja tai kokonaisen kansion'
+                    : 'Raahaa tiedostot/kansio tähän, tai klikkaa valitaksesi'
+                }
+              />
+            )}
+          </>
         )}
 
         {/* File replacement workflow - shown when files are uploaded */}
