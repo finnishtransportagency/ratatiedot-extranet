@@ -54,13 +54,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Lock the balise
+    // Lock the balise and capture the current version
     const lockedBalise = await database.balise.update({
       where: { secondaryId: baliseId },
       data: {
         locked: true,
         lockedBy: user.uid,
         lockedTime: new Date(),
+        lockedAtVersion: balise.version,
       },
     });
 
