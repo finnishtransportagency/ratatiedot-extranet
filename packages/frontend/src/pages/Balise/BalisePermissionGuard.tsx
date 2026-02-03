@@ -12,7 +12,7 @@ const DEFAULT_ERROR_MESSAGES = {
   canRead: 'Sinulla ei ole oikeuksia tarkastella tätä sivua.',
   canWrite: 'Sinulla ei ole oikeuksia ohjelmoida baliiseja.',
   isAdmin: 'Sinulla ei ole ylläpito-oikeuksia.',
-  permissionError: 'Palveluun ei saada yhteyttä. Yritä myöhemmin uudelleen.',
+  permissionFetchError: 'Palveluun ei saada yhteyttä. Yritä myöhemmin uudelleen.',
 };
 
 export const BalisePermissionGuard: React.FC<BalisePermissionGuardProps> = ({
@@ -35,7 +35,7 @@ export const BalisePermissionGuard: React.FC<BalisePermissionGuardProps> = ({
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
-          {DEFAULT_ERROR_MESSAGES.permissionError}
+          {DEFAULT_ERROR_MESSAGES.permissionFetchError}
         </Alert>
         <Button variant="contained" onClick={() => window.location.reload()}>
           Yritä uudelleen
