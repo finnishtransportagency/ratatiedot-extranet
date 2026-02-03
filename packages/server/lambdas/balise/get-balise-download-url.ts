@@ -65,11 +65,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Validate that only admins and lock owners can specify version parameter
-    validateVersionParameterAccess(user, requestedVersion, balise);
+    // Check if user is admin
+    const isAdmin = isBaliseAdmin(user) ?? false;
 
-    // If lock owner specified a version, validate they can only access UNCONFIRMED versions
-    const isAdmin = isBaliseAdmin(user);
+    // Validate that only admins and lock owners can specify version parameter
+    validateVersionParameterAccess(user, requestedVersion, balise, isAdmin);
+
+    // If lock owner specified a version, validate they can only access versions from their lock session
     const isLockOwner = balise.locked && balise.lockedBy === user.uid;
     if (requestedVersion !== undefined && isLockOwner && !isAdmin) {
       validateLockOwnerVersionAccess(requestedVersion, balise);

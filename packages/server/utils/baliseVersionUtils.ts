@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
 import { Balise, PrismaClient, VersionStatus } from '../generated/prisma/client';
-import { RataExtraUser, isBaliseAdmin } from './userService';
+import { RataExtraUser } from './userService';
 
 /**
  * Parse version parameter from query string parameters
@@ -25,22 +25,23 @@ export function parseVersionParameter(
  * @param user Current user
  * @param requestedVersion Version requested by user (or undefined)
  * @param balise Balise object (needed to check lock ownership)
+ * @param isAdmin Whether the current user is an admin
  * @throws Error if unauthorized user attempts to specify a version
  */
 export function validateVersionParameterAccess(
   user: RataExtraUser,
   requestedVersion: number | undefined,
   balise: Balise,
+  isAdmin: boolean,
 ): void {
   // If no version requested, all users can proceed
   if (requestedVersion === undefined) {
     return;
   }
 
-  // Check if user is admin
-  const isAdmin = isBaliseAdmin(user);
+  // Admins can access any version
   if (isAdmin) {
-    return; // Admins can access any version
+    return;
   }
 
   // Check if user is the lock owner
