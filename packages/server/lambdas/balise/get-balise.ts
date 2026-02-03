@@ -3,6 +3,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
+import { resolveBaliseForUser } from '../../utils/baliseVersionUtils';
 
 const database = await DatabaseClient.build();
 
@@ -26,11 +27,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     validateBaliseReadUser(user);
+    const isAdmin = isBaliseAdmin(user);
 
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
       include: {
-        history: isBaliseAdmin(user)
+        history: isAdmin
           ? {
               orderBy: { createdTime: 'desc' },
             }
@@ -46,10 +48,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
+    // Resolve to latest OFFICIAL version if current is UNCONFIRMED
+    const resolvedBalise = await resolveBaliseForUser(database, balise);
+
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(balise),
+      body: JSON.stringify(resolvedBalise),
     };
   } catch (err) {
     log.error(err);

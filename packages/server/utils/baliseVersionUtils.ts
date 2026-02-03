@@ -146,3 +146,50 @@ export async function resolveDownloadVersion(
 
   return newestOfficialVersion.version;
 }
+
+/**
+ * Resolve balise to show latest OFFICIAL version
+ * If current version is OFFICIAL, returns it as-is
+ * If current version is UNCONFIRMED, returns latest OFFICIAL version data from history
+ * @param database Database client instance
+ * @param balise Current balise object
+ * @returns Balise object (either original or resolved to latest OFFICIAL)
+ * @throws Error with 404 status if no OFFICIAL version found
+ */
+export async function resolveBaliseForUser(database: PrismaClient, balise: Balise): Promise<Balise> {
+  // If current version is OFFICIAL, return as-is
+  if (balise.versionStatus === VersionStatus.OFFICIAL) {
+    return balise;
+  }
+
+  // Current version is UNCONFIRMED - resolve to latest OFFICIAL version
+  // This will throw an error if no OFFICIAL version exists
+  const officialVersion = await resolveDownloadVersion(database, balise.secondaryId, undefined, balise);
+
+  // Fetch the official version from history
+  const officialBaliseVersion = await database.baliseVersion.findFirst({
+    where: {
+      secondaryId: balise.secondaryId,
+      version: officialVersion,
+    },
+  });
+
+  if (!officialBaliseVersion) {
+    const error = new Error(`Vahvistettua versiota ${officialVersion} ei löydy`) as Error & {
+      statusCode: number;
+    };
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Return the official version data as if it were the current balise
+  return {
+    ...balise,
+    version: officialBaliseVersion.version,
+    versionStatus: officialBaliseVersion.versionStatus,
+    description: officialBaliseVersion.description,
+    fileTypes: officialBaliseVersion.fileTypes,
+    createdBy: officialBaliseVersion.createdBy,
+    createdTime: officialBaliseVersion.createdTime,
+  };
+}
