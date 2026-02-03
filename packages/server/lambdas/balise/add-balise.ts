@@ -28,8 +28,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     validateBaliseWriteUser(user);
 
-    const lockValidationError = await validateBalisesLockedByUser([baliseId], user.uid);
-    if (lockValidationError) return lockValidationError;
+    const lockValidationResponse = await validateBalisesLockedByUser([baliseId], user.uid);
+    if (lockValidationResponse) return lockValidationResponse;
 
     // Check if this is a file upload (multipart/form-data) or metadata only (JSON)
     const contentType = event.headers?.['content-type'] || event.headers?.['Content-Type'] || '';

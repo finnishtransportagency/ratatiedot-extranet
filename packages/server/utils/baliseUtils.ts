@@ -90,16 +90,14 @@ export async function validateBalisesLockedByUser(
   baliseIds: number[],
   userId: string,
 ): Promise<{ statusCode: number; headers: { 'Content-Type': string }; body: string } | null> {
-  const idsArray = baliseIds;
-
-  if (idsArray.length === 0) {
+  if (baliseIds.length === 0) {
     return null;
   }
 
   // Fetch all existing balises in one query
   const existingBalises = await database.balise.findMany({
     where: {
-      secondaryId: { in: idsArray },
+      secondaryId: { in: baliseIds },
     },
     select: {
       secondaryId: true,
@@ -142,7 +140,7 @@ export async function validateBalisesLockedByUser(
 
   log.info(
     { userId },
-    `Validated ${existingBalises.length} existing balises (${idsArray.length - existingBalises.length} new) for user ${userId}`,
+    `Validated ${existingBalises.length} existing balises (${baliseIds.length - existingBalises.length} new) for user ${userId}`,
   );
 
   return null;
