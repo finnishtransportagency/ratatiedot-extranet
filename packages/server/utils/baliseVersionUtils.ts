@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
-import { Balise, PrismaClient } from '../generated/prisma/client';
+import { Balise, PrismaClient, VersionStatus } from '../generated/prisma/client';
 import { validateBaliseAdminUser } from './userService';
 import { RataExtraUser } from './userService';
 
@@ -121,7 +121,7 @@ export async function resolveDownloadVersion(
   }
 
   // If current version is OFFICIAL, use it
-  if (currentBalise.versionStatus === 'OFFICIAL') {
+  if (currentBalise.versionStatus === VersionStatus.OFFICIAL) {
     return currentBalise.version;
   }
 
@@ -129,7 +129,7 @@ export async function resolveDownloadVersion(
   const newestOfficialVersion = await database.baliseVersion.findFirst({
     where: {
       secondaryId: baliseId,
-      versionStatus: 'OFFICIAL',
+      versionStatus: VersionStatus.OFFICIAL,
     },
     orderBy: {
       version: 'desc',
