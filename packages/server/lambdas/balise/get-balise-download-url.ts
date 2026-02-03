@@ -3,8 +3,14 @@ import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseReadUser, validateBaliseAdminUser } from '../../utils/userService';
+import { getUser, validateBaliseReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
+import {
+  parseVersionParameter,
+  validateVersionAccess,
+  getVersionFileTypes,
+  validateFileInVersion,
+} from '../../utils/baliseVersionUtils';
 
 const database = await DatabaseClient.build();
 const s3Client = new S3Client({});
@@ -20,8 +26,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const baliseIdStr = pathParts[pathParts.indexOf('balise') + 1];
     const baliseId = parseInt(baliseIdStr || '0', 10);
     const fileName = event.queryStringParameters?.fileName;
-    const versionStr = event.queryStringParameters?.version;
-    const requestedVersion = versionStr ? parseInt(versionStr, 10) : undefined;
+    const requestedVersion = parseVersionParameter(event.queryStringParameters);
 
     log.info(
       user,
@@ -58,71 +63,17 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // If requesting a historical version (not current), require admin access
-    if (requestedVersion !== undefined && !isNaN(requestedVersion) && requestedVersion !== balise.version) {
-      validateBaliseAdminUser(user);
-    }
+    // Validate user access for requested version (admin required for historical versions)
+    validateVersionAccess(user, requestedVersion, balise.version);
 
-    // Check if the requested file exists for this balise
-    if (!balise.fileTypes.includes(fileName)) {
-      return {
-        statusCode: 404,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: `Tiedostoa '${fileName}' ei löydy tälle balisille` }),
-      };
-    }
+    // Determine which version to use (requested or current)
+    const version = requestedVersion ?? balise.version;
 
-    // Note: We don't block downloads for locked balises - users can download but not modify
+    // Get fileTypes for the requested version (handles both current and historical)
+    const versionData = await getVersionFileTypes(database, baliseId, version, balise);
 
-    // Determine which version to use
-    const version = requestedVersion !== undefined && !isNaN(requestedVersion) ? requestedVersion : balise.version;
-
-    // If a specific version is requested, verify it exists
-    if (requestedVersion !== undefined && !isNaN(requestedVersion)) {
-      if (requestedVersion === balise.version) {
-        // Current version - check current balise
-        if (!balise.fileTypes.includes(fileName)) {
-          return {
-            statusCode: 404,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: `Tiedostoa '${fileName}' ei löydy tälle versiolle` }),
-          };
-        }
-      } else {
-        // Historical version - check version history
-        const versionHistory = await database.baliseVersion.findFirst({
-          where: {
-            secondaryId: baliseId,
-            version: requestedVersion,
-          },
-        });
-
-        if (!versionHistory) {
-          return {
-            statusCode: 404,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: `Versiota ${requestedVersion} ei löydy` }),
-          };
-        }
-
-        if (!versionHistory.fileTypes.includes(fileName)) {
-          return {
-            statusCode: 404,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: `Tiedostoa '${fileName}' ei löydy versiolle ${requestedVersion}` }),
-          };
-        }
-      }
-    } else {
-      // No version specified - use current version
-      if (!balise.fileTypes.includes(fileName)) {
-        return {
-          statusCode: 404,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ error: `Tiedostoa '${fileName}' ei löydy tälle balisille` }),
-        };
-      }
-    }
+    // Validate that the requested file exists in this version
+    validateFileInVersion(versionData.fileTypes, fileName, version);
 
     // Generate S3 file key with hierarchical structure: balise_{secondaryId}/v{version}/{fileName}
     const fileKey = `balise_${balise.secondaryId}/v${version}/${fileName}`;

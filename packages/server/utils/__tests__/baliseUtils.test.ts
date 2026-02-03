@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  updateOrCreateBalise,
-  validateBalisesLockedByUser,
-  type BaliseUpdateOptions,
-} from '../baliseUtils';
+import { updateOrCreateBalise, validateBalisesLockedByUser, type BaliseUpdateOptions } from '../baliseUtils';
 import { uploadFilesToS3WithCleanup } from '../s3utils';
 
 // Define mock database interface
@@ -167,7 +163,7 @@ describe('baliseUtils', () => {
 
       expect(result.isNewBalise).toBe(false);
       expect(result.newVersion).toBe(1); // Version should not change
-      expect(result.previousVersion).toBe(1);
+      expect(result.previousVersion).toBeUndefined(); // No previous version when not creating new version
       expect(result.filesUploaded).toBe(0);
       expect(mockDatabase.baliseVersion.create).not.toHaveBeenCalled();
       expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
