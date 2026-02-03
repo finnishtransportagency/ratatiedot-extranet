@@ -114,10 +114,10 @@ describe('baliseUtils', () => {
         description: 'Old description',
         fileTypes: ['old-file.txt'],
         createdBy: 'previous-user',
-        createdTime: new Date('2023-01-01'),
+        createdTime: new Date('2026-01-01T00:00:00.000Z'),
         locked: true,
         lockedBy: 'test-user',
-        lockedTime: new Date(),
+        lockedTime: new Date('2026-01-01T12:00:00.000Z'),
       };
 
       mockDatabase.balise.findUnique.mockResolvedValue(existingBalise);
@@ -157,10 +157,10 @@ describe('baliseUtils', () => {
         description: 'Old description',
         fileTypes: ['existing-file.txt'],
         createdBy: 'previous-user',
-        createdTime: new Date('2023-01-01'),
+        createdTime: new Date('2026-01-01T00:00:00.000Z'),
         locked: true,
         lockedBy: 'test-user',
-        lockedTime: new Date(),
+        lockedTime: new Date('2026-01-01T12:00:00.000Z'),
       };
 
       mockDatabase.balise.findUnique.mockResolvedValue(existingBalise);
@@ -189,10 +189,10 @@ describe('baliseUtils', () => {
         description: 'Locked by current user',
         fileTypes: ['existing.txt'],
         createdBy: 'previous-user',
-        createdTime: new Date('2023-01-01'),
+        createdTime: new Date('2026-01-01T00:00:00.000Z'),
         locked: true,
         lockedBy: 'current-user',
-        lockedTime: new Date(),
+        lockedTime: new Date('2026-01-01T12:00:00.000Z'),
       };
 
       mockDatabase.balise.findUnique.mockResolvedValue(lockedByCurrentUserBalise);
