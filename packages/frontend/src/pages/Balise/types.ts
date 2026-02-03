@@ -14,11 +14,14 @@ export interface Section {
   updatedTime?: string | Date;
 }
 
+export type VersionStatus = 'OFFICIAL' | 'UNCONFIRMED';
+
 export interface BaliseVersion {
   id: string;
   baliseId: string;
   secondaryId: number;
   version: number;
+  versionStatus: VersionStatus;
   description: string;
   fileTypes: string[];
   createdBy: string;
@@ -33,6 +36,7 @@ export interface Balise {
   id: string;
   secondaryId: number;
   version: number;
+  versionStatus: VersionStatus;
   description: string;
   fileTypes: string[];
   history: BaliseVersion[];
@@ -41,13 +45,12 @@ export interface Balise {
   locked: boolean;
   lockedBy?: string | null;
   lockedTime?: string | Date | null;
+  lockedAtVersion?: number | null;
+  deletedAt?: string | Date | null;
+  deletedBy?: string | null;
 }
 
 // Extended interface that includes history for frontend usage
 export interface BaliseWithHistory extends Balise {
   history: BaliseVersion[];
 }
-
-// Legacy interfaces for backward compatibility
-export interface IBalise extends Balise {}
-export interface IBaliseVersion extends BaliseVersion {}
