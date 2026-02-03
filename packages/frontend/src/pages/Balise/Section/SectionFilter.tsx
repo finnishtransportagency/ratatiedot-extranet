@@ -1,6 +1,7 @@
 import React from 'react';
 import { Cancel } from '@mui/icons-material';
 import { Box, FormControl, InputLabel, Select, MenuItem, Chip, OutlinedInput } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material';
 import type { Section } from '../types';
 
 interface SectionFilterProps {
@@ -10,7 +11,7 @@ interface SectionFilterProps {
 }
 
 export const SectionFilter: React.FC<SectionFilterProps> = ({ sections, selectedSections, onSectionsSelect }) => {
-  const handleChange = (event: any) => {
+  const handleChange = (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value;
     onSectionsSelect(typeof value === 'string' ? value.split(',') : value);
   };

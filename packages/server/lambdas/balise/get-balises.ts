@@ -14,7 +14,7 @@ const getQueryParamAsInt = (event: ALBEvent, key: string, defaultValue?: number)
   const value = getQueryParam(event, key);
   if (!value) return defaultValue ?? 0;
   const parsed = parseInt(value, 10);
-  return isNaN(parsed) ? defaultValue ?? 0 : parsed;
+  return isNaN(parsed) ? (defaultValue ?? 0) : parsed;
 };
 
 // Helper to parse a single or comma-separated list of numbers

@@ -159,7 +159,7 @@ async function archiveS3Files(
 
   if (archiveResults.failureCount > 0) {
     log.warn(
-      userId,
+      { userId },
       `Archive completed with ${archiveResults.failureCount} failures out of ${filesToArchive.length} files`,
     );
   }

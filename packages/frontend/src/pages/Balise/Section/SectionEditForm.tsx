@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { Box, Collapse, TableRow, TableCell } from '@mui/material';
 import type { Section } from '../types';
 import { SectionFormFields } from './SectionFormFields';
