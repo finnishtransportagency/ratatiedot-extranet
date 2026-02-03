@@ -85,13 +85,12 @@ export interface BaliseValidationFailure {
 /**
  * Validates that balises are locked by the current user before allowing updates
  * Only validates existing balises - new balises don't need lock validation
- * @param baliseIds - Single balise ID or array of balise IDs
+ * @param baliseIds - Array of balise IDs
  * @param userId - User ID to validate against
- * @throws Error with errorType 'validation_failed' and failures array (or single error for single ID)
+ * @throws Error with errorType 'validation_failed' and failures array
  */
-export async function validateBalisesLockedByUser(baliseIds: number | number[], userId: string): Promise<void> {
-  const idsArray = Array.isArray(baliseIds) ? baliseIds : [baliseIds];
-  const isSingleId = !Array.isArray(baliseIds);
+export async function validateBalisesLockedByUser(baliseIds: number[], userId: string): Promise<void> {
+  const idsArray = baliseIds;
 
   if (idsArray.length === 0) {
     return;
@@ -131,24 +130,12 @@ export async function validateBalisesLockedByUser(baliseIds: number | number[], 
 
   // If any failures occurred, throw error with all failures
   if (failures.length > 0) {
-    if (isSingleId) {
-      // For single ID, throw error with single failure properties
-      const failure = failures[0];
-      const error: Error & { errorType?: string; lockedBy?: string } = new Error(failure.message);
-      error.errorType = failure.errorType;
-      if (failure.lockedBy) {
-        error.lockedBy = failure.lockedBy;
-      }
-      throw error;
-    } else {
-      // For multiple IDs, throw error with failures array
-      const error: Error & { errorType?: string; failures?: BaliseValidationFailure[] } = new Error(
-        `Lataus epäonnistui ${failures.length} baliisille`,
-      );
-      error.errorType = 'validation_failed';
-      error.failures = failures;
-      throw error;
-    }
+    const error: Error & { errorType?: string; failures?: BaliseValidationFailure[] } = new Error(
+      `Lataus epäonnistui ${failures.length} baliisille`,
+    );
+    error.errorType = 'validation_failed';
+    error.failures = failures;
+    throw error;
   }
 
   log.info(
