@@ -2,7 +2,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseReadUser } from '../../utils/userService';
+import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 // Helper to safely get a string query parameter
@@ -93,8 +93,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       where: whereClause,
     });
 
-    // Check if history should be included (optional query parameter)
-    const includeHistory = getQueryParam(event, 'include_history') === 'true';
+    // Check if history should be included (optional query parameter, admin only)
+    const includeHistory = isBaliseAdmin(user) && getQueryParam(event, 'include_history') === 'true';
 
     // Get balises with pagination
     const balises = await database.balise.findMany({
