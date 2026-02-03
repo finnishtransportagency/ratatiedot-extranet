@@ -57,6 +57,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     validateBaliseReadUser(user);
 
+    // Check if user is admin
+    const isAdmin = isBaliseAdmin(user);
+
     // Get pagination parameters
     const page = getQueryParamAsInt(event, 'page', 1) ?? 1;
     const limit = getQueryParamAsInt(event, 'limit', 1000) ?? 1000; // Default to 1000 items per page
@@ -116,8 +119,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       take: effectiveLimit,
     });
 
-    // Resolve balises to latest OFFICIAL versions efficiently
-    const resolvedBalises = await resolveBalisesForUser(database, balises);
+    // Resolve balises to latest OFFICIAL versions efficiently (unless user is admin or lock owner)
+    const resolvedBalises = await resolveBalisesForUser(database, balises, user.uid, isAdmin);
 
     const hasNextPage = skip + effectiveLimit < totalCount;
     const hasPreviousPage = page > 1;

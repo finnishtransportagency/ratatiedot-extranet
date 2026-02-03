@@ -48,8 +48,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Resolve to latest OFFICIAL version if current is UNCONFIRMED
-    const [resolvedBalise] = await resolveBalisesForUser(database, [balise]);
+    // Resolve to latest OFFICIAL version if current is UNCONFIRMED (unless user is admin or lock owner)
+    const [resolvedBalise] = await resolveBalisesForUser(database, [balise], user.uid, isAdmin);
 
     return {
       statusCode: 200,

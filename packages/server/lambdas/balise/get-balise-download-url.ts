@@ -3,11 +3,12 @@ import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseReadUser } from '../../utils/userService';
+import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import {
   parseVersionParameter,
   validateVersionParameterAccess,
+  validateLockOwnerVersionAccess,
   getVersionFileTypes,
   validateFileInVersion,
   resolveDownloadVersion,
@@ -52,9 +53,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     validateBaliseReadUser(user);
 
-    // Validate that only admins can specify version parameter
-    validateVersionParameterAccess(user, requestedVersion);
-
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
     });
@@ -65,6 +63,16 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Baliisia ei löytynyt' }),
       };
+    }
+
+    // Validate that only admins and lock owners can specify version parameter
+    validateVersionParameterAccess(user, requestedVersion, balise);
+
+    // If lock owner specified a version, validate they can only access UNCONFIRMED versions
+    const isAdmin = isBaliseAdmin(user);
+    const isLockOwner = balise.locked && balise.lockedBy === user.uid;
+    if (requestedVersion !== undefined && isLockOwner && !isAdmin) {
+      validateLockOwnerVersionAccess(requestedVersion, balise);
     }
 
     // Determine which version to use (defaults to newest OFFICIAL if current is UNCONFIRMED)

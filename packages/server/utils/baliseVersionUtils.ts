@@ -1,7 +1,6 @@
 import { APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
 import { Balise, PrismaClient, VersionStatus } from '../generated/prisma/client';
-import { validateBaliseAdminUser } from './userService';
-import { RataExtraUser } from './userService';
+import { RataExtraUser, isBaliseAdmin } from './userService';
 
 /**
  * Parse version parameter from query string parameters
@@ -21,20 +20,58 @@ export function parseVersionParameter(
 }
 
 /**
- * Validate that only admin users can specify version parameters
+ * Validate that only admin users and lock owners can specify version parameters
  * Read users must always use the default (latest OFFICIAL) version
  * @param user Current user
  * @param requestedVersion Version requested by user (or undefined)
- * @throws Error if non-admin user attempts to specify a version
+ * @param balise Balise object (needed to check lock ownership)
+ * @throws Error if unauthorized user attempts to specify a version
  */
-export function validateVersionParameterAccess(user: RataExtraUser, requestedVersion: number | undefined): void {
+export function validateVersionParameterAccess(
+  user: RataExtraUser,
+  requestedVersion: number | undefined,
+  balise: Balise,
+): void {
   // If no version requested, all users can proceed
   if (requestedVersion === undefined) {
     return;
   }
 
-  // Version parameter provided - only admins can do this
-  validateBaliseAdminUser(user);
+  // Check if user is admin
+  const isAdmin = isBaliseAdmin(user);
+  if (isAdmin) {
+    return; // Admins can access any version
+  }
+
+  // Check if user is the lock owner
+  const isLockOwner = balise.locked && balise.lockedBy === user.uid;
+  if (!isLockOwner) {
+    const error = new Error(
+      'Vain järjestelmän ylläpitäjät ja lukituksen tehneet käyttäjät voivat ladata tiettyjä versioita',
+    ) as Error & {
+      statusCode: number;
+    };
+    error.statusCode = 403;
+    throw error;
+  }
+}
+
+/**
+ * Validate that lock owner is only accessing versions from their lock session
+ * Lock owners can access any version from when they locked the balise onwards
+ * @param requestedVersion Version requested by lock owner
+ * @param balise Current balise object
+ * @throws Error if lock owner tries to access versions before their lock or versions that don't exist
+ */
+export function validateLockOwnerVersionAccess(requestedVersion: number, balise: Balise): void {
+  // Lock owner can access any version from when they locked onwards (version >= lockedAtVersion)
+  if (balise.lockedAtVersion === null || requestedVersion < balise.lockedAtVersion) {
+    const error = new Error('Voit ladata vain lukituksesi aikana lisättyjä versioita') as Error & {
+      statusCode: number;
+    };
+    error.statusCode = 403;
+    throw error;
+  }
 }
 
 /**
@@ -149,25 +186,41 @@ export async function resolveDownloadVersion(
 
 /**
  * Resolve multiple balises to show latest OFFICIAL versions (optimized for bulk operations)
- * If current version is OFFICIAL, returns it as-is
- * If current version is UNCONFIRMED, returns latest OFFICIAL version data from history
+ * Admins and lock owners see UNCONFIRMED versions as-is
+ * Other users see latest OFFICIAL version data from history
  * This function is optimized to fetch all OFFICIAL versions in a single query
  * @param database Database client instance
  * @param balises Array of balise objects
+ * @param currentUserId Current user's UID (to check lock ownership)
+ * @param isAdmin Whether the current user is an admin
  * @returns Array of balise objects (either original or resolved to latest OFFICIAL)
  */
-export async function resolveBalisesForUser(database: PrismaClient, balises: Balise[]): Promise<Balise[]> {
+export async function resolveBalisesForUser(
+  database: PrismaClient,
+  balises: Balise[],
+  currentUserId?: string,
+  isAdmin: boolean = false,
+): Promise<Balise[]> {
+  // Admins always see actual current versions (including UNCONFIRMED)
+  if (isAdmin) {
+    return balises;
+  }
+
   // Separate OFFICIAL from UNCONFIRMED balises
   const officialBalises = balises.filter((b) => b.versionStatus === VersionStatus.OFFICIAL);
   const unconfirmedBalises = balises.filter((b) => b.versionStatus === VersionStatus.UNCONFIRMED);
 
-  // If no UNCONFIRMED balises, return as-is
-  if (unconfirmedBalises.length === 0) {
+  // Lock owners see their UNCONFIRMED versions as-is
+  const lockOwnerBalises = unconfirmedBalises.filter((b) => b.locked && b.lockedBy === currentUserId);
+  const otherUnconfirmedBalises = unconfirmedBalises.filter((b) => !b.locked || b.lockedBy !== currentUserId);
+
+  // If no UNCONFIRMED balises (excluding lock owner's), return as-is
+  if (otherUnconfirmedBalises.length === 0) {
     return balises;
   }
 
-  // Fetch all OFFICIAL versions for UNCONFIRMED balises in one query
-  const unconfirmedIds = unconfirmedBalises.map((b) => b.secondaryId);
+  // Fetch all OFFICIAL versions for UNCONFIRMED balises (excluding lock owner's) in one query
+  const unconfirmedIds = otherUnconfirmedBalises.map((b) => b.secondaryId);
   const officialVersions = await database.baliseVersion.findMany({
     where: {
       secondaryId: { in: unconfirmedIds },
@@ -186,8 +239,8 @@ export async function resolveBalisesForUser(database: PrismaClient, balises: Bal
     }
   }
 
-  // Resolve each UNCONFIRMED balise to its OFFICIAL version
-  const resolvedUnconfirmed = unconfirmedBalises.map((balise) => {
+  // Resolve each UNCONFIRMED balise (non-lock-owner) to its OFFICIAL version
+  const resolvedUnconfirmed = otherUnconfirmedBalises.map((balise) => {
     const officialVersion = officialVersionsMap.get(balise.secondaryId);
     if (!officialVersion) {
       // If no OFFICIAL version found, throw error (non-admins should never see UNCONFIRMED)
@@ -210,8 +263,8 @@ export async function resolveBalisesForUser(database: PrismaClient, balises: Bal
     };
   });
 
-  // Combine and maintain original order
-  const result = [...officialBalises, ...resolvedUnconfirmed];
+  // Combine all: OFFICIAL balises, lock owner's UNCONFIRMED balises, and resolved OFFICIAL versions
+  const result = [...officialBalises, ...lockOwnerBalises, ...resolvedUnconfirmed];
   result.sort((a, b) => a.secondaryId - b.secondaryId);
 
   return result;
