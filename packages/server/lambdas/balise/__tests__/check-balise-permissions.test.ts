@@ -3,7 +3,13 @@ import { ALBEvent } from 'aws-lambda';
 import { handleRequest } from '../check-balise-permissions';
 import * as userService from '../../../utils/userService';
 
-vi.mock('../../../utils/userService');
+vi.mock('../../../utils/userService', async () => {
+  const actual = await vi.importActual('../../../utils/userService');
+  return {
+    ...actual,
+    getUser: vi.fn(),
+  };
+});
 vi.mock('../../../utils/logger', () => ({ log: { info: vi.fn(), error: vi.fn() } }));
 
 describe('check-balise-permissions', () => {

@@ -84,9 +84,9 @@ export const isAdmin = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLE
 const isWriteUser = (user: RataExtraUser, writeRole: string) =>
   user.roles?.includes(writeRole) || user.roles?.includes(STATIC_ROLES.write);
 
-const isBaliseReadUser = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.read);
+export const isBaliseReadUser = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.read);
 
-const isBaliseWriteUser = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.write);
+export const isBaliseWriteUser = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.write);
 
 export const isBaliseAdmin = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.admin);
 
