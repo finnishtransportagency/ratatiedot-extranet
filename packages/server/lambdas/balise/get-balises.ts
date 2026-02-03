@@ -4,6 +4,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
+import { resolveBalisesForUser } from '../../utils/baliseVersionUtils';
 
 // Helper to safely get a string query parameter
 const getQueryParam = (event: ALBEvent, key: string, defaultValue?: string): string | undefined =>
@@ -115,11 +116,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       take: effectiveLimit,
     });
 
+    // Resolve balises to latest OFFICIAL versions efficiently
+    const resolvedBalises = await resolveBalisesForUser(database, balises);
+
     const hasNextPage = skip + effectiveLimit < totalCount;
     const hasPreviousPage = page > 1;
 
     const response = {
-      data: balises,
+      data: resolvedBalises,
       pagination: {
         page: page,
         limit: effectiveLimit,
