@@ -154,19 +154,16 @@ export async function validateBalisesLockedByUser(
 interface VersionManagementResult {
   shouldCreateNewVersion: boolean;
   newVersion: number;
-  isEffectivelyNew: boolean;
 }
 
 /**
  * Determines version management strategy based on existing balise and files
  */
 function determineVersionManagement(existingBalise: { version: number }, hasFiles: boolean): VersionManagementResult {
-  const isEffectivelyNew = existingBalise.version === 0 && hasFiles;
   const shouldCreateNewVersion = hasFiles;
   const newVersion = shouldCreateNewVersion ? existingBalise.version + 1 : existingBalise.version;
 
   return {
-    isEffectivelyNew,
     shouldCreateNewVersion,
     newVersion,
   };
@@ -263,7 +260,7 @@ async function updateExistingBalise(
   userId: string,
 ): Promise<BaliseUpdateResult> {
   const versionManagement = determineVersionManagement(existingBalise, files.length > 0);
-  const { shouldCreateNewVersion, newVersion, isEffectivelyNew } = versionManagement;
+  const { shouldCreateNewVersion, newVersion } = versionManagement;
 
   if (shouldCreateNewVersion) {
     // Create version history entry for the OLD version (only if it has content and version > 0)
@@ -308,9 +305,9 @@ async function updateExistingBalise(
 
   return {
     newVersion,
-    previousVersion: isEffectivelyNew ? undefined : existingBalise.version,
+    previousVersion: shouldCreateNewVersion ? existingBalise.version : undefined,
     filesUploaded: files.length,
-    isNewBalise: isEffectivelyNew,
+    isNewBalise: false,
     balise: updatedBalise,
   };
 }
