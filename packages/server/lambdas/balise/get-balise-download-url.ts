@@ -7,9 +7,10 @@ import { getUser, validateBaliseReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import {
   parseVersionParameter,
-  validateVersionAccess,
+  validateVersionParameterAccess,
   getVersionFileTypes,
   validateFileInVersion,
+  resolveDownloadVersion,
 } from '../../utils/baliseVersionUtils';
 
 const database = await DatabaseClient.build();
@@ -51,6 +52,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     validateBaliseReadUser(user);
 
+    // Validate that only admins can specify version parameter
+    validateVersionParameterAccess(user, requestedVersion);
+
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
     });
@@ -63,11 +67,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Validate user access for requested version (admin required for historical versions)
-    validateVersionAccess(user, requestedVersion, balise.version);
-
-    // Determine which version to use (requested or current)
-    const version = requestedVersion ?? balise.version;
+    // Determine which version to use (defaults to newest OFFICIAL if current is UNCONFIRMED)
+    const version = await resolveDownloadVersion(database, baliseId, requestedVersion, balise);
 
     // Get fileTypes for the requested version (handles both current and historical)
     const versionData = await getVersionFileTypes(database, baliseId, version, balise);

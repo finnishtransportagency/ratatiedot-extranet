@@ -21,22 +21,20 @@ export function parseVersionParameter(
 }
 
 /**
- * Validate user access for the requested version
- * Requires admin access for historical versions (not current version)
+ * Validate that only admin users can specify version parameters
+ * Read users must always use the default (latest OFFICIAL) version
  * @param user Current user
- * @param requestedVersion Version requested by user (or undefined for current)
- * @param currentVersion Current version of the balise
- * @throws Error if user lacks required permissions
+ * @param requestedVersion Version requested by user (or undefined)
+ * @throws Error if non-admin user attempts to specify a version
  */
-export function validateVersionAccess(
-  user: RataExtraUser,
-  requestedVersion: number | undefined,
-  currentVersion: number,
-): void {
-  // If requesting a historical version (not current), require admin access
-  if (requestedVersion !== undefined && requestedVersion !== currentVersion) {
-    validateBaliseAdminUser(user);
+export function validateVersionParameterAccess(user: RataExtraUser, requestedVersion: number | undefined): void {
+  // If no version requested, all users can proceed
+  if (requestedVersion === undefined) {
+    return;
   }
+
+  // Version parameter provided - only admins can do this
+  validateBaliseAdminUser(user);
 }
 
 /**
@@ -45,7 +43,7 @@ export function validateVersionAccess(
  * @param baliseId Secondary ID of the balise
  * @param version Version number to retrieve
  * @param currentBalise Current balise object (used if version matches current)
- * @returns Object with fileTypes array and version number
+ * @returns Object with fileTypes array, version number, and versionStatus
  * @throws Error with 404 status if version not found
  */
 export async function getVersionFileTypes(
@@ -53,12 +51,13 @@ export async function getVersionFileTypes(
   baliseId: number,
   version: number,
   currentBalise: Balise,
-): Promise<{ fileTypes: string[]; version: number }> {
+): Promise<{ fileTypes: string[]; version: number; versionStatus: string }> {
   // If requesting current version, return current balise fileTypes
   if (version === currentBalise.version) {
     return {
       fileTypes: currentBalise.fileTypes,
       version: currentBalise.version,
+      versionStatus: currentBalise.versionStatus,
     };
   }
 
@@ -79,6 +78,7 @@ export async function getVersionFileTypes(
   return {
     fileTypes: versionHistory.fileTypes,
     version: versionHistory.version,
+    versionStatus: versionHistory.versionStatus,
   };
 }
 
@@ -97,4 +97,52 @@ export function validateFileInVersion(fileTypes: string[], fileName: string, ver
     error.statusCode = 404;
     throw error;
   }
+}
+
+/**
+ * Determine which version to use for download
+ * If no version requested and current version is UNCONFIRMED, find newest OFFICIAL version
+ * @param database Database client instance
+ * @param baliseId Secondary ID of the balise
+ * @param requestedVersion Version explicitly requested by user (or undefined)
+ * @param currentBalise Current balise object
+ * @returns Version number to use for download
+ * @throws Error with 404 status if no OFFICIAL version found
+ */
+export async function resolveDownloadVersion(
+  database: PrismaClient,
+  baliseId: number,
+  requestedVersion: number | undefined,
+  currentBalise: Balise,
+): Promise<number> {
+  // If user explicitly requested a version, use it
+  if (requestedVersion !== undefined) {
+    return requestedVersion;
+  }
+
+  // If current version is OFFICIAL, use it
+  if (currentBalise.versionStatus === 'OFFICIAL') {
+    return currentBalise.version;
+  }
+
+  // Current version is UNCONFIRMED, find newest OFFICIAL version from history
+  const newestOfficialVersion = await database.baliseVersion.findFirst({
+    where: {
+      secondaryId: baliseId,
+      versionStatus: 'OFFICIAL',
+    },
+    orderBy: {
+      version: 'desc',
+    },
+  });
+
+  if (!newestOfficialVersion) {
+    const error = new Error(`Baliisille ${baliseId} ei löydy vahvistettua versiota`) as Error & {
+      statusCode: number;
+    };
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return newestOfficialVersion.version;
 }
