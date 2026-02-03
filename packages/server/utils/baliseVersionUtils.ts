@@ -148,48 +148,71 @@ export async function resolveDownloadVersion(
 }
 
 /**
- * Resolve balise to show latest OFFICIAL version
+ * Resolve multiple balises to show latest OFFICIAL versions (optimized for bulk operations)
  * If current version is OFFICIAL, returns it as-is
  * If current version is UNCONFIRMED, returns latest OFFICIAL version data from history
+ * This function is optimized to fetch all OFFICIAL versions in a single query
  * @param database Database client instance
- * @param balise Current balise object
- * @returns Balise object (either original or resolved to latest OFFICIAL)
- * @throws Error with 404 status if no OFFICIAL version found
+ * @param balises Array of balise objects
+ * @returns Array of balise objects (either original or resolved to latest OFFICIAL)
  */
-export async function resolveBaliseForUser(database: PrismaClient, balise: Balise): Promise<Balise> {
-  // If current version is OFFICIAL, return as-is
-  if (balise.versionStatus === VersionStatus.OFFICIAL) {
-    return balise;
+export async function resolveBalisesForUser(database: PrismaClient, balises: Balise[]): Promise<Balise[]> {
+  // Separate OFFICIAL from UNCONFIRMED balises
+  const officialBalises = balises.filter((b) => b.versionStatus === VersionStatus.OFFICIAL);
+  const unconfirmedBalises = balises.filter((b) => b.versionStatus === VersionStatus.UNCONFIRMED);
+
+  // If no UNCONFIRMED balises, return as-is
+  if (unconfirmedBalises.length === 0) {
+    return balises;
   }
 
-  // Current version is UNCONFIRMED - resolve to latest OFFICIAL version
-  // This will throw an error if no OFFICIAL version exists
-  const officialVersion = await resolveDownloadVersion(database, balise.secondaryId, undefined, balise);
-
-  // Fetch the official version from history
-  const officialBaliseVersion = await database.baliseVersion.findFirst({
+  // Fetch all OFFICIAL versions for UNCONFIRMED balises in one query
+  const unconfirmedIds = unconfirmedBalises.map((b) => b.secondaryId);
+  const officialVersions = await database.baliseVersion.findMany({
     where: {
-      secondaryId: balise.secondaryId,
-      version: officialVersion,
+      secondaryId: { in: unconfirmedIds },
+      versionStatus: VersionStatus.OFFICIAL,
+    },
+    orderBy: {
+      version: 'desc',
     },
   });
 
-  if (!officialBaliseVersion) {
-    const error = new Error(`Vahvistettua versiota ${officialVersion} ei löydy`) as Error & {
-      statusCode: number;
-    };
-    error.statusCode = 404;
-    throw error;
+  // Group by secondaryId and take the highest version (first due to desc order)
+  const officialVersionsMap = new Map<number, (typeof officialVersions)[0]>();
+  for (const version of officialVersions) {
+    if (!officialVersionsMap.has(version.secondaryId)) {
+      officialVersionsMap.set(version.secondaryId, version);
+    }
   }
 
-  // Return the official version data as if it were the current balise
-  return {
-    ...balise,
-    version: officialBaliseVersion.version,
-    versionStatus: officialBaliseVersion.versionStatus,
-    description: officialBaliseVersion.description,
-    fileTypes: officialBaliseVersion.fileTypes,
-    createdBy: officialBaliseVersion.createdBy,
-    createdTime: officialBaliseVersion.createdTime,
-  };
+  // Resolve each UNCONFIRMED balise to its OFFICIAL version
+  const resolvedUnconfirmed = unconfirmedBalises.map((balise) => {
+    const officialVersion = officialVersionsMap.get(balise.secondaryId);
+    if (!officialVersion) {
+      // If no OFFICIAL version found, throw error (non-admins should never see UNCONFIRMED)
+      const error = new Error(`Baliisille ${balise.secondaryId} ei löydy vahvistettua versiota`) as Error & {
+        statusCode: number;
+      };
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Return the official version data
+    return {
+      ...balise,
+      version: officialVersion.version,
+      versionStatus: officialVersion.versionStatus,
+      description: officialVersion.description,
+      fileTypes: officialVersion.fileTypes,
+      createdBy: officialVersion.createdBy,
+      createdTime: officialVersion.createdTime,
+    };
+  });
+
+  // Combine and maintain original order
+  const result = [...officialBalises, ...resolvedUnconfirmed];
+  result.sort((a, b) => a.secondaryId - b.secondaryId);
+
+  return result;
 }
