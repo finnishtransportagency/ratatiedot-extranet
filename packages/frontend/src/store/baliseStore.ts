@@ -4,6 +4,15 @@ import type { BaliseWithHistory } from '../pages/Balise/types';
 // Re-export for components that import from store
 export type { BaliseWithHistory };
 
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 export interface BaliseFilters {
   id_min?: number | number[];
   id_max?: number | number[];
@@ -15,14 +24,7 @@ export interface BaliseFilters {
 export interface BaliseState {
   // Data
   balises: BaliseWithHistory[];
-  pagination: {
-    page: number;
-    limit: number;
-    totalCount: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  } | null;
+  pagination: PaginationInfo | null;
 
   // Loading states
   isInitialLoading: boolean;
@@ -34,7 +36,7 @@ export interface BaliseState {
   currentFilters: BaliseFilters | null;
 
   // Actions
-  setBalises: (balises: BaliseWithHistory[], pagination?: any) => void;
+  setBalises: (balises: BaliseWithHistory[], pagination?: PaginationInfo) => void;
   updateBalise: (balise: BaliseWithHistory) => void;
   deleteBalise: (secondaryId: number) => Promise<void>;
   lockBalise: (secondaryId: number) => Promise<void>;
@@ -50,7 +52,9 @@ export interface BaliseState {
 }
 
 // API function
-const fetchBaliseAPI = async (filters?: BaliseFilters): Promise<{ data: BaliseWithHistory[]; pagination: any }> => {
+const fetchBaliseAPI = async (
+  filters?: BaliseFilters,
+): Promise<{ data: BaliseWithHistory[]; pagination: PaginationInfo }> => {
   try {
     const params = new URLSearchParams();
 
@@ -78,7 +82,7 @@ const fetchBaliseAPI = async (filters?: BaliseFilters): Promise<{ data: BaliseWi
     // Handle both paginated and non-paginated responses
     if (result.data && result.pagination) {
       return {
-        data: result.data.map((item: any) => ({
+        data: result.data.map((item: BaliseWithHistory) => ({
           ...item,
           history: item.history || [],
         })),
@@ -86,7 +90,7 @@ const fetchBaliseAPI = async (filters?: BaliseFilters): Promise<{ data: BaliseWi
       };
     } else {
       return {
-        data: result.map((item: any) => ({
+        data: result.map((item: BaliseWithHistory) => ({
           ...item,
           history: item.history || [],
         })),
