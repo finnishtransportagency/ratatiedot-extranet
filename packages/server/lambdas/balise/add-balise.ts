@@ -76,7 +76,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }));
 
     // Validate balise lock upfront before processing
-    await validateBalisesLockedByUser(baliseId, user.uid);
+    await validateBalisesLockedByUser([baliseId], user.uid);
 
     const result = await updateOrCreateBalise({
       baliseId,
@@ -93,16 +93,20 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       body: JSON.stringify(result.balise),
     };
   } catch (err) {
-    const error = err as Error & { errorType?: string; lockedBy?: string };
+    const error = err as Error & {
+      errorType?: string;
+      failures?: Array<{ errorType: string; lockedBy?: string; message: string }>;
+    };
 
-    if (error.errorType === 'not_locked' || error.errorType === 'locked_by_other') {
+    if (error.errorType === 'validation_failed' && error.failures && error.failures.length > 0) {
+      const failure = error.failures[0];
       return {
         statusCode: 403,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          error: error.message,
-          errorType: error.errorType,
-          lockedBy: error.lockedBy,
+          error: failure.message,
+          errorType: failure.errorType,
+          lockedBy: failure.lockedBy,
         }),
       };
     }
