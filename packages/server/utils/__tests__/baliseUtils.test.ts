@@ -4,7 +4,6 @@ import {
   createMultipleBalises,
   validateBalisesLockedByUser,
   type BaliseUpdateOptions,
-  type BaliseValidationFailure,
 } from '../baliseUtils';
 import { uploadFilesToS3WithCleanup } from '../s3utils';
 
@@ -327,8 +326,9 @@ describe('baliseUtils', () => {
         // 1003 doesn't exist yet (new balise)
       ]);
 
-      // Should not throw
-      await expect(validateBalisesLockedByUser(baliseIds, userId)).resolves.toBeUndefined();
+      // Should return null
+      const result = await validateBalisesLockedByUser(baliseIds, userId);
+      expect(result).toBeNull();
 
       expect(mockDatabase.balise.findMany).toHaveBeenCalledWith({
         where: { secondaryId: { in: baliseIds } },
@@ -345,23 +345,19 @@ describe('baliseUtils', () => {
         { secondaryId: 2002, locked: false, lockedBy: null },
       ]);
 
-      const promise = validateBalisesLockedByUser(baliseIds, userId);
+      const result = await validateBalisesLockedByUser(baliseIds, userId);
 
-      await expect(promise).rejects.toThrow('Lataus epäonnistui 1 baliisille');
+      expect(result).not.toBeNull();
+      expect(result?.statusCode).toBe(403);
 
-      // Check error structure
-      try {
-        await promise;
-      } catch (error) {
-        const err = error as Error & { errorType?: string; failures?: BaliseValidationFailure[] };
-        expect(err.errorType).toBe('validation_failed');
-        expect(err.failures).toHaveLength(1);
-        expect(err.failures?.[0]).toEqual({
-          baliseId: 2002,
-          errorType: 'not_locked',
-          message: 'Baliisi 2002 ei ole lukittu. Lukitse baliisi ennen muokkaamista.',
-        });
-      }
+      const body = JSON.parse(result!.body);
+      expect(body.errorType).toBe('validation_failed');
+      expect(body.failures).toHaveLength(1);
+      expect(body.failures[0]).toEqual({
+        baliseId: 2002,
+        errorType: 'not_locked',
+        message: 'Baliisi 2002 ei ole lukittu. Lukitse baliisi ennen muokkaamista.',
+      });
     });
 
     it('should fail validation when one balise is locked by another user', async () => {
@@ -374,25 +370,21 @@ describe('baliseUtils', () => {
         { secondaryId: 3003, locked: true, lockedBy: 'current-user' },
       ]);
 
-      const promise = validateBalisesLockedByUser(baliseIds, userId);
+      const result = await validateBalisesLockedByUser(baliseIds, userId);
 
-      await expect(promise).rejects.toThrow('Lataus epäonnistui 1 baliisille');
+      expect(result).not.toBeNull();
+      expect(result?.statusCode).toBe(403);
 
-      // Check error structure
-      try {
-        await promise;
-      } catch (error) {
-        const err = error as Error & { errorType?: string; failures?: BaliseValidationFailure[] };
-        expect(err.errorType).toBe('validation_failed');
-        expect(err.failures).toHaveLength(1);
-        expect(err.failures?.[0]).toEqual({
-          baliseId: 3002,
-          errorType: 'locked_by_other',
-          lockedBy: 'other-user',
-          message:
-            'Baliisi 3002 on lukittu käyttäjän other-user toimesta. Vain lukituksen tehnyt käyttäjä voi muokata baliisia.',
-        });
-      }
+      const body = JSON.parse(result!.body);
+      expect(body.errorType).toBe('validation_failed');
+      expect(body.failures).toHaveLength(1);
+      expect(body.failures[0]).toEqual({
+        baliseId: 3002,
+        errorType: 'locked_by_other',
+        lockedBy: 'other-user',
+        message:
+          'Baliisi 3002 on lukittu käyttäjän other-user toimesta. Vain lukituksen tehnyt käyttäjä voi muokata baliisia.',
+      });
     });
 
     it('should collect multiple validation failures', async () => {
@@ -406,32 +398,29 @@ describe('baliseUtils', () => {
         { secondaryId: 5004, locked: false, lockedBy: null },
       ]);
 
-      const promise = validateBalisesLockedByUser(baliseIds, userId);
+      const result = await validateBalisesLockedByUser(baliseIds, userId);
 
-      await expect(promise).rejects.toThrow('Lataus epäonnistui 3 baliisille');
+      expect(result).not.toBeNull();
+      expect(result?.statusCode).toBe(403);
 
-      // Check all failures are collected
-      try {
-        await promise;
-      } catch (error) {
-        const err = error as Error & { errorType?: string; failures?: BaliseValidationFailure[] };
-        expect(err.errorType).toBe('validation_failed');
-        expect(err.failures).toHaveLength(3);
+      const body = JSON.parse(result!.body);
+      expect(body.errorType).toBe('validation_failed');
+      expect(body.failures).toHaveLength(3);
 
-        // Check that all failed balises are included
-        const failedIds = err.failures?.map((f) => f.baliseId);
-        expect(failedIds).toEqual([5002, 5003, 5004]);
+      // Check that all failed balises are included
+      const failedIds = body.failures.map((f: { baliseId: number }) => f.baliseId);
+      expect(failedIds).toEqual([5002, 5003, 5004]);
 
-        // Check error types
-        expect(err.failures?.[0].errorType).toBe('not_locked');
-        expect(err.failures?.[1].errorType).toBe('locked_by_other');
-        expect(err.failures?.[1].lockedBy).toBe('other-user');
-        expect(err.failures?.[2].errorType).toBe('not_locked');
-      }
+      // Check error types
+      expect(body.failures[0].errorType).toBe('not_locked');
+      expect(body.failures[1].errorType).toBe('locked_by_other');
+      expect(body.failures[1].lockedBy).toBe('other-user');
+      expect(body.failures[2].errorType).toBe('not_locked');
     });
 
     it('should handle empty balise ID array', async () => {
-      await expect(validateBalisesLockedByUser([], 'test-user')).resolves.toBeUndefined();
+      const result = await validateBalisesLockedByUser([], 'test-user');
+      expect(result).toBeNull();
       expect(mockDatabase.balise.findMany).not.toHaveBeenCalled();
     });
 
@@ -442,7 +431,8 @@ describe('baliseUtils', () => {
       // No existing balises found
       mockDatabase.balise.findMany.mockResolvedValue([]);
 
-      await expect(validateBalisesLockedByUser(baliseIds, userId)).resolves.toBeUndefined();
+      const result = await validateBalisesLockedByUser(baliseIds, userId);
+      expect(result).toBeNull();
     });
   });
 });

@@ -83,17 +83,17 @@ export interface BaliseValidationFailure {
 }
 
 /**
- * Validates that balises are locked by the current user before allowing updates
- * Only validates existing balises - new balises don't need lock validation
- * @param baliseIds - Array of balise IDs
- * @param userId - User ID to validate against
- * @throws Error with errorType 'validation_failed' and failures array
+ * Validates that balises are locked by the specified user
+ * Returns ALB error response if validation fails, null if all valid
  */
-export async function validateBalisesLockedByUser(baliseIds: number[], userId: string): Promise<void> {
+export async function validateBalisesLockedByUser(
+  baliseIds: number[],
+  userId: string,
+): Promise<{ statusCode: number; headers: { 'Content-Type': string }; body: string } | null> {
   const idsArray = baliseIds;
 
   if (idsArray.length === 0) {
-    return;
+    return null;
   }
 
   // Fetch all existing balises in one query
@@ -108,7 +108,7 @@ export async function validateBalisesLockedByUser(baliseIds: number[], userId: s
     },
   });
 
-  // Collect all validation failures instead of throwing on first error
+  // Collect all validation failures
   const failures: BaliseValidationFailure[] = [];
 
   for (const balise of existingBalises) {
@@ -128,20 +128,24 @@ export async function validateBalisesLockedByUser(baliseIds: number[], userId: s
     }
   }
 
-  // If any failures occurred, throw error with all failures
   if (failures.length > 0) {
-    const error: Error & { errorType?: string; failures?: BaliseValidationFailure[] } = new Error(
-      `Lataus epäonnistui ${failures.length} baliisille`,
-    );
-    error.errorType = 'validation_failed';
-    error.failures = failures;
-    throw error;
+    return {
+      statusCode: 403,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error: `Lataus epäonnistui ${failures.length} baliisille`,
+        errorType: 'validation_failed',
+        failures,
+      }),
+    };
   }
 
   log.info(
     { userId },
     `Validated ${existingBalises.length} existing balises (${idsArray.length - existingBalises.length} new) for user ${userId}`,
   );
+
+  return null;
 }
 
 interface VersionManagementResult {

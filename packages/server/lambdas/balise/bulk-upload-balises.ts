@@ -1,16 +1,12 @@
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
-import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseWriteUser, RataExtraUser } from '../../utils/userService';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
-import {
-  updateOrCreateBalise,
-  validateBalisesLockedByUser,
-  type BaliseValidationFailure,
-} from '../../utils/baliseUtils';
+import { updateOrCreateBalise, validateBalisesLockedByUser } from '../../utils/baliseUtils';
 import type { FileUpload } from '../../utils/s3utils';
+import { getRataExtraLambdaError } from '../../utils/errors';
 
 const MAX_FILES_PER_REQUEST = 1000; // Limit to prevent timeout
 
@@ -281,9 +277,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const groupedFiles = groupFilesByBalise(fileUploads);
     log.info(user, `Grouped ${fileUploads.length} files into ${groupedFiles.size} balise(s)`);
 
-    // Validate all balises upfront - ensures all are locked by current user before processing
     const baliseIds = Array.from(groupedFiles.keys());
-    await validateBalisesLockedByUser(baliseIds, user.uid);
+    const lockValidationError = await validateBalisesLockedByUser(baliseIds, user.uid);
+    if (lockValidationError) return lockValidationError;
 
     const results = await processAllBalises(groupedFiles, baliseDescriptions, globalDescription, user);
 
@@ -300,26 +296,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       }),
     };
   } catch (err) {
-    const error = err as Error & {
-      errorType?: string;
-      lockedBy?: string;
-      failures?: BaliseValidationFailure[];
-    };
-
-    // Handle batch validation errors with all failures
-    if (error.errorType === 'validation_failed' && error.failures) {
-      return {
-        statusCode: 403,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          success: false,
-          error: error.message,
-          errorType: error.errorType,
-          failures: error.failures,
-        }),
-      };
-    }
-
     log.error(err);
     return getRataExtraLambdaError(err);
   }

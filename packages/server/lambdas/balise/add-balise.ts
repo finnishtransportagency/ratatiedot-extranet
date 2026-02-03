@@ -1,12 +1,11 @@
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
-import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseWriteUser } from '../../utils/userService';
 import { parseForm, FileUpload as ParsedFileUpload } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
-import { FileInfo } from 'busboy';
 import { updateOrCreateBalise, validateBalisesLockedByUser } from '../../utils/baliseUtils';
 import type { FileUpload } from '../../utils/s3utils';
+import { getRataExtraLambdaError } from '../../utils/errors';
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
@@ -28,6 +27,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     validateBaliseWriteUser(user);
+
+    const lockValidationError = await validateBalisesLockedByUser([baliseId], user.uid);
+    if (lockValidationError) return lockValidationError;
 
     // Check if this is a file upload (multipart/form-data) or metadata only (JSON)
     const contentType = event.headers?.['content-type'] || event.headers?.['Content-Type'] || '';
@@ -53,17 +55,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
       // Extract file data
       uploadedFiles = (formData.files as FileUpload[]) || [];
-
-      // For backwards compatibility, also check the old single file format
-      if (uploadedFiles.length === 0 && formData.filedata && formData.fileinfo) {
-        const fileInfo = formData.fileinfo as FileInfo;
-        uploadedFiles = [
-          {
-            filename: fileInfo.filename,
-            buffer: formData.filedata as Buffer,
-          },
-        ];
-      }
     } else {
       // Handle JSON metadata only
       body = event.body ? JSON.parse(event.body) : {};
@@ -74,9 +65,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       filename: file.filename,
       buffer: file.buffer,
     }));
-
-    // Validate balise lock upfront before processing
-    await validateBalisesLockedByUser([baliseId], user.uid);
 
     const result = await updateOrCreateBalise({
       baliseId,
@@ -93,23 +81,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       body: JSON.stringify(result.balise),
     };
   } catch (err) {
-    const error = err as Error & {
-      errorType?: string;
-      failures?: Array<{ errorType: string; lockedBy?: string; message: string }>;
-    };
-
-    if (error.errorType === 'validation_failed' && error.failures && error.failures.length > 0) {
-      const failure = error.failures[0];
-      return {
-        statusCode: 403,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          error: failure.message,
-          errorType: failure.errorType,
-          lockedBy: failure.lockedBy,
-        }),
-      };
-    }
     log.error(err);
     return getRataExtraLambdaError(err);
   }
