@@ -187,7 +187,7 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
             {row.description}
           </Typography>
         </TableCell>
-        <TableCell sx={{ fontSize: '14px', width: '60px' }}>{row.version}</TableCell>
+        <TableCell sx={{ fontSize: '14px', width: '60px' }}>{row.lockedAtVersion ?? row.version}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '120px' }}>{formatDateTime(row.createdTime)}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '100px' }}>{row.createdBy}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '120px' }}>
@@ -244,7 +244,10 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
                   ) : row.history && row.history.length > 0 ? (
                     row.history.map((version, vIndex) => (
                       <TableRow key={`${row.id}-version-${vIndex}`}>
-                        <TableCell sx={{ fontSize: '14px' }}>{version.version}</TableCell>
+                        <TableCell sx={{ fontSize: '14px' }}>
+                          {version.version}
+                          {version.versionStatus === 'UNCONFIRMED' ? ' (luonnos)' : ''}
+                        </TableCell>
                         <TableCell sx={{ fontSize: '14px' }}>{version.description}</TableCell>
                         <TableCell sx={{ fontSize: '14px' }}>{formatDateTime(version.createdTime)}</TableCell>
                         <TableCell sx={{ fontSize: '14px' }}>{version.createdBy}</TableCell>
