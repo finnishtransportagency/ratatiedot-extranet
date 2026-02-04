@@ -1,154 +1,17 @@
-import React, { useCallback, useState } from 'react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  Alert,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  IconButton,
-} from '@mui/material';
-import { DriveFolderUpload, Description, Close, DescriptionOutlined } from '@mui/icons-material';
+import React, { useCallback } from 'react';
+import { Box, Paper, Typography, Button, Alert, Divider } from '@mui/material';
+import { Description } from '@mui/icons-material';
 import { ChipWrapper } from '../../components/Chip';
 import { downloadBaliseFiles } from '../../utils/download';
+import { UploadedFilesList } from './components/UploadedFilesList';
+import { FileUploadZone } from './components/FileUploadZone';
+import { useFileDragDrop } from './hooks/useFileDragDrop';
+import { getDisplayVersion, canSeeDrafts } from './utils/utils';
 import type { BaliseWithHistory } from './types';
-
-interface UploadedFilesListProps {
-  files: File[];
-  title: string;
-  onRemoveFile: (index: number) => void;
-}
-
-const UploadedFilesList: React.FC<UploadedFilesListProps> = ({ files, title, onRemoveFile }) => {
-  return (
-    <Box sx={{ mb: 3 }}>
-      <Typography
-        variant="h4"
-        sx={{
-          mb: 2,
-          fontWeight: 500,
-        }}
-      >
-        {title}
-      </Typography>
-      <List disablePadding>
-        {files.map((file, index) => (
-          <ListItem
-            key={index}
-            sx={{
-              mb: 1,
-              borderRadius: 2,
-              border: 1,
-              borderColor: '#bbf7d0',
-              bgcolor: '#f0fdf4',
-            }}
-            secondaryAction={
-              <IconButton size="small" onClick={() => onRemoveFile(index)} edge="end">
-                <Close sx={{ fontSize: 20 }} />
-              </IconButton>
-            }
-          >
-            <ListItemIcon sx={{ minWidth: 40 }}>
-              <DescriptionOutlined sx={{ color: '#2fa34b', fontSize: 22 }} />
-            </ListItemIcon>
-            <ListItemText
-              primary={file.name}
-              secondary={`${(file.size / 1024).toFixed(0)} kB`}
-              primaryTypographyProps={{
-                sx: {
-                  fontWeight: 500,
-                },
-              }}
-              secondaryTypographyProps={{
-                sx: { fontSize: '0.75rem' },
-              }}
-            />
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  );
-};
-
-interface FileUploadZoneProps {
-  inputId: string;
-  onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onDragOver: (e: React.DragEvent) => void;
-  onDragLeave: (e: React.DragEvent) => void;
-  onDrop: (e: React.DragEvent) => void;
-  isDragging: boolean;
-  variant?: 'large' | 'compact';
-  title: string;
-  subtitle: string;
-}
-
-const FileUploadZone: React.FC<FileUploadZoneProps> = ({
-  inputId,
-  onFileChange,
-  onDragOver,
-  onDragLeave,
-  onDrop,
-  isDragging,
-  variant = 'large',
-  title,
-  subtitle,
-}) => {
-  const isLarge = variant === 'large';
-
-  return (
-    <Box
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
-      sx={{
-        border: isLarge ? '2px dashed' : '1px dashed',
-        borderColor: isDragging ? 'primary.main' : 'divider',
-        borderRadius: isLarge ? 2 : 1,
-        p: isLarge ? 3 : 2,
-        textAlign: 'center',
-        bgcolor: isDragging ? 'action.selected' : isLarge ? 'action.hover' : 'background.paper',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease',
-        '&:hover': {
-          borderColor: 'primary.main',
-          bgcolor: isLarge ? 'action.selected' : 'action.hover',
-        },
-      }}
-    >
-      <input type="file" hidden multiple onChange={onFileChange} id={inputId} />
-      <label
-        htmlFor={inputId}
-        style={{
-          cursor: 'pointer',
-          display: 'block',
-          width: '100%',
-        }}
-      >
-        <DriveFolderUpload sx={{ fontSize: isLarge ? 48 : 32, color: 'text.secondary', mb: isLarge ? 1 : 0.5 }} />
-        <Typography
-          variant={isLarge ? 'body1' : 'body2'}
-          gutterBottom={isLarge}
-          fontWeight={isLarge ? 400 : undefined}
-          color={isLarge ? 'text.secondary' : 'text.disabled'}
-        >
-          {title}
-        </Typography>
-        <Typography variant="caption" color="text.disabled">
-          {subtitle}
-        </Typography>
-      </label>
-    </Box>
-  );
-};
 
 interface BaliseFileManagerProps {
   isCreate: boolean;
   balise?: BaliseWithHistory | null;
-  displayVersion?: BaliseWithHistory | null;
   formData: { files: File[] };
   permissions?: {
     canWrite: boolean;
@@ -167,21 +30,8 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   onFileUpload,
   onRemoveFile,
 }) => {
-  const [isDragging, setIsDragging] = useState(false);
-
-  // Determine which version to display files from based on permissions
-  const displayVersion = React.useMemo(() => {
-    if (!balise) return null;
-    const canSeeDrafts = permissions?.isAdmin || balise.lockedBy === permissions?.currentUserUid;
-    if (canSeeDrafts || balise.versionStatus === 'OFFICIAL') {
-      return balise;
-    }
-    const allVersions = [balise, ...(balise.history || [])];
-    const latestOfficial = allVersions
-      .filter((v) => v.versionStatus === 'OFFICIAL')
-      .sort((a, b) => b.version - a.version)[0];
-    return (latestOfficial as BaliseWithHistory) || balise;
-  }, [balise, permissions]);
+  const displayVersion = getDisplayVersion(balise, permissions);
+  const { isDragging, handleDragOver, handleDragLeave, handleDrop } = useFileDragDrop(onFileUpload);
 
   const handleDownload = useCallback(
     async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -189,12 +39,11 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
       if (!displayVersion || displayVersion.fileTypes.length === 0) return;
 
       try {
-        const canSeeDrafts = permissions?.isAdmin || balise?.lockedBy === permissions?.currentUserUid;
-
+        const showDrafts = canSeeDrafts(balise, permissions);
         await downloadBaliseFiles(
           displayVersion.secondaryId,
           displayVersion.fileTypes,
-          canSeeDrafts ? displayVersion.version : undefined,
+          showDrafts ? displayVersion.version : undefined,
         );
       } catch (error) {
         console.error('Error downloading files:', error);
@@ -209,89 +58,6 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
       onFileUpload(files);
       // Clear the input value to allow re-uploading the same file
       event.target.value = '';
-    },
-    [onFileUpload],
-  );
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  }, []);
-
-  const handleDrop = useCallback(
-    async (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-
-      const items = Array.from(e.dataTransfer.items);
-      const allFiles: File[] = [];
-
-      // Helper function to recursively read directory entries
-      const readDirectory = async (entry: FileSystemDirectoryEntry): Promise<File[]> => {
-        const files: File[] = [];
-        const reader = entry.createReader();
-
-        return new Promise((resolve) => {
-          const readEntries = () => {
-            reader.readEntries(async (entries) => {
-              if (entries.length === 0) {
-                resolve(files);
-                return;
-              }
-
-              for (const entry of entries) {
-                if (entry.isFile) {
-                  const fileEntry = entry as FileSystemFileEntry;
-                  const file = await new Promise<File>((resolve) => {
-                    fileEntry.file(resolve);
-                  });
-                  files.push(file);
-                } else if (entry.isDirectory) {
-                  const dirFiles = await readDirectory(entry as FileSystemDirectoryEntry);
-                  files.push(...dirFiles);
-                }
-              }
-
-              // Read more entries (needed for directories with many files)
-              readEntries();
-            });
-          };
-
-          readEntries();
-        });
-      };
-
-      // Process all dropped items
-      for (const item of items) {
-        if (item.kind === 'file') {
-          const entry = item.webkitGetAsEntry();
-
-          if (entry) {
-            if (entry.isFile) {
-              const file = item.getAsFile();
-              if (file) allFiles.push(file);
-            } else if (entry.isDirectory) {
-              // Recursively read all files from the directory
-              const dirFiles = await readDirectory(entry as FileSystemDirectoryEntry);
-              allFiles.push(...dirFiles);
-            }
-          } else {
-            // Fallback for browsers that don't support webkitGetAsEntry
-            const file = item.getAsFile();
-            if (file) allFiles.push(file);
-          }
-        }
-      }
-
-      onFileUpload(allFiles);
     },
     [onFileUpload],
   );
