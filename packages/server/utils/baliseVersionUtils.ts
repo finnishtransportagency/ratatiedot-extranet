@@ -1,6 +1,7 @@
 import { APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
 import { Balise, PrismaClient, VersionStatus } from '../generated/prisma/client';
 import { RataExtraUser } from './userService';
+import { RataExtraLambdaError } from './errors';
 
 /**
  * Parse version parameter from query string parameters
@@ -47,13 +48,10 @@ export function validateVersionParameterAccess(
   // Check if user is the lock owner
   const isLockOwner = balise.locked && balise.lockedBy === user.uid;
   if (!isLockOwner) {
-    const error = new Error(
+    throw new RataExtraLambdaError(
       'Vain järjestelmän ylläpitäjät ja lukituksen tehneet käyttäjät voivat ladata tiettyjä versioita',
-    ) as Error & {
-      statusCode: number;
-    };
-    error.statusCode = 403;
-    throw error;
+      403,
+    );
   }
 }
 
@@ -67,11 +65,7 @@ export function validateVersionParameterAccess(
 export function validateLockOwnerVersionAccess(requestedVersion: number, balise: Balise): void {
   // Lock owner can access any version from when they locked onwards (version >= lockedAtVersion)
   if (balise.lockedAtVersion === null || requestedVersion < balise.lockedAtVersion) {
-    const error = new Error('Voit ladata vain lukituksesi aikana lisättyjä versioita') as Error & {
-      statusCode: number;
-    };
-    error.statusCode = 403;
-    throw error;
+    throw new RataExtraLambdaError('Voit ladata vain lukituksesi aikana lisättyjä versioita', 403);
   }
 }
 
@@ -108,9 +102,7 @@ export async function getVersionFileTypes(
   });
 
   if (!versionHistory) {
-    const error = new Error(`Versiota ${version} ei löydy`) as Error & { statusCode: number };
-    error.statusCode = 404;
-    throw error;
+    throw new RataExtraLambdaError(`Versiota ${version} ei löydy`, 404);
   }
 
   return {
@@ -129,11 +121,10 @@ export async function getVersionFileTypes(
  */
 export function validateFileInVersion(fileTypes: string[], fileName: string, version?: number): void {
   if (!fileTypes.includes(fileName)) {
-    const error = version
-      ? (new Error(`Tiedostoa '${fileName}' ei löydy versiolle ${version}`) as Error & { statusCode: number })
-      : (new Error(`Tiedostoa '${fileName}' ei löydy tälle balisille`) as Error & { statusCode: number });
-    error.statusCode = 404;
-    throw error;
+    const message = version
+      ? `Tiedostoa '${fileName}' ei löydy versiolle ${version}`
+      : `Tiedostoa '${fileName}' ei löydy tälle balisille`;
+    throw new RataExtraLambdaError(message, 404);
   }
 }
 
@@ -175,11 +166,7 @@ export async function resolveDownloadVersion(
   });
 
   if (!newestOfficialVersion) {
-    const error = new Error(`Baliisille ${baliseId} ei löydy vahvistettua versiota`) as Error & {
-      statusCode: number;
-    };
-    error.statusCode = 404;
-    throw error;
+    throw new RataExtraLambdaError(`Baliisille ${baliseId} ei löydy vahvistettua versiota`, 404);
   }
 
   return newestOfficialVersion.version;
