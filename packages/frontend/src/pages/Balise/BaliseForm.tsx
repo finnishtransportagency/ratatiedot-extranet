@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Routes } from '../../constants/Routes';
-import { downloadBaliseFiles } from '../../utils/download';
 import {
   Box,
   Paper,
@@ -23,7 +22,7 @@ import { Save, Delete, ArrowBack, Lock, LockOpen, Undo } from '@mui/icons-materi
 import { useNavigate } from 'react-router-dom';
 import { useBaliseStore } from '../../store/baliseStore';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
-import type { Balise, BaliseVersion, BaliseWithHistory } from './types';
+import type { BaliseWithHistory } from './types';
 import { InlineEditableField } from '../../components/InlineEditableField';
 import Circle from '@mui/icons-material/Circle';
 import { BaliseFileUpload } from './BaliseFileUpload';
@@ -42,40 +41,6 @@ interface FormData {
   description: string;
   files: File[];
 }
-
-// Download current files (no version - for everyone, shows latest OFFICIAL)
-const handleDownloadCurrentFiles = async (
-  e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  balise: Balise | BaliseVersion,
-) => {
-  e.stopPropagation();
-  try {
-    if (balise.fileTypes.length > 0) {
-      await downloadBaliseFiles(balise.secondaryId, balise.fileTypes);
-    }
-  } catch (error) {
-    console.error('Error downloading current files:', error);
-  }
-};
-
-// Download version history files (admin only - with version)
-const handleDownloadVersionFiles = async (
-  e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  balise: Balise | BaliseVersion,
-) => {
-  e.stopPropagation();
-  try {
-    if (balise.fileTypes.length > 0) {
-      await downloadBaliseFiles(
-        balise.secondaryId,
-        balise.fileTypes,
-        balise.version, // Pass the version number for history downloads
-      );
-    }
-  } catch (error) {
-    console.error('Error downloading version files:', error);
-  }
-};
 
 export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onRefresh }) => {
   const navigate = useNavigate();
@@ -464,16 +429,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             permissions={permissions}
             onFileUpload={handleFileUploadMultiple}
             onRemoveFile={removeFile}
-            onDownloadBaliseFiles={handleDownloadCurrentFiles}
           />
 
-          {/* Version History - Unified timeline showing all versions */}
+          {/* Version Timeline - Unified timeline showing historical and draft versions */}
           {balise && mode !== 'create' && (permissions?.isAdmin || balise.lockedBy === permissions?.currentUserUid) && (
-            <BaliseVersionTimeline
-              balise={balise}
-              onDownloadVersion={handleDownloadVersionFiles}
-              permissions={permissions}
-            />
+            <BaliseVersionTimeline balise={balise} permissions={permissions} />
           )}
         </Box>
       </Box>

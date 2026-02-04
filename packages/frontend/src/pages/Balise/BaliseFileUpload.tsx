@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { DriveFolderUpload, Description, Close, DescriptionOutlined } from '@mui/icons-material';
 import { ChipWrapper } from '../../components/Chip';
+import { downloadBaliseFiles } from '../../utils/download';
 import type { BaliseWithHistory } from './types';
 
 interface UploadedFilesListProps {
@@ -147,14 +148,15 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
 interface BaliseFileUploadProps {
   isCreate: boolean;
   balise?: BaliseWithHistory | null;
+  displayVersion?: BaliseWithHistory | null;
   formData: { files: File[] };
   permissions?: {
     canWrite: boolean;
+    isAdmin?: boolean;
     currentUserUid?: string;
   } | null;
   onFileUpload: (files: File[]) => void;
   onRemoveFile: (index: number) => void;
-  onDownloadBaliseFiles?: (e: React.MouseEvent<HTMLButtonElement>, balise: BaliseWithHistory) => void | Promise<void>;
 }
 
 export const BaliseFileUpload: React.FC<BaliseFileUploadProps> = ({
@@ -164,9 +166,42 @@ export const BaliseFileUpload: React.FC<BaliseFileUploadProps> = ({
   permissions,
   onFileUpload,
   onRemoveFile,
-  onDownloadBaliseFiles,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
+
+  // Determine which version to display files from based on permissions
+  const displayVersion = React.useMemo(() => {
+    if (!balise) return null;
+    const canSeeDrafts = permissions?.isAdmin || balise.lockedBy === permissions?.currentUserUid;
+    if (canSeeDrafts || balise.versionStatus === 'OFFICIAL') {
+      return balise;
+    }
+    const allVersions = [balise, ...(balise.history || [])];
+    const latestOfficial = allVersions
+      .filter((v) => v.versionStatus === 'OFFICIAL')
+      .sort((a, b) => b.version - a.version)[0];
+    return (latestOfficial as BaliseWithHistory) || balise;
+  }, [balise, permissions]);
+
+  const handleDownload = useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      if (!displayVersion || displayVersion.fileTypes.length === 0) return;
+
+      try {
+        const canSeeDrafts = permissions?.isAdmin || balise?.lockedBy === permissions?.currentUserUid;
+
+        await downloadBaliseFiles(
+          displayVersion.secondaryId,
+          displayVersion.fileTypes,
+          canSeeDrafts ? displayVersion.version : undefined,
+        );
+      } catch (error) {
+        console.error('Error downloading files:', error);
+      }
+    },
+    [displayVersion, permissions, balise],
+  );
 
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -261,17 +296,23 @@ export const BaliseFileUpload: React.FC<BaliseFileUploadProps> = ({
     [onFileUpload],
   );
 
-  const hasExistingFiles = balise && balise.fileTypes?.length > 0;
+  const hasExistingFiles = displayVersion && displayVersion.fileTypes?.length > 0;
   const hasNewFiles = formData.files.length > 0;
   const canWrite = permissions?.canWrite;
 
   // Check if balise is properly locked for editing
   const isLockedByCurrentUser =
-    isCreate || !balise || (balise.locked && balise.lockedBy && balise.lockedBy === permissions?.currentUserUid); // Locked by current user
+    isCreate || !balise || (balise.lockedBy && balise.lockedBy === permissions?.currentUserUid); // Locked by current user
 
   const canUpload = canWrite && isLockedByCurrentUser;
   const showLockWarning = canWrite && !isLockedByCurrentUser;
   const showContent = hasExistingFiles || canWrite;
+
+  // Label for file list
+  let fileListLabel = 'Nykyiset tiedostot';
+  if (displayVersion && displayVersion.versionStatus === 'UNCONFIRMED') {
+    fileListLabel = 'Luonnoksen tiedostot';
+  }
 
   if (!showContent) return null;
 
@@ -283,21 +324,14 @@ export const BaliseFileUpload: React.FC<BaliseFileUploadProps> = ({
           <Box sx={{ mb: canWrite ? 2 : 0 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Nykyiset tiedostot
+                {fileListLabel}
               </Typography>
-              {onDownloadBaliseFiles && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  color="secondary"
-                  onClick={(e) => onDownloadBaliseFiles(e, balise)}
-                >
-                  Lataa tiedostot
-                </Button>
-              )}
+              <Button size="small" variant="outlined" color="secondary" onClick={handleDownload}>
+                Lataa tiedostot
+              </Button>
             </Box>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-              {balise.fileTypes.map((fileType, index) => (
+              {displayVersion.fileTypes.map((fileType, index) => (
                 <ChipWrapper key={index} text={fileType} icon={<Description />} />
               ))}
             </Box>
@@ -353,7 +387,7 @@ export const BaliseFileUpload: React.FC<BaliseFileUploadProps> = ({
                     Uudet tiedostot korvaavat kaikki nykyiset tiedostot
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Ladatessasi uudet tiedostot, kaikki {balise.fileTypes.length} nykyistä tiedostoa korvataan. Vanhat
+                    Ladatessasi uudet tiedostot, kaikki {balise?.fileTypes.length} nykyistä tiedostoa korvataan. Vanhat
                     tiedostot säilytetään versiohistoriassa.
                   </Typography>
                 </Alert>
@@ -363,10 +397,10 @@ export const BaliseFileUpload: React.FC<BaliseFileUploadProps> = ({
                 {/* Current files - will be replaced */}
                 <Box sx={{ mb: 3 }}>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>
-                    Nykyiset tiedostot (korvataan):
+                    {fileListLabel} (korvataan)
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-                    {balise.fileTypes.map((fileType, index) => (
+                    {balise?.fileTypes.map((fileType, index) => (
                       <ChipWrapper
                         key={index}
                         text={fileType}

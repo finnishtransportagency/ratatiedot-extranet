@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Box, Paper, Typography, IconButton, Collapse, Button } from '@mui/material';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { Tag } from '../../components/Tag';
+import { downloadBaliseFiles } from '../../utils/download';
 import type { BaliseWithHistory, Balise, BaliseVersion } from './types';
 
 const pulseAnimation = {
@@ -19,19 +20,28 @@ const pulseAnimation = {
 
 interface BaliseVersionTimelineProps {
   balise: BaliseWithHistory;
-  onDownloadVersion: (e: React.MouseEvent<HTMLButtonElement>, version: Balise | BaliseVersion) => Promise<void>;
   permissions?: {
     isAdmin: boolean;
     currentUserUid: string | null;
   } | null;
 }
 
-export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({
-  balise,
-  onDownloadVersion,
-  permissions,
-}) => {
+export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({ balise, permissions }) => {
   const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set());
+
+  const handleDownloadVersion = useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>, version: Balise | BaliseVersion) => {
+      e.stopPropagation();
+      if (version.fileTypes.length === 0) return;
+
+      try {
+        await downloadBaliseFiles(version.secondaryId, version.fileTypes, version.version);
+      } catch (error) {
+        console.error('Error downloading version files:', error);
+      }
+    },
+    [],
+  );
 
   // Determine which versions to show
   let visibleVersions: (Balise | BaliseVersion)[] = [];
@@ -228,9 +238,7 @@ export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({
                       size="small"
                       variant="outlined"
                       color="secondary"
-                      onClick={async (e) => {
-                        await onDownloadVersion(e, version);
-                      }}
+                      onClick={(e) => handleDownloadVersion(e, version)}
                     >
                       Lataa tiedostot
                     </Button>
