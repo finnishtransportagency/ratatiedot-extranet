@@ -747,6 +747,13 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'deleteBaliseRailSection',
       },
       {
+        lambda: getBaliseDownloadUrl,
+        priority: 309,
+        path: ['/api/balise/*/download'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getBaliseDownloadUrl',
+      },
+      {
         lambda: getBalise,
         priority: 310,
         path: ['/api/balise/*'],
@@ -780,13 +787,6 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/balise/*/unlock'],
         httpRequestMethods: ['POST'],
         targetName: 'unlockBalise',
-      },
-      {
-        lambda: getBaliseDownloadUrl,
-        priority: 316,
-        path: ['/api/balise/*/download'],
-        httpRequestMethods: ['GET'],
-        targetName: 'getBaliseDownloadUrl',
       },
     ];
 
