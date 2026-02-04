@@ -56,7 +56,23 @@ const pulseAnimation = {
   },
 };
 
-const handleDownloadBaliseFiles = async (
+// Download current files (no version - for everyone, shows latest OFFICIAL)
+const handleDownloadCurrentFiles = async (
+  e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  balise: Balise | BaliseVersion,
+) => {
+  e.stopPropagation();
+  try {
+    if (balise.fileTypes.length > 0) {
+      await downloadBaliseFiles(balise.secondaryId, balise.fileTypes);
+    }
+  } catch (error) {
+    console.error('Error downloading current files:', error);
+  }
+};
+
+// Download version history files (admin only - with version)
+const handleDownloadVersionFiles = async (
   e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   balise: Balise | BaliseVersion,
 ) => {
@@ -66,7 +82,7 @@ const handleDownloadBaliseFiles = async (
       await downloadBaliseFiles(
         balise.secondaryId,
         balise.fileTypes,
-        balise.version, // Pass the version number
+        balise.version, // Pass the version number for history downloads
       );
     }
   } catch (error) {
@@ -477,7 +493,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             permissions={permissions}
             onFileUpload={handleFileUploadMultiple}
             onRemoveFile={removeFile}
-            onDownloadBaliseFiles={handleDownloadBaliseFiles}
+            onDownloadBaliseFiles={handleDownloadCurrentFiles}
           />
 
           {/* Version History - Admin View */}
@@ -626,7 +642,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                               variant="outlined"
                               color="secondary"
                               onClick={async (e) => {
-                                handleDownloadBaliseFiles(e, version);
+                                handleDownloadVersionFiles(e, version);
                               }}
                             >
                               Lataa tiedostot
