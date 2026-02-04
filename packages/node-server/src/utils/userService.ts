@@ -9,9 +9,9 @@ const ENVIRONMENT = process.env.ENVIRONMENT || '';
 const MOCK_UID = process.env.MOCK_UID || '';
 
 const STATIC_ROLES = {
-  read: 'Ratatieto_luku',
-  write: 'Ratatieto_kirjoitus',
-  admin: 'Ratatieto_admin',
+  read: 'ratatieto_luku',
+  write: 'ratatieto_kirjoitus',
+  admin: 'ratatieto_admin',
 };
 
 export type RataExtraUser = {
@@ -28,7 +28,7 @@ function parseRoles(roles: string): string[] | undefined {
         .map((s) => {
           const s1 = s.split('/').pop();
           if (s1) {
-            return s1;
+            return s1.toLowerCase();
           }
           return '';
         })

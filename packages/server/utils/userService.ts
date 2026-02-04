@@ -11,15 +11,15 @@ const MOCK_UID = process.env.MOCK_UID || '';
 const SERVICE_USER_UID = process.env.SERVICE_USER_UID || '';
 
 const STATIC_ROLES = {
-  read: 'Ratatieto_luku',
-  write: 'Ratatieto_kirjoitus',
-  admin: 'Ratatieto_admin',
+  read: 'ratatieto_luku',
+  write: 'ratatieto_kirjoitus',
+  admin: 'ratatieto_admin',
 };
 
 const BALISE_ROLES = {
-  read: 'Ratatieto_luku_Baliisisanomat',
-  write: 'Ratatieto_kirjoitus_Baliisisanomat',
-  admin: 'Ratatieto_admin_Baliisisanomat',
+  read: 'ratatieto_luku_baliisisanomat',
+  write: 'ratatieto_kirjoitus_baliisisanomat',
+  admin: 'ratatieto_admin_baliisisanomat',
 };
 
 export type RataExtraUser = {
@@ -36,7 +36,7 @@ export function parseRoles(roles: string): string[] | undefined {
         .map((s) => {
           const s1 = s.split('/').pop();
           if (s1) {
-            return s1;
+            return s1.toLowerCase();
           }
           return '';
         })
