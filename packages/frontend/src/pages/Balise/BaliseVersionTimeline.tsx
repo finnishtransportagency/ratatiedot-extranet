@@ -17,7 +17,7 @@ const pulseAnimation = {
   },
 };
 
-interface BaliseVersionHistoryProps {
+interface BaliseVersionTimelineProps {
   balise: BaliseWithHistory;
   onDownloadVersion: (e: React.MouseEvent<HTMLButtonElement>, version: Balise | BaliseVersion) => Promise<void>;
   permissions?: {
@@ -26,7 +26,7 @@ interface BaliseVersionHistoryProps {
   } | null;
 }
 
-export const BaliseVersionHistory: React.FC<BaliseVersionHistoryProps> = ({
+export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({
   balise,
   onDownloadVersion,
   permissions,
