@@ -26,7 +26,7 @@ describe('Balise role validation', () => {
     it('should allow user with balise read role', () => {
       const user: RataExtraUser = {
         uid: 'user-1',
-        roles: ['Ratatieto_luku_Baliisisanomat'],
+        roles: ['ratatieto_luku_baliisisanomat'],
       };
       expect(() => validateBaliseReadUser(user)).not.toThrow();
     });
@@ -34,7 +34,7 @@ describe('Balise role validation', () => {
     it('should allow user with balise write role', () => {
       const user: RataExtraUser = {
         uid: 'user-2',
-        roles: ['Ratatieto_kirjoitus_Baliisisanomat'],
+        roles: ['ratatieto_kirjoitus_baliisisanomat'],
       };
       expect(() => validateBaliseReadUser(user)).not.toThrow();
     });
@@ -42,7 +42,7 @@ describe('Balise role validation', () => {
     it('should allow user with balise admin role', () => {
       const user: RataExtraUser = {
         uid: 'user-3',
-        roles: ['Ratatieto_admin_Baliisisanomat'],
+        roles: ['ratatieto_admin_baliisisanomat'],
       };
       expect(() => validateBaliseReadUser(user)).not.toThrow();
     });
@@ -50,7 +50,7 @@ describe('Balise role validation', () => {
     it('should allow user with multiple balise roles', () => {
       const user: RataExtraUser = {
         uid: 'user-4',
-        roles: ['Ratatieto_luku_Baliisisanomat', 'Ratatieto_kirjoitus_Baliisisanomat'],
+        roles: ['ratatieto_luku_baliisisanomat', 'ratatieto_kirjoitus_baliisisanomat'],
       };
       expect(() => validateBaliseReadUser(user)).not.toThrow();
     });
@@ -58,7 +58,7 @@ describe('Balise role validation', () => {
     it('should reject user with only static roles', () => {
       const user: RataExtraUser = {
         uid: 'user-5',
-        roles: ['Ratatieto_luku', 'Ratatieto_kirjoitus'],
+        roles: ['ratatieto_luku', 'ratatieto_kirjoitus'],
       };
       expect(() => validateBaliseReadUser(user)).toThrow(RataExtraLambdaError);
       expect(() => validateBaliseReadUser(user)).toThrow('Forbidden');
@@ -92,7 +92,7 @@ describe('Balise role validation', () => {
     it('should allow user with balise write role', () => {
       const user: RataExtraUser = {
         uid: 'user-1',
-        roles: ['Ratatieto_kirjoitus_Baliisisanomat'],
+        roles: ['ratatieto_kirjoitus_baliisisanomat'],
       };
       expect(() => validateBaliseWriteUser(user)).not.toThrow();
     });
@@ -100,7 +100,7 @@ describe('Balise role validation', () => {
     it('should allow user with balise admin role', () => {
       const user: RataExtraUser = {
         uid: 'user-2',
-        roles: ['Ratatieto_admin_Baliisisanomat'],
+        roles: ['ratatieto_admin_baliisisanomat'],
       };
       expect(() => validateBaliseWriteUser(user)).not.toThrow();
     });
@@ -108,7 +108,7 @@ describe('Balise role validation', () => {
     it('should allow user with both write and admin roles', () => {
       const user: RataExtraUser = {
         uid: 'user-3',
-        roles: ['Ratatieto_kirjoitus_Baliisisanomat', 'Ratatieto_admin_Baliisisanomat'],
+        roles: ['ratatieto_kirjoitus_baliisisanomat', 'ratatieto_admin_baliisisanomat'],
       };
       expect(() => validateBaliseWriteUser(user)).not.toThrow();
     });
@@ -116,7 +116,7 @@ describe('Balise role validation', () => {
     it('should reject user with only balise read role', () => {
       const user: RataExtraUser = {
         uid: 'user-4',
-        roles: ['Ratatieto_luku_Baliisisanomat'],
+        roles: ['ratatieto_luku_baliisisanomat'],
       };
       expect(() => validateBaliseWriteUser(user)).toThrow(RataExtraLambdaError);
       expect(() => validateBaliseWriteUser(user)).toThrow('Forbidden');
@@ -125,7 +125,7 @@ describe('Balise role validation', () => {
     it('should reject user with only static write role', () => {
       const user: RataExtraUser = {
         uid: 'user-5',
-        roles: ['Ratatieto_kirjoitus'],
+        roles: ['ratatieto_kirjoitus'],
       };
       expect(() => validateBaliseWriteUser(user)).toThrow(RataExtraLambdaError);
     });
@@ -133,7 +133,7 @@ describe('Balise role validation', () => {
     it('should reject user with only static admin role', () => {
       const user: RataExtraUser = {
         uid: 'user-6',
-        roles: ['Ratatieto_admin'],
+        roles: ['ratatieto_admin'],
       };
       expect(() => validateBaliseWriteUser(user)).toThrow(RataExtraLambdaError);
     });
@@ -151,7 +151,7 @@ describe('Balise role validation', () => {
     it('should allow user with balise admin role', () => {
       const user: RataExtraUser = {
         uid: 'user-1',
-        roles: ['Ratatieto_admin_Baliisisanomat'],
+        roles: ['ratatieto_admin_baliisisanomat'],
       };
       expect(() => validateBaliseAdminUser(user)).not.toThrow();
     });
@@ -159,7 +159,7 @@ describe('Balise role validation', () => {
     it('should allow user with multiple roles including balise admin', () => {
       const user: RataExtraUser = {
         uid: 'user-2',
-        roles: ['Ratatieto_luku_Baliisisanomat', 'Ratatieto_admin_Baliisisanomat'],
+        roles: ['ratatieto_luku_baliisisanomat', 'ratatieto_admin_baliisisanomat'],
       };
       expect(() => validateBaliseAdminUser(user)).not.toThrow();
     });
@@ -167,7 +167,7 @@ describe('Balise role validation', () => {
     it('should reject user with only balise read role', () => {
       const user: RataExtraUser = {
         uid: 'user-3',
-        roles: ['Ratatieto_luku_Baliisisanomat'],
+        roles: ['ratatieto_luku_baliisisanomat'],
       };
       expect(() => validateBaliseAdminUser(user)).toThrow(RataExtraLambdaError);
       expect(() => validateBaliseAdminUser(user)).toThrow('Forbidden');
@@ -176,7 +176,7 @@ describe('Balise role validation', () => {
     it('should reject user with only balise write role', () => {
       const user: RataExtraUser = {
         uid: 'user-4',
-        roles: ['Ratatieto_kirjoitus_Baliisisanomat'],
+        roles: ['ratatieto_kirjoitus_baliisisanomat'],
       };
       expect(() => validateBaliseAdminUser(user)).toThrow(RataExtraLambdaError);
     });
@@ -184,7 +184,7 @@ describe('Balise role validation', () => {
     it('should reject user with only static admin role', () => {
       const user: RataExtraUser = {
         uid: 'user-5',
-        roles: ['Ratatieto_admin'],
+        roles: ['ratatieto_admin'],
       };
       expect(() => validateBaliseAdminUser(user)).toThrow(RataExtraLambdaError);
     });
@@ -192,7 +192,7 @@ describe('Balise role validation', () => {
     it('should reject user with balise read and write roles but not admin', () => {
       const user: RataExtraUser = {
         uid: 'user-6',
-        roles: ['Ratatieto_luku_Baliisisanomat', 'Ratatieto_kirjoitus_Baliisisanomat'],
+        roles: ['ratatieto_luku_baliisisanomat', 'ratatieto_kirjoitus_baliisisanomat'],
       };
       expect(() => validateBaliseAdminUser(user)).toThrow(RataExtraLambdaError);
     });

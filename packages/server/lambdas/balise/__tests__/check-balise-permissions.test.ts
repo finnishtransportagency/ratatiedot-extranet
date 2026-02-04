@@ -28,7 +28,7 @@ describe('check-balise-permissions', () => {
   });
 
   it('should return all permissions for balise admin user', async () => {
-    const mockUser = { uid: 'admin-user', roles: ['Ratatieto_admin_Baliisisanomat'] };
+    const mockUser = { uid: 'admin-user', roles: ['ratatieto_admin_baliisisanomat'] };
 
     vi.mocked(userService.getUser).mockResolvedValue(mockUser);
 
@@ -41,7 +41,7 @@ describe('check-balise-permissions', () => {
   });
 
   it('should return limited permissions for balise write user', async () => {
-    const mockUser = { uid: 'write-user', roles: ['Ratatieto_kirjoitus_Baliisisanomat'] };
+    const mockUser = { uid: 'write-user', roles: ['ratatieto_kirjoitus_baliisisanomat'] };
 
     vi.mocked(userService.getUser).mockResolvedValue(mockUser);
 
@@ -54,7 +54,7 @@ describe('check-balise-permissions', () => {
   });
 
   it('should return read-only permissions for balise read user', async () => {
-    const mockUser = { uid: 'read-user', roles: ['Ratatieto_luku_Baliisisanomat'] };
+    const mockUser = { uid: 'read-user', roles: ['ratatieto_luku_baliisisanomat'] };
 
     vi.mocked(userService.getUser).mockResolvedValue(mockUser);
 
@@ -67,7 +67,7 @@ describe('check-balise-permissions', () => {
   });
 
   it('should return no balise permissions for user without balise roles', async () => {
-    const mockUser = { uid: 'regular-user', roles: ['Ratatieto_luku'] };
+    const mockUser = { uid: 'regular-user', roles: ['ratatieto_luku'] };
 
     vi.mocked(userService.getUser).mockResolvedValue(mockUser);
 
