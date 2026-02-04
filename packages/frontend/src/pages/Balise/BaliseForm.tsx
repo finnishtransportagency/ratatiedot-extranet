@@ -467,8 +467,13 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             onDownloadBaliseFiles={handleDownloadCurrentFiles}
           />
 
-          {balise && mode !== 'create' && permissions?.isAdmin && (
-            <BaliseVersionHistory balise={balise} onDownloadVersion={handleDownloadVersionFiles} />
+          {/* Version History - Unified timeline showing all versions */}
+          {balise && mode !== 'create' && (permissions?.isAdmin || balise.lockedBy === permissions?.currentUserUid) && (
+            <BaliseVersionHistory
+              balise={balise}
+              onDownloadVersion={handleDownloadVersionFiles}
+              permissions={permissions}
+            />
           )}
         </Box>
       </Box>

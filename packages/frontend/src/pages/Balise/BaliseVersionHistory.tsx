@@ -5,7 +5,7 @@ import { Tag } from '../../components/Tag';
 import type { BaliseWithHistory, Balise, BaliseVersion } from './types';
 
 const pulseAnimation = {
-  '@keyframes pulse-blue': {
+  '@keyframes pulse': {
     '0%, 100%': {
       transform: 'scale(1)',
       opacity: 1,
@@ -20,10 +20,33 @@ const pulseAnimation = {
 interface BaliseVersionHistoryProps {
   balise: BaliseWithHistory;
   onDownloadVersion: (e: React.MouseEvent<HTMLButtonElement>, version: Balise | BaliseVersion) => Promise<void>;
+  permissions?: {
+    isAdmin: boolean;
+    currentUserUid: string | null;
+  } | null;
 }
 
-export const BaliseVersionHistory: React.FC<BaliseVersionHistoryProps> = ({ balise, onDownloadVersion }) => {
+export const BaliseVersionHistory: React.FC<BaliseVersionHistoryProps> = ({
+  balise,
+  onDownloadVersion,
+  permissions,
+}) => {
   const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set());
+
+  // Determine which versions to show
+  let visibleVersions: (Balise | BaliseVersion)[] = [];
+  if (permissions?.isAdmin) {
+    // Admin: show all
+    visibleVersions = [balise, ...(balise.history || [])];
+  } else if (balise.lockedBy === permissions?.currentUserUid) {
+    // Lock owner: show lockedAtVersion (latest official) and drafts
+    visibleVersions = [balise, ...(balise.history || [])].filter(
+      (v) =>
+        (v.versionStatus === 'OFFICIAL' && v.version === balise.lockedAtVersion) || v.versionStatus === 'UNCONFIRMED',
+    );
+  }
+
+  if (!visibleVersions.length) return null;
 
   const formatDate = (date: Date | string | null | undefined): string => {
     if (!date) return 'Unknown';
@@ -36,6 +59,71 @@ export const BaliseVersionHistory: React.FC<BaliseVersionHistoryProps> = ({ bali
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // Helper to render timeline dot (container + dot)
+  const TimelineDot = ({
+    isCurrent,
+    isDraft,
+    isLockedBaseline,
+  }: {
+    isCurrent: boolean;
+    isDraft: boolean;
+    isLockedBaseline: boolean;
+  }) => {
+    // Animated dot (current)
+    if (isCurrent) {
+      const color = isDraft ? 'warning.main' : 'primary.main';
+      return (
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 1,
+            width: 22,
+            height: 22,
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: color,
+            borderRadius: '50%',
+            ...pulseAnimation,
+          }}
+        >
+          <Box
+            sx={{
+              width: 12,
+              height: 12,
+              borderRadius: '50%',
+              bgcolor: 'white',
+              animation: 'pulse 2s infinite',
+            }}
+          />
+        </Box>
+      );
+    }
+    // Static dot (locked baseline, draft, or past official)
+    let dotColor = 'grey.300';
+    if (isDraft) dotColor = 'warning.main';
+    else if (isLockedBaseline) dotColor = 'primary.main';
+    return (
+      <Box
+        sx={{
+          position: 'relative',
+          zIndex: 1,
+          width: 22,
+          height: 22,
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'white',
+          borderRadius: '50%',
+        }}
+      >
+        <Box sx={{ width: 11, height: 11, borderRadius: '50%', bgcolor: dotColor }} />
+      </Box>
+    );
   };
 
   return (
@@ -53,11 +141,14 @@ export const BaliseVersionHistory: React.FC<BaliseVersionHistoryProps> = ({ bali
         Versiohistoria
       </Typography>
 
-      {/* Combine current version and history for easier mapping */}
-      {[balise, ...(balise.history || [])].map((version, index) => {
+      {/* Unified timeline - show filtered versions */}
+      {visibleVersions.map((version, index, filteredVersions) => {
         const isCurrent = index === 0;
         const isExpanded = expandedVersions.has(isCurrent ? 'current' : version.id);
-        const historyLength = balise.history?.length || 0;
+        const isLast = index === filteredVersions.length - 1;
+        const isDraft = version.versionStatus === 'UNCONFIRMED';
+        // Locked baseline: the official version that was locked at
+        const isLockedBaseline = version.version === balise.lockedAtVersion && version.versionStatus === 'OFFICIAL';
 
         return (
           <Box
@@ -66,11 +157,11 @@ export const BaliseVersionHistory: React.FC<BaliseVersionHistoryProps> = ({ bali
               display: 'flex',
               gap: 1.75,
               position: 'relative',
-              pb: index === historyLength ? 0 : 2.5, // Add padding-bottom to all but the last item
+              pb: isLast ? 0 : 2.5, // Add padding-bottom to all but the last item
             }}
           >
             {/* Vertical timeline line */}
-            {index < historyLength && (
+            {!isLast && (
               <Box
                 sx={{
                   position: 'absolute',
@@ -78,56 +169,13 @@ export const BaliseVersionHistory: React.FC<BaliseVersionHistoryProps> = ({ bali
                   top: '22px',
                   bottom: '-10px',
                   width: '1.5px',
-                  bgcolor: 'grey.200',
+                  bgcolor: isDraft ? 'warning.light' : 'grey.200',
                 }}
               />
             )}
 
             {/* Timeline Dot */}
-            <Box
-              sx={{
-                position: 'relative',
-                zIndex: 1,
-                width: 22,
-                height: 22,
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                // White ring effect to sit on top of the line
-                bgcolor: 'white',
-                borderRadius: '50%',
-              }}
-            >
-              {isCurrent ? (
-                // Animated dot for current version
-                <Box
-                  sx={{
-                    ...pulseAnimation,
-                    width: 22,
-                    height: 22,
-                    borderRadius: '50%',
-                    bgcolor: 'primary.main',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: '50%',
-                      bgcolor: 'white',
-                      animation: 'pulse-blue 2s infinite',
-                    }}
-                  />
-                </Box>
-              ) : (
-                // Simple dot for past versions
-                <Box sx={{ width: 11, height: 11, borderRadius: '50%', bgcolor: 'grey.300' }} />
-              )}
-            </Box>
+            <TimelineDot isCurrent={isCurrent} isDraft={isDraft} isLockedBaseline={isLockedBaseline} />
 
             {/* Version Info */}
             <Box sx={{ flex: 1, mt: '-2px' }}>
@@ -137,7 +185,8 @@ export const BaliseVersionHistory: React.FC<BaliseVersionHistoryProps> = ({ bali
                   <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '0.9rem', color: 'text.primary' }}>
                     Versio {version.version || 1}
                   </Typography>
-                  {isCurrent && <Tag text="Nykyinen" />}
+                  {isDraft && <Tag text="Luonnos" color="warning" />}
+                  {!isDraft && (isCurrent || isLockedBaseline) && <Tag text="Virallinen" />}
                 </Box>
                 <IconButton
                   size="small"
