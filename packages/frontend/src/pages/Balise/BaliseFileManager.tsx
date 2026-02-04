@@ -145,7 +145,7 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
   );
 };
 
-interface BaliseFileUploadProps {
+interface BaliseFileManagerProps {
   isCreate: boolean;
   balise?: BaliseWithHistory | null;
   displayVersion?: BaliseWithHistory | null;
@@ -159,7 +159,7 @@ interface BaliseFileUploadProps {
   onRemoveFile: (index: number) => void;
 }
 
-export const BaliseFileUpload: React.FC<BaliseFileUploadProps> = ({
+export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   isCreate,
   balise,
   formData,

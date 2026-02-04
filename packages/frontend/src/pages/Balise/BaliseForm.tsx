@@ -25,7 +25,7 @@ import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import type { BaliseWithHistory } from './types';
 import { InlineEditableField } from '../../components/InlineEditableField';
 import Circle from '@mui/icons-material/Circle';
-import { BaliseFileUpload } from './BaliseFileUpload';
+import { BaliseFileManager } from './BaliseFileManager';
 import { BaliseVersionTimeline } from './BaliseVersionTimeline';
 
 interface BaliseFormProps {
@@ -422,7 +422,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             />
           </Paper>
 
-          <BaliseFileUpload
+          <BaliseFileManager
             isCreate={isCreate}
             balise={balise}
             formData={formData}
