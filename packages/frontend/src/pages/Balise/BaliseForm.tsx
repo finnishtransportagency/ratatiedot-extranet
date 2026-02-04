@@ -27,7 +27,7 @@ import type { Balise, BaliseVersion, BaliseWithHistory } from './types';
 import { InlineEditableField } from '../../components/InlineEditableField';
 import Circle from '@mui/icons-material/Circle';
 import { BaliseFileUpload } from './BaliseFileUpload';
-import { BaliseVersionHistory } from './BaliseVersionHistory';
+import { BaliseVersionTimeline } from './BaliseVersionTimeline';
 
 interface BaliseFormProps {
   mode: 'create' | 'view';
@@ -469,7 +469,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
           {/* Version History - Unified timeline showing all versions */}
           {balise && mode !== 'create' && (permissions?.isAdmin || balise.lockedBy === permissions?.currentUserUid) && (
-            <BaliseVersionHistory
+            <BaliseVersionTimeline
               balise={balise}
               onDownloadVersion={handleDownloadVersionFiles}
               permissions={permissions}
