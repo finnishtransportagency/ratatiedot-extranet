@@ -6,7 +6,6 @@ import { downloadBaliseFiles } from '../../utils/download';
 import { UploadedFilesList } from './components/UploadedFilesList';
 import { FileUploadZone } from './components/FileUploadZone';
 import { useFileDragDrop } from './hooks/useFileDragDrop';
-import { getDisplayVersion, canSeeDrafts } from './utils/utils';
 import type { BaliseWithHistory } from './types';
 import { VersionStatus } from './types';
 
@@ -31,26 +30,21 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   onFileUpload,
   onRemoveFile,
 }) => {
-  const displayVersion = getDisplayVersion(balise, permissions);
   const { isDragging, handleDragOver, handleDragLeave, handleDrop } = useFileDragDrop(onFileUpload);
 
   const handleDownload = useCallback(
     async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
-      if (!displayVersion || displayVersion.fileTypes.length === 0) return;
+      if (!balise || balise.fileTypes.length === 0) return;
 
       try {
-        const showDrafts = canSeeDrafts(balise, permissions);
-        await downloadBaliseFiles(
-          displayVersion.secondaryId,
-          displayVersion.fileTypes,
-          showDrafts ? displayVersion.version : undefined,
-        );
+        // Backend resolves to correct version (lockedAtVersion for regular users)
+        await downloadBaliseFiles(balise.secondaryId, balise.fileTypes);
       } catch (error) {
         console.error('Error downloading files:', error);
       }
     },
-    [displayVersion, permissions, balise],
+    [balise],
   );
 
   const handleFileChange = useCallback(
@@ -63,7 +57,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
     [onFileUpload],
   );
 
-  const hasExistingFiles = displayVersion && displayVersion.fileTypes?.length > 0;
+  const hasExistingFiles = balise && balise.fileTypes?.length > 0;
   const hasNewFiles = formData.files.length > 0;
   const canWrite = permissions?.canWrite;
 
@@ -77,7 +71,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
 
   // Label for file list
   let fileListLabel = 'Nykyiset tiedostot';
-  if (displayVersion && displayVersion.versionStatus === VersionStatus.UNCONFIRMED) {
+  if (balise && balise.versionStatus === VersionStatus.UNCONFIRMED) {
     fileListLabel = 'Luonnoksen tiedostot';
   }
 
@@ -98,7 +92,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
               </Button>
             </Box>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-              {displayVersion.fileTypes.map((fileType, index) => (
+              {balise.fileTypes.map((fileType, index) => (
                 <ChipWrapper key={index} text={fileType} icon={<Description />} />
               ))}
             </Box>
