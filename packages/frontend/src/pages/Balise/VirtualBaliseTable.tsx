@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { ExpandMore, ExpandLess, Edit, Lock, LockOpen, Delete, Download, Visibility } from '@mui/icons-material';
 import type { BaliseWithHistory } from './types';
+import { VersionStatus } from './types';
 
 interface BaliseTableProps {
   items: BaliseWithHistory[];
@@ -246,7 +247,7 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
                       <TableRow key={`${row.id}-version-${vIndex}`}>
                         <TableCell sx={{ fontSize: '14px' }}>
                           {version.version}
-                          {version.versionStatus === 'UNCONFIRMED' ? ' (luonnos)' : ''}
+                          {version.versionStatus === VersionStatus.UNCONFIRMED ? ' (luonnos)' : ''}
                         </TableCell>
                         <TableCell sx={{ fontSize: '14px' }}>{version.description}</TableCell>
                         <TableCell sx={{ fontSize: '14px' }}>{formatDateTime(version.createdTime)}</TableCell>

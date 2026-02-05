@@ -1,4 +1,5 @@
 import type { BaliseWithHistory } from '../types';
+import { VersionStatus } from '../types';
 
 interface Permissions {
   isAdmin?: boolean;
@@ -18,7 +19,7 @@ export const getDisplayVersion = (
   const canSeeDrafts = permissions?.isAdmin || balise.lockedBy === permissions?.currentUserUid;
 
   // If user can see drafts or the balise is official, show the current version
-  if (canSeeDrafts || balise.versionStatus === 'OFFICIAL') {
+  if (canSeeDrafts || balise.versionStatus === VersionStatus.OFFICIAL) {
     return balise;
   }
 
