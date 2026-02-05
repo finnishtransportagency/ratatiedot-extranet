@@ -148,50 +148,6 @@ export function validateFileInVersion(fileTypes: string[], fileName: string, ver
 }
 
 /**
- * Determine which version to use for download
- * If no version requested and current version is UNCONFIRMED, find newest OFFICIAL version
- * @param database Database client instance
- * @param baliseId Secondary ID of the balise
- * @param requestedVersion Version explicitly requested by user (or undefined)
- * @param currentBalise Current balise object
- * @returns Version number to use for download
- * @throws Error with 404 status if no OFFICIAL version found
- */
-export async function resolveDownloadVersion(
-  database: PrismaClient,
-  baliseId: number,
-  requestedVersion: number | undefined,
-  currentBalise: Balise,
-): Promise<number> {
-  // If user explicitly requested a version, use it
-  if (requestedVersion !== undefined) {
-    return requestedVersion;
-  }
-
-  // If current version is OFFICIAL, use it
-  if (currentBalise.versionStatus === VersionStatus.OFFICIAL) {
-    return currentBalise.version;
-  }
-
-  // Current version is UNCONFIRMED, find newest OFFICIAL version from history
-  const newestOfficialVersion = await database.baliseVersion.findFirst({
-    where: {
-      secondaryId: baliseId,
-      versionStatus: VersionStatus.OFFICIAL,
-    },
-    orderBy: {
-      version: 'desc',
-    },
-  });
-
-  if (!newestOfficialVersion) {
-    throw new RataExtraLambdaError(`Baliisille ${baliseId} ei löydy vahvistettua versiota`, 404);
-  }
-
-  return newestOfficialVersion.version;
-}
-
-/**
  * Resolve multiple balises to show latest OFFICIAL versions (optimized for bulk operations)
  * Admins and lock owners see UNCONFIRMED versions as-is
  * Other users see latest OFFICIAL version data from history
