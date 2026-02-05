@@ -1,7 +1,28 @@
 import type { ALBEventQueryStringParameters } from 'aws-lambda';
-import { Balise, PrismaClient, VersionStatus } from '../generated/prisma/client';
+import { Balise, BaliseVersion, PrismaClient, VersionStatus } from '../generated/prisma/client';
 import { RataExtraUser } from './userService';
 import { RataExtraLambdaError } from './errors';
+
+/**
+ * Filter history array based on user permissions
+ * Admins see full history, lock owners see lockedAtVersion and above, others see nothing
+ * @param history Full history array
+ * @param lockedAtVersion Version number when balise was locked
+ * @param isLockOwner Whether the current user is the lock owner
+ * @param isAdmin Whether the current user is an admin
+ * @returns Filtered history array
+ */
+export function filterHistoryForUser(
+  history: BaliseVersion[],
+  lockedAtVersion: number | null,
+  isLockOwner: boolean,
+  isAdmin: boolean,
+): BaliseVersion[] {
+  if (isAdmin) return history;
+  if (!isLockOwner) return [];
+  if (lockedAtVersion === null) return [];
+  return history.filter((v) => v.version >= lockedAtVersion);
+}
 
 /**
  * Parse version parameter from query string parameters
