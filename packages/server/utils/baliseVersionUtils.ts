@@ -1,4 +1,4 @@
-import { APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
+import type { ALBEventQueryStringParameters } from 'aws-lambda';
 import { Balise, PrismaClient, VersionStatus } from '../generated/prisma/client';
 import { RataExtraUser } from './userService';
 import { RataExtraLambdaError } from './errors';
@@ -8,9 +8,7 @@ import { RataExtraLambdaError } from './errors';
  * @param queryStringParameters Query string parameters from the request
  * @returns Parsed version number or undefined if not provided or invalid
  */
-export function parseVersionParameter(
-  queryStringParameters?: APIGatewayProxyEventQueryStringParameters | null,
-): number | undefined {
+export function parseVersionParameter(queryStringParameters?: ALBEventQueryStringParameters): number | undefined {
   const versionStr = queryStringParameters?.version;
   if (!versionStr) {
     return undefined;
