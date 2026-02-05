@@ -52,6 +52,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   const [errorType, setErrorType] = useState<'locked' | 'already_locked' | 'error' | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [saveConfirmDialogOpen, setSaveConfirmDialogOpen] = useState(false);
+  const [unlockConfirmDialogOpen, setUnlockConfirmDialogOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
@@ -209,6 +210,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   const handleLockToggle = useCallback(async () => {
     if (!balise) return;
 
+    // If unlocking and version has changed, show confirmation dialog
+    if (balise.lockedAtVersion && balise.version > balise.lockedAtVersion) {
+      setUnlockConfirmDialogOpen(true);
+      return;
+    }
+
     setActionLoading(true);
     setError(null);
     setErrorType(null);
@@ -248,6 +255,44 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       setActionLoading(false);
     }
   }, [balise, lockBalise, unlockBalise, onRefresh]);
+
+  const handleUnlockConfirm = useCallback(async () => {
+    if (!balise) return;
+
+    setUnlockConfirmDialogOpen(false);
+    setActionLoading(true);
+    setError(null);
+    setErrorType(null);
+
+    try {
+      await unlockBalise(balise.secondaryId);
+      if (onRefresh) {
+        await onRefresh();
+      }
+    } catch (err) {
+      // Try to parse error response for errorType
+      if (err instanceof Error) {
+        try {
+          const errorData = JSON.parse(err.message);
+          if (errorData.errorType) {
+            setErrorType(errorData.errorType);
+            setError(errorData.error || errorData.message || err.message);
+          } else {
+            setErrorType('error');
+            setError(err.message);
+          }
+        } catch {
+          setErrorType('error');
+          setError(err.message);
+        }
+      } else {
+        setErrorType('error');
+        setError('Failed to unlock balise');
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  }, [balise, unlockBalise, onRefresh]);
 
   return (
     <Box
@@ -515,6 +560,27 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
           </Button>
           <Button onClick={handleSave} color="primary" variant="contained" disabled={loading}>
             {loading ? 'Tallennetaan...' : 'Tallenna muutokset'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Unlock Confirmation Dialog */}
+      <Dialog open={unlockConfirmDialogOpen} onClose={() => setUnlockConfirmDialogOpen(false)}>
+        <DialogTitle>Vahvista lukituksen avaaminen</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Lukituksen avaaminen asettaa version {balise?.version} viralliseksi versioksi.
+          </DialogContentText>
+          <Alert severity="info" sx={{ mt: 2 }}>
+            Aiemmat versiot säilyvät versiohistoriassa.
+          </Alert>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setUnlockConfirmDialogOpen(false)} disabled={actionLoading}>
+            Peruuta
+          </Button>
+          <Button onClick={handleUnlockConfirm} color="primary" variant="contained" disabled={actionLoading}>
+            {actionLoading ? 'Avataan lukitusta...' : 'Avaa lukitus'}
           </Button>
         </DialogActions>
       </Dialog>
