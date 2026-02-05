@@ -4,6 +4,7 @@ import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { Tag } from '../../components/Tag';
 import { downloadBaliseFiles } from '../../utils/download';
 import type { BaliseWithHistory, Balise, BaliseVersion } from './types';
+import { VersionStatus } from './types';
 
 const pulseAnimation = {
   '@keyframes pulse': {
@@ -52,7 +53,8 @@ export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({ ba
     // Lock owner: show lockedAtVersion (latest official) and drafts
     visibleVersions = [balise, ...(balise.history || [])].filter(
       (v) =>
-        (v.versionStatus === 'OFFICIAL' && v.version === balise.lockedAtVersion) || v.versionStatus === 'UNCONFIRMED',
+        (v.versionStatus === VersionStatus.OFFICIAL && v.version === balise.lockedAtVersion) ||
+        v.versionStatus === VersionStatus.UNCONFIRMED,
     );
   }
 
@@ -156,9 +158,10 @@ export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({ ba
         const isCurrent = index === 0;
         const isExpanded = expandedVersions.has(isCurrent ? 'current' : version.id);
         const isLast = index === filteredVersions.length - 1;
-        const isDraft = version.versionStatus === 'UNCONFIRMED';
+        const isDraft = version.versionStatus === VersionStatus.UNCONFIRMED;
         // Locked baseline: the official version that was locked at
-        const isLockedBaseline = version.version === balise.lockedAtVersion && version.versionStatus === 'OFFICIAL';
+        const isLockedBaseline =
+          version.version === balise.lockedAtVersion && version.versionStatus === VersionStatus.OFFICIAL;
 
         return (
           <Box

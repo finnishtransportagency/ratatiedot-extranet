@@ -8,6 +8,7 @@ import { FileUploadZone } from './components/FileUploadZone';
 import { useFileDragDrop } from './hooks/useFileDragDrop';
 import { getDisplayVersion, canSeeDrafts } from './utils/utils';
 import type { BaliseWithHistory } from './types';
+import { VersionStatus } from './types';
 
 interface BaliseFileManagerProps {
   isCreate: boolean;
@@ -76,7 +77,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
 
   // Label for file list
   let fileListLabel = 'Nykyiset tiedostot';
-  if (displayVersion && displayVersion.versionStatus === 'UNCONFIRMED') {
+  if (displayVersion && displayVersion.versionStatus === VersionStatus.UNCONFIRMED) {
     fileListLabel = 'Luonnoksen tiedostot';
   }
 

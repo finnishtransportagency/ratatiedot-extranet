@@ -14,7 +14,10 @@ export interface Section {
   updatedTime?: string | Date;
 }
 
-export type VersionStatus = 'OFFICIAL' | 'UNCONFIRMED';
+export enum VersionStatus {
+  OFFICIAL = 'OFFICIAL',
+  UNCONFIRMED = 'UNCONFIRMED',
+}
 
 export interface BaliseVersion {
   id: string;
