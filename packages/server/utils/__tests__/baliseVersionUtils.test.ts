@@ -5,7 +5,6 @@ import {
   validateLockOwnerVersionAccess,
   getVersionFileTypes,
   validateFileInVersion,
-  resolveDownloadVersion,
   resolveBalisesForUser,
   filterHistoryForUser,
 } from '../baliseVersionUtils';
@@ -349,95 +348,6 @@ describe('baliseVersionUtils', () => {
         expect((error as Error).message).toContain('missing.pdf');
         expect((error as { statusCode: number }).statusCode).toBe(404);
       }
-    });
-  });
-
-  describe('resolveDownloadVersion', () => {
-    beforeEach(() => {
-      mockFindFirst.mockReset();
-    });
-
-    it('should return requested version when specified', async () => {
-      const balise = createMockBalise({ version: 5 });
-      const result = await resolveDownloadVersion(mockDatabase, 12345, 3, balise);
-
-      expect(result).toBe(3);
-      expect(mockFindFirst).not.toHaveBeenCalled();
-    });
-
-    it('should return current version when it is OFFICIAL and no version requested', async () => {
-      const balise = createMockBalise({
-        version: 5,
-        versionStatus: VersionStatus.OFFICIAL,
-      });
-      const result = await resolveDownloadVersion(mockDatabase, 12345, undefined, balise);
-
-      expect(result).toBe(5);
-      expect(mockFindFirst).not.toHaveBeenCalled();
-    });
-
-    it('should find newest OFFICIAL version when current is UNCONFIRMED', async () => {
-      const balise = createMockBalise({
-        secondaryId: 12345,
-        version: 6,
-        versionStatus: VersionStatus.UNCONFIRMED,
-      });
-
-      mockFindFirst.mockResolvedValue({ version: 4 });
-
-      const result = await resolveDownloadVersion(mockDatabase, 12345, undefined, balise);
-
-      expect(result).toBe(4);
-      expect(mockFindFirst).toHaveBeenCalledWith({
-        where: {
-          secondaryId: 12345,
-          versionStatus: VersionStatus.OFFICIAL,
-        },
-        orderBy: {
-          version: 'desc',
-        },
-      });
-    });
-
-    it('should throw 404 when no OFFICIAL version exists', async () => {
-      const balise = createMockBalise({
-        secondaryId: 12345,
-        version: 2,
-        versionStatus: VersionStatus.UNCONFIRMED,
-      });
-
-      mockFindFirst.mockResolvedValue(null);
-
-      await expect(resolveDownloadVersion(mockDatabase, 12345, undefined, balise)).rejects.toThrow();
-
-      try {
-        await resolveDownloadVersion(mockDatabase, 12345, undefined, balise);
-      } catch (error: unknown) {
-        expect((error as Error).message).toContain('vahvistettua versiota');
-        expect((error as { statusCode: number }).statusCode).toBe(404);
-      }
-    });
-
-    it('should query for OFFICIAL version correctly', async () => {
-      const balise = createMockBalise({
-        secondaryId: 999,
-        version: 10,
-        versionStatus: VersionStatus.UNCONFIRMED,
-      });
-
-      mockFindFirst.mockResolvedValue({ version: 8 });
-
-      await resolveDownloadVersion(mockDatabase, 999, undefined, balise);
-
-      expect(mockFindFirst).toHaveBeenCalledWith({
-        where: {
-          secondaryId: 999,
-          versionStatus: VersionStatus.OFFICIAL,
-        },
-        orderBy: {
-          version: 'desc',
-        },
-      });
     });
   });
 
