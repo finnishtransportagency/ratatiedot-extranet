@@ -67,23 +67,27 @@ export const useFileDragDrop = (onFilesDropped: (files: File[]) => void) => {
 
       // Process all dropped items
       for (const item of items) {
-        if (item.kind === 'file') {
-          const entry = item.webkitGetAsEntry();
+        if (item.kind !== 'file') continue;
 
-          if (entry) {
-            if (entry.isFile) {
-              const file = item.getAsFile();
-              if (file) allFiles.push(file);
-            } else if (entry.isDirectory) {
-              // Recursively read all files from the directory
-              const dirFiles = await readDirectory(entry as FileSystemDirectoryEntry);
-              allFiles.push(...dirFiles);
-            }
-          } else {
-            // Fallback for browsers that don't support webkitGetAsEntry
-            const file = item.getAsFile();
-            if (file) allFiles.push(file);
-          }
+        const entry = item.webkitGetAsEntry();
+
+        if (!entry) {
+          // Fallback for browsers that don't support webkitGetAsEntry
+          const file = item.getAsFile();
+          if (file) allFiles.push(file);
+          continue;
+        }
+
+        if (entry.isFile) {
+          const file = item.getAsFile();
+          if (file) allFiles.push(file);
+          continue;
+        }
+
+        if (entry.isDirectory) {
+          // Recursively read all files from the directory
+          const dirFiles = await readDirectory(entry as FileSystemDirectoryEntry);
+          allFiles.push(...dirFiles);
         }
       }
 
