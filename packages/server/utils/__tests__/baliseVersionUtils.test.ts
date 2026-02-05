@@ -7,8 +7,9 @@ import {
   validateFileInVersion,
   resolveDownloadVersion,
   resolveBalisesForUser,
+  filterHistoryForUser,
 } from '../baliseVersionUtils';
-import { PrismaClient, VersionStatus, Balise } from '../../generated/prisma/client';
+import { PrismaClient, VersionStatus, Balise, BaliseVersion } from '../../generated/prisma/client';
 import { RataExtraUser } from '../userService';
 
 // Mock Prisma Client
@@ -73,7 +74,7 @@ describe('baliseVersionUtils', () => {
     });
 
     it('should return undefined when version parameter is missing', () => {
-      const result = parseVersionParameter(null);
+      const result = parseVersionParameter(undefined);
       expect(result).toBeUndefined();
     });
 
@@ -786,6 +787,125 @@ describe('baliseVersionUtils', () => {
       expect(result.find((b) => b.secondaryId === 1)?.versionStatus).toBe(VersionStatus.UNCONFIRMED);
       // Other's locked balise should be resolved to OFFICIAL
       expect(result.find((b) => b.secondaryId === 2)?.version).toBe(5);
+    });
+  });
+
+  describe('filterHistoryForUser', () => {
+    // Test data factory
+    const createMockVersion = (version: number): BaliseVersion => ({
+      id: `version-${version}`,
+      baliseId: 'balise-1',
+      secondaryId: 12345,
+      version,
+      versionStatus: VersionStatus.OFFICIAL,
+      description: `Version ${version}`,
+      fileTypes: ['file.xml'],
+      createdBy: 'user1',
+      createdTime: new Date('2024-01-01'),
+      locked: false,
+      lockedBy: null,
+      lockedTime: null,
+      versionCreatedTime: new Date('2024-01-01'),
+    });
+
+    describe('admin access', () => {
+      it('should return full history for admin users', () => {
+        const history = [createMockVersion(1), createMockVersion(2), createMockVersion(3)];
+        const result = filterHistoryForUser(history, 2, false, true);
+        expect(result).toEqual(history);
+        expect(result).toHaveLength(3);
+      });
+
+      it('should return full history for admin even when lockedAtVersion is null', () => {
+        const history = [createMockVersion(1), createMockVersion(2), createMockVersion(3)];
+        const result = filterHistoryForUser(history, null, false, true);
+        expect(result).toEqual(history);
+        expect(result).toHaveLength(3);
+      });
+
+      it('should return full history when user is both admin and lock owner', () => {
+        const history = [createMockVersion(1), createMockVersion(2), createMockVersion(3)];
+        const result = filterHistoryForUser(history, 2, true, true);
+        expect(result).toEqual(history);
+        expect(result).toHaveLength(3);
+      });
+    });
+
+    describe('non-lock-owner access', () => {
+      it('should return empty array for non-lock-owners', () => {
+        const history = [createMockVersion(1), createMockVersion(2), createMockVersion(3)];
+        const result = filterHistoryForUser(history, 2, false, false);
+        expect(result).toEqual([]);
+      });
+
+      it('should return empty array for non-lock-owners even with lockedAtVersion null', () => {
+        const history = [createMockVersion(1), createMockVersion(2), createMockVersion(3)];
+        const result = filterHistoryForUser(history, null, false, false);
+        expect(result).toEqual([]);
+      });
+    });
+
+    describe('lock owner filtering', () => {
+      it('should filter versions >= lockedAtVersion for lock owners', () => {
+        const history = [createMockVersion(1), createMockVersion(2), createMockVersion(3), createMockVersion(4)];
+        const result = filterHistoryForUser(history, 2, true, false);
+        expect(result).toHaveLength(3);
+        expect(result.map((v) => v.version)).toEqual([2, 3, 4]);
+      });
+
+      it('should return empty array when lockedAtVersion is null for lock owners', () => {
+        const history = [createMockVersion(1), createMockVersion(2), createMockVersion(3)];
+        const result = filterHistoryForUser(history, null, true, false);
+        expect(result).toEqual([]);
+      });
+
+      it('should include version exactly equal to lockedAtVersion', () => {
+        const history = [createMockVersion(1), createMockVersion(2), createMockVersion(3)];
+        const result = filterHistoryForUser(history, 2, true, false);
+        expect(result).toHaveLength(2);
+        expect(result.map((v) => v.version)).toEqual([2, 3]);
+      });
+
+      it('should return all versions when lockedAtVersion is 0', () => {
+        const history = [createMockVersion(0), createMockVersion(1), createMockVersion(2)];
+        const result = filterHistoryForUser(history, 0, true, false);
+        expect(result).toHaveLength(3);
+        expect(result.map((v) => v.version)).toEqual([0, 1, 2]);
+      });
+
+      it('should return empty array when lockedAtVersion exceeds all history versions', () => {
+        const history = [createMockVersion(1), createMockVersion(2), createMockVersion(3)];
+        const result = filterHistoryForUser(history, 10, true, false);
+        expect(result).toEqual([]);
+      });
+    });
+
+    describe('edge cases', () => {
+      it('should handle empty history array', () => {
+        const result = filterHistoryForUser([], 2, true, false);
+        expect(result).toEqual([]);
+      });
+
+      it('should handle single version in history', () => {
+        const history = [createMockVersion(5)];
+        const result = filterHistoryForUser(history, 5, true, false);
+        expect(result).toHaveLength(1);
+        expect(result[0].version).toBe(5);
+      });
+
+      it('should handle unsorted version numbers correctly', () => {
+        const history = [createMockVersion(5), createMockVersion(1), createMockVersion(3)];
+        const result = filterHistoryForUser(history, 3, true, false);
+        expect(result).toHaveLength(2);
+        expect(result.map((v) => v.version).sort()).toEqual([3, 5]);
+      });
+
+      it('should handle non-sequential version numbers', () => {
+        const history = [createMockVersion(1), createMockVersion(5), createMockVersion(10), createMockVersion(20)];
+        const result = filterHistoryForUser(history, 5, true, false);
+        expect(result).toHaveLength(3);
+        expect(result.map((v) => v.version)).toEqual([5, 10, 20]);
+      });
     });
   });
 });
