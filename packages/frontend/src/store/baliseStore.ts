@@ -39,6 +39,10 @@ export interface BaliseState {
   setBalises: (balises: BaliseWithHistory[], pagination?: PaginationInfo) => void;
   updateBalise: (balise: BaliseWithHistory) => void;
   deleteBalise: (secondaryId: number) => Promise<void>;
+  bulkDeleteBalises: (
+    baliseIds: number[],
+    onProgress?: (current: number, total: number, successCount: number, failureCount: number) => void,
+  ) => Promise<{ successCount: number; failureCount: number; skippedCount: number; failedIds: number[] }>;
   lockBalise: (secondaryId: number) => Promise<void>;
   unlockBalise: (secondaryId: number) => Promise<void>;
   setInitialLoading: (loading: boolean) => void;
@@ -272,6 +276,91 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
       console.error('Failed to delete balise:', error);
       throw error;
     }
+  },
+
+  bulkDeleteBalises: async (baliseIds, onProgress) => {
+    const BATCH_SIZE = 100;
+    const BATCH_DELAY = 500; // ms between batches
+
+    let totalSuccess = 0;
+    let totalFailure = 0;
+    let totalSkipped = 0;
+    const allFailedIds: number[] = [];
+
+    // Split into batches
+    const batches: number[][] = [];
+    for (let i = 0; i < baliseIds.length; i += BATCH_SIZE) {
+      batches.push(baliseIds.slice(i, i + BATCH_SIZE));
+    }
+
+    // Process each batch sequentially
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+      const batch = batches[batchIndex];
+
+      try {
+        const response = await fetch('/api/balise/bulk-delete', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ baliseIds: batch }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to delete batch');
+        }
+
+        const result = await response.json();
+        totalSuccess += result.successCount;
+        totalFailure += result.failureCount;
+        totalSkipped += result.skippedCount;
+
+        // Collect failed IDs
+        const failedInBatch = result.results
+          .filter((r: { success: boolean }) => !r.success)
+          .map((r: { baliseId: number }) => r.baliseId);
+        allFailedIds.push(...failedInBatch);
+
+        // Update progress
+        if (onProgress) {
+          onProgress(batchIndex + 1, batches.length, totalSuccess, totalFailure);
+        }
+
+        // Remove successfully deleted balises from local state
+        const successfullyDeleted = result.results
+          .filter((r: { success: boolean }) => r.success)
+          .map((r: { baliseId: number }) => r.baliseId);
+
+        if (successfullyDeleted.length > 0) {
+          set((state) => ({
+            balises: state.balises.filter((balise) => !successfullyDeleted.includes(balise.secondaryId)),
+          }));
+        }
+      } catch (error) {
+        console.error(`Failed to delete batch ${batchIndex + 1}:`, error);
+        // Track all IDs in this batch as failed
+        allFailedIds.push(...batch);
+        totalFailure += batch.length;
+
+        // Update progress even on failure
+        if (onProgress) {
+          onProgress(batchIndex + 1, batches.length, totalSuccess, totalFailure);
+        }
+      }
+
+      // Delay between batches (except for the last one)
+      if (batchIndex < batches.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY));
+      }
+    }
+
+    return {
+      successCount: totalSuccess,
+      failureCount: totalFailure,
+      skippedCount: totalSkipped,
+      failedIds: allFailedIds,
+    };
   },
 
   lockBalise: async (secondaryId) => {

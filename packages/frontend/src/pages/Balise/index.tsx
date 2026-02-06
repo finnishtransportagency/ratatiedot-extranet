@@ -1,11 +1,13 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
-import { Box, Alert, Button, Paper, IconButton, Chip, LinearProgress, CircularProgress } from '@mui/material';
-import { Add, Download, Delete, Lock, Upload, Build } from '@mui/icons-material';
+import { Box, Alert, Button, Paper, IconButton, LinearProgress, CircularProgress } from '@mui/material';
+import { Add, Upload, Build } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
 import { SectionFilter } from './Section/SectionFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
+import { BulkActionsBar } from './components/BulkActionsBar';
+import { BulkDeleteDialogs } from './components/BulkDeleteDialogs';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
 import { downloadBaliseFiles, downloadMultipleBaliseFiles } from '../../utils/download';
@@ -17,6 +19,21 @@ export const BalisePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteProgress, setDeleteProgress] = useState<{
+    show: boolean;
+    current: number;
+    total: number;
+    successCount: number;
+    failureCount: number;
+  }>({ show: false, current: 0, total: 0, successCount: 0, failureCount: 0 });
+  const [deleteResult, setDeleteResult] = useState<{
+    show: boolean;
+    successCount: number;
+    failureCount: number;
+    skippedCount: number;
+    failedIds: number[];
+  } | null>(null);
 
   // Permissions
   const { permissions } = useBalisePermissions();
@@ -35,6 +52,7 @@ export const BalisePage: React.FC = () => {
     loadMoreBalises,
     refreshBalise,
     clearCache,
+    bulkDeleteBalises,
   } = useBaliseStore();
 
   // Load section options on mount
@@ -168,9 +186,116 @@ export const BalisePage: React.FC = () => {
 
   // Bulk actions
   const handleBulkDelete = useCallback(() => {
-    console.log('Bulk delete:', selectedItems);
-    setSelectedItems([]);
-  }, [selectedItems]);
+    setDeleteDialogOpen(true);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    setDeleteDialogOpen(false);
+
+    // Get balise IDs from selected items
+    const baliseIds = balises.filter((b) => selectedItems.includes(b.id)).map((b) => b.secondaryId);
+
+    if (baliseIds.length === 0) return;
+
+    // Calculate total batches for display
+    const BATCH_SIZE = 100;
+    const totalBatches = Math.ceil(baliseIds.length / BATCH_SIZE);
+
+    // Show progress
+    setDeleteProgress({
+      show: true,
+      current: 0,
+      total: totalBatches,
+      successCount: 0,
+      failureCount: 0,
+    });
+
+    try {
+      const result = await bulkDeleteBalises(baliseIds, (current, total, successCount, failureCount) => {
+        setDeleteProgress({
+          show: true,
+          current,
+          total,
+          successCount,
+          failureCount,
+        });
+      });
+
+      // Hide progress and show result
+      setDeleteProgress({ show: false, current: 0, total: 0, successCount: 0, failureCount: 0 });
+      setDeleteResult({
+        show: true,
+        successCount: result.successCount,
+        failureCount: result.failureCount,
+        skippedCount: result.skippedCount,
+        failedIds: result.failedIds,
+      });
+      setSelectedItems([]);
+    } catch (error) {
+      console.error('Bulk delete failed:', error);
+      setDeleteProgress({ show: false, current: 0, total: 0, successCount: 0, failureCount: 0 });
+      setDeleteResult({
+        show: true,
+        successCount: 0,
+        failureCount: baliseIds.length,
+        skippedCount: 0,
+        failedIds: baliseIds,
+      });
+    }
+  }, [selectedItems, balises, bulkDeleteBalises]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteDialogOpen(false);
+  }, []);
+
+  const handleRetryFailed = useCallback(async () => {
+    if (!deleteResult || deleteResult.failedIds.length === 0) return;
+
+    const failedIds = deleteResult.failedIds;
+    setDeleteResult(null);
+
+    // Calculate total batches for display
+    const BATCH_SIZE = 100;
+    const totalBatches = Math.ceil(failedIds.length / BATCH_SIZE);
+
+    // Show progress
+    setDeleteProgress({
+      show: true,
+      current: 0,
+      total: totalBatches,
+      successCount: 0,
+      failureCount: 0,
+    });
+
+    try {
+      const result = await bulkDeleteBalises(failedIds, (current, total, successCount, failureCount) => {
+        setDeleteProgress({
+          show: true,
+          current,
+          total,
+          successCount,
+          failureCount,
+        });
+      });
+
+      // Hide progress and show result
+      setDeleteProgress({ show: false, current: 0, total: 0, successCount: 0, failureCount: 0 });
+      setDeleteResult({
+        show: true,
+        successCount: result.successCount,
+        failureCount: result.failureCount,
+        skippedCount: result.skippedCount,
+        failedIds: result.failedIds,
+      });
+    } catch (error) {
+      console.error('Retry failed:', error);
+      setDeleteProgress({ show: false, current: 0, total: 0, successCount: 0, failureCount: 0 });
+    }
+  }, [deleteResult, bulkDeleteBalises]);
+
+  const handleCloseResult = useCallback(() => {
+    setDeleteResult(null);
+  }, []);
 
   const handleBulkLock = useCallback(() => {
     console.log('Bulk lock:', selectedItems);
@@ -308,67 +433,14 @@ export const BalisePage: React.FC = () => {
         </Paper>
 
         {/* Bulk selection actions - shown when items are selected with animation */}
-        {selectedItems.length > 0 && (
-          <Paper
-            sx={{
-              p: 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              mb: 1,
-              flexShrink: 0,
-              backgroundColor: 'action.selected',
-              animation: 'slideIn 0.3s ease-in-out',
-              '@keyframes slideIn': {
-                '0%': {
-                  opacity: 0,
-                  transform: 'translateY(-10px)',
-                },
-                '100%': {
-                  opacity: 1,
-                  transform: 'translateY(0)',
-                },
-              },
-            }}
-            variant="outlined"
-          >
-            <Button
-              size="small"
-              variant="outlined"
-              color="primary"
-              startIcon={<Download fontSize="small" />}
-              onClick={handleBulkDownload}
-              title="Lataa valitut sanomat"
-            >
-              Lataa
-            </Button>
-            {permissions?.canWrite && (
-              <Button
-                variant="outlined"
-                color="secondary"
-                startIcon={<Lock fontSize="small" />}
-                size="small"
-                onClick={handleBulkLock}
-                title="Lukitse/Poista lukitus"
-              >
-                Lukitse
-              </Button>
-            )}
-            {permissions?.isAdmin && (
-              <Button
-                variant="outlined"
-                startIcon={<Delete fontSize="small" />}
-                size="small"
-                onClick={handleBulkDelete}
-                title="Poista"
-                color="error"
-              >
-                Poista
-              </Button>
-            )}
-            <Chip label={`${selectedItems.length} valittu`} size="small" color="primary" />
-          </Paper>
-        )}
+        <BulkActionsBar
+          selectedCount={selectedItems.length}
+          canWrite={permissions?.canWrite}
+          isAdmin={permissions?.isAdmin}
+          onBulkDownload={handleBulkDownload}
+          onBulkLock={handleBulkLock}
+          onBulkDelete={handleBulkDelete}
+        />
 
         <Paper
           variant="outlined"
@@ -396,6 +468,17 @@ export const BalisePage: React.FC = () => {
             totalCount={pagination?.totalCount ?? filteredData.length}
           />
         </Paper>
+
+        <BulkDeleteDialogs
+          selectedCount={selectedItems.length}
+          deleteDialogOpen={deleteDialogOpen}
+          deleteProgress={deleteProgress}
+          deleteResult={deleteResult}
+          onDeleteConfirm={handleDeleteConfirm}
+          onDeleteCancel={handleDeleteCancel}
+          onRetryFailed={handleRetryFailed}
+          onCloseResult={handleCloseResult}
+        />
       </Box>
     </BalisePermissionGuard>
   );
