@@ -238,16 +238,22 @@ async function deleteSingleBalise(balise: BaliseWithHistory, userUid: string): P
   }
 }
 
-// Process bulk deletion
+// Process bulk deletion with concurrency control
 async function processBulkDeletion(baliseIds: number[], userUid: string): Promise<BulkDeleteResponse> {
   // Fetch balises and filter out locked ones
   const { balises, skipped } = await fetchBalisesForDeletion(baliseIds);
 
   log.info(`[${userUid}] Processing bulk delete: ${balises.length} balises, ${skipped.length} skipped`);
 
-  // Process deletions in parallel (no concurrency limit, matching upload pattern)
-  const deletePromises = balises.map((balise) => deleteSingleBalise(balise, userUid));
-  const results = await Promise.all(deletePromises);
+  // Process deletions with concurrency limit to avoid overwhelming database connection pool
+  const CONCURRENCY_LIMIT = 5;
+  const results: DeleteResult[] = [];
+
+  for (let i = 0; i < balises.length; i += CONCURRENCY_LIMIT) {
+    const chunk = balises.slice(i, i + CONCURRENCY_LIMIT);
+    const chunkResults = await Promise.all(chunk.map((balise) => deleteSingleBalise(balise, userUid)));
+    results.push(...chunkResults);
+  }
 
   // Add skipped results
   const skippedResults: DeleteResult[] = skipped.map((baliseId) => ({
