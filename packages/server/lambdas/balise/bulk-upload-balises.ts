@@ -18,10 +18,12 @@ interface BulkFileUpload {
 
 interface UploadResult {
   baliseId: number;
-  newVersion: number;
+  success: boolean;
+  newVersion?: number;
   previousVersion?: number; // undefined for new balises
-  filesUploaded: number;
-  isNewBalise: boolean; // true if balise was created, false if updated
+  filesUploaded?: number;
+  isNewBalise?: boolean; // true if balise was created, false if updated
+  error?: string;
 }
 
 /**
@@ -202,29 +204,39 @@ async function processBaliseFiles(
     buffer: file.buffer,
   }));
 
-  const result = await updateOrCreateBalise({
-    baliseId,
-    files: sharedFiles,
-    description,
-    userId: user.uid,
-  });
+  try {
+    const result = await updateOrCreateBalise({
+      baliseId,
+      files: sharedFiles,
+      description,
+      userId: user.uid,
+    });
 
-  log.info(
-    user,
-    `Successfully uploaded ${result.filesUploaded} files to balise ${baliseId}, version ${result.newVersion}`,
-  );
+    log.info(
+      user,
+      `Successfully uploaded ${result.filesUploaded} files to balise ${baliseId}, version ${result.newVersion}`,
+    );
 
-  return {
-    baliseId,
-    newVersion: result.newVersion,
-    previousVersion: result.previousVersion,
-    filesUploaded: result.filesUploaded,
-    isNewBalise: result.isNewBalise,
-  };
+    return {
+      baliseId,
+      success: true,
+      newVersion: result.newVersion,
+      previousVersion: result.previousVersion,
+      filesUploaded: result.filesUploaded,
+      isNewBalise: result.isNewBalise,
+    };
+  } catch (error) {
+    log.error(user, `Failed to upload balise ${baliseId}: ${error}`);
+    return {
+      baliseId,
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
 }
 
 /**
- * Process all balise files and return results
+ * Process all balise files with concurrency control
  */
 async function processAllBalises(
   groupedFiles: Map<number, BulkFileUpload[]>,
@@ -232,11 +244,20 @@ async function processAllBalises(
   globalDescription: string | undefined,
   user: RataExtraUser,
 ): Promise<UploadResult[]> {
+  const CONCURRENCY_LIMIT = 10;
+  const entries = Array.from(groupedFiles);
   const results: UploadResult[] = [];
 
-  for (const [baliseId, files] of groupedFiles) {
-    const result = await processBaliseFiles(baliseId, files, baliseDescriptions, globalDescription, user);
-    results.push(result);
+  log.info(user, `Processing ${entries.length} balises with concurrency limit of ${CONCURRENCY_LIMIT}`);
+
+  for (let i = 0; i < entries.length; i += CONCURRENCY_LIMIT) {
+    const chunk = entries.slice(i, i + CONCURRENCY_LIMIT);
+    const chunkResults = await Promise.all(
+      chunk.map(([baliseId, files]) =>
+        processBaliseFiles(baliseId, files, baliseDescriptions, globalDescription, user),
+      ),
+    );
+    results.push(...chunkResults);
   }
 
   return results;
@@ -283,16 +304,24 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     const results = await processAllBalises(groupedFiles, baliseDescriptions, globalDescription, user);
 
+    const successCount = results.filter((r) => r.success).length;
+    const failureCount = results.filter((r) => !r.success).length;
+    const allSucceeded = failureCount === 0;
+
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        success: true,
-        message: `Tiedostot ladattu onnistuneesti ${results.length} baliisiin`,
+        success: allSucceeded,
+        message: allSucceeded
+          ? `Tiedostot ladattu onnistuneesti ${results.length} baliisiin`
+          : `Lataus valmis: ${successCount} onnistui, ${failureCount} epäonnistui`,
         results,
         invalidFiles,
         totalFiles: fileUploads.length,
         totalBalises: groupedFiles.size,
+        successCount,
+        failureCount,
       }),
     };
   } catch (err) {
