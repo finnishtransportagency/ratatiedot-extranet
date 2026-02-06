@@ -8,6 +8,7 @@ import { SectionFilter } from './Section/SectionFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
 import { BulkActionsBar } from './components/BulkActionsBar';
 import { BulkDeleteDialogs } from './components/BulkDeleteDialogs';
+import { useBulkDelete } from './hooks/useBulkDelete';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
 import { downloadBaliseFiles, downloadMultipleBaliseFiles } from '../../utils/download';
@@ -19,21 +20,6 @@ export const BalisePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteProgress, setDeleteProgress] = useState<{
-    show: boolean;
-    current: number;
-    total: number;
-    successCount: number;
-    failureCount: number;
-  }>({ show: false, current: 0, total: 0, successCount: 0, failureCount: 0 });
-  const [deleteResult, setDeleteResult] = useState<{
-    show: boolean;
-    successCount: number;
-    failureCount: number;
-    skippedCount: number;
-    failedIds: number[];
-  } | null>(null);
 
   // Permissions
   const { permissions } = useBalisePermissions();
@@ -52,8 +38,19 @@ export const BalisePage: React.FC = () => {
     loadMoreBalises,
     refreshBalise,
     clearCache,
-    bulkDeleteBalises,
   } = useBaliseStore();
+
+  // Bulk delete functionality
+  const {
+    deleteDialogOpen,
+    deleteProgress,
+    deleteResult,
+    handleBulkDelete,
+    handleDeleteConfirm,
+    handleDeleteCancel,
+    handleRetryFailed,
+    handleCloseResult,
+  } = useBulkDelete(selectedItems, balises, () => setSelectedItems([]));
 
   // Load section options on mount
   useEffect(() => {
@@ -184,119 +181,7 @@ export const BalisePage: React.FC = () => {
     setSelectedItems((prev) => (prev.length === allIds.length ? [] : allIds));
   }, [filteredData]);
 
-  // Bulk actions
-  const handleBulkDelete = useCallback(() => {
-    setDeleteDialogOpen(true);
-  }, []);
-
-  const handleDeleteConfirm = useCallback(async () => {
-    setDeleteDialogOpen(false);
-
-    // Get balise IDs from selected items
-    const baliseIds = balises.filter((b) => selectedItems.includes(b.id)).map((b) => b.secondaryId);
-
-    if (baliseIds.length === 0) return;
-
-    // Calculate total batches for display
-    const BATCH_SIZE = 100;
-    const totalBatches = Math.ceil(baliseIds.length / BATCH_SIZE);
-
-    // Show progress
-    setDeleteProgress({
-      show: true,
-      current: 0,
-      total: totalBatches,
-      successCount: 0,
-      failureCount: 0,
-    });
-
-    try {
-      const result = await bulkDeleteBalises(baliseIds, (current, total, successCount, failureCount) => {
-        setDeleteProgress({
-          show: true,
-          current,
-          total,
-          successCount,
-          failureCount,
-        });
-      });
-
-      // Hide progress and show result
-      setDeleteProgress({ show: false, current: 0, total: 0, successCount: 0, failureCount: 0 });
-      setDeleteResult({
-        show: true,
-        successCount: result.successCount,
-        failureCount: result.failureCount,
-        skippedCount: result.skippedCount,
-        failedIds: result.failedIds,
-      });
-      setSelectedItems([]);
-    } catch (error) {
-      console.error('Bulk delete failed:', error);
-      setDeleteProgress({ show: false, current: 0, total: 0, successCount: 0, failureCount: 0 });
-      setDeleteResult({
-        show: true,
-        successCount: 0,
-        failureCount: baliseIds.length,
-        skippedCount: 0,
-        failedIds: baliseIds,
-      });
-    }
-  }, [selectedItems, balises, bulkDeleteBalises]);
-
-  const handleDeleteCancel = useCallback(() => {
-    setDeleteDialogOpen(false);
-  }, []);
-
-  const handleRetryFailed = useCallback(async () => {
-    if (!deleteResult || deleteResult.failedIds.length === 0) return;
-
-    const failedIds = deleteResult.failedIds;
-    setDeleteResult(null);
-
-    // Calculate total batches for display
-    const BATCH_SIZE = 100;
-    const totalBatches = Math.ceil(failedIds.length / BATCH_SIZE);
-
-    // Show progress
-    setDeleteProgress({
-      show: true,
-      current: 0,
-      total: totalBatches,
-      successCount: 0,
-      failureCount: 0,
-    });
-
-    try {
-      const result = await bulkDeleteBalises(failedIds, (current, total, successCount, failureCount) => {
-        setDeleteProgress({
-          show: true,
-          current,
-          total,
-          successCount,
-          failureCount,
-        });
-      });
-
-      // Hide progress and show result
-      setDeleteProgress({ show: false, current: 0, total: 0, successCount: 0, failureCount: 0 });
-      setDeleteResult({
-        show: true,
-        successCount: result.successCount,
-        failureCount: result.failureCount,
-        skippedCount: result.skippedCount,
-        failedIds: result.failedIds,
-      });
-    } catch (error) {
-      console.error('Retry failed:', error);
-      setDeleteProgress({ show: false, current: 0, total: 0, successCount: 0, failureCount: 0 });
-    }
-  }, [deleteResult, bulkDeleteBalises]);
-
-  const handleCloseResult = useCallback(() => {
-    setDeleteResult(null);
-  }, []);
-
+  // Other bulk actions
   const handleBulkLock = useCallback(() => {
     console.log('Bulk lock:', selectedItems);
     setSelectedItems([]);
