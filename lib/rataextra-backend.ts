@@ -448,7 +448,6 @@ export class RataExtraBackendStack extends NestedStack {
       ...prismaParameters,
       name: 'bulk-delete-balises',
       relativePath: '../packages/server/lambdas/balise/bulk-delete-balises.ts',
-      timeout: Duration.minutes(5),
     });
 
     const getBaliseDownloadUrl = this.createNodejsLambda({
