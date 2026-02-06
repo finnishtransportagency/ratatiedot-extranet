@@ -444,6 +444,13 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/balise/bulk-upload-balises.ts',
     });
 
+    const bulkDeleteBalises = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'bulk-delete-balises',
+      relativePath: '../packages/server/lambdas/balise/bulk-delete-balises.ts',
+      timeout: Duration.minutes(5),
+    });
+
     const getBaliseDownloadUrl = this.createNodejsLambda({
       ...prismaParameters,
       name: 'get-balise-download-url',
@@ -485,6 +492,7 @@ export class RataExtraBackendStack extends NestedStack {
     balisesBucket.grantRead(getBalises);
     balisesBucket.grantRead(getBaliseDownloadUrl);
     balisesBucket.grantDelete(deleteBalise);
+    balisesBucket.grantDelete(bulkDeleteBalises);
 
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {
@@ -773,6 +781,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/balise/*/delete'],
         httpRequestMethods: ['DELETE'],
         targetName: 'deleteBalise',
+      },
+      {
+        lambda: bulkDeleteBalises,
+        priority: 313,
+        path: ['/api/balise/bulk-delete'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'bulkDeleteBalises',
       },
       {
         lambda: lockBalise,

@@ -12,11 +12,6 @@ import {
   Alert,
   CircularProgress,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
 } from '@mui/material';
 import { ArrowBack, Edit, ExpandLess, Add } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -27,6 +22,7 @@ import { BalisePermissionGuard } from '../BalisePermissionGuard';
 import type { Section } from '../types';
 import { SectionEditForm } from './SectionEditForm';
 import { SectionCreateForm } from './SectionCreateForm';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 interface ValidationErrors {
   name?: string;
@@ -340,26 +336,24 @@ export const SectionPage: React.FC = () => {
         )}
 
         {/* Delete Confirmation Dialog */}
-        <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
-          <DialogTitle>Poista JKV-rataosa</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
+        <ConfirmDialog
+          open={deleteDialogOpen}
+          title="Poista JKV-rataosa"
+          message={
+            <>
               Haluatko varmasti poistaa JKV-rataosan "{sectionToDelete?.name}"?
               <br />
               <br />
               Tämä toiminto ei ole peruutettavissa.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDeleteCancel} disabled={isDeleting}>
-              Peruuta
-            </Button>
-            <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={isDeleting}>
-              {isDeleting ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-              {isDeleting ? 'Poistetaan' : 'Poista'}
-            </Button>
-          </DialogActions>
-        </Dialog>
+            </>
+          }
+          confirmText="Poista"
+          confirmColor="error"
+          disabled={isDeleting}
+          loading={isDeleting}
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleDeleteCancel}
+        />
       </Box>
     </BalisePermissionGuard>
   );

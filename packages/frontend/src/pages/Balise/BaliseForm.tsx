@@ -11,11 +11,7 @@ import {
   ListItem,
   ListItemText,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   DialogContentText,
-  DialogActions,
 } from '@mui/material';
 import { Tag } from '../../components/Tag';
 import { Save, Delete, ArrowBack, Lock, LockOpen, Undo } from '@mui/icons-material';
@@ -27,6 +23,7 @@ import { InlineEditableField } from '../../components/InlineEditableField';
 import Circle from '@mui/icons-material/Circle';
 import { BaliseFileManager } from './BaliseFileManager';
 import { BaliseVersionTimeline } from './BaliseVersionTimeline';
+import { ConfirmDialog } from './components/ConfirmDialog';
 
 interface BaliseFormProps {
   mode: 'create' | 'view';
@@ -484,10 +481,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       </Box>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
-        <DialogTitle>Poista baliisi</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Poista baliisi"
+        message={
+          <>
             Haluatko varmasti poistaa tämän baliisin (ID: {balise?.secondaryId})?
             <br />
             <br />
@@ -502,88 +500,85 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             <br />
             <br />
             Poistettua baliisia ei voi palauttaa käyttöön.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteCancel} disabled={actionLoading}>
-            Peruuta
-          </Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={actionLoading}>
-            {actionLoading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-            {actionLoading ? 'Poistetaan...' : 'Poista'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </>
+        }
+        confirmText="Poista"
+        confirmColor="error"
+        disabled={actionLoading}
+        loading={actionLoading}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
 
       {/* Save Confirmation Dialog */}
-      <Dialog open={saveConfirmDialogOpen} onClose={() => setSaveConfirmDialogOpen(false)}>
-        <DialogTitle>Vahvista muutokset</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Olet tekemässä seuraavat muutokset:</DialogContentText>
-          <List>
-            {formData.description !== originalData.description && (
-              <ListItem>
-                <ListItemText
-                  primary="Kuvaus päivitetty"
-                  secondary={`"${originalData.description}" → "${formData.description}"`}
-                />
-              </ListItem>
+      <ConfirmDialog
+        open={saveConfirmDialogOpen}
+        title="Vahvista muutokset"
+        message={
+          <>
+            <DialogContentText>Olet tekemässä seuraavat muutokset:</DialogContentText>
+            <List>
+              {formData.description !== originalData.description && (
+                <ListItem>
+                  <ListItemText
+                    primary="Kuvaus päivitetty"
+                    secondary={`"${originalData.description}" → "${formData.description}"`}
+                  />
+                </ListItem>
+              )}
+              {filesToDelete.length > 0 && formData.files.length > 0 && (
+                <ListItem>
+                  <ListItemText
+                    primary={`Korvaa ${filesToDelete.length} tiedosto(a) → ${formData.files.length} uudella tiedostolla`}
+                    secondary={`Uudet: ${formData.files.map((f) => f.name).join(', ')}`}
+                    primaryTypographyProps={{ color: 'warning.main' }}
+                  />
+                </ListItem>
+              )}
+              {(!filesToDelete.length || filesToDelete.length === 0) && formData.files && formData.files.length > 0 && (
+                <ListItem>
+                  <ListItemText
+                    primary={`${formData.files.length} uutta tiedosto(a) lisätään`}
+                    secondary={formData.files.map((f) => f.name).join(', ')}
+                    primaryTypographyProps={{ color: 'success.main' }}
+                  />
+                </ListItem>
+              )}
+            </List>
+            {filesToDelete.length > 0 && (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                Vanhat tiedostot säilytetään versiohistoriassa ja voidaan palauttaa tarvittaessa.
+              </Alert>
             )}
-            {filesToDelete.length > 0 && formData.files.length > 0 && (
-              <ListItem>
-                <ListItemText
-                  primary={`Korvaa ${filesToDelete.length} tiedosto(a) → ${formData.files.length} uudella tiedostolla`}
-                  secondary={`Uudet: ${formData.files.map((f) => f.name).join(', ')}`}
-                  primaryTypographyProps={{ color: 'warning.main' }}
-                />
-              </ListItem>
-            )}
-            {(!filesToDelete.length || filesToDelete.length === 0) && formData.files && formData.files.length > 0 && (
-              <ListItem>
-                <ListItemText
-                  primary={`${formData.files.length} uutta tiedosto(a) lisätään`}
-                  secondary={formData.files.map((f) => f.name).join(', ')}
-                  primaryTypographyProps={{ color: 'success.main' }}
-                />
-              </ListItem>
-            )}
-          </List>
-          {filesToDelete.length > 0 && (
-            <Alert severity="info" sx={{ mt: 2 }}>
-              Vanhat tiedostot säilytetään versiohistoriassa ja voidaan palauttaa tarvittaessa.
-            </Alert>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setSaveConfirmDialogOpen(false)} disabled={loading}>
-            Peruuta
-          </Button>
-          <Button onClick={handleSave} color="primary" variant="contained" disabled={loading}>
-            {loading ? 'Tallennetaan...' : 'Tallenna muutokset'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </>
+        }
+        confirmText="Tallenna muutokset"
+        confirmColor="primary"
+        disabled={loading}
+        loading={loading}
+        onConfirm={handleSave}
+        onCancel={() => setSaveConfirmDialogOpen(false)}
+      />
 
       {/* Unlock Confirmation Dialog */}
-      <Dialog open={unlockConfirmDialogOpen} onClose={() => setUnlockConfirmDialogOpen(false)}>
-        <DialogTitle>Vahvista lukituksen avaaminen</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
+      <ConfirmDialog
+        open={unlockConfirmDialogOpen}
+        title="Vahvista lukituksen avaaminen"
+        message={
+          <>
             Lukituksen avaaminen asettaa version {balise?.version} viralliseksi versioksi.
-          </DialogContentText>
-          <Alert severity="info" sx={{ mt: 2 }}>
-            Aiemmat versiot säilyvät versiohistoriassa.
-          </Alert>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setUnlockConfirmDialogOpen(false)} disabled={actionLoading}>
-            Peruuta
-          </Button>
-          <Button onClick={handleUnlockConfirm} color="primary" variant="contained" disabled={actionLoading}>
-            {actionLoading ? 'Avataan lukitusta...' : 'Avaa lukitus'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <Alert severity="info" sx={{ mt: 2 }}>
+              Aiemmat versiot säilyvät versiohistoriassa.
+            </Alert>
+          </>
+        }
+        confirmText="Avaa lukitus"
+        confirmColor="primary"
+        disabled={actionLoading}
+        loading={actionLoading}
+        onConfirm={handleUnlockConfirm}
+        onCancel={() => setUnlockConfirmDialogOpen(false)}
+      />
     </Box>
   );
 };
