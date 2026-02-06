@@ -1,3 +1,5 @@
+import { VersionStatus } from './enums';
+
 export interface Section {
   id: string;
   name: string;
@@ -12,11 +14,6 @@ export interface Section {
   createdTime: string | Date;
   updatedBy?: string;
   updatedTime?: string | Date;
-}
-
-export enum VersionStatus {
-  OFFICIAL = 'OFFICIAL',
-  UNCONFIRMED = 'UNCONFIRMED',
 }
 
 export interface BaliseVersion {
