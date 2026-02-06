@@ -5,6 +5,45 @@ import { FileUpload, uploadFilesToS3WithCleanup } from './s3utils';
 const database = await DatabaseClient.build();
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
 
+// Validation constants
+export const VALID_EXTENSIONS = ['.il', '.leu', '.bis'];
+export const MIN_BALISE_ID = 10000;
+export const MAX_BALISE_ID = 99999;
+
+/**
+ * Validate file extension
+ * Valid extensions: .il, .leu, .bis
+ * Case insensitive because Windows and macOS filesystems are case insensitive
+ * and users might upload files with uppercase extensions.
+ */
+export function isValidExtension(filename: string): boolean {
+  const lowerFilename = filename.toLowerCase();
+  return VALID_EXTENSIONS.some((ext) => lowerFilename.endsWith(ext));
+}
+
+/**
+ * Validate balise ID range
+ * Valid range: 10000-99999
+ */
+export function isValidBaliseIdRange(baliseId: number): boolean {
+  return baliseId >= MIN_BALISE_ID && baliseId <= MAX_BALISE_ID;
+}
+
+/**
+ * Parse balise ID from filename
+ * Examples:
+ *   "10000.il" → 10000
+ *   "10000.leu" → 10000
+ *   "12345.bis" → 12345
+ *   "10000K.il" -> 10000
+ */
+export function parseBaliseIdFromFilename(filename: string): number | null {
+  const match = filename.match(/(\d+)/);
+  if (!match) return null;
+  const id = parseInt(match[1], 10);
+  return isNaN(id) ? null : id;
+}
+
 export interface BaliseUpdateResult {
   newVersion: number;
   previousVersion?: number;

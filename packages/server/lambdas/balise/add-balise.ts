@@ -3,9 +3,64 @@ import { log } from '../../utils/logger';
 import { getUser, validateBaliseWriteUser } from '../../utils/userService';
 import { parseForm, FileUpload as ParsedFileUpload } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
-import { updateOrCreateBalise, validateBalisesLockedByUser } from '../../utils/baliseUtils';
+import {
+  updateOrCreateBalise,
+  validateBalisesLockedByUser,
+  VALID_EXTENSIONS,
+  MIN_BALISE_ID,
+  MAX_BALISE_ID,
+  isValidExtension,
+  parseBaliseIdFromFilename,
+} from '../../utils/baliseUtils';
 import type { FileUpload } from '../../utils/s3utils';
 import { getRataExtraLambdaError } from '../../utils/errors';
+
+interface FileValidationError {
+  filename: string;
+  error: string;
+}
+
+/**
+ * Validate uploaded files for a specific balise
+ * - Extension must be .il, .leu, or .bis
+ * - Filename must contain a balise ID that matches the target balise ID
+ * - Balise ID must be between 10000-99999
+ */
+export function validateUploadedFiles(files: ParsedFileUpload[], targetBaliseId: number): FileValidationError[] {
+  const errors: FileValidationError[] = [];
+
+  for (const file of files) {
+    // Validate extension
+    if (!isValidExtension(file.filename)) {
+      errors.push({
+        filename: file.filename,
+        error: `Virheellinen tiedostopääte. Sallitut päätteet: ${VALID_EXTENSIONS.join(', ')}`,
+      });
+      continue;
+    }
+
+    // Parse balise ID from filename
+    const fileBaliseId = parseBaliseIdFromFilename(file.filename);
+    if (fileBaliseId === null) {
+      errors.push({
+        filename: file.filename,
+        error: 'Tiedostonimestä ei löydy baliisi-tunnusta',
+      });
+      continue;
+    }
+
+    // Validate filename balise ID matches target balise ID
+    if (fileBaliseId !== targetBaliseId) {
+      errors.push({
+        filename: file.filename,
+        error: `Tiedostonimen baliisi-tunnus (${fileBaliseId}) ei vastaa kohde-baliisia (${targetBaliseId})`,
+      });
+      continue;
+    }
+  }
+
+  return errors;
+}
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
@@ -23,6 +78,17 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Virheellinen tai puuttuva baliisi-tunnus' }),
+      };
+    }
+
+    // Validate balise ID range
+    if (baliseId < MIN_BALISE_ID || baliseId > MAX_BALISE_ID) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: `Baliisi-tunnus ${baliseId} ei ole sallitulla välillä ${MIN_BALISE_ID}-${MAX_BALISE_ID}`,
+        }),
       };
     }
 
@@ -55,6 +121,22 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
       // Extract file data
       uploadedFiles = (formData.files as FileUpload[]) || [];
+
+      // Validate uploaded files
+      if (uploadedFiles.length > 0) {
+        const validationErrors = validateUploadedFiles(uploadedFiles, baliseId);
+        if (validationErrors.length > 0) {
+          return {
+            statusCode: 400,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              error: 'Tiedostojen validointi epäonnistui',
+              validationErrors,
+              hint: `Tiedostonimen tulee sisältää baliisi-tunnus ${baliseId} ja päätteen tulee olla ${VALID_EXTENSIONS.join(', ')} (esim. ${baliseId}.il)`,
+            }),
+          };
+        }
+      }
     } else {
       // Handle JSON metadata only
       body = event.body ? JSON.parse(event.body) : {};
