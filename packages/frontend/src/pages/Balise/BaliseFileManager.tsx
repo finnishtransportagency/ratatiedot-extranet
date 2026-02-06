@@ -7,7 +7,7 @@ import { UploadedFilesList } from './components/UploadedFilesList';
 import { FileUploadZone } from './components/FileUploadZone';
 import { useFileDragDrop } from './hooks/useFileDragDrop';
 import type { BaliseWithHistory } from './types';
-import { VersionStatus } from './types';
+import { VersionStatus } from './enums';
 
 interface BaliseFileManagerProps {
   isCreate: boolean;
@@ -85,7 +85,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
           <Box sx={{ mb: canWrite ? 2 : 0 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {fileListLabel}
+                {fileListLabel} versio {balise?.version}
               </Typography>
               <Button size="small" variant="outlined" color="secondary" onClick={handleDownload}>
                 Lataa tiedostot

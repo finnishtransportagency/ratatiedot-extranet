@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import { ExpandMore, ExpandLess, Edit, Lock, LockOpen, Delete, Download, Visibility } from '@mui/icons-material';
 import type { BaliseWithHistory } from './types';
-import { VersionStatus } from './types';
+import { VersionStatus } from './enums';
 
 interface BaliseTableProps {
   items: BaliseWithHistory[];

@@ -4,7 +4,7 @@ import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { Tag } from '../../components/Tag';
 import { downloadBaliseFiles } from '../../utils/download';
 import type { BaliseWithHistory, Balise, BaliseVersion } from './types';
-import { VersionStatus } from './types';
+import { VersionStatus } from './enums';
 
 const pulseAnimation = {
   '@keyframes pulse': {
