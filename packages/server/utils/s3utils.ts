@@ -176,20 +176,15 @@ export async function copyS3ObjectWithRetry(
 }
 
 /**
- * Archives files by copying to archive location and then deleting originals
- * Implements proper error handling to avoid partial states
+ * Copy files to archive location
+ * Throws error if any copy fails, with automatic cleanup of successful copies
+ * @returns Array of successfully copied source keys
  */
-export async function archiveS3FilesWithCleanup(
+export async function copyFilesToArchive(
   bucket: string,
   filesToArchive: Array<{ sourceKey: string; archiveKey: string }>,
   userId: string,
-): Promise<{ successCount: number; failureCount: number }> {
-  const results = {
-    successCount: 0,
-    failureCount: 0,
-    copiedFiles: [] as string[],
-  };
-
+): Promise<string[]> {
   // Phase 1: Copy all files to archive in parallel
   const copyPromises = filesToArchive.map(async ({ sourceKey, archiveKey }) => {
     try {
@@ -225,14 +220,24 @@ export async function archiveS3FilesWithCleanup(
     await Promise.allSettled(cleanupPromises);
 
     throw new Error(
-      `Archive operation failed: ${failedCopies.length} of ${filesToArchive.length} files failed to copy`,
+      `Archive copy operation failed: ${failedCopies.length} of ${filesToArchive.length} files failed to copy`,
     );
   }
 
-  results.copiedFiles = successfulCopies.map((r) => r.sourceKey);
+  return successfulCopies.map((r) => r.sourceKey);
+}
 
-  // Phase 2: Delete original files in parallel (only if all copies succeeded)
-  const deletePromises = filesToArchive.map(async ({ sourceKey }) => {
+/**
+ * Delete original files after successful archival
+ * Logs errors but does not throw - orphaned files can be cleaned up later
+ * @returns Count of successfully deleted files
+ */
+export async function deleteOriginalFiles(
+  bucket: string,
+  sourceKeys: string[],
+  userId: string,
+): Promise<{ successCount: number; failureCount: number }> {
+  const deletePromises = sourceKeys.map(async (sourceKey) => {
     try {
       await deleteFromS3WithRetry(bucket, sourceKey, userId);
       log.info(`[${userId}] Successfully deleted original file: ${sourceKey}`);
@@ -245,11 +250,8 @@ export async function archiveS3FilesWithCleanup(
 
   const deleteResults = await Promise.all(deletePromises);
 
-  results.successCount = deleteResults.filter((r) => r.success).length;
-  results.failureCount = deleteResults.filter((r) => !r.success).length;
-
   return {
-    successCount: results.successCount,
-    failureCount: results.failureCount,
+    successCount: deleteResults.filter((r) => r.success).length,
+    failureCount: deleteResults.filter((r) => !r.success).length,
   };
 }
