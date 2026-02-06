@@ -313,12 +313,12 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
 
         const result = await response.json();
         totalSuccess += result.successCount;
-        totalFailure += result.failureCount;
+        totalFailure += result.failureCount - result.skippedCount; // Don't count skipped as failure
         totalSkipped += result.skippedCount;
 
-        // Collect failed IDs
+        // Collect failed IDs (excluding skipped ones)
         const failedInBatch = result.results
-          .filter((r: { success: boolean }) => !r.success)
+          .filter((r: { success: boolean; skipped?: boolean }) => !r.success && !r.skipped)
           .map((r: { baliseId: number }) => r.baliseId);
         allFailedIds.push(...failedInBatch);
 
