@@ -23,8 +23,8 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-nvm install v22.16.0
-nvm use v22.16.0
+nvm install v22.22.0
+nvm use v22.22.0
 nvm -v
 node -v
 npm -v
