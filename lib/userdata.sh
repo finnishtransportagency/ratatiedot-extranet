@@ -29,6 +29,9 @@ nvm -v
 node -v
 npm -v
 
+# Generate prisma scema from packages/server and copy it to node-server
+(cd $HOME/source/ && npm ci && npm run prisma:generate && cp -r $HOME/source/packages/server/generated $HOME/source/packages/node-server/generated)
+
 cd $HOME/source/packages/node-server
 
 npm ci
