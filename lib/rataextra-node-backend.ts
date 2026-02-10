@@ -6,7 +6,6 @@ import {
   InstanceSize,
   IVpc,
   CloudFormationInit,
-  InitSource,
   InitCommand,
   InitConfig,
   InitFile,
@@ -23,9 +22,10 @@ import {
   UpdatePolicy,
 } from 'aws-cdk-lib/aws-autoscaling';
 import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import { RataExtraEnvironment, getPipelineConfig } from './config';
+import { RataExtraEnvironment } from './config';
 import { SSM_DATABASE_DOMAIN, SSM_DATABASE_NAME, SSM_DATABASE_PASSWORD } from './constants';
 import { readFileSync } from 'fs';
+import { Asset } from 'aws-cdk-lib/aws-s3-assets';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
   readonly rataExtraStackIdentifier: string;
@@ -65,8 +65,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
       mockUid,
     } = props;
 
-    const config = getPipelineConfig();
-
     const asgRole = new Role(this, 'ec2-nodeserver-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
       managedPolicies: [
@@ -83,6 +81,12 @@ export class RatatietoNodeBackendConstruct extends Construct {
         actions: ['logs:PutRetentionPolicy'],
       }),
     );
+
+    const nodeServerAsset = new Asset(this, 'NodeServerAsset', {
+      path: 'packages/node-server',
+    });
+    nodeServerAsset.grantRead(asgRole);
+
     const userDataScript = readFileSync('./lib/userdata.sh', 'utf8');
 
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
@@ -112,12 +116,13 @@ export class RatatietoNodeBackendConstruct extends Construct {
       },
       configs: {
         getSource: new InitConfig([
-          InitSource.fromGitHub(
-            '/home/ec2-user/source',
-            'finnishtransportagency',
-            'ratatiedot-extranet',
-            config.branch,
+          InitCommand.shellCommand('dnf install -y unzip'),
+          InitCommand.shellCommand('mkdir -p /home/ec2-user/node-server'),
+          InitCommand.shellCommand(
+            `aws s3 cp s3://${nodeServerAsset.s3BucketName}/${nodeServerAsset.s3ObjectKey} /home/ec2-user/node-server-artifact.zip`,
           ),
+          InitCommand.shellCommand('unzip -o /home/ec2-user/node-server-artifact.zip -d /home/ec2-user/node-server'),
+          InitCommand.shellCommand('chown -R ec2-user:ec2-user /home/ec2-user/node-server'),
         ]),
         loggingSetup: new InitConfig([
           InitFile.fromString(
@@ -172,7 +177,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v22.16.0/bin/node /usr/bin/node');
     autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v22.16.0/bin/npm /usr/bin/npm');
     autoScalingGroup.addUserData('exec >> /var/log/nodeserver/logs.log 2>&1');
-    autoScalingGroup.addUserData('cd /home/ec2-user/source/packages/node-server && su ec2-user -c "npm run start"');
+    autoScalingGroup.addUserData('cd /home/ec2-user/node-server && su ec2-user -c "npm run start"');
 
     return autoScalingGroup;
   }

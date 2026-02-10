@@ -68,8 +68,15 @@ export class RataExtraPipelineStack extends Stack {
         input: github,
         installCommands: ['npm ci'],
         commands: [
+          // Build Frontend
           `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} npm run build:frontend`,
+          // Generate prisma schema
           `npm run prisma:generate`,
+          // Copy Prisma schema to node-server
+          'cp -r packages/server/generated packages/node-server/generated',
+          // Build node-server
+          '(cd packages/node-server && npm ci && npm run build)',
+          // Build server (bundle Lambda functions)
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
         ],
       }),
