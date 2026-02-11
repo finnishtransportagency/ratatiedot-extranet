@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
 import { BalisePermissionGuard } from './BalisePermissionGuard';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
+import { useBatchUpload } from './hooks/useBatchUpload';
+import { useFileDragDrop } from './hooks/useFileDragDrop';
 import {
   Box,
   Paper,
@@ -42,41 +44,6 @@ interface FileWithBaliseId {
   isValid: boolean;
 }
 
-interface UploadResult {
-  baliseId: number;
-  success: boolean;
-  newVersion?: number;
-  previousVersion?: number;
-  filesUploaded?: number;
-  error?: string;
-  errorType?: 'not_locked' | 'locked_by_other' | 'not_found' | 'permission' | 'storage' | 'unknown';
-  lockedBy?: string;
-  isNewBalise?: boolean;
-}
-
-interface UploadResponse {
-  success: boolean;
-  message: string;
-  results: UploadResult[];
-  invalidFiles?: string[];
-  totalFiles?: number;
-  totalBalises?: number;
-}
-
-interface ValidationFailure {
-  baliseId: number;
-  errorType: 'not_locked' | 'locked_by_other';
-  lockedBy?: string;
-  message: string;
-}
-
-interface ValidationErrorResponse {
-  success: false;
-  error: string;
-  errorType: 'validation_failed';
-  failures: ValidationFailure[];
-}
-
 /**
  * Parse balise ID from filename
  * Examples: "10000.il" → 10000, "A-12345.pdf" → 12345
@@ -93,11 +60,15 @@ export const BulkUploadPage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [files, setFiles] = useState<FileWithBaliseId[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadResult, setUploadResult] = useState<UploadResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    uploadBatches,
+    isUploading: uploading,
+    progress: batchProgress,
+    uploadResult,
+    error,
+    resetState: resetUploadState,
+  } = useBatchUpload();
+  const [localError, setLocalError] = useState<string | null>(null);
   const [expandedBalises, setExpandedBalises] = useState<Set<number>>(new Set());
   const [unchangedBaliseIds, setUnchangedBaliseIds] = useState<number[]>([]);
   const [globalDescription, setGlobalDescription] = useState<string>('');
@@ -108,18 +79,6 @@ export const BulkUploadPage: React.FC = () => {
   const [loadingBaliseData, setLoadingBaliseData] = useState(false);
 
   const { permissions } = useBalisePermissions();
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  }, []);
 
   // Fetch existing balise data for preview
   const fetchBaliseData = useCallback(async (baliseIds: number[]) => {
@@ -180,23 +139,13 @@ export const BulkUploadPage: React.FC = () => {
         fetchBaliseData(baliseIds);
         return updated;
       });
-      setError(null);
-      setUploadResult(null);
+      setLocalError(null);
+      resetUploadState();
     },
-    [fetchBaliseData],
+    [fetchBaliseData, resetUploadState],
   );
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-
-      const droppedFiles = Array.from(e.dataTransfer.files);
-      processFiles(droppedFiles);
-    },
-    [processFiles],
-  );
+  const { isDragging, handleDragOver, handleDragLeave, handleDrop } = useFileDragDrop(processFiles);
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -216,14 +165,14 @@ export const BulkUploadPage: React.FC = () => {
 
   const clearAll = useCallback(() => {
     setFiles([]);
-    setUploadResult(null);
-    setError(null);
+    resetUploadState();
+    setLocalError(null);
     setUnchangedBaliseIds([]);
     // Reset file input to allow re-selecting the same files
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  }, []);
+  }, [resetUploadState]);
 
   // Group files by balise ID for display
   const groupedFiles = files.reduce(
@@ -276,7 +225,7 @@ export const BulkUploadPage: React.FC = () => {
 
   const handleUpload = async () => {
     if (validFileCount === 0) {
-      setError('Ei ladattavia tiedostoja');
+      setLocalError('Ei ladattavia tiedostoja');
       return;
     }
 
@@ -284,109 +233,23 @@ export const BulkUploadPage: React.FC = () => {
       .map((id) => parseInt(id, 10))
       .sort((a, b) => a - b);
 
-    setUploading(true);
-    setUploadProgress(0);
-    setError(null);
-    setUploadResult(null);
+    setLocalError(null);
     setUnchangedBaliseIds([]);
 
-    try {
-      // Create FormData with all files and descriptions
-      const formData = new FormData();
-      files.forEach((item, index) => {
-        if (item.isValid) {
-          formData.append(`file-${index}`, item.file);
-        }
-      });
+    const result = await uploadBatches(files, globalDescription, baliseDescriptions);
 
-      // Add global description if provided
-      if (globalDescription.trim()) {
-        formData.append('globalDescription', globalDescription.trim());
+    if (result) {
+      // Track unchanged balises (those that failed or weren't processed)
+      if (result.results.some((r) => !r.success)) {
+        const unchangedIds = requestedBaliseIds.filter(
+          (id) => !result.results.some((r) => r.success && r.baliseId === id),
+        );
+        setUnchangedBaliseIds(unchangedIds);
       }
 
-      // Add per-balise descriptions if provided
-      Object.entries(baliseDescriptions).forEach(([baliseId, description]) => {
-        if (description.trim()) {
-          formData.append(`description_${baliseId}`, description.trim());
-        }
-      });
-
-      // Simulate progress (real progress tracking would require chunked upload or server-sent events)
-      const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => Math.min(prev + 10, 90));
-      }, 200);
-
-      const response = await fetch('/api/balise/bulk-upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      clearInterval(progressInterval);
-      setUploadProgress(100);
-
-      // Handle both success and structured error responses
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        // Check if this is a validation error with failures array
-        if (responseData.errorType === 'validation_failed' && responseData.failures) {
-          // Convert failures to results format for UI display
-          const validationError = responseData as ValidationErrorResponse;
-          const convertedResults: UploadResult[] = validationError.failures.map((f: ValidationFailure) => ({
-            baliseId: f.baliseId,
-            success: false,
-            error: f.message,
-            errorType: f.errorType,
-            lockedBy: f.lockedBy,
-          }));
-
-          const result: UploadResponse = {
-            success: false,
-            message: validationError.error,
-            results: convertedResults,
-            invalidFiles: [],
-          };
-          setUploadResult(result);
-          setUnchangedBaliseIds(requestedBaliseIds);
-
-          // Auto-expand all failed balises
-          const failedBaliseIds = convertedResults.map((r) => r.baliseId);
-          setExpandedBalises(new Set(failedBaliseIds));
-        } else if (responseData.results && Array.isArray(responseData.results)) {
-          // This is a structured response with results (e.g., partial success)
-          const result: UploadResponse = responseData;
-          setUploadResult(result);
-          if (result.results.some((r) => !r.success)) {
-            const unchangedIds = requestedBaliseIds.filter(
-              (id) => !result.results.some((r) => r.success && r.baliseId === id),
-            );
-            setUnchangedBaliseIds(unchangedIds);
-          }
-
-          // Auto-expand failed balises
-          const failedBaliseIds = result.results.filter((r) => !r.success).map((r) => r.baliseId);
-          setExpandedBalises(new Set(failedBaliseIds));
-        } else {
-          // This is a plain error response
-          throw new Error(responseData.error || responseData.message || `HTTP error! status: ${response.status}`);
-        }
-      } else {
-        // Success response - backend doesn't include 'success' field in individual results, so add it
-        const result: UploadResponse = {
-          ...responseData,
-          results: responseData.results.map((r: UploadResult) => ({ ...r, success: true })),
-        };
-        setUploadResult(result);
-
-        // Auto-expand failed balises
-        const failedBaliseIds = result.results.filter((r) => !r.success).map((r) => r.baliseId);
-        setExpandedBalises(new Set(failedBaliseIds));
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Lataus epäonnistui');
-      setUploadProgress(0);
-    } finally {
-      setUploading(false);
+      // Auto-expand failed balises
+      const failedBaliseIds = result.results.filter((r) => !r.success).map((r) => r.baliseId);
+      setExpandedBalises(new Set(failedBaliseIds));
     }
   };
 
@@ -464,9 +327,9 @@ export const BulkUploadPage: React.FC = () => {
           }}
         >
           <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-                {error}
+            {(error || localError) && (
+              <Alert severity="error" sx={{ mb: 2 }} onClose={() => setLocalError(null)}>
+                {error || localError}
               </Alert>
             )}
 
@@ -476,10 +339,30 @@ export const BulkUploadPage: React.FC = () => {
                 <Typography variant="h6" gutterBottom>
                   Ladataan tiedostoja...
                 </Typography>
-                <LinearProgress variant="determinate" value={uploadProgress} sx={{ mb: 1 }} />
-                <Typography variant="body2" color="text.secondary">
-                  {uploadProgress}% valmis
-                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={
+                    batchProgress.totalBatches > 0 ? (batchProgress.currentBatch / batchProgress.totalBatches) * 100 : 0
+                  }
+                  sx={{ mb: 1 }}
+                />
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Erä {batchProgress.currentBatch} / {batchProgress.totalBatches}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Tiedostoja ladattu: {batchProgress.filesUploaded} / {batchProgress.totalFiles}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Baliisit: {batchProgress.successCount} onnistui
+                    {batchProgress.failureCount > 0 && `, ${batchProgress.failureCount} epäonnistui`}
+                  </Typography>
+                  {batchProgress.retriedBatches > 0 && (
+                    <Typography variant="body2" color="warning.main">
+                      {batchProgress.retriedBatches} erää yritetty uudelleen
+                    </Typography>
+                  )}
+                </Box>
               </Paper>
             )}
 
