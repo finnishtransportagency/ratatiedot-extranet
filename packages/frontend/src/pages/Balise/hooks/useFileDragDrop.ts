@@ -63,9 +63,10 @@ export const useFileDragDrop = (onFilesDropped: (files: File[]) => void) => {
       setIsDragging(false);
 
       const items = Array.from(e.dataTransfer.items);
-      const allFiles: File[] = [];
 
-      // Process all dropped items
+      const collectedFiles: File[] = [];
+      const directoryEntries: FileSystemDirectoryEntry[] = [];
+
       for (const item of items) {
         if (item.kind !== 'file') continue;
 
@@ -74,21 +75,24 @@ export const useFileDragDrop = (onFilesDropped: (files: File[]) => void) => {
         if (!entry) {
           // Fallback for browsers that don't support webkitGetAsEntry
           const file = item.getAsFile();
-          if (file) allFiles.push(file);
+          if (file) collectedFiles.push(file);
           continue;
         }
 
         if (entry.isFile) {
           const file = item.getAsFile();
-          if (file) allFiles.push(file);
-          continue;
+          if (file) collectedFiles.push(file);
+        } else if (entry.isDirectory) {
+          directoryEntries.push(entry as FileSystemDirectoryEntry);
         }
+      }
 
-        if (entry.isDirectory) {
-          // Recursively read all files from the directory
-          const dirFiles = await readDirectory(entry as FileSystemDirectoryEntry);
-          allFiles.push(...dirFiles);
-        }
+      // Now asynchronously process directories
+      const allFiles: File[] = [...collectedFiles];
+
+      for (const dirEntry of directoryEntries) {
+        const dirFiles = await readDirectory(dirEntry);
+        allFiles.push(...dirFiles);
       }
 
       onFilesDropped(allFiles);
