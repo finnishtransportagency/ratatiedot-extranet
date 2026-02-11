@@ -12,25 +12,10 @@ import {
   getVersionFileTypes,
   validateFileInVersion,
 } from '../../utils/baliseVersionUtils';
-import { Readable } from 'stream';
 
 const database = await DatabaseClient.build();
 const s3Client = new S3Client({});
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
-
-/**
- * Helper to convert a ReadableStream/Readable to a Buffer
- */
-async function streamToBuffer(stream: Readable | ReadableStream | Blob): Promise<Buffer> {
-  if (stream instanceof Readable) {
-    const chunks: Buffer[] = [];
-    for await (const chunk of stream) {
-      chunks.push(Buffer.from(chunk));
-    }
-    return Buffer.concat(chunks);
-  }
-  throw new Error('Unsupported stream type');
-}
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
@@ -102,42 +87,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // Generate S3 file key with hierarchical structure: balise_{secondaryId}/v{version}/{fileName}
     const fileKey = `balise_${balise.secondaryId}/v${version}/${fileName}`;
 
-    // Check if client wants the file content streamed directly
-    const streamMode = event.queryStringParameters?.stream === 'true';
-
-    if (streamMode) {
-      // Stream file content directly - avoids CORS issues with presigned S3 URLs
-      const command = new GetObjectCommand({
-        Bucket: BALISES_BUCKET_NAME,
-        Key: fileKey,
-      });
-
-      const response = await s3Client.send(command);
-
-      if (!response.Body) {
-        return {
-          statusCode: 404,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ error: 'Tiedostoa ei löytynyt' }),
-        };
-      }
-
-      const fileBuffer = await streamToBuffer(response.Body as Readable);
-      const contentType = response.ContentType || 'application/octet-stream';
-
-      return {
-        statusCode: 200,
-        headers: {
-          'Content-Type': contentType,
-          'Content-Disposition': `attachment; filename="${fileName}"`,
-          'Content-Length': fileBuffer.length.toString(),
-        },
-        body: fileBuffer.toString('base64'),
-        isBase64Encoded: true,
-      };
-    }
-
-    // Default: Generate presigned URL (expires in 1 hour)
+    // Generate presigned URL (expires in 1 hour)
     const downloadUrl = await getSignedUrl(
       s3Client,
       new GetObjectCommand({

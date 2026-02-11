@@ -456,6 +456,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/balise/get-balise-download-url.ts',
     });
 
+    const bulkDownloadBalises = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'bulk-download-balises',
+      relativePath: '../packages/server/lambdas/balise/bulk-download-balises.ts',
+    });
+
     const getSections = this.createNodejsLambda({
       ...prismaParameters,
       name: 'get-balise-rail-sections',
@@ -490,6 +496,7 @@ export class RataExtraBackendStack extends NestedStack {
     balisesBucket.grantRead(getBalise);
     balisesBucket.grantRead(getBalises);
     balisesBucket.grantRead(getBaliseDownloadUrl);
+    balisesBucket.grantRead(bulkDownloadBalises);
     balisesBucket.grantDelete(deleteBalise);
     balisesBucket.grantDelete(bulkDeleteBalises);
 
@@ -752,6 +759,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/balise/sections/*'],
         httpRequestMethods: ['DELETE'],
         targetName: 'deleteBaliseRailSection',
+      },
+      {
+        lambda: bulkDownloadBalises,
+        priority: 308,
+        path: ['/api/balise/bulk-download'],
+        httpRequestMethods: ['POST'],
+        targetName: 'bulkDownloadBalises',
       },
       {
         lambda: getBaliseDownloadUrl,
