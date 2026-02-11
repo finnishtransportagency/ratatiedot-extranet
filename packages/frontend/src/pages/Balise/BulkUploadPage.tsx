@@ -323,7 +323,7 @@ export const BulkUploadPage: React.FC = () => {
                       color="primary"
                       startIcon={uploading ? <CircularProgress size={20} color="inherit" /> : <CloudUpload />}
                       onClick={handleUpload}
-                      disabled={uploading || validFileCount === 0 || hasLockIssues}
+                      disabled={uploading || validFileCount === 0 || hasLockIssues || loadingBaliseData}
                       size="small"
                     >
                       {uploading ? 'Ladataan...' : `Lataa ${validFileCount} tiedostoa`}
