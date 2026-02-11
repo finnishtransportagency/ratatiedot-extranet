@@ -55,6 +55,8 @@ function parseBaliseId(filename: string): number | null {
   return isNaN(id) ? null : id;
 }
 
+const SUMMARY_MODE_THRESHOLD = 50;
+
 export const BulkUploadPage: React.FC = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -207,6 +209,27 @@ export const BulkUploadPage: React.FC = () => {
 
   // Count files only from balises without lock issues
   const validBaliseFileCount = validFileCount - lockedBaliseFileCount;
+
+  // Summary mode for large uploads
+  const isSummaryMode = baliseCount > SUMMARY_MODE_THRESHOLD;
+
+  // Category counts for summary view
+  const validBaliseEntries = Object.entries(groupedFiles).filter(([baliseId]) => {
+    const bId = parseInt(baliseId);
+    const existingData = existingBalises[bId];
+    return (
+      !existingData ||
+      (existingData.locked && (!existingData.lockedBy || existingData.lockedBy === permissions?.currentUserUid))
+    );
+  });
+
+  const newBalises = validBaliseEntries.filter(([baliseId]) => !existingBalises[parseInt(baliseId)]);
+  const updateBalises = validBaliseEntries.filter(([baliseId]) => existingBalises[parseInt(baliseId)]);
+
+  const newBaliseCount = newBalises.length;
+  const newBaliseFileCount = newBalises.reduce((sum, [, files]) => sum + files.length, 0);
+  const updateBaliseCount = updateBalises.length;
+  const updateBaliseFileCount = updateBalises.reduce((sum, [, files]) => sum + files.length, 0);
 
   const toggleBaliseExpand = (baliseId: number, hasError: boolean) => {
     // Only allow expanding balises that have errors
@@ -662,109 +685,147 @@ export const BulkUploadPage: React.FC = () => {
                       helperText="Tämä kuvaus lisätään kaikille muutoksille, ellei yksittäiselle balisille ole määritetty omaa kuvausta"
                     />
 
-                    {Object.entries(groupedFiles)
-                      .filter(([baliseId]) => {
-                        const bId = parseInt(baliseId);
-                        const existingData = existingBalises[bId];
-                        return (
-                          !existingData ||
-                          (existingData.locked &&
-                            (!existingData.lockedBy || existingData.lockedBy === permissions?.currentUserUid))
-                        );
-                      })
-                      .sort(([a], [b]) => parseInt(a) - parseInt(b))
-                      .map(([baliseId, baliseFiles]) => {
-                        const bId = parseInt(baliseId);
-                        const existingData = existingBalises[bId];
-                        const isLoadingStatus = loadingBaliseData && !existingData;
-                        const isNew = !existingData;
-                        const currentDescription = baliseDescriptions[bId] || '';
-
-                        return (
-                          <Box key={baliseId} sx={{ mb: 3, pb: 2, borderBottom: 1, borderColor: 'divider' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                                Baliisi {baliseId}
+                    {/* Summary view for large uploads */}
+                    {isSummaryMode && (
+                      <Box sx={{ py: 2 }}>
+                        <Typography variant="body1" sx={{ mb: 2 }}>
+                          Yhteenveto ladattavista baliiseista:
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          {newBaliseCount > 0 && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Chip label="UUSI" size="small" color="success" icon={<Add />} />
+                              <Typography variant="body2">
+                                {newBaliseCount} uutta baliisia ({newBaliseFileCount} tiedostoa)
                               </Typography>
-                              {isLoadingStatus ? (
-                                <Chip
-                                  label="Ladataan..."
-                                  size="small"
-                                  color="default"
-                                  icon={<CircularProgress size={12} />}
-                                />
-                              ) : isNew ? (
-                                <Chip label="UUSI" size="small" color="success" icon={<Add />} />
-                              ) : (
-                                <Chip
-                                  label={`v${existingData.version} → v${existingData.version + 1}`}
-                                  size="small"
-                                  color="primary"
-                                  icon={<Update />}
-                                />
-                              )}
-                              <Chip label={`${baliseFiles.length} tiedostoa`} size="small" variant="outlined" />
                             </Box>
+                          )}
+                          {updateBaliseCount > 0 && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Chip label="PÄIVITYS" size="small" color="primary" icon={<Update />} />
+                              <Typography variant="body2">
+                                {updateBaliseCount} päivitettävää baliisia ({updateBaliseFileCount} tiedostoa)
+                              </Typography>
+                            </Box>
+                          )}
+                          {lockIssueCount > 0 && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Chip label="ESTETTY" size="small" color="warning" icon={<Lock />} />
+                              <Typography variant="body2">
+                                {lockIssueCount} estettyä baliisia ({lockedBaliseFileCount} tiedostoa) - lukitsematon
+                                tai lukittu toisen käyttäjän toimesta
+                              </Typography>
+                            </Box>
+                          )}
+                        </Box>
+                      </Box>
+                    )}
 
-                            {/* Per-Balise Description Field */}
-                            <TextField
-                              label={`Kuvaus baliisille ${baliseId}`}
-                              value={currentDescription}
-                              onChange={(e) =>
-                                setBaliseDescriptions((prev) => ({
-                                  ...prev,
-                                  [bId]: e.target.value,
-                                }))
-                              }
-                              fullWidth
-                              multiline
-                              rows={2}
-                              size="small"
-                              sx={{ mb: 1 }}
-                              placeholder={
-                                currentDescription
-                                  ? ''
-                                  : globalDescription
-                                    ? `Käytetään yleistä kuvausta: "${globalDescription}"`
-                                    : existingData?.description
-                                      ? existingData.description
-                                      : 'Lisää kuvaus...'
-                              }
-                            />
+                    {/* Detailed view for smaller uploads */}
+                    {!isSummaryMode &&
+                      Object.entries(groupedFiles)
+                        .filter(([baliseId]) => {
+                          const bId = parseInt(baliseId);
+                          const existingData = existingBalises[bId];
+                          return (
+                            !existingData ||
+                            (existingData.locked &&
+                              (!existingData.lockedBy || existingData.lockedBy === permissions?.currentUserUid))
+                          );
+                        })
+                        .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                        .map(([baliseId, baliseFiles]) => {
+                          const bId = parseInt(baliseId);
+                          const existingData = existingBalises[bId];
+                          const isLoadingStatus = loadingBaliseData && !existingData;
+                          const isNew = !existingData;
+                          const currentDescription = baliseDescriptions[bId] || '';
 
-                            <List dense disablePadding>
-                              {baliseFiles.map((file, index) => {
-                                const globalIndex = files.findIndex((f) => f.file === file);
-                                return (
-                                  <ListItem
-                                    key={index}
-                                    sx={{
-                                      mb: 0.5,
-                                      borderRadius: 1,
-                                      border: 1,
-                                      borderColor: 'primary.light',
-                                      bgcolor: 'primary.lighter',
-                                    }}
-                                    secondaryAction={
-                                      <IconButton size="small" onClick={() => removeFile(globalIndex)} edge="end">
-                                        <Close sx={{ fontSize: 18 }} />
-                                      </IconButton>
-                                    }
-                                  >
-                                    <Description sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
-                                    <ListItemText
-                                      primary={file.name}
-                                      secondary={`${(file.size / 1024).toFixed(1)} KB`}
-                                      primaryTypographyProps={{ variant: 'body2' }}
-                                      secondaryTypographyProps={{ variant: 'caption' }}
-                                    />
-                                  </ListItem>
-                                );
-                              })}
-                            </List>
-                          </Box>
-                        );
-                      })}
+                          return (
+                            <Box key={baliseId} sx={{ mb: 3, pb: 2, borderBottom: 1, borderColor: 'divider' }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                  Baliisi {baliseId}
+                                </Typography>
+                                {isLoadingStatus ? (
+                                  <Chip
+                                    label="Ladataan..."
+                                    size="small"
+                                    color="default"
+                                    icon={<CircularProgress size={12} />}
+                                  />
+                                ) : isNew ? (
+                                  <Chip label="UUSI" size="small" color="success" icon={<Add />} />
+                                ) : (
+                                  <Chip
+                                    label={`v${existingData.version} → v${existingData.version + 1}`}
+                                    size="small"
+                                    color="primary"
+                                    icon={<Update />}
+                                  />
+                                )}
+                                <Chip label={`${baliseFiles.length} tiedostoa`} size="small" variant="outlined" />
+                              </Box>
+
+                              {/* Per-Balise Description Field */}
+                              <TextField
+                                label={`Kuvaus baliisille ${baliseId}`}
+                                value={currentDescription}
+                                onChange={(e) =>
+                                  setBaliseDescriptions((prev) => ({
+                                    ...prev,
+                                    [bId]: e.target.value,
+                                  }))
+                                }
+                                fullWidth
+                                multiline
+                                rows={2}
+                                size="small"
+                                sx={{ mb: 1 }}
+                                placeholder={
+                                  currentDescription
+                                    ? ''
+                                    : globalDescription
+                                      ? `Käytetään yleistä kuvausta: "${globalDescription}"`
+                                      : existingData?.description
+                                        ? existingData.description
+                                        : 'Lisää kuvaus...'
+                                }
+                              />
+
+                              <List dense disablePadding>
+                                {baliseFiles.map((file, index) => {
+                                  const globalIndex = files.findIndex((f) => f.file === file);
+                                  return (
+                                    <ListItem
+                                      key={index}
+                                      sx={{
+                                        mb: 0.5,
+                                        borderRadius: 1,
+                                        border: 1,
+                                        borderColor: 'primary.light',
+                                        bgcolor: 'primary.lighter',
+                                      }}
+                                      secondaryAction={
+                                        <IconButton size="small" onClick={() => removeFile(globalIndex)} edge="end">
+                                          <Close sx={{ fontSize: 18 }} />
+                                        </IconButton>
+                                      }
+                                    >
+                                      <Description sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
+                                      <ListItemText
+                                        primary={file.name}
+                                        secondary={`${(file.size / 1024).toFixed(1)} KB`}
+                                        primaryTypographyProps={{ variant: 'body2' }}
+                                        secondaryTypographyProps={{ variant: 'caption' }}
+                                      />
+                                    </ListItem>
+                                  );
+                                })}
+                              </List>
+                            </Box>
+                          );
+                        })}
                   </Paper>
                 )}
 
