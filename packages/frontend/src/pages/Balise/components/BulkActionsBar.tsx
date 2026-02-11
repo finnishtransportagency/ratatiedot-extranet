@@ -1,11 +1,12 @@
 import React from 'react';
-import { Paper, Button, Chip } from '@mui/material';
+import { Paper, Button, Chip, CircularProgress } from '@mui/material';
 import { Download, Delete, Lock } from '@mui/icons-material';
 
 interface BulkActionsBarProps {
   selectedCount: number;
   canWrite?: boolean;
   isAdmin?: boolean;
+  isDownloading?: boolean;
   onBulkDownload: () => void;
   onBulkLock: () => void;
   onBulkDelete: () => void;
@@ -15,6 +16,7 @@ export const BulkActionsBar: React.FC<BulkActionsBarProps> = ({
   selectedCount,
   canWrite,
   isAdmin,
+  isDownloading,
   onBulkDownload,
   onBulkLock,
   onBulkDelete,
@@ -49,11 +51,12 @@ export const BulkActionsBar: React.FC<BulkActionsBarProps> = ({
         size="small"
         variant="outlined"
         color="primary"
-        startIcon={<Download fontSize="small" />}
+        startIcon={isDownloading ? <CircularProgress size={16} color="inherit" /> : <Download fontSize="small" />}
         onClick={onBulkDownload}
-        title="Lataa valitut sanomat"
+        disabled={isDownloading}
+        title={isDownloading ? 'Ladataan...' : 'Lataa valitut sanomat'}
       >
-        Lataa
+        {isDownloading ? 'Ladataan...' : 'Lataa'}
       </Button>
       {canWrite && (
         <Button
