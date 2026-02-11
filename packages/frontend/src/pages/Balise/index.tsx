@@ -20,6 +20,7 @@ export const BalisePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Permissions
   const { permissions } = useBalisePermissions();
@@ -202,10 +203,13 @@ export const BalisePage: React.FC = () => {
         return;
       }
 
+      setIsDownloading(true);
       await downloadMultipleBaliseFiles(downloadData);
       setSelectedItems([]);
     } catch (error) {
       console.error('Error downloading files:', error);
+    } finally {
+      setIsDownloading(false);
     }
   }, [selectedItems, balises]);
 
@@ -322,6 +326,7 @@ export const BalisePage: React.FC = () => {
           selectedCount={selectedItems.length}
           canWrite={permissions?.canWrite}
           isAdmin={permissions?.isAdmin}
+          isDownloading={isDownloading}
           onBulkDownload={handleBulkDownload}
           onBulkLock={handleBulkLock}
           onBulkDelete={handleBulkDelete}

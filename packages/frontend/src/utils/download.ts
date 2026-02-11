@@ -1,3 +1,5 @@
+import JSZip from 'jszip';
+
 /**
  * Triggers a file download in the browser.
  * @param url The URL to download the file from.
@@ -10,6 +12,17 @@ export const downloadFile = (url: string, filename: string) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+};
+
+/**
+ * Downloads a blob as a file.
+ * @param blob The blob to download.
+ * @param filename The desired name for the downloaded file.
+ */
+const downloadBlob = (blob: Blob, filename: string) => {
+  const url = URL.createObjectURL(blob);
+  downloadFile(url, filename);
+  URL.revokeObjectURL(url);
 };
 
 /**
@@ -45,13 +58,57 @@ export const downloadBaliseFiles = async (baliseId: number, files: string[], ver
 };
 
 /**
- * Download files from multiple balises
+ * Download files from multiple balises as a single zip file.
+ * Fetches all files in parallel, bundles them into a zip, and triggers download.
  * @param balises Array of {baliseId, files}
  */
 export const downloadMultipleBaliseFiles = async (
   balises: Array<{ baliseId: number; files: string[] }>,
 ): Promise<void> => {
+  const zip = new JSZip();
+
+  // Collect all file fetch promises
+  const fetchPromises: Promise<{ folder: string; filename: string; blob: Blob } | null>[] = [];
+
   for (const balise of balises) {
-    await downloadBaliseFiles(balise.baliseId, balise.files);
+    const folderName = `balise_${balise.baliseId}`;
+
+    for (const filename of balise.files) {
+      const promise = (async () => {
+        try {
+          // Use stream mode to get file content directly from backend (avoids CORS with S3 presigned URLs)
+          const url = `/api/balise/${balise.baliseId}/download?fileName=${encodeURIComponent(filename)}&stream=true`;
+          const response = await fetch(url);
+
+          if (!response.ok) {
+            console.error(`Failed to download ${filename}:`, response.statusText);
+            return null;
+          }
+
+          const blob = await response.blob();
+          return { folder: folderName, filename, blob };
+        } catch (error) {
+          console.error(`Error downloading ${filename}:`, error);
+          return null;
+        }
+      })();
+
+      fetchPromises.push(promise);
+    }
   }
+
+  // Wait for all files to be fetched
+  const results = await Promise.all(fetchPromises);
+
+  // Add files to zip
+  for (const result of results) {
+    if (result) {
+      zip.folder(result.folder)?.file(result.filename, result.blob);
+    }
+  }
+
+  // Generate and download zip
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+  downloadBlob(zipBlob, `balise_files_${timestamp}.zip`);
 };
