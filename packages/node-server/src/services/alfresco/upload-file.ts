@@ -1,4 +1,4 @@
-import type { CategoryDataBase } from '../../../generated/prisma/client';
+import type { CategoryDataBase } from '../../../generated/prisma/client.js';
 import { Request } from 'express';
 import lodash from 'lodash';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco.js';
