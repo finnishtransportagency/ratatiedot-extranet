@@ -85,7 +85,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
           <Box sx={{ mb: canWrite ? 2 : 0 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
               <Typography variant="subtitle2" color="text.secondary">
-                {fileListLabel} versio {balise?.version}
+                {fileListLabel}
               </Typography>
               <Button size="small" variant="outlined" color="secondary" onClick={handleDownload}>
                 Lataa tiedostot
