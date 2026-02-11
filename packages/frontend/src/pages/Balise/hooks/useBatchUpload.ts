@@ -201,6 +201,161 @@ async function uploadBatchWithRetry(
   throw lastError;
 }
 
+/**
+ * Extract unique balise IDs from a batch
+ */
+function getBatchBaliseIds(batch: FileWithBaliseId[]): number[] {
+  return [...new Set(batch.map((f) => f.baliseId).filter((id): id is number => id !== null))];
+}
+
+/**
+ * Create failure results for a batch when network error occurs
+ */
+function createNetworkErrorResults(batch: FileWithBaliseId[], errorMessage: string): UploadResult[] {
+  return getBatchBaliseIds(batch).map((baliseId) => ({
+    baliseId,
+    success: false,
+    error: errorMessage,
+    errorType: 'unknown' as const,
+  }));
+}
+
+/**
+ * Process validation error response
+ */
+function processValidationError(data: ValidationErrorResponse): {
+  results: UploadResult[];
+  failureCount: number;
+  errorMessage: string;
+} {
+  const results: UploadResult[] = data.failures.map((f) => ({
+    baliseId: f.baliseId,
+    success: false,
+    error: f.message,
+    errorType: f.errorType,
+    lockedBy: f.lockedBy,
+  }));
+
+  return {
+    results,
+    failureCount: results.length,
+    errorMessage: data.error,
+  };
+}
+
+/**
+ * Process partial failure response (has results array)
+ */
+function processPartialFailure(data: UploadResponse): {
+  results: UploadResult[];
+  invalidFiles: string[];
+  successCount: number;
+  failureCount: number;
+  filesUploaded: number;
+} {
+  let successCount = 0;
+  let failureCount = 0;
+  let filesUploaded = 0;
+
+  for (const r of data.results) {
+    if (r.success) {
+      successCount++;
+      filesUploaded += r.filesUploaded || 0;
+    } else {
+      failureCount++;
+    }
+  }
+
+  return {
+    results: data.results,
+    invalidFiles: data.invalidFiles || [],
+    successCount,
+    failureCount,
+    filesUploaded,
+  };
+}
+
+/**
+ * Process general error response (no results array)
+ */
+function processGeneralError(
+  batch: FileWithBaliseId[],
+  data: UploadResponse | ValidationErrorResponse,
+): UploadResult[] {
+  const errorMessage = 'error' in data ? data.error : 'Lataus epäonnistui';
+  return getBatchBaliseIds(batch).map((baliseId) => ({
+    baliseId,
+    success: false,
+    error: errorMessage,
+    errorType: 'unknown' as const,
+  }));
+}
+
+/**
+ * Process success response
+ */
+function processSuccessResponse(data: UploadResponse): {
+  results: UploadResult[];
+  invalidFiles: string[];
+  successCount: number;
+  filesUploaded: number;
+} {
+  const results = data.results.map((r) => ({ ...r, success: true }));
+  let filesUploaded = 0;
+
+  for (const r of results) {
+    filesUploaded += r.filesUploaded || 0;
+  }
+
+  return {
+    results,
+    invalidFiles: data.invalidFiles || [],
+    successCount: results.length,
+    filesUploaded,
+  };
+}
+
+/**
+ * Determine result message based on counts
+ */
+function getResultMessage(
+  hasValidationError: boolean,
+  validationErrorMessage: string,
+  successCount: number,
+  failureCount: number,
+): string {
+  if (hasValidationError) return validationErrorMessage;
+  if (failureCount === 0) return 'Kaikki tiedostot ladattu onnistuneesti';
+  if (successCount > 0) return `Osa latauksista epäonnistui (${successCount} onnistui, ${failureCount} epäonnistui)`;
+  return 'Lataus epäonnistui';
+}
+
+interface BatchProcessingState {
+  allResults: UploadResult[];
+  allInvalidFiles: string[];
+  totalFilesUploaded: number;
+  totalBalisesProcessed: number;
+  successCount: number;
+  failureCount: number;
+  retriedBatches: number;
+  hasValidationError: boolean;
+  validationErrorMessage: string;
+}
+
+function createInitialState(): BatchProcessingState {
+  return {
+    allResults: [],
+    allInvalidFiles: [],
+    totalFilesUploaded: 0,
+    totalBalisesProcessed: 0,
+    successCount: 0,
+    failureCount: 0,
+    retriedBatches: 0,
+    hasValidationError: false,
+    validationErrorMessage: '',
+  };
+}
+
 export const useBatchUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState<BatchUploadProgress>(INITIAL_PROGRESS);
@@ -214,6 +369,54 @@ export const useBatchUpload = () => {
     setError(null);
     abortRef.current = false;
   }, []);
+
+  const processBatchResponse = useCallback(
+    (
+      response: Response,
+      data: UploadResponse | ValidationErrorResponse,
+      batch: FileWithBaliseId[],
+      state: BatchProcessingState,
+    ): void => {
+      // Success response
+      if (response.ok) {
+        const processed = processSuccessResponse(data as UploadResponse);
+        state.allResults.push(...processed.results);
+        state.allInvalidFiles.push(...processed.invalidFiles);
+        state.successCount += processed.successCount;
+        state.totalFilesUploaded += processed.filesUploaded;
+        state.totalBalisesProcessed += processed.results.length;
+        return;
+      }
+
+      // Validation error
+      if ('errorType' in data && data.errorType === 'validation_failed' && 'failures' in data) {
+        const processed = processValidationError(data);
+        state.allResults.push(...processed.results);
+        state.failureCount += processed.failureCount;
+        state.hasValidationError = true;
+        state.validationErrorMessage = processed.errorMessage;
+        return;
+      }
+
+      // Partial failure with results
+      if ('results' in data && Array.isArray(data.results)) {
+        const processed = processPartialFailure(data as UploadResponse);
+        state.allResults.push(...processed.results);
+        state.allInvalidFiles.push(...processed.invalidFiles);
+        state.successCount += processed.successCount;
+        state.failureCount += processed.failureCount;
+        state.totalFilesUploaded += processed.filesUploaded;
+        state.totalBalisesProcessed += processed.results.length;
+        return;
+      }
+
+      // General error
+      const errorResults = processGeneralError(batch, data);
+      state.allResults.push(...errorResults);
+      state.failureCount += errorResults.length;
+    },
+    [],
+  );
 
   const uploadBatches = useCallback(
     async (
@@ -234,153 +437,59 @@ export const useBatchUpload = () => {
         return null;
       }
 
-      setProgress({
-        ...INITIAL_PROGRESS,
-        totalBatches: batches.length,
-        totalFiles,
-      });
+      setProgress({ ...INITIAL_PROGRESS, totalBatches: batches.length, totalFiles });
 
-      const allResults: UploadResult[] = [];
-      const allInvalidFiles: string[] = [];
-      let totalFilesUploaded = 0;
-      let totalBalisesProcessed = 0;
-      let successCount = 0;
-      let failureCount = 0;
-      let retriedBatches = 0;
-      let hasValidationError = false;
-      let validationErrorMessage = '';
+      const state = createInitialState();
 
       for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-        if (abortRef.current) {
-          break;
-        }
+        if (abortRef.current) break;
 
         const batch = batches[batchIndex];
 
-        try {
-          const { response, data, retried } = await uploadBatchWithRetry(
-            batch,
-            globalDescription,
-            baliseDescriptions,
-            () => {
-              retriedBatches++;
-            },
-          );
+        const batchResult = await uploadBatchWithRetry(batch, globalDescription, baliseDescriptions, () => {
+          state.retriedBatches++;
+        }).catch((err): null => {
+          const errorMessage = err instanceof Error ? err.message : 'Verkkovirhe';
+          const errorResults = createNetworkErrorResults(batch, errorMessage);
+          state.allResults.push(...errorResults);
+          state.failureCount += errorResults.length;
+          return null;
+        });
 
-          if (retried) {
-            retriedBatches++;
-          }
-
-          if (!response.ok) {
-            // Check for validation error
-            if ('errorType' in data && data.errorType === 'validation_failed' && 'failures' in data) {
-              hasValidationError = true;
-              validationErrorMessage = data.error;
-
-              const validationError = data as ValidationErrorResponse;
-              const convertedResults: UploadResult[] = validationError.failures.map((f) => ({
-                baliseId: f.baliseId,
-                success: false,
-                error: f.message,
-                errorType: f.errorType,
-                lockedBy: f.lockedBy,
-              }));
-
-              allResults.push(...convertedResults);
-              failureCount += convertedResults.length;
-            } else if ('results' in data && Array.isArray(data.results)) {
-              // Partial failure with results
-              allResults.push(...data.results);
-              if (data.invalidFiles) {
-                allInvalidFiles.push(...data.invalidFiles);
-              }
-
-              data.results.forEach((r: UploadResult) => {
-                if (r.success) {
-                  successCount++;
-                  totalFilesUploaded += r.filesUploaded || 0;
-                } else {
-                  failureCount++;
-                }
-              });
-              totalBalisesProcessed += data.results.length;
-            } else {
-              // General error - mark all files in batch as failed
-              const batchBaliseIds = [...new Set(batch.map((f) => f.baliseId).filter((id) => id !== null))];
-              batchBaliseIds.forEach((baliseId) => {
-                allResults.push({
-                  baliseId: baliseId!,
-                  success: false,
-                  error: 'error' in data ? data.error : 'Lataus epäonnistui',
-                  errorType: 'unknown',
-                });
-                failureCount++;
-              });
-            }
-          } else {
-            // Success response
-            const successData = data as UploadResponse;
-            const resultsWithSuccess = successData.results.map((r: UploadResult) => ({
-              ...r,
-              success: true,
-            }));
-
-            allResults.push(...resultsWithSuccess);
-            if (successData.invalidFiles) {
-              allInvalidFiles.push(...successData.invalidFiles);
-            }
-
-            resultsWithSuccess.forEach((r) => {
-              successCount++;
-              totalFilesUploaded += r.filesUploaded || 0;
-            });
-            totalBalisesProcessed += resultsWithSuccess.length;
-          }
-        } catch (err) {
-          // Network error after all retries exhausted
-          const batchBaliseIds = [...new Set(batch.map((f) => f.baliseId).filter((id) => id !== null))];
-          batchBaliseIds.forEach((baliseId) => {
-            allResults.push({
-              baliseId: baliseId!,
-              success: false,
-              error: err instanceof Error ? err.message : 'Verkkovirhe',
-              errorType: 'unknown',
-            });
-            failureCount++;
-          });
+        if (batchResult) {
+          if (batchResult.retried) state.retriedBatches++;
+          processBatchResponse(batchResult.response, batchResult.data, batch, state);
         }
 
-        // Update progress
         setProgress({
           currentBatch: batchIndex + 1,
           totalBatches: batches.length,
-          filesUploaded: totalFilesUploaded,
+          filesUploaded: state.totalFilesUploaded,
           totalFiles,
-          balisesProcessed: totalBalisesProcessed,
-          successCount,
-          failureCount,
-          retriedBatches,
+          balisesProcessed: state.totalBalisesProcessed,
+          successCount: state.successCount,
+          failureCount: state.failureCount,
+          retriedBatches: state.retriedBatches,
         });
 
-        // Delay between batches (except for the last one)
-        if (batchIndex < batches.length - 1 && !abortRef.current) {
+        const isLastBatch = batchIndex >= batches.length - 1;
+        if (!isLastBatch && !abortRef.current) {
           await sleep(BATCH_DELAY);
         }
       }
 
       const result: BatchUploadResult = {
-        success: failureCount === 0 && !hasValidationError,
-        message: hasValidationError
-          ? validationErrorMessage
-          : failureCount === 0
-            ? 'Kaikki tiedostot ladattu onnistuneesti'
-            : successCount > 0
-              ? `Osa latauksista epäonnistui (${successCount} onnistui, ${failureCount} epäonnistui)`
-              : 'Lataus epäonnistui',
-        results: allResults,
-        invalidFiles: allInvalidFiles,
-        totalFiles: totalFilesUploaded,
-        totalBalises: new Set(allResults.map((r) => r.baliseId)).size,
+        success: state.failureCount === 0 && !state.hasValidationError,
+        message: getResultMessage(
+          state.hasValidationError,
+          state.validationErrorMessage,
+          state.successCount,
+          state.failureCount,
+        ),
+        results: state.allResults,
+        invalidFiles: state.allInvalidFiles,
+        totalFiles: state.totalFilesUploaded,
+        totalBalises: new Set(state.allResults.map((r) => r.baliseId)).size,
       };
 
       setUploadResult(result);
@@ -388,7 +497,7 @@ export const useBatchUpload = () => {
 
       return result;
     },
-    [resetState],
+    [resetState, processBatchResponse],
   );
 
   const abort = useCallback(() => {
