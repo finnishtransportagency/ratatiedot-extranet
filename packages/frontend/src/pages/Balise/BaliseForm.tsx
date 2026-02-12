@@ -24,6 +24,8 @@ import Circle from '@mui/icons-material/Circle';
 import { BaliseFileManager } from './BaliseFileManager';
 import { BaliseVersionTimeline } from './BaliseVersionTimeline';
 import { ConfirmDialog } from './components/ConfirmDialog';
+import { DeleteBaliseDialog } from './components/DeleteBaliseDialog';
+import { UnlockBaliseDialog } from './components/UnlockBaliseDialog';
 
 interface BaliseFormProps {
   mode: 'create' | 'view';
@@ -481,29 +483,9 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       </Box>
 
       {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
+      <DeleteBaliseDialog
         open={deleteDialogOpen}
-        title="Poista baliisi"
-        message={
-          <>
-            Haluatko varmasti poistaa tämän baliisin (ID: {balise?.secondaryId})?
-            <br />
-            <br />
-            <strong>Mitä tapahtuu:</strong>
-            <br />
-            • Baliisi poistetaan aktiivisesta käytöstä ja siirretään arkistoon
-            <br />• Tunniste (ID {balise?.secondaryId}) vapautuu välittömästi uudelleenkäyttöön
-            <br />
-            • Kaikki versiot ja tiedostot säilyvät arkistossa
-            <br />
-            • Tiedostot siirretään arkistointipolkuun turvallisesti
-            <br />
-            <br />
-            Poistettua baliisia ei voi palauttaa käyttöön.
-          </>
-        }
-        confirmText="Poista"
-        confirmColor="error"
+        secondaryId={balise?.secondaryId}
         disabled={actionLoading}
         loading={actionLoading}
         onConfirm={handleDeleteConfirm}
@@ -561,19 +543,9 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       />
 
       {/* Unlock Confirmation Dialog */}
-      <ConfirmDialog
+      <UnlockBaliseDialog
         open={unlockConfirmDialogOpen}
-        title="Vahvista lukituksen avaaminen"
-        message={
-          <>
-            Lukituksen avaaminen asettaa version {balise?.version} viralliseksi versioksi.
-            <Alert severity="info" sx={{ mt: 2 }}>
-              Aiemmat versiot säilyvät versiohistoriassa.
-            </Alert>
-          </>
-        }
-        confirmText="Avaa lukitus"
-        confirmColor="primary"
+        version={balise?.version}
         disabled={actionLoading}
         loading={actionLoading}
         onConfirm={handleUnlockConfirm}

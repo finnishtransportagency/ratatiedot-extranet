@@ -26,8 +26,8 @@ interface BaliseTableProps {
   isBackgroundLoading?: boolean;
   loadMoreItems: () => Promise<void>;
   totalCount: number;
-  onLockToggle: (id: string) => void;
-  onDelete: (id: string) => void;
+  onLockToggle: (row: BaliseWithHistory) => void;
+  onDelete: (row: BaliseWithHistory) => void;
   onDownload: (row: BaliseWithHistory) => void;
   selectedItems: string[];
   onSelectAll: () => void;
@@ -35,6 +35,7 @@ interface BaliseTableProps {
   onLoadHistory?: (id: string) => Promise<void>;
   onRowClick?: (row: BaliseWithHistory) => void;
   onEditClick?: (row: BaliseWithHistory) => void;
+  lockingBaliseId?: string;
   permissions?: {
     canRead: boolean;
     canWrite: boolean;
@@ -55,6 +56,7 @@ interface CollapsibleRowProps {
   onLoadHistory?: (id: string) => Promise<void>;
   onContextMenu?: (event: React.MouseEvent, row: BaliseWithHistory) => void;
   onRowClick?: (row: BaliseWithHistory) => void;
+  isLocking?: boolean;
   permissions?: {
     canRead: boolean;
     canWrite: boolean;
@@ -117,6 +119,7 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
   onLoadHistory,
   onContextMenu,
   onRowClick,
+  isLocking,
   permissions,
 }) => {
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -192,7 +195,11 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
         <TableCell sx={{ fontSize: '14px', width: '120px' }}>{formatDateTime(row.createdTime)}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '100px' }}>{row.createdBy}</TableCell>
         <TableCell sx={{ fontSize: '14px', width: '120px' }}>
-          {row.locked ? (
+          {isLocking ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <CircularProgress size={16} />
+            </Box>
+          ) : row.locked ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Lock fontSize="small" sx={{ color: 'text.secondary', transform: 'scale(0.80)' }} />
               {row.lockedBy}
@@ -286,6 +293,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
   onLoadHistory,
   onRowClick,
   onEditClick,
+  lockingBaliseId,
   permissions,
 }) => {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows>({});
@@ -332,14 +340,14 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
 
   const handleContextLock = useCallback(() => {
     if (contextMenu) {
-      onLockToggle(contextMenu.rowData.id);
+      onLockToggle(contextMenu.rowData);
     }
     handleContextMenuClose();
   }, [contextMenu, onLockToggle, handleContextMenuClose]);
 
   const handleContextDelete = useCallback(() => {
     if (contextMenu) {
-      onDelete(contextMenu.rowData.id);
+      onDelete(contextMenu.rowData);
     }
     handleContextMenuClose();
   }, [contextMenu, onDelete, handleContextMenuClose]);
@@ -440,6 +448,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
                 onLoadHistory={onLoadHistory}
                 onContextMenu={handleRowContextMenu}
                 onRowClick={onRowClick}
+                isLocking={lockingBaliseId === row.id}
                 permissions={permissions}
               />
             ))}
