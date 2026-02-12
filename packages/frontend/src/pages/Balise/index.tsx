@@ -9,6 +9,8 @@ import { VirtualBaliseTable } from './VirtualBaliseTable';
 import { BulkActionsBar } from './components/BulkActionsBar';
 import { BulkDeleteDialogs } from './components/BulkDeleteDialogs';
 import { ConfirmDialog } from './components/ConfirmDialog';
+import { DeleteBaliseDialog } from './components/DeleteBaliseDialog';
+import { UnlockBaliseDialog } from './components/UnlockBaliseDialog';
 import { useBulkDelete } from './hooks/useBulkDelete';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
@@ -23,6 +25,11 @@ export const BalisePage: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [baliseToDelete, setBaliseToDelete] = useState<BaliseWithHistory | null>(null);
+  const [baliseToUnlock, setBaliseToUnlock] = useState<BaliseWithHistory | null>(null);
+  const [lockingBaliseId, setLockingBaliseId] = useState<string | null>(null);
+  const [contextActionError, setContextActionError] = useState<string | null>(null);
 
   // Permissions
   const { permissions } = useBalisePermissions();
@@ -41,6 +48,9 @@ export const BalisePage: React.FC = () => {
     loadMoreBalises,
     refreshBalise,
     clearCache,
+    lockBalise,
+    unlockBalise,
+    deleteBalise,
   } = useBaliseStore();
 
   // Load section options on mount
@@ -150,14 +160,74 @@ export const BalisePage: React.FC = () => {
     );
   }, [balises, searchTerm]);
 
-  // Table action handlers
-  const handleLockToggle = useCallback((id: string) => {
-    console.log('Toggle lock for:', id);
+  // Table action handlers (context menu single-item)
+  const handleLockToggle = useCallback(
+    async (row: BaliseWithHistory) => {
+      // If unlocking and version has changed, show confirmation dialog
+      if (row.locked && row.lockedAtVersion && row.version > row.lockedAtVersion) {
+        setBaliseToUnlock(row);
+        return;
+      }
+
+      setLockingBaliseId(row.id);
+      setContextActionError(null);
+
+      try {
+        if (row.locked) {
+          await unlockBalise(row.secondaryId);
+        } else {
+          await lockBalise(row.secondaryId);
+        }
+        await refreshBalise(row.secondaryId);
+      } catch (err) {
+        setContextActionError(err instanceof Error ? err.message : 'Lukitus epäonnistui');
+        console.error('Lock toggle failed:', err);
+      } finally {
+        setLockingBaliseId(null);
+      }
+    },
+    [lockBalise, unlockBalise, refreshBalise],
+  );
+
+  const handleUnlockConfirm = useCallback(async () => {
+    if (!baliseToUnlock) return;
+
+    const unlockTarget = baliseToUnlock;
+    setBaliseToUnlock(null); // Close dialog immediately
+    setLockingBaliseId(unlockTarget.id);
+    setContextActionError(null);
+
+    try {
+      await unlockBalise(unlockTarget.secondaryId);
+      await refreshBalise(unlockTarget.secondaryId);
+    } catch (err) {
+      setContextActionError(err instanceof Error ? err.message : 'Lukituksen avaaminen epäonnistui');
+      console.error('Unlock failed:', err);
+    } finally {
+      setLockingBaliseId(null);
+    }
+  }, [baliseToUnlock, unlockBalise, refreshBalise]);
+
+  const handleDelete = useCallback((row: BaliseWithHistory) => {
+    setBaliseToDelete(row);
   }, []);
 
-  const handleDelete = useCallback((id: string) => {
-    console.log('Delete:', id);
-  }, []);
+  const handleDeleteConfirmSingle = useCallback(async () => {
+    if (!baliseToDelete) return;
+
+    setIsDeleting(true);
+    setContextActionError(null);
+
+    try {
+      await deleteBalise(baliseToDelete.secondaryId);
+      setBaliseToDelete(null);
+    } catch (err) {
+      setContextActionError(err instanceof Error ? err.message : 'Poistaminen epäonnistui');
+      console.error('Delete failed:', err);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [baliseToDelete, deleteBalise]);
 
   const handleDownload = useCallback(async (row: BaliseWithHistory) => {
     try {
@@ -275,6 +345,11 @@ export const BalisePage: React.FC = () => {
             Background refresh failed: {error}
           </Alert>
         )}
+        {contextActionError && (
+          <Alert severity="error" sx={{ mb: 1 }} onClose={() => setContextActionError(null)}>
+            {contextActionError}
+          </Alert>
+        )}
         <Paper
           sx={{
             p: 1,
@@ -360,6 +435,7 @@ export const BalisePage: React.FC = () => {
             onSelectAll={handleSelectAll}
             onSelectItem={handleSelectItem}
             onLoadHistory={handleLoadHistory}
+            lockingBaliseId={lockingBaliseId ?? undefined}
             permissions={permissions ?? undefined}
             loadMoreItems={async () => {
               if (searchTerm === '') {
@@ -390,6 +466,24 @@ export const BalisePage: React.FC = () => {
           onConfirm={handleDownloadConfirm}
           onCancel={handleDownloadCancel}
           loading={isDownloading}
+        />
+
+        {/* Single-item Delete Confirmation Dialog */}
+        <DeleteBaliseDialog
+          open={baliseToDelete !== null}
+          secondaryId={baliseToDelete?.secondaryId}
+          loading={isDeleting}
+          onConfirm={handleDeleteConfirmSingle}
+          onCancel={() => setBaliseToDelete(null)}
+        />
+
+        {/* Single-item Unlock Confirmation Dialog (version changed) */}
+        <UnlockBaliseDialog
+          open={baliseToUnlock !== null}
+          version={baliseToUnlock?.version}
+          loading={!!lockingBaliseId}
+          onConfirm={handleUnlockConfirm}
+          onCancel={() => setBaliseToUnlock(null)}
         />
       </Box>
     </BalisePermissionGuard>
