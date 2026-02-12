@@ -157,7 +157,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const zipBuffer = await streamToBuffer(passThrough);
 
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-    const filename = `balise_files_${timestamp}.zip`;
+    const filename = `baliisit_${timestamp}.zip`;
 
     log.info(user, `Bulk download: returning zip with ${results.filter(Boolean).length} files`);
 

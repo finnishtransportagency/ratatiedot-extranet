@@ -1,5 +1,13 @@
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+  CircularProgress,
+} from '@mui/material';
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -37,7 +45,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           {cancelText}
         </Button>
         <Button onClick={onConfirm} color={confirmColor} variant="contained" disabled={disabled || loading}>
-          {loading && confirmText.includes('...') ? confirmText : loading ? `${confirmText}...` : confirmText}
+          {loading && <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />}
+          {confirmText}
         </Button>
       </DialogActions>
     </Dialog>

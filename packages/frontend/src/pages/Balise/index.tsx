@@ -8,10 +8,11 @@ import { SectionFilter } from './Section/SectionFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
 import { BulkActionsBar } from './components/BulkActionsBar';
 import { BulkDeleteDialogs } from './components/BulkDeleteDialogs';
+import { ConfirmDialog } from './components/ConfirmDialog';
 import { useBulkDelete } from './hooks/useBulkDelete';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
-import { downloadBaliseFiles, downloadMultipleBaliseFiles } from '../../utils/download';
+import { downloadMultipleBaliseFiles } from '../../utils/download';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { BalisePermissionGuard } from './BalisePermissionGuard';
 
@@ -21,6 +22,7 @@ export const BalisePage: React.FC = () => {
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
 
   // Permissions
   const { permissions } = useBalisePermissions();
@@ -152,13 +154,12 @@ export const BalisePage: React.FC = () => {
 
   const handleDownload = useCallback(async (row: BaliseWithHistory) => {
     try {
-      if (row.fileTypes.length === 0) {
-        console.warn('No files to download for balise', row.secondaryId);
-        return;
-      }
-      await downloadBaliseFiles(row.secondaryId, row.fileTypes);
+      setIsDownloading(true);
+      await downloadMultipleBaliseFiles([row.secondaryId]);
     } catch (error) {
       console.error('Error downloading balise files:', error);
+    } finally {
+      setIsDownloading(false);
     }
   }, []);
 
@@ -188,25 +189,34 @@ export const BalisePage: React.FC = () => {
     setSelectedItems([]);
   }, [selectedItems]);
 
-  const handleBulkDownload = useCallback(async () => {
+  const handleBulkDownload = useCallback(() => {
+    const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+    if (selectedBalises.length === 0) {
+      console.warn('No balises selected for download');
+      return;
+    }
+    setDownloadDialogOpen(true);
+  }, [selectedItems, balises]);
+
+  const handleDownloadConfirm = useCallback(async () => {
     try {
       const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
       const baliseIds = selectedBalises.map((b) => b.secondaryId);
 
-      if (baliseIds.length === 0) {
-        console.warn('No balises selected for download');
-        return;
-      }
-
       setIsDownloading(true);
       await downloadMultipleBaliseFiles(baliseIds);
       setSelectedItems([]);
+      setDownloadDialogOpen(false);
     } catch (error) {
       console.error('Error downloading files:', error);
     } finally {
       setIsDownloading(false);
     }
   }, [selectedItems, balises]);
+
+  const handleDownloadCancel = useCallback(() => {
+    setDownloadDialogOpen(false);
+  }, []);
 
   // Initial loading state
   if (isInitialLoading) {
@@ -321,7 +331,6 @@ export const BalisePage: React.FC = () => {
           selectedCount={selectedItems.length}
           canWrite={permissions?.canWrite}
           isAdmin={permissions?.isAdmin}
-          isDownloading={isDownloading}
           onBulkDownload={handleBulkDownload}
           onBulkLock={handleBulkLock}
           onBulkDelete={handleBulkDelete}
@@ -363,6 +372,17 @@ export const BalisePage: React.FC = () => {
           onDeleteCancel={handleDeleteCancel}
           onRetryFailed={handleRetryFailed}
           onCloseResult={handleCloseResult}
+        />
+
+        <ConfirmDialog
+          open={downloadDialogOpen}
+          title="Lataa baliisit"
+          message={`Lataa ${selectedItems.length} baliisin viralliset versiot ZIP-tiedostona.`}
+          confirmText={isDownloading ? 'Ladataan...' : 'Lataa'}
+          cancelText="Peruuta"
+          onConfirm={handleDownloadConfirm}
+          onCancel={handleDownloadCancel}
+          loading={isDownloading}
         />
       </Box>
     </BalisePermissionGuard>
