@@ -54,7 +54,7 @@ export const BulkActionsBar: React.FC<BulkActionsBarProps> = ({
         startIcon={isDownloading ? <CircularProgress size={16} color="inherit" /> : <Download fontSize="small" />}
         onClick={onBulkDownload}
         disabled={isDownloading}
-        title={isDownloading ? 'Ladataan...' : 'Lataa valitut sanomat'}
+        title={isDownloading ? 'Ladataan...' : 'Lataa valittujen sanomien viralliset versiot'}
       >
         {isDownloading ? 'Ladataan...' : 'Lataa'}
       </Button>

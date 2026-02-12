@@ -58,15 +58,14 @@ export const downloadBaliseFiles = async (baliseId: number, files: string[], ver
 /**
  * Download files from multiple balises as a single zip file.
  * Makes a single request to backend which creates the zip server-side.
- * @param balises Array of {baliseId, files}
+ * Backend determines which files to include based on each balise's official version.
+ * @param baliseIds Array of balise IDs to download
  */
-export const downloadMultipleBaliseFiles = async (
-  balises: Array<{ baliseId: number; files: string[] }>,
-): Promise<void> => {
+export const downloadMultipleBaliseFiles = async (baliseIds: number[]): Promise<void> => {
   const response = await fetch('/api/balise/bulk-download', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ balises }),
+    body: JSON.stringify({ baliseIds }),
   });
 
   if (!response.ok) {

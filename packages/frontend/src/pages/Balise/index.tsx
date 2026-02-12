@@ -191,20 +191,15 @@ export const BalisePage: React.FC = () => {
   const handleBulkDownload = useCallback(async () => {
     try {
       const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
-      const downloadData = selectedBalises
-        .filter((b) => b.fileTypes.length > 0)
-        .map((b) => ({
-          baliseId: b.secondaryId,
-          files: b.fileTypes,
-        }));
+      const baliseIds = selectedBalises.map((b) => b.secondaryId);
 
-      if (downloadData.length === 0) {
-        console.warn('No files to download from selected balises');
+      if (baliseIds.length === 0) {
+        console.warn('No balises selected for download');
         return;
       }
 
       setIsDownloading(true);
-      await downloadMultipleBaliseFiles(downloadData);
+      await downloadMultipleBaliseFiles(baliseIds);
       setSelectedItems([]);
     } catch (error) {
       console.error('Error downloading files:', error);
