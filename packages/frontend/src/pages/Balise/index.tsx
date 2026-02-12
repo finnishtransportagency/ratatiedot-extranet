@@ -43,18 +43,6 @@ export const BalisePage: React.FC = () => {
     clearCache,
   } = useBaliseStore();
 
-  // Bulk delete functionality
-  const {
-    deleteDialogOpen,
-    deleteProgress,
-    deleteResult,
-    handleBulkDelete,
-    handleDeleteConfirm,
-    handleDeleteCancel,
-    handleRetryFailed,
-    handleCloseResult,
-  } = useBulkDelete(selectedItems, balises, () => setSelectedItems([]));
-
   // Load section options on mount
   useEffect(() => {
     if (permissions?.canRead) {
@@ -83,6 +71,25 @@ export const BalisePage: React.FC = () => {
     },
     [selectedSections, fetchBalises, sectionOptions, clearCache],
   );
+
+  // Bulk delete functionality
+  const {
+    deleteDialogOpen,
+    deleteProgress,
+    deleteResult,
+    handleBulkDelete,
+    handleDeleteConfirm,
+    handleDeleteCancel,
+    handleRetryFailed,
+    handleCloseResult,
+  } = useBulkDelete(selectedItems, balises, () => setSelectedItems([]));
+
+  // Refresh data after bulk delete completes to fix pagination
+  useEffect(() => {
+    if (permissions?.canRead && deleteResult?.show && deleteResult.successCount > 0) {
+      loadInitialData();
+    }
+  }, [deleteResult, loadInitialData, permissions?.canRead]);
 
   // Initial data load and re-load on section change
   useEffect(() => {
