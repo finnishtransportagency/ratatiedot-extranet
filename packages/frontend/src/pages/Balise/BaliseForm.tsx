@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Routes } from '../../constants/Routes';
+import { isValidBaliseIdRange, MIN_BALISE_ID, MAX_BALISE_ID } from '../../utils/baliseValidation';
 import {
   Box,
   Paper,
@@ -54,6 +55,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   const [unlockConfirmDialogOpen, setUnlockConfirmDialogOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Track if the balise ID already exists (for create mode)
+  const [baliseIdExists, setBaliseIdExists] = useState<boolean | null>(null);
+  const [checkingBaliseId, setCheckingBaliseId] = useState(false);
+  const checkBaliseIdTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [formData, setFormData] = useState<FormData>({
     secondaryId: '',
     description: '',
@@ -86,6 +92,43 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       setHasChanges(false);
     }
   }, [balise, mode]);
+
+  // Check if balise ID already exists (debounced, for create mode only)
+  useEffect(() => {
+    if (mode !== 'create') return;
+
+    // Clear previous timeout
+    if (checkBaliseIdTimeout.current) {
+      clearTimeout(checkBaliseIdTimeout.current);
+    }
+
+    const parsedId = parseInt(formData.secondaryId, 10);
+    if (!formData.secondaryId || isNaN(parsedId) || !isValidBaliseIdRange(parsedId)) {
+      setBaliseIdExists(null);
+      setCheckingBaliseId(false);
+      return;
+    }
+
+    setCheckingBaliseId(true);
+
+    // Debounce the API call
+    checkBaliseIdTimeout.current = setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/balise/${parsedId}`);
+        setBaliseIdExists(response.ok); // 200 = exists, 404 = doesn't exist
+      } catch {
+        setBaliseIdExists(null);
+      } finally {
+        setCheckingBaliseId(false);
+      }
+    }, 500);
+
+    return () => {
+      if (checkBaliseIdTimeout.current) {
+        clearTimeout(checkBaliseIdTimeout.current);
+      }
+    };
+  }, [mode, formData.secondaryId]);
 
   // Detect changes
   useEffect(() => {
@@ -401,7 +444,14 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                   color="primary"
                   startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Save />}
                   onClick={handleSave}
-                  disabled={loading || !formData.secondaryId || !formData.description}
+                  disabled={
+                    loading ||
+                    !formData.secondaryId ||
+                    !formData.description ||
+                    checkingBaliseId ||
+                    baliseIdExists === true ||
+                    !isValidBaliseIdRange(parseInt(formData.secondaryId, 10))
+                  }
                   size="small"
                 >
                   {loading ? 'Tallennetaan...' : 'Tallenna'}
@@ -448,6 +498,25 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               disabled={!isCreate}
               type="number"
               placeholder="Syötä baliisi ID"
+              required
+              error={
+                isCreate &&
+                formData.secondaryId !== '' &&
+                (baliseIdExists === true ||
+                  (parseInt(formData.secondaryId, 10) > 0 && !isValidBaliseIdRange(parseInt(formData.secondaryId, 10))))
+              }
+              helperText={
+                isCreate && formData.secondaryId !== ''
+                  ? checkingBaliseId
+                    ? 'Tarkistetaan...'
+                    : baliseIdExists === true
+                      ? 'Baliisi-ID on jo käytössä'
+                      : parseInt(formData.secondaryId, 10) > 0 &&
+                          !isValidBaliseIdRange(parseInt(formData.secondaryId, 10))
+                        ? `Baliisi-ID:n tulee olla välillä ${MIN_BALISE_ID}-${MAX_BALISE_ID}`
+                        : undefined
+                  : undefined
+              }
             />
 
             <InlineEditableField
@@ -463,6 +532,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               multiline
               rows={3}
               placeholder="Syötä kuvaus"
+              required
             />
           </Paper>
 
@@ -470,6 +540,9 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             isCreate={isCreate}
             balise={balise}
             formData={formData}
+            targetBaliseId={formData.secondaryId ? parseInt(formData.secondaryId, 10) || null : null}
+            baliseIdExists={baliseIdExists}
+            checkingBaliseId={checkingBaliseId}
             permissions={permissions}
             onFileUpload={handleFileUploadMultiple}
             onRemoveFile={removeFile}

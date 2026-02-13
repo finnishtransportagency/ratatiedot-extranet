@@ -10,6 +10,9 @@ interface InlineEditableFieldProps {
   rows?: number;
   type?: 'text' | 'number';
   placeholder?: string;
+  required?: boolean;
+  error?: boolean;
+  helperText?: string;
 }
 
 /**
@@ -25,6 +28,9 @@ export const InlineEditableField: React.FC<InlineEditableFieldProps> = ({
   rows = 4,
   type = 'text',
   placeholder = 'Klikkaa muokataksesi...',
+  required = false,
+  error = false,
+  helperText,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
@@ -95,11 +101,12 @@ export const InlineEditableField: React.FC<InlineEditableFieldProps> = ({
           }}
         >
           {label}
+          {required && ' *'}
         </Typography>
         <Typography
           variant="body1"
           sx={{
-            color: value ? 'text.primary' : 'text.disabled',
+            color: error ? 'error.main' : value ? 'text.primary' : 'text.disabled',
             whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -108,6 +115,15 @@ export const InlineEditableField: React.FC<InlineEditableFieldProps> = ({
         >
           {value || placeholder}
         </Typography>
+        {helperText && (
+          <Typography
+            variant="caption"
+            color={error ? 'error.main' : 'text.secondary'}
+            sx={{ mt: 0.5, display: 'block' }}
+          >
+            {helperText}
+          </Typography>
+        )}
       </Box>
     );
   }
@@ -127,6 +143,9 @@ export const InlineEditableField: React.FC<InlineEditableFieldProps> = ({
         fullWidth
         size="small"
         variant="outlined"
+        required={required}
+        error={error}
+        helperText={helperText}
         sx={{
           '& .MuiOutlinedInput-root': {
             bgcolor: 'background.paper',
