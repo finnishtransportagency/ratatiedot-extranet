@@ -62,9 +62,9 @@ interface BatchUploadResult {
 }
 
 const BATCH_SIZE = 200;
-const BATCH_DELAY = 200; // ms between successful batches
+const BATCH_DELAY_MS = 200;
 const MAX_RETRIES = 3;
-const RETRY_DELAY_BASE = 1000; // ms, exponential backoff: 1s, 2s, 4s
+const RETRY_DELAY_BASE_MS = 1000;
 
 const INITIAL_PROGRESS: BatchUploadProgress = {
   currentBatch: 0,
@@ -190,7 +190,7 @@ async function uploadBatchWithRetry(
 
       if (attempt < MAX_RETRIES) {
         retried = true;
-        const delay = RETRY_DELAY_BASE * Math.pow(2, attempt);
+        const delay = RETRY_DELAY_BASE_MS * Math.pow(2, attempt);
         onRetry?.(attempt + 1);
         await sleep(delay);
       }
@@ -474,7 +474,7 @@ export const useBatchUpload = () => {
 
         const isLastBatch = batchIndex >= batches.length - 1;
         if (!isLastBatch && !abortRef.current) {
-          await sleep(BATCH_DELAY);
+          await sleep(BATCH_DELAY_MS);
         }
       }
 

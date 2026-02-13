@@ -41,7 +41,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {typeof message === 'string' ? <DialogContentText>{message}</DialogContentText> : message}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel} disabled={disabled || loading}>
+        <Button onClick={onCancel} disabled={loading}>
           {cancelText}
         </Button>
         <Button onClick={onConfirm} color={confirmColor} variant="contained" disabled={disabled || loading}>

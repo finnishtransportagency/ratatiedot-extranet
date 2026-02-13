@@ -23,6 +23,8 @@ export const BalisePage: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const [isLocking, setIsLocking] = useState(false);
+  const [lockDialogOpen, setLockDialogOpen] = useState(false);
 
   // Permissions
   const { permissions } = useBalisePermissions();
@@ -41,6 +43,7 @@ export const BalisePage: React.FC = () => {
     loadMoreBalises,
     refreshBalise,
     clearCache,
+    bulkLockBalises,
   } = useBaliseStore();
 
   // Load section options on mount
@@ -150,6 +153,14 @@ export const BalisePage: React.FC = () => {
     );
   }, [balises, searchTerm]);
 
+  // Calculate lock stats for selected items
+  const selectedLockStats = useMemo(() => {
+    const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+    const alreadyLocked = selectedBalises.filter((b) => b.locked).length;
+    const unlocked = selectedBalises.length - alreadyLocked;
+    return { total: selectedBalises.length, alreadyLocked, unlocked };
+  }, [balises, selectedItems]);
+
   // Table action handlers
   const handleLockToggle = useCallback((id: string) => {
     console.log('Toggle lock for:', id);
@@ -190,11 +201,35 @@ export const BalisePage: React.FC = () => {
     setSelectedItems((prev) => (prev.length === allIds.length ? [] : allIds));
   }, [filteredData]);
 
-  // Other bulk actions
   const handleBulkLock = useCallback(() => {
-    console.log('Bulk lock:', selectedItems);
-    setSelectedItems([]);
-  }, [selectedItems]);
+    const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+    if (selectedBalises.length === 0) {
+      console.warn('No balises selected for locking');
+      return;
+    }
+    setLockDialogOpen(true);
+  }, [selectedItems, balises]);
+
+  const handleLockConfirm = useCallback(async () => {
+    try {
+      const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+      const baliseIds = selectedBalises.map((b) => b.secondaryId);
+
+      setIsLocking(true);
+      await bulkLockBalises(baliseIds);
+      setSelectedItems([]);
+      setLockDialogOpen(false);
+      loadInitialData();
+    } catch (error) {
+      console.error('Error locking files:', error);
+    } finally {
+      setIsLocking(false);
+    }
+  }, [selectedItems, balises, bulkLockBalises, loadInitialData]);
+
+  const handleLockCancel = useCallback(() => {
+    setLockDialogOpen(false);
+  }, []);
 
   const handleBulkDownload = useCallback(() => {
     const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
@@ -379,6 +414,24 @@ export const BalisePage: React.FC = () => {
           onDeleteCancel={handleDeleteCancel}
           onRetryFailed={handleRetryFailed}
           onCloseResult={handleCloseResult}
+        />
+
+        <ConfirmDialog
+          open={lockDialogOpen}
+          title="Lukitse baliisit"
+          message={
+            selectedLockStats.unlocked === 0
+              ? `Kaikki ${selectedLockStats.total} valittua baliisia ovat jo lukittuja.`
+              : selectedLockStats.alreadyLocked > 0
+                ? `Lukitse ${selectedLockStats.unlocked} baliisia. ${selectedLockStats.alreadyLocked} baliisia on jo lukittu ja ohitetaan.`
+                : `Lukitse ${selectedLockStats.total} baliisia.`
+          }
+          confirmText={isLocking ? 'Lukitaan...' : 'Lukitse'}
+          cancelText="Peruuta"
+          onConfirm={handleLockConfirm}
+          onCancel={handleLockCancel}
+          loading={isLocking}
+          disabled={selectedLockStats.unlocked === 0}
         />
 
         <ConfirmDialog
