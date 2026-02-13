@@ -32,17 +32,31 @@ export function isValidBaliseIdRange(baliseId: number): boolean {
 
 /**
  * Parse balise ID from filename
+ * Only allows format: {ID}.ext or {ID}K.ext (K suffix only, case insensitive)
  * Examples:
  *   "10000.il" → 10000
  *   "10000.leu" → 10000
  *   "12345.bis" → 12345
- *   "10000K.il" -> 10000
+ *   "10000K.il" → 10000
+ *   "10000k.LEU" → 10000
+ *   "10000X.il" → null (invalid - only K allowed)
  */
 export function parseBaliseIdFromFilename(filename: string): number | null {
-  const match = filename.match(/(\d+)/);
+  // Match: digits, optionally followed by K/k, then a dot and extension
+  // This ensures only K suffix is allowed after the ID
+  const match = filename.match(/^(\d+)[Kk]?\.(il|leu|bis)$/i);
   if (!match) return null;
   const id = parseInt(match[1], 10);
   return isNaN(id) ? null : id;
+}
+
+/**
+ * Check if filename has valid format (ID with optional K suffix + valid extension)
+ * Returns false if there are invalid characters between ID and extension
+ */
+export function isValidFilenameFormat(filename: string): boolean {
+  // Valid format: {digits}{optional K/k}.{il|leu|bis} (case insensitive for extension)
+  return /^(\d+)[Kk]?\.(il|leu|bis)$/i.test(filename);
 }
 
 export interface BaliseUpdateResult {

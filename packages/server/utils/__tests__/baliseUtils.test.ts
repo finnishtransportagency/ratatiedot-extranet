@@ -428,14 +428,20 @@ describe('baliseUtils', () => {
       expect(parseBaliseIdFromFilename('54321.leu')).toBe(54321);
     });
 
-    it('should parse first numeric sequence from filename', () => {
-      expect(parseBaliseIdFromFilename('prefix_10000.il')).toBe(10000);
-      expect(parseBaliseIdFromFilename('balise-12345.bis')).toBe(12345);
+    it('should return null for invalid filename format (prefix not allowed)', () => {
+      expect(parseBaliseIdFromFilename('prefix_10000.il')).toBeNull();
+      expect(parseBaliseIdFromFilename('balise-12345.bis')).toBeNull();
     });
 
-    it('should parse the numeric ID even if it is suffixed by additional characters', () => {
-      // Temporary balise files might have letter K appended to the ID
+    it('should parse K suffix correctly (case insensitive)', () => {
       expect(parseBaliseIdFromFilename('10003K.bis')).toBe(10003);
+      expect(parseBaliseIdFromFilename('10003k.leu')).toBe(10003);
+      expect(parseBaliseIdFromFilename('12345K.IL')).toBe(12345);
+    });
+
+    it('should return null for invalid suffix (only K allowed)', () => {
+      expect(parseBaliseIdFromFilename('10003X.bis')).toBeNull();
+      expect(parseBaliseIdFromFilename('10003AB.leu')).toBeNull();
     });
 
     it('should return null for filename without numbers', () => {
@@ -447,8 +453,16 @@ describe('baliseUtils', () => {
       expect(parseBaliseIdFromFilename('')).toBeNull();
     });
 
-    it('should handle filenames with only numeric ID (no extension)', () => {
-      expect(parseBaliseIdFromFilename('10000')).toBe(10000);
+    it('should return null for filenames without valid extension', () => {
+      expect(parseBaliseIdFromFilename('10000')).toBeNull();
+      expect(parseBaliseIdFromFilename('10000.pdf')).toBeNull();
+      expect(parseBaliseIdFromFilename('10000.txt')).toBeNull();
+    });
+
+    it('should handle case insensitive extensions', () => {
+      expect(parseBaliseIdFromFilename('10000.IL')).toBe(10000);
+      expect(parseBaliseIdFromFilename('10000.LEU')).toBe(10000);
+      expect(parseBaliseIdFromFilename('10000.BIS')).toBe(10000);
     });
   });
 });

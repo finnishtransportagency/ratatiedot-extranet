@@ -66,7 +66,59 @@ describe('validateUploadedFiles', () => {
       ];
       const errors = validateUploadedFiles(files, 12345);
       expect(errors).toHaveLength(2);
-      expect(errors.every((e) => e.error.includes('Tiedostonimestä ei löydy baliisi-tunnusta'))).toBe(true);
+      expect(errors.every((e) => e.error.includes('Virheellinen tiedostonimi'))).toBe(true);
+    });
+  });
+
+  describe('K suffix validation', () => {
+    it('should accept files with K suffix', () => {
+      const files: ParsedFileUpload[] = [
+        {
+          filename: '12345K.il',
+          buffer: Buffer.from('test'),
+        },
+        {
+          filename: '12345k.leu',
+          buffer: Buffer.from('test'),
+        },
+      ];
+      const errors = validateUploadedFiles(files, 12345);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should reject files with invalid suffix (not K)', () => {
+      const files: ParsedFileUpload[] = [
+        {
+          filename: '12345X.il',
+          buffer: Buffer.from('test'),
+        },
+        {
+          filename: '12345AB.leu',
+          buffer: Buffer.from('test'),
+        },
+      ];
+      const errors = validateUploadedFiles(files, 12345);
+      expect(errors).toHaveLength(2);
+      expect(errors.every((e) => e.error.includes('Virheellinen tiedostonimi'))).toBe(true);
+    });
+
+    it('should handle case insensitive extensions with K suffix', () => {
+      const files: ParsedFileUpload[] = [
+        {
+          filename: '12345K.IL',
+          buffer: Buffer.from('test'),
+        },
+        {
+          filename: '12345k.LEU',
+          buffer: Buffer.from('test'),
+        },
+        {
+          filename: '12345.BIS',
+          buffer: Buffer.from('test'),
+        },
+      ];
+      const errors = validateUploadedFiles(files, 12345);
+      expect(errors).toHaveLength(0);
     });
   });
 
