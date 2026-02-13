@@ -1,13 +1,19 @@
-import React, { useCallback } from 'react';
-import { Box, Paper, Typography, Button, Alert, Divider } from '@mui/material';
+import React, { useCallback, useState, useEffect } from 'react';
+import { Box, Paper, Typography, Button, Alert, Divider, List, ListItem, ListItemText } from '@mui/material';
 import { Description } from '@mui/icons-material';
 import { ChipWrapper } from '../../components/Chip';
 import { downloadBaliseFiles } from '../../utils/download';
+import { validateBaliseFiles, getValidExtensionsList } from '../../utils/baliseValidation';
 import { UploadedFilesList } from './components/UploadedFilesList';
 import { FileUploadZone } from './components/FileUploadZone';
 import { useFileDragDrop } from './hooks/useFileDragDrop';
 import type { BaliseWithHistory } from './types';
 import { VersionStatus } from './enums';
+
+interface FileValidationError {
+  filename: string;
+  errors: string[];
+}
 
 interface BaliseFileManagerProps {
   isCreate: boolean;
@@ -30,7 +36,47 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   onFileUpload,
   onRemoveFile,
 }) => {
-  const { isDragging, handleDragOver, handleDragLeave, handleDrop } = useFileDragDrop(onFileUpload);
+  const [validationErrors, setValidationErrors] = useState<FileValidationError[]>([]);
+
+  // Clear validation errors when files are cleared (e.g., undo button)
+  useEffect(() => {
+    if (formData.files.length === 0) {
+      setValidationErrors([]);
+    }
+  }, [formData.files.length]);
+
+  // Validate files before passing to parent handler
+  const handleValidatedFileUpload = useCallback(
+    (files: File[]) => {
+      // Skip validation in create mode (no target balise ID yet)
+      if (isCreate || !balise) {
+        onFileUpload(files);
+        return;
+      }
+
+      const { validFiles, invalidFiles } = validateBaliseFiles(files, balise.secondaryId);
+
+      // Set validation errors for display
+      if (invalidFiles.length > 0) {
+        setValidationErrors(
+          invalidFiles.map(({ file, errors }) => ({
+            filename: file.name,
+            errors,
+          })),
+        );
+      } else {
+        setValidationErrors([]);
+      }
+
+      // Pass only valid files to parent
+      if (validFiles.length > 0) {
+        onFileUpload(validFiles);
+      }
+    },
+    [isCreate, balise, onFileUpload],
+  );
+
+  const { isDragging, handleDragOver, handleDragLeave, handleDrop } = useFileDragDrop(handleValidatedFileUpload);
 
   const handleDownload = useCallback(
     async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -50,11 +96,19 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(event.target.files || []);
-      onFileUpload(files);
+      handleValidatedFileUpload(files);
       // Clear the input value to allow re-uploading the same file
       event.target.value = '';
     },
-    [onFileUpload],
+    [handleValidatedFileUpload],
+  );
+
+  // Wrapper for file removal - useEffect handles clearing validation errors when files become empty
+  const handleRemoveFile = useCallback(
+    (index: number) => {
+      onRemoveFile(index);
+    },
+    [onRemoveFile],
   );
 
   const hasExistingFiles = balise && balise.fileTypes?.length > 0;
@@ -115,21 +169,50 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
               </Alert>
             )}
             {canUpload && (
-              <FileUploadZone
-                inputId="file-upload-input"
-                onFileChange={handleFileChange}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                isDragging={isDragging}
-                variant="large"
-                title={isCreate ? 'Raahaa tiedostot/kansio tähän' : 'Lisää uusia tiedostoja'}
-                subtitle={
-                  isCreate
-                    ? 'Voit valita yksittäisiä tiedostoja tai kokonaisen kansion'
-                    : 'Raahaa tiedostot/kansio tähän, tai klikkaa valitaksesi'
-                }
-              />
+              <>
+                {/* Validation errors - show rejected files when no valid files uploaded */}
+                {validationErrors.length > 0 && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      Tiedostot hylättiin
+                    </Typography>
+                    {validationErrors.length > 10 ? (
+                      <Typography variant="body2" sx={{ mt: 1 }}>
+                        {validationErrors.length} tiedostoa hylättiin. Hyväksytty muoto: {'{'}
+                        ID{'}'}.pääte tai {'{'}ID{'}'}K.pääte ({getValidExtensionsList()})
+                      </Typography>
+                    ) : (
+                      <List dense sx={{ py: 0 }}>
+                        {validationErrors.map((err, idx) => (
+                          <ListItem key={idx} sx={{ py: 0.25, px: 0 }}>
+                            <ListItemText
+                              primary={err.filename}
+                              secondary={err.errors.join('. ')}
+                              primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
+                              secondaryTypographyProps={{ variant: 'caption' }}
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    )}
+                  </Alert>
+                )}
+                <FileUploadZone
+                  inputId="file-upload-input"
+                  onFileChange={handleFileChange}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  isDragging={isDragging}
+                  variant="large"
+                  title={isCreate ? 'Raahaa tiedostot/kansio tähän' : 'Lisää uusia tiedostoja'}
+                  subtitle={
+                    isCreate
+                      ? `Sallitut tiedostopäätteet: ${getValidExtensionsList()}`
+                      : `Sallitut päätteet: ${getValidExtensionsList()}`
+                  }
+                />
+              </>
             )}
           </>
         )}
@@ -137,6 +220,34 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
         {/* File replacement workflow - shown when files are uploaded */}
         {hasNewFiles && (
           <Box>
+            {/* Validation errors - show rejected files */}
+            {validationErrors.length > 0 && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Osa tiedostoista hylättiin
+                </Typography>
+                {validationErrors.length > 10 ? (
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    {validationErrors.length} tiedostoa hylättiin. Hyväksytty muoto: {'{'}
+                    ID{'}'}.pääte tai {'{'}ID{'}'}K.pääte ({getValidExtensionsList()})
+                  </Typography>
+                ) : (
+                  <List dense sx={{ py: 0 }}>
+                    {validationErrors.map((err, idx) => (
+                      <ListItem key={idx} sx={{ py: 0.25, px: 0 }}>
+                        <ListItemText
+                          primary={err.filename}
+                          secondary={err.errors.join('. ')}
+                          primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
+                          secondaryTypographyProps={{ variant: 'caption' }}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </Alert>
+            )}
+
             {/* Show different messaging based on whether there are existing files */}
             {hasExistingFiles ? (
               <>
@@ -193,7 +304,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
             )}
 
             {/* New uploaded files - will become the new set */}
-            <UploadedFilesList files={formData.files} title="Uudet tiedostot" onRemoveFile={onRemoveFile} />
+            <UploadedFilesList files={formData.files} title="Uudet tiedostot" onRemoveFile={handleRemoveFile} />
 
             <Divider sx={{ my: 3 }} />
 
@@ -211,7 +322,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
                 isDragging={isDragging}
                 variant="compact"
                 title="Raahaa lisää tiedostoja tähän tai klikkaa"
-                subtitle=""
+                subtitle={`Sallitut päätteet: ${getValidExtensionsList()}`}
               />
             </Box>
           </Box>
