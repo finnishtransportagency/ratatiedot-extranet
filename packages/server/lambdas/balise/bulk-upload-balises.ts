@@ -4,7 +4,16 @@ import { getUser, validateBaliseWriteUser, RataExtraUser } from '../../utils/use
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import busboy, { FileInfo } from 'busboy';
 import { Readable } from 'stream';
-import { updateOrCreateBalise, validateBalisesLockedByUser } from '../../utils/baliseUtils';
+import {
+  updateOrCreateBalise,
+  validateBalisesLockedByUser,
+  VALID_EXTENSIONS,
+  MIN_BALISE_ID,
+  MAX_BALISE_ID,
+  isValidExtension,
+  isValidBaliseIdRange,
+  parseBaliseIdFromFilename,
+} from '../../utils/baliseUtils';
 import type { FileUpload } from '../../utils/s3utils';
 import { getRataExtraLambdaError } from '../../utils/errors';
 
@@ -24,23 +33,6 @@ interface UploadResult {
   filesUploaded?: number;
   isNewBalise?: boolean; // true if balise was created, false if updated
   error?: string;
-}
-
-/**
- * Parse balise ID from filename
- * Examples:
- *   "10000.il" → 10000
- *   "10000.leu" → 10000
- *   "A-12345.pdf" → 12345
- */
-function parseBaliseId(filename: string): number | null {
-  // Extract the first continuous sequence of digits
-  const match = filename.match(/(\d+)/);
-  if (!match) {
-    return null;
-  }
-  const id = parseInt(match[1], 10);
-  return isNaN(id) ? null : id;
 }
 
 /**
@@ -107,19 +99,37 @@ async function parseMultipartForm(
 
       file.on('end', () => {
         const fileBuffer = Buffer.concat(chunks as unknown as Uint8Array[]);
-        const baliseId = parseBaliseId(fileinfo.filename);
+        const baliseId = parseBaliseIdFromFilename(fileinfo.filename);
 
-        if (baliseId === null) {
-          invalidFiles.push(fileinfo.filename);
-          log.warn({ system: true }, `Cannot parse balise ID from filename: ${fileinfo.filename}`);
-        } else {
-          fileUploads.push({
-            filename: fileinfo.filename,
-            buffer: fileBuffer,
-            baliseId,
-          });
-          log.debug(`Parsed file: ${fileinfo.filename} -> balise ${baliseId}, size: ${fileBuffer.length} bytes`);
+        // Validate extension
+        if (!isValidExtension(fileinfo.filename)) {
+          invalidFiles.push(
+            `${fileinfo.filename} (virheellinen tiedostopääte, sallitut: ${VALID_EXTENSIONS.join(', ')})`,
+          );
+          log.warn({ system: true }, `Invalid file extension: ${fileinfo.filename}`);
+          return;
         }
+        if (baliseId === null) {
+          invalidFiles.push(`${fileinfo.filename} (baliisi-tunnusta ei löydy tiedostonimestä)`);
+          log.warn({ system: true }, `Cannot parse balise ID from filename: ${fileinfo.filename}`);
+          return;
+        }
+
+        // Validate balise ID range
+        if (!isValidBaliseIdRange(baliseId)) {
+          invalidFiles.push(
+            `${fileinfo.filename} (baliisi-tunnus ${baliseId} ei ole välillä ${MIN_BALISE_ID}-${MAX_BALISE_ID})`,
+          );
+          log.warn({ system: true }, `Balise ID out of range: ${baliseId} in filename ${fileinfo.filename}`);
+          return;
+        }
+
+        fileUploads.push({
+          filename: fileinfo.filename,
+          buffer: fileBuffer,
+          baliseId,
+        });
+        log.debug(`Parsed file: ${fileinfo.filename} -> balise ${baliseId}, size: ${fileBuffer.length} bytes`);
       });
 
       file.on('error', (err) => {
@@ -165,7 +175,7 @@ function validateFiles(fileUploads: BulkFileUpload[], invalidFiles: string[]): A
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         error: 'No valid files found in upload',
-        hint: 'Check that filenames contain balise IDs (e.g., 10000.il)',
+        hint: `Tiedostonimen tulee sisältää baliisi-tunnus (${MIN_BALISE_ID}-${MAX_BALISE_ID}) ja pääte tulee olla ${VALID_EXTENSIONS.join(', ')} (esim. 10000.il)`,
         invalidFiles,
       }),
     };

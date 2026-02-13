@@ -1,5 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { updateOrCreateBalise, validateBalisesLockedByUser, type BaliseUpdateOptions } from '../baliseUtils';
+import {
+  updateOrCreateBalise,
+  validateBalisesLockedByUser,
+  isValidExtension,
+  isValidBaliseIdRange,
+  parseBaliseIdFromFilename,
+  MIN_BALISE_ID,
+  MAX_BALISE_ID,
+  type BaliseUpdateOptions,
+} from '../baliseUtils';
 import { uploadFilesToS3WithCleanup } from '../s3utils';
 
 // Define mock database interface
@@ -342,6 +351,104 @@ describe('baliseUtils', () => {
 
       const result = await validateBalisesLockedByUser(baliseIds, userId);
       expect(result).toBeNull();
+    });
+  });
+
+  describe('isValidExtension', () => {
+    it('should return true for valid .il extension', () => {
+      expect(isValidExtension('10000.il')).toBe(true);
+    });
+
+    it('should return true for valid .leu extension', () => {
+      expect(isValidExtension('10000.leu')).toBe(true);
+    });
+
+    it('should return true for valid .bis extension', () => {
+      expect(isValidExtension('10000.bis')).toBe(true);
+    });
+
+    it('should be case insensitive for uppercase extensions', () => {
+      expect(isValidExtension('10000.IL')).toBe(true);
+      expect(isValidExtension('10000.LEU')).toBe(true);
+      expect(isValidExtension('10000.BIS')).toBe(true);
+    });
+
+    it('should be case insensitive for mixed case extensions', () => {
+      // Rare, but possible and not a problem if we allow it, especially since
+      // Windows/macOS are case insensitive
+      expect(isValidExtension('10000.Il')).toBe(true);
+      expect(isValidExtension('10000.Leu')).toBe(true);
+      expect(isValidExtension('10000.BiS')).toBe(true);
+    });
+
+    it('should return false for invalid extensions', () => {
+      expect(isValidExtension('10000.txt')).toBe(false);
+      expect(isValidExtension('10000.pdf')).toBe(false);
+      expect(isValidExtension('10000.doc')).toBe(false);
+    });
+
+    it('should return false for files without extension', () => {
+      expect(isValidExtension('10000')).toBe(false);
+    });
+
+    it('should return false for empty string', () => {
+      expect(isValidExtension('')).toBe(false);
+    });
+  });
+
+  describe('isValidBaliseIdRange', () => {
+    it('should return true for minimum valid ID', () => {
+      expect(isValidBaliseIdRange(MIN_BALISE_ID)).toBe(true);
+    });
+
+    it('should return true for maximum valid ID', () => {
+      expect(isValidBaliseIdRange(MAX_BALISE_ID)).toBe(true);
+    });
+
+    it('should return true for ID in the valid range', () => {
+      expect(isValidBaliseIdRange(12345)).toBe(true);
+      expect(isValidBaliseIdRange(50000)).toBe(true);
+    });
+
+    it('should return false for ID below minimum', () => {
+      expect(isValidBaliseIdRange(MIN_BALISE_ID - 1)).toBe(false);
+      expect(isValidBaliseIdRange(-10000)).toBe(false);
+    });
+
+    it('should return false for ID above maximum', () => {
+      expect(isValidBaliseIdRange(MAX_BALISE_ID + 1)).toBe(false);
+      expect(isValidBaliseIdRange(999999)).toBe(false);
+    });
+  });
+
+  describe('parseBaliseIdFromFilename', () => {
+    it('should parse 5-digit IDs correctly', () => {
+      expect(parseBaliseIdFromFilename('10000.il')).toBe(10000);
+      expect(parseBaliseIdFromFilename('99999.bis')).toBe(99999);
+      expect(parseBaliseIdFromFilename('54321.leu')).toBe(54321);
+    });
+
+    it('should parse first numeric sequence from filename', () => {
+      expect(parseBaliseIdFromFilename('prefix_10000.il')).toBe(10000);
+      expect(parseBaliseIdFromFilename('balise-12345.bis')).toBe(12345);
+    });
+
+    it('should parse the numeric ID even if it is suffixed by additional characters', () => {
+      // Temporary balise files might have letter K appended to the ID
+      expect(parseBaliseIdFromFilename('10003K.bis')).toBe(10003);
+    });
+
+    it('should return null for filename without numbers', () => {
+      expect(parseBaliseIdFromFilename('file.il')).toBeNull();
+      expect(parseBaliseIdFromFilename('noNumbers.leu')).toBeNull();
+    });
+
+    it('should return null for empty string', () => {
+      expect(parseBaliseIdFromFilename('')).toBeNull();
+    });
+
+    it('should handle filenames with only numeric ID (no extension)', () => {
+      expect(parseBaliseIdFromFilename('10000')).toBe(10000);
     });
   });
 });
