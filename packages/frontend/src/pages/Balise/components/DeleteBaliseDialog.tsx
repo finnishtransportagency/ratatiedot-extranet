@@ -32,15 +32,12 @@ export const DeleteBaliseDialog: React.FC<DeleteBaliseDialogProps> = ({
           <br />
           <br />
           <strong>Mitä tapahtuu:</strong>
-          <br />
-          • Baliisi poistetaan aktiivisesta käytöstä ja siirretään arkistoon
-          <br />• Tunniste (ID {secondaryId}) vapautuu välittömästi uudelleenkäyttöön
-          <br />
-          • Kaikki versiot ja tiedostot säilyvät arkistossa
-          <br />
-          • Tiedostot siirretään arkistointipolkuun turvallisesti
-          <br />
-          <br />
+          <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
+            <li>Baliisi poistetaan aktiivisesta käytöstä ja siirretään arkistoon</li>
+            <li>Tunniste (ID {secondaryId}) vapautuu välittömästi uudelleenkäyttöön</li>
+            <li>Kaikki versiot ja tiedostot säilyvät arkistossa</li>
+            <li>Tiedostot siirretään arkistointipolkuun turvallisesti</li>
+          </ul>
           Poistettua baliisia ei voi palauttaa käyttöön.
         </>
       }
