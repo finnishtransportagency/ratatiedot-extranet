@@ -152,7 +152,7 @@ export const MenuContext = React.createContext<MenuContextType>({
 
 export const MenuContextProvider = ({ children }: { children?: ReactNode }) => {
   const { t } = useTranslation(['common']);
-  const { permissions } = useBalisePermissions();
+  const { permissions: balisePermissions } = useBalisePermissions();
   const [favoriteCategories, setFavoriteCategories] = useState<IMenuItem[]>([]);
   const [fileUploadDisabled, setFileUploadDisabled] = useState(true);
 
@@ -179,8 +179,7 @@ export const MenuContextProvider = ({ children }: { children?: ReactNode }) => {
       children: favoriteCategories,
     },
     ...fetchMaterialClass(),
-    // Balise menu item - only show if user has balise read permissions or higher
-    ...(permissions?.canRead
+    ...(balisePermissions?.canRead
       ? [
           {
             key: t('common:menu.balise'),
