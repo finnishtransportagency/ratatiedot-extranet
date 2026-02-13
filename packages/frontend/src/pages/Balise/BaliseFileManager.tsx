@@ -3,7 +3,7 @@ import { Box, Paper, Typography, Button, Alert, Divider, List, ListItem, ListIte
 import { Description } from '@mui/icons-material';
 import { ChipWrapper } from '../../components/Chip';
 import { downloadBaliseFiles } from '../../utils/download';
-import { validateBaliseFiles, getValidExtensionsList } from '../../utils/baliseValidation';
+import { validateBaliseFiles, getValidExtensionsList, isValidBaliseIdRange } from '../../utils/baliseValidation';
 import { UploadedFilesList } from './components/UploadedFilesList';
 import { FileUploadZone } from './components/FileUploadZone';
 import { useFileDragDrop } from './hooks/useFileDragDrop';
@@ -19,6 +19,9 @@ interface BaliseFileManagerProps {
   isCreate: boolean;
   balise?: BaliseWithHistory | null;
   formData: { files: File[] };
+  targetBaliseId?: number | null; // For create mode - the ID entered in the form
+  baliseIdExists?: boolean | null; // For create mode - whether the ID already exists
+  checkingBaliseId?: boolean; // For create mode - loading state while checking ID
   permissions?: {
     canWrite: boolean;
     isAdmin?: boolean;
@@ -32,11 +35,23 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   isCreate,
   balise,
   formData,
+  targetBaliseId,
+  baliseIdExists,
   permissions,
   onFileUpload,
   onRemoveFile,
 }) => {
-  const [validationErrors, setValidationErrors] = useState<FileValidationError[]>([]);
+  const [validationErrors, setValidationErrors] = useState<FileValidationError[]>();
+
+  // Determine if a valid balise ID is available for file validation
+  // For create mode: ID must be in valid range AND must not already exist
+  const hasValidBaliseIdForCreate =
+    isCreate &&
+    targetBaliseId !== null &&
+    targetBaliseId !== undefined &&
+    isValidBaliseIdRange(targetBaliseId) &&
+    baliseIdExists === false;
+  const isUploadDisabled = isCreate && !hasValidBaliseIdForCreate;
 
   // Clear validation errors when files are cleared (e.g., undo button)
   useEffect(() => {
@@ -48,13 +63,15 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   // Validate files before passing to parent handler
   const handleValidatedFileUpload = useCallback(
     (files: File[]) => {
-      // Skip validation in create mode (no target balise ID yet)
-      if (isCreate || !balise) {
-        onFileUpload(files);
+      // Determine which balise ID to validate against
+      const baliseIdForValidation = isCreate ? targetBaliseId : balise?.secondaryId;
+
+      // If no valid balise ID available, don't process files
+      if (baliseIdForValidation === null || baliseIdForValidation === undefined) {
         return;
       }
 
-      const { validFiles, invalidFiles } = validateBaliseFiles(files, balise.secondaryId);
+      const { validFiles, invalidFiles } = validateBaliseFiles(files, baliseIdForValidation);
 
       // Set validation errors for display
       if (invalidFiles.length > 0) {
@@ -73,7 +90,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
         onFileUpload(validFiles);
       }
     },
-    [isCreate, balise, onFileUpload],
+    [isCreate, balise, targetBaliseId, onFileUpload],
   );
 
   const { isDragging, handleDragOver, handleDragLeave, handleDrop } = useFileDragDrop(handleValidatedFileUpload);
@@ -171,7 +188,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
             {canUpload && (
               <>
                 {/* Validation errors - show rejected files when no valid files uploaded */}
-                {validationErrors.length > 0 && (
+                {validationErrors && validationErrors.length > 0 && (
                   <Alert severity="error" sx={{ mb: 2 }}>
                     <Typography variant="body2" sx={{ fontWeight: 500 }}>
                       Tiedostot hylättiin
@@ -205,12 +222,19 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
                   onDrop={handleDrop}
                   isDragging={isDragging}
                   variant="large"
-                  title={isCreate ? 'Raahaa tiedostot/kansio tähän' : 'Lisää uusia tiedostoja'}
+                  title={
+                    isUploadDisabled
+                      ? 'Syötä ensin kelvollinen baliisi-ID'
+                      : isCreate
+                        ? 'Raahaa tiedostot/kansio tähän'
+                        : 'Lisää uusia tiedostoja'
+                  }
                   subtitle={
                     isCreate
                       ? `Sallitut tiedostopäätteet: ${getValidExtensionsList()}`
                       : `Sallitut päätteet: ${getValidExtensionsList()}`
                   }
+                  disabled={isUploadDisabled}
                 />
               </>
             )}
@@ -221,7 +245,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
         {hasNewFiles && (
           <Box>
             {/* Validation errors - show rejected files */}
-            {validationErrors.length > 0 && (
+            {validationErrors && validationErrors.length > 0 && (
               <Alert severity="error" sx={{ mb: 2 }}>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
                   Osa tiedostoista hylättiin

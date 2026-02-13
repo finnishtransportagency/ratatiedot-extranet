@@ -12,6 +12,7 @@ interface FileUploadZoneProps {
   variant?: 'large' | 'compact';
   title: string;
   subtitle: string;
+  disabled?: boolean;
 }
 
 export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
@@ -24,34 +25,44 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
   variant = 'large',
   title,
   subtitle,
+  disabled = false,
 }) => {
   const isLarge = variant === 'large';
 
   return (
     <Box
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
+      onDragOver={disabled ? undefined : onDragOver}
+      onDragLeave={disabled ? undefined : onDragLeave}
+      onDrop={disabled ? undefined : onDrop}
       sx={{
         border: isLarge ? '2px dashed' : '1px dashed',
-        borderColor: isDragging ? 'primary.main' : 'divider',
+        borderColor: disabled ? 'action.disabled' : isDragging ? 'primary.main' : 'divider',
         borderRadius: isLarge ? 2 : 1,
         p: isLarge ? 3 : 2,
         textAlign: 'center',
-        bgcolor: isDragging ? 'action.selected' : isLarge ? 'action.hover' : 'background.paper',
-        cursor: 'pointer',
+        bgcolor: disabled
+          ? 'action.disabledBackground'
+          : isDragging
+            ? 'action.selected'
+            : isLarge
+              ? 'action.hover'
+              : 'background.paper',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
         transition: 'all 0.2s ease',
-        '&:hover': {
-          borderColor: 'primary.main',
-          bgcolor: isLarge ? 'action.selected' : 'action.hover',
-        },
+        '&:hover': disabled
+          ? {}
+          : {
+              borderColor: 'primary.main',
+              bgcolor: isLarge ? 'action.selected' : 'action.hover',
+            },
       }}
     >
-      <input type="file" hidden multiple onChange={onFileChange} id={inputId} />
+      <input type="file" hidden multiple onChange={onFileChange} id={inputId} disabled={disabled} />
       <label
         htmlFor={inputId}
         style={{
-          cursor: 'pointer',
+          cursor: disabled ? 'not-allowed' : 'pointer',
           display: 'block',
           width: '100%',
         }}
