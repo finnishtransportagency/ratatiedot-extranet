@@ -5,6 +5,7 @@ import axios from 'axios';
 
 import { MenuContextProvider } from '../../../contexts/MenuContext';
 import { AppBarContext } from '../../../contexts/AppBarContext';
+import { BalisePermissionsProvider } from '../../../contexts/BalisePermissionsContext';
 import { MenuList } from '../MenuList';
 
 vi.mock('axios');
@@ -41,9 +42,11 @@ const mockAppBarContext = {
 
 const withProviders = (
   <AppBarContext.Provider value={mockAppBarContext}>
-    <MenuContextProvider>
-      <MenuList />
-    </MenuContextProvider>
+    <BalisePermissionsProvider>
+      <MenuContextProvider>
+        <MenuList />
+      </MenuContextProvider>
+    </BalisePermissionsProvider>
   </AppBarContext.Provider>
 );
 
