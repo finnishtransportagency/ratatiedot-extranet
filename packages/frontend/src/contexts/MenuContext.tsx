@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Box, Typography } from '@mui/material';
@@ -22,13 +22,34 @@ import { get } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { getErrorMessage } from '../utils/errorUtil';
 import HelpIcon from '@mui/icons-material/Help';
+import SensorsIcon from '@mui/icons-material/Sensors';
+import { useBalisePermissions } from './BalisePermissionsContext';
 
 export interface IMenuItem {
   key: string;
   primary: string | JSX.Element;
-  icon?: JSX.Element;
+  icon?: JSX.Element | string;
   to?: string;
   children?: IMenuItem[];
+}
+
+interface FavoriteCategory {
+  id: string;
+  categoryDataBase?: {
+    rataextraRequestPage?: string;
+  };
+}
+
+interface MenuContextType {
+  menu: { [key: string]: boolean };
+  menuItems: IMenuItem[];
+  favoriteCategories: IMenuItem[];
+  resetMenu: () => void;
+  menuHandler: (key: string) => void;
+  addFavoriteHandler: (categoryRoute: string) => void;
+  removeFavoriteHandler: (categoryRoute: string) => void;
+  fileUploadDisabled: boolean;
+  fileUploadDisabledHandler: (isDisabled: boolean) => void;
 }
 
 const fetchMaterialClass = (): IMenuItem[] => {
@@ -49,8 +70,6 @@ const fetchMaterialClass = (): IMenuItem[] => {
       case 'Muut':
         return <WidgetsIcon />;
       case 'Käyttöohjeet':
-        return <HelpIcon />;
-      case 'Baliisisanomat':
         return <HelpIcon />;
       default:
         return <BrowserNotSupportedIcon />;
@@ -78,7 +97,7 @@ const fetchFavoriteCategories = async (): Promise<IMenuItem[]> => {
     const categories = await response.data;
 
     return categories
-      ? categories.map((category: any) => {
+      ? categories.map((category: FavoriteCategory) => {
           const rataextraRequestPage = get(category, 'categoryDataBase.rataextraRequestPage', '');
           return {
             key: category.id,
@@ -102,7 +121,7 @@ const postFavoriteCategory = async (categoryRoute: string) => {
     );
     const newCategory = await response.data;
     return newCategory;
-  } catch (e: any) {
+  } catch (e: unknown) {
     toast(getErrorMessage(e), { type: 'error' });
     throw e;
   }
@@ -113,26 +132,27 @@ const deleteFavoriteCategory = async (categoryRoute: string) => {
     const response = await axios.delete(`/api/database/favorites?category=${categoryRoute}`);
     const newCategory = await response.data;
     return newCategory;
-  } catch (e: any) {
+  } catch (e: unknown) {
     toast(getErrorMessage(e), { type: 'error' });
     throw e;
   }
 };
 
-export const MenuContext = React.createContext({
+export const MenuContext = React.createContext<MenuContextType>({
   menu: {},
   menuItems: [],
   favoriteCategories: [],
   resetMenu: () => {},
-  menuHandler: (_: string) => {},
-  addFavoriteHandler: (_: string) => {},
-  removeFavoriteHandler: (_: string) => {},
+  menuHandler: () => {},
+  addFavoriteHandler: () => {},
+  removeFavoriteHandler: () => {},
   fileUploadDisabled: true,
-  fileUploadDisabledHandler: (_: boolean) => {},
+  fileUploadDisabledHandler: () => {},
 });
 
-export const MenuContextProvider = (props: any) => {
+export const MenuContextProvider = ({ children }: { children?: ReactNode }) => {
   const { t } = useTranslation(['common']);
+  const { permissions } = useBalisePermissions();
   const [favoriteCategories, setFavoriteCategories] = useState<IMenuItem[]>([]);
   const [fileUploadDisabled, setFileUploadDisabled] = useState(true);
 
@@ -145,7 +165,7 @@ export const MenuContextProvider = (props: any) => {
     fetchFavorites();
   }, []);
 
-  const menuItems: any = [
+  const menuItems: IMenuItem[] = [
     {
       key: t('common:menu.frontpage'),
       primary: t('common:menu.frontpage'),
@@ -159,6 +179,17 @@ export const MenuContextProvider = (props: any) => {
       children: favoriteCategories,
     },
     ...fetchMaterialClass(),
+    // Balise menu item - only show if user has balise read permissions or higher
+    ...(permissions?.canRead
+      ? [
+          {
+            key: t('common:menu.balise'),
+            primary: t('common:menu.balise'),
+            icon: <SensorsIcon />,
+            to: Routes.BALISE,
+          },
+        ]
+      : []),
     // Extranet link should always be the last menu item
     {
       key: t('common:menu.extranet'),
@@ -225,7 +256,7 @@ export const MenuContextProvider = (props: any) => {
       value={{
         menu: menu,
         menuItems: menuItems,
-        favoriteCategories: favoriteCategories as any,
+        favoriteCategories: favoriteCategories,
         resetMenu: resetMenu,
         menuHandler: menuHandler,
         addFavoriteHandler: addFavoriteHandler,
@@ -234,7 +265,7 @@ export const MenuContextProvider = (props: any) => {
         fileUploadDisabledHandler: fileUploadDisabledHandler,
       }}
     >
-      {props.children}
+      {children}
     </MenuContext.Provider>
   );
 };

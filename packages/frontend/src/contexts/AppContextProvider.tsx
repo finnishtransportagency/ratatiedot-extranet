@@ -1,22 +1,24 @@
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import { AppBarContextProvider } from './AppBarContext';
 import { MenuContextProvider } from './MenuContext';
 import { EditorContextProvider } from './EditorContext';
 import { CategoryDataContextProvider } from './CategoryDataContext';
 import { ErrorContextProvider } from './ErrorContext';
+import { BalisePermissionsProvider } from './BalisePermissionsContext';
 
 const providers = [
   AppBarContextProvider,
+  BalisePermissionsProvider,
   MenuContextProvider,
   EditorContextProvider,
   CategoryDataContextProvider,
   ErrorContextProvider,
 ];
 
-const combineComponents = (...components: FC[]) => {
-  return components.reduce(
-    (AccumulatedComponents: any, CurrentComponent: any) => {
-      return ({ children }: any): JSX.Element => {
+const combineComponents = (...components: FC<{ children?: ReactNode }>[]) => {
+  return components.reduce<FC<{ children?: ReactNode }>>(
+    (AccumulatedComponents, CurrentComponent) => {
+      return ({ children }): JSX.Element => {
         return (
           <AccumulatedComponents>
             <CurrentComponent>{children}</CurrentComponent>
@@ -24,7 +26,7 @@ const combineComponents = (...components: FC[]) => {
         );
       };
     },
-    ({ children }: any) => <>{children}</>,
+    ({ children }) => <>{children}</>,
   );
 };
 
