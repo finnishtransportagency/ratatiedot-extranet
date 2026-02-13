@@ -11,6 +11,7 @@ import {
   MAX_BALISE_ID,
   isValidExtension,
   parseBaliseIdFromFilename,
+  isValidFilenameFormat,
 } from '../../utils/baliseUtils';
 import type { FileUpload } from '../../utils/s3utils';
 import { getRataExtraLambdaError } from '../../utils/errors';
@@ -22,24 +23,33 @@ interface FileValidationError {
 
 /**
  * Validate uploaded files for a specific balise
+ * - Filename must be in format {ID}.ext or {ID}K.ext (only K suffix allowed)
  * - Extension must be .il, .leu, or .bis
- * - Filename must contain a balise ID that matches the target balise ID
+ * - Balise ID in filename must match the target balise ID
  * - Balise ID must be between 10000-99999
  */
 export function validateUploadedFiles(files: ParsedFileUpload[], targetBaliseId: number): FileValidationError[] {
   const errors: FileValidationError[] = [];
 
   for (const file of files) {
-    // Validate extension
-    if (!isValidExtension(file.filename)) {
-      errors.push({
-        filename: file.filename,
-        error: `Virheellinen tiedostopääte. Sallitut päätteet: ${VALID_EXTENSIONS.join(', ')}`,
-      });
+    // Validate filename format first (includes extension and K-only suffix check)
+    if (!isValidFilenameFormat(file.filename)) {
+      // Provide specific error message
+      if (!isValidExtension(file.filename)) {
+        errors.push({
+          filename: file.filename,
+          error: `Virheellinen tiedostopääte. Sallitut päätteet: ${VALID_EXTENSIONS.join(', ')}`,
+        });
+      } else {
+        errors.push({
+          filename: file.filename,
+          error: 'Virheellinen tiedostonimi. Sallittu muoto: {ID}.pääte tai {ID}K.pääte',
+        });
+      }
       continue;
     }
 
-    // Parse balise ID from filename
+    // Parse balise ID from filename (format is already validated above)
     const fileBaliseId = parseBaliseIdFromFilename(file.filename);
     if (fileBaliseId === null) {
       errors.push({

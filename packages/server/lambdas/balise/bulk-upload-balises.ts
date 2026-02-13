@@ -13,6 +13,7 @@ import {
   isValidExtension,
   isValidBaliseIdRange,
   parseBaliseIdFromFilename,
+  isValidFilenameFormat,
 } from '../../utils/baliseUtils';
 import type { FileUpload } from '../../utils/s3utils';
 import { getRataExtraLambdaError } from '../../utils/errors';
@@ -99,16 +100,24 @@ async function parseMultipartForm(
 
       file.on('end', () => {
         const fileBuffer = Buffer.concat(chunks as unknown as Uint8Array[]);
-        const baliseId = parseBaliseIdFromFilename(fileinfo.filename);
 
-        // Validate extension
-        if (!isValidExtension(fileinfo.filename)) {
-          invalidFiles.push(
-            `${fileinfo.filename} (virheellinen tiedostopääte, sallitut: ${VALID_EXTENSIONS.join(', ')})`,
-          );
-          log.warn({ system: true }, `Invalid file extension: ${fileinfo.filename}`);
+        // Validate filename format first (includes K-only suffix and extension check)
+        if (!isValidFilenameFormat(fileinfo.filename)) {
+          if (!isValidExtension(fileinfo.filename)) {
+            invalidFiles.push(
+              `${fileinfo.filename} (virheellinen tiedostopääte, sallitut: ${VALID_EXTENSIONS.join(', ')})`,
+            );
+            log.warn({ system: true }, `Invalid file extension: ${fileinfo.filename}`);
+          } else {
+            invalidFiles.push(
+              `${fileinfo.filename} (virheellinen tiedostonimi, sallittu muoto: {ID}.pääte tai {ID}K.pääte)`,
+            );
+            log.warn({ system: true }, `Invalid filename format: ${fileinfo.filename}`);
+          }
           return;
         }
+
+        const baliseId = parseBaliseIdFromFilename(fileinfo.filename);
         if (baliseId === null) {
           invalidFiles.push(`${fileinfo.filename} (baliisi-tunnusta ei löydy tiedostonimestä)`);
           log.warn({ system: true }, `Cannot parse balise ID from filename: ${fileinfo.filename}`);
