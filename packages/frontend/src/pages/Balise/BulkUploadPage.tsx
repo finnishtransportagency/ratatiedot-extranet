@@ -6,6 +6,13 @@ import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { useBatchUpload } from './hooks/useBatchUpload';
 import { useFileDragDrop } from './hooks/useFileDragDrop';
 import {
+  parseBaliseIdFromFilename,
+  isValidBaliseIdRange,
+  MIN_BALISE_ID,
+  MAX_BALISE_ID,
+  getValidExtensionsList,
+} from '../../utils/baliseValidation';
+import {
   Box,
   Paper,
   Typography,
@@ -42,17 +49,6 @@ interface FileWithBaliseId {
   file: File;
   baliseId: number | null;
   isValid: boolean;
-}
-
-/**
- * Parse balise ID from filename
- * Examples: "10000.il" → 10000, "A-12345.pdf" → 12345
- */
-function parseBaliseId(filename: string): number | null {
-  const match = filename.match(/(\d+)/);
-  if (!match) return null;
-  const id = parseInt(match[1], 10);
-  return isNaN(id) ? null : id;
 }
 
 const SUMMARY_MODE_THRESHOLD = 50;
@@ -124,11 +120,11 @@ export const BulkUploadPage: React.FC = () => {
   const processFiles = useCallback(
     (newFiles: File[]) => {
       const processedFiles: FileWithBaliseId[] = newFiles.map((file) => {
-        const baliseId = parseBaliseId(file.name);
+        const baliseId = parseBaliseIdFromFilename(file.name);
         return {
           file,
           baliseId,
-          isValid: baliseId !== null,
+          isValid: baliseId !== null && isValidBaliseIdRange(baliseId),
         };
       });
 
@@ -589,11 +585,12 @@ export const BulkUploadPage: React.FC = () => {
                 {invalidFiles.length > 0 && (
                   <Alert severity="warning" sx={{ mb: 2 }}>
                     <Typography variant="body2" fontWeight={500}>
-                      {invalidFiles.length} tiedostoa, joista ei voida tunnistaa baliisi-ID:tä:
+                      {invalidFiles.length} tiedostoa hylättiin:
                     </Typography>
                     <Typography variant="body2">{invalidFiles.map((f) => f.file.name).join(', ')}</Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
-                      Nämä tiedostot ohitetaan. Varmista, että tiedostonimessä on baliisi-ID (esim. 10000.il).
+                      Hyväksytty muoto: {'{'}ID{'}'}.pääte tai {'{'}ID{'}'}K.pääte ({getValidExtensionsList()}), missä
+                      ID on välillä {MIN_BALISE_ID}-{MAX_BALISE_ID}.
                     </Typography>
                   </Alert>
                 )}
