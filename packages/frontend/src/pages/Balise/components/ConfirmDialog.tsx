@@ -20,6 +20,7 @@ export interface ConfirmDialogProps {
   onCancel: () => void;
   disabled?: boolean;
   loading?: boolean;
+  hideCancel?: boolean;
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -33,6 +34,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onCancel,
   disabled = false,
   loading = false,
+  hideCancel = false,
 }) => {
   return (
     <Dialog open={open} onClose={onCancel} PaperProps={{ sx: { minWidth: 400 } }}>
@@ -41,9 +43,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {typeof message === 'string' ? <DialogContentText>{message}</DialogContentText> : message}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel} disabled={loading}>
-          {cancelText}
-        </Button>
+        {!hideCancel && (
+          <Button onClick={onCancel} disabled={loading}>
+            {cancelText}
+          </Button>
+        )}
         <Button onClick={onConfirm} color={confirmColor} variant="contained" disabled={disabled || loading}>
           {loading && <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />}
           {confirmText}

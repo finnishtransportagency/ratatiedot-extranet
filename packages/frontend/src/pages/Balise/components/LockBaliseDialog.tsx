@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, DialogContentText, TextField } from '@mui/material';
+import { Alert, Box, DialogContentText, TextField } from '@mui/material';
 import { ConfirmDialog } from './ConfirmDialog';
 
 export interface LockBaliseDialogProps {
@@ -9,6 +9,7 @@ export interface LockBaliseDialogProps {
   loading?: boolean;
   baliseId?: number;
   bulkCount?: number;
+  alreadyLockedCount?: number;
 }
 
 export const LockBaliseDialog: React.FC<LockBaliseDialogProps> = ({
@@ -18,6 +19,7 @@ export const LockBaliseDialog: React.FC<LockBaliseDialogProps> = ({
   loading = false,
   baliseId,
   bulkCount,
+  alreadyLockedCount = 0,
 }) => {
   const [lockReason, setLockReason] = useState('');
 
@@ -48,8 +50,34 @@ export const LockBaliseDialog: React.FC<LockBaliseDialogProps> = ({
 
   // Determine title and message based on bulk or single mode
   const isBulk = bulkCount !== undefined && bulkCount > 0;
-  const title = isBulk ? `Lukitse ${bulkCount} baliisia` : `Lukitse baliisi${baliseId ? ` ${baliseId}` : ''}`;
+  const toLockCount = isBulk ? bulkCount - alreadyLockedCount : 1;
+  const allAlreadyLocked = isBulk && toLockCount === 0;
+
+  const title = allAlreadyLocked
+    ? 'Kaikki baliisit jo lukittu'
+    : isBulk
+      ? `Lukitse ${toLockCount} baliisia`
+      : `Lukitse baliisi${baliseId ? ` ${baliseId}` : ''}`;
   const message = isBulk ? `Anna syy baliisien lukitsemiselle.` : 'Anna syy balisin lukitsemiselle.';
+
+  // If all balises are already locked, show warning only
+  if (allAlreadyLocked) {
+    return (
+      <ConfirmDialog
+        open={open}
+        title={title}
+        message={
+          <Box>
+            <Alert severity="warning">Kaikki valitut baliisit ovat jo lukittuja.</Alert>
+          </Box>
+        }
+        confirmText="Sulje"
+        onConfirm={onCancel}
+        onCancel={onCancel}
+        hideCancel
+      />
+    );
+  }
 
   return (
     <ConfirmDialog
@@ -57,6 +85,11 @@ export const LockBaliseDialog: React.FC<LockBaliseDialogProps> = ({
       title={title}
       message={
         <Box>
+          {isBulk && alreadyLockedCount > 0 && (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              {alreadyLockedCount} baliisia on jo lukittu ja ohitetaan.
+            </Alert>
+          )}
           <DialogContentText sx={{ mb: 2 }}>{message}</DialogContentText>
           <TextField
             label="Lukitsemisen syy"
