@@ -415,10 +415,17 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
         .filter((r: { success: boolean }) => r.success)
         .map((r: { baliseId: number }) => r.baliseId);
 
-      // Refresh each successfully locked balise
-      for (const baliseId of successfullyLocked) {
-        await get().refreshBalise(baliseId);
-      }
+      // Batch fetch all successfully locked balises in parallel
+      const refreshPromises = successfullyLocked.map((baliseId: number) => fetchSingleBaliseAPI(baliseId));
+      const refreshedBalises = await Promise.all(refreshPromises);
+
+      // Update all balises in a single state update
+      set((state) => ({
+        balises: state.balises.map((balise) => {
+          const updated = refreshedBalises.find((b) => b.secondaryId === balise.secondaryId);
+          return updated || balise;
+        }),
+      }));
 
       return {
         successCount: result.successCount,
@@ -475,10 +482,17 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
         .filter((r: { success: boolean }) => r.success)
         .map((r: { baliseId: number }) => r.baliseId);
 
-      // Refresh each successfully unlocked balise
-      for (const baliseId of successfullyUnlocked) {
-        await get().refreshBalise(baliseId);
-      }
+      // Batch fetch all successfully unlocked balises in parallel
+      const refreshPromises = successfullyUnlocked.map((baliseId: number) => fetchSingleBaliseAPI(baliseId));
+      const refreshedBalises = await Promise.all(refreshPromises);
+
+      // Update all balises in a single state update
+      set((state) => ({
+        balises: state.balises.map((balise) => {
+          const updated = refreshedBalises.find((b) => b.secondaryId === balise.secondaryId);
+          return updated || balise;
+        }),
+      }));
 
       return {
         successCount: result.successCount,
