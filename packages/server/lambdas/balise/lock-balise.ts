@@ -9,13 +9,12 @@ const database = await DatabaseClient.build();
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
+    validateBaliseWriteUser(user);
 
     // Extract balise ID from path (e.g., /api/balise/12345/lock)
     const pathParts = event.path.split('/').filter((p) => p);
     const baliseIdStr = pathParts[pathParts.indexOf('balise') + 1];
     const baliseId = parseInt(baliseIdStr || '0', 10);
-
-    log.info(user, `Lock balise id: ${baliseId}, path: ${event.path}`);
 
     if (!baliseId || isNaN(baliseId)) {
       return {
@@ -25,7 +24,31 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    validateBaliseWriteUser(user);
+    // Parse and validate lock reason from request body
+    let lockReason: string | undefined;
+    if (event.body) {
+      try {
+        const body = JSON.parse(event.body);
+        lockReason = body.lockReason;
+      } catch (parseError) {
+        log.warn(user, `Failed to parse lock request body: ${parseError}`);
+        return {
+          statusCode: 400,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ error: 'Virheellinen pyyntö' }),
+        };
+      }
+    }
+
+    if (!lockReason || lockReason.trim().length === 0) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Lukitsemisen syy on pakollinen' }),
+      };
+    }
+
+    log.info(user, `Lock balise id: ${baliseId}, reason: ${lockReason}`);
 
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
@@ -62,6 +85,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         lockedBy: user.uid,
         lockedTime: new Date(),
         lockedAtVersion: balise.version,
+        lockReason: lockReason.trim(),
       },
     });
 
