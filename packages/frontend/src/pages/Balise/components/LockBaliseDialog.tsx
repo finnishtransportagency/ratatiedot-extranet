@@ -8,6 +8,7 @@ export interface LockBaliseDialogProps {
   onCancel: () => void;
   loading?: boolean;
   baliseId?: number;
+  bulkCount?: number;
 }
 
 export const LockBaliseDialog: React.FC<LockBaliseDialogProps> = ({
@@ -16,6 +17,7 @@ export const LockBaliseDialog: React.FC<LockBaliseDialogProps> = ({
   onCancel,
   loading = false,
   baliseId,
+  bulkCount,
 }) => {
   const [lockReason, setLockReason] = useState('');
 
@@ -44,13 +46,18 @@ export const LockBaliseDialog: React.FC<LockBaliseDialogProps> = ({
 
   const isValid = lockReason.trim().length > 0;
 
+  // Determine title and message based on bulk or single mode
+  const isBulk = bulkCount !== undefined && bulkCount > 0;
+  const title = isBulk ? `Lukitse ${bulkCount} baliisia` : `Lukitse baliisi${baliseId ? ` ${baliseId}` : ''}`;
+  const message = isBulk ? `Anna syy baliisien lukitsemiselle.` : 'Anna syy balisin lukitsemiselle.';
+
   return (
     <ConfirmDialog
       open={open}
-      title={`Lukitse baliisi${baliseId ? ` ${baliseId}` : ''}`}
+      title={title}
       message={
         <Box>
-          <DialogContentText sx={{ mb: 2 }}>Anna syy balisin lukitsemiselle.</DialogContentText>
+          <DialogContentText sx={{ mb: 2 }}>{message}</DialogContentText>
           <TextField
             label="Lukitsemisen syy"
             placeholder="Esim. Tietojen päivitys, korjaus, uusi versio..."
