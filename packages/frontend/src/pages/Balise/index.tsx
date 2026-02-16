@@ -11,6 +11,7 @@ import { BulkDeleteDialogs } from './components/BulkDeleteDialogs';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { DeleteBaliseDialog } from './components/DeleteBaliseDialog';
 import { UnlockBaliseDialog } from './components/UnlockBaliseDialog';
+import { LockBaliseDialog } from './components/LockBaliseDialog';
 import { useBulkDelete } from './hooks/useBulkDelete';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
@@ -28,6 +29,7 @@ export const BalisePage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [baliseToDelete, setBaliseToDelete] = useState<BaliseWithHistory | null>(null);
   const [baliseToUnlock, setBaliseToUnlock] = useState<BaliseWithHistory | null>(null);
+  const [baliseToLock, setBaliseToLock] = useState<BaliseWithHistory | null>(null);
   const [lockingBaliseId, setLockingBaliseId] = useState<string | null>(null);
   const [contextActionError, setContextActionError] = useState<string | null>(null);
 
@@ -169,24 +171,48 @@ export const BalisePage: React.FC = () => {
         return;
       }
 
+      // If locking, show lock reason dialog
+      if (!row.locked) {
+        setBaliseToLock(row);
+        return;
+      }
+
+      // Unlocking (no version change)
       setLockingBaliseId(row.id);
       setContextActionError(null);
 
       try {
-        if (row.locked) {
-          await unlockBalise(row.secondaryId);
-        } else {
-          await lockBalise(row.secondaryId);
-        }
+        await unlockBalise(row.secondaryId);
         await refreshBalise(row.secondaryId);
       } catch (err) {
-        setContextActionError(err instanceof Error ? err.message : 'Lukitus epäonnistui');
-        console.error('Lock toggle failed:', err);
+        setContextActionError(err instanceof Error ? err.message : 'Lukituksen avaaminen epäonnistui');
+        console.error('Unlock failed:', err);
       } finally {
         setLockingBaliseId(null);
       }
     },
-    [lockBalise, unlockBalise, refreshBalise],
+    [unlockBalise, refreshBalise],
+  );
+
+  const handleLockConfirm = useCallback(
+    async (lockReason: string) => {
+      if (!baliseToLock) return;
+
+      const lockTarget = baliseToLock;
+      setBaliseToLock(null); // Close dialog immediately
+      setLockingBaliseId(lockTarget.id);
+      setContextActionError(null);
+
+      try {
+        await lockBalise(lockTarget.secondaryId, lockReason);
+        await refreshBalise(lockTarget.secondaryId);
+      } catch (err) {
+        setContextActionError(err instanceof Error ? err.message : 'Lukitus epäonnistui');
+      } finally {
+        setLockingBaliseId(null);
+      }
+    },
+    [baliseToLock, lockBalise, refreshBalise],
   );
 
   const handleUnlockConfirm = useCallback(async () => {
@@ -475,6 +501,15 @@ export const BalisePage: React.FC = () => {
           loading={isDeleting}
           onConfirm={handleDeleteConfirmSingle}
           onCancel={() => setBaliseToDelete(null)}
+        />
+
+        {/* Single-item Lock Reason Dialog */}
+        <LockBaliseDialog
+          open={baliseToLock !== null}
+          baliseId={baliseToLock?.secondaryId}
+          loading={!!lockingBaliseId}
+          onConfirm={handleLockConfirm}
+          onCancel={() => setBaliseToLock(null)}
         />
 
         {/* Single-item Unlock Confirmation Dialog (version changed) */}
