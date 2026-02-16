@@ -2,18 +2,14 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import archiver from 'archiver';
 import { PassThrough, Readable } from 'stream';
-import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
+import { parseBaliseIds, handleBulkOperationError } from '../../utils/bulkUtils';
 
 const database = await DatabaseClient.build();
 const s3Client = new S3Client({});
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
-
-interface BulkDownloadRequest {
-  baliseIds: number[];
-}
 
 /**
  * Helper to convert a ReadableStream/Readable to a Buffer
@@ -40,29 +36,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Bulk download request`);
 
-    if (!event.body) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Request body is required' }),
-      };
-    }
-
-    const body: BulkDownloadRequest = JSON.parse(
-      event.isBase64Encoded ? Buffer.from(event.body, 'base64').toString('utf-8') : event.body,
-    );
-
-    if (!body.baliseIds || !Array.isArray(body.baliseIds) || body.baliseIds.length === 0) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'baliseIds array is required' }),
-      };
-    }
+    const baliseIds = parseBaliseIds(event);
 
     // Fetch all balise records with fileTypes
     const baliseRecords = await database.balise.findMany({
-      where: { secondaryId: { in: body.baliseIds } },
+      where: { secondaryId: { in: baliseIds } },
       select: { secondaryId: true, version: true, lockedAtVersion: true, fileTypes: true },
     });
 
@@ -112,7 +90,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // Collect all file buffers first (fetch in parallel)
     const filePromises: Promise<{ folder: string; filename: string; buffer: Buffer } | null>[] = [];
 
-    for (const baliseId of body.baliseIds) {
+    for (const baliseId of baliseIds) {
       const baliseData = baliseDataMap.get(baliseId);
       if (!baliseData) {
         log.warn(user, `Balise ${baliseId} not found, skipping`);
@@ -172,7 +150,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       isBase64Encoded: true,
     };
   } catch (err) {
-    log.error(err);
-    return getRataExtraLambdaError(err);
+    return handleBulkOperationError(err);
   }
 }
