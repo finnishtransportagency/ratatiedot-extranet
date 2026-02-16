@@ -32,6 +32,8 @@ export const BalisePage: React.FC = () => {
   const [contextActionError, setContextActionError] = useState<string | null>(null);
   const [bulkLockDialogOpen, setBulkLockDialogOpen] = useState(false);
   const [isBulkLocking, setIsBulkLocking] = useState(false);
+  const [bulkUnlockDialogOpen, setBulkUnlockDialogOpen] = useState(false);
+  const [isBulkUnlocking, setIsBulkUnlocking] = useState(false);
 
   // Permissions
   const { permissions } = useBalisePermissions();
@@ -52,6 +54,7 @@ export const BalisePage: React.FC = () => {
     clearCache,
     deleteBalise,
     bulkLockBalises,
+    bulkUnlockBalises,
   } = useBaliseStore();
 
   // Lock/unlock handling
@@ -239,6 +242,13 @@ export const BalisePage: React.FC = () => {
     return selectedBalises.filter((b) => b.locked).length;
   }, [balises, selectedItems]);
 
+  // Check if all selected balises are locked (for showing unlock button)
+  const allSelectedLocked = useMemo(() => {
+    if (selectedItems.length === 0) return false;
+    const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+    return selectedBalises.length > 0 && selectedBalises.every((b) => b.locked);
+  }, [balises, selectedItems]);
+
   // Other bulk actions
   const handleBulkLock = useCallback(() => {
     if (selectedItems.length > 0) {
@@ -269,6 +279,34 @@ export const BalisePage: React.FC = () => {
 
   const handleBulkLockCancel = useCallback(() => {
     setBulkLockDialogOpen(false);
+  }, []);
+
+  const handleBulkUnlock = useCallback(() => {
+    if (selectedItems.length > 0) {
+      setBulkUnlockDialogOpen(true);
+    }
+  }, [selectedItems]);
+
+  const handleBulkUnlockConfirm = useCallback(async () => {
+    try {
+      setIsBulkUnlocking(true);
+      const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+      const baliseIds = selectedBalises.map((b) => b.secondaryId);
+
+      await bulkUnlockBalises(baliseIds);
+
+      setBulkUnlockDialogOpen(false);
+      setSelectedItems([]);
+    } catch (error) {
+      console.error('Error bulk unlocking balises:', error);
+      setContextActionError(error instanceof Error ? error.message : 'Lukituksen avaaminen epäonnistui');
+    } finally {
+      setIsBulkUnlocking(false);
+    }
+  }, [selectedItems, balises, bulkUnlockBalises]);
+
+  const handleBulkUnlockCancel = useCallback(() => {
+    setBulkUnlockDialogOpen(false);
   }, []);
 
   const handleBulkDownload = useCallback(() => {
@@ -418,8 +456,10 @@ export const BalisePage: React.FC = () => {
           selectedCount={selectedItems.length}
           canWrite={permissions?.canWrite}
           isAdmin={permissions?.isAdmin}
+          allSelectedLocked={allSelectedLocked}
           onBulkDownload={handleBulkDownload}
           onBulkLock={handleBulkLock}
+          onBulkUnlock={handleBulkUnlock}
           onBulkDelete={handleBulkDelete}
         />
 
@@ -508,6 +548,15 @@ export const BalisePage: React.FC = () => {
           loading={isLocking}
           onConfirm={handleUnlockConfirm}
           onCancel={handleUnlockCancel}
+        />
+
+        {/* Bulk Unlock Confirmation Dialog */}
+        <UnlockBaliseDialog
+          open={bulkUnlockDialogOpen}
+          bulkCount={selectedItems.length}
+          loading={isBulkUnlocking}
+          onConfirm={handleBulkUnlockConfirm}
+          onCancel={handleBulkUnlockCancel}
         />
       </Box>
     </BalisePermissionGuard>
