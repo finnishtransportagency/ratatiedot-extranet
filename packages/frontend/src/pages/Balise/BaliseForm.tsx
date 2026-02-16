@@ -28,6 +28,7 @@ import { ConfirmDialog } from './components/ConfirmDialog';
 import { DeleteBaliseDialog } from './components/DeleteBaliseDialog';
 import { UnlockBaliseDialog } from './components/UnlockBaliseDialog';
 import { LockBaliseDialog } from './components/LockBaliseDialog';
+import { useBaliseLocking } from './hooks/useBaliseLocking';
 
 interface BaliseFormProps {
   mode: 'create' | 'view';
@@ -45,7 +46,7 @@ interface FormData {
 
 export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onRefresh }) => {
   const navigate = useNavigate();
-  const { deleteBalise, lockBalise, unlockBalise } = useBaliseStore();
+  const { deleteBalise } = useBaliseStore();
   const { permissions } = useBalisePermissions();
 
   const [loading, setLoading] = useState(false);
@@ -53,9 +54,31 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   const [errorType, setErrorType] = useState<'locked' | 'already_locked' | 'error' | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [saveConfirmDialogOpen, setSaveConfirmDialogOpen] = useState(false);
-  const [unlockConfirmDialogOpen, setUnlockConfirmDialogOpen] = useState(false);
-  const [lockDialogOpen, setLockDialogOpen] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Lock/unlock handling
+  const {
+    lockDialogOpen,
+    unlockDialogOpen,
+    baliseToLock,
+    baliseToUnlock,
+    isLocking,
+    handleLockToggle,
+    handleLockConfirm,
+    handleUnlockConfirm,
+    handleLockCancel,
+    handleUnlockCancel,
+  } = useBaliseLocking({
+    onSuccess: async () => {
+      setError(null);
+      setErrorType(null);
+      if (onRefresh) await onRefresh();
+    },
+    onError: (errorMsg, type) => {
+      setError(errorMsg);
+      setErrorType(type || 'error');
+    },
+  });
 
   // Track if the balise ID already exists (for create mode)
   const [baliseIdExists, setBaliseIdExists] = useState<boolean | null>(null);
@@ -233,7 +256,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   const handleDeleteConfirm = useCallback(async () => {
     if (!balise) return;
 
-    setActionLoading(true);
+    setDeleteLoading(true);
     setError(null);
 
     try {
@@ -243,143 +266,13 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete balise');
     } finally {
-      setActionLoading(false);
+      setDeleteLoading(false);
     }
   }, [balise, deleteBalise, navigate]);
 
   const handleDeleteCancel = useCallback(() => {
     setDeleteDialogOpen(false);
   }, []);
-
-  const handleLockToggle = useCallback(async () => {
-    if (!balise) return;
-
-    // If unlocking and version has changed, show confirmation dialog
-    if (balise.lockedAtVersion && balise.version > balise.lockedAtVersion) {
-      setUnlockConfirmDialogOpen(true);
-      return;
-    }
-
-    // If locking, show lock reason dialog
-    if (!balise.locked) {
-      setLockDialogOpen(true);
-      return;
-    }
-
-    // Unlocking (no version change)
-    setActionLoading(true);
-    setError(null);
-    setErrorType(null);
-
-    try {
-      await unlockBalise(balise.secondaryId);
-      if (onRefresh) {
-        await onRefresh();
-      }
-    } catch (err) {
-      // Try to parse error response for errorType
-      if (err instanceof Error) {
-        try {
-          // Check if the error message is a JSON string from the backend
-          const errorData = JSON.parse(err.message);
-          if (errorData.errorType) {
-            setErrorType(errorData.errorType);
-            setError(errorData.error || errorData.message || err.message);
-          } else {
-            setErrorType('error');
-            setError(err.message);
-          }
-        } catch {
-          // Not JSON, just use the message
-          setErrorType('error');
-          setError(err.message);
-        }
-      } else {
-        setErrorType('error');
-        setError('Failed to unlock balise');
-      }
-    } finally {
-      setActionLoading(false);
-    }
-  }, [balise, unlockBalise, onRefresh]);
-
-  const handleLockConfirm = useCallback(
-    async (lockReason: string) => {
-      if (!balise) return;
-
-      setLockDialogOpen(false);
-      setActionLoading(true);
-      setError(null);
-      setErrorType(null);
-
-      try {
-        await lockBalise(balise.secondaryId, lockReason);
-        if (onRefresh) {
-          await onRefresh();
-        }
-      } catch (err) {
-        if (err instanceof Error) {
-          try {
-            const errorData = JSON.parse(err.message);
-            if (errorData.errorType) {
-              setErrorType(errorData.errorType);
-              setError(errorData.error || errorData.message || err.message);
-            } else {
-              setErrorType('error');
-              setError(err.message);
-            }
-          } catch {
-            setErrorType('error');
-            setError(err.message);
-          }
-        } else {
-          setErrorType('error');
-          setError('Failed to lock balise');
-        }
-      } finally {
-        setActionLoading(false);
-      }
-    },
-    [balise, lockBalise, onRefresh],
-  );
-
-  const handleUnlockConfirm = useCallback(async () => {
-    if (!balise) return;
-
-    setUnlockConfirmDialogOpen(false);
-    setActionLoading(true);
-    setError(null);
-    setErrorType(null);
-
-    try {
-      await unlockBalise(balise.secondaryId);
-      if (onRefresh) {
-        await onRefresh();
-      }
-    } catch (err) {
-      // Try to parse error response for errorType
-      if (err instanceof Error) {
-        try {
-          const errorData = JSON.parse(err.message);
-          if (errorData.errorType) {
-            setErrorType(errorData.errorType);
-            setError(errorData.error || errorData.message || err.message);
-          } else {
-            setErrorType('error');
-            setError(err.message);
-          }
-        } catch {
-          setErrorType('error');
-          setError(err.message);
-        }
-      } else {
-        setErrorType('error');
-        setError('Failed to unlock balise');
-      }
-    } finally {
-      setActionLoading(false);
-    }
-  }, [balise, unlockBalise, onRefresh]);
 
   return (
     <Box
@@ -423,7 +316,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                     <Button
                       variant="outlined"
                       startIcon={
-                        actionLoading ? (
+                        isLocking ? (
                           <CircularProgress size={20} color="inherit" />
                         ) : balise?.locked ? (
                           <LockOpen />
@@ -431,12 +324,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                           <Lock />
                         )
                       }
-                      onClick={handleLockToggle}
-                      disabled={actionLoading}
+                      onClick={() => balise && handleLockToggle(balise)}
+                      disabled={isLocking}
                       size="small"
                       color={balise?.locked ? 'primary' : 'secondary'}
                     >
-                      {actionLoading
+                      {isLocking
                         ? balise?.locked
                           ? 'Avataan...'
                           : 'Lukitaan...'
@@ -451,7 +344,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       color="error"
                       startIcon={<Delete />}
                       onClick={handleDeleteClick}
-                      disabled={actionLoading}
+                      disabled={deleteLoading}
                       size="small"
                     >
                       Poista
@@ -622,8 +515,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       <DeleteBaliseDialog
         open={deleteDialogOpen}
         secondaryId={balise?.secondaryId}
-        disabled={actionLoading}
-        loading={actionLoading}
+        disabled={deleteLoading}
+        loading={deleteLoading}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
       />
@@ -680,21 +573,21 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
       {/* Unlock Confirmation Dialog */}
       <UnlockBaliseDialog
-        open={unlockConfirmDialogOpen}
-        version={balise?.version}
-        disabled={actionLoading}
-        loading={actionLoading}
+        open={unlockDialogOpen}
+        version={baliseToUnlock?.version}
+        disabled={isLocking}
+        loading={isLocking}
         onConfirm={handleUnlockConfirm}
-        onCancel={() => setUnlockConfirmDialogOpen(false)}
+        onCancel={handleUnlockCancel}
       />
 
       {/* Lock Reason Dialog */}
       <LockBaliseDialog
         open={lockDialogOpen}
-        baliseId={balise?.secondaryId}
-        loading={actionLoading}
+        baliseId={baliseToLock?.secondaryId}
+        loading={isLocking}
         onConfirm={handleLockConfirm}
-        onCancel={() => setLockDialogOpen(false)}
+        onCancel={handleLockCancel}
       />
     </Box>
   );
