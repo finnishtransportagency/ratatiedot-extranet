@@ -28,26 +28,31 @@ export const BulkActionsBar: React.FC<BulkActionsBarProps> = ({
   return (
     <Paper
       sx={{
-        p: 1,
+        p: 1.5,
         display: 'flex',
         alignItems: 'center',
         gap: 1,
-        mb: 1,
-        flexShrink: 0,
-        backgroundColor: 'action.selected',
-        animation: 'slideIn 0.3s ease-in-out',
-        '@keyframes slideIn': {
+        position: 'fixed',
+        bottom: 24,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 1100,
+        backgroundColor: 'background.paper',
+        boxShadow: 6,
+        borderRadius: 2,
+        animation: 'slideUp 0.3s ease-in-out',
+        '@keyframes slideUp': {
           '0%': {
             opacity: 0,
-            transform: 'translateY(-10px)',
+            transform: 'translateX(-50%) translateY(20px)',
           },
           '100%': {
             opacity: 1,
-            transform: 'translateY(0)',
+            transform: 'translateX(-50%) translateY(0)',
           },
         },
       }}
-      variant="outlined"
+      elevation={6}
     >
       <Button
         size="small"
