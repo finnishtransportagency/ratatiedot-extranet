@@ -233,6 +233,12 @@ export const BalisePage: React.FC = () => {
     setSelectedItems((prev) => (prev.length === allIds.length ? [] : allIds));
   }, [filteredData]);
 
+  // Calculate already locked count for bulk lock dialog
+  const alreadyLockedCount = useMemo(() => {
+    const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+    return selectedBalises.filter((b) => b.locked).length;
+  }, [balises, selectedItems]);
+
   // Other bulk actions
   const handleBulkLock = useCallback(() => {
     if (selectedItems.length > 0) {
@@ -489,6 +495,7 @@ export const BalisePage: React.FC = () => {
         <LockBaliseDialog
           open={bulkLockDialogOpen}
           bulkCount={selectedItems.length}
+          alreadyLockedCount={alreadyLockedCount}
           loading={isBulkLocking}
           onConfirm={handleBulkLockConfirm}
           onCancel={handleBulkLockCancel}
