@@ -165,7 +165,6 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
     <>
       <TableRow
         sx={{
-          '& > *': { borderBottom: 'unset' },
           cursor: 'pointer',
           '&:hover': { backgroundColor: 'action.hover' },
           backgroundColor: isSelected ? 'action.selected' : 'inherit',
@@ -224,7 +223,14 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
+        <TableCell
+          colSpan={8}
+          sx={{
+            paddingBottom: 0,
+            paddingTop: 0,
+            borderBottom: 'none',
+          }}
+        >
           <Collapse in={isExpanded} timeout="auto" unmountOnExit onEntered={handleCollapseEntered}>
             <Box ref={historyRef} sx={{ margin: 1, scrollMargin: 16 }}>
               <Typography variant="body1" gutterBottom component="div">
