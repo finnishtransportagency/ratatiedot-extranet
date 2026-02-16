@@ -49,6 +49,9 @@ export interface BaliseState {
     lockReason: string,
   ) => Promise<{ successCount: number; failureCount: number; skippedCount: number }>;
   unlockBalise: (secondaryId: number) => Promise<void>;
+  bulkUnlockBalises: (
+    baliseIds: number[],
+  ) => Promise<{ successCount: number; failureCount: number; skippedCount: number }>;
   setInitialLoading: (loading: boolean) => void;
   setBackgroundLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -446,6 +449,44 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
       await get().refreshBalise(secondaryId);
     } catch (error) {
       console.error('Failed to unlock balise:', error);
+      throw error;
+    }
+  },
+
+  bulkUnlockBalises: async (baliseIds) => {
+    try {
+      const response = await fetch('/api/balise/bulk-unlock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ baliseIds }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to bulk unlock balises');
+      }
+
+      const result = await response.json();
+
+      // Refresh unlocked balises in local state
+      const successfullyUnlocked = result.results
+        .filter((r: { success: boolean }) => r.success)
+        .map((r: { baliseId: number }) => r.baliseId);
+
+      // Refresh each successfully unlocked balise
+      for (const baliseId of successfullyUnlocked) {
+        await get().refreshBalise(baliseId);
+      }
+
+      return {
+        successCount: result.successCount,
+        failureCount: result.failureCount,
+        skippedCount: result.skippedCount,
+      };
+    } catch (error) {
+      console.error('Failed to bulk unlock balises:', error);
       throw error;
     }
   },

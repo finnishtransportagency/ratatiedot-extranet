@@ -1,13 +1,15 @@
 import React from 'react';
 import { Paper, Button, Chip } from '@mui/material';
-import { Download, Delete, Lock } from '@mui/icons-material';
+import { Download, Delete, Lock, LockOpen } from '@mui/icons-material';
 
 interface BulkActionsBarProps {
   selectedCount: number;
   canWrite?: boolean;
   isAdmin?: boolean;
+  allSelectedLocked?: boolean;
   onBulkDownload: () => void;
   onBulkLock: () => void;
+  onBulkUnlock: () => void;
   onBulkDelete: () => void;
 }
 
@@ -15,8 +17,10 @@ export const BulkActionsBar: React.FC<BulkActionsBarProps> = ({
   selectedCount,
   canWrite,
   isAdmin,
+  allSelectedLocked = false,
   onBulkDownload,
   onBulkLock,
+  onBulkUnlock,
   onBulkDelete,
 }) => {
   if (selectedCount === 0) return null;
@@ -55,14 +59,26 @@ export const BulkActionsBar: React.FC<BulkActionsBarProps> = ({
       >
         Lataa
       </Button>
-      {canWrite && (
+      {canWrite && allSelectedLocked && (
+        <Button
+          variant="outlined"
+          color="secondary"
+          startIcon={<LockOpen fontSize="small" />}
+          size="small"
+          onClick={onBulkUnlock}
+          title="Avaa lukitus"
+        >
+          Avaa lukitus
+        </Button>
+      )}
+      {canWrite && !allSelectedLocked && (
         <Button
           variant="outlined"
           color="secondary"
           startIcon={<Lock fontSize="small" />}
           size="small"
           onClick={onBulkLock}
-          title="Lukitse/Poista lukitus"
+          title="Lukitse"
         >
           Lukitse
         </Button>
