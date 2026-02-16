@@ -30,6 +30,8 @@ export const BalisePage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [baliseToDelete, setBaliseToDelete] = useState<BaliseWithHistory | null>(null);
   const [contextActionError, setContextActionError] = useState<string | null>(null);
+  const [bulkLockDialogOpen, setBulkLockDialogOpen] = useState(false);
+  const [isBulkLocking, setIsBulkLocking] = useState(false);
 
   // Permissions
   const { permissions } = useBalisePermissions();
@@ -49,6 +51,7 @@ export const BalisePage: React.FC = () => {
     refreshBalise,
     clearCache,
     deleteBalise,
+    bulkLockBalises,
   } = useBaliseStore();
 
   // Lock/unlock handling
@@ -232,9 +235,35 @@ export const BalisePage: React.FC = () => {
 
   // Other bulk actions
   const handleBulkLock = useCallback(() => {
-    console.log('Bulk lock:', selectedItems);
-    setSelectedItems([]);
+    if (selectedItems.length > 0) {
+      setBulkLockDialogOpen(true);
+    }
   }, [selectedItems]);
+
+  const handleBulkLockConfirm = useCallback(
+    async (lockReason: string) => {
+      try {
+        setIsBulkLocking(true);
+        const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+        const baliseIds = selectedBalises.map((b) => b.secondaryId);
+
+        await bulkLockBalises(baliseIds, lockReason);
+
+        setBulkLockDialogOpen(false);
+        setSelectedItems([]);
+      } catch (error) {
+        console.error('Error bulk locking balises:', error);
+        setContextActionError(error instanceof Error ? error.message : 'Lukitseminen epäonnistui');
+      } finally {
+        setIsBulkLocking(false);
+      }
+    },
+    [selectedItems, balises, bulkLockBalises],
+  );
+
+  const handleBulkLockCancel = useCallback(() => {
+    setBulkLockDialogOpen(false);
+  }, []);
 
   const handleBulkDownload = useCallback(() => {
     const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
@@ -454,6 +483,15 @@ export const BalisePage: React.FC = () => {
           loading={isLocking}
           onConfirm={handleLockConfirm}
           onCancel={handleLockCancel}
+        />
+
+        {/* Bulk Lock Reason Dialog */}
+        <LockBaliseDialog
+          open={bulkLockDialogOpen}
+          bulkCount={selectedItems.length}
+          loading={isBulkLocking}
+          onConfirm={handleBulkLockConfirm}
+          onCancel={handleBulkLockCancel}
         />
 
         {/* Single-item Unlock Confirmation Dialog (version changed) */}

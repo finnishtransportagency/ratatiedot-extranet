@@ -44,6 +44,10 @@ export interface BaliseState {
     onProgress?: (current: number, total: number, successCount: number, failureCount: number) => void,
   ) => Promise<{ successCount: number; failureCount: number; skippedCount: number; failedIds: number[] }>;
   lockBalise: (secondaryId: number, lockReason: string) => Promise<void>;
+  bulkLockBalises: (
+    baliseIds: number[],
+    lockReason: string,
+  ) => Promise<{ successCount: number; failureCount: number; skippedCount: number }>;
   unlockBalise: (secondaryId: number) => Promise<void>;
   setInitialLoading: (loading: boolean) => void;
   setBackgroundLoading: (loading: boolean) => void;
@@ -280,7 +284,7 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
 
   bulkDeleteBalises: async (baliseIds, onProgress) => {
     const BATCH_SIZE = 100;
-    const BATCH_DELAY = 500; // ms between batches
+    const BATCH_DELAY_MS = 500;
 
     let totalSuccess = 0;
     let totalFailure = 0;
@@ -351,7 +355,7 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
 
       // Delay between batches (except for the last one)
       if (batchIndex < batches.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY));
+        await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY_MS));
       }
     }
 
@@ -382,6 +386,44 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
       await get().refreshBalise(secondaryId);
     } catch (error) {
       console.error('Failed to lock balise:', error);
+      throw error;
+    }
+  },
+
+  bulkLockBalises: async (baliseIds, lockReason) => {
+    try {
+      const response = await fetch('/api/balise/bulk-lock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ baliseIds, lockReason }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to bulk lock balises');
+      }
+
+      const result = await response.json();
+
+      // Refresh locked balises in local state
+      const successfullyLocked = result.results
+        .filter((r: { success: boolean }) => r.success)
+        .map((r: { baliseId: number }) => r.baliseId);
+
+      // Refresh each successfully locked balise
+      for (const baliseId of successfullyLocked) {
+        await get().refreshBalise(baliseId);
+      }
+
+      return {
+        successCount: result.successCount,
+        failureCount: result.failureCount,
+        skippedCount: result.skippedCount,
+      };
+    } catch (error) {
+      console.error('Failed to bulk lock balises:', error);
       throw error;
     }
   },
