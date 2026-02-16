@@ -27,6 +27,7 @@ import { BaliseVersionTimeline } from './BaliseVersionTimeline';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { DeleteBaliseDialog } from './components/DeleteBaliseDialog';
 import { UnlockBaliseDialog } from './components/UnlockBaliseDialog';
+import { LockBaliseDialog } from './components/LockBaliseDialog';
 
 interface BaliseFormProps {
   mode: 'create' | 'view';
@@ -53,6 +54,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [saveConfirmDialogOpen, setSaveConfirmDialogOpen] = useState(false);
   const [unlockConfirmDialogOpen, setUnlockConfirmDialogOpen] = useState(false);
+  const [lockDialogOpen, setLockDialogOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
   // Track if the balise ID already exists (for create mode)
@@ -258,16 +260,19 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       return;
     }
 
+    // If locking, show lock reason dialog
+    if (!balise.locked) {
+      setLockDialogOpen(true);
+      return;
+    }
+
+    // Unlocking (no version change)
     setActionLoading(true);
     setError(null);
     setErrorType(null);
 
     try {
-      if (balise.locked) {
-        await unlockBalise(balise.secondaryId);
-      } else {
-        await lockBalise(balise.secondaryId);
-      }
+      await unlockBalise(balise.secondaryId);
       if (onRefresh) {
         await onRefresh();
       }
@@ -291,12 +296,52 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
         }
       } else {
         setErrorType('error');
-        setError(`Failed to ${balise.locked ? 'unlock' : 'lock'} balise`);
+        setError('Failed to unlock balise');
       }
     } finally {
       setActionLoading(false);
     }
-  }, [balise, lockBalise, unlockBalise, onRefresh]);
+  }, [balise, unlockBalise, onRefresh]);
+
+  const handleLockConfirm = useCallback(
+    async (lockReason: string) => {
+      if (!balise) return;
+
+      setLockDialogOpen(false);
+      setActionLoading(true);
+      setError(null);
+      setErrorType(null);
+
+      try {
+        await lockBalise(balise.secondaryId, lockReason);
+        if (onRefresh) {
+          await onRefresh();
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          try {
+            const errorData = JSON.parse(err.message);
+            if (errorData.errorType) {
+              setErrorType(errorData.errorType);
+              setError(errorData.error || errorData.message || err.message);
+            } else {
+              setErrorType('error');
+              setError(err.message);
+            }
+          } catch {
+            setErrorType('error');
+            setError(err.message);
+          }
+        } else {
+          setErrorType('error');
+          setError('Failed to lock balise');
+        }
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    [balise, lockBalise, onRefresh],
+  );
 
   const handleUnlockConfirm = useCallback(async () => {
     if (!balise) return;
@@ -485,6 +530,24 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
         }}
       >
         <Box sx={{ maxWidth: 900, mx: 'auto' }}>
+          {/* Lock Info Section */}
+          {balise?.locked && (
+            <Paper variant="outlined" sx={{ mb: 2, p: 1.5, display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+              <Lock fontSize="small" color="action" sx={{ mt: 0.25 }} />
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Lukittu: {balise.lockedBy}
+                  {balise.lockedTime && <> ({new Date(balise.lockedTime).toLocaleString('fi-FI')})</>}
+                </Typography>
+                {balise.lockReason && (
+                  <Typography variant="body2" color="text.primary" sx={{ mt: 0.5 }}>
+                    {balise.lockReason}
+                  </Typography>
+                )}
+              </Box>
+            </Paper>
+          )}
+
           {/* Main Form */}
           <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
             <Typography variant="h4" gutterBottom sx={{ mb: 2, fontWeight: 500 }}>
@@ -623,6 +686,15 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
         loading={actionLoading}
         onConfirm={handleUnlockConfirm}
         onCancel={() => setUnlockConfirmDialogOpen(false)}
+      />
+
+      {/* Lock Reason Dialog */}
+      <LockBaliseDialog
+        open={lockDialogOpen}
+        baliseId={balise?.secondaryId}
+        loading={actionLoading}
+        onConfirm={handleLockConfirm}
+        onCancel={() => setLockDialogOpen(false)}
       />
     </Box>
   );

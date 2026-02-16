@@ -43,7 +43,7 @@ export interface BaliseState {
     baliseIds: number[],
     onProgress?: (current: number, total: number, successCount: number, failureCount: number) => void,
   ) => Promise<{ successCount: number; failureCount: number; skippedCount: number; failedIds: number[] }>;
-  lockBalise: (secondaryId: number) => Promise<void>;
+  lockBalise: (secondaryId: number, lockReason: string) => Promise<void>;
   unlockBalise: (secondaryId: number) => Promise<void>;
   setInitialLoading: (loading: boolean) => void;
   setBackgroundLoading: (loading: boolean) => void;
@@ -363,13 +363,14 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
     };
   },
 
-  lockBalise: async (secondaryId) => {
+  lockBalise: async (secondaryId, lockReason) => {
     try {
       const response = await fetch(`/api/balise/${secondaryId}/lock`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ lockReason }),
       });
 
       if (!response.ok) {

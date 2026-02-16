@@ -35,13 +35,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   loading = false,
 }) => {
   return (
-    <Dialog open={open} onClose={onCancel}>
+    <Dialog open={open} onClose={onCancel} PaperProps={{ sx: { minWidth: 400 } }}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         {typeof message === 'string' ? <DialogContentText>{message}</DialogContentText> : message}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel} disabled={disabled || loading}>
+        <Button onClick={onCancel} disabled={loading}>
           {cancelText}
         </Button>
         <Button onClick={onConfirm} color={confirmColor} variant="contained" disabled={disabled || loading}>

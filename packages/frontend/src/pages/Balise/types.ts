@@ -46,6 +46,7 @@ export interface Balise {
   lockedBy?: string | null;
   lockedTime?: string | Date | null;
   lockedAtVersion?: number | null;
+  lockReason?: string | null;
   deletedAt?: string | Date | null;
   deletedBy?: string | null;
 }
