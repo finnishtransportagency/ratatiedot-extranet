@@ -1,58 +1,17 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { type BaliseWithHistory, deleteSingleBalise } from '../../utils/baliseArchiveUtils';
+import {
+  BulkOperationResult,
+  BulkOperationResponse,
+  parseBaliseIds,
+  handleBulkOperationError,
+} from '../../utils/bulkUtils';
 
 const database = await DatabaseClient.build();
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
-
-interface BulkDeleteRequest {
-  baliseIds: number[]; // Array of secondaryId values
-}
-
-interface DeleteResult {
-  baliseId: number;
-  success: boolean;
-  error?: string;
-  skipped?: boolean; // True if balise was locked or not found
-}
-
-interface BulkDeleteResponse {
-  totalRequested: number;
-  successCount: number;
-  failureCount: number;
-  skippedCount: number;
-  results: DeleteResult[];
-}
-
-// Parse and validate request body
-function parseRequestBody(event: ALBEvent): BulkDeleteRequest {
-  if (!event.body) {
-    throw new Error('MISSING_REQUEST_BODY');
-  }
-
-  const body = event.isBase64Encoded ? Buffer.from(event.body, 'base64').toString('utf-8') : event.body;
-
-  let parsed: BulkDeleteRequest;
-  try {
-    parsed = JSON.parse(body);
-  } catch {
-    throw new Error('INVALID_JSON');
-  }
-
-  if (!Array.isArray(parsed.baliseIds) || parsed.baliseIds.length === 0) {
-    throw new Error('INVALID_BALISE_IDS');
-  }
-
-  // Validate all IDs are numbers
-  if (!parsed.baliseIds.every((id) => typeof id === 'number' && !isNaN(id))) {
-    throw new Error('INVALID_BALISE_IDS');
-  }
-
-  return parsed;
-}
 
 // Fetch balises with history, filtering out locked ones
 async function fetchBalisesForDeletion(
@@ -88,7 +47,7 @@ async function fetchBalisesForDeletion(
 }
 
 // Execute single delete with error handling for bulk operations
-async function executeDelete(balise: BaliseWithHistory, userUid: string): Promise<DeleteResult> {
+async function executeDelete(balise: BaliseWithHistory, userUid: string): Promise<BulkOperationResult> {
   const baliseId = balise.secondaryId;
   try {
     await deleteSingleBalise(database, BALISES_BUCKET_NAME, balise, userUid);
@@ -100,7 +59,7 @@ async function executeDelete(balise: BaliseWithHistory, userUid: string): Promis
 }
 
 // Process bulk deletion with concurrency control
-async function processBulkDeletion(baliseIds: number[], userUid: string): Promise<BulkDeleteResponse> {
+async function processBulkDeletion(baliseIds: number[], userUid: string): Promise<BulkOperationResponse> {
   // Fetch balises and filter out locked ones
   const { balises, skipped } = await fetchBalisesForDeletion(baliseIds);
 
@@ -108,7 +67,7 @@ async function processBulkDeletion(baliseIds: number[], userUid: string): Promis
 
   // Process deletions with concurrency limit to avoid overwhelming database connection pool
   const CONCURRENCY_LIMIT = 10;
-  const results: DeleteResult[] = [];
+  const results: BulkOperationResult[] = [];
 
   for (let i = 0; i < balises.length; i += CONCURRENCY_LIMIT) {
     const chunk = balises.slice(i, i + CONCURRENCY_LIMIT);
@@ -117,7 +76,7 @@ async function processBulkDeletion(baliseIds: number[], userUid: string): Promis
   }
 
   // Add skipped results
-  const skippedResults: DeleteResult[] = skipped.map((baliseId) => ({
+  const skippedResults: BulkOperationResult[] = skipped.map((baliseId) => ({
     baliseId,
     success: false,
     skipped: true,
@@ -137,40 +96,16 @@ async function processBulkDeletion(baliseIds: number[], userUid: string): Promis
   };
 }
 
-// Handle specific error types
-function handleBulkDeleteError(err: unknown): ALBResult {
-  const errorMessage = err instanceof Error ? err.message : String(err);
-
-  if (errorMessage === 'MISSING_REQUEST_BODY') {
-    return {
-      statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Pyyntö on tyhjä' }),
-    };
-  }
-
-  if (errorMessage === 'INVALID_JSON' || errorMessage === 'INVALID_BALISE_IDS') {
-    return {
-      statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Virheellinen pyyntö' }),
-    };
-  }
-
-  log.error(err);
-  return getRataExtraLambdaError(err);
-}
-
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
     validateBaliseWriteUser(user);
 
-    const request = parseRequestBody(event);
+    const baliseIds = parseBaliseIds(event);
 
-    log.info(user, `Bulk delete request for ${request.baliseIds.length} balises`);
+    log.info(user, `Bulk delete request for ${baliseIds.length} balises`);
 
-    const response = await processBulkDeletion(request.baliseIds, user.uid);
+    const response = await processBulkDeletion(baliseIds, user.uid);
 
     log.info(
       user,
@@ -183,6 +118,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       body: JSON.stringify(response),
     };
   } catch (err) {
-    return handleBulkDeleteError(err);
+    return handleBulkOperationError(err);
   }
 }
