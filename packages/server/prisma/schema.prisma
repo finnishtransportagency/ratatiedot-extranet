@@ -106,6 +106,7 @@ model Balise {
   lockedBy        String?
   lockedTime      DateTime?
   lockedAtVersion Int?
+  lockReason      String?
   deletedAt       DateTime?
   deletedBy       String?
 }
@@ -129,23 +130,6 @@ model BaliseVersion {
   @@index([baliseId, version])
 }
 
-model Area {
-  id          String    @id @default(uuid())
-  name        String // e.g., "Helsinki-Riihimäki"
-  shortName   String // e.g., "Alue 1"
-  key         String    @unique // e.g., "area_1"
-  idRangeMin  Int // e.g., 10000
-  idRangeMax  Int // e.g., 19999
-  description String? // Optional description
-  color       String? // Optional color for UI
-  active      Boolean   @default(true)
-  createdBy   String
-  createdTime DateTime  @default(now())
-  updatedBy   String?
-  updatedTime DateTime?
-
-  @@index([idRangeMin, idRangeMax])
-}
 
 model Section {
   id          String    @id @default(uuid())
