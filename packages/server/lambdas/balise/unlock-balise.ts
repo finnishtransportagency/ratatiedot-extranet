@@ -83,6 +83,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           lockedBy: null,
           lockedTime: null,
           lockedAtVersion: null,
+          lockReason: null,
           versionStatus: VersionStatus.OFFICIAL,
         },
       });
