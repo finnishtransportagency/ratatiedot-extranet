@@ -50,6 +50,41 @@ interface FormData {
   files: File[];
 }
 
+interface BaliseIdHelperTextParams {
+  isCreate: boolean;
+  secondaryId: string;
+  checkingBaliseId: boolean;
+  baliseIdExists: boolean | null;
+  currentSection?: { name: string };
+}
+
+function getBaliseIdHelperText({
+  isCreate,
+  secondaryId,
+  checkingBaliseId,
+  baliseIdExists,
+  currentSection,
+}: BaliseIdHelperTextParams): string | undefined {
+  if (!isCreate || secondaryId === '') {
+    return currentSection?.name;
+  }
+
+  if (checkingBaliseId) {
+    return 'Tarkistetaan...';
+  }
+
+  if (baliseIdExists === true) {
+    return 'Baliisi-ID on jo käytössä';
+  }
+
+  const parsedId = parseInt(secondaryId, 10);
+  if (parsedId > 0 && !isValidBaliseIdRange(parsedId)) {
+    return `Baliisi-ID:n tulee olla välillä ${MIN_BALISE_ID}-${MAX_BALISE_ID}`;
+  }
+
+  return currentSection?.name;
+}
+
 export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onRefresh }) => {
   const navigate = useNavigate();
   const { deleteBalise } = useBaliseStore();
@@ -482,22 +517,13 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                 (baliseIdExists === true ||
                   (parseInt(formData.secondaryId, 10) > 0 && !isValidBaliseIdRange(parseInt(formData.secondaryId, 10))))
               }
-              helperText={
-                isCreate && formData.secondaryId !== ''
-                  ? checkingBaliseId
-                    ? 'Tarkistetaan...'
-                    : baliseIdExists === true
-                      ? 'Baliisi-ID on jo käytössä'
-                      : parseInt(formData.secondaryId, 10) > 0 &&
-                          !isValidBaliseIdRange(parseInt(formData.secondaryId, 10))
-                        ? `Baliisi-ID:n tulee olla välillä ${MIN_BALISE_ID}-${MAX_BALISE_ID}`
-                        : currentSection
-                          ? `${currentSection.name}`
-                          : undefined
-                  : currentSection
-                    ? `${currentSection.name}`
-                    : undefined
-              }
+              helperText={getBaliseIdHelperText({
+                isCreate,
+                secondaryId: formData.secondaryId,
+                checkingBaliseId,
+                baliseIdExists,
+                currentSection,
+              })}
             />
 
             <InlineEditableField
