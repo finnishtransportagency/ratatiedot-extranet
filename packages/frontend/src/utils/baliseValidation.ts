@@ -3,10 +3,23 @@
  * Mirrors validation constants and logic from packages/server/utils/baliseUtils.ts
  */
 
+import type { Section } from '../pages/Balise/types';
+
 // Validation constants - must match backend
 export const VALID_EXTENSIONS = ['.il', '.leu', '.bis'];
 export const MIN_BALISE_ID = 10000;
 export const MAX_BALISE_ID = 99999;
+
+/**
+ * Find the section that a balise ID belongs to based on ID ranges
+ * @param baliseId The balise's secondary ID
+ * @param sections Array of sections to search
+ * @returns The matching section or undefined if not found
+ */
+export function getSectionForBaliseId(baliseId: number, sections: Section[]): Section | undefined {
+  if (!baliseId || !sections || sections.length === 0) return undefined;
+  return sections.find((section) => baliseId >= section.idRangeMin && baliseId <= section.idRangeMax);
+}
 
 export interface ValidationResult {
   valid: boolean;
