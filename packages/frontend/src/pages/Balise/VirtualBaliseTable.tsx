@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -16,6 +16,7 @@ import {
   MenuItem,
   Divider,
 } from '@mui/material';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { ExpandMore, ExpandLess, Edit, Lock, LockOpen, Delete, Download, Visibility } from '@mui/icons-material';
 import type { BaliseWithHistory } from './types';
 import { VersionStatus } from './enums';
@@ -110,179 +111,191 @@ const formatDateTime = (dateString: string | Date, useRelative = true) => {
   });
 };
 
-const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
-  row,
-  isExpanded,
-  onToggleExpanded,
-  isSelected,
-  onSelectItem,
-  onLoadHistory,
-  onContextMenu,
-  onRowClick,
-  isLocking,
-  permissions,
-}) => {
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const historyRef = useRef<HTMLDivElement>(null);
+const CollapsibleRow: React.FC<CollapsibleRowProps> = React.memo(
+  function CollapsibleRow({
+    row,
+    isExpanded,
+    onToggleExpanded,
+    isSelected,
+    onSelectItem,
+    onLoadHistory,
+    onContextMenu,
+    onRowClick,
+    isLocking,
+    permissions,
+  }) {
+    const [loadingHistory, setLoadingHistory] = useState(false);
+    const historyRef = useRef<HTMLDivElement>(null);
 
-  const handleCollapseEntered = () => {
-    // Scroll into view after the Collapse animation completes
-    historyRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-    });
-  };
+    const handleCollapseEntered = () => {
+      // Scroll into view after the Collapse animation completes
+      historyRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    };
 
-  const handleToggleExpand = async () => {
-    if (!isExpanded && (!row.history || row.history.length === 0) && onLoadHistory) {
-      setLoadingHistory(true);
-      try {
-        await onLoadHistory(row.id);
-      } catch (error) {
-        console.error('Failed to load history:', error);
-      } finally {
-        setLoadingHistory(false);
+    const handleToggleExpand = async () => {
+      if (!isExpanded && (!row.history || row.history.length === 0) && onLoadHistory) {
+        setLoadingHistory(true);
+        try {
+          await onLoadHistory(row.id);
+        } catch (error) {
+          console.error('Failed to load history:', error);
+        } finally {
+          setLoadingHistory(false);
+        }
       }
-    }
-    onToggleExpanded(row.id);
-  };
+      onToggleExpanded(row.id);
+    };
 
-  const handleCheckboxClick = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    onSelectItem(row.id);
-  };
+    const handleCheckboxClick = (event: React.MouseEvent) => {
+      event.stopPropagation();
+      onSelectItem(row.id);
+    };
 
-  const handleRowClick = (event: React.MouseEvent) => {
-    // Don't navigate if clicking on interactive elements
-    const target = event.target as HTMLElement;
-    if (target.closest('input') || target.closest('button') || target.closest('[role="button"]')) {
-      return;
-    }
-    onRowClick?.(row);
-  };
+    const handleRowClick = (event: React.MouseEvent) => {
+      // Don't navigate if clicking on interactive elements
+      const target = event.target as HTMLElement;
+      if (target.closest('input') || target.closest('button') || target.closest('[role="button"]')) {
+        return;
+      }
+      onRowClick?.(row);
+    };
 
-  return (
-    <>
-      <TableRow
-        sx={{
-          cursor: 'pointer',
-          '&:hover': { backgroundColor: 'action.hover' },
-          backgroundColor: isSelected ? 'action.selected' : 'inherit',
-        }}
-        onClick={handleRowClick}
-        onContextMenu={(event) => onContextMenu?.(event, row)}
-      >
-        <TableCell sx={{ fontSize: '14px', width: '50px' }}>
-          <Checkbox checked={isSelected} onClick={handleCheckboxClick} size="small" />
-        </TableCell>
-        <TableCell sx={{ fontSize: '14px', width: '80px' }} component="th" scope="row">
-          {row.secondaryId}
-        </TableCell>
-        <TableCell sx={{ fontSize: '14px', width: '200px' }}>
-          <Typography
+    return (
+      <>
+        <TableRow
+          sx={{
+            cursor: 'pointer',
+            '&:hover': { backgroundColor: 'action.hover' },
+            backgroundColor: isSelected ? 'action.selected' : 'inherit',
+          }}
+          onClick={handleRowClick}
+          onContextMenu={(event) => onContextMenu?.(event, row)}
+        >
+          <TableCell sx={{ fontSize: '14px', width: '50px' }}>
+            <Checkbox checked={isSelected} onClick={handleCheckboxClick} size="small" />
+          </TableCell>
+          <TableCell sx={{ fontSize: '14px', width: '80px' }} component="th" scope="row">
+            {row.secondaryId}
+          </TableCell>
+          <TableCell sx={{ fontSize: '14px', width: '200px' }}>
+            <Typography
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                fontSize: '14px',
+              }}
+            >
+              {row.description}
+            </Typography>
+          </TableCell>
+          <TableCell sx={{ fontSize: '14px', width: '60px' }}>{row.lockedAtVersion ?? row.version}</TableCell>
+          <TableCell sx={{ fontSize: '14px', width: '120px' }}>{formatDateTime(row.createdTime)}</TableCell>
+          <TableCell sx={{ fontSize: '14px', width: '100px' }}>{row.createdBy}</TableCell>
+          <TableCell sx={{ fontSize: '14px', width: '120px' }}>
+            {isLocking ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <CircularProgress size={16} />
+              </Box>
+            ) : row.locked ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Lock fontSize="small" sx={{ color: 'text.secondary', transform: 'scale(0.80)' }} />
+                {row.lockedBy}
+              </Box>
+            ) : (
+              ''
+            )}
+          </TableCell>
+          <TableCell sx={{ textAlign: 'right', width: '50px' }}>
+            {permissions?.isAdmin && (
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleExpand();
+                }}
+                disabled={loadingHistory}
+              >
+                {loadingHistory ? <CircularProgress size={16} /> : isExpanded ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
+            )}
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell
+            colSpan={8}
             sx={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              fontSize: '14px',
+              paddingBottom: 0,
+              paddingTop: 0,
+              borderBottom: 'none',
             }}
           >
-            {row.description}
-          </Typography>
-        </TableCell>
-        <TableCell sx={{ fontSize: '14px', width: '60px' }}>{row.lockedAtVersion ?? row.version}</TableCell>
-        <TableCell sx={{ fontSize: '14px', width: '120px' }}>{formatDateTime(row.createdTime)}</TableCell>
-        <TableCell sx={{ fontSize: '14px', width: '100px' }}>{row.createdBy}</TableCell>
-        <TableCell sx={{ fontSize: '14px', width: '120px' }}>
-          {isLocking ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <CircularProgress size={16} />
-            </Box>
-          ) : row.locked ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Lock fontSize="small" sx={{ color: 'text.secondary', transform: 'scale(0.80)' }} />
-              {row.lockedBy}
-            </Box>
-          ) : (
-            ''
-          )}
-        </TableCell>
-        <TableCell sx={{ textAlign: 'right', width: '50px' }}>
-          {permissions?.isAdmin && (
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleExpand();
-              }}
-              disabled={loadingHistory}
-            >
-              {loadingHistory ? <CircularProgress size={16} /> : isExpanded ? <ExpandLess /> : <ExpandMore />}
-            </IconButton>
-          )}
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell
-          colSpan={8}
-          sx={{
-            paddingBottom: 0,
-            paddingTop: 0,
-            borderBottom: 'none',
-          }}
-        >
-          <Collapse in={isExpanded} timeout="auto" unmountOnExit onEntered={handleCollapseEntered}>
-            <Box ref={historyRef} sx={{ margin: 1, scrollMargin: 16 }}>
-              <Typography variant="body1" gutterBottom component="div">
-                Historia
-              </Typography>
-              <Table size="small" aria-label="details">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontSize: '12px' }}>Versio</TableCell>
-                    <TableCell sx={{ fontSize: '12px' }}>Kuvaus</TableCell>
-                    <TableCell sx={{ fontSize: '12px' }}>Luontiaika</TableCell>
-                    <TableCell sx={{ fontSize: '12px' }}>Luonut</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {loadingHistory ? (
+            <Collapse in={isExpanded} timeout="auto" unmountOnExit onEntered={handleCollapseEntered}>
+              <Box ref={historyRef} sx={{ margin: 1, scrollMargin: 16 }}>
+                <Typography variant="body1" gutterBottom component="div">
+                  Historia
+                </Typography>
+                <Table size="small" aria-label="details">
+                  <TableHead>
                     <TableRow>
-                      <TableCell colSpan={4} sx={{ textAlign: 'center', py: 3 }}>
-                        <CircularProgress size={20} />
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                          Ladataan historiaa...
-                        </Typography>
-                      </TableCell>
+                      <TableCell sx={{ fontSize: '12px' }}>Versio</TableCell>
+                      <TableCell sx={{ fontSize: '12px' }}>Kuvaus</TableCell>
+                      <TableCell sx={{ fontSize: '12px' }}>Luontiaika</TableCell>
+                      <TableCell sx={{ fontSize: '12px' }}>Luonut</TableCell>
                     </TableRow>
-                  ) : row.history && row.history.length > 0 ? (
-                    row.history.map((version, vIndex) => (
-                      <TableRow key={`${row.id}-version-${vIndex}`}>
-                        <TableCell sx={{ fontSize: '14px' }}>
-                          {version.version}
-                          {version.versionStatus === VersionStatus.UNCONFIRMED ? ' (luonnos)' : ''}
+                  </TableHead>
+                  <TableBody>
+                    {loadingHistory ? (
+                      <TableRow>
+                        <TableCell colSpan={4} sx={{ textAlign: 'center', py: 3 }}>
+                          <CircularProgress size={20} />
+                          <Typography variant="body2" sx={{ mt: 1 }}>
+                            Ladataan historiaa...
+                          </Typography>
                         </TableCell>
-                        <TableCell sx={{ fontSize: '14px' }}>{version.description}</TableCell>
-                        <TableCell sx={{ fontSize: '14px' }}>{formatDateTime(version.createdTime)}</TableCell>
-                        <TableCell sx={{ fontSize: '14px' }}>{version.createdBy}</TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} sx={{ textAlign: 'center', fontStyle: 'italic' }}>
-                        Ei versiohistoriaa saatavilla
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </>
-  );
-};
+                    ) : row.history && row.history.length > 0 ? (
+                      row.history.map((version, vIndex) => (
+                        <TableRow key={`${row.id}-version-${vIndex}`}>
+                          <TableCell sx={{ fontSize: '14px' }}>
+                            {version.version}
+                            {version.versionStatus === VersionStatus.UNCONFIRMED ? ' (luonnos)' : ''}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '14px' }}>{version.description}</TableCell>
+                          <TableCell sx={{ fontSize: '14px' }}>{formatDateTime(version.createdTime)}</TableCell>
+                          <TableCell sx={{ fontSize: '14px' }}>{version.createdBy}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={4} sx={{ textAlign: 'center', fontStyle: 'italic' }}>
+                          Ei versiohistoriaa saatavilla
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </Box>
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      </>
+    );
+  },
+  (prevProps, nextProps) => {
+    // Custom comparison for memoization
+    return (
+      prevProps.row === nextProps.row &&
+      prevProps.isExpanded === nextProps.isExpanded &&
+      prevProps.isSelected === nextProps.isSelected &&
+      prevProps.isLocking === nextProps.isLocking &&
+      prevProps.permissions === nextProps.permissions
+    );
+  },
+);
 
 export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
   items,
@@ -304,6 +317,9 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
 }) => {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows>({});
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const selectedSet = useMemo(() => new Set(selectedItems), [selectedItems]);
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState<{
@@ -416,9 +432,47 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
     return () => observer.disconnect();
   }, [hasNextPage, isBackgroundLoading, loadMoreItems]);
 
+  // Stable callback for onSelectItem
+  const handleSelectItem = useCallback(
+    (id: string) => {
+      onSelectItem(id);
+    },
+    [onSelectItem],
+  );
+
+  // Row virtualizer - estimates 53px for collapsed rows, accounts for expanded rows
+  const rowVirtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => scrollContainerRef.current,
+    estimateSize: useCallback(
+      (index: number) => {
+        const row = items[index];
+        // Collapsed row is ~53px (main row) + ~0px (collapsed history row)
+        // Expanded row depends on history count
+        if (row && expandedRows[row.id]) {
+          const historyCount = row.history?.length || 0;
+          // Base expanded height + ~35px per history item
+          return 53 + 150 + historyCount * 35;
+        }
+        return 53;
+      },
+      [items, expandedRows],
+    ),
+    overscan: 10,
+  });
+
+  // Re-measure when expanded rows change
+  useEffect(() => {
+    rowVirtualizer.measure();
+  }, [expandedRows, rowVirtualizer]);
+
+  const virtualItems = rowVirtualizer.getVirtualItems();
+  const totalSize = rowVirtualizer.getTotalSize();
+
   return (
     <Paper sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box
+        ref={scrollContainerRef}
         sx={{
           height: 'calc(100vh - 84px)',
           overflow: 'auto',
@@ -442,22 +496,47 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
           </TableHead>
 
           <TableBody sx={{ fontSize: '12px' }}>
-            {/* Render all loaded items */}
-            {items.map((row: BaliseWithHistory) => (
-              <CollapsibleRow
-                key={row.id}
-                row={row}
-                isExpanded={expandedRows[row.id] || false}
-                onToggleExpanded={handleToggleExpanded}
-                isSelected={selectedItems.includes(row.id)}
-                onSelectItem={onSelectItem}
-                onLoadHistory={onLoadHistory}
-                onContextMenu={handleRowContextMenu}
-                onRowClick={onRowClick}
-                isLocking={lockingBaliseId === row.id}
-                permissions={permissions}
-              />
-            ))}
+            {/* Top spacer for virtualization */}
+            {virtualItems.length > 0 && virtualItems[0].start > 0 && (
+              <TableRow>
+                <TableCell colSpan={8} sx={{ padding: 0, height: virtualItems[0].start, border: 'none' }} />
+              </TableRow>
+            )}
+
+            {/* Render only visible items */}
+            {virtualItems.map((virtualItem) => {
+              const row = items[virtualItem.index];
+              if (!row) return null;
+              return (
+                <CollapsibleRow
+                  key={row.id}
+                  row={row}
+                  isExpanded={expandedRows[row.id] || false}
+                  onToggleExpanded={handleToggleExpanded}
+                  isSelected={selectedSet.has(row.id)}
+                  onSelectItem={handleSelectItem}
+                  onLoadHistory={onLoadHistory}
+                  onContextMenu={handleRowContextMenu}
+                  onRowClick={onRowClick}
+                  isLocking={lockingBaliseId === row.id}
+                  permissions={permissions}
+                />
+              );
+            })}
+
+            {/* Bottom spacer for virtualization */}
+            {virtualItems.length > 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={8}
+                  sx={{
+                    padding: 0,
+                    height: totalSize - (virtualItems[virtualItems.length - 1]?.end || 0),
+                    border: 'none',
+                  }}
+                />
+              </TableRow>
+            )}
 
             {/* Intersection Observer Sentinel - invisible trigger for loading more */}
             {hasNextPage && (
