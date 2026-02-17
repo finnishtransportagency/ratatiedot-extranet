@@ -1,6 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Routes } from '../../constants/Routes';
-import { isValidBaliseIdRange, MIN_BALISE_ID, MAX_BALISE_ID } from '../../utils/baliseValidation';
+import {
+  isValidBaliseIdRange,
+  MIN_BALISE_ID,
+  MAX_BALISE_ID,
+  getSectionForBaliseId,
+} from '../../utils/baliseValidation';
+import { useSectionStore } from '../../store/sectionStore';
 import {
   Box,
   Paper,
@@ -47,6 +53,7 @@ interface FormData {
 export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onRefresh }) => {
   const navigate = useNavigate();
   const { deleteBalise } = useBaliseStore();
+  const { sections, fetchSections } = useSectionStore();
   const { permissions } = useBalisePermissions();
 
   const [loading, setLoading] = useState(false);
@@ -103,6 +110,20 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
   // Track if there are unsaved changes
   const [hasChanges, setHasChanges] = useState(false);
+
+  // Fetch sections on mount if not already loaded
+  useEffect(() => {
+    if (sections.length === 0) {
+      fetchSections();
+    }
+  }, [sections.length, fetchSections]);
+
+  // Compute which section the current balise ID belongs to
+  const currentSection = useMemo(() => {
+    const baliseId = parseInt(formData.secondaryId, 10);
+    if (isNaN(baliseId) || baliseId <= 0) return undefined;
+    return getSectionForBaliseId(baliseId, sections);
+  }, [formData.secondaryId, sections]);
 
   // Initialize form data and track original values
   useEffect(() => {
@@ -470,8 +491,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       : parseInt(formData.secondaryId, 10) > 0 &&
                           !isValidBaliseIdRange(parseInt(formData.secondaryId, 10))
                         ? `Baliisi-ID:n tulee olla välillä ${MIN_BALISE_ID}-${MAX_BALISE_ID}`
-                        : undefined
-                  : undefined
+                        : currentSection
+                          ? `${currentSection.name}`
+                          : undefined
+                  : currentSection
+                    ? `${currentSection.name}`
+                    : undefined
               }
             />
 
