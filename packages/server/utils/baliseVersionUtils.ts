@@ -89,31 +89,6 @@ export function validateLockOwnerVersionAccess(requestedVersion: number, balise:
 }
 
 /**
- * Resolve which version to use for download based on user permissions
- * @param requestedVersion Explicitly requested version (or undefined)
- * @param balise Current balise object
- * @param isAdmin Whether the current user is an admin
- * @param isLockOwner Whether the current user is the lock owner
- * @returns Version number to use for download
- */
-export function resolveVersionForDownload(
-  requestedVersion: number | undefined,
-  balise: Balise,
-  isAdmin: boolean,
-  isLockOwner: boolean,
-): number {
-  // If version explicitly requested, use that
-  if (requestedVersion !== undefined) return requestedVersion;
-  // Admins and lock owners get current version
-  if (isAdmin || isLockOwner) return balise.version;
-  // Non-admin, non-lock-owner accessing locked balise - use official (lockedAtVersion)
-  if (balise.lockedAtVersion !== null && balise.lockedAtVersion !== balise.version) {
-    return balise.lockedAtVersion;
-  }
-  return balise.version;
-}
-
-/**
  * Get fileTypes array for a specific version
  * @param database Database client instance
  * @param baliseId Secondary ID of the balise
