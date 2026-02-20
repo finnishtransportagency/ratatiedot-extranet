@@ -16,7 +16,7 @@ import { useBulkDelete } from './hooks/useBulkDelete';
 import { useBaliseLocking } from './hooks/useBaliseLocking';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
-import { downloadMultipleBaliseFiles } from '../../utils/download';
+import { downloadBaliseFiles } from '../../utils/download';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { BalisePermissionGuard } from './BalisePermissionGuard';
 
@@ -27,6 +27,7 @@ export const BalisePage: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const [baliseToDownload, setBaliseToDownload] = useState<BaliseWithHistory | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [baliseToDelete, setBaliseToDelete] = useState<BaliseWithHistory | null>(null);
   const [contextActionError, setContextActionError] = useState<string | null>(null);
@@ -205,15 +206,9 @@ export const BalisePage: React.FC = () => {
     }
   }, [baliseToDelete, deleteBalise]);
 
-  const handleDownload = useCallback(async (row: BaliseWithHistory) => {
-    try {
-      setIsDownloading(true);
-      await downloadMultipleBaliseFiles([row.secondaryId]);
-    } catch (error) {
-      console.error('Error downloading balise files:', error);
-    } finally {
-      setIsDownloading(false);
-    }
+  const handleDownload = useCallback((row: BaliseWithHistory) => {
+    setBaliseToDownload(row);
+    setDownloadDialogOpen(true);
   }, []);
 
   const handleLoadHistory = useCallback(
@@ -248,6 +243,26 @@ export const BalisePage: React.FC = () => {
     const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
     return selectedBalises.length > 0 && selectedBalises.every((b) => b.locked);
   }, [balises, selectedItems]);
+
+  // Download dialog message
+  const downloadDialogMessage = useMemo(() => {
+    if (baliseToDownload) {
+      return `Lataa baliisin ${baliseToDownload.secondaryId} virallinen versio.`;
+    }
+    const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+    if (selectedBalises.length === 1) {
+      return `Lataa baliisin ${selectedBalises[0].secondaryId} virallinen versio.`;
+    } else if (selectedBalises.length > 3) {
+      return `Lataa ${selectedBalises.length} baliisin viralliset versiot ZIP-tiedostona.`;
+    }
+    return `Lataa ${selectedBalises.length} baliisin viralliset versiot.`;
+  }, [balises, selectedItems, baliseToDownload]);
+
+  // Download dialog title
+  const downloadDialogTitle = useMemo(() => {
+    if (baliseToDownload) return 'Lataa baliisi';
+    return selectedItems.length === 1 ? 'Lataa baliisi' : 'Lataa baliisit';
+  }, [selectedItems.length, baliseToDownload]);
 
   // Other bulk actions
   const handleBulkLock = useCallback(() => {
@@ -320,22 +335,39 @@ export const BalisePage: React.FC = () => {
 
   const handleDownloadConfirm = useCallback(async () => {
     try {
-      const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
-      const baliseIds = selectedBalises.map((b) => b.secondaryId);
-
       setIsDownloading(true);
-      await downloadMultipleBaliseFiles(baliseIds);
-      setSelectedItems([]);
+
+      if (baliseToDownload) {
+        // Single download from context menu
+        await downloadBaliseFiles([
+          {
+            secondaryId: baliseToDownload.secondaryId,
+            fileTypes: baliseToDownload.fileTypes,
+          },
+        ]);
+        setBaliseToDownload(null);
+      } else {
+        // Bulk download from selection
+        const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
+        const baliseData = selectedBalises.map((b) => ({
+          secondaryId: b.secondaryId,
+          fileTypes: b.fileTypes,
+        }));
+        await downloadBaliseFiles(baliseData);
+        setSelectedItems([]);
+      }
+
       setDownloadDialogOpen(false);
     } catch (error) {
       console.error('Error downloading files:', error);
     } finally {
       setIsDownloading(false);
     }
-  }, [selectedItems, balises]);
+  }, [selectedItems, balises, baliseToDownload]);
 
   const handleDownloadCancel = useCallback(() => {
     setDownloadDialogOpen(false);
+    setBaliseToDownload(null);
   }, []);
 
   // Initial loading state
@@ -504,8 +536,8 @@ export const BalisePage: React.FC = () => {
 
         <ConfirmDialog
           open={downloadDialogOpen}
-          title="Lataa baliisit"
-          message={`Lataa ${selectedItems.length} baliisin viralliset versiot ZIP-tiedostona.`}
+          title={downloadDialogTitle}
+          message={downloadDialogMessage}
           confirmText={isDownloading ? 'Ladataan...' : 'Lataa'}
           cancelText="Peruuta"
           onConfirm={handleDownloadConfirm}
