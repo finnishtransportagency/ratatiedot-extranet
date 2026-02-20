@@ -10,7 +10,6 @@ import {
   validateVersionParameterAccess,
   validateLockOwnerVersionAccess,
   getVersionFileTypes,
-  resolveVersionForDownload,
 } from '../../utils/baliseVersionUtils';
 
 const database = await DatabaseClient.build();
@@ -63,8 +62,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       validateLockOwnerVersionAccess(requestedVersion, balise);
     }
 
-    // Resolve which version to use based on user permissions
-    const version = resolveVersionForDownload(requestedVersion, balise, isAdmin, isLockOwner);
+    // Resolve which version to use:
+    const officialVersion =
+      balise.lockedAtVersion !== null && balise.lockedAtVersion !== balise.version
+        ? balise.lockedAtVersion
+        : balise.version;
+    const version = requestedVersion ?? officialVersion;
 
     // Get fileTypes for the requested version (handles both current and historical)
     const versionData = await getVersionFileTypes(database, baliseId, version, balise);

@@ -6,7 +6,6 @@ import {
   getVersionFileTypes,
   resolveBalisesForUser,
   filterHistoryForUser,
-  resolveVersionForDownload,
 } from '../baliseVersionUtils';
 import { PrismaClient, VersionStatus, Balise, BaliseVersion } from '../../generated/prisma/client';
 import { RataExtraUser } from '../userService';
@@ -220,40 +219,6 @@ describe('baliseVersionUtils', () => {
       });
       expect(() => validateLockOwnerVersionAccess(10, balise)).not.toThrow();
       expect(() => validateLockOwnerVersionAccess(9, balise)).toThrow();
-    });
-  });
-
-  describe('resolveVersionForDownload', () => {
-    it('should return requested version when explicitly specified', () => {
-      const balise = createMockBalise({ version: 5 });
-      expect(resolveVersionForDownload(3, balise, false, false)).toBe(3);
-      expect(resolveVersionForDownload(3, balise, true, false)).toBe(3);
-      expect(resolveVersionForDownload(3, balise, false, true)).toBe(3);
-    });
-
-    it('should return current version for admin users', () => {
-      const balise = createMockBalise({ version: 5, locked: true, lockedAtVersion: 3 });
-      expect(resolveVersionForDownload(undefined, balise, true, false)).toBe(5);
-    });
-
-    it('should return current version for lock owner', () => {
-      const balise = createMockBalise({ version: 5, locked: true, lockedAtVersion: 3 });
-      expect(resolveVersionForDownload(undefined, balise, false, true)).toBe(5);
-    });
-
-    it('should return lockedAtVersion for non-admin non-lock-owner on locked balise', () => {
-      const balise = createMockBalise({ version: 5, locked: true, lockedAtVersion: 3 });
-      expect(resolveVersionForDownload(undefined, balise, false, false)).toBe(3);
-    });
-
-    it('should return current version for unlocked balise', () => {
-      const balise = createMockBalise({ version: 5, locked: false, lockedAtVersion: null });
-      expect(resolveVersionForDownload(undefined, balise, false, false)).toBe(5);
-    });
-
-    it('should return current version when lockedAtVersion equals version', () => {
-      const balise = createMockBalise({ version: 5, locked: true, lockedAtVersion: 5 });
-      expect(resolveVersionForDownload(undefined, balise, false, false)).toBe(5);
     });
   });
 
