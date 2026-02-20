@@ -22,21 +22,23 @@ const downloadBlob = (blob: Blob, filename: string) => {
   downloadFile(url, filename);
   URL.revokeObjectURL(url);
 };
-
 /**
- * Download all files for a balise (sequentially to avoid browser blocking)
- * @param baliseId The balise ID
- * @param files Array of filenames to download
- * @param version Optional version number to download from (defaults to current)
+ * Download files for a single balise using presigned URLs.
+ * Downloads each file type for the balise's version.
+ * @param baliseId The balise secondary ID
+ * @param fileTypes Array of filenames to download
+ * @param version Optional version number to download from (defaults to official version)
  */
-export const downloadBaliseFiles = async (baliseId: number, files: string[], version?: number): Promise<void> => {
-  for (const filename of files) {
+export const downloadSingleBaliseFiles = async (
+  baliseId: number,
+  fileTypes: string[],
+  version?: number,
+): Promise<void> => {
+  for (const filename of fileTypes) {
     try {
-      // Get presigned URL from backend
       const url = version
         ? `/api/balise/${baliseId}/download?fileName=${encodeURIComponent(filename)}&version=${version}`
         : `/api/balise/${baliseId}/download?fileName=${encodeURIComponent(filename)}`;
-
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -75,4 +77,29 @@ export const downloadMultipleBaliseFiles = async (baliseIds: number[]): Promise<
   const blob = await response.blob();
   const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
   downloadBlob(blob, `balise_files_${timestamp}.zip`);
+};
+
+// Threshold for using bulk download (zip) vs individual downloads
+const BULK_DOWNLOAD_THRESHOLD = 3;
+
+/**
+ * Download function that chooses between individual and bulk download.
+ * Uses individual downloads for 3 or fewer balises, bulk (zip) for more.
+ * @param balises Array of balise data objects with secondaryId, fileTypes, and optional version
+ */
+export const downloadBaliseFiles = async (
+  balises: Array<{ secondaryId: number; fileTypes: string[]; version?: number }>,
+): Promise<void> => {
+  if (balises.length === 0) return;
+
+  if (balises.length <= BULK_DOWNLOAD_THRESHOLD) {
+    // Download each balise's files individually
+    for (const balise of balises) {
+      await downloadSingleBaliseFiles(balise.secondaryId, balise.fileTypes, balise.version);
+    }
+  } else {
+    // Use bulk download for more than threshold
+    const baliseIds = balises.map((b) => b.secondaryId);
+    await downloadMultipleBaliseFiles(baliseIds);
+  }
 };
