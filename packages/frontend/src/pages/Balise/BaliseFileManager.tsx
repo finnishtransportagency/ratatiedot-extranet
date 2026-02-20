@@ -102,7 +102,12 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
 
       try {
         // Backend resolves to correct version (lockedAtVersion for regular users)
-        await downloadBaliseFiles(balise.secondaryId, balise.fileTypes);
+        await downloadBaliseFiles([
+          {
+            secondaryId: balise.secondaryId,
+            fileTypes: balise.fileTypes,
+          },
+        ]);
       } catch (error) {
         console.error('Error downloading files:', error);
       }
