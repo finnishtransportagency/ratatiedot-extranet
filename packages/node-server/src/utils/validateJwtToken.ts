@@ -14,15 +14,30 @@ function jwkToPem(webKey: string | Buffer) {
 
 let cachedKeys: Record<string, string>;
 
+const MAX_RETRIES = 1;
+
 // Fetch JWK's from Cognito or cache
 const getPublicKeys = async (issuerUrl: string) => {
   //if (!cachedKeys) {
   cachedKeys = {};
-  const publicKeys = await Axios.get(issuerUrl + '/.well-known/jwks.json');
-  for (const key of publicKeys.data.keys) {
-    cachedKeys[key.kid] = jwkToPem(key);
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const publicKeys = await Axios.get(issuerUrl + '/.well-known/jwks.json');
+      for (const key of publicKeys.data.keys) {
+        cachedKeys[key.kid] = jwkToPem(key);
+      }
+      return cachedKeys;
+    } catch (err: unknown) {
+      const errorCode = (err as { code?: string })?.code;
+      const isTransient = ['EPIPE', 'ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED'].includes(errorCode ?? '');
+      if (attempt < MAX_RETRIES && isTransient) {
+        log.warn(`JWKS fetch failed with ${errorCode}, retrying (attempt ${attempt + 1}/${MAX_RETRIES})`);
+        continue;
+      }
+      throw err;
+    }
   }
-  return cachedKeys;
+  throw new Error('Failed to fetch JWKS public keys');
   /*  } else {
     return cachedKeys;
   } */
