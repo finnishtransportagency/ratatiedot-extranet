@@ -88,7 +88,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     archive.pipe(passThrough);
 
     // Collect all file buffers first (fetch in parallel)
-    const filePromises: Promise<{ folder: string; filename: string; buffer: Buffer } | null>[] = [];
+    const filePromises: Promise<{ filename: string; buffer: Buffer } | null>[] = [];
 
     for (const baliseId of baliseIds) {
       const baliseData = baliseDataMap.get(baliseId);
@@ -96,8 +96,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         log.warn(user, `Balise ${baliseId} not found, skipping`);
         continue;
       }
-
-      const folderName = `${baliseId}`;
 
       // Use fileTypes from the official version (backend-determined, not frontend-provided)
       for (const filename of baliseData.fileTypes) {
@@ -108,7 +106,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
               const response = await s3Client.send(new GetObjectCommand({ Bucket: BALISES_BUCKET_NAME, Key: fileKey }));
               if (!response.Body) return null;
               const buffer = await streamToBuffer(response.Body as Readable);
-              return { folder: folderName, filename, buffer };
+              return { filename, buffer };
             } catch (error) {
               log.error(`Error fetching file ${filename} for balise ${baliseId}: ${error}`);
               return null;
@@ -124,7 +122,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // Add files to archive
     for (const result of results) {
       if (result) {
-        archive.append(result.buffer, { name: `${result.folder}/${result.filename}` });
+        archive.append(result.buffer, { name: result.filename });
       }
     }
 
@@ -135,7 +133,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const zipBuffer = await streamToBuffer(passThrough);
 
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-    const filename = `baliisit_${timestamp}.zip`;
+    const filename = `Baliisit_${timestamp}.zip`;
 
     log.info(user, `Bulk download: returning zip with ${results.filter(Boolean).length} files`);
 
