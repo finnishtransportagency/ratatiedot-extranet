@@ -76,7 +76,7 @@ export const downloadMultipleBaliseFiles = async (baliseIds: number[]): Promise<
 
   const blob = await response.blob();
   const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-  downloadBlob(blob, `balise_files_${timestamp}.zip`);
+  downloadBlob(blob, `Baliisit_${timestamp}.zip`);
 };
 
 // Threshold for using bulk download (zip) vs individual downloads
