@@ -4,9 +4,9 @@ import {
   validateVersionParameterAccess,
   validateLockOwnerVersionAccess,
   getVersionFileTypes,
-  validateFileInVersion,
   resolveBalisesForUser,
   filterHistoryForUser,
+  resolveVersionForDownload,
 } from '../baliseVersionUtils';
 import { PrismaClient, VersionStatus, Balise, BaliseVersion } from '../../generated/prisma/client';
 import { RataExtraUser } from '../userService';
@@ -37,6 +37,7 @@ const createMockBalise = (overrides: Partial<Balise> = {}): Balise => ({
   lockedBy: null,
   lockedAtVersion: null,
   lockedTime: null,
+  lockReason: null,
   fileTypes: ['file1.xml', 'file2.pdf'],
   description: 'Test balise',
   createdTime: new Date('2024-01-01'),
@@ -222,6 +223,40 @@ describe('baliseVersionUtils', () => {
     });
   });
 
+  describe('resolveVersionForDownload', () => {
+    it('should return requested version when explicitly specified', () => {
+      const balise = createMockBalise({ version: 5 });
+      expect(resolveVersionForDownload(3, balise, false, false)).toBe(3);
+      expect(resolveVersionForDownload(3, balise, true, false)).toBe(3);
+      expect(resolveVersionForDownload(3, balise, false, true)).toBe(3);
+    });
+
+    it('should return current version for admin users', () => {
+      const balise = createMockBalise({ version: 5, locked: true, lockedAtVersion: 3 });
+      expect(resolveVersionForDownload(undefined, balise, true, false)).toBe(5);
+    });
+
+    it('should return current version for lock owner', () => {
+      const balise = createMockBalise({ version: 5, locked: true, lockedAtVersion: 3 });
+      expect(resolveVersionForDownload(undefined, balise, false, true)).toBe(5);
+    });
+
+    it('should return lockedAtVersion for non-admin non-lock-owner on locked balise', () => {
+      const balise = createMockBalise({ version: 5, locked: true, lockedAtVersion: 3 });
+      expect(resolveVersionForDownload(undefined, balise, false, false)).toBe(3);
+    });
+
+    it('should return current version for unlocked balise', () => {
+      const balise = createMockBalise({ version: 5, locked: false, lockedAtVersion: null });
+      expect(resolveVersionForDownload(undefined, balise, false, false)).toBe(5);
+    });
+
+    it('should return current version when lockedAtVersion equals version', () => {
+      const balise = createMockBalise({ version: 5, locked: true, lockedAtVersion: 5 });
+      expect(resolveVersionForDownload(undefined, balise, false, false)).toBe(5);
+    });
+  });
+
   describe('getVersionFileTypes', () => {
     const balise = createMockBalise({
       secondaryId: 12345,
@@ -295,59 +330,6 @@ describe('baliseVersionUtils', () => {
       mockFindFirst.mockRejectedValue(new Error('Database connection failed'));
 
       await expect(getVersionFileTypes(mockDatabase, 12345, 3, balise)).rejects.toThrow('Database connection failed');
-    });
-  });
-
-  describe('validateFileInVersion', () => {
-    it('should not throw when file exists in fileTypes array', () => {
-      const fileTypes = ['file1.xml', 'file2.pdf', 'file3.doc'];
-      expect(() => validateFileInVersion(fileTypes, 'file2.pdf', 5)).not.toThrow();
-    });
-
-    it('should throw 404 when file does not exist in fileTypes array', () => {
-      const fileTypes = ['file1.xml', 'file2.pdf'];
-      expect(() => validateFileInVersion(fileTypes, 'file3.doc', 5)).toThrow();
-
-      try {
-        validateFileInVersion(fileTypes, 'file3.doc', 5);
-      } catch (error: unknown) {
-        expect((error as Error).message).toContain('file3.doc');
-        expect((error as Error).message).toContain('versiolle 5');
-        expect((error as { statusCode: number }).statusCode).toBe(404);
-      }
-    });
-
-    it('should throw 404 when fileTypes array is empty', () => {
-      expect(() => validateFileInVersion([], 'file.xml', 3)).toThrow();
-
-      try {
-        validateFileInVersion([], 'file.xml', 3);
-      } catch (error: unknown) {
-        expect((error as { statusCode: number }).statusCode).toBe(404);
-      }
-    });
-
-    it('should be case sensitive', () => {
-      const fileTypes = ['File.xml'];
-      expect(() => validateFileInVersion(fileTypes, 'file.xml', 1)).toThrow();
-      expect(() => validateFileInVersion(fileTypes, 'File.xml', 1)).not.toThrow();
-    });
-
-    it('should include version number in error message when provided', () => {
-      try {
-        validateFileInVersion(['file.xml'], 'missing.pdf', 42);
-      } catch (error: unknown) {
-        expect((error as Error).message).toContain('42');
-      }
-    });
-
-    it('should work without version number in error message', () => {
-      try {
-        validateFileInVersion(['file.xml'], 'missing.pdf');
-      } catch (error: unknown) {
-        expect((error as Error).message).toContain('missing.pdf');
-        expect((error as { statusCode: number }).statusCode).toBe(404);
-      }
     });
   });
 

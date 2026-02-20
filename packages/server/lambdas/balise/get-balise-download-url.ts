@@ -10,7 +10,7 @@ import {
   validateVersionParameterAccess,
   validateLockOwnerVersionAccess,
   getVersionFileTypes,
-  validateFileInVersion,
+  resolveVersionForDownload,
 } from '../../utils/baliseVersionUtils';
 
 const database = await DatabaseClient.build();
@@ -25,27 +25,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const pathParts = event.path.split('/').filter((p) => p);
     const baliseIdStr = pathParts[pathParts.indexOf('balise') + 1];
     const baliseId = parseInt(baliseIdStr || '0', 10);
-    const fileName = event.queryStringParameters?.fileName;
     const requestedVersion = parseVersionParameter(event.queryStringParameters);
 
-    log.info(
-      user,
-      `Get download URL for balise ${baliseId}, fileName: ${fileName}, version: ${requestedVersion}, path: ${event.path}`,
-    );
+    log.info(user, `Get download URLs for balise ${baliseId}, version: ${requestedVersion}, path: ${event.path}`);
 
     if (!baliseId || isNaN(baliseId)) {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Virheellinen tai puuttuva baliisi-tunnus' }),
-      };
-    }
-
-    if (!fileName) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Tiedostonimi puuttuu' }),
       };
     }
 
@@ -75,38 +63,38 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       validateLockOwnerVersionAccess(requestedVersion, balise);
     }
 
-    // Use requested version if specified, otherwise use current balise version
-    const version = requestedVersion ?? balise.version;
+    // Resolve which version to use based on user permissions
+    const version = resolveVersionForDownload(requestedVersion, balise, isAdmin, isLockOwner);
 
     // Get fileTypes for the requested version (handles both current and historical)
     const versionData = await getVersionFileTypes(database, baliseId, version, balise);
 
-    // Validate that the requested file exists in this version
-    validateFileInVersion(versionData.fileTypes, fileName, version);
-
-    // Generate S3 file key with hierarchical structure: balise_{secondaryId}/v{version}/{fileName}
-    const fileKey = `balise_${balise.secondaryId}/v${version}/${fileName}`;
-
-    // Generate presigned URL (expires in 1 hour)
-    const downloadUrl = await getSignedUrl(
-      s3Client,
-      new GetObjectCommand({
-        Bucket: BALISES_BUCKET_NAME,
-        Key: fileKey,
+    // Generate presigned URLs for all files in this version
+    const downloadUrls = await Promise.all(
+      versionData.fileTypes.map(async (fileName) => {
+        const fileKey = `balise_${balise.secondaryId}/v${version}/${fileName}`;
+        const url = await getSignedUrl(
+          s3Client,
+          new GetObjectCommand({
+            Bucket: BALISES_BUCKET_NAME,
+            Key: fileKey,
+          }),
+          {
+            expiresIn: 3600, // 1 hour
+          },
+        );
+        return { fileName, url };
       }),
-      {
-        expiresIn: 3600, // 1 hour
-      },
     );
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        downloadUrl,
+        downloadUrls,
         expiresIn: 3600,
-        fileName,
         baliseId: balise.secondaryId,
+        version,
       }),
     };
   } catch (err) {
