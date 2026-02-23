@@ -22,21 +22,6 @@ const BALISE_ROLES = {
   admin: 'ratatieto_admin_baliisisanomat',
 };
 
-// Mock user profiles for development - different balise permission levels
-const MOCK_USER_PROFILES: Record<string, string[]> = {
-  'balise-read': [STATIC_ROLES.read, STATIC_ROLES.admin, BALISE_ROLES.read],
-  'balise-write': [STATIC_ROLES.read, STATIC_ROLES.admin, BALISE_ROLES.read, BALISE_ROLES.write],
-  'balise-admin': [STATIC_ROLES.read, STATIC_ROLES.admin, BALISE_ROLES.read, BALISE_ROLES.write, BALISE_ROLES.admin],
-};
-
-// Mock UIDs for development - allows testing with different user identities
-const MOCK_UIDS: Record<string, string> = {
-  'user-1': 'LX123456',
-  'user-2': 'LX654321',
-};
-
-export type MockUserProfileKey = keyof typeof MOCK_USER_PROFILES;
-
 export type RataExtraUser = {
   uid: string;
   roles?: string[];
@@ -59,9 +44,9 @@ export function parseRoles(roles: string): string[] | undefined {
     : undefined;
 }
 
-export const getMockUser = (profileKey?: string, uidKey?: string): RataExtraUser => ({
-  uid: (uidKey && MOCK_UIDS[uidKey]) || MOCK_UID || MOCK_UIDS['user-1'],
-  roles: (profileKey && MOCK_USER_PROFILES[profileKey]) || MOCK_USER_PROFILES['balise-admin'],
+export const getMockUser = (): RataExtraUser => ({
+  uid: MOCK_UID,
+  roles: [STATIC_ROLES.read, STATIC_ROLES.admin, BALISE_ROLES.read, BALISE_ROLES.write, BALISE_ROLES.admin],
   isMockUser: true,
 });
 
@@ -111,9 +96,7 @@ export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
     throw new RataExtraLambdaError('Error', 500);
   }
   if (isFeatOrLocalStack(ENVIRONMENT as RataExtraEnvironment)) {
-    const mockProfile = event.headers?.['x-mock-role'];
-    const mockUid = event.headers?.['x-mock-uid'];
-    return getMockUser(mockProfile, mockUid);
+    return getMockUser();
   }
   return parseUserFromEvent(event);
 };
