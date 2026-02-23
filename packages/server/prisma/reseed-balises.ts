@@ -46,7 +46,6 @@ async function reseedBalises() {
       {
         key: 'section_1',
         name: 'Helsinki-Riihimäki',
-        shortName: 'HKI-RI',
         idRangeMin: 10000,
         idRangeMax: 14999,
         createdBy: 'seed.user',
@@ -56,7 +55,6 @@ async function reseedBalises() {
       {
         key: 'section_2',
         name: 'Riihimäki-Tampere',
-        shortName: 'RI-TRE',
         idRangeMin: 15000,
         idRangeMax: 19999,
         createdBy: 'seed.user',
@@ -66,7 +64,6 @@ async function reseedBalises() {
       {
         key: 'section_3',
         name: 'Tampere-Seinäjoki',
-        shortName: 'TRE-SK',
         idRangeMin: 20000,
         idRangeMax: 24999,
         createdBy: 'seed.user',
@@ -76,7 +73,6 @@ async function reseedBalises() {
       {
         key: 'section_4',
         name: 'Helsinki-Turku',
-        shortName: 'HKI-TKU',
         idRangeMin: 25000,
         idRangeMax: 29999,
         createdBy: 'seed.user',
@@ -86,7 +82,6 @@ async function reseedBalises() {
       {
         key: 'section_5',
         name: 'Lahti-Heinola',
-        shortName: 'LH-HN',
         idRangeMin: 30000,
         idRangeMax: 34999,
         createdBy: 'seed.user',
@@ -96,7 +91,6 @@ async function reseedBalises() {
       {
         key: 'section_6',
         name: 'Kouvola-Joensuu',
-        shortName: 'KV-JNS',
         idRangeMin: 35000,
         idRangeMax: 39999,
         createdBy: 'seed.user',
@@ -106,7 +100,6 @@ async function reseedBalises() {
       {
         key: 'section_7',
         name: 'Pieksämäki-Kontiomäki',
-        shortName: 'PM-KM',
         idRangeMin: 40000,
         idRangeMax: 44999,
         createdBy: 'seed.user',
@@ -116,7 +109,6 @@ async function reseedBalises() {
       {
         key: 'section_8',
         name: 'Oulu-Kolari',
-        shortName: 'OL-KLR',
         idRangeMin: 45000,
         idRangeMax: 49999,
         createdBy: 'seed.user',
@@ -126,7 +118,6 @@ async function reseedBalises() {
       {
         key: 'section_9',
         name: 'Tampere-Jyväskylä',
-        shortName: 'TRE-JY',
         idRangeMin: 50000,
         idRangeMax: 54999,
         createdBy: 'seed.user',
@@ -136,7 +127,6 @@ async function reseedBalises() {
       {
         key: 'section_10',
         name: 'Jyväskylä-Äänekoski',
-        shortName: 'JY-ÄS',
         idRangeMin: 55000,
         idRangeMax: 59999,
         createdBy: 'seed.user',
@@ -146,7 +136,6 @@ async function reseedBalises() {
       {
         key: 'section_11',
         name: 'Turku-Toijala',
-        shortName: 'TKU-TL',
         idRangeMin: 60000,
         idRangeMax: 64999,
         createdBy: 'seed.user',
@@ -156,7 +145,6 @@ async function reseedBalises() {
       {
         key: 'section_12',
         name: 'Vaasa-Seinäjoki',
-        shortName: 'VS-SK',
         idRangeMin: 65000,
         idRangeMax: 69999,
         createdBy: 'seed.user',
