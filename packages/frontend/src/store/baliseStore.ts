@@ -59,7 +59,6 @@ export interface BaliseState {
   loadMoreBalises: (filters?: BaliseFilters) => Promise<void>;
   refreshBalise: (secondaryId: number) => Promise<void>;
   clearCache: () => void;
-  downloadFile: (secondaryId: number, fileName: string) => Promise<void>;
 }
 
 // API function
@@ -125,15 +124,6 @@ const fetchSingleBaliseAPI = async (secondaryId: number): Promise<BaliseWithHist
   const response = await fetch(`/api/balise/${secondaryId}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch balise: ${response.status}`);
-  }
-  return response.json();
-};
-
-const downloadFileAPI = async (secondaryId: number, fileName: string): Promise<{ downloadUrl: string }> => {
-  const response = await fetch(`/api/balise/${secondaryId}/download?fileName=${encodeURIComponent(fileName)}`);
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || `Failed to get download URL: ${response.status}`);
   }
   return response.json();
 };
@@ -240,24 +230,6 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
     } catch (error) {
       console.error('Failed to refresh balise:', error);
       // Don't set global error for single balise refresh failures
-    }
-  },
-
-  downloadFile: async (secondaryId, fileName) => {
-    try {
-      const { downloadUrl } = await downloadFileAPI(secondaryId, fileName);
-      // Use a helper function to trigger the download
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error('Failed to download file:', error);
-      // Optionally, you could set an error state here to show in the UI
-      const errorMessage = error instanceof Error ? error.message : 'Unknown download error';
-      set({ error: `Download failed: ${errorMessage}` });
     }
   },
 

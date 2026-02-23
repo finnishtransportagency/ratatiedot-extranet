@@ -23,37 +23,30 @@ const downloadBlob = (blob: Blob, filename: string) => {
   URL.revokeObjectURL(url);
 };
 /**
- * Download files for a single balise using presigned URLs.
- * Downloads each file type for the balise's version.
+ * Download all files for a single balise using presigned URLs.
+ * Makes a single API call that returns presigned URLs for all files in the version.
  * @param baliseId The balise secondary ID
- * @param fileTypes Array of filenames to download
  * @param version Optional version number to download from (defaults to official version)
  */
-export const downloadSingleBaliseFiles = async (
-  baliseId: number,
-  fileTypes: string[],
-  version?: number,
-): Promise<void> => {
-  for (const filename of fileTypes) {
-    try {
-      const url = version
-        ? `/api/balise/${baliseId}/download?fileName=${encodeURIComponent(filename)}&version=${version}`
-        : `/api/balise/${baliseId}/download?fileName=${encodeURIComponent(filename)}`;
-      const response = await fetch(url);
+export const downloadSingleBaliseFiles = async (baliseId: number, version?: number): Promise<void> => {
+  try {
+    const url = version ? `/api/balise/${baliseId}/download?version=${version}` : `/api/balise/${baliseId}/download`;
+    const response = await fetch(url);
 
-      if (!response.ok) {
-        console.error(`Failed to get download URL for ${filename}:`, response.statusText);
-        continue;
-      }
-
-      const data = await response.json();
-      downloadFile(data.downloadUrl, filename);
-
-      // Small delay to avoid triggering popup blockers
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    } catch (error) {
-      console.error(`Error downloading ${filename}:`, error);
+    if (!response.ok) {
+      console.error(`Failed to get download URLs for balise ${baliseId}:`, response.statusText);
+      return;
     }
+
+    const data: { downloadUrls: Array<{ fileName: string; url: string }> } = await response.json();
+
+    // Download each file with small delay to avoid popup blockers
+    for (const { fileName, url: fileUrl } of data.downloadUrls) {
+      downloadFile(fileUrl, fileName);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  } catch (error) {
+    console.error(`Error downloading balise ${baliseId}:`, error);
   }
 };
 
@@ -85,17 +78,15 @@ const BULK_DOWNLOAD_THRESHOLD = 3;
 /**
  * Download function that chooses between individual and bulk download.
  * Uses individual downloads for 3 or fewer balises, bulk (zip) for more.
- * @param balises Array of balise data objects with secondaryId, fileTypes, and optional version
+ * @param balises Array of balise data objects with secondaryId and optional version
  */
-export const downloadBaliseFiles = async (
-  balises: Array<{ secondaryId: number; fileTypes: string[]; version?: number }>,
-): Promise<void> => {
+export const downloadBaliseFiles = async (balises: Array<{ secondaryId: number; version?: number }>): Promise<void> => {
   if (balises.length === 0) return;
 
   if (balises.length <= BULK_DOWNLOAD_THRESHOLD) {
     // Download each balise's files individually
     for (const balise of balises) {
-      await downloadSingleBaliseFiles(balise.secondaryId, balise.fileTypes, balise.version);
+      await downloadSingleBaliseFiles(balise.secondaryId, balise.version);
     }
   } else {
     // Use bulk download for more than threshold
