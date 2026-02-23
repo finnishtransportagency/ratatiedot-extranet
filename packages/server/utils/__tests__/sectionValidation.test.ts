@@ -35,7 +35,6 @@ describe('Section Validation', () => {
   describe('validateRequiredFields', () => {
     const validData: SectionData = {
       name: 'Test Section',
-      shortName: 'TS',
       idRangeMin: 1,
       idRangeMax: 100,
     };
@@ -48,31 +47,18 @@ describe('Section Validation', () => {
 
     it('should fail when name is missing', () => {
       const data: Partial<SectionData> = {
-        shortName: 'TS',
         idRangeMin: 1,
         idRangeMax: 100,
       };
       const result = validateRequiredFields(data);
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('Name, shortName, idRangeMin, and idRangeMax are required');
+      expect(result.error).toBe('Name, idRangeMin, and idRangeMax are required');
       expect(result.statusCode).toBe(400);
-    });
-
-    it('should fail when shortName is missing', () => {
-      const data: Partial<SectionData> = {
-        name: 'Test Section',
-        idRangeMin: 1,
-        idRangeMax: 100,
-      };
-      const result = validateRequiredFields(data);
-      expect(result.isValid).toBe(false);
-      expect(result.error).toBe('Name, shortName, idRangeMin, and idRangeMax are required');
     });
 
     it('should fail when idRangeMin is undefined', () => {
       const data: Partial<SectionData> = {
         name: 'Test Section',
-        shortName: 'TS',
         idRangeMax: 100,
       };
       const result = validateRequiredFields(data);
@@ -82,7 +68,6 @@ describe('Section Validation', () => {
     it('should fail when idRangeMax is undefined', () => {
       const data: Partial<SectionData> = {
         name: 'Test Section',
-        shortName: 'TS',
         idRangeMin: 1,
       };
       const result = validateRequiredFields(data);
@@ -93,7 +78,6 @@ describe('Section Validation', () => {
       const dataWithOptionals = {
         ...validData,
         description: 'Test description',
-        color: '#FF0000',
       };
       const result = validateRequiredFields(dataWithOptionals);
       expect(result.isValid).toBe(true);
