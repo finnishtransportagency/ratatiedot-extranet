@@ -15,12 +15,10 @@ const database = await DatabaseClient.build();
 
 interface CreateSectionRequest {
   name: string;
-  shortName: string;
   key?: string; // Optional - will be auto-generated if not provided
   description?: string;
   idRangeMin: number;
   idRangeMax: number;
-  color?: string;
 }
 
 /**
@@ -74,12 +72,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const newSection = await database.section.create({
       data: {
         name: body.name,
-        shortName: body.shortName,
         key,
         description: body.description,
         idRangeMin: body.idRangeMin,
         idRangeMax: body.idRangeMax,
-        color: body.color,
         createdBy: user.uid,
         active: true,
       },

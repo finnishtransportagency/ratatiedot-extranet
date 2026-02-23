@@ -16,11 +16,9 @@ const database = await DatabaseClient.build();
 
 interface UpdateSectionRequest {
   name: string;
-  shortName: string;
   description?: string;
   idRangeMin: number;
   idRangeMax: number;
-  color?: string;
 }
 
 /**
@@ -113,12 +111,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       where: { id: sectionId },
       data: {
         name: body.name,
-        shortName: body.shortName,
         key,
         description: body.description,
         idRangeMin: body.idRangeMin,
         idRangeMax: body.idRangeMax,
-        color: body.color,
         updatedBy: user.uid,
         updatedTime: new Date(),
       },

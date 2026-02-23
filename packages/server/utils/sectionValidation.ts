@@ -2,11 +2,9 @@ import { PrismaClient } from '../generated/prisma/client';
 
 export interface SectionData {
   name: string;
-  shortName: string;
   idRangeMin: number;
   idRangeMax: number;
   description?: string;
-  color?: string;
 }
 
 export interface ValidationResult {
@@ -24,10 +22,10 @@ export function generateKeyFromName(name: string): string {
 }
 
 export function validateRequiredFields(data: Partial<SectionData>): ValidationResult {
-  if (!data.name || !data.shortName || data.idRangeMin === undefined || data.idRangeMax === undefined) {
+  if (!data.name || data.idRangeMin === undefined || data.idRangeMax === undefined) {
     return {
       isValid: false,
-      error: 'Name, shortName, idRangeMin, and idRangeMax are required',
+      error: 'Name, idRangeMin, and idRangeMax are required',
       statusCode: 400,
     };
   }
