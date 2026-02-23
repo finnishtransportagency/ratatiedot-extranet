@@ -5,7 +5,6 @@ import type { Section } from '../types';
 
 interface ValidationErrors {
   name?: string;
-  shortName?: string;
   idRangeMin?: string;
   idRangeMax?: string;
 }
@@ -38,10 +37,6 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
 
     if (!formData.name?.trim()) {
       errors.name = 'Nimi on pakollinen';
-    }
-
-    if (!formData.shortName?.trim()) {
-      errors.shortName = 'Lyhenne on pakollinen';
     }
 
     if (formData.idRangeMin === undefined || formData.idRangeMin === null) {
@@ -94,16 +89,7 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
           required
           error={!!currentErrors.name}
           helperText={currentErrors.name}
-        />
-        <TextField
-          label="Lyhenne"
-          value={formData.shortName || ''}
-          onChange={(e) => onFieldChange('shortName', e.target.value)}
-          fullWidth
-          size="small"
-          required
-          error={!!currentErrors.shortName}
-          helperText={currentErrors.shortName}
+          sx={{ gridColumn: '1 / -1' }}
         />
         <TextField
           label="Kuvaus"

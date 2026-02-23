@@ -5,7 +5,6 @@ import { SectionFormFields } from './SectionFormFields';
 
 interface ValidationErrors {
   name?: string;
-  shortName?: string;
   idRangeMin?: string;
   idRangeMax?: string;
 }

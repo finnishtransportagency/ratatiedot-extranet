@@ -44,7 +44,7 @@ export const SectionFilter: React.FC<SectionFilterProps> = ({ sections, selected
                 return (
                   <Chip
                     key={value}
-                    label={section?.shortName || value}
+                    label={section?.name || value}
                     size="small"
                     onDelete={() => handleDelete(value)}
                     deleteIcon={
