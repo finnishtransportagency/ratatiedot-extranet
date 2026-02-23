@@ -26,7 +26,6 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 
 interface ValidationErrors {
   name?: string;
-  shortName?: string;
   idRangeMin?: string;
   idRangeMax?: string;
 }
@@ -87,21 +86,17 @@ export const SectionPage: React.FC = () => {
           .replace(/^_|_$/g, '');
         await createSection({
           name: editFormData.name || '',
-          shortName: editFormData.shortName || '',
           key,
           description: editFormData.description || '',
           idRangeMin: editFormData.idRangeMin || 0,
           idRangeMax: editFormData.idRangeMax || 0,
-          color: editFormData.color,
         });
       } else if (typeof editingSection === 'string') {
         await updateSection(editingSection, {
           name: editFormData.name,
-          shortName: editFormData.shortName,
           description: editFormData.description,
           idRangeMin: editFormData.idRangeMin,
           idRangeMax: editFormData.idRangeMax,
-          color: editFormData.color,
         });
       }
       setEditingSection(null);
@@ -152,7 +147,6 @@ export const SectionPage: React.FC = () => {
   const handleAddSection = () => {
     const newSection: Partial<Section> = {
       name: '',
-      shortName: '',
       description: '',
       idRangeMin: 0,
       idRangeMax: 0,
@@ -242,17 +236,25 @@ export const SectionPage: React.FC = () => {
               <Table size="small" sx={{ tableLayout: 'fixed' }}>
                 <TableHead sx={{ position: 'sticky', top: 0, zIndex: 20, backgroundColor: 'background.paper' }}>
                   <TableRow sx={{ height: '56px' }}>
-                    <TableCell sx={{ fontSize: '12px', width: '200px', padding: '12px 16px' }}>Nimi</TableCell>
-                    <TableCell sx={{ fontSize: '12px', width: '100px', padding: '12px 16px' }}>Lyhenne</TableCell>
-                    <TableCell sx={{ fontSize: '12px', width: '300px', padding: '12px 16px' }}>Kuvaus</TableCell>
-                    <TableCell sx={{ fontSize: '12px', width: '120px', padding: '12px 16px' }}>Min ID</TableCell>
-                    <TableCell sx={{ fontSize: '12px', width: '120px', padding: '12px 16px' }}>Max ID</TableCell>
+                    <TableCell sx={{ fontSize: '12px', minWidth: 180, padding: '12px 16px', width: '25%' }}>
+                      Nimi
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '12px', minWidth: 240, padding: '12px 16px', width: '35%' }}>
+                      Kuvaus
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '12px', minWidth: 100, padding: '12px 16px', width: '15%' }}>
+                      Min ID
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '12px', minWidth: 100, padding: '12px 16px', width: '15%' }}>
+                      Max ID
+                    </TableCell>
                     <TableCell
                       sx={{
                         fontSize: '12px',
-                        width: '80px',
+                        minWidth: 80,
                         padding: '12px 16px',
                         textAlign: 'center',
+                        width: '10%',
                       }}
                     >
                       Muokkaa
@@ -269,13 +271,10 @@ export const SectionPage: React.FC = () => {
                           backgroundColor: editingSection === section.id ? 'action.selected' : 'inherit',
                         }}
                       >
-                        <TableCell sx={{ fontSize: '14px', width: '200px', padding: '12px 16px' }}>
+                        <TableCell sx={{ fontSize: '14px', minWidth: 180, padding: '12px 16px', width: '25%' }}>
                           {section.name}
                         </TableCell>
-                        <TableCell sx={{ fontSize: '14px', width: '100px', padding: '12px 16px' }}>
-                          {section.shortName}
-                        </TableCell>
-                        <TableCell sx={{ fontSize: '14px', width: '300px', padding: '12px 16px' }}>
+                        <TableCell sx={{ fontSize: '14px', minWidth: 240, padding: '12px 16px', width: '35%' }}>
                           <Typography
                             sx={{
                               overflow: 'hidden',
@@ -287,18 +286,19 @@ export const SectionPage: React.FC = () => {
                             {section.description}
                           </Typography>
                         </TableCell>
-                        <TableCell sx={{ fontSize: '14px', width: '120px', padding: '12px 16px' }}>
+                        <TableCell sx={{ fontSize: '14px', minWidth: 100, padding: '12px 16px', width: '15%' }}>
                           {section.idRangeMin.toLocaleString()}
                         </TableCell>
-                        <TableCell sx={{ fontSize: '14px', width: '120px', padding: '12px 16px' }}>
+                        <TableCell sx={{ fontSize: '14px', minWidth: 100, padding: '12px 16px', width: '15%' }}>
                           {section.idRangeMax.toLocaleString()}
                         </TableCell>
                         <TableCell
                           sx={{
                             fontSize: '14px',
-                            width: '80px',
+                            minWidth: 80,
                             padding: '12px 16px',
                             textAlign: 'center',
+                            width: '10%',
                           }}
                         >
                           <IconButton

@@ -3,12 +3,10 @@ import { VersionStatus } from './enums';
 export interface Section {
   id: string;
   name: string;
-  shortName: string;
   key: string;
   description?: string;
   idRangeMin: number;
   idRangeMax: number;
-  color?: string;
   active: boolean;
   createdBy: string;
   createdTime: string | Date;
