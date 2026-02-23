@@ -21,7 +21,7 @@ import {
   DialogContentText,
 } from '@mui/material';
 import { Tag } from '../../components/Tag';
-import { Save, Delete, ArrowBack, Lock, LockOpen, Undo } from '@mui/icons-material';
+import { Save, Delete, ArrowBack, Lock, LockOpen, Cancel } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useBaliseStore } from '../../store/baliseStore';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
@@ -411,11 +411,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                       <Button
                         variant="outlined"
                         color="secondary"
-                        startIcon={<Undo />}
+                        startIcon={<Cancel />}
                         onClick={handleUndo}
                         size="small"
                       >
-                        Kumoa
+                        Peruuta
                       </Button>
                       <Button
                         variant="contained"

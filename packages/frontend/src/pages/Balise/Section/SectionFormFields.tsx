@@ -126,28 +126,38 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
           inputProps={{ min: 0 }}
         />
       </Box>
-      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
-        <Box>
-          {onDelete && (
-            <Button variant="outlined" size="small" onClick={onDelete} startIcon={<Delete />} color="error">
-              Poista
-            </Button>
-          )}
-        </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button variant="outlined" size="small" onClick={onCancel} startIcon={<Cancel />} disabled={isLoading}>
-            Peruuta
-          </Button>
+      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+        {onDelete && (
           <Button
-            variant="contained"
+            variant="outlined"
             size="small"
-            onClick={handleSave}
-            startIcon={isLoading ? <CircularProgress size={16} /> : <Save />}
-            disabled={hasErrors || isLoading}
+            onClick={onDelete}
+            startIcon={<Delete />}
+            disabled={isLoading}
+            color="error"
           >
-            {isLoading ? 'Tallennetaan' : 'Tallenna'}
+            Poista
           </Button>
-        </Box>
+        )}
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={onCancel}
+          startIcon={<Cancel />}
+          disabled={isLoading}
+          color="secondary"
+        >
+          Peruuta
+        </Button>
+        <Button
+          variant="contained"
+          size="small"
+          onClick={handleSave}
+          startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <Save />}
+          disabled={hasErrors || isLoading}
+        >
+          {isLoading ? 'Tallennetaan...' : 'Tallenna'}
+        </Button>
       </Box>
     </>
   );
