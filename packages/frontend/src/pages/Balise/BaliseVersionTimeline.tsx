@@ -36,13 +36,7 @@ export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({ ba
       if (version.fileTypes.length === 0) return;
 
       try {
-        await downloadBaliseFiles([
-          {
-            secondaryId: version.secondaryId,
-            fileTypes: version.fileTypes,
-            version: version.version,
-          },
-        ]);
+        await downloadBaliseFiles([{ secondaryId: version.secondaryId, version: version.version }]);
       } catch (error) {
         console.error('Error downloading version files:', error);
       }

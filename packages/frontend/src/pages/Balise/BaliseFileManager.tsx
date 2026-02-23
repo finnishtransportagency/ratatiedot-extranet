@@ -101,13 +101,10 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
       if (!balise || balise.fileTypes.length === 0) return;
 
       try {
-        // Backend resolves to correct version (lockedAtVersion for regular users)
-        await downloadBaliseFiles([
-          {
-            secondaryId: balise.secondaryId,
-            fileTypes: balise.fileTypes,
-          },
-        ]);
+        // Only pass explicit version if user is viewing draft
+        const version = balise.versionStatus === VersionStatus.UNCONFIRMED ? balise.version : undefined;
+
+        await downloadBaliseFiles([{ secondaryId: balise.secondaryId, version }]);
       } catch (error) {
         console.error('Error downloading files:', error);
       }

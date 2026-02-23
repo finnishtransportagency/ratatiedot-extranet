@@ -339,20 +339,12 @@ export const BalisePage: React.FC = () => {
 
       if (baliseToDownload) {
         // Single download from context menu
-        await downloadBaliseFiles([
-          {
-            secondaryId: baliseToDownload.secondaryId,
-            fileTypes: baliseToDownload.fileTypes,
-          },
-        ]);
+        await downloadBaliseFiles([{ secondaryId: baliseToDownload.secondaryId }]);
         setBaliseToDownload(null);
       } else {
         // Bulk download from selection
         const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
-        const baliseData = selectedBalises.map((b) => ({
-          secondaryId: b.secondaryId,
-          fileTypes: b.fileTypes,
-        }));
+        const baliseData = selectedBalises.map((b) => ({ secondaryId: b.secondaryId }));
         await downloadBaliseFiles(baliseData);
         setSelectedItems([]);
       }
