@@ -1,7 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseWriteUser } from '../../utils/userService';
+import { getUser, validateBaliseAdminUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { type BaliseWithHistory, fetchBaliseWithHistory, deleteSingleBalise } from '../../utils/baliseArchiveUtils';
 
@@ -72,7 +72,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Archive balise id: ${baliseId}, path: ${event.path}`);
 
-    validateBaliseWriteUser(user);
+    validateBaliseAdminUser(user);
 
     const balise = await fetchBaliseWithHistory(database, baliseId);
 
