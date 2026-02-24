@@ -76,6 +76,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
 
+    validateBaliseWriteUser(user);
+
     // Extract balise ID from path (e.g., /api/balise/12345/add)
     const pathParts = event.path.split('/').filter((p) => p);
     const baliseIdStr = pathParts[pathParts.indexOf('balise') + 1];
@@ -101,8 +103,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         }),
       };
     }
-
-    validateBaliseWriteUser(user);
 
     const lockValidationResponse = await validateBalisesLockedByUser([baliseId], user.uid);
     if (lockValidationResponse) return lockValidationResponse;
@@ -149,6 +149,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     } else {
       // Handle JSON metadata only
       body = event.body ? JSON.parse(event.body) : {};
+    }
+
+    if (body.description === undefined || body.description === null || String(body.description).trim() === '') {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Puuttuva kuvaus' }),
+      };
     }
 
     // Convert to FileUpload format

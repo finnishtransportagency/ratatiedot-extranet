@@ -182,6 +182,7 @@ describe('baliseUtils', () => {
       const options: BaliseUpdateOptions = {
         baliseId: 666,
         files: [{ filename: 'success.txt', buffer: Buffer.from('success content') }],
+        description: 'Locked by current user',
         userId: 'current-user',
       };
 
@@ -221,6 +222,7 @@ describe('baliseUtils', () => {
       const options: BaliseUpdateOptions = {
         baliseId: 555,
         files: [{ filename: 'fail.txt', buffer: Buffer.from('content') }],
+        description: 'Description',
         userId: 'test-user',
       };
 

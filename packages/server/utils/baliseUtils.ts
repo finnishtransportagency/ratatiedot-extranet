@@ -83,7 +83,7 @@ export interface BaliseUpdateResult {
 export interface BaliseUpdateOptions {
   baliseId: number;
   files?: FileUpload[];
-  description?: string;
+  description: string;
   userId: string;
 }
 
@@ -251,7 +251,7 @@ function prepareUpdateData(
   shouldCreateNewVersion: boolean,
   newVersion: number,
   userId: string,
-  description?: string,
+  description: string,
   currentLocked?: boolean,
   currentLockedBy?: string | null,
   currentLockedTime?: Date | null,
@@ -267,9 +267,10 @@ function prepareUpdateData(
     lockedBy?: string | null;
     lockedTime?: Date | null;
     lockedAtVersion?: number | null;
-    description?: string;
+    description: string;
   } = {
     fileTypes,
+    description,
   };
 
   if (shouldCreateNewVersion) {
@@ -281,10 +282,6 @@ function prepareUpdateData(
     updateData.lockedTime = currentLockedTime!;
     updateData.lockedAtVersion = currentLockedAtVersion!;
     updateData.versionStatus = VersionStatus.UNCONFIRMED;
-  }
-
-  if (description !== undefined) {
-    updateData.description = description;
   }
 
   return updateData;
@@ -309,7 +306,7 @@ async function updateExistingBalise(
     lockedAtVersion?: number | null;
   },
   files: FileUpload[],
-  description: string | undefined,
+  description: string,
   userId: string,
 ): Promise<BaliseUpdateResult> {
   const versionManagement = determineVersionManagement(existingBalise, files.length > 0);
@@ -371,7 +368,7 @@ async function updateExistingBalise(
 async function createNewBalise(
   baliseId: number,
   files: FileUpload[],
-  description: string | undefined,
+  description: string,
   userId: string,
 ): Promise<BaliseUpdateResult> {
   const newVersion = 1;
@@ -389,7 +386,7 @@ async function createNewBalise(
       secondaryId: baliseId,
       version: newVersion,
       versionStatus: VersionStatus.OFFICIAL,
-      description: description || '',
+      description: description,
       fileTypes,
       createdBy: userId,
       createdTime: new Date(),
