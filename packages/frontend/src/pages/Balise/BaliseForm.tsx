@@ -394,7 +394,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                           : 'Lukitse'}
                     </Button>
                   )}
-                  {permissions?.canWrite && (
+                  {permissions?.isAdmin && (
                     <Button
                       variant="outlined"
                       color="error"
