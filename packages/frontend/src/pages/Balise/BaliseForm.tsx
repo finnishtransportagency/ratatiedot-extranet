@@ -19,6 +19,7 @@ import {
   ListItemText,
   IconButton,
   DialogContentText,
+  TextField,
 } from '@mui/material';
 import { Tag } from '../../components/Tag';
 import { Save, Delete, ArrowBack, Lock, LockOpen, Cancel } from '@mui/icons-material';
@@ -96,6 +97,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
   const [errorType, setErrorType] = useState<'locked' | 'already_locked' | 'error' | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [saveConfirmDialogOpen, setSaveConfirmDialogOpen] = useState(false);
+  const [confirmDescription, setConfirmDescription] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Lock/unlock handling
@@ -258,8 +260,16 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
   // Open save confirmation dialog
   const handleSaveClick = useCallback(() => {
+    // If the user already changed the description in the form, prefill the
+    // confirm description so they don't need to retype it. Otherwise leave
+    // it empty to force explicit entry.
+    if (formData.description !== originalData.description) {
+      setConfirmDescription(formData.description);
+    } else {
+      setConfirmDescription('');
+    }
     setSaveConfirmDialogOpen(true);
-  }, []);
+  }, [formData.description, originalData.description]);
 
   const handleSave = useCallback(async () => {
     if (!onSave) return;
@@ -269,9 +279,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
     setError(null);
 
     try {
+      const descriptionToUse = confirmDescription.trim() !== '' ? confirmDescription.trim() : formData.description;
+
       const submitData: Partial<BaliseWithHistory> = {
         secondaryId: parseInt(formData.secondaryId),
-        description: formData.description,
+        description: descriptionToUse,
       };
 
       // Pass metadata, files, and files to delete to parent handler
@@ -292,14 +304,16 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
       setFilesToDelete([]);
       setHasChanges(false);
+      setConfirmDescription('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Virhe tallentaessa');
     } finally {
       setLoading(false);
     }
-  }, [formData, onSave, filesToDelete]);
+  }, [formData, onSave, filesToDelete, confirmDescription]);
 
   const isCreate = mode === 'create';
+  const needsConfirmDescription = formData.files.length > 0;
 
   const handleBack = useCallback(() => {
     navigate(Routes.BALISE);
@@ -580,14 +594,6 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
           <>
             <DialogContentText>Olet tekemässä seuraavat muutokset:</DialogContentText>
             <List>
-              {formData.description !== originalData.description && (
-                <ListItem>
-                  <ListItemText
-                    primary="Kuvaus päivitetty"
-                    secondary={`"${originalData.description}" → "${formData.description}"`}
-                  />
-                </ListItem>
-              )}
               {filesToDelete.length > 0 && formData.files.length > 0 && (
                 <ListItem>
                   <ListItemText
@@ -606,7 +612,29 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
                   />
                 </ListItem>
               )}
+              {formData.description !== originalData.description && !needsConfirmDescription && (
+                <ListItem>
+                  <ListItemText
+                    primary="Kuvaus päivitetty"
+                    secondary={`"${originalData.description}" → "${formData.description}"`}
+                  />
+                </ListItem>
+              )}
+              {needsConfirmDescription && (
+                <Box sx={{ mt: 2 }}>
+                  <TextField
+                    label="Syötä uusi kuvaus"
+                    value={confirmDescription}
+                    onChange={(e) => setConfirmDescription(e.target.value)}
+                    required
+                    fullWidth
+                    multiline
+                    rows={2}
+                  />
+                </Box>
+              )}
             </List>
+
             {filesToDelete.length > 0 && (
               <Alert severity="info" sx={{ mt: 2 }}>
                 Vanhat tiedostot säilytetään versiohistoriassa ja voidaan palauttaa tarvittaessa.
@@ -616,10 +644,13 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
         }
         confirmText="Tallenna muutokset"
         confirmColor="primary"
-        disabled={loading}
+        disabled={loading || (needsConfirmDescription && confirmDescription.trim() === '')}
         loading={loading}
         onConfirm={handleSave}
-        onCancel={() => setSaveConfirmDialogOpen(false)}
+        onCancel={() => {
+          setSaveConfirmDialogOpen(false);
+          setConfirmDescription('');
+        }}
       />
 
       {/* Unlock Confirmation Dialog */}
