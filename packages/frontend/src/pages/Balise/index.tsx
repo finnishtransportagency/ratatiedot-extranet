@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../constants/Routes';
-import { Box, Alert, Button, Paper, IconButton, LinearProgress, CircularProgress } from '@mui/material';
+import { Box, Alert, Button, Paper, LinearProgress, CircularProgress, IconButton } from '@mui/material';
 import { Add, Upload, Build } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
 import { SectionFilter } from './Section/SectionFilter';
@@ -142,7 +143,7 @@ export const BalisePage: React.FC = () => {
     }
   }, [refreshBalise]);
 
-  const handleAddSanoma = useCallback(() => {
+  const handleAddBalise = useCallback(() => {
     navigate(`${Routes.BALISE}/create`);
   }, [navigate]);
 
@@ -153,6 +154,8 @@ export const BalisePage: React.FC = () => {
   const handleAddSection = useCallback(() => {
     navigate(`${Routes.BALISE}/rataosat`);
   }, [navigate]);
+
+  const isCompact = useMediaQuery('(max-width:1360px)');
 
   const handleRowClick = useCallback(
     (row: BaliseWithHistory) => {
@@ -451,34 +454,84 @@ export const BalisePage: React.FC = () => {
                 onSectionsSelect={setSelectedSections}
               />
             </Box>
-            {permissions?.isAdmin && (
-              <IconButton
-                id="section-edit-button"
-                onClick={handleAddSection}
-                size="small"
-                color="secondary"
-                title="Muokkaa JKV-rataosia"
-              >
-                <Build fontSize="inherit" transform="scale(0.85)" />
-              </IconButton>
-            )}
+            {permissions?.isAdmin &&
+              (isCompact ? (
+                <IconButton
+                  id="section-edit-button"
+                  onClick={handleAddSection}
+                  size="small"
+                  color="secondary"
+                  aria-label="Muokkaa JKV-rataosia"
+                  title="Muokkaa JKV-rataosia"
+                >
+                  <Build fontSize="small" />
+                </IconButton>
+              ) : (
+                <Button
+                  id="section-edit-button"
+                  onClick={handleAddSection}
+                  size="small"
+                  variant="outlined"
+                  color="secondary"
+                  startIcon={<Build fontSize="small" />}
+                  aria-label="Muokkaa JKV-rataosia"
+                >
+                  Muokkaa JKV-rataosia
+                </Button>
+              ))}
           </Box>
 
           {/* Right side: Mass Upload and Add buttons */}
           {permissions?.canWrite && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <IconButton
-                id="bulk-upload-button"
-                onClick={handleBulkUpload}
-                size="small"
-                color="secondary"
-                title="Massa-lataus"
-              >
-                <Upload fontSize="inherit" />
-              </IconButton>
-              <IconButton id="add-button" onClick={handleAddSanoma} size="small" color="primary" title="Lisää sanoma">
-                <Add fontSize="inherit" />
-              </IconButton>
+              {isCompact ? (
+                <IconButton
+                  id="bulk-upload-button"
+                  onClick={handleBulkUpload}
+                  size="small"
+                  color="secondary"
+                  aria-label="Baliisien massalisäys"
+                  title="Baliisien massalisäys"
+                >
+                  <Upload fontSize="small" />
+                </IconButton>
+              ) : (
+                <Button
+                  id="bulk-upload-button"
+                  onClick={handleBulkUpload}
+                  size="small"
+                  variant="outlined"
+                  color="secondary"
+                  startIcon={<Upload fontSize="small" />}
+                  aria-label="Baliisien massalisäys"
+                >
+                  Baliisien massalisäys
+                </Button>
+              )}
+              {isCompact ? (
+                <IconButton
+                  id="add-button"
+                  onClick={handleAddBalise}
+                  size="small"
+                  color="primary"
+                  aria-label="Uusi baliisi"
+                  title="Uusi baliisi"
+                >
+                  <Add fontSize="small" />
+                </IconButton>
+              ) : (
+                <Button
+                  id="add-button"
+                  onClick={handleAddBalise}
+                  size="small"
+                  variant="contained"
+                  color="primary"
+                  startIcon={<Add fontSize="small" />}
+                  aria-label="Uusi baliisi"
+                >
+                  Uusi baliisi
+                </Button>
+              )}
             </Box>
           )}
         </Paper>
