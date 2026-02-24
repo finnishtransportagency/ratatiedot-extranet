@@ -214,7 +214,15 @@ async function processBaliseFiles(
   globalDescription: string | undefined,
   user: RataExtraUser,
 ): Promise<UploadResult> {
-  const description = baliseDescriptions?.[baliseId] || globalDescription || 'Luotu automaattisesti massalatauksessa';
+  const description = baliseDescriptions?.[baliseId] ?? globalDescription;
+
+  if (description === undefined || description === null || String(description).trim() === '') {
+    return {
+      baliseId,
+      success: false,
+      error: `Puuttuva kuvaus baliisille ${baliseId}`,
+    };
+  }
 
   log.info(user, `Uploading ${files.length} files for balise ${baliseId}`);
 
