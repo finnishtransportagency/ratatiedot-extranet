@@ -32,6 +32,7 @@ import {
 import {
   ArrowBack,
   DriveFolderUpload,
+  Cancel,
   Close,
   CloudUpload,
   CheckCircle,
@@ -166,6 +167,8 @@ export const BulkUploadPage: React.FC = () => {
     resetUploadState();
     setLocalError(null);
     setUnchangedBaliseIds([]);
+    setGlobalDescription('');
+    setBaliseDescriptions({});
     // Reset file input to allow re-selecting the same files
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -226,6 +229,17 @@ export const BulkUploadPage: React.FC = () => {
   const newBaliseFileCount = newBalises.reduce((sum, [, files]) => sum + files.length, 0);
   const updateBaliseCount = updateBalises.length;
   const updateBaliseFileCount = updateBalises.reduce((sum, [, files]) => sum + files.length, 0);
+
+  // Determine which balises require individual descriptions (those that will be uploaded)
+  const requiredBaliseIds = validBaliseEntries.map(([baliseId]) => parseInt(baliseId, 10));
+
+  // Validation: require either global description, or that every required balise
+  // has an explicit per-balise description. In summary mode we require the global description.
+  const descriptionsValid =
+    (globalDescription && globalDescription.trim().length > 0) ||
+    (!isSummaryMode &&
+      requiredBaliseIds.length > 0 &&
+      requiredBaliseIds.every((id) => (baliseDescriptions[id] || '').trim().length > 0));
 
   const toggleBaliseExpand = (baliseId: number, hasError: boolean) => {
     // Only allow expanding balises that have errors
@@ -311,7 +325,14 @@ export const BulkUploadPage: React.FC = () => {
               <Box sx={{ display: 'flex', gap: 1 }}>
                 {files.length > 0 && !uploadResult && (
                   <>
-                    <Button variant="outlined" onClick={clearAll} disabled={uploading} size="small">
+                    <Button
+                      variant="outlined"
+                      onClick={clearAll}
+                      disabled={uploading}
+                      size="small"
+                      color="secondary"
+                      startIcon={<Cancel />}
+                    >
                       Tyhjennä
                     </Button>
                     <Button
@@ -319,7 +340,9 @@ export const BulkUploadPage: React.FC = () => {
                       color="primary"
                       startIcon={uploading ? <CircularProgress size={20} color="inherit" /> : <CloudUpload />}
                       onClick={handleUpload}
-                      disabled={uploading || validFileCount === 0 || hasLockIssues || loadingBaliseData}
+                      disabled={
+                        uploading || validFileCount === 0 || hasLockIssues || loadingBaliseData || !descriptionsValid
+                      }
                       size="small"
                     >
                       {uploading ? 'Ladataan...' : `Lataa ${validFileCount} tiedostoa`}
@@ -327,7 +350,13 @@ export const BulkUploadPage: React.FC = () => {
                   </>
                 )}
                 {uploadResult && (
-                  <Button variant="contained" color="primary" onClick={handleUploadAnother} size="small">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleUploadAnother}
+                    size="small"
+                    startIcon={<CloudUpload />}
+                  >
                     Lataa lisää
                   </Button>
                 )}
@@ -670,8 +699,8 @@ export const BulkUploadPage: React.FC = () => {
 
                     {/* Global Description Field */}
                     <TextField
-                      label="Kuvaus kaikille muutoksille"
-                      placeholder="Luotu automaattisesti massalatauksessa"
+                      label="Kuvaus kaikille baliiseille"
+                      placeholder="Tämä kuvaus lisätään kaikille baliiseille, joille ei ole määritetty omaa kuvausta"
                       value={globalDescription}
                       onChange={(e) => setGlobalDescription(e.target.value)}
                       fullWidth
@@ -679,7 +708,15 @@ export const BulkUploadPage: React.FC = () => {
                       rows={2}
                       sx={{ mb: 3 }}
                       InputLabelProps={{ shrink: true }}
-                      helperText="Tämä kuvaus lisätään kaikille muutoksille, ellei yksittäiselle balisille ole määritetty omaa kuvausta"
+                      required={isSummaryMode}
+                      error={!descriptionsValid}
+                      helperText={
+                        !descriptionsValid
+                          ? isSummaryMode
+                            ? 'Anna yleinen kuvaus ennen latausta'
+                            : 'Anna yleinen kuvaus tai täytä kuvaus kaikille baliiseille'
+                          : undefined
+                      }
                     />
 
                     {/* Summary view for large uploads */}
@@ -737,7 +774,8 @@ export const BulkUploadPage: React.FC = () => {
                           const isLoadingStatus = loadingBaliseData && !existingData;
                           const isNew = !existingData;
                           const currentDescription = baliseDescriptions[bId] || '';
-
+                          const showFieldError =
+                            !globalDescription.trim() && !currentDescription.trim() && requiredBaliseIds.includes(bId);
                           return (
                             <Box key={baliseId} sx={{ mb: 3, pb: 2, borderBottom: 1, borderColor: 'divider' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -780,14 +818,12 @@ export const BulkUploadPage: React.FC = () => {
                                 size="small"
                                 sx={{ mb: 1 }}
                                 placeholder={
-                                  currentDescription
-                                    ? ''
-                                    : globalDescription
-                                      ? `Käytetään yleistä kuvausta: "${globalDescription}"`
-                                      : existingData?.description
-                                        ? existingData.description
-                                        : 'Lisää kuvaus...'
+                                  globalDescription
+                                    ? `Käytetään yleistä kuvausta: "${globalDescription}"`
+                                    : 'Lisää kuvaus...'
                                 }
+                                error={showFieldError}
+                                helperText={showFieldError ? 'Anna kuvaus tai käytä yleistä kuvausta' : undefined}
                               />
 
                               <List dense disablePadding>
