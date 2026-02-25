@@ -1,7 +1,7 @@
-import { log } from './logger';
-import { DatabaseClient } from '../lambdas/database/client';
-import { FileUpload, uploadFilesToS3WithCleanup } from './s3utils';
-import { VersionStatus } from '../generated/prisma/client';
+import { log } from '../logger';
+import { DatabaseClient } from '../../lambdas/database/client';
+import { FileUpload, uploadFilesToS3WithCleanup } from '../s3utils';
+import { VersionStatus } from '../../generated/prisma/client';
 
 const database = await DatabaseClient.build();
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';

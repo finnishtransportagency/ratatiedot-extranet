@@ -1,7 +1,7 @@
 import type { ALBEventQueryStringParameters } from 'aws-lambda';
-import { Balise, BaliseVersion, PrismaClient, VersionStatus } from '../generated/prisma/client';
-import { RataExtraUser } from './userService';
-import { RataExtraLambdaError } from './errors';
+import { Balise, BaliseVersion, PrismaClient, VersionStatus } from '../../generated/prisma/client';
+import { RataExtraUser } from '../userService';
+import { RataExtraLambdaError } from '../errors';
 
 /**
  * Filter history array based on user permissions

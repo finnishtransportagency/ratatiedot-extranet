@@ -5,7 +5,7 @@ import { PassThrough, Readable } from 'stream';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseReadUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { parseBaliseIds, handleBulkOperationError } from '../../utils/bulkUtils';
+import { parseBaliseIds, handleBulkOperationError } from '../../utils/balise/bulkUtils';
 
 const database = await DatabaseClient.build();
 const s3Client = new S3Client({});

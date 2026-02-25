@@ -3,7 +3,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { resolveBalisesForUser, filterHistoryForUser } from '../../utils/baliseVersionUtils';
+import { resolveBalisesForUser, filterHistoryForUser } from '../../utils/balise/baliseVersionUtils';
 
 const database = await DatabaseClient.build();
 

@@ -3,7 +3,11 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseAdminUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { type BaliseWithHistory, fetchBaliseWithHistory, deleteSingleBalise } from '../../utils/baliseArchiveUtils';
+import {
+  type BaliseWithHistory,
+  fetchBaliseWithHistory,
+  deleteSingleBalise,
+} from '../../utils/balise/baliseArchiveUtils';
 
 const database = await DatabaseClient.build();
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';

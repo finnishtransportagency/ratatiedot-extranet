@@ -1,5 +1,5 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { getRataExtraLambdaError } from './errors';
+import { getRataExtraLambdaError } from '../errors';
 
 // Common result type for bulk operations
 export interface BulkOperationResult {

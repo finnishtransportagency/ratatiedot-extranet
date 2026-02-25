@@ -10,7 +10,7 @@ import {
   validateVersionParameterAccess,
   validateLockOwnerVersionAccess,
   getVersionFileTypes,
-} from '../../utils/baliseVersionUtils';
+} from '../../utils/balise/baliseVersionUtils';
 
 const database = await DatabaseClient.build();
 const s3Client = new S3Client({});

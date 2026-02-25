@@ -2,13 +2,13 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseAdminUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { type BaliseWithHistory, deleteSingleBalise } from '../../utils/baliseArchiveUtils';
+import { type BaliseWithHistory, deleteSingleBalise } from '../../utils/balise/baliseArchiveUtils';
 import {
   BulkOperationResult,
   BulkOperationResponse,
   parseBaliseIds,
   handleBulkOperationError,
-} from '../../utils/bulkUtils';
+} from '../../utils/balise/bulkUtils';
 
 const database = await DatabaseClient.build();
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
