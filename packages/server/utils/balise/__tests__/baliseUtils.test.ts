@@ -9,7 +9,7 @@ import {
   MAX_BALISE_ID,
   type BaliseUpdateOptions,
 } from '../baliseUtils';
-import { uploadFilesToS3WithCleanup } from '../s3utils';
+import { uploadFilesToS3WithCleanup } from '../../s3utils';
 
 // Define mock database interface
 interface MockDatabase {
@@ -25,11 +25,11 @@ interface MockDatabase {
   };
 }
 
-vi.mock('../s3utils', () => ({
+vi.mock('../../s3utils', () => ({
   uploadFilesToS3WithCleanup: vi.fn(),
 }));
 
-vi.mock('../../lambdas/database/client', () => {
+vi.mock('../../../lambdas/database/client', () => {
   const mockDatabase = {
     balise: {
       findUnique: vi.fn(),
@@ -52,7 +52,7 @@ vi.mock('../../lambdas/database/client', () => {
 });
 
 // Import the mock to get access to mockDatabase
-const { __mockDatabase } = await vi.importMock<{ __mockDatabase: MockDatabase }>('../../lambdas/database/client');
+const { __mockDatabase } = await vi.importMock<{ __mockDatabase: MockDatabase }>('../../../lambdas/database/client');
 
 describe('baliseUtils', () => {
   const mockDatabase = __mockDatabase;

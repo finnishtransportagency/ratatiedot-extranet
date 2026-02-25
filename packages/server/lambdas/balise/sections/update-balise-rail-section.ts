@@ -10,7 +10,7 @@ import {
   validateNameUniqueness,
   validateKeyUniqueness,
   createErrorResponse,
-} from '../../../utils/sectionValidation';
+} from '../../../utils/balise/sectionValidation';
 
 const database = await DatabaseClient.build();
 

@@ -14,7 +14,7 @@ import {
   isValidBaliseIdRange,
   parseBaliseIdFromFilename,
   isValidFilenameFormat,
-} from '../../utils/baliseUtils';
+} from '../../utils/balise/baliseUtils';
 import type { FileUpload } from '../../utils/s3utils';
 import { getRataExtraLambdaError } from '../../utils/errors';
 

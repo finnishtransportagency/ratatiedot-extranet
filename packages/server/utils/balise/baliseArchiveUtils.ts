@@ -1,7 +1,7 @@
-import type { Prisma } from '../generated/prisma/client';
-import { copyFilesToArchive, deleteOriginalFiles } from './s3utils';
-import { log } from './logger';
-import type { DatabaseClient } from '../lambdas/database/client';
+import type { Prisma } from '../../generated/prisma/client';
+import { copyFilesToArchive, deleteOriginalFiles } from '../s3utils';
+import { log } from '../logger';
+import type { DatabaseClient } from '../../lambdas/database/client';
 
 // Type for balise with included history
 export type BaliseWithHistory = {

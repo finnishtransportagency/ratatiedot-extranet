@@ -7,8 +7,8 @@ import {
   resolveBalisesForUser,
   filterHistoryForUser,
 } from '../baliseVersionUtils';
-import { PrismaClient, VersionStatus, Balise, BaliseVersion } from '../../generated/prisma/client';
-import { RataExtraUser } from '../userService';
+import { PrismaClient, VersionStatus, Balise, BaliseVersion } from '../../../generated/prisma/client';
+import { RataExtraUser } from '../../userService';
 
 // Mock Prisma Client
 const mockFindFirst = vi.fn();

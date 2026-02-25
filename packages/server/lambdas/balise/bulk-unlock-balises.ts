@@ -8,7 +8,7 @@ import {
   parseBaliseIds,
   processBulkOperation,
   handleBulkOperationError,
-} from '../../utils/bulkUtils';
+} from '../../utils/balise/bulkUtils';
 
 const database = await DatabaseClient.build();
 
