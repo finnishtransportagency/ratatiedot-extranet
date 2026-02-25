@@ -5,7 +5,7 @@ import axios from 'axios';
 
 import { MenuContextProvider } from '../../../contexts/MenuContext';
 import { AppBarContext } from '../../../contexts/AppBarContext';
-import { BalisePermissionsProvider } from '../../../contexts/BalisePermissionsContext';
+import { BalisePermissionsProvider } from '../../../modules/balise/contexts/BalisePermissionsContext';
 import { MenuList } from '../MenuList';
 
 vi.mock('axios');

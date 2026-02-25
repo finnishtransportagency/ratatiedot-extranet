@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Collapse, Paper } from '@mui/material';
-import type { Section } from '../types';
+import type { Section } from '../../types/baliseTypes';
 import { SectionFormFields } from './SectionFormFields';
 
 interface ValidationErrors {

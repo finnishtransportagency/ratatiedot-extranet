@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useBaliseStore, type BaliseWithHistory } from '../../../store/baliseStore';
+import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 
 interface DeleteProgress {
   show: boolean;

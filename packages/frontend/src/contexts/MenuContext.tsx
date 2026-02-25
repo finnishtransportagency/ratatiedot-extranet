@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { getErrorMessage } from '../utils/errorUtil';
 import HelpIcon from '@mui/icons-material/Help';
 import SensorsIcon from '@mui/icons-material/Sensors';
-import { useBalisePermissions } from './BalisePermissionsContext';
+import { useBalisePermissions } from '../modules/balise/contexts/BalisePermissionsContext';
 
 export interface IMenuItem {
   key: string;

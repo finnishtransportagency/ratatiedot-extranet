@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Section } from '../pages/Balise/types';
+import type { Section } from '../types/baliseTypes';
 
 export interface SectionState {
   sections: Section[];

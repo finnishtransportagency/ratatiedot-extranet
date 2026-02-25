@@ -1,8 +1,8 @@
 import { FC, ReactNode } from 'react';
-import { AppBarContextProvider } from './AppBarContext';
-import { MenuContextProvider } from './MenuContext';
-import { CategoryDataContextProvider } from './CategoryDataContext';
-import { ErrorContextProvider } from './ErrorContext';
+import { AppBarContextProvider } from '../../../contexts/AppBarContext';
+import { MenuContextProvider } from '../../../contexts/MenuContext';
+import { CategoryDataContextProvider } from '../../../contexts/CategoryDataContext';
+import { ErrorContextProvider } from '../../../contexts/ErrorContext';
 import { BalisePermissionsProvider } from './BalisePermissionsContext';
 
 const providers = [

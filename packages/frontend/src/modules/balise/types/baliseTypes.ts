@@ -1,4 +1,4 @@
-import { VersionStatus } from './enums';
+import { VersionStatus } from '../constants/enums';
 
 export interface Section {
   id: string;

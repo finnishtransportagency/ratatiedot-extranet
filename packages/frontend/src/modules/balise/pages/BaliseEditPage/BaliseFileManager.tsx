@@ -1,14 +1,14 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Box, Paper, Typography, Button, Alert, Divider, List, ListItem, ListItemText } from '@mui/material';
 import { Description } from '@mui/icons-material';
-import { ChipWrapper } from '../../components/Chip';
-import { downloadBaliseFiles } from '../../utils/download';
+import { ChipWrapper } from '../../../../components/Chip';
+import { downloadBaliseFiles } from '../../utils/baliseDownload';
 import { validateBaliseFiles, getValidExtensionsList, isValidBaliseIdRange } from '../../utils/baliseValidation';
-import { UploadedFilesList } from './components/UploadedFilesList';
-import { FileUploadZone } from './components/FileUploadZone';
-import { useFileDragDrop } from './hooks/useFileDragDrop';
-import type { BaliseWithHistory } from './types';
-import { VersionStatus } from './enums';
+import { UploadedFilesList } from './UploadedFilesList';
+import { FileUploadZone } from './FileUploadZone';
+import { useFileDragDrop } from '../../hooks/useFileDragDrop';
+import type { BaliseWithHistory } from '../../types/baliseTypes';
+import { VersionStatus } from '../../constants/enums';
 
 interface FileValidationError {
   filename: string;

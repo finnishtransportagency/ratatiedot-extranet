@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useBaliseStore } from '../../../store/baliseStore';
-import type { BaliseWithHistory } from '../types';
+import { useBaliseStore } from '../store/baliseStore';
+import type { BaliseWithHistory } from '../types/baliseTypes';
 
 interface UseBaliseLockingOptions {
   onSuccess?: (secondaryId: number) => Promise<void> | void;

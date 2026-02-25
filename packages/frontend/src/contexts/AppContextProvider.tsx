@@ -4,7 +4,7 @@ import { MenuContextProvider } from './MenuContext';
 import { EditorContextProvider } from './EditorContext';
 import { CategoryDataContextProvider } from './CategoryDataContext';
 import { ErrorContextProvider } from './ErrorContext';
-import { BalisePermissionsProvider } from './BalisePermissionsContext';
+import { BalisePermissionsProvider } from '../modules/balise/contexts/BalisePermissionsContext';
 
 const providers = [
   AppBarContextProvider,

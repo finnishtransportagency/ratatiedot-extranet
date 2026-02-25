@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, TextField, Button, CircularProgress } from '@mui/material';
 import { Save, Cancel, Delete } from '@mui/icons-material';
-import type { Section } from '../types';
+import type { Section } from '../../types/baliseTypes';
 
 interface ValidationErrors {
   name?: string;

@@ -15,14 +15,14 @@ import {
 } from '@mui/material';
 import { ArrowBack, Edit, ExpandLess, Add } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { Routes } from '../../../constants/Routes';
-import { useSectionStore } from '../../../store/sectionStore';
-import { useBalisePermissions } from '../../../contexts/BalisePermissionsContext';
-import { BalisePermissionGuard } from '../BalisePermissionGuard';
-import type { Section } from '../types';
+import { Routes } from '../../../../constants/Routes';
+import { useSectionStore } from '../../store/sectionStore';
+import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
+import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
+import type { Section } from '../../types/baliseTypes';
 import { SectionEditForm } from './SectionEditForm';
 import { SectionCreateForm } from './SectionCreateForm';
-import { ConfirmDialog } from '../components/ConfirmDialog';
+import { ConfirmDialog } from '../../components/ConfirmDialog/ConfirmDialog';
 
 interface ValidationErrors {
   name?: string;
