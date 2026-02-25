@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { Box, Paper, Typography, IconButton, Collapse, Button } from '@mui/material';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
-import { Tag } from '../../components/Tag';
-import { downloadBaliseFiles } from '../../utils/download';
-import type { BaliseWithHistory, Balise, BaliseVersion } from './types';
-import { VersionStatus } from './enums';
+import { Tag } from '../../../../components/Tag';
+import { downloadBaliseFiles } from '../../utils/baliseDownload';
+import type { BaliseWithHistory, Balise, BaliseVersion } from '../../types/baliseTypes';
+import { VersionStatus } from '../../constants/enums';
 
 const pulseAnimation = {
   '@keyframes pulse': {

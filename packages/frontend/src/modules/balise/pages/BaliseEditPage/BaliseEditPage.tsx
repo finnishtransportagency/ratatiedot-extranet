@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Routes } from '../../constants/Routes';
+import { Routes } from '../../../../constants/Routes';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { BaliseForm } from './BaliseForm';
 import { useBaliseStore } from '../../store/baliseStore';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
-import { BalisePermissionGuard } from './BalisePermissionGuard';
-import type { BaliseWithHistory } from './types';
+import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
+import type { BaliseWithHistory } from '../../types/baliseTypes';
 
 // Mock API functions - replace with actual API calls
 const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { BaliseWithHistory } from '../pages/Balise/types';
+import type { BaliseWithHistory } from '../types/baliseTypes';
 
 // Re-export for components that import from store
 export type { BaliseWithHistory };

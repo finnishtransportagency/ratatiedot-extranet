@@ -2,7 +2,7 @@ import React from 'react';
 import { Cancel } from '@mui/icons-material';
 import { Box, FormControl, InputLabel, Select, MenuItem, Chip, OutlinedInput } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
-import type { Section } from '../types';
+import type { Section } from '../../types/baliseTypes';
 
 interface SectionFilterProps {
   sections: Section[];

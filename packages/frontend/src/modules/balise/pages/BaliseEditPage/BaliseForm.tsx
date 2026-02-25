@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Routes } from '../../constants/Routes';
+import { Routes } from '../../../../constants/Routes';
 import {
   isValidBaliseIdRange,
   MIN_BALISE_ID,
@@ -21,21 +21,21 @@ import {
   DialogContentText,
   TextField,
 } from '@mui/material';
-import { Tag } from '../../components/Tag';
+import { Tag } from '../../../../components/Tag';
 import { Save, Delete, ArrowBack, Lock, LockOpen, Cancel } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useBaliseStore } from '../../store/baliseStore';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
-import type { BaliseWithHistory } from './types';
-import { InlineEditableField } from '../../components/InlineEditableField';
+import type { BaliseWithHistory } from '../../types/baliseTypes';
+import { InlineEditableField } from '../../../../components/InlineEditableField';
 import Circle from '@mui/icons-material/Circle';
 import { BaliseFileManager } from './BaliseFileManager';
 import { BaliseVersionTimeline } from './BaliseVersionTimeline';
-import { ConfirmDialog } from './components/ConfirmDialog';
-import { DeleteBaliseDialog } from './components/DeleteBaliseDialog';
-import { UnlockBaliseDialog } from './components/UnlockBaliseDialog';
-import { LockBaliseDialog } from './components/LockBaliseDialog';
-import { useBaliseLocking } from './hooks/useBaliseLocking';
+import { ConfirmDialog } from '../../components/ConfirmDialog/ConfirmDialog';
+import { DeleteBaliseDialog } from '../../components/ConfirmDialog/DeleteBaliseDialog';
+import { LockBaliseDialog } from '../../components/ConfirmDialog/LockBaliseDialog';
+import { UnlockBaliseDialog } from '../../components/ConfirmDialog/UnlockBaliseDialog';
+import { useBaliseLocking } from '../../hooks/useBaliseLocking';
 
 interface BaliseFormProps {
   mode: 'create' | 'view';

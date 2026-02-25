@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Routes } from '../../constants/Routes';
-import { BalisePermissionGuard } from './BalisePermissionGuard';
+import { Routes } from '../../../../constants/Routes';
+import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
-import { useBatchUpload } from './hooks/useBatchUpload';
-import { useFileDragDrop } from './hooks/useFileDragDrop';
+import { useBatchUpload } from './useBatchUpload';
+import { useFileDragDrop } from '../../hooks/useFileDragDrop';
 import {
   parseBaliseIdFromFilename,
   isValidBaliseIdRange,

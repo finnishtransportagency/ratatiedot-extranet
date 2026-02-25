@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, CircularProgress, Alert, Button } from '@mui/material';
-import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
+import { useBalisePermissions } from '../contexts/BalisePermissionsContext';
 
 interface BalisePermissionGuardProps {
   children: React.ReactNode;

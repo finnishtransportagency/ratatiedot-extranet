@@ -18,8 +18,8 @@ import {
 } from '@mui/material';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ExpandMore, ExpandLess, Edit, Lock, LockOpen, Delete, Download, Visibility } from '@mui/icons-material';
-import type { BaliseWithHistory } from './types';
-import { VersionStatus } from './enums';
+import type { BaliseWithHistory } from '../../types/baliseTypes';
+import { VersionStatus } from '../../constants/enums';
 
 interface BaliseTableProps {
   items: BaliseWithHistory[];

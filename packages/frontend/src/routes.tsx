@@ -1,4 +1,4 @@
-import { createBrowserRouter, Location, matchRoutes, redirect, RouteObject, redirectDocument } from 'react-router-dom';
+import { createBrowserRouter, Location, matchRoutes, redirect, RouteObject } from 'react-router-dom';
 
 import { Landing } from './pages/Landing';
 import { Routes } from './constants/Routes';
@@ -33,7 +33,7 @@ import { DriverActivity } from './pages/Others/DriverActivity';
 import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
 import { AppContextProvider } from './contexts/AppContextProvider';
-import { BaliseContextProvider } from './contexts/BaliseContextProvider';
+import { BaliseContextProvider } from './modules/balise/contexts/BaliseContextProvider';
 import { AcceptInstructions } from './pages/AcceptInstructions';
 import { AreaPage } from './pages/ProtectedPage/AreaPage';
 import { ProtectedSubPage } from './pages/ProtectedPage/ProtectedSubPage';
@@ -48,12 +48,9 @@ import { Notices } from './pages/Notices';
 import { SingleNotice } from './pages/Notices/SingleNotice';
 import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
-import Balise from './pages/Balise/index';
-import BaliseEditPage from './pages/Balise/BaliseEditPage';
-import BulkUploadPage from './pages/Balise/BulkUploadPage';
-import SectionPage from './pages/Balise/Section/SectionPage';
 import { RailwayCategory } from './pages/Others/RailwayCategory';
 import { OtherRailway } from './pages/Others/OtherRailway';
+import { BaliseListPage, BaliseEditPage, BulkUploadPage, SectionPage } from './modules/balise';
 
 import { findCategoryIdByKey } from './utils/helpers';
 
@@ -218,7 +215,7 @@ const BALISE_ROUTE: RouteObject[] = [
     path: Routes.BALISE,
     element: (
       <BaliseContextProvider>
-        <ProtectedBalisePage children={<Balise />} />
+        <ProtectedBalisePage children={<BaliseListPage />} />
       </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,

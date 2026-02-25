@@ -1,27 +1,27 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Routes } from '../../constants/Routes';
+import { Routes } from '../../../../constants/Routes';
 import { Box, Alert, Button, Paper, LinearProgress, CircularProgress, IconButton } from '@mui/material';
 import { Add, Upload, Build } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
-import { SectionFilter } from './Section/SectionFilter';
+import { SectionFilter } from './SectionFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
-import { BulkActionsBar } from './components/BulkActionsBar';
-import { BulkDeleteDialogs } from './components/BulkDeleteDialogs';
-import { ConfirmDialog } from './components/ConfirmDialog';
-import { DeleteBaliseDialog } from './components/DeleteBaliseDialog';
-import { UnlockBaliseDialog } from './components/UnlockBaliseDialog';
-import { LockBaliseDialog } from './components/LockBaliseDialog';
-import { useBulkDelete } from './hooks/useBulkDelete';
-import { useBaliseLocking } from './hooks/useBaliseLocking';
+import { BulkActionsBar } from './BulkActionsBar';
+import { BulkDeleteDialogs } from '../../components/ConfirmDialog/BulkDeleteDialogs';
+import { ConfirmDialog } from '../../components/ConfirmDialog/ConfirmDialog';
+import { DeleteBaliseDialog } from '../../components/ConfirmDialog/DeleteBaliseDialog';
+import { UnlockBaliseDialog } from '../../components/ConfirmDialog/UnlockBaliseDialog';
+import { LockBaliseDialog } from '../../components/ConfirmDialog/LockBaliseDialog';
+import { useBulkDelete } from './useBulkDelete';
+import { useBaliseLocking } from '../../hooks/useBaliseLocking';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
-import { downloadBaliseFiles } from '../../utils/download';
+import { downloadBaliseFiles } from '../../utils/baliseDownload';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
-import { BalisePermissionGuard } from './BalisePermissionGuard';
+import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
 
-export const BalisePage: React.FC = () => {
+export const BaliseListPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
@@ -640,4 +640,4 @@ export const BalisePage: React.FC = () => {
   );
 };
 
-export default BalisePage;
+export default BaliseListPage;

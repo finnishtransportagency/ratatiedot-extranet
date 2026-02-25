@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Box, Collapse, TableRow, TableCell } from '@mui/material';
-import type { Section } from '../types';
+import type { Section } from '../../types/baliseTypes';
 import { SectionFormFields } from './SectionFormFields';
 
 interface ValidationErrors {

@@ -3,7 +3,7 @@
  * Mirrors validation constants and logic from packages/server/utils/baliseUtils.ts
  */
 
-import type { Section } from '../pages/Balise/types';
+import type { Section } from '../types/baliseTypes';
 
 // Validation constants - must match backend
 export const VALID_EXTENSIONS = ['.il', '.leu', '.bis'];
