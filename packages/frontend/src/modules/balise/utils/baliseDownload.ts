@@ -22,16 +22,19 @@ export const scheduleBaliseDownloads = async (
 async function processDownloadQueue() {
   if (isProcessingQueue) return;
   isProcessingQueue = true;
-  while (downloadQueue.length > 0) {
-    const { balises, resolve, reject } = downloadQueue.shift()!;
-    try {
-      await downloadBaliseFiles(balises);
-      resolve();
-    } catch (err) {
-      reject(err);
+  try {
+    while (downloadQueue.length > 0) {
+      const { balises, resolve, reject } = downloadQueue.shift()!;
+      try {
+        await downloadBaliseFiles(balises);
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
     }
+  } finally {
+    isProcessingQueue = false;
   }
-  isProcessingQueue = false;
 }
 
 /**
