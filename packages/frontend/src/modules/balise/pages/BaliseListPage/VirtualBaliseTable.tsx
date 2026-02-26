@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ExpandMore, ExpandLess, Edit, Lock, LockOpen, Delete, Download, Visibility } from '@mui/icons-material';
+import { canUnlockBalises } from '../../utils/baliseLocking';
 import type { BaliseWithHistory } from '../../types/baliseTypes';
 import { VersionStatus } from '../../constants/enums';
 
@@ -41,6 +42,7 @@ interface BaliseTableProps {
     canRead: boolean;
     canWrite: boolean;
     isAdmin: boolean;
+    currentUserUid?: string;
   };
 }
 
@@ -62,6 +64,7 @@ interface CollapsibleRowProps {
     canRead: boolean;
     canWrite: boolean;
     isAdmin: boolean;
+    currentUserUid?: string;
   };
 }
 
@@ -603,18 +606,21 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
           </MenuItem>
         )}
 
-        {permissions?.canWrite && (
-          <MenuItem onClick={handleContextLock} sx={{ fontSize: '14px', py: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-              {contextMenu?.rowData.locked ? (
-                <LockOpen fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
-              ) : (
-                <Lock fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
-              )}
-              {contextMenu?.rowData.locked ? 'Avaa lukitus' : 'Lukitse'}
-            </Box>
-          </MenuItem>
-        )}
+        {permissions?.canWrite &&
+          contextMenu?.rowData &&
+          (!contextMenu.rowData.locked ||
+            canUnlockBalises([contextMenu.rowData], permissions.currentUserUid, permissions?.isAdmin)) && (
+            <MenuItem onClick={handleContextLock} sx={{ fontSize: '14px', py: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                {contextMenu?.rowData.locked ? (
+                  <LockOpen fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
+                ) : (
+                  <Lock fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
+                )}
+                {contextMenu?.rowData.locked ? 'Avaa lukitus' : 'Lukitse'}
+              </Box>
+            </MenuItem>
+          )}
 
         {permissions?.isAdmin && (
           <MenuItem onClick={handleContextViewHistory} sx={{ fontSize: '14px', py: 1 }}>

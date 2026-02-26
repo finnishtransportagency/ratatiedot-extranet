@@ -36,6 +36,7 @@ import { DeleteBaliseDialog } from '../../components/ConfirmDialog/DeleteBaliseD
 import { LockBaliseDialog } from '../../components/ConfirmDialog/LockBaliseDialog';
 import { UnlockBaliseDialog } from '../../components/ConfirmDialog/UnlockBaliseDialog';
 import { useBaliseLocking } from '../../hooks/useBaliseLocking';
+import { canUnlockBalises } from '../../utils/baliseLocking';
 
 interface BaliseFormProps {
   mode: 'create' | 'view';
@@ -382,32 +383,34 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             <Box sx={{ display: 'flex', gap: 1 }}>
               {!isCreate && (
                 <>
-                  {permissions?.canWrite && (
-                    <Button
-                      variant="outlined"
-                      startIcon={
-                        isLocking ? (
-                          <CircularProgress size={20} color="inherit" />
-                        ) : balise?.locked ? (
-                          <LockOpen />
-                        ) : (
-                          <Lock />
-                        )
-                      }
-                      onClick={() => balise && handleLockToggle(balise)}
-                      disabled={isLocking}
-                      size="small"
-                      color={balise?.locked ? 'primary' : 'secondary'}
-                    >
-                      {isLocking
-                        ? balise?.locked
-                          ? 'Avataan...'
-                          : 'Lukitaan...'
-                        : balise?.locked
-                          ? 'Avaa lukitus'
-                          : 'Lukitse'}
-                    </Button>
-                  )}
+                  {permissions?.canWrite &&
+                    (!balise?.locked ||
+                      canUnlockBalises([balise], permissions?.currentUserUid, permissions?.isAdmin)) && (
+                      <Button
+                        variant="outlined"
+                        startIcon={
+                          isLocking ? (
+                            <CircularProgress size={20} color="inherit" />
+                          ) : balise?.locked ? (
+                            <LockOpen />
+                          ) : (
+                            <Lock />
+                          )
+                        }
+                        onClick={() => balise && handleLockToggle(balise)}
+                        disabled={isLocking}
+                        size="small"
+                        color={balise?.locked ? 'primary' : 'secondary'}
+                      >
+                        {isLocking
+                          ? balise?.locked
+                            ? 'Avataan...'
+                            : 'Lukitaan...'
+                          : balise?.locked
+                            ? 'Avaa lukitus'
+                            : 'Lukitse'}
+                      </Button>
+                    )}
                   {permissions?.isAdmin && (
                     <Button
                       variant="outlined"
