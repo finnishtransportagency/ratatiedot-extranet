@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Box, Paper, Typography, IconButton, Collapse, Button } from '@mui/material';
 import { ExpandMore, ExpandLess, Download } from '@mui/icons-material';
 import { Tag } from '../../../../components/Tag';
-import { downloadBaliseFiles } from '../../utils/baliseDownload';
+import { scheduleBaliseDownloads } from '../../utils/baliseDownload';
 import type { BaliseWithHistory, Balise, BaliseVersion } from '../../types/baliseTypes';
 import { VersionStatus } from '../../constants/enums';
 
@@ -36,7 +36,7 @@ export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({ ba
       if (version.fileTypes.length === 0) return;
 
       try {
-        await downloadBaliseFiles([{ secondaryId: version.secondaryId, version: version.version }]);
+        await scheduleBaliseDownloads([{ secondaryId: version.secondaryId, version: version.version }]);
       } catch (error) {
         console.error('Error downloading version files:', error);
       }

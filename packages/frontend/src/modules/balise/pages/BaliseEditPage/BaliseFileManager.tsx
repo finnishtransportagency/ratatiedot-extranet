@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { Box, Paper, Typography, Button, Alert, Divider, List, ListItem, ListItemText } from '@mui/material';
 import { Description, Download } from '@mui/icons-material';
 import { ChipWrapper } from '../../../../components/Chip';
-import { downloadBaliseFiles } from '../../utils/baliseDownload';
+import { scheduleBaliseDownloads } from '../../utils/baliseDownload';
 import { validateBaliseFiles, getValidExtensionsList, isValidBaliseIdRange } from '../../utils/baliseValidation';
 import { UploadedFilesList } from './UploadedFilesList';
 import { FileUploadZone } from './FileUploadZone';
@@ -104,7 +104,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
         // Only pass explicit version if user is viewing draft
         const version = balise.versionStatus === VersionStatus.UNCONFIRMED ? balise.version : undefined;
 
-        await downloadBaliseFiles([{ secondaryId: balise.secondaryId, version }]);
+        await scheduleBaliseDownloads([{ secondaryId: balise.secondaryId, version }]);
       } catch (error) {
         console.error('Error downloading files:', error);
       }
