@@ -17,7 +17,7 @@ import { useBulkDelete } from './useBulkDelete';
 import { useBaliseLocking } from '../../hooks/useBaliseLocking';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
-import { downloadBaliseFiles } from '../../utils/baliseDownload';
+import { scheduleBaliseDownloads } from '../../utils/baliseDownload';
 import { canUnlockBalises } from '../../utils/baliseLocking';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
@@ -323,13 +323,13 @@ export const BaliseListPage: React.FC = () => {
 
       if (baliseToDownload) {
         // Single download from context menu
-        await downloadBaliseFiles([{ secondaryId: baliseToDownload.secondaryId }]);
+        await scheduleBaliseDownloads([{ secondaryId: baliseToDownload.secondaryId }]);
         setBaliseToDownload(null);
       } else {
         // Bulk download from selection
         const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
         const baliseData = selectedBalises.map((b) => ({ secondaryId: b.secondaryId }));
-        await downloadBaliseFiles(baliseData);
+        await scheduleBaliseDownloads(baliseData);
         setSelectedItems([]);
       }
 

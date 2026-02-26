@@ -1,3 +1,39 @@
+type DownloadRequest = {
+  balises: Array<{ secondaryId: number; version?: number }>;
+  resolve: () => void;
+  reject: (err: unknown) => void;
+};
+const downloadQueue: DownloadRequest[] = [];
+let isProcessingQueue = false;
+
+/**
+ * Enqueues download requests and processes them one at a time
+ * Multiple user clicks will queue up and be processed sequentially.
+ */
+export const scheduleBaliseDownloads = async (
+  balises: Array<{ secondaryId: number; version?: number }>,
+): Promise<void> => {
+  return new Promise<void>((resolve, reject) => {
+    downloadQueue.push({ balises, resolve, reject });
+    processDownloadQueue();
+  });
+};
+
+async function processDownloadQueue() {
+  if (isProcessingQueue) return;
+  isProcessingQueue = true;
+  while (downloadQueue.length > 0) {
+    const { balises, resolve, reject } = downloadQueue.shift()!;
+    try {
+      await downloadBaliseFiles(balises);
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  }
+  isProcessingQueue = false;
+}
+
 /**
  * Triggers a file download in the browser.
  * @param url The URL to download the file from.
@@ -22,6 +58,7 @@ const downloadBlob = (blob: Blob, filename: string) => {
   downloadFile(url, filename);
   URL.revokeObjectURL(url);
 };
+
 /**
  * Download all files for a single balise using presigned URLs.
  * Makes a single API call that returns presigned URLs for all files in the version.
@@ -43,7 +80,7 @@ export const downloadSingleBaliseFiles = async (baliseId: number, version?: numb
     // Download each file with small delay to avoid popup blockers
     for (const { fileName, url: fileUrl } of data.downloadUrls) {
       downloadFile(fileUrl, fileName);
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   } catch (error) {
     console.error(`Error downloading balise ${baliseId}:`, error);
