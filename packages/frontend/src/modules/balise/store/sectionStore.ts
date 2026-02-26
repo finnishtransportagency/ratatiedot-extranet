@@ -24,7 +24,7 @@ export interface SectionState {
 const fetchSectionsAPI = async (): Promise<Section[]> => {
   const response = await fetch('/api/balise/sections');
   if (!response.ok) {
-    throw new Error(`Failed to fetch sections: ${response.status}`);
+    throw new Error('Rataosien haku epäonnistui');
   }
   return response.json();
 };
@@ -41,7 +41,8 @@ const createSectionAPI = async (
   });
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || `Failed to create section: ${response.status}`);
+    console.error('Failed to create section:', error);
+    throw new Error('Rataosan lisäys epäonnistui');
   }
   return response.json();
 };
@@ -59,7 +60,8 @@ const updateSectionAPI = async (
   });
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || `Failed to update section: ${response.status}`);
+    console.error('Failed to update section:', error);
+    throw new Error('Rataosan päivitys epäonnistui');
   }
   return response.json();
 };
@@ -70,7 +72,8 @@ const deleteSectionAPI = async (id: string): Promise<void> => {
   });
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || `Failed to delete section: ${response.status}`);
+    console.error('Failed to delete section:', error);
+    throw new Error('Rataosan poisto epäonnistui');
   }
 };
 
@@ -87,9 +90,9 @@ export const useSectionStore = create<SectionState>()((set, get) => ({
       const sections = await fetchSectionsAPI();
       set({ sections, error: null, isLoading: false });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch sections';
+      console.error('Failed to fetch sections:', error);
+      const errorMessage = 'Rataosien haku epäonnistui';
       set({ error: errorMessage, isLoading: false });
-      console.error(error);
     }
   },
   createSection: async (section) => {
@@ -100,10 +103,10 @@ export const useSectionStore = create<SectionState>()((set, get) => ({
       set({ sections: [...sections, newSection], error: null, isCreating: false });
       return newSection;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create section';
+      console.error('Failed to create section:', error);
+      const errorMessage = 'Rataosan lisäys epäonnistui';
       set({ error: errorMessage, isCreating: false });
-      console.error(error);
-      throw error;
+      throw new Error(errorMessage);
     }
   },
   updateSection: async (id, section) => {
@@ -115,10 +118,10 @@ export const useSectionStore = create<SectionState>()((set, get) => ({
       set({ sections: updatedSections, error: null, isUpdating: false });
       return updatedSection;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update section';
+      console.error('Failed to update section:', error);
+      const errorMessage = 'Rataosan päivitys epäonnistui';
       set({ error: errorMessage, isUpdating: false });
-      console.error(error);
-      throw error;
+      throw new Error(errorMessage);
     }
   },
   deleteSection: async (id) => {
@@ -129,10 +132,10 @@ export const useSectionStore = create<SectionState>()((set, get) => ({
       const updatedSections = sections.filter((s) => s.id !== id);
       set({ sections: updatedSections, error: null, isDeleting: false });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to delete section';
+      console.error('Failed to delete section:', error);
+      const errorMessage = 'Rataosan poisto epäonnistui';
       set({ error: errorMessage, isDeleting: false });
-      console.error(error);
-      throw error;
+      throw new Error(errorMessage);
     }
   },
 }));

@@ -360,10 +360,10 @@ export const BaliseListPage: React.FC = () => {
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
-          Error loading balises: {error}
+          {error}
         </Alert>
         <Button variant="contained" onClick={() => loadInitialData()}>
-          Retry
+          Yritä uudelleen
         </Button>
       </Box>
     );
@@ -388,12 +388,12 @@ export const BaliseListPage: React.FC = () => {
         )}
         {sectionError && (
           <Alert severity="error" sx={{ mb: 1 }}>
-            Failed to load sections: {sectionError}
+            {sectionError}
           </Alert>
         )}
         {error && balises.length > 0 && (
           <Alert severity="warning" sx={{ mb: 1 }}>
-            Background refresh failed: {error}
+            {error}
           </Alert>
         )}
         {contextActionError && (

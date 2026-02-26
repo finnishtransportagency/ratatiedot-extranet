@@ -39,7 +39,8 @@ export const BalisePermissionsProvider: React.FC<{ children?: React.ReactNode }>
 export const useBalisePermissions = (): BalisePermissionsContextValue => {
   const context = useContext(BalisePermissionsContext);
   if (context === undefined) {
-    throw new Error('useBalisePermissions must be used within a BalisePermissionsProvider');
+    console.error('useBalisePermissions must be used within a BalisePermissionsProvider');
+    throw new Error('Järjestelmävirhe');
   }
   return context;
 };
