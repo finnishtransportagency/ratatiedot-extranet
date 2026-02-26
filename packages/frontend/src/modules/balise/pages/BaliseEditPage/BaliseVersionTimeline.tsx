@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Box, Paper, Typography, IconButton, Collapse, Button } from '@mui/material';
-import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import { ExpandMore, ExpandLess, Download } from '@mui/icons-material';
 import { Tag } from '../../../../components/Tag';
 import { downloadBaliseFiles } from '../../utils/baliseDownload';
 import type { BaliseWithHistory, Balise, BaliseVersion } from '../../types/baliseTypes';
@@ -241,6 +241,7 @@ export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({ ba
                       size="small"
                       variant="outlined"
                       color="secondary"
+                      startIcon={<Download />}
                       onClick={(e) => handleDownloadVersion(e, version)}
                     >
                       Lataa tiedostot

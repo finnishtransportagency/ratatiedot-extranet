@@ -228,7 +228,7 @@ const BALISE_ROUTE: RouteObject[] = [
     },
   },
   {
-    path: `${Routes.BALISE}/massa-lataus`,
+    path: `${Routes.BALISE}/massalisays`,
     element: (
       <BaliseContextProvider>
         <ProtectedBalisePage children={<BulkUploadPage />} />

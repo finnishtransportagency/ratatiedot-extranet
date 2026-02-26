@@ -10,7 +10,7 @@ export const Routes = {
   NOT_FOUND: '/*',
   SEARCH_RESULT: '/haku',
   BALISE: '/baliisisanomat',
-  BALISE_BULK_UPLOAD: '/baliisisanomat/massa-lataus',
+  BALISE_BULK_UPLOAD: '/baliisisanomat/massalisays',
   BALISE_SECTION_MANAGEMENT: '/baliisisanomat/rataosat',
   LINE_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.LINE_DIAGRAMS)}`,
   SPEED_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.SPEED_DIAGRAMS)}`,

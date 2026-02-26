@@ -282,7 +282,7 @@ function processGeneralError(
   batch: FileWithBaliseId[],
   data: UploadResponse | ValidationErrorResponse,
 ): UploadResult[] {
-  const errorMessage = 'error' in data ? data.error : 'Lataus epäonnistui';
+  const errorMessage = 'error' in data ? data.error : 'Baliisien lisäys epäonnistui';
   return getBatchBaliseIds(batch).map((baliseId) => ({
     baliseId,
     success: false,
@@ -325,9 +325,9 @@ function getResultMessage(
   failureCount: number,
 ): string {
   if (hasValidationError) return validationErrorMessage;
-  if (failureCount === 0) return 'Kaikki tiedostot ladattu onnistuneesti';
-  if (successCount > 0) return `Osa latauksista epäonnistui (${successCount} onnistui, ${failureCount} epäonnistui)`;
-  return 'Lataus epäonnistui';
+  if (failureCount === 0) return 'Kaikki tiedostot lisätty onnistuneesti';
+  if (successCount > 0) return `Osa lisäyksistä epäonnistui (${successCount} onnistui, ${failureCount} epäonnistui)`;
+  return 'Baliisien lisäys epäonnistui';
 }
 
 interface BatchProcessingState {
@@ -432,7 +432,7 @@ export const useBatchUpload = () => {
       const totalFiles = files.filter((f) => f.isValid).length;
 
       if (batches.length === 0) {
-        setError('Ei ladattavia tiedostoja');
+        setError('Ei lisättäviä tiedostoja');
         setIsUploading(false);
         return null;
       }
