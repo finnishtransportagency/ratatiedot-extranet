@@ -137,9 +137,10 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   // Check if balise is properly locked for editing
   const isLockedByCurrentUser =
     isCreate || !balise || (balise.lockedBy && balise.lockedBy === permissions?.currentUserUid); // Locked by current user
+  const isLockedByOther = balise?.locked && balise.lockedBy && balise.lockedBy !== permissions?.currentUserUid;
 
   const canUpload = canWrite && isLockedByCurrentUser;
-  const showLockWarning = canWrite && !isLockedByCurrentUser;
+  const showLockWarning = canWrite && isLockedByOther;
   const showContent = hasExistingFiles || canWrite;
 
   // Label for file list
@@ -187,9 +188,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
                   Tiedostojen lisäys estetty
                 </Typography>
                 <Typography variant="body2" sx={{ mt: 0.5 }}>
-                  {!balise?.locked
-                    ? 'Lukitse baliisi ennen tiedostojen lisäämistä.'
-                    : `Baliisi on lukittu käyttäjän ${balise.lockedBy} toimesta. Vain lukituksen tehnyt käyttäjä voi lisätä tiedostoja.`}
+                  {`Baliisi on lukittu käyttäjän ${balise.lockedBy} toimesta. Vain lukituksen tehnyt käyttäjä voi lisätä tiedostoja.`}
                 </Typography>
               </Alert>
             )}
