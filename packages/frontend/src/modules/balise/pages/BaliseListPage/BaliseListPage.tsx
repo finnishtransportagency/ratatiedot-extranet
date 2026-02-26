@@ -9,7 +9,7 @@ import { SectionFilter } from './SectionFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
 import { BulkActionsBar } from './BulkActionsBar';
 import { BulkDeleteDialogs } from '../../components/ConfirmDialog/BulkDeleteDialogs';
-import { ConfirmDialog } from '../../components/ConfirmDialog/ConfirmDialog';
+import { DownloadBaliseDialog } from '../../components/ConfirmDialog/DownloadBaliseDialog';
 import { DeleteBaliseDialog } from '../../components/ConfirmDialog/DeleteBaliseDialog';
 import { UnlockBaliseDialog } from '../../components/ConfirmDialog/UnlockBaliseDialog';
 import { LockBaliseDialog } from '../../components/ConfirmDialog/LockBaliseDialog';
@@ -247,26 +247,6 @@ export const BaliseListPage: React.FC = () => {
     const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
     return canUnlockBalises(selectedBalises, permissions?.currentUserUid, permissions?.isAdmin);
   }, [balises, selectedItems, permissions?.currentUserUid, permissions?.isAdmin]);
-
-  // Download dialog message
-  const downloadDialogMessage = useMemo(() => {
-    if (baliseToDownload) {
-      return `Lataa baliisin ${baliseToDownload.secondaryId} virallinen versio.`;
-    }
-    const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
-    if (selectedBalises.length === 1) {
-      return `Lataa baliisin ${selectedBalises[0].secondaryId} virallinen versio.`;
-    } else if (selectedBalises.length > 3) {
-      return `Lataa ${selectedBalises.length} baliisin viralliset versiot ZIP-tiedostona.`;
-    }
-    return `Lataa ${selectedBalises.length} baliisin viralliset versiot.`;
-  }, [balises, selectedItems, baliseToDownload]);
-
-  // Download dialog title
-  const downloadDialogTitle = useMemo(() => {
-    if (baliseToDownload) return 'Lataa baliisi';
-    return selectedItems.length === 1 ? 'Lataa baliisi' : 'Lataa baliisit';
-  }, [selectedItems.length, baliseToDownload]);
 
   // Other bulk actions
   const handleBulkLock = useCallback(() => {
@@ -580,15 +560,14 @@ export const BaliseListPage: React.FC = () => {
           onCloseResult={handleCloseResult}
         />
 
-        <ConfirmDialog
+        <DownloadBaliseDialog
           open={downloadDialogOpen}
-          title={downloadDialogTitle}
-          message={downloadDialogMessage}
-          confirmText={isDownloading ? 'Ladataan...' : 'Lataa'}
-          cancelText="Peruuta"
+          baliseToDownload={baliseToDownload}
+          selectedItems={selectedItems}
+          balises={balises}
+          loading={isDownloading}
           onConfirm={handleDownloadConfirm}
           onCancel={handleDownloadCancel}
-          loading={isDownloading}
         />
 
         {/* Single-item Delete Confirmation Dialog */}
