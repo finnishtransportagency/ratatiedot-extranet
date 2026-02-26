@@ -307,7 +307,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       setHasChanges(false);
       setConfirmDescription('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Virhe muutoksia tallentaessa');
+      console.error(err);
+      setError('Virhe muutoksia tallentaessa');
     } finally {
       setLoading(false);
     }
@@ -335,7 +336,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       setDeleteDialogOpen(false);
       navigate(Routes.BALISE);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete balise');
+      console.error(err);
+      setError('Baliisin poisto epäonnistui');
     } finally {
       setDeleteLoading(false);
     }

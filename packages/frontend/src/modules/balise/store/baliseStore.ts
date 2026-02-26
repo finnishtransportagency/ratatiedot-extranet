@@ -84,7 +84,8 @@ const fetchBaliseAPI = async (
 
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.error('Error fetching balises:', await response.text());
+      throw new Error('Baliisien haku epäonnistui');
     }
 
     const result = await response.json();
@@ -116,14 +117,15 @@ const fetchBaliseAPI = async (
     }
   } catch (error) {
     console.error('Error fetching balises:', error);
-    throw error;
+    throw new Error('Baliisien haku epäonnistui');
   }
 };
 
 const fetchSingleBaliseAPI = async (secondaryId: number): Promise<BaliseWithHistory> => {
   const response = await fetch(`/api/balise/${secondaryId}`);
   if (!response.ok) {
-    throw new Error(`Failed to fetch balise: ${response.status}`);
+    console.error(`Error fetching balise ${secondaryId}:`, await response.text());
+    throw new Error('Baliisin haku epäonnistui');
   }
   return response.json();
 };
@@ -177,7 +179,8 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
         error: null,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch balises';
+      console.error('Error fetching balises:', error);
+      const errorMessage = 'Baliisien haku epäonnistui';
       set({ error: errorMessage });
     } finally {
       set({
@@ -215,9 +218,9 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
         error: null,
       }));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load more balises';
-      set({ error: errorMessage });
       console.error('Error loading more balises:', error);
+      const errorMessage = 'Baliisien haku epäonnistui';
+      set({ error: errorMessage });
     } finally {
       set({ isBackgroundLoading: false });
     }
@@ -244,7 +247,8 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to delete balise');
+        console.error(`Failed to delete balise ${secondaryId}:`, error);
+        throw new Error('Baliisin poisto epäonnistui');
       }
 
       // Remove from local state after successful deletion
@@ -253,7 +257,7 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
       }));
     } catch (error) {
       console.error('Failed to delete balise:', error);
-      throw error;
+      throw new Error('Baliisin poisto epäonnistui');
     }
   },
 
@@ -287,7 +291,8 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.error || 'Failed to delete batch');
+          console.error('Failed to bulk delete balises:', error);
+          throw new Error('Baliisien poisto epäonnistui');
         }
 
         const result = await response.json();
@@ -354,14 +359,15 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to lock balise');
+        console.error(`Failed to lock balise ${secondaryId}:`, error);
+        throw new Error('Baliisin lukitseminen epäonnistui');
       }
 
       // Refresh the balise to get updated lock status
       await get().refreshBalise(secondaryId);
     } catch (error) {
       console.error('Failed to lock balise:', error);
-      throw error;
+      throw new Error('Baliisin lukitseminen epäonnistui');
     }
   },
 
@@ -377,7 +383,8 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to bulk lock balises');
+        console.error('Failed to bulk lock balises:', error);
+        throw new Error('Baliisien lukitseminen epäonnistui');
       }
 
       const result = await response.json();
@@ -406,7 +413,7 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
       };
     } catch (error) {
       console.error('Failed to bulk lock balises:', error);
-      throw error;
+      throw new Error('Baliisien lukitseminen epäonnistui');
     }
   },
 
@@ -421,14 +428,15 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to unlock balise');
+        console.error(`Failed to unlock balise ${secondaryId}:`, error);
+        throw new Error('Lukituksen avaaminen epäonnistui');
       }
 
       // Refresh the balise to get updated lock status
       await get().refreshBalise(secondaryId);
     } catch (error) {
       console.error('Failed to unlock balise:', error);
-      throw error;
+      throw new Error('Lukituksen avaaminen epäonnistui');
     }
   },
 
@@ -444,7 +452,8 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to bulk unlock balises');
+        console.error('Failed to bulk unlock balises:', error);
+        throw new Error('Lukituksen avaaminen epäonnistui');
       }
 
       const result = await response.json();
@@ -473,7 +482,7 @@ export const useBaliseStore = create<BaliseState>()((set, get) => ({
       };
     } catch (error) {
       console.error('Failed to bulk unlock balises:', error);
-      throw error;
+      throw new Error('Lukituksen avaaminen epäonnistui');
     }
   },
 

@@ -195,7 +195,7 @@ export const SectionPage: React.FC = () => {
 
         {error && (
           <Alert severity="error" sx={{ mb: 1 }}>
-            Virhe hakiessa JKV-rataosia: {error}
+            {error}
           </Alert>
         )}
 

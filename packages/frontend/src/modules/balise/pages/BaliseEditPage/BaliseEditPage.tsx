@@ -8,7 +8,6 @@ import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
 import type { BaliseWithHistory } from '../../types/baliseTypes';
 
-// Mock API functions - replace with actual API calls
 const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
   // API call to get single balise by secondaryId
   const response = await fetch(`/api/balise/${secondaryId}`);
@@ -16,7 +15,7 @@ const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
   if (!response.ok) {
     const errorText = await response.text();
     console.error('Error response:', errorText);
-    throw new Error(`Failed to fetch balise: ${response.status} - ${errorText}`);
+    throw new Error(`Baliisin haku epäonnistui`);
   }
 
   const responseText = await response.text();
@@ -25,7 +24,7 @@ const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
     return JSON.parse(responseText);
   } catch {
     console.error('JSON parse error. Raw response was:', responseText);
-    throw new Error(`Invalid JSON response: ${responseText.substring(0, 200)}...`);
+    throw new Error(`Baliisin haku epäonnistui`);
   }
 };
 
@@ -36,7 +35,7 @@ const saveOrUpdateBalise = async (
   expectResponse: boolean = true,
 ): Promise<BaliseWithHistory | void> => {
   if (!data.secondaryId) {
-    throw new Error('Secondary ID is required to create a balise');
+    throw new Error('Baliisin ID vaaditaan.');
   }
 
   let response: Response;
@@ -65,9 +64,7 @@ const saveOrUpdateBalise = async (
   }
 
   if (!response.ok) {
-    const errorText = await response.text();
-    const operation = files?.length ? 'upload files to' : 'save';
-    throw new Error(`Failed to ${operation} balise: ${errorText}`);
+    throw new Error(`Baliisin tallennus epäonnistui.`);
   }
 
   if (expectResponse) {
@@ -103,7 +100,8 @@ export const BaliseEditPage: React.FC = () => {
       const data = await fetchBalise(baliseId);
       setBalise(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load balise');
+      console.error(err);
+      setError('Baliisin haku epäonnistui');
     } finally {
       setLoading(false);
     }
