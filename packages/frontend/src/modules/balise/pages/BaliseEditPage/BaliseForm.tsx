@@ -306,7 +306,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       setHasChanges(false);
       setConfirmDescription('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Virhe tallentaessa');
+      setError(err instanceof Error ? err.message : 'Virhe muutoksia tallentaessa');
     } finally {
       setLoading(false);
     }

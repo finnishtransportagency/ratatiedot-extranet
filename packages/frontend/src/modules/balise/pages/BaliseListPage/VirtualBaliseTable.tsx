@@ -554,7 +554,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
                   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <CircularProgress size={24} />
                     <Typography variant="body2" sx={{ ml: 1 }}>
-                      Ladataan lisää...
+                      Haetaan lisää baliiseja...
                     </Typography>
                   </Box>
                 </TableCell>

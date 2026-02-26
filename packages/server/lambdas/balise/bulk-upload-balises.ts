@@ -341,8 +341,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       body: JSON.stringify({
         success: allSucceeded,
         message: allSucceeded
-          ? `Tiedostot ladattu onnistuneesti ${results.length} baliisiin`
-          : `Lataus valmis: ${successCount} onnistui, ${failureCount} epäonnistui`,
+          ? `Tiedostot lisätty onnistuneesti ${results.length} baliisiin`
+          : `Lisäys valmis: ${successCount} onnistui, ${failureCount} epäonnistui`,
         results,
         invalidFiles,
         totalFiles: fileUploads.length,

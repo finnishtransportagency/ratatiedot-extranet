@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Box, Paper, Typography, Button, Alert, Divider, List, ListItem, ListItemText } from '@mui/material';
-import { Description } from '@mui/icons-material';
+import { Description, Download } from '@mui/icons-material';
 import { ChipWrapper } from '../../../../components/Chip';
 import { downloadBaliseFiles } from '../../utils/baliseDownload';
 import { validateBaliseFiles, getValidExtensionsList, isValidBaliseIdRange } from '../../utils/baliseValidation';
@@ -160,7 +160,13 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
               <Typography variant="subtitle2" color="text.secondary">
                 {fileListLabel}
               </Typography>
-              <Button size="small" variant="outlined" color="secondary" onClick={handleDownload}>
+              <Button
+                size="small"
+                variant="outlined"
+                color="secondary"
+                startIcon={<Download />}
+                onClick={handleDownload}
+              >
                 Lataa tiedostot
               </Button>
             </Box>
@@ -285,7 +291,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
                     Uudet tiedostot korvaavat kaikki nykyiset tiedostot
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Ladatessasi uudet tiedostot, kaikki {balise?.fileTypes.length} nykyistä tiedostoa korvataan. Vanhat
+                    Lisätessäsi uusia tiedostoja, kaikki {balise?.fileTypes.length} nykyistä tiedostoa korvataan. Vanhat
                     tiedostot säilytetään versiohistoriassa.
                   </Typography>
                 </Alert>

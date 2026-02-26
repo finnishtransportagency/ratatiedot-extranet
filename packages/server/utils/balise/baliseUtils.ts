@@ -189,7 +189,7 @@ export async function validateBalisesLockedByUser(
       statusCode: 403,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        error: `Lataus epäonnistui ${failures.length} baliisille`,
+        error: `Lisäys epäonnistui ${failures.length} baliisille`,
         errorType: 'validation_failed',
         failures,
       }),

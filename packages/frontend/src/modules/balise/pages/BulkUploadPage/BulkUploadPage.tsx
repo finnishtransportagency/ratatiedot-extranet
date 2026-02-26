@@ -345,7 +345,7 @@ export const BulkUploadPage: React.FC = () => {
                       }
                       size="small"
                     >
-                      {uploading ? 'Ladataan...' : `Lataa ${validFileCount} tiedostoa`}
+                      {uploading ? 'Lisätään...' : `Lisätään ${validFileCount} tiedostoa`}
                     </Button>
                   </>
                 )}
@@ -357,7 +357,7 @@ export const BulkUploadPage: React.FC = () => {
                     size="small"
                     startIcon={<CloudUpload />}
                   >
-                    Lataa lisää
+                    Lisää tiedostoja
                   </Button>
                 )}
               </Box>
@@ -713,7 +713,7 @@ export const BulkUploadPage: React.FC = () => {
                       helperText={
                         !descriptionsValid
                           ? isSummaryMode
-                            ? 'Anna yleinen kuvaus ennen latausta'
+                            ? 'Anna yleinen kuvaus ennen lisäystä'
                             : 'Anna yleinen kuvaus tai täytä kuvaus kaikille baliiseille'
                           : undefined
                       }
