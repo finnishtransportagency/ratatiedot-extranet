@@ -18,6 +18,7 @@ import { useBaliseLocking } from '../../hooks/useBaliseLocking';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
 import { downloadBaliseFiles } from '../../utils/baliseDownload';
+import { canUnlockBalises } from '../../utils/baliseLocking';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
 
@@ -240,12 +241,12 @@ export const BaliseListPage: React.FC = () => {
     return selectedBalises.filter((b) => b.locked).length;
   }, [balises, selectedItems]);
 
-  // Check if all selected balises are locked (for showing unlock button)
+  // Check if all selected balises are locked by current user (for showing unlock button)
   const allSelectedLocked = useMemo(() => {
     if (selectedItems.length === 0) return false;
     const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
-    return selectedBalises.length > 0 && selectedBalises.every((b) => b.locked);
-  }, [balises, selectedItems]);
+    return canUnlockBalises(selectedBalises, permissions?.currentUserUid, permissions?.isAdmin);
+  }, [balises, selectedItems, permissions?.currentUserUid, permissions?.isAdmin]);
 
   // Download dialog message
   const downloadDialogMessage = useMemo(() => {
@@ -558,7 +559,7 @@ export const BaliseListPage: React.FC = () => {
             onSelectItem={handleSelectItem}
             onLoadHistory={handleLoadHistory}
             lockingBaliseId={lockingBaliseId ?? undefined}
-            permissions={permissions ?? undefined}
+            permissions={permissions ? { ...permissions, currentUserUid: permissions.currentUserUid } : undefined}
             loadMoreItems={async () => {
               if (searchTerm === '') {
                 await loadMoreBalises();
