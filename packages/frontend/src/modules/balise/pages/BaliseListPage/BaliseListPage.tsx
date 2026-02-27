@@ -145,7 +145,7 @@ export const BaliseListPage: React.FC = () => {
   }, [refreshBalise]);
 
   const handleAddBalise = useCallback(() => {
-    navigate(`${Routes.BALISE}/create`);
+    navigate(Routes.BALISE_CREATE);
   }, [navigate]);
 
   const handleBulkUpload = useCallback(() => {
@@ -153,7 +153,7 @@ export const BaliseListPage: React.FC = () => {
   }, [navigate]);
 
   const handleAddSection = useCallback(() => {
-    navigate(`${Routes.BALISE}/rataosat`);
+    navigate(Routes.BALISE_SECTION_MANAGEMENT);
   }, [navigate]);
 
   const isCompact = useMediaQuery('(max-width:1360px)');
