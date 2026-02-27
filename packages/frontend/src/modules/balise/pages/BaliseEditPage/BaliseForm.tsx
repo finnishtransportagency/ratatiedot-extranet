@@ -521,12 +521,12 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
             </Typography>
 
             <InlineEditableField
-              label="Baliisi ID"
+              label="Baliisin ID"
               value={formData.secondaryId}
               onChange={(value) => handleInputChange('secondaryId', value)}
               disabled={!isCreate}
               type="number"
-              placeholder="Syötä baliisi ID"
+              placeholder="Syötä baliisin ID"
               required
               error={
                 isCreate &&
