@@ -228,7 +228,7 @@ const BALISE_ROUTE: RouteObject[] = [
     },
   },
   {
-    path: `${Routes.BALISE}/massalisays`,
+    path: `${Routes.BALISE_BULK_UPLOAD}`,
     element: (
       <BaliseContextProvider>
         <ProtectedBalisePage children={<BulkUploadPage />} />
@@ -244,7 +244,7 @@ const BALISE_ROUTE: RouteObject[] = [
     },
   },
   {
-    path: `${Routes.BALISE}/create`,
+    path: `${Routes.BALISE_CREATE}`,
     element: (
       <BaliseContextProvider>
         <ProtectedBalisePage children={<BaliseEditPage />} />
