@@ -40,31 +40,24 @@ export const DownloadBaliseDialog: React.FC<DownloadBaliseDialogProps> = ({
 
   const locked = selectedBalises.filter((b) => b.locked);
 
+  const MAX_REASON_LENGTH = 120;
+  const truncateReason = (reason?: string | null) => {
+    if (!reason) return '';
+    return reason.length > MAX_REASON_LENGTH ? reason.slice(0, MAX_REASON_LENGTH) + '…' : reason;
+  };
+
   const message = (() => {
     if (locked.length === 0) return baseMessage;
 
-    const lockingUsers = Array.from(new Set(locked.map((b) => b.lockedBy).filter(Boolean)));
-
-    if (locked.length === 1) {
-      const user = lockingUsers[0];
-      return (
-        <Box sx={{ mt: 1 }}>
-          <Alert sx={{ mb: 2 }} severity="warning">
-            Baliisi on lukittu käyttäjän {user} toimesta.
-          </Alert>
-          <Alert sx={{ mb: 2 }} severity="info">
-            {baseMessage}
-          </Alert>
-        </Box>
-      );
-    }
-
-    const usersText = lockingUsers.join(', ');
     return (
       <Box sx={{ mt: 1 }}>
-        <Alert sx={{ mb: 2 }} severity="warning">
-          Valituista baliiseista {locked.length} on lukittu käyttäjien {usersText} toimesta.
-        </Alert>
+        {locked.map((b) => (
+          <Alert key={b.id} sx={{ mb: 2 }} severity="warning">
+            Baliisi {b.secondaryId} on lukittu käyttäjän {b.lockedBy} toimesta.
+            <br />
+            {b.lockReason ? `Lukitsemisen syy: ${truncateReason(b.lockReason)}` : ''}
+          </Alert>
+        ))}
         <Alert sx={{ mb: 2 }} severity="info">
           {baseMessage}
         </Alert>
