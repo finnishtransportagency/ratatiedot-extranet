@@ -559,7 +559,7 @@ export const BaliseListPage: React.FC = () => {
             onSelectItem={handleSelectItem}
             onLoadHistory={handleLoadHistory}
             lockingBaliseId={lockingBaliseId ?? undefined}
-            permissions={permissions ? { ...permissions, currentUserUid: permissions.currentUserUid } : undefined}
+            permissions={permissions ?? undefined}
             loadMoreItems={async () => {
               if (searchTerm === '') {
                 await loadMoreBalises();
