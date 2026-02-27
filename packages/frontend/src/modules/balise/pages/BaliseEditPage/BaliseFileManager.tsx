@@ -326,7 +326,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
                 </Typography>
                 <Alert severity="info" sx={{ mb: 3 }}>
                   <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-                    Lisäät uusia tiedostoja balisille
+                    Lisäät uusia tiedostoja baliisille
                   </Typography>
                 </Alert>
 

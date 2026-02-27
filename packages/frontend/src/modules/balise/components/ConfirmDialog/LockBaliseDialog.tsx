@@ -58,7 +58,7 @@ export const LockBaliseDialog: React.FC<LockBaliseDialogProps> = ({
     : isBulk
       ? `Lukitse ${toLockCount} baliisia`
       : `Lukitse baliisi${baliseId ? ` ${baliseId}` : ''}`;
-  const message = isBulk ? `Anna syy baliisien lukitsemiselle.` : 'Anna syy balisin lukitsemiselle.';
+  const message = isBulk ? `Anna syy baliisien lukitsemiselle.` : 'Anna syy baliisin lukitsemiselle.';
 
   // If all balises are already locked, show warning only
   if (allAlreadyLocked) {
