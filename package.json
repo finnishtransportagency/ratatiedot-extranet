@@ -43,7 +43,7 @@
   },
   "homepage": "https://github.com/finnishtransportagency/ratatiedot-extranet#readme",
   "dependencies": {
-    "axios": "1.13.2",
+    "axios": "1.13.5",
     "date-fns": "^2.30.0",
     "lodash": "4.17.23"
   },
