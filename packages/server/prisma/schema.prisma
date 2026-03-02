@@ -2,13 +2,17 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  provider      = "prisma-client"
+  output        = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+enum VersionStatus {
+  OFFICIAL
+  UNCONFIRMED
 }
 
 model CategoryDataBase {
@@ -89,27 +93,31 @@ model Notice {
 }
 
 model Balise {
-  id          String          @id @default(uuid())
-  secondaryId Int             @unique
-  version     Int
-  description String
-  fileTypes   String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
-  history     BaliseVersion[]
-  createdBy   String
-  createdTime DateTime        @default(now())
-  locked      Boolean         @default(false)
-  lockedBy    String?
-  lockedTime  DateTime?
-  deletedAt   DateTime?
-  deletedBy   String?
+  id              String          @id @default(uuid())
+  secondaryId     Int             @unique
+  version         Int
+  versionStatus   VersionStatus   @default(OFFICIAL)
+  description     String
+  fileTypes       String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
+  history         BaliseVersion[]
+  createdBy       String
+  createdTime     DateTime        @default(now())
+  locked          Boolean         @default(false)
+  lockedBy        String?
+  lockedTime      DateTime?
+  lockedAtVersion Int?
+  lockReason      String?
+  deletedAt       DateTime?
+  deletedBy       String?
 }
 
 model BaliseVersion {
-  id                 String    @id @default(uuid())
+  id                 String        @id @default(uuid())
   baliseId           String
-  balise             Balise    @relation(fields: [baliseId], references: [id])
+  balise             Balise        @relation(fields: [baliseId], references: [id])
   secondaryId        Int
   version            Int
+  versionStatus      VersionStatus @default(OFFICIAL)
   description        String
   fileTypes          String[]
   createdBy          String
@@ -117,20 +125,19 @@ model BaliseVersion {
   locked             Boolean
   lockedBy           String?
   lockedTime         DateTime?
-  versionCreatedTime DateTime  @default(now())
+  versionCreatedTime DateTime      @default(now())
 
   @@index([baliseId, version])
 }
 
-model Area {
+
+model Section {
   id          String    @id @default(uuid())
   name        String // e.g., "Helsinki-Riihimäki"
-  shortName   String // e.g., "Alue 1"
-  key         String    @unique // e.g., "area_1"
+  key         String    @unique // e.g., "section_1"
   idRangeMin  Int // e.g., 10000
   idRangeMax  Int // e.g., 19999
   description String? // Optional description
-  color       String? // Optional color for UI
   active      Boolean   @default(true)
   createdBy   String
   createdTime DateTime  @default(now())
@@ -140,20 +147,53 @@ model Area {
   @@index([idRangeMin, idRangeMax])
 }
 
-model Section {
-  id          String    @id @default(uuid())
-  name        String // e.g., "Helsinki-Riihimäki"
-  shortName   String // e.g., "JKV-rataosa 1"
-  key         String    @unique // e.g., "section_1"
-  idRangeMin  Int // e.g., 10000
-  idRangeMax  Int // e.g., 19999
-  description String? // Optional description
-  color       String? // Optional color for UI
-  active      Boolean   @default(true)
-  createdBy   String
-  createdTime DateTime  @default(now())
-  updatedBy   String?
-  updatedTime DateTime?
+model BaliseArchive {
+  id                  String                  @id @default(uuid())
+  originalId          String                  @unique // Original balise ID for reference
+  originalSecondaryId Int                     // Original secondary ID (may not be unique across archives)
+  archivedSecondaryId String                  @unique // Unique archive ID: "balise_12345_20231205143022"
+  version             Int
+  versionStatus       VersionStatus           @default(OFFICIAL)
+  description         String
+  fileTypes           String[] // ["file1.leu", "file2.il", "data.pdf", ...]. stores full filenames to track all files
+  history             BaliseArchiveVersion[]
+  createdBy           String
+  createdTime         DateTime
+  locked              Boolean
+  lockedBy            String?
+  lockedTime          DateTime?
+  lockedAtVersion     Int?
+  deletedAt           DateTime?
+  deletedBy           String?
+  archivedAt          DateTime                @default(now())
+  archivedBy          String
 
-  @@index([idRangeMin, idRangeMax])
+  @@index([originalSecondaryId])
+  @@index([archivedSecondaryId])
+  @@index([archivedAt])
+  @@index([originalId])
+}
+
+model BaliseArchiveVersion {
+  id                  String        @id @default(uuid())
+  baliseArchiveId     String
+  baliseArchive       BaliseArchive @relation(fields: [baliseArchiveId], references: [id])
+  originalVersionId   String        @unique // Original version ID for reference
+  originalSecondaryId Int           // Original secondary ID (may not be unique across archives)
+  archivedSecondaryId String        // References parent BaliseArchive.archivedSecondaryId
+  version             Int
+  versionStatus       VersionStatus @default(OFFICIAL)
+  description         String
+  fileTypes           String[]
+  createdBy           String
+  createdTime         DateTime
+  locked              Boolean
+  lockedBy            String?
+  lockedTime          DateTime?
+  versionCreatedTime  DateTime
+  archivedAt          DateTime      @default(now())
+
+  @@index([baliseArchiveId, version])
+  @@index([originalSecondaryId, version])
+  @@index([archivedSecondaryId, version])
 }

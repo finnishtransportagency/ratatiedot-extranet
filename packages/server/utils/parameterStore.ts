@@ -1,16 +1,16 @@
-import { SSM } from 'aws-sdk';
+import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 import { log } from './logger';
 
-const ssm = new SSM({ region: process.env.region || 'eu-west-1' });
+const ssm = new SSMClient({ region: process.env.region || 'eu-west-1' });
 
 export const getSecuredStringParameter = async (name: string) => {
   try {
-    const value = await ssm
-      .getParameter({
+    const value = await ssm.send(
+      new GetParameterCommand({
         Name: name,
         WithDecryption: true,
-      })
-      .promise();
+      }),
+    );
     return value.Parameter?.Value || '';
   } catch (error) {
     log.error(error);
@@ -20,7 +20,11 @@ export const getSecuredStringParameter = async (name: string) => {
 
 export const getParameter = async (name: string) => {
   try {
-    const value = await ssm.getParameter({ Name: name }).promise();
+    const value = await ssm.send(
+      new GetParameterCommand({
+        Name: name,
+      }),
+    );
     return value.Parameter?.Value || '';
   } catch (error) {
     log.error(error);

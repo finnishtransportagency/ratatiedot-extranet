@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/cdk.ts",
+  "app": "npx tsx bin/cdk.ts",
   "watch": {
     "include": ["**"],
     "exclude": [
@@ -15,6 +15,7 @@
     ]
   },
   "context": {
+    "cli-telemetry": false,
     "@aws-cdk/aws-apigateway:usagePlanKeyOrderInsensitiveId": true,
     "@aws-cdk/core:stackRelativeExports": true,
     "@aws-cdk/aws-rds:lowercaseDbIdentifier": true,

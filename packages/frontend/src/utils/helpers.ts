@@ -6,7 +6,7 @@ import { MainCategoryData, SubCategoryData } from '../types/types';
 import { capitalize } from 'lodash';
 import { devAreas, prodAreas, prodCategories, devCategories } from './categories';
 
-const { VITE_BUILD_ENVIRONMENT } = import.meta.env;
+const VITE_BUILD_ENVIRONMENT = import.meta.env?.VITE_BUILD_ENVIRONMENT || 'dev';
 
 /**
  * Generate range of years
@@ -15,7 +15,7 @@ const { VITE_BUILD_ENVIRONMENT } = import.meta.env;
  * @returns array
  */
 export const generateYearsBetween = (startYear: number, endYear: number = new Date().getFullYear()) => {
-  let years = [];
+  const years = [];
   while (startYear <= endYear) {
     years.push(startYear);
     startYear++;
@@ -48,10 +48,10 @@ export const splitYearsIntoChunks = (years: number[], perChunk: number = 10) => 
  * @param key
  * @returns array
  */
-export const flatMapByKey = (array: Array<any>, key: any): Array<any> => {
-  return array.reduce((acc: Array<any>, next: Array<any>) => {
+export const flatMapByKey = <T extends Record<string, unknown>>(array: Array<T>, key: keyof T): Array<unknown> => {
+  return array.reduce((acc: Array<unknown>, next: T) => {
     if (!next[key]) return acc;
-    return (acc = [...next[key], ...acc]);
+    return (acc = [...(next[key] as Array<unknown>), ...acc]);
   }, []);
 };
 
@@ -155,8 +155,8 @@ export const parseRouterName = (routerName: string = '') => {
   }
 };
 
-export const matchRouteWithCategory = (routeList: any, categoryPage: string) => {
-  return Object.values(routeList).find((r: any) => r.indexOf(categoryPage) !== -1);
+export const matchRouteWithCategory = (routeList: Record<string, string>, categoryPage: string) => {
+  return Object.values(routeList).find((r: string) => r.indexOf(categoryPage) !== -1);
 };
 
 export const areas = () => {

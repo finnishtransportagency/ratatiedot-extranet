@@ -1,21 +1,82 @@
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
-import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateWriteUser } from '../../utils/userService';
-import { DatabaseClient } from '../database/client';
-import { uploadToS3 } from '../../utils/s3utils';
-import { parseForm } from '../../utils/parser';
+import { getUser, validateBaliseWriteUser } from '../../utils/userService';
+import { parseForm, FileUpload as ParsedFileUpload } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
-import { FileInfo } from 'busboy';
+import {
+  updateOrCreateBalise,
+  validateBalisesLockedByUser,
+  VALID_EXTENSIONS,
+  MIN_BALISE_ID,
+  MAX_BALISE_ID,
+  isValidExtension,
+  parseBaliseIdFromFilename,
+  isValidFilenameFormat,
+} from '../../utils/balise/baliseUtils';
+import type { FileUpload } from '../../utils/s3utils';
+import { getRataExtraLambdaError } from '../../utils/errors';
 
-const database = await DatabaseClient.build();
-const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
-// File uploads will use the existing uploadToS3 utility from s3utils.ts
-// S3 path structure: balise_{secondaryId}/v{version}/{filename}
+interface FileValidationError {
+  filename: string;
+  error: string;
+}
+
+/**
+ * Validate uploaded files for a specific balise
+ * - Filename must be in format {ID}.ext or {ID}K.ext (only K suffix allowed)
+ * - Extension must be .il, .leu, or .bis
+ * - Balise ID in filename must match the target balise ID
+ * - Balise ID must be between 10000-99999
+ */
+export function validateUploadedFiles(files: ParsedFileUpload[], targetBaliseId: number): FileValidationError[] {
+  const errors: FileValidationError[] = [];
+
+  for (const file of files) {
+    // Validate filename format first (includes extension and K-only suffix check)
+    if (!isValidFilenameFormat(file.filename)) {
+      // Provide specific error message
+      if (!isValidExtension(file.filename)) {
+        errors.push({
+          filename: file.filename,
+          error: `Virheellinen tiedostopääte. Sallitut päätteet: ${VALID_EXTENSIONS.join(', ')}`,
+        });
+      } else {
+        errors.push({
+          filename: file.filename,
+          error: 'Virheellinen tiedostonimi. Sallittu muoto: {ID}.pääte tai {ID}K.pääte',
+        });
+      }
+      continue;
+    }
+
+    // Parse balise ID from filename (format is already validated above)
+    const fileBaliseId = parseBaliseIdFromFilename(file.filename);
+    if (fileBaliseId === null) {
+      errors.push({
+        filename: file.filename,
+        error: 'Tiedostonimestä ei löydy baliisi-tunnusta',
+      });
+      continue;
+    }
+
+    // Validate filename balise ID matches target balise ID
+    if (fileBaliseId !== targetBaliseId) {
+      errors.push({
+        filename: file.filename,
+        error: `Tiedostonimen baliisi-tunnus (${fileBaliseId}) ei vastaa kohde-baliisia (${targetBaliseId})`,
+      });
+      continue;
+    }
+  }
+
+  return errors;
+}
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
+
+    validateBaliseWriteUser(user);
 
     // Extract balise ID from path (e.g., /api/balise/12345/add)
     const pathParts = event.path.split('/').filter((p) => p);
@@ -32,7 +93,19 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    validateWriteUser(user, '');
+    // Validate balise ID range
+    if (baliseId < MIN_BALISE_ID || baliseId > MAX_BALISE_ID) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: `Baliisi-tunnus ${baliseId} ei ole sallitulla välillä ${MIN_BALISE_ID}-${MAX_BALISE_ID}`,
+        }),
+      };
+    }
+
+    const lockValidationResponse = await validateBalisesLockedByUser([baliseId], user.uid);
+    if (lockValidationResponse) return lockValidationResponse;
 
     // Check if this is a file upload (multipart/form-data) or metadata only (JSON)
     const contentType = event.headers?.['content-type'] || event.headers?.['Content-Type'] || '';
@@ -44,8 +117,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       version?: number;
       baliseData?: string;
     } = {};
-    let fileData: Buffer | null = null;
-    let filename = '';
+    let uploadedFiles: ParsedFileUpload[] = [];
 
     if (isFileUpload) {
       // Handle file upload
@@ -58,157 +130,55 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       }
 
       // Extract file data
-      fileData = formData.filedata as Buffer;
-      if (formData.fileinfo) {
-        const fileInfo = formData.fileinfo as FileInfo;
-        filename = fileInfo.filename;
+      uploadedFiles = (formData.files as FileUpload[]) || [];
+      // Validate uploaded files
+      if (uploadedFiles.length > 0) {
+        const validationErrors = validateUploadedFiles(uploadedFiles, baliseId);
+        if (validationErrors.length > 0) {
+          return {
+            statusCode: 400,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              error: 'Tiedostojen validointi epäonnistui',
+              validationErrors,
+              hint: `Tiedostonimen tulee sisältää baliisi-tunnus ${baliseId} ja päätteen tulee olla ${VALID_EXTENSIONS.join(', ')} (esim. ${baliseId}.il)`,
+            }),
+          };
+        }
       }
     } else {
       // Handle JSON metadata only
       body = event.body ? JSON.parse(event.body) : {};
     }
 
-    const existingBalise = await database.balise.findUnique({
-      where: { secondaryId: baliseId },
-    });
-
-    if (existingBalise) {
-      // Check if balise is locked - prevent editing locked balises
-      if (existingBalise.locked && existingBalise.lockedBy !== user.uid) {
-        return {
-          statusCode: 403,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            error: `Baliisi on lukittu käyttäjän ${existingBalise.lockedBy} toimesta. Odota, että lukitus poistetaan.`,
-            errorType: 'locked',
-            lockedBy: existingBalise.lockedBy,
-            lockedTime: existingBalise.lockedTime,
-          }),
-        };
-      }
-
-      // Determine if we should create a new version
-      // Create new version ONLY if:
-      // - File is being uploaded AND metadata is provided (first file in replacement flow)
-      // Do NOT create version for metadata-only changes (description edits)
-      const isFirstFileInReplacementFlow = isFileUpload && body.description !== undefined;
-      const shouldCreateNewVersion = isFirstFileInReplacementFlow;
-      const currentVersion = existingBalise.version;
-      let newVersion = currentVersion;
-
-      // Create a new version if needed
-      if (shouldCreateNewVersion) {
-        // Create version history entry for the OLD version
-        await database.baliseVersion.create({
-          data: {
-            baliseId: existingBalise.id,
-            secondaryId: existingBalise.secondaryId,
-            version: existingBalise.version,
-            description: existingBalise.description,
-            fileTypes: existingBalise.fileTypes,
-            createdBy: existingBalise.createdBy,
-            createdTime: existingBalise.createdTime,
-            locked: existingBalise.locked,
-            lockedBy: existingBalise.lockedBy,
-            lockedTime: existingBalise.lockedTime,
-          },
-        });
-
-        newVersion = existingBalise.version + 1;
-        log.info(user, `Creating new version ${newVersion} for balise ${baliseId} (first file in replacement flow)`);
-      } else {
-        log.info(user, `Adding to existing version ${currentVersion} for balise ${baliseId}`);
-      }
-
-      // If file is uploaded, handle the fileTypes array
-      let updatedFileTypes = existingBalise.fileTypes;
-      if (fileData && filename) {
-        // Store full filename instead of just extension
-        if (!updatedFileTypes.includes(filename)) {
-          updatedFileTypes = [...updatedFileTypes, filename];
-        }
-
-        // Upload file to S3 with hierarchical path: balise_{secondaryId}/v{version}/{filename}
-        const s3Key = `balise_${baliseId}/v${newVersion}/${filename}`;
-        await uploadToS3(BALISES_BUCKET_NAME, s3Key, fileData);
-        log.info(user, `Uploaded file to S3: ${s3Key}`);
-      }
-
-      // Update balise record
-      const updateData: {
-        fileTypes: string[];
-        version?: number;
-        description?: string;
-        createdBy?: string;
-        createdTime?: Date;
-        locked?: boolean;
-        lockedBy?: string | null;
-        lockedTime?: Date | null;
-      } = {
-        fileTypes: updatedFileTypes,
-      };
-
-      // Update version and metadata if we created a new version
-      if (shouldCreateNewVersion) {
-        updateData.version = newVersion;
-        updateData.description = body.description || existingBalise.description;
-        updateData.createdBy = user.uid;
-        updateData.createdTime = new Date();
-        updateData.locked = false;
-        updateData.lockedBy = null;
-        updateData.lockedTime = null;
-      } else if (body.description) {
-        // Metadata-only update (no version change, just update description)
-        updateData.description = body.description;
-        log.info(user, `Updating description for balise ${baliseId} without version change`);
-      }
-
-      const updatedBalise = await database.balise.update({
-        where: { secondaryId: baliseId },
-        data: updateData,
-      });
-
+    if (body.description === undefined || body.description === null || String(body.description).trim() === '') {
       return {
-        statusCode: 200,
+        statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedBalise),
-      };
-    } else {
-      // Creating new balise
-      const newVersion = body.version || 1;
-      let fileTypes = body.fileTypes || [];
-
-      // If file is uploaded, add its filename to fileTypes array
-      if (fileData && filename) {
-        // Store full filename instead of just extension
-        if (!fileTypes.includes(filename)) {
-          fileTypes = [...fileTypes, filename];
-        }
-
-        // Upload file to S3 with hierarchical path: balise_{secondaryId}/v{version}/{filename}
-        const s3Key = `balise_${baliseId}/v${newVersion}/${filename}`;
-        await uploadToS3(BALISES_BUCKET_NAME, s3Key, fileData);
-        log.info(user, `Uploaded file to S3: ${s3Key}`);
-      }
-
-      const newBalise = await database.balise.create({
-        data: {
-          secondaryId: baliseId,
-          version: newVersion,
-          description: body.description || '',
-          fileTypes,
-          createdBy: user.uid,
-          createdTime: new Date(),
-          locked: false,
-        },
-      });
-
-      return {
-        statusCode: 201,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newBalise),
+        body: JSON.stringify({ error: 'Puuttuva kuvaus' }),
       };
     }
+
+    // Convert to FileUpload format
+    const files: FileUpload[] = uploadedFiles.map((file) => ({
+      filename: file.filename,
+      buffer: file.buffer,
+    }));
+
+    const result = await updateOrCreateBalise({
+      baliseId,
+      files,
+      description: body.description,
+      userId: user.uid,
+    });
+
+    const statusCode = result.isNewBalise ? 201 : 200;
+
+    return {
+      statusCode,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(result.balise),
+    };
   } catch (err) {
     log.error(err);
     return getRataExtraLambdaError(err);

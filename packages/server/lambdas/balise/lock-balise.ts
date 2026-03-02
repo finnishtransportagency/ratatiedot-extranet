@@ -1,7 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateWriteUser } from '../../utils/userService';
+import { getUser, validateBaliseWriteUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 
 const database = await DatabaseClient.build();
@@ -9,13 +9,12 @@ const database = await DatabaseClient.build();
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
+    validateBaliseWriteUser(user);
 
     // Extract balise ID from path (e.g., /api/balise/12345/lock)
     const pathParts = event.path.split('/').filter((p) => p);
     const baliseIdStr = pathParts[pathParts.indexOf('balise') + 1];
     const baliseId = parseInt(baliseIdStr || '0', 10);
-
-    log.info(user, `Lock balise id: ${baliseId}, path: ${event.path}`);
 
     if (!baliseId || isNaN(baliseId)) {
       return {
@@ -25,7 +24,31 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    validateWriteUser(user, '');
+    // Parse and validate lock reason from request body
+    let lockReason: string | undefined;
+    if (event.body) {
+      try {
+        const body = JSON.parse(event.body);
+        lockReason = body.lockReason;
+      } catch (parseError) {
+        log.warn(user, `Failed to parse lock request body: ${parseError}`);
+        return {
+          statusCode: 400,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ error: 'Virheellinen pyyntö' }),
+        };
+      }
+    }
+
+    if (!lockReason || lockReason.trim().length === 0) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Lukitsemisen syy on pakollinen' }),
+      };
+    }
+
+    log.info(user, `Lock balise id: ${baliseId}, reason: ${lockReason}`);
 
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
@@ -54,13 +77,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Lock the balise
+    // Lock the balise and capture the current version
     const lockedBalise = await database.balise.update({
       where: { secondaryId: baliseId },
       data: {
         locked: true,
         lockedBy: user.uid,
         lockedTime: new Date(),
+        lockedAtVersion: balise.version,
+        lockReason: lockReason.trim(),
       },
     });
 

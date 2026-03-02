@@ -1,8 +1,9 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateWriteUser } from '../../utils/userService';
+import { getUser, validateBaliseWriteUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
+import { VersionStatus } from '../../generated/prisma/client';
 
 const database = await DatabaseClient.build();
 
@@ -25,7 +26,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    validateWriteUser(user, '');
+    validateBaliseWriteUser(user);
 
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
@@ -48,8 +49,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Check if user is the one who locked it (in future: or superadmin)
-    if (balise.lockedBy !== user.uid) {
+    // Check if user is the one who locked it or is an admin
+    const isAdmin = isBaliseAdmin(user);
+    if (balise.lockedBy !== user.uid && !isAdmin) {
       return {
         statusCode: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -61,14 +63,32 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Unlock the balise
-    const unlockedBalise = await database.balise.update({
-      where: { secondaryId: baliseId },
-      data: {
-        locked: false,
-        lockedBy: null,
-        lockedTime: null,
-      },
+    // Unlock the balise and promote all unconfirmed versions to official
+    // Use a transaction to ensure atomicity
+    const unlockedBalise = await database.$transaction(async (tx) => {
+      await tx.baliseVersion.updateMany({
+        where: {
+          baliseId: balise.id,
+          versionStatus: VersionStatus.UNCONFIRMED,
+        },
+        data: {
+          versionStatus: VersionStatus.OFFICIAL,
+        },
+      });
+
+      const unlockedBalise = await tx.balise.update({
+        where: { secondaryId: baliseId },
+        data: {
+          locked: false,
+          lockedBy: null,
+          lockedTime: null,
+          lockedAtVersion: null,
+          lockReason: null,
+          versionStatus: VersionStatus.OFFICIAL,
+        },
+      });
+
+      return unlockedBalise;
     });
 
     log.info(user, `Balise ${baliseId} unlocked successfully by ${user.uid}`);

@@ -1,7 +1,6 @@
-/* eslint-disable prettier/prettier */
 import { DatabaseClient } from '../../database/client';
 import { handlePrismaError, PrismaError } from '../error/databaseError';
-import { Node } from '@prisma/client';
+import type { Node } from '../../../generated/prisma/client';
 
 const database = await DatabaseClient.build();
 

@@ -90,7 +90,9 @@ const closedMixin = (theme: Theme): CSSObject => ({
   overflowX: 'hidden',
 });
 
-export const DesktopAppBarWrapper = styled(MuiAppBar)<DrawerWrapperProps>(({ theme, open, openedit, opentoolbar }) => {
+export const DesktopAppBarWrapper = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== 'openedit' && prop !== 'opentoolbar',
+})<DrawerWrapperProps>(({ theme, open, openedit, opentoolbar }) => {
   return {
     boxShadow: 'none',
     backgroundColor: Colors.white,
@@ -106,12 +108,14 @@ export const DesktopAppBarWrapper = styled(MuiAppBar)<DrawerWrapperProps>(({ the
     },
     [theme.breakpoints.up('desktop')]: {
       position: 'absolute',
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       ...((open && {
         ...openedMixin(theme),
       }) as any),
       ...((!open && {
         ...closedMixin(theme),
       }) as any),
+
       overflow: 'visible',
       ...((openedit || opentoolbar) && {
         '.MuiToolbar-root:nth-of-type(2)': {

@@ -1,12 +1,30 @@
 import { ThemeProvider } from '@mui/material';
 import { cleanup, render, screen } from '@testing-library/react';
-import renderer from 'react-test-renderer';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { theme } from '../../../styles/createTheme';
 import { SlateToolbar } from '../SlateToolbar';
 
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+
+const renderWithRouter = (ui: React.ReactElement) => {
+  const queryClient = createTestQueryClient();
+  const router = createMemoryRouter(
+    [{ path: '/', element: <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider> }],
+    { initialEntries: ['/'] },
+  );
+  return render(<RouterProvider router={router} />);
+};
+
 describe('SlateToolbar component', () => {
-  let component = null as any;
+  let component: React.ReactElement;
   beforeEach(() => {
     component = (
       <ThemeProvider theme={theme}>
@@ -16,23 +34,23 @@ describe('SlateToolbar component', () => {
   });
 
   afterEach(() => {
-    component = null;
     cleanup();
   });
 
   test('SlateToolbar should render properly', () => {
-    render(component);
+    renderWithRouter(component);
   });
 
   test('SlateToolbar should match snapshot', () => {
-    const slateToolbar = renderer.create(component).toJSON();
-    expect(slateToolbar).toMatchSnapshot();
+    const { asFragment } = renderWithRouter(component);
+    expect(asFragment()).toMatchSnapshot();
   });
 
   test('SlateToolbar should have a list of control buttons', () => {
-    render(component);
-    expect(screen.getByLabelText(/Valitse fontin koko/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Leipäteksti/i })).toBeInTheDocument();
+    renderWithRouter(component);
+    const combobox = screen.getByRole('combobox', { name: /Valitse fontin koko/i });
+    expect(combobox).toBeInTheDocument();
+    expect(combobox).toHaveTextContent(/Leipäteksti/i);
     expect(screen.getByRole('button', { name: /lihavoitu/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /kursivoitu/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /alleviivattu/i })).toBeInTheDocument();

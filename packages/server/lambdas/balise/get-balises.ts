@@ -2,8 +2,9 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateReadUser } from '../../utils/userService';
+import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
+import { resolveBalisesForUser } from '../../utils/balise/baliseVersionUtils';
 
 // Helper to safely get a string query parameter
 const getQueryParam = (event: ALBEvent, key: string, defaultValue?: string): string | undefined =>
@@ -14,7 +15,7 @@ const getQueryParamAsInt = (event: ALBEvent, key: string, defaultValue?: number)
   const value = getQueryParam(event, key);
   if (!value) return defaultValue ?? 0;
   const parsed = parseInt(value, 10);
-  return isNaN(parsed) ? defaultValue ?? 0 : parsed;
+  return isNaN(parsed) ? (defaultValue ?? 0) : parsed;
 };
 
 // Helper to parse a single or comma-separated list of numbers
@@ -54,7 +55,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Get all balises. params: ${JSON.stringify(event.queryStringParameters)}`);
 
-    validateReadUser(user);
+    validateBaliseReadUser(user);
+
+    // Check if user is admin
+    const isAdmin = isBaliseAdmin(user);
 
     // Get pagination parameters
     const page = getQueryParamAsInt(event, 'page', 1) ?? 1;
@@ -65,27 +69,36 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const maxLimit = 5000;
     const effectiveLimit = Math.min(limit, maxLimit);
 
-    const baseWhere = {
-      deletedAt: null, // Only get non-deleted balises
-    };
+    // Handle specific IDs filter (for bulk upload preview)
+    const specificIds = getQueryParamAsIntArray(event, 'ids');
 
     // Handle multiple ranges for secondaryId filtering
     const ranges = getMultipleRangesFromParams(event);
-    const whereClause =
-      ranges.length > 0
-        ? {
-            ...baseWhere,
-            OR: ranges,
-          }
-        : baseWhere;
+
+    // Build where clause based on query parameters
+    let whereClause;
+    if (specificIds.length > 0) {
+      // Filter by specific IDs
+      whereClause = {
+        secondaryId: { in: specificIds },
+      };
+    } else if (ranges.length > 0) {
+      // Filter by ranges
+      whereClause = {
+        OR: ranges,
+      };
+    } else {
+      // Default filter
+      whereClause = {};
+    }
 
     // Get total count for pagination info
     const totalCount = await database.balise.count({
       where: whereClause,
     });
 
-    // Check if history should be included (optional query parameter)
-    const includeHistory = getQueryParam(event, 'include_history') === 'true';
+    // Check if history should be included (optional query parameter, admin only)
+    const includeHistory = isBaliseAdmin(user) && getQueryParam(event, 'include_history') === 'true';
 
     // Get balises with pagination
     const balises = await database.balise.findMany({
@@ -106,11 +119,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       take: effectiveLimit,
     });
 
+    // Resolve balises to latest OFFICIAL versions efficiently (unless user is admin or lock owner)
+    const resolvedBalises = await resolveBalisesForUser(database, balises, user.uid, isAdmin);
+
     const hasNextPage = skip + effectiveLimit < totalCount;
     const hasPreviousPage = page > 1;
 
     const response = {
-      data: balises,
+      data: resolvedBalises,
       pagination: {
         page: page,
         limit: effectiveLimit,

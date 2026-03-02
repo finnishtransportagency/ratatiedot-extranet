@@ -1,14 +1,20 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
-import { S3 } from 'aws-sdk';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateReadUser } from '../../utils/userService';
+import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
+import {
+  parseVersionParameter,
+  validateVersionParameterAccess,
+  validateLockOwnerVersionAccess,
+  getVersionFileTypes,
+} from '../../utils/balise/baliseVersionUtils';
 
 const database = await DatabaseClient.build();
-const s3 = new S3();
+const s3Client = new S3Client({});
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
-// Using existing AWS SDK v2 (same as s3utils.ts) to generate presigned URLs
 
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
@@ -18,14 +24,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const pathParts = event.path.split('/').filter((p) => p);
     const baliseIdStr = pathParts[pathParts.indexOf('balise') + 1];
     const baliseId = parseInt(baliseIdStr || '0', 10);
-    const fileName = event.queryStringParameters?.fileName;
-    const versionStr = event.queryStringParameters?.version;
-    const requestedVersion = versionStr ? parseInt(versionStr, 10) : undefined;
+    const requestedVersion = parseVersionParameter(event.queryStringParameters);
 
-    log.info(
-      user,
-      `Get download URL for balise ${baliseId}, fileName: ${fileName}, version: ${requestedVersion}, path: ${event.path}`,
-    );
+    log.info(user, `Get download URLs for balise ${baliseId}, version: ${requestedVersion}, path: ${event.path}`);
 
     if (!baliseId || isNaN(baliseId)) {
       return {
@@ -35,15 +36,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    if (!fileName) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Tiedostonimi puuttuu' }),
-      };
-    }
-
-    validateReadUser(user);
+    validateBaliseReadUser(user);
 
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
@@ -57,85 +50,54 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Check if the requested file exists for this balise
-    if (!balise.fileTypes.includes(fileName)) {
-      return {
-        statusCode: 404,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: `Tiedostoa '${fileName}' ei löydy tälle balisille` }),
-      };
+    // Check if user is admin
+    const isAdmin = isBaliseAdmin(user) ?? false;
+
+    // Validate that only admins and lock owners can specify version parameter
+    validateVersionParameterAccess(user, requestedVersion, balise, isAdmin);
+
+    // If lock owner specified a version, validate they can only access versions from their lock session
+    const isLockOwner = balise.locked && balise.lockedBy === user.uid;
+    if (requestedVersion !== undefined && isLockOwner && !isAdmin) {
+      validateLockOwnerVersionAccess(requestedVersion, balise);
     }
 
-    // Note: We don't block downloads for locked balises - users can download but not modify
+    // Resolve which version to use:
+    const officialVersion =
+      balise.lockedAtVersion !== null && balise.lockedAtVersion !== balise.version
+        ? balise.lockedAtVersion
+        : balise.version;
+    const version = requestedVersion ?? officialVersion;
 
-    // Determine which version to use
-    const version = requestedVersion !== undefined && !isNaN(requestedVersion) ? requestedVersion : balise.version;
+    // Get fileTypes for the requested version (handles both current and historical)
+    const versionData = await getVersionFileTypes(database, baliseId, version, balise);
 
-    // If a specific version is requested, verify it exists
-    if (requestedVersion !== undefined && !isNaN(requestedVersion)) {
-      if (requestedVersion === balise.version) {
-        // Current version - check current balise
-        if (!balise.fileTypes.includes(fileName)) {
-          return {
-            statusCode: 404,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: `Tiedostoa '${fileName}' ei löydy tälle versiolle` }),
-          };
-        }
-      } else {
-        // Historical version - check version history
-        const versionHistory = await database.baliseVersion.findFirst({
-          where: {
-            secondaryId: baliseId,
-            version: requestedVersion,
+    // Generate presigned URLs for all files in this version
+    const downloadUrls = await Promise.all(
+      versionData.fileTypes.map(async (fileName) => {
+        const fileKey = `balise_${balise.secondaryId}/v${version}/${fileName}`;
+        const url = await getSignedUrl(
+          s3Client,
+          new GetObjectCommand({
+            Bucket: BALISES_BUCKET_NAME,
+            Key: fileKey,
+          }),
+          {
+            expiresIn: 3600, // 1 hour
           },
-        });
-
-        if (!versionHistory) {
-          return {
-            statusCode: 404,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: `Versiota ${requestedVersion} ei löydy` }),
-          };
-        }
-
-        if (!versionHistory.fileTypes.includes(fileName)) {
-          return {
-            statusCode: 404,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: `Tiedostoa '${fileName}' ei löydy versiolle ${requestedVersion}` }),
-          };
-        }
-      }
-    } else {
-      // No version specified - use current version
-      if (!balise.fileTypes.includes(fileName)) {
-        return {
-          statusCode: 404,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ error: `Tiedostoa '${fileName}' ei löydy tälle balisille` }),
-        };
-      }
-    }
-
-    // Generate S3 file key with hierarchical structure: balise_{secondaryId}/v{version}/{fileName}
-    const fileKey = `balise_${balise.secondaryId}/v${version}/${fileName}`;
-
-    // Generate presigned URL (expires in 1 hour)
-    const downloadUrl = s3.getSignedUrl('getObject', {
-      Bucket: BALISES_BUCKET_NAME,
-      Key: fileKey,
-      Expires: 3600, // 1 hour
-    });
+        );
+        return { fileName, url };
+      }),
+    );
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        downloadUrl,
+        downloadUrls,
         expiresIn: 3600,
-        fileName,
         baliseId: balise.secondaryId,
+        version,
       }),
     };
   } catch (err) {

@@ -6,7 +6,6 @@ import {
   InstanceSize,
   IVpc,
   CloudFormationInit,
-  InitSource,
   InitCommand,
   InitConfig,
   InitFile,
@@ -14,16 +13,19 @@ import {
 } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { ManagedPolicy, ServicePrincipal, Role, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
-import { AutoScalingGroup, CfnAutoScalingGroup, HealthCheck, Signals, UpdatePolicy } from 'aws-cdk-lib/aws-autoscaling';
-import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import {
-  RataExtraEnvironment,
-  getPipelineConfig,
-  SSM_DATABASE_DOMAIN,
-  SSM_DATABASE_NAME,
-  SSM_DATABASE_PASSWORD,
-} from './config';
+  AdditionalHealthCheckType,
+  AutoScalingGroup,
+  CfnAutoScalingGroup,
+  HealthChecks,
+  Signals,
+  UpdatePolicy,
+} from 'aws-cdk-lib/aws-autoscaling';
+import { ApplicationProtocol, ApplicationListener, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { RataExtraEnvironment } from './config';
+import { SSM_DATABASE_DOMAIN, SSM_DATABASE_NAME, SSM_DATABASE_PASSWORD } from './constants';
 import { readFileSync } from 'fs';
+import { Asset } from 'aws-cdk-lib/aws-s3-assets';
 
 interface RatatietoNodeBackendStackProps extends StackProps {
   readonly rataExtraStackIdentifier: string;
@@ -63,8 +65,6 @@ export class RatatietoNodeBackendConstruct extends Construct {
       mockUid,
     } = props;
 
-    const config = getPipelineConfig();
-
     const asgRole = new Role(this, 'ec2-nodeserver-role', {
       assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
       managedPolicies: [
@@ -81,15 +81,26 @@ export class RatatietoNodeBackendConstruct extends Construct {
         actions: ['logs:PutRetentionPolicy'],
       }),
     );
+
+    const nodeServerAsset = new Asset(this, 'NodeServerAsset', {
+      path: 'packages/node-server',
+    });
+    nodeServerAsset.grantRead(asgRole);
+
     const userDataScript = readFileSync('./lib/userdata.sh', 'utf8');
 
     const autoScalingGroup = new AutoScalingGroup(this, 'AutoScalingGroup', {
       vpc,
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-02c64a3b42a74f093' }),
+      // AWS Marketplace image:
+      // CIS Amazon Linux 2023 Benchmark - Level 1 - v12 -prod-fvm47vekg24oc
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-05cb83d12c5e97eb0' }),
       allowAllOutbound: true,
       role: asgRole,
-      healthCheck: HealthCheck.elb({ grace: Duration.minutes(10) }),
+      healthChecks: HealthChecks.withAdditionalChecks({
+        gracePeriod: Duration.minutes(10),
+        additionalTypes: [AdditionalHealthCheckType.ELB],
+      }),
       minCapacity: 1,
       maxCapacity: 1,
       signals: Signals.waitForMinCapacity({ timeout: Duration.minutes(15) }),
@@ -105,12 +116,13 @@ export class RatatietoNodeBackendConstruct extends Construct {
       },
       configs: {
         getSource: new InitConfig([
-          InitSource.fromGitHub(
-            '/home/ec2-user/source',
-            'finnishtransportagency',
-            'ratatiedot-extranet',
-            config.branch,
+          InitCommand.shellCommand('dnf install -y unzip'),
+          InitCommand.shellCommand('mkdir -p /home/ec2-user/node-server'),
+          InitCommand.shellCommand(
+            `aws s3 cp s3://${nodeServerAsset.s3BucketName}/${nodeServerAsset.s3ObjectKey} /home/ec2-user/node-server-artifact.zip`,
           ),
+          InitCommand.shellCommand('unzip -o /home/ec2-user/node-server-artifact.zip -d /home/ec2-user/node-server'),
+          InitCommand.shellCommand('chown -R ec2-user:ec2-user /home/ec2-user/node-server'),
         ]),
         loggingSetup: new InitConfig([
           InitFile.fromString(
@@ -162,10 +174,10 @@ export class RatatietoNodeBackendConstruct extends Construct {
     autoScalingGroup.addUserData(
       `export "ENVIRONMENT=${rataExtraEnv}" "SSM_DATABASE_NAME_ID=${SSM_DATABASE_NAME}" SSM_DATABASE_DOMAIN_ID="${SSM_DATABASE_DOMAIN}" "SSM_DATABASE_PASSWORD_ID=${SSM_DATABASE_PASSWORD}" "ALFRESCO_API_KEY_NAME=${alfrescoAPIKey}" "ALFRESCO_API_URL=${alfrescoAPIUrl}" "ALFRESCO_API_ANCESTOR=${alfrescoAncestor}" "JWT_TOKEN_ISSUERS=${jwtTokenIssuers}" "MOCK_UID=${mockUid}"`,
     );
-    autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v22.16.0/bin/node /usr/bin/node');
-    autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v22.16.0/bin/npm /usr/bin/npm');
+    autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v22.22.0/bin/node /usr/bin/node');
+    autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v22.22.0/bin/npm /usr/bin/npm');
     autoScalingGroup.addUserData('exec >> /var/log/nodeserver/logs.log 2>&1');
-    autoScalingGroup.addUserData('cd /home/ec2-user/source/packages/node-server && su ec2-user -c "npm run start"');
+    autoScalingGroup.addUserData('cd /home/ec2-user/node-server && su ec2-user -c "npm run start"');
 
     return autoScalingGroup;
   }
