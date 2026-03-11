@@ -29,3 +29,4 @@ export const SSM_SONARQUBE_TOKEN = 'rataextra-sonarqube-token';
 export const SSM_SERVICE_USER_UID = 'rataextra-service-user';
 export const SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY_ID = 'rataextra-cloudfront-signer-public-key-id';
 export const SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY = 'rataextra-cloudfront-signer-private-key';
+export const SSM_CODECONNECTION_GITHUB_ARN = 'rataextra-codeconnection-github-arn';

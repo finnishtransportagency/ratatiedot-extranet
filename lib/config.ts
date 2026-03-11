@@ -44,6 +44,7 @@ import {
   SSM_DATABASE_DOMAIN,
   SSM_ALFRESCO_API_KEY,
   SSM_ALFRESCO_API_URL,
+  SSM_CODECONNECTION_GITHUB_ARN,
 } from './constants';
 
 export const PRODUCTION_STACK_ID = PRODUCTION_BRANCH;
@@ -89,7 +90,6 @@ export const getPipelineConfig = () => {
       env,
       branch,
       stackId: getStackId(branch),
-      authenticationToken: 'github-token',
       sonarQubeToken: SSM_SONARQUBE_TOKEN,
       tags: {
         Environment: env,
@@ -99,3 +99,7 @@ export const getPipelineConfig = () => {
   }
   throw new Error(`Environment value ${env} for ENVIRONMENT is not valid Raita environment.`);
 };
+
+export const getPipelineSsmConfig = (scope: Construct) => ({
+  codeConnectionGithubArn: getSSMStringParameter(scope, SSM_CODECONNECTION_GITHUB_ARN),
+});
