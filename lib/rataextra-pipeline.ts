@@ -1,4 +1,4 @@
-import { RemovalPolicy, SecretValue, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
+import { RemovalPolicy, Stack, Stage, StageProps, Tags } from 'aws-cdk-lib';
 import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import {
   BuildEnvironmentVariableType,
@@ -8,12 +8,19 @@ import {
   LocalCacheMode,
 } from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
-import { ENVIRONMENTS, getPipelineConfig, getRataExtraStackConfig, RataExtraEnvironment } from './config';
-import { RataExtraStack } from './rataextra-stack';
 import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
-import { isDevelopmentMainStack } from './utils';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Pipeline } from 'aws-cdk-lib/aws-codepipeline';
+
+import {
+  ENVIRONMENTS,
+  getPipelineConfig,
+  getPipelineSsmConfig,
+  getRataExtraStackConfig,
+  RataExtraEnvironment,
+} from './config';
+import { RataExtraStack } from './rataextra-stack';
+import { isDevelopmentMainStack } from './utils';
 
 /**
  * The stack that defines the application pipeline
@@ -27,6 +34,7 @@ export class RataExtraPipelineStack extends Stack {
       },
       tags: config.tags,
     });
+    const { codeConnectionGithubArn } = getPipelineSsmConfig(this);
     const { alfrescoDownloadUrl, sonarQubeUrl } = getRataExtraStackConfig(this);
 
     const viteEnvironment = () => {
@@ -36,11 +44,13 @@ export class RataExtraPipelineStack extends Stack {
       return ENVIRONMENTS.dev;
     };
 
-    const oauth = SecretValue.secretsManager(config.authenticationToken);
-
-    const github = CodePipelineSource.gitHub('finnishtransportagency/ratatiedot-extranet', config.branch, {
-      authentication: oauth,
-    });
+    const codeConnectionGithub = CodePipelineSource.connection(
+      'finnishtransportagency/ratatiedot-extranet',
+      config.branch,
+      {
+        connectionArn: codeConnectionGithubArn,
+      },
+    );
 
     const artifactBucket = new Bucket(this, `s3-rataextra-pipeline-${config.stackId}`, {
       autoDeleteObjects: true,
@@ -65,10 +75,18 @@ export class RataExtraPipelineStack extends Stack {
     const codePipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
       codePipeline: pipeline,
       synth: new ShellStep('Synth', {
-        input: github,
+        input: codeConnectionGithub,
         installCommands: ['npm ci'],
         commands: [
+          // Build Frontend
           `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} npm run build:frontend`,
+          // Generate prisma schema
+          `npm run prisma:generate`,
+          // Copy Prisma schema to node-server
+          'cp -r packages/server/generated packages/node-server/generated',
+          // Build node-server
+          '(cd packages/node-server && npm ci && npm run build)',
+          // Build server (bundle Lambda functions)
           `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
         ],
       }),
@@ -134,7 +152,7 @@ export class RataExtraPipelineStack extends Stack {
 
     if (isDevelopmentMainStack(config.stackId, config.env)) {
       const sonarQube = new CodeBuildStep('Scan', {
-        input: github,
+        input: codeConnectionGithub,
         buildEnvironment: {
           environmentVariables: {
             SONAR_TOKEN: {

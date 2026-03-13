@@ -1,12 +1,10 @@
-import { CategoryDataBase } from '@prisma/client';
+import { Prisma, type CategoryDataBase } from '../../generated/prisma/client';
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { findEndpoint } from '../../utils/alfresco';
-
 import { getRataExtraLambdaError, RataExtraLambdaError } from '../../utils/errors';
 import { log, auditLog } from '../../utils/logger';
 import { getUser, validateReadUser, validateWriteUser } from '../../utils/userService';
 import { DatabaseClient } from './client';
-import { Prisma } from '@prisma/client';
 import { isEmpty } from 'lodash';
 import { handlePrismaError, PrismaError } from './error/databaseError';
 import { FileInfo } from 'busboy';
@@ -55,9 +53,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const writeRole = categoryData.writeRights;
     validateWriteUser(user, writeRole);
 
-    const whereClause = Prisma.validator<Prisma.CategoryDataContentsWhereInput>()({
+    const whereClause = {
       baseId: categoryData.id,
-    });
+    } satisfies Prisma.CategoryDataContentsWhereInput;
 
     const body = event.body ?? '';
     let buffer;
@@ -87,9 +85,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       }
     }
 
-    const dataClause = Prisma.validator<Prisma.CategoryDataContentsUpdateInput>()({
+    const dataClause = {
       fields: pagecontent,
-    });
+    } satisfies Prisma.CategoryDataContentsUpdateInput;
 
     const updateContent = async () => {
       try {

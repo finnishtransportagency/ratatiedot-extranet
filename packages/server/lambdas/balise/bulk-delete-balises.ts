@@ -1,0 +1,123 @@
+import { ALBEvent, ALBResult } from 'aws-lambda';
+import { log } from '../../utils/logger';
+import { getUser, validateBaliseAdminUser } from '../../utils/userService';
+import { DatabaseClient } from '../database/client';
+import { type BaliseWithHistory, deleteSingleBalise } from '../../utils/balise/baliseArchiveUtils';
+import {
+  BulkOperationResult,
+  BulkOperationResponse,
+  parseBaliseIds,
+  handleBulkOperationError,
+} from '../../utils/balise/bulkUtils';
+
+const database = await DatabaseClient.build();
+const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
+
+// Fetch balises with history, filtering out locked ones
+async function fetchBalisesForDeletion(
+  baliseIds: number[],
+): Promise<{ balises: BaliseWithHistory[]; skipped: number[] }> {
+  const balises = await database.balise.findMany({
+    where: { secondaryId: { in: baliseIds } },
+    include: { history: true },
+  });
+
+  const unlocked: BaliseWithHistory[] = [];
+  const skipped: number[] = [];
+
+  for (const balise of balises) {
+    if (balise.locked) {
+      skipped.push(balise.secondaryId);
+      log.info(`Skipping locked balise ${balise.secondaryId}`);
+    } else {
+      unlocked.push(balise);
+    }
+  }
+
+  // Track balises that don't exist
+  const foundIds = new Set(balises.map((b) => b.secondaryId));
+  for (const requestedId of baliseIds) {
+    if (!foundIds.has(requestedId)) {
+      skipped.push(requestedId);
+      log.info(`Skipping non-existent balise ${requestedId}`);
+    }
+  }
+
+  return { balises: unlocked, skipped };
+}
+
+// Execute single delete with error handling for bulk operations
+async function executeDelete(balise: BaliseWithHistory, userUid: string): Promise<BulkOperationResult> {
+  const baliseId = balise.secondaryId;
+  try {
+    await deleteSingleBalise(database, BALISES_BUCKET_NAME, balise, userUid);
+    return { baliseId, success: true };
+  } catch (error) {
+    log.error(`[${userUid}] Failed to delete balise ${baliseId}: ${error}`);
+    return { baliseId, success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+// Process bulk deletion with concurrency control
+async function processBulkDeletion(baliseIds: number[], userUid: string): Promise<BulkOperationResponse> {
+  // Fetch balises and filter out locked ones
+  const { balises, skipped } = await fetchBalisesForDeletion(baliseIds);
+
+  log.info(`[${userUid}] Processing bulk delete: ${balises.length} balises, ${skipped.length} skipped`);
+
+  // Process deletions with concurrency limit to avoid overwhelming database connection pool
+  const CONCURRENCY_LIMIT = 10;
+  const results: BulkOperationResult[] = [];
+
+  for (let i = 0; i < balises.length; i += CONCURRENCY_LIMIT) {
+    const chunk = balises.slice(i, i + CONCURRENCY_LIMIT);
+    const chunkResults = await Promise.all(chunk.map((balise) => executeDelete(balise, userUid)));
+    results.push(...chunkResults);
+  }
+
+  // Add skipped results
+  const skippedResults: BulkOperationResult[] = skipped.map((baliseId) => ({
+    baliseId,
+    success: false,
+    skipped: true,
+    error: 'Balise is locked or does not exist',
+  }));
+
+  const allResults = [...results, ...skippedResults];
+  const successCount = results.filter((r) => r.success).length;
+  const failureCount = results.filter((r) => !r.success).length;
+
+  return {
+    totalRequested: baliseIds.length,
+    successCount,
+    failureCount: failureCount + skipped.length,
+    skippedCount: skipped.length,
+    results: allResults,
+  };
+}
+
+export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
+  try {
+    const user = await getUser(event);
+    validateBaliseAdminUser(user);
+
+    const baliseIds = parseBaliseIds(event);
+
+    log.info(user, `Bulk delete request for ${baliseIds.length} balises`);
+
+    const response = await processBulkDeletion(baliseIds, user.uid);
+
+    log.info(
+      user,
+      `Bulk delete completed: ${response.successCount} succeeded, ${response.failureCount} failed, ${response.skippedCount} skipped`,
+    );
+
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(response),
+    };
+  } catch (err) {
+    return handleBulkOperationError(err);
+  }
+}

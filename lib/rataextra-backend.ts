@@ -1,27 +1,26 @@
-import { aws_elasticloadbalancingv2, Duration, NestedStack, NestedStackProps, Tags } from 'aws-cdk-lib';
-import { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
-import { Role, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { aws_elasticloadbalancingv2, Duration, NestedStack, type NestedStackProps, Tags } from 'aws-cdk-lib';
+import type { IVpc, ISecurityGroup } from 'aws-cdk-lib/aws-ec2';
+import { type Role, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LambdaTarget } from 'aws-cdk-lib/aws-elasticloadbalancingv2-targets';
-import { Construct } from 'constructs';
-import {
-  RataExtraEnvironment,
-  SSM_DATABASE_DOMAIN,
-  SSM_DATABASE_NAME,
-  SSM_DATABASE_PASSWORD,
-  ESM_REQUIRE_SHIM,
-  SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY,
-} from './config';
-import { NodejsFunction, BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
+import type { Construct } from 'constructs';
+import { NodejsFunction, type BundlingOptions, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ListenerAction, ListenerCondition } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { join } from 'path';
-import { isPermanentStack, isFeatOrLocalStack } from './utils';
-import { RataExtraBastionStack } from './rataextra-bastion';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { RatatietoNodeBackendConstruct } from './rataextra-node-backend';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
-import { Bucket } from 'aws-cdk-lib/aws-s3';
+import type { Bucket } from 'aws-cdk-lib/aws-s3';
+import { RataExtraEnvironment, ESM_REQUIRE_SHIM } from './config';
+import {
+  SSM_DATABASE_DOMAIN,
+  SSM_DATABASE_NAME,
+  SSM_DATABASE_PASSWORD,
+  SSM_CLOUDFRONT_SIGNER_PRIVATE_KEY,
+} from './constants';
+import { isPermanentStack, isFeatOrLocalStack } from './utils';
+import { RataExtraBastionStack } from './rataextra-bastion';
+import { RatatietoNodeBackendConstruct } from './rataextra-node-backend';
 
 interface ResourceNestedStackProps extends NestedStackProps {
   readonly rataExtraStackIdentifier: string;
@@ -153,6 +152,14 @@ export class RataExtraBackendStack extends NestedStack {
         CLOUDFRONT_SIGNER_PUBLIC_KEY_ID: cloudfrontSignerPublicKeyId,
       },
       initialPolicy: [],
+      bundling: {
+        target: 'node22',
+        format: OutputFormat.ESM,
+        minify: false,
+        sourceMap: false,
+        externalModules: ['@aws-sdk/*'],
+        banner: ESM_REQUIRE_SHIM, // Workaround for ESM problem. https://github.com/evanw/esbuild/pull/2067#issuecomment-1073039746
+      },
     };
 
     const prismaParameters: GeneralLambdaParameters = {
@@ -166,30 +173,7 @@ export class RataExtraBackendStack extends NestedStack {
         BALISES_BUCKET_NAME: balisesBucket.bucketName,
       },
       bundling: {
-        nodeModules: ['prisma', '@prisma/client'],
-        format: OutputFormat.ESM,
-        target: 'node18',
-        mainFields: ['module', 'main'],
-        esbuildArgs: {
-          '--conditions': 'module',
-        },
-        banner: ESM_REQUIRE_SHIM, // Workaround for ESM problem. https://github.com/evanw/esbuild/pull/2067#issuecomment-1073039746
-        commandHooks: {
-          beforeInstall(inputDir: string, outputDir: string) {
-            return [`cp -R ${inputDir}/packages/server/prisma ${outputDir}/`];
-          },
-          beforeBundling() {
-            return [];
-          },
-          afterBundling(_inputDir: string, outputDir: string) {
-            return [
-              `cd ${outputDir}`,
-              'npx prisma generate',
-              'rm -rf node_modules/@prisma/engines',
-              'rm -rf node_modules/@prisma/client/node_modules node_modules/.bin node_modules/prisma',
-            ];
-          },
-        },
+        ...genericLambdaParameters.bundling,
       },
       initialPolicy: [ssmDatabaseParameterPolicy, kmsDecryptPolicy],
     };
@@ -209,6 +193,10 @@ export class RataExtraBackendStack extends NestedStack {
     const prismaAlfrescoCombinedParameters: GeneralLambdaParameters = {
       ...prismaParameters,
       ...alfrescoParameters,
+      bundling: {
+        ...alfrescoParameters.bundling,
+        ...prismaParameters.bundling,
+      },
       environment: {
         ...prismaParameters.environment,
         ...alfrescoParameters.environment,
@@ -318,6 +306,12 @@ export class RataExtraBackendStack extends NestedStack {
       ...prismaParameters,
       name: 'check-admin-right',
       relativePath: '../packages/server/lambdas/database/check-admin-right.ts',
+    });
+
+    const checkBalisePermissions = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'check-balise-permissions',
+      relativePath: '../packages/server/lambdas/balise/check-balise-permissions.ts',
     });
 
     const dbGetFavoritePages = this.createNodejsLambda({
@@ -450,16 +444,34 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/balise/bulk-upload-balises.ts',
     });
 
+    const bulkDeleteBalises = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'bulk-delete-balises',
+      relativePath: '../packages/server/lambdas/balise/bulk-delete-balises.ts',
+    });
+
+    const bulkLockBalises = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'bulk-lock-balises',
+      relativePath: '../packages/server/lambdas/balise/bulk-lock-balises.ts',
+    });
+
+    const bulkUnlockBalises = this.createNodejsLambda({
+      ...prismaParameters,
+      name: 'bulk-unlock-balises',
+      relativePath: '../packages/server/lambdas/balise/bulk-unlock-balises.ts',
+    });
+
     const getBaliseDownloadUrl = this.createNodejsLambda({
       ...prismaParameters,
       name: 'get-balise-download-url',
       relativePath: '../packages/server/lambdas/balise/get-balise-download-url.ts',
     });
 
-    const deleteBaliseFiles = this.createNodejsLambda({
+    const bulkDownloadBalises = this.createNodejsLambda({
       ...prismaParameters,
-      name: 'delete-balise-files',
-      relativePath: '../packages/server/lambdas/balise/delete-balise-files.ts',
+      name: 'bulk-download-balises',
+      relativePath: '../packages/server/lambdas/balise/bulk-download-balises.ts',
     });
 
     const getSections = this.createNodejsLambda({
@@ -496,8 +508,9 @@ export class RataExtraBackendStack extends NestedStack {
     balisesBucket.grantRead(getBalise);
     balisesBucket.grantRead(getBalises);
     balisesBucket.grantRead(getBaliseDownloadUrl);
+    balisesBucket.grantRead(bulkDownloadBalises);
     balisesBucket.grantDelete(deleteBalise);
-    balisesBucket.grantDelete(deleteBaliseFiles);
+    balisesBucket.grantDelete(bulkDeleteBalises);
 
     // EventBridge rule for running a scheduled lambda
     new Rule(this, 'Rule', {
@@ -618,6 +631,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/admin'],
         httpRequestMethods: ['GET'],
         targetName: 'checkAdminRight',
+      },
+      {
+        lambda: checkBalisePermissions,
+        priority: 214,
+        path: ['/api/balise/permissions'],
+        httpRequestMethods: ['GET'],
+        targetName: 'checkBalisePermissions',
       },
       {
         lambda: getComponents,
@@ -753,6 +773,20 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'deleteBaliseRailSection',
       },
       {
+        lambda: bulkDownloadBalises,
+        priority: 308,
+        path: ['/api/balise/bulk-download'],
+        httpRequestMethods: ['POST'],
+        targetName: 'bulkDownloadBalises',
+      },
+      {
+        lambda: getBaliseDownloadUrl,
+        priority: 309,
+        path: ['/api/balise/*/download'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getBaliseDownloadUrl',
+      },
+      {
         lambda: getBalise,
         priority: 310,
         path: ['/api/balise/*'],
@@ -774,32 +808,39 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'deleteBalise',
       },
       {
-        lambda: deleteBaliseFiles,
+        lambda: bulkDeleteBalises,
         priority: 313,
-        path: ['/api/balise/*/files/delete'],
+        path: ['/api/balise/bulk-delete'],
+        httpRequestMethods: ['DELETE'],
+        targetName: 'bulkDeleteBalises',
+      },
+      {
+        lambda: bulkLockBalises,
+        priority: 320,
+        path: ['/api/balise/bulk-lock'],
         httpRequestMethods: ['POST'],
-        targetName: 'deleteBaliseFiles',
+        targetName: 'bulkLockBalises',
+      },
+      {
+        lambda: bulkUnlockBalises,
+        priority: 321,
+        path: ['/api/balise/bulk-unlock'],
+        httpRequestMethods: ['POST'],
+        targetName: 'bulkUnlockBalises',
       },
       {
         lambda: lockBalise,
-        priority: 314,
+        priority: 325,
         path: ['/api/balise/*/lock'],
         httpRequestMethods: ['POST'],
         targetName: 'lockBalise',
       },
       {
         lambda: unlockBalise,
-        priority: 315,
+        priority: 326,
         path: ['/api/balise/*/unlock'],
         httpRequestMethods: ['POST'],
         targetName: 'unlockBalise',
-      },
-      {
-        lambda: getBaliseDownloadUrl,
-        priority: 316,
-        path: ['/api/balise/*/download'],
-        httpRequestMethods: ['GET'],
-        targetName: 'getBaliseDownloadUrl',
       },
     ];
 

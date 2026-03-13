@@ -50,7 +50,7 @@ export const NotificationEditorCard = ({ attributes, children, element }: SlateE
 const NotificationEditorCardPaperWrapper = styled(Paper)<DrawerWrapperProps>(() => ({
   padding: '10px',
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'row' as React.CSSProperties['flexDirection'],
   minHeight: 'fit-content',
   alignItems: 'center',
 }));

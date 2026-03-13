@@ -1,8 +1,8 @@
 import { Stack, Fn } from 'aws-cdk-lib';
-import { StackProps } from 'aws-cdk-lib';
+import type { StackProps } from 'aws-cdk-lib';
 import {
-  ISecurityGroup,
-  IVpc,
+  type ISecurityGroup,
+  type IVpc,
   Instance,
   InstanceType,
   InstanceClass,
@@ -11,8 +11,8 @@ import {
   UserData,
 } from 'aws-cdk-lib/aws-ec2';
 import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { Construct } from 'constructs';
-import { RataExtraEnvironment } from './config';
+import type { Construct } from 'constructs';
+import type { RataExtraEnvironment } from './config';
 
 interface RataExtraBastionStackProps extends StackProps {
   readonly rataExtraEnv: RataExtraEnvironment;
@@ -52,7 +52,9 @@ export class RataExtraBastionStack extends Stack {
       vpc,
       securityGroup,
       instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.SMALL),
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-02c64a3b42a74f093' }),
+      // AWS Marketplace image:
+      // CIS Amazon Linux 2023 Benchmark - Level 1 - v12 -prod-fvm47vekg24oc
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-05cb83d12c5e97eb0' }),
       role: bastionRole,
       userData,
     });
