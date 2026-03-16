@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Routes } from '../../../../constants/Routes';
+import { useParams } from 'react-router-dom';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { BaliseForm } from './BaliseForm';
 import { useBaliseStore } from '../../store/baliseStore';
@@ -28,12 +27,8 @@ const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
   }
 };
 
-// Unified function to handle balise operations (create/update with optional files)
-const saveOrUpdateBalise = async (
-  data: Partial<BaliseWithHistory>,
-  files?: File[],
-  expectResponse: boolean = true,
-): Promise<BaliseWithHistory | void> => {
+// Function to handle balise update with optional files
+const saveBalise = async (data: Partial<BaliseWithHistory>, files?: File[]): Promise<void> => {
   if (!data.secondaryId) {
     throw new Error('Baliisin ID vaaditaan.');
   }
@@ -66,15 +61,10 @@ const saveOrUpdateBalise = async (
   if (!response.ok) {
     throw new Error(`Baliisin tallennus epäonnistui.`);
   }
-
-  if (expectResponse) {
-    return response.json();
-  }
 };
 
 export const BaliseEditPage: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
-  const navigate = useNavigate();
   const [balise, setBalise] = useState<BaliseWithHistory | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,11 +102,11 @@ export const BaliseEditPage: React.FC = () => {
 
       if (files && files.length > 0) {
         // Files uploaded: create new version and replace ALL existing files
-        await saveOrUpdateBalise(data, files, false); // Don't expect response for file uploads to existing balise
+        await saveBalise(data, files);
         savedBalise = await fetchBalise(id);
       } else {
         // No files uploaded: update description only (no new version)
-        await saveOrUpdateBalise(data, undefined, false); // Don't expect response
+        await saveBalise(data);
         savedBalise = await fetchBalise(id);
       }
 
@@ -126,10 +116,6 @@ export const BaliseEditPage: React.FC = () => {
     } catch (err) {
       throw err; // Re-throw to let BaliseForm handle the error display
     }
-  };
-
-  const handleCancel = () => {
-    navigate(Routes.BALISE);
   };
 
   if (loading) {
@@ -147,12 +133,7 @@ export const BaliseEditPage: React.FC = () => {
           <Alert severity="error">{error}</Alert>
         </Box>
       ) : (
-        <BaliseForm
-          balise={balise || undefined}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          onRefresh={id ? () => loadBalise(id) : undefined}
-        />
+        <BaliseForm balise={balise} onSave={handleSave} onRefresh={id ? () => loadBalise(id) : undefined} />
       )}
     </BalisePermissionGuard>
   );
