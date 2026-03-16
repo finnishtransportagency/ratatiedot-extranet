@@ -84,14 +84,11 @@ export const BaliseEditPage: React.FC = () => {
   // Store action for updating balise in cache
   const { updateBalise: updateBaliseInStore } = useBaliseStore();
 
-  // Simplified mode: if we have an ID, we're viewing/editing; otherwise creating
-  const currentMode = id ? 'view' : 'create';
-
   useEffect(() => {
-    if (id && currentMode !== 'create' && permissions?.canRead) {
+    if (id && permissions?.canRead) {
       loadBalise(id);
     }
-  }, [id, currentMode, permissions?.canRead]);
+  }, [id, permissions?.canRead]);
 
   const loadBalise = async (baliseId: string) => {
     setLoading(true);
@@ -108,33 +105,24 @@ export const BaliseEditPage: React.FC = () => {
   };
 
   const handleSave = async (data: Partial<BaliseWithHistory>, files?: File[]) => {
+    if (!id) return;
+
     try {
       let savedBalise: BaliseWithHistory;
 
-      if (currentMode === 'create') {
-        // For new balise creation
-        savedBalise = (await saveOrUpdateBalise(data, files)) as BaliseWithHistory;
-        setBalise(savedBalise);
-
-        // Navigate to the newly created balise
-        if (savedBalise.secondaryId) {
-          navigate(`${Routes.BALISE}/${savedBalise.secondaryId}`);
-        }
-      } else if (id) {
-        if (files && files.length > 0) {
-          // Files uploaded: create new version and replace ALL existing files
-          await saveOrUpdateBalise(data, files, false); // Don't expect response for file uploads to existing balise
-          savedBalise = await fetchBalise(id);
-        } else {
-          // No files uploaded: update description only (no new version)
-          await saveOrUpdateBalise(data, undefined, false); // Don't expect response
-          savedBalise = await fetchBalise(id);
-        }
-
-        // Update both the store cache and local state with the latest data
-        updateBaliseInStore(savedBalise);
-        setBalise(savedBalise);
+      if (files && files.length > 0) {
+        // Files uploaded: create new version and replace ALL existing files
+        await saveOrUpdateBalise(data, files, false); // Don't expect response for file uploads to existing balise
+        savedBalise = await fetchBalise(id);
+      } else {
+        // No files uploaded: update description only (no new version)
+        await saveOrUpdateBalise(data, undefined, false); // Don't expect response
+        savedBalise = await fetchBalise(id);
       }
+
+      // Update both the store cache and local state with the latest data
+      updateBaliseInStore(savedBalise);
+      setBalise(savedBalise);
     } catch (err) {
       throw err; // Re-throw to let BaliseForm handle the error display
     }
@@ -153,14 +141,13 @@ export const BaliseEditPage: React.FC = () => {
   }
 
   return (
-    <BalisePermissionGuard requiredPermission={currentMode === 'create' ? 'canWrite' : 'canRead'}>
+    <BalisePermissionGuard requiredPermission="canRead">
       {error ? (
         <Box sx={{ p: 3 }}>
           <Alert severity="error">{error}</Alert>
         </Box>
       ) : (
         <BaliseForm
-          mode={currentMode}
           balise={balise || undefined}
           onSave={handleSave}
           onCancel={handleCancel}
