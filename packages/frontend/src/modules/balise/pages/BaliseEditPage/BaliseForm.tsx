@@ -34,9 +34,8 @@ import { useBaliseLocking } from '../../hooks/useBaliseLocking';
 import { canUnlockBalises } from '../../utils/baliseLocking';
 
 interface BaliseFormProps {
-  balise?: BaliseWithHistory;
+  balise: BaliseWithHistory | null;
   onSave?: (baliseData: Partial<BaliseWithHistory>, files?: File[], filesToDelete?: string[]) => Promise<void>;
-  onCancel?: () => void;
   onRefresh?: () => Promise<void>;
 }
 
