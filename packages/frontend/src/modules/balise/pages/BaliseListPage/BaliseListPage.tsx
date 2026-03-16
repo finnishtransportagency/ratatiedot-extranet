@@ -3,7 +3,7 @@ import { useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../../../constants/Routes';
 import { Box, Alert, Button, Paper, LinearProgress, CircularProgress, IconButton } from '@mui/material';
-import { Add, Upload, Build } from '@mui/icons-material';
+import { Add, Build } from '@mui/icons-material';
 import { BaliseSearch } from './BaliseSearch';
 import { SectionFilter } from './SectionFilter';
 import { VirtualBaliseTable } from './VirtualBaliseTable';
@@ -143,10 +143,6 @@ export const BaliseListPage: React.FC = () => {
       refreshBalise(parseInt(editedBaliseId, 10));
     }
   }, [refreshBalise]);
-
-  const handleAddBalise = useCallback(() => {
-    navigate(Routes.BALISE_CREATE);
-  }, [navigate]);
 
   const handleBulkUpload = useCallback(() => {
     navigate(Routes.BALISE_BULK_UPLOAD);
@@ -454,7 +450,7 @@ export const BaliseListPage: React.FC = () => {
               ))}
           </Box>
 
-          {/* Right side: Mass Upload and Add buttons */}
+          {/* Right side: Add button */}
           {permissions?.canWrite && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {isCompact ? (
@@ -462,47 +458,23 @@ export const BaliseListPage: React.FC = () => {
                   id="bulk-upload-button"
                   onClick={handleBulkUpload}
                   size="small"
-                  color="secondary"
-                  aria-label="Baliisien massalisäys"
-                  title="Baliisien massalisäys"
+                  color="primary"
+                  aria-label="Lisää sanomia"
+                  title="Lisää sanomia"
                 >
-                  <Upload fontSize="small" />
+                  <Add fontSize="small" />
                 </IconButton>
               ) : (
                 <Button
                   id="bulk-upload-button"
                   onClick={handleBulkUpload}
                   size="small"
-                  variant="outlined"
-                  color="secondary"
-                  startIcon={<Upload fontSize="small" />}
-                  aria-label="Baliisien massalisäys"
-                >
-                  Baliisien massalisäys
-                </Button>
-              )}
-              {isCompact ? (
-                <IconButton
-                  id="add-button"
-                  onClick={handleAddBalise}
-                  size="small"
-                  color="primary"
-                  aria-label="Uusi baliisi"
-                  title="Uusi baliisi"
-                >
-                  <Add fontSize="small" />
-                </IconButton>
-              ) : (
-                <Button
-                  id="add-button"
-                  onClick={handleAddBalise}
-                  size="small"
                   variant="contained"
                   color="primary"
                   startIcon={<Add fontSize="small" />}
-                  aria-label="Uusi baliisi"
+                  aria-label="Lisää sanomia"
                 >
-                  Uusi baliisi
+                  Lisää sanomia
                 </Button>
               )}
             </Box>
