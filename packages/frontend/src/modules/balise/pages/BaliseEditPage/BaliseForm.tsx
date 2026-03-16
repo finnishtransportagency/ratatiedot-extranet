@@ -1,11 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Routes } from '../../../../constants/Routes';
-import {
-  isValidBaliseIdRange,
-  MIN_BALISE_ID,
-  MAX_BALISE_ID,
-  getSectionForBaliseId,
-} from '../../utils/baliseValidation';
+import { getSectionForBaliseId } from '../../utils/baliseValidation';
 import { useSectionStore } from '../../store/sectionStore';
 import {
   Box,
@@ -39,7 +34,6 @@ import { useBaliseLocking } from '../../hooks/useBaliseLocking';
 import { canUnlockBalises } from '../../utils/baliseLocking';
 
 interface BaliseFormProps {
-  mode: 'create' | 'view';
   balise?: BaliseWithHistory;
   onSave?: (baliseData: Partial<BaliseWithHistory>, files?: File[], filesToDelete?: string[]) => Promise<void>;
   onCancel?: () => void;
@@ -52,42 +46,7 @@ interface FormData {
   files: File[];
 }
 
-interface BaliseIdHelperTextParams {
-  isCreate: boolean;
-  secondaryId: string;
-  checkingBaliseId: boolean;
-  baliseIdExists: boolean | null;
-  currentSection?: { name: string };
-}
-
-function getBaliseIdHelperText({
-  isCreate,
-  secondaryId,
-  checkingBaliseId,
-  baliseIdExists,
-  currentSection,
-}: BaliseIdHelperTextParams): string | undefined {
-  if (!isCreate || secondaryId === '') {
-    return currentSection?.name;
-  }
-
-  if (checkingBaliseId) {
-    return 'Tarkistetaan...';
-  }
-
-  if (baliseIdExists === true) {
-    return 'Baliisi-ID on jo käytössä';
-  }
-
-  const parsedId = parseInt(secondaryId, 10);
-  if (parsedId > 0 && !isValidBaliseIdRange(parsedId)) {
-    return `Baliisi-ID:n tulee olla välillä ${MIN_BALISE_ID}-${MAX_BALISE_ID}`;
-  }
-
-  return currentSection?.name;
-}
-
-export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, onRefresh }) => {
+export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefresh }) => {
   const navigate = useNavigate();
   const { deleteBalise } = useBaliseStore();
   const { sections, fetchSections } = useSectionStore();
@@ -125,11 +84,6 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
     },
   });
 
-  // Track if the balise ID already exists (for create mode)
-  const [baliseIdExists, setBaliseIdExists] = useState<boolean | null>(null);
-  const [checkingBaliseId, setCheckingBaliseId] = useState(false);
-  const checkBaliseIdTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const [formData, setFormData] = useState<FormData>({
     secondaryId: '',
     description: '',
@@ -165,7 +119,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
   // Initialize form data and track original values
   useEffect(() => {
-    if (balise && mode !== 'create') {
+    if (balise) {
       const initialData = {
         secondaryId: balise.secondaryId.toString(),
         description: balise.description,
@@ -175,57 +129,16 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
       setOriginalData({ ...initialData, files: [] }); // Original has no files
       setHasChanges(false);
     }
-  }, [balise, mode]);
-
-  // Check if balise ID already exists (debounced, for create mode only)
-  useEffect(() => {
-    if (mode !== 'create') return;
-
-    // Clear previous timeout
-    if (checkBaliseIdTimeout.current) {
-      clearTimeout(checkBaliseIdTimeout.current);
-    }
-
-    const parsedId = parseInt(formData.secondaryId, 10);
-    if (!formData.secondaryId || isNaN(parsedId) || !isValidBaliseIdRange(parsedId)) {
-      setBaliseIdExists(null);
-      setCheckingBaliseId(false);
-      return;
-    }
-
-    setCheckingBaliseId(true);
-
-    // Debounce the API call
-    checkBaliseIdTimeout.current = setTimeout(async () => {
-      try {
-        const response = await fetch(`/api/balise/${parsedId}`);
-        setBaliseIdExists(response.ok); // 200 = exists, 404 = doesn't exist
-      } catch {
-        setBaliseIdExists(null);
-      } finally {
-        setCheckingBaliseId(false);
-      }
-    }, 500);
-
-    return () => {
-      if (checkBaliseIdTimeout.current) {
-        clearTimeout(checkBaliseIdTimeout.current);
-      }
-    };
-  }, [mode, formData.secondaryId]);
+  }, [balise]);
 
   // Detect changes
   useEffect(() => {
-    if (mode === 'create') {
-      setHasChanges(formData.secondaryId !== '' || formData.description !== '');
-    } else {
-      const changed =
-        formData.secondaryId !== originalData.secondaryId ||
-        formData.description !== originalData.description ||
-        formData.files.length > 0;
-      setHasChanges(changed);
-    }
-  }, [formData, originalData, mode]);
+    const changed =
+      formData.secondaryId !== originalData.secondaryId ||
+      formData.description !== originalData.description ||
+      formData.files.length > 0;
+    setHasChanges(changed);
+  }, [formData, originalData]);
 
   const handleInputChange = useCallback((field: keyof FormData, value: string | File[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -243,13 +156,13 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
     (files: File[]) => {
       setFormData((prev) => ({ ...prev, files: [...(prev.files || []), ...files] }));
 
-      // In edit mode with existing files, mark all for deletion (full replacement)
-      if (mode !== 'create' && balise && balise.fileTypes.length > 0 && files.length > 0) {
+      // Mark all existing files for deletion (full replacement)
+      if (balise && balise.fileTypes.length > 0 && files.length > 0) {
         setFilesToDelete(balise.fileTypes);
         setHasChanges(true);
       }
     },
-    [mode, balise],
+    [balise],
   );
 
   // Undo all changes (description + file deletions)
@@ -314,7 +227,6 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
     }
   }, [formData, onSave, filesToDelete, confirmDescription]);
 
-  const isCreate = mode === 'create';
   const needsConfirmDescription = formData.files.length > 0;
 
   const handleBack = useCallback(() => {
@@ -375,7 +287,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               </IconButton>
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="h6">{isCreate ? 'Luo uusi baliisi' : 'Baliisin tiedot'}</Typography>
+                  <Typography variant="h6">Baliisin tiedot</Typography>
                   {balise?.locked && <Tag icon={<Circle />} text="Lukittu" color="default" />}
                 </Box>
               </Box>
@@ -383,92 +295,61 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
 
             {/* Right: Action buttons */}
             <Box sx={{ display: 'flex', gap: 1 }}>
-              {!isCreate && (
-                <>
-                  {permissions?.canWrite &&
-                    (!balise?.locked ||
-                      canUnlockBalises([balise], permissions?.currentUserUid, permissions?.isAdmin)) && (
-                      <Button
-                        variant="outlined"
-                        startIcon={
-                          isLocking ? (
-                            <CircularProgress size={20} color="inherit" />
-                          ) : balise?.locked ? (
-                            <LockOpen />
-                          ) : (
-                            <Lock />
-                          )
-                        }
-                        onClick={() => balise && handleLockToggle(balise)}
-                        disabled={isLocking}
-                        size="small"
-                        color={balise?.locked ? 'primary' : 'secondary'}
-                      >
-                        {isLocking
-                          ? balise?.locked
-                            ? 'Avataan...'
-                            : 'Lukitaan...'
-                          : balise?.locked
-                            ? 'Avaa lukitus'
-                            : 'Lukitse'}
-                      </Button>
-                    )}
-                  {permissions?.isAdmin && (
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      startIcon={<Delete />}
-                      onClick={handleDeleteClick}
-                      disabled={deleteLoading}
-                      size="small"
-                    >
-                      Poista
-                    </Button>
-                  )}
-                  {hasChanges && (
-                    <>
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        startIcon={<Cancel />}
-                        onClick={handleUndo}
-                        size="small"
-                      >
-                        Peruuta
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Save />}
-                        onClick={handleSaveClick}
-                        disabled={loading || !formData.secondaryId || !formData.description}
-                        size="small"
-                      >
-                        {loading ? 'Tallennetaan...' : 'Tallenna'}
-                      </Button>
-                    </>
-                  )}
-                </>
-              )}
-
-              {isCreate && (
+              {permissions?.canWrite &&
+                (!balise?.locked || canUnlockBalises([balise], permissions?.currentUserUid, permissions?.isAdmin)) && (
+                  <Button
+                    variant="outlined"
+                    startIcon={
+                      isLocking ? (
+                        <CircularProgress size={20} color="inherit" />
+                      ) : balise?.locked ? (
+                        <LockOpen />
+                      ) : (
+                        <Lock />
+                      )
+                    }
+                    onClick={() => balise && handleLockToggle(balise)}
+                    disabled={isLocking}
+                    size="small"
+                    color={balise?.locked ? 'primary' : 'secondary'}
+                  >
+                    {isLocking
+                      ? balise?.locked
+                        ? 'Avataan...'
+                        : 'Lukitaan...'
+                      : balise?.locked
+                        ? 'Avaa lukitus'
+                        : 'Lukitse'}
+                  </Button>
+                )}
+              {permissions?.isAdmin && (
                 <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Save />}
-                  onClick={handleSave}
-                  disabled={
-                    loading ||
-                    !formData.secondaryId ||
-                    !formData.description ||
-                    checkingBaliseId ||
-                    baliseIdExists === true ||
-                    !isValidBaliseIdRange(parseInt(formData.secondaryId, 10))
-                  }
+                  variant="outlined"
+                  color="error"
+                  startIcon={<Delete />}
+                  onClick={handleDeleteClick}
+                  disabled={deleteLoading}
                   size="small"
                 >
-                  {loading ? 'Tallennetaan...' : 'Tallenna'}
+                  Poista
                 </Button>
+              )}
+              {hasChanges && (
+                <>
+                  <Button variant="outlined" color="secondary" startIcon={<Cancel />} onClick={handleUndo} size="small">
+                    Peruuta
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Save />}
+                    onClick={handleSaveClick}
+                    disabled={loading || !formData.secondaryId || !formData.description}
+                    size="small"
+                  >
+                    {loading ? 'Tallennetaan...' : 'Tallenna'}
+                  </Button>
+                </>
               )}
             </Box>
           </Box>
@@ -522,28 +403,30 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               Perustiedot
             </Typography>
 
-            <InlineEditableField
-              label="Baliisin ID"
-              value={formData.secondaryId}
-              onChange={(value) => handleInputChange('secondaryId', value)}
-              disabled={!isCreate}
-              type="number"
-              placeholder="Syötä baliisin ID"
-              required
-              error={
-                isCreate &&
-                formData.secondaryId !== '' &&
-                (baliseIdExists === true ||
-                  (parseInt(formData.secondaryId, 10) > 0 && !isValidBaliseIdRange(parseInt(formData.secondaryId, 10))))
-              }
-              helperText={getBaliseIdHelperText({
-                isCreate,
-                secondaryId: formData.secondaryId,
-                checkingBaliseId,
-                baliseIdExists,
-                currentSection,
-              })}
-            />
+            <Box sx={{ py: 1.5, px: 1 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  mb: 0.5,
+                  display: 'block',
+                }}
+              >
+                Baliisin ID
+              </Typography>
+              <Typography variant="body1" color="text.primary">
+                {formData.secondaryId}
+              </Typography>
+              {currentSection?.name && (
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                  {currentSection.name}
+                </Typography>
+              )}
+            </Box>
 
             <InlineEditableField
               label="Kuvaus"
@@ -551,9 +434,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
               onChange={(value) => handleInputChange('description', value)}
               disabled={
                 !permissions?.canWrite ||
-                (mode !== 'create' &&
-                  !!balise &&
-                  (!balise.locked || (!!balise.lockedBy && balise.lockedBy !== permissions?.currentUserUid)))
+                (!!balise && (!balise.locked || (!!balise.lockedBy && balise.lockedBy !== permissions?.currentUserUid)))
               }
               multiline
               rows={3}
@@ -563,19 +444,15 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ mode, balise, onSave, on
           </Paper>
 
           <BaliseFileManager
-            isCreate={isCreate}
             balise={balise}
             formData={formData}
-            targetBaliseId={formData.secondaryId ? parseInt(formData.secondaryId, 10) || null : null}
-            baliseIdExists={baliseIdExists}
-            checkingBaliseId={checkingBaliseId}
             permissions={permissions}
             onFileUpload={handleFileUploadMultiple}
             onRemoveFile={removeFile}
           />
 
           {/* Version Timeline - Unified timeline showing historical and draft versions */}
-          {balise && mode !== 'create' && (permissions?.isAdmin || balise.lockedBy === permissions?.currentUserUid) && (
+          {balise && (permissions?.isAdmin || balise.lockedBy === permissions?.currentUserUid) && (
             <BaliseVersionTimeline balise={balise} permissions={permissions} />
           )}
         </Box>
