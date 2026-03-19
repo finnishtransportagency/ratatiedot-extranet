@@ -1,6 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../generated/prisma/client';
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL || 'postgresql://root:root@localhost:5432/test_db?schema=public',
+});
+
+const prisma = new PrismaClient({ adapter });
 
 // Helper function to generate random date within the last 2 years
 function getRandomDate() {
@@ -59,14 +64,10 @@ async function seedSections() {
 
     sections.push({
       name: `JKV-rataosa ${sectionNum}`,
-      shortName: `JKV-rataosa ${sectionNum}`,
       key: `section_${sectionNum}`,
       idRangeMin,
       idRangeMax,
       description: `JKV-rataosa ${sectionNum}, baliisi ID:t ${idRangeMin}-${idRangeMax}`,
-      color: `#${Math.floor(Math.random() * 16777215)
-        .toString(16)
-        .padStart(6, '0')}`, // Random color
       createdBy: 'system',
     });
   }

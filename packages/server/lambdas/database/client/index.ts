@@ -1,5 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-import { ENVIRONMENTS } from '../../../../../lib/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../../../generated/prisma/client';
+import { ENVIRONMENTS } from '../../../utils/environments';
 import { getParameter, getSecuredStringParameter } from '../../../utils/parameterStore';
 
 const environment = process.env.ENVIRONMENT;
@@ -28,7 +29,9 @@ export class DatabaseClient {
 
       DATABASE_URL = `postgresql://${databaseName}:${databasePassword}@${databaseDomain}:5432/${databaseName}?schema=public`;
     }
-
-    return new PrismaClient({ datasources: { db: { url: DATABASE_URL } } });
+    const adapter = new PrismaPg({
+      connectionString: DATABASE_URL,
+    });
+    return new PrismaClient({ adapter });
   }
 }

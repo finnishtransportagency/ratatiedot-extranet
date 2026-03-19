@@ -1,4 +1,4 @@
-import { createBrowserRouter, Location, matchRoutes, redirect, RouteObject, redirectDocument } from 'react-router-dom';
+import { createBrowserRouter, Location, matchRoutes, redirect, RouteObject } from 'react-router-dom';
 
 import { Landing } from './pages/Landing';
 import { Routes } from './constants/Routes';
@@ -33,6 +33,7 @@ import { DriverActivity } from './pages/Others/DriverActivity';
 import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
 import { AppContextProvider } from './contexts/AppContextProvider';
+import { BaliseContextProvider } from './modules/balise/contexts/BaliseContextProvider';
 import { AcceptInstructions } from './pages/AcceptInstructions';
 import { AreaPage } from './pages/ProtectedPage/AreaPage';
 import { ProtectedSubPage } from './pages/ProtectedPage/ProtectedSubPage';
@@ -47,12 +48,9 @@ import { Notices } from './pages/Notices';
 import { SingleNotice } from './pages/Notices/SingleNotice';
 import { ProtectedNoticePage } from './pages/ProtectedPage/ProtectedNoticePage';
 import { NewNotice } from './pages/Notices/NewNotice';
-import Balise from './pages/Balise/index';
-import BaliseEditPage from './pages/Balise/BaliseEditPage';
-import BulkUploadPage from './pages/Balise/BulkUploadPage';
-import SectionPage from './pages/Balise/Section/SectionPage';
 import { RailwayCategory } from './pages/Others/RailwayCategory';
 import { OtherRailway } from './pages/Others/OtherRailway';
+import { BaliseListPage, BaliseEditPage, BulkUploadPage, SectionPage } from './modules/balise';
 
 import { findCategoryIdByKey } from './utils/helpers';
 
@@ -216,9 +214,9 @@ const BALISE_ROUTE: RouteObject[] = [
   {
     path: Routes.BALISE,
     element: (
-      <AppContextProvider>
-        <ProtectedBalisePage children={<Balise />} />
-      </AppContextProvider>
+      <BaliseContextProvider>
+        <ProtectedBalisePage children={<BaliseListPage />} />
+      </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,
     loader: async () => {
@@ -230,11 +228,11 @@ const BALISE_ROUTE: RouteObject[] = [
     },
   },
   {
-    path: `${Routes.BALISE}/massa-lataus`,
+    path: `${Routes.BALISE_BULK_UPLOAD}`,
     element: (
-      <AppContextProvider>
+      <BaliseContextProvider>
         <ProtectedBalisePage children={<BulkUploadPage />} />
-      </AppContextProvider>
+      </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,
     loader: async () => {
@@ -246,11 +244,11 @@ const BALISE_ROUTE: RouteObject[] = [
     },
   },
   {
-    path: `${Routes.BALISE}/create`,
+    path: `${Routes.BALISE_CREATE}`,
     element: (
-      <AppContextProvider>
+      <BaliseContextProvider>
         <ProtectedBalisePage children={<BaliseEditPage />} />
-      </AppContextProvider>
+      </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,
     loader: async () => {
@@ -264,9 +262,9 @@ const BALISE_ROUTE: RouteObject[] = [
   {
     path: `${Routes.BALISE}/:id`,
     element: (
-      <AppContextProvider>
+      <BaliseContextProvider>
         <ProtectedBalisePage children={<BaliseEditPage />} />
-      </AppContextProvider>
+      </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,
     loader: async () => {
@@ -280,9 +278,9 @@ const BALISE_ROUTE: RouteObject[] = [
   {
     path: `${Routes.BALISE_SECTION_MANAGEMENT}`,
     element: (
-      <AppContextProvider>
+      <BaliseContextProvider>
         <ProtectedBalisePage children={<SectionPage />} />
-      </AppContextProvider>
+      </BaliseContextProvider>
     ),
     errorElement: <RootBoundary />,
     loader: async () => {
@@ -315,19 +313,6 @@ const routes: RouteObject[] = [
   ...SINGLE_NOTICE_ROUTE,
   ...NEW_NOTICE,
   ...BALISE_ROUTE,
-  {
-    path: Routes.LOGOUT_REDIRECT,
-    loader: () => {
-      document.cookie = 'Return=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      // check if cookie is removed
-      if (document.cookie.indexOf('Return') !== -1) {
-        // TODO: What do we do if we ever get here? Now user might get stuck.
-        throw new Error('Could not remove cookie.');
-      }
-      // redirect to logout url after succesfull cookie removal
-      return redirectDocument(`${window.location.origin}/sso/logout?auth=1`);
-    },
-  },
 ];
 
 const combinedRoutes = routes.concat(categoryRoutes);

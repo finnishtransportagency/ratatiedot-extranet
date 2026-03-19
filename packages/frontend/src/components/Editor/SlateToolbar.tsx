@@ -80,11 +80,11 @@ const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
 
 export const SlateToolbar = () => {
   const { t } = useTranslation(['common']);
-  const { closeToolbarHandler, closeToolbarWithoutSaveHandler, toggleEdit } = useContext(AppBarContext);
+  const { closeToolbarHandler, closeToolbarWithoutSaveHandler } = useContext(AppBarContext);
   const { editor, value, valueReset, noticeFields, selectedImage } = useContext(EditorContext);
   const [isColorOpened, setIsColorOpened] = useState(false);
   const [initialValue, setInitialValue] = useState([]);
-  const { pathname, state } = useLocation();
+  const { pathname } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
   const noticeRoute = useMatch('/ajankohtaista/:id/:date');
   const { id: noticeId } = useParams();
@@ -179,10 +179,8 @@ export const SlateToolbar = () => {
           {MarkButton({ editor, format: FontFormatType.BOLD, icon: <FormatBoldIcon fontSize="small" /> })}
           {MarkButton({ editor, format: FontFormatType.ITALIC, icon: <FormatItalicIcon fontSize="small" /> })}
           {MarkButton({ editor, format: FontFormatType.UNDERLINED, icon: <FormatUnderlinedIcon fontSize="small" /> })}
-          <Box
+          <LinkImageBox
             aria-label={t('common:edit.insert_link')}
-            component="img"
-            sx={{ cursor: 'pointer', width: '25px', padding: '7px' }}
             src={LinkIcon}
             alt="link"
             onClick={handleInsertLink}
@@ -195,10 +193,8 @@ export const SlateToolbar = () => {
           {BlockButton({ editor, format: ElementType.BULLET_LIST, icon: <FormatListBulletedIcon fontSize="small" /> })}
         </ToggleButtonGroupWrapper>
         <DividerWrapper orientation="vertical" variant="middle" flexItem />
-        <Box
+        <PaletteImageBox
           aria-label={t('common:edit.color')}
-          component="img"
-          sx={{ cursor: 'pointer', width: '25px' }}
           src={PaletteIcon}
           alt="color"
           onClick={toggleColorPicker}
@@ -241,7 +237,9 @@ const ToolbarPaperWrapper = styled(Paper)(({ theme }) => ({
   padding: '16px 15px',
 }));
 
-const ToggleButtonGroupWrapper = styled(ToggleButtonGroup)(() => ({
+const ToggleButtonGroupWrapper = styled(ToggleButtonGroup, {
+  shouldForwardProp: (prop) => prop !== 'fullWidth',
+})(() => ({
   '.MuiToggleButton-root': { border: 'none' },
 }));
 
@@ -251,3 +249,18 @@ const DividerWrapper = styled(Divider)(({ theme }) => ({
     display: 'none',
   },
 }));
+
+const LinkImageBox = styled('img', {
+  shouldForwardProp: (prop) => prop !== 'fullWidth',
+})({
+  cursor: 'pointer',
+  width: '25px',
+  padding: '7px',
+});
+
+const PaletteImageBox = styled('img', {
+  shouldForwardProp: (prop) => prop !== 'fullWidth',
+})({
+  cursor: 'pointer',
+  width: '25px',
+});

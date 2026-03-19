@@ -4,7 +4,7 @@ import { RataExtraLambdaError, getRataExtraLambdaError } from '../../utils/error
 import { log } from '../../utils/logger';
 import { getUser, validateReadUser } from '../../utils/userService';
 import { validateQueryParameters } from '../../utils/validation';
-import { CategoryDataBase } from '@prisma/client';
+import type { CategoryDataBase } from '../../generated/prisma/client';
 import { DatabaseClient } from '../database/client';
 import { alfrescoApiVersion, alfrescoAxios } from '../../utils/axios';
 import { TNode } from './list-files';

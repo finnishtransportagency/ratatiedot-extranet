@@ -102,9 +102,8 @@ export const DesktopDrawerWrapper = styled(MuiDrawer)<DrawerWrapperProps>(({ the
         '& .MuiDrawer-paper': closedMixin(theme),
       }) as any),
 
-      // Logout is the last list item
+      // Extranet link should be the last list item
       '& li:last-child': {
-        // TODO: Logout should always be placed in bottom
         width: open ? `${drawerWidth}px` : `calc(${theme.spacing(8)} + 1px)`,
         '& .MuiListItemIcon-root': {
           color: Colors.darkblue,

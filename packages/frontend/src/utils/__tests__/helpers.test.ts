@@ -1,3 +1,4 @@
+import { expect, describe, it } from 'vitest';
 import { LocaleLang } from '../../constants/Units';
 import {
   generateYearsBetween,
@@ -106,23 +107,20 @@ describe('Helpers Utility', () => {
   describe('flatMapByKey()', () => {
     it('should group by key and flatten result by one level in ascending order', () => {
       expect(
-        flatMapByKey(
-          [
-            { name: 'A', items: [10, 20] },
-            { name: 'B', items: [1, 2, 3] },
-            { name: 'C', differentItems: [-1, -2] },
-          ],
+        flatMapByKey<{ name: string; items?: number[] }>(
+          [{ name: 'A', items: [10, 20] }, { name: 'B', items: [1, 2, 3] }, { name: 'C' }],
           'items',
         ),
       ).toEqual([1, 2, 3, 10, 20]);
     });
     it('should return empty array if no key is found', () => {
       expect(
-        flatMapByKey(
+        flatMapByKey<{ name: string; items?: number[] }>(
           [
             { name: 'A', items: [10, 20] },
             { name: 'B', items: [1, 2, 3] },
           ],
+          // @ts-expect-error Testing invalid key
           'inexistent_key',
         ),
       ).toEqual([]);

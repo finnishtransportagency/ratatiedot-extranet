@@ -6,7 +6,7 @@ import { getServiceUser } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { AlfrescoActivityResponse } from '../database/get-activities';
 import { findEndpoint, getAlfrescoOptions } from '../../utils/alfresco';
-import { CategoryDataBase, Prisma } from '@prisma/client';
+import type { CategoryDataBase, Prisma } from '../../generated/prisma/client';
 import { bigIntToNumber } from '../../utils/bigint';
 
 const database = await DatabaseClient.build();
