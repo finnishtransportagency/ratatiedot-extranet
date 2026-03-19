@@ -809,7 +809,7 @@ export class RataExtraBackendStack extends NestedStack {
       },
       {
         lambda: bulkDeleteBalises,
-        priority: 313,
+        priority: 319,
         path: ['/api/balise/bulk-delete'],
         httpRequestMethods: ['DELETE'],
         targetName: 'bulkDeleteBalises',
