@@ -69,12 +69,15 @@ const parseUserFromEvent = async (req: Request): Promise<RataExtraUser> => {
   return user;
 };
 
-const isReadUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.read);
+const isReadUser = (user: RataExtraUser) =>
+  user.roles?.map((role) => role.toLowerCase()).includes(STATIC_ROLES.read.toLowerCase());
 
-const isAdmin = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.admin);
+const isAdmin = (user: RataExtraUser) =>
+  user.roles?.map((role) => role.toLowerCase()).includes(STATIC_ROLES.admin.toLowerCase());
 
 const isWriteUser = (user: RataExtraUser, writeRole: string) =>
-  user.roles?.includes(writeRole) || user.roles?.includes(STATIC_ROLES.write);
+  user.roles?.map((role) => role.toLowerCase()).includes(writeRole.toLowerCase()) ||
+  user.roles?.map((role) => role.toLowerCase()).includes(STATIC_ROLES.write.toLowerCase());
 
 export const getUser = async (event: Request): Promise<RataExtraUser> => {
   if (!ENVIRONMENT) {
@@ -109,7 +112,7 @@ export const validateWriteUser = (user: RataExtraUser, writeRole: string): void 
   if (isAdmin(user) || isWriteUser(user, writeRole)) {
     return;
   } else {
-    log.error(user, 'Forbidden: User is not an authorised write user');
+    log.error(user, `Forbidden: User is not an authorised write user for role ${writeRole}`);
     // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
     throw new RataExtraEC2Error('Forbidden', 401);
   }
