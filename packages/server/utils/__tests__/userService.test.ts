@@ -143,6 +143,15 @@ describe('Validate write user', () => {
     expect(() => validateWriteUser(user, 'Ratatieto_kirjoitus_categoryname')).toThrow(RataExtraLambdaError);
     expect(() => validateWriteUser(user, 'Ratatieto_kirjoitus_categoryname')).toThrow('Forbidden');
   });
+
+  it('throws error for user with empty roles', () => {
+    const user: RataExtraUser = {
+      uid: 'user-5',
+      roles: [],
+    };
+    expect(() => validateWriteUser(user, 'Ratatieto_kirjoitus_categoryname')).toThrow(RataExtraLambdaError);
+    expect(() => validateWriteUser(user, 'Ratatieto_kirjoitus_categoryname')).toThrow('Forbidden');
+  });
 });
 
 describe('Validate admin user', () => {
@@ -158,6 +167,15 @@ describe('Validate admin user', () => {
     const user: RataExtraUser = {
       uid: 'user-2',
       roles: ['some_other_role'],
+    };
+    expect(() => validateAdminUser(user)).toThrow(RataExtraLambdaError);
+    expect(() => validateAdminUser(user)).toThrow('Forbidden');
+  });
+
+  it('throws error for user with empty roles', () => {
+    const user: RataExtraUser = {
+      uid: 'user-3',
+      roles: [],
     };
     expect(() => validateAdminUser(user)).toThrow(RataExtraLambdaError);
     expect(() => validateAdminUser(user)).toThrow('Forbidden');
