@@ -76,7 +76,6 @@ describe('Validate read user', () => {
   });
 });
 
-// test all three validation functions for mixed string casing in roles
 describe('Validate user with mixed case roles', () => {
   it('allows read for user with read role in different case', () => {
     const user: RataExtraUser = {
