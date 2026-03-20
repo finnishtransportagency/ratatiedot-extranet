@@ -77,18 +77,24 @@ const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
   return user;
 };
 
-const isReadUser = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.read);
+const isReadUser = (user: RataExtraUser) =>
+  user.roles?.map((role) => role.toLowerCase()).includes(STATIC_ROLES.read.toLowerCase());
 
-export const isAdmin = (user: RataExtraUser) => user.roles?.includes(STATIC_ROLES.admin);
+export const isAdmin = (user: RataExtraUser) =>
+  user.roles?.map((role) => role.toLowerCase()).includes(STATIC_ROLES.admin.toLowerCase());
 
 const isWriteUser = (user: RataExtraUser, writeRole: string) =>
-  user.roles?.includes(writeRole) || user.roles?.includes(STATIC_ROLES.write);
+  user.roles?.map((role) => role.toLowerCase()).includes(writeRole.toLowerCase()) ||
+  user.roles?.map((role) => role.toLowerCase()).includes(STATIC_ROLES.write.toLowerCase());
 
-export const isBaliseReadUser = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.read);
+export const isBaliseReadUser = (user: RataExtraUser) =>
+  user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.read.toLowerCase());
 
-export const isBaliseWriteUser = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.write);
+export const isBaliseWriteUser = (user: RataExtraUser) =>
+  user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.write.toLowerCase());
 
-export const isBaliseAdmin = (user: RataExtraUser) => user.roles?.includes(BALISE_ROLES.admin);
+export const isBaliseAdmin = (user: RataExtraUser) =>
+  user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.admin.toLowerCase());
 
 export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
   if (!STACK_ID || !ENVIRONMENT) {
@@ -123,7 +129,7 @@ export const validateWriteUser = (user: RataExtraUser, writeRole: string): void 
   if (isAdmin(user) || isWriteUser(user, writeRole)) {
     return;
   } else {
-    log.error(user, 'Forbidden: User is not an authorised write user');
+    log.error(user, `Forbidden: User is not an authorised write user for role ${writeRole}`);
     // This should be 403, but those are redirected to /index.html by cloudfront, so 401 is used instead.
     throw new RataExtraLambdaError('Forbidden', 401);
   }
