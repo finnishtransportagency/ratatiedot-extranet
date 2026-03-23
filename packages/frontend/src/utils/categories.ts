@@ -471,8 +471,8 @@ export const prodAreas = [
   },
   {
     area: 3,
-    name: 'alue_3_riihimaki-seinajoki',
-    title: 'Alue 3 Riihimäki-Seinäjoki',
+    name: 'alue_3_riihimaki-kokkola',
+    title: 'Alue 3 (Riihimäki)-Kokkola',
     collection: [
       {
         alfrescoId: '8c067e74-d2ae-4ed7-b9cc-931be894d083',
@@ -842,8 +842,8 @@ export const devAreas = [
   },
   {
     area: 3,
-    name: 'alue_3_riihimaki-seinajoki',
-    title: 'Alue 3 Riihimäki-Seinäjoki',
+    name: 'alue_3_riihimaki-kokkola',
+    title: 'Alue 3 (Riihimäki)-Kokkola',
     collection: [
       {
         alfrescoId: 'c8bdd537-40fa-4ee6-9d5f-2db4d9363d38',
