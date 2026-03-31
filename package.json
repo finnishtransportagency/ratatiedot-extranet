@@ -47,6 +47,9 @@
     "date-fns": "^2.30.0",
     "lodash": "4.17.23"
   },
+  "overrides": {
+    "axios": "1.13.5"
+  },
   "devDependencies": {
     "@types/lodash": "4.17.23",
     "@types/node": "^22.19.7",
