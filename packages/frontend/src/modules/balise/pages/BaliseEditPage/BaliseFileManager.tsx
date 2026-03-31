@@ -3,7 +3,7 @@ import { Box, Paper, Typography, Button, Alert, Divider, List, ListItem, ListIte
 import { Description, Download } from '@mui/icons-material';
 import { ChipWrapper } from '../../../../components/Chip';
 import { scheduleBaliseDownloads } from '../../utils/baliseDownload';
-import { validateBaliseFiles, getValidExtensionsList, isValidBaliseIdRange } from '../../utils/baliseValidation';
+import { validateBaliseFiles, getValidExtensionsList } from '../../utils/baliseValidation';
 import { UploadedFilesList } from './UploadedFilesList';
 import { FileUploadZone } from './FileUploadZone';
 import { useFileDragDrop } from '../../hooks/useFileDragDrop';
@@ -16,12 +16,8 @@ interface FileValidationError {
 }
 
 interface BaliseFileManagerProps {
-  isCreate: boolean;
   balise?: BaliseWithHistory | null;
   formData: { files: File[] };
-  targetBaliseId?: number | null; // For create mode - the ID entered in the form
-  baliseIdExists?: boolean | null; // For create mode - whether the ID already exists
-  checkingBaliseId?: boolean; // For create mode - loading state while checking ID
   permissions?: {
     canWrite: boolean;
     isAdmin?: boolean;
@@ -32,26 +28,13 @@ interface BaliseFileManagerProps {
 }
 
 export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
-  isCreate,
   balise,
   formData,
-  targetBaliseId,
-  baliseIdExists,
   permissions,
   onFileUpload,
   onRemoveFile,
 }) => {
   const [validationErrors, setValidationErrors] = useState<FileValidationError[]>();
-
-  // Determine if a valid balise ID is available for file validation
-  // For create mode: ID must be in valid range AND must not already exist
-  const hasValidBaliseIdForCreate =
-    isCreate &&
-    targetBaliseId !== null &&
-    targetBaliseId !== undefined &&
-    isValidBaliseIdRange(targetBaliseId) &&
-    baliseIdExists === false;
-  const isUploadDisabled = isCreate && !hasValidBaliseIdForCreate;
 
   // Clear validation errors when files are cleared (e.g., undo button)
   useEffect(() => {
@@ -63,15 +46,9 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   // Validate files before passing to parent handler
   const handleValidatedFileUpload = useCallback(
     (files: File[]) => {
-      // Determine which balise ID to validate against
-      const baliseIdForValidation = isCreate ? targetBaliseId : balise?.secondaryId;
+      if (!balise) return;
 
-      // If no valid balise ID available, don't process files
-      if (baliseIdForValidation === null || baliseIdForValidation === undefined) {
-        return;
-      }
-
-      const { validFiles, invalidFiles } = validateBaliseFiles(files, baliseIdForValidation);
+      const { validFiles, invalidFiles } = validateBaliseFiles(files, balise.secondaryId);
 
       // Set validation errors for display
       if (invalidFiles.length > 0) {
@@ -90,7 +67,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
         onFileUpload(validFiles);
       }
     },
-    [isCreate, balise, targetBaliseId, onFileUpload],
+    [balise, onFileUpload],
   );
 
   const { isDragging, handleDragOver, handleDragLeave, handleDrop } = useFileDragDrop(handleValidatedFileUpload);
@@ -135,8 +112,7 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   const canWrite = permissions?.canWrite;
 
   // Check if balise is properly locked for editing
-  const isLockedByCurrentUser =
-    isCreate || !balise || (balise.lockedBy && balise.lockedBy === permissions?.currentUserUid); // Locked by current user
+  const isLockedByCurrentUser = !balise || (balise.lockedBy && balise.lockedBy === permissions?.currentUserUid); // Locked by current user
   const isLockedByOther = balise?.locked && balise.lockedBy && balise.lockedBy !== permissions?.currentUserUid;
 
   const canUpload = canWrite && isLockedByCurrentUser;
@@ -229,19 +205,8 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
                   onDrop={handleDrop}
                   isDragging={isDragging}
                   variant="large"
-                  title={
-                    isUploadDisabled
-                      ? 'Syötä ensin kelvollinen baliisi-ID'
-                      : isCreate
-                        ? 'Raahaa tiedostot/kansio tähän'
-                        : 'Lisää uusia tiedostoja'
-                  }
-                  subtitle={
-                    isCreate
-                      ? `Sallitut tiedostopäätteet: ${getValidExtensionsList()}`
-                      : `Sallitut päätteet: ${getValidExtensionsList()}`
-                  }
-                  disabled={isUploadDisabled}
+                  title="Lisää uusia tiedostoja"
+                  subtitle={`Sallitut tiedostopäätteet: ${getValidExtensionsList()}`}
                 />
               </>
             )}
