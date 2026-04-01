@@ -10,7 +10,7 @@ const ENVIRONMENT = process.env.ENVIRONMENT || '';
 const MOCK_UID = process.env.MOCK_UID || '';
 const SERVICE_USER_UID = process.env.SERVICE_USER_UID || '';
 
-const STATIC_ROLES = {
+export const STATIC_ROLES = {
   read: 'ratatieto_luku',
   write: 'ratatieto_kirjoitus',
   admin: 'ratatieto_admin',
