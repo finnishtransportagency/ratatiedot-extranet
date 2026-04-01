@@ -31,7 +31,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const category = params?.category;
 
     const user = await getUser(event);
-    log.info(user, `Checking user write permission for page ${category}`);
+    log.info(user, `Checking user read permission for page ${category}`);
     validateReadUser(user);
     userRight.canRead = true;
 
