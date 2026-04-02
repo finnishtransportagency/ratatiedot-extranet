@@ -36,6 +36,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     userRight.canRead = true;
 
     if (!category) {
+      log.warn(user, 'Category missing from query parameters');
       throw new RataExtraLambdaError('Category missing', 400);
     }
 
@@ -45,6 +46,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
+      log.warn(user, `Category not found in database: "${category}"`);
       throw new RataExtraLambdaError('Category not found', 404);
     }
 

@@ -2,6 +2,7 @@ import type { ALBEventQueryStringParameters } from 'aws-lambda';
 import { Balise, BaliseVersion, PrismaClient, VersionStatus } from '../../generated/prisma/client';
 import { RataExtraUser } from '../userService';
 import { RataExtraLambdaError } from '../errors';
+import { log } from '../logger';
 
 /**
  * Filter history array based on user permissions
@@ -67,6 +68,10 @@ export function validateVersionParameterAccess(
   // Check if user is the lock owner
   const isLockOwner = balise.locked && balise.lockedBy === user.uid;
   if (!isLockOwner) {
+    log.warn(
+      { userId: user.uid, baliseId: balise.secondaryId, requestedVersion },
+      'Version access denied: user is not admin or lock owner',
+    );
     throw new RataExtraLambdaError(
       'Vain järjestelmän ylläpitäjät ja lukituksen tehneet käyttäjät voivat ladata tiettyjä versioita',
       403,
@@ -84,6 +89,10 @@ export function validateVersionParameterAccess(
 export function validateLockOwnerVersionAccess(requestedVersion: number, balise: Balise): void {
   // Lock owner can access any version from when they locked onwards (version >= lockedAtVersion)
   if (balise.lockedAtVersion === null || requestedVersion < balise.lockedAtVersion) {
+    log.warn(
+      { baliseId: balise.secondaryId, requestedVersion, lockedAtVersion: balise.lockedAtVersion },
+      'Version access denied: requested version predates lock session',
+    );
     throw new RataExtraLambdaError('Voit ladata vain lukituksesi aikana lisättyjä versioita', 403);
   }
 }
@@ -121,6 +130,7 @@ export async function getVersionFileTypes(
   });
 
   if (!versionHistory) {
+    log.warn({ baliseId, version }, 'Requested balise version not found');
     throw new RataExtraLambdaError(`Versiota ${version} ei löydy`, 404);
   }
 

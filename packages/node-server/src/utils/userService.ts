@@ -44,12 +44,12 @@ const getMockUser = (): RataExtraUser => ({
 
 const parseUserFromEvent = async (req: Request): Promise<RataExtraUser> => {
   if (!ISSUERS) {
-    log.error('Issuer missing');
+    log.warn('Issuer missing');
     throw new RataExtraEC2Error('User validation failed', 500);
   }
   const headers = req.headers;
   if (!headers) {
-    log.error('Headers missing');
+    log.warn('Headers missing');
     throw new RataExtraEC2Error('Headers missing', 400);
   }
   const jwt = await validateJwtToken(
@@ -59,6 +59,7 @@ const parseUserFromEvent = async (req: Request): Promise<RataExtraUser> => {
   );
 
   if (!jwt) {
+    log.warn('JWT validation failed');
     throw new RataExtraEC2Error('User validation failed', 500);
   }
   const roles = parseRoles(jwt['custom:rooli']);

@@ -42,9 +42,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateReadUser(user);
 
     if (!category) {
+      log.warn(user, `Category missing from path: ${event.path}`);
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
     if (!nodeId) {
+      log.warn(user, `Node ID missing from path: ${event.path}`);
       throw new RataExtraLambdaError('Node ID missing from path', 400);
     }
     if (!fileEndpointsCache.length) {
@@ -52,12 +54,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     }
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
+      log.warn(user, `Category not found in database: "${category}"`);
       throw new RataExtraLambdaError('Category not found', 404);
     }
 
     const hasClassifiedContent = categoryData.hasClassifiedContent;
     if (hasClassifiedContent) {
-      throw new RataExtraLambdaError('File cannot be deleted', 403);
+      log.warn(user, `File deletion blocked: category "${category}" has classified content, nodeId: ${nodeId}`);
+      throw new RataExtraLambdaError('File cannot be deleted in this category', 403);
     }
 
     const writeRole = categoryData.writeRights;
