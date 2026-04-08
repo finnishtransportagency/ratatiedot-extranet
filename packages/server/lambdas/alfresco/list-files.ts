@@ -99,7 +99,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         ascendingOrder = false;
       }
       if (order !== 'ascending' && order !== 'descending') {
-        throw new RataExtraLambdaError('Invalid order parameter, allowed params are: "ascending" or "descenting"', 400);
+        log.warn(user, `Invalid order parameter received: "${order}"`);
+        throw new RataExtraLambdaError('Invalid order parameter, allowed params are: "ascending" or "descending"', 400);
       }
     }
 
@@ -110,12 +111,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     validateReadUser(user);
     if (!category) {
+      log.warn(user, 'Request is missing required query parameter: category');
       throw new RataExtraLambdaError('Category missing', 400);
     }
 
     const page = params?.page ? parseInt(params?.page) : 0;
     const language = (params?.language as QueryLanguage) ?? QueryLanguage.LUCENE;
     if (!Object.values(QueryLanguage).includes(language)) {
+      log.warn(user, `Invalid language parameter received: "${language}"`);
       throw new RataExtraLambdaError('Invalid language', 400);
     }
     if (!fileEndpointsCache.length) {
@@ -125,6 +128,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const alfrescoParent = endpoint?.alfrescoFolder;
 
     if (!alfrescoParent) {
+      log.warn(user, `Category not found in database: "${category}"`);
       throw new RataExtraLambdaError('Category not found', 404);
     }
 

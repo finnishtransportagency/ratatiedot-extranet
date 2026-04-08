@@ -40,9 +40,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateReadUser(user);
 
     if (!category) {
+      log.warn(user, `Category missing from path: ${event.path}`);
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
     if (isEmpty(event.body) || !event.body) {
+      log.warn(user, `Request body missing for folder update in category "${category}"`);
       throw new RataExtraLambdaError('Request body missing', 400);
     }
     if (!fileEndpointsCache.length) {
@@ -50,6 +52,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     }
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
+      log.warn(user, `Category not found in database: "${category}"`);
       throw new RataExtraLambdaError('Category not found', 404);
     }
 
@@ -61,7 +64,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const alfrescoId = await getAlfrescoId(componentId);
     if (!alfrescoId) {
-      throw new RataExtraLambdaError('Id did not mach any component', 404);
+      log.warn(user, `Component not found in category "${category}": componentId ${componentId}`);
+      throw new RataExtraLambdaError('Component not found in this category', 404);
     }
 
     const result = await updateFolder(alfrescoId, requestOptions);

@@ -55,9 +55,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateReadUser(user);
 
     if (!category) {
+      log.warn(user, `Category missing from path: ${event.path}`);
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
     if (isEmpty(event.body)) {
+      log.warn(user, `Request body missing for folder creation in category "${category}"`);
       throw new RataExtraLambdaError('Request body missing', 400);
     }
 
@@ -66,12 +68,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     }
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
+      log.warn(user, `Category not found in database: "${category}"`);
       throw new RataExtraLambdaError('Category not found', 404);
     }
 
     const hasClassifiedContent = categoryData.hasClassifiedContent;
     if (hasClassifiedContent) {
-      throw new RataExtraLambdaError('Folder cannot be created', 403);
+      log.warn(user, `Folder creation blocked: category "${category}" has classified content`);
+      throw new RataExtraLambdaError('Folder cannot be created in this category', 403);
     }
 
     const writeRole = categoryData.writeRights;
@@ -84,7 +88,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       // Check if the nest folder is a descendant of the category
       const isFolderDescendantOfCategory = isNodeInCategory(folderPath, categoryData.alfrescoFolder);
       if (!isFolderDescendantOfCategory) {
-        throw new RataExtraLambdaError('Folder cannot be found in category', 404);
+        log.warn(user, `Folder ${nestedFolderId} is not a descendant of category "${category}"`);
+        throw new RataExtraLambdaError('Folder not found in this category', 404);
       }
       targetNode = nestedFolderId;
     } else {
@@ -102,12 +107,17 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     let alfrescoResult;
 
     if (nodeAlreadyExists) {
+      log.warn(user, `Folder creation conflict: folder "${folderName}" already exists in category "${category}"`);
       throw new RataExtraLambdaError('Folder already exists', 409, 'nodeAlreadyExists');
     } else {
       alfrescoResult = await postFolder(requestOptions, targetNode);
     }
 
     if (!alfrescoResult) {
+      log.error(
+        user,
+        `Failed to create folder "${folderName}" in category "${category}": Alfresco returned empty result`,
+      );
       throw new RataExtraLambdaError('Error creating folder', 500);
     }
 

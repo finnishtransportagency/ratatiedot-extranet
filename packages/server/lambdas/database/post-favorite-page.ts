@@ -26,6 +26,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateReadUser(user);
 
     if (!category) {
+      log.warn(user, 'Category missing from request body');
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
     if (!fileEndpointsCache.length) {
@@ -35,6 +36,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     log.debug(`Cached ${JSON.stringify(fileEndpointsCache)}`);
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
+      log.warn(user, `Category not found in database: "${category}"`);
       throw new RataExtraLambdaError('Category not found', 404);
     }
     const data = await database.favoriteCategory.upsert({
