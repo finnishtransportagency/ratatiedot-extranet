@@ -94,9 +94,11 @@ export async function handleRequest(req: Request): Promise<UploadResponse | unde
 
   validateReadUser(user);
   if (!category || paths.at(3) !== 'file') {
+    log.warn(user, `Category missing from path: ${req.path}`);
     throw new RataExtraEC2Error('Category missing from path', 400);
   }
   if (lodash.isEmpty(req.body)) {
+    log.warn(user, `Request body missing for upload to category "${category}"`);
     throw new RataExtraEC2Error('Request body missing', 400);
   }
   if (!fileEndpointsCache.length) {
@@ -104,11 +106,13 @@ export async function handleRequest(req: Request): Promise<UploadResponse | unde
   }
   const categoryData = findEndpoint(category, fileEndpointsCache);
   if (!categoryData) {
+    log.warn(user, `Category not found in database: "${category}"`);
     throw new RataExtraEC2Error('Category not found', 404);
   }
   const hasClassifiedContent = categoryData.hasClassifiedContent;
   if (hasClassifiedContent) {
-    throw new RataExtraEC2Error('File cannot be uploaded', 403);
+    log.warn(user, `File upload blocked: category "${category}" has classified content`);
+    throw new RataExtraEC2Error('File cannot be uploaded in this category', 403);
   }
 
   const writeRole = categoryData.writeRights;
@@ -120,7 +124,8 @@ export async function handleRequest(req: Request): Promise<UploadResponse | unde
     // Check if the nest folder is a descendant of the category
     const isFolderDescendantOfCategory = isFolderInCategory(folderPath, categoryData.alfrescoFolder);
     if (!isFolderDescendantOfCategory) {
-      throw new RataExtraEC2Error('Folder cannot be found in category', 404);
+      log.warn(user, `Folder ${nestedFolderId} is not a descendant of category "${category}"`);
+      throw new RataExtraEC2Error('Folder not found in this category', 404);
     }
     targetNode = nestedFolderId;
   } else {

@@ -67,6 +67,7 @@ const parseUserFromEvent = async (event: ALBEvent): Promise<RataExtraUser> => {
   const jwt = await validateJwtToken(headers['x-iam-accesstoken'], headers['x-iam-data'], ISSUERS);
 
   if (!jwt) {
+    log.error('JWT validation failed');
     throw new RataExtraLambdaError('User validation failed', 500);
   }
   const roles = parseRoles(jwt['custom:rooli']);

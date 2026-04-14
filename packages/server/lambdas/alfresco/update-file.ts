@@ -47,12 +47,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     validateReadUser(user);
 
     if (!category) {
+      log.warn(user, `Category missing from path: ${event.path}`);
       throw new RataExtraLambdaError('Category missing from path', 400);
     }
     if (!nodeId) {
+      log.warn(user, `Node ID missing from path: ${event.path}`);
       throw new RataExtraLambdaError('Node ID missing from path', 400);
     }
     if (isEmpty(event.body)) {
+      log.warn(user, `Request body missing for update in category "${category}", nodeId ${nodeId}`);
       throw new RataExtraLambdaError('Request body missing', 400);
     }
     if (!fileEndpointsCache.length) {
@@ -60,6 +63,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     }
     const categoryData = findEndpoint(category, fileEndpointsCache);
     if (!categoryData) {
+      log.warn(user, `Category not found in database: "${category}"`);
       throw new RataExtraLambdaError('Category not found', 404);
     }
 
