@@ -110,7 +110,7 @@ async function parseMultipartForm(
             log.warn({ system: true }, `Invalid file extension: ${fileinfo.filename}`);
           } else {
             invalidFiles.push(
-              `${fileinfo.filename} (virheellinen tiedostonimi, sallittu muoto: {ID}.pääte tai {ID}K.pääte)`,
+              `${fileinfo.filename} (virheellinen tiedostonimi, sallittu muoto: {ID}.pääte, {ID}K.pääte tai {ID}N.pääte (N=0-9))`,
             );
             log.warn({ system: true }, `Invalid filename format: ${fileinfo.filename}`);
           }

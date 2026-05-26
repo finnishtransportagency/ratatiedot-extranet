@@ -441,9 +441,28 @@ describe('baliseUtils', () => {
       expect(parseBaliseIdFromFilename('12345K.IL')).toBe(12345);
     });
 
-    it('should return null for invalid suffix (only K allowed)', () => {
+    it('should parse digit suffix correctly (0-9)', () => {
+      expect(parseBaliseIdFromFilename('100034.il')).toBe(10003);
+      expect(parseBaliseIdFromFilename('100030.il')).toBe(10003);
+      expect(parseBaliseIdFromFilename('123459.leu')).toBe(12345);
+      expect(parseBaliseIdFromFilename('100001.bis')).toBe(10000);
+    });
+
+    it('should return null for invalid suffix (only K or digit allowed)', () => {
       expect(parseBaliseIdFromFilename('10003X.bis')).toBeNull();
       expect(parseBaliseIdFromFilename('10003AB.leu')).toBeNull();
+      expect(parseBaliseIdFromFilename('10003Z.il')).toBeNull();
+    });
+
+    it('should return null for too many characters after ID (7+ chars before dot)', () => {
+      expect(parseBaliseIdFromFilename('1234567.il')).toBeNull();
+      expect(parseBaliseIdFromFilename('10003K4.leu')).toBeNull();
+      expect(parseBaliseIdFromFilename('100034K.il')).toBeNull();
+    });
+
+    it('should return null for fewer than 5 digits', () => {
+      expect(parseBaliseIdFromFilename('1234.il')).toBeNull();
+      expect(parseBaliseIdFromFilename('999.leu')).toBeNull();
     });
 
     it('should return null for filename without numbers', () => {

@@ -23,7 +23,7 @@ interface FileValidationError {
 
 /**
  * Validate uploaded files for a specific balise
- * - Filename must be in format {ID}.ext or {ID}K.ext (only K suffix allowed)
+ * - Filename must be in format {ID}.ext, {ID}K.ext, or {ID}{digit}.ext
  * - Extension must be .il, .leu, or .bis
  * - Balise ID in filename must match the target balise ID
  * - Balise ID must be between 10000-99999
@@ -43,7 +43,7 @@ export function validateUploadedFiles(files: ParsedFileUpload[], targetBaliseId:
       } else {
         errors.push({
           filename: file.filename,
-          error: 'Virheellinen tiedostonimi. Sallittu muoto: {ID}.pääte tai {ID}K.pääte',
+          error: 'Virheellinen tiedostonimi. Sallittu muoto: {ID}.pääte, {ID}K.pääte tai {ID}N.pääte (N=0-9)',
         });
       }
       continue;
