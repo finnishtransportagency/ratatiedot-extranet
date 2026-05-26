@@ -110,7 +110,7 @@ async function parseMultipartForm(
             log.warn({ system: true }, `Invalid file extension: ${fileinfo.filename}`);
           } else {
             invalidFiles.push(
-              `${fileinfo.filename} (virheellinen tiedostonimi, sallittu muoto: {ID}.pääte, {ID}K.pääte tai {ID}N.pääte (N=0-9))`,
+              `${fileinfo.filename} (virheellinen tiedostonimi, sallittu muoto: {ID}.pääte, {ID}K.pääte tai {ID}N.pääte (N=0-9, vain 5-numeroisille))`,
             );
             log.warn({ system: true }, `Invalid filename format: ${fileinfo.filename}`);
           }
@@ -184,7 +184,7 @@ function validateFiles(fileUploads: BulkFileUpload[], invalidFiles: string[]): A
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         error: 'No valid files found in upload',
-        hint: `Tiedostonimen tulee sisältää baliisi-tunnus (${MIN_BALISE_ID}-${MAX_BALISE_ID}) ja pääte tulee olla ${VALID_EXTENSIONS.join(', ')} (esim. 10000.il)`,
+        hint: `Tiedostonimen tulee sisältää baliisi-ID (${MIN_BALISE_ID}-${MAX_BALISE_ID}) ja pääte tulee olla ${VALID_EXTENSIONS.join(', ')} (esim. 9000.il tai 10000.il)`,
         invalidFiles,
       }),
     };
