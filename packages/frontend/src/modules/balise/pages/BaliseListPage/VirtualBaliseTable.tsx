@@ -571,7 +571,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
               <TableRow>
                 <TableCell colSpan={8} sx={{ textAlign: 'center', p: 2 }}>
                   <Typography variant="body2" color="text.secondary">
-                    Kaikki kohteet ladattu ({items.length} / {totalCount})
+                    Kaikki kohteet haettu ({items.length} / {totalCount})
                   </Typography>
                 </TableCell>
               </TableRow>
