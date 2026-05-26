@@ -7,7 +7,7 @@ import type { Section } from '../types/baliseTypes';
 
 // Validation constants - must match backend
 export const VALID_EXTENSIONS = ['.il', '.leu', '.bis'];
-export const MIN_BALISE_ID = 10000;
+export const MIN_BALISE_ID = 9000;
 export const MAX_BALISE_ID = 99999;
 
 /**
@@ -38,7 +38,7 @@ export function isValidExtension(filename: string): boolean {
 
 /**
  * Validate balise ID range
- * Valid range: 10000-99999
+ * Valid range: 9000-99999
  */
 export function isValidBaliseIdRange(baliseId: number): boolean {
   return baliseId >= MIN_BALISE_ID && baliseId <= MAX_BALISE_ID;
@@ -46,33 +46,47 @@ export function isValidBaliseIdRange(baliseId: number): boolean {
 
 /**
  * Parse balise ID from filename
- * Allows format: {5-digit ID}.ext, {5-digit ID}K.ext, or {5-digit ID}{digit}.ext
- * The suffix can be K/k or a single digit 0-9 (case insensitive for K)
+ * Supports both 5-digit and 4-digit (9000-9999) balise IDs.
+ * - 5-digit IDs: suffix can be K/k or a single digit 0-9
+ * - 4-digit IDs: suffix can only be K/k (digit suffix would be ambiguous with 5-digit IDs)
+ *
+ * 5-digit match is attempted first to avoid ambiguity (e.g. "90001.il" → 90001, not 9000).
+ *
  * Examples:
  *   "10000.il" → 10000
- *   "10000.leu" → 10000
  *   "12345.bis" → 12345
  *   "10000K.il" → 10000
- *   "10000k.LEU" → 10000
  *   "100034.il" → 10003
- *   "100030.il" → 10003
- *   "10000X.il" → null (invalid - only K or digit allowed)
+ *   "9000.il" → 9000
+ *   "9001K.leu" → 9001
+ *   "90001.il" → 90001 (5-digit takes priority)
+ *   "10000X.il" → null (invalid suffix)
  */
 export function parseBaliseIdFromFilename(filename: string): number | null {
-  // Match: exactly 5 digits (the ID), optionally followed by K/k or a single digit, then a dot and extension
-  const match = filename.match(/^(\d{5})[Kk\d]?\.(il|leu|bis)$/i);
-  if (!match) return null;
-  const id = parseInt(match[1], 10);
-  return isNaN(id) ? null : id;
+  // Try 5-digit match first: exactly 5 digits, optionally followed by K/k or a single digit
+  const match5 = filename.match(/^(\d{5})[Kk\d]?\.(il|leu|bis)$/i);
+  if (match5) {
+    const id = parseInt(match5[1], 10);
+    return isNaN(id) ? null : id;
+  }
+  // Fall back to 4-digit match: exactly 4 digits, optionally followed by K/k only (no digit suffix)
+  const match4 = filename.match(/^(\d{4})[Kk]?\.(il|leu|bis)$/i);
+  if (match4) {
+    const id = parseInt(match4[1], 10);
+    return isNaN(id) ? null : id;
+  }
+  return null;
 }
 
 /**
- * Check if filename has valid format (5-digit ID with optional K or digit suffix + valid extension)
+ * Check if filename has valid format:
+ * - 5-digit ID with optional K/digit suffix + valid extension
+ * - 4-digit ID (9000-9999) with optional K suffix only + valid extension
  * Returns false if there are invalid characters between ID and extension
  */
 export function isValidFilenameFormat(filename: string): boolean {
-  // Valid format: {5 digits}{optional K/k or digit}.{il|leu|bis} (case insensitive for extension)
-  return /^(\d{5})[Kk\d]?\.(il|leu|bis)$/i.test(filename);
+  // Valid formats: {5 digits}{optional K/k or digit} OR {4 digits}{optional K/k} followed by .{il|leu|bis}
+  return /^(\d{5}[Kk\d]?|\d{4}[Kk]?)\.(il|leu|bis)$/i.test(filename);
 }
 
 /**
