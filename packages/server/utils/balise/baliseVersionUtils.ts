@@ -226,3 +226,46 @@ export async function resolveBalisesForUser(
 
   return result;
 }
+
+/**
+ * Compute the latest official version edit time for balises.
+ * - OFFICIAL balises: latestOfficialEditTime = createdTime (current version IS the official one)
+ * - UNCONFIRMED balises: use lockedAtVersion to look up the exact official version's createdTime
+ * @param database Prisma client
+ * @param balises Array of balise objects (already resolved or raw)
+ * @returns The same balises with `latestOfficialEditTime` attached
+ */
+export async function getLatestOfficialEditTimes(
+  database: PrismaClient,
+  balises: Balise[],
+): Promise<(Balise & { latestOfficialEditTime: Date })[]> {
+  const unconfirmedBalises = balises.filter(
+    (b) => b.versionStatus !== VersionStatus.OFFICIAL && b.lockedAtVersion != null,
+  );
+
+  // Use lockedAtVersion to query the exact official version for each
+  const officialEditTimeMap = new Map<number, Date>();
+  if (unconfirmedBalises.length > 0) {
+    const officialVersions = await database.baliseVersion.findMany({
+      where: {
+        OR: unconfirmedBalises.map((b) => ({
+          secondaryId: b.secondaryId,
+          version: b.lockedAtVersion!,
+        })),
+      },
+    });
+
+    for (const version of officialVersions) {
+      officialEditTimeMap.set(version.secondaryId, version.createdTime);
+    }
+  }
+
+  // For each balise: if OFFICIAL, use its createdTime; otherwise use the looked-up time
+  return balises.map((b) => ({
+    ...b,
+    latestOfficialEditTime:
+      b.versionStatus === VersionStatus.OFFICIAL
+        ? b.createdTime
+        : (officialEditTimeMap.get(b.secondaryId) ?? b.createdTime),
+  }));
+}

@@ -440,6 +440,34 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
               placeholder="Syötä kuvaus"
               required
             />
+
+            {(balise?.latestOfficialEditTime ?? balise?.createdTime) && (
+              <Box sx={{ py: 1.5, px: 1 }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    mb: 0.5,
+                    display: 'block',
+                  }}
+                >
+                  Muokattu
+                </Typography>
+                <Typography variant="body1" color="text.primary">
+                  {new Date(balise.latestOfficialEditTime ?? balise.createdTime).toLocaleString('fi-FI', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Typography>
+              </Box>
+            )}
           </Paper>
 
           <BaliseFileManager

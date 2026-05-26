@@ -40,6 +40,7 @@ export interface Balise {
   history: BaliseVersion[];
   createdBy: string;
   createdTime: string | Date;
+  latestOfficialEditTime?: string | Date;
   locked: boolean;
   lockedBy?: string | null;
   lockedTime?: string | Date | null;

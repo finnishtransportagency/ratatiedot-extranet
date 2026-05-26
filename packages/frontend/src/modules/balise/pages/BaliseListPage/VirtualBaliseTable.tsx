@@ -196,7 +196,9 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = React.memo(
             </Typography>
           </TableCell>
           <TableCell sx={{ fontSize: '14px', width: '60px' }}>{row.lockedAtVersion ?? row.version}</TableCell>
-          <TableCell sx={{ fontSize: '14px', width: '120px' }}>{formatDateTime(row.createdTime)}</TableCell>
+          <TableCell sx={{ fontSize: '14px', width: '120px' }}>
+            {row.latestOfficialEditTime ? formatDateTime(row.latestOfficialEditTime) : ''}
+          </TableCell>
           <TableCell sx={{ fontSize: '14px', width: '100px' }}>{row.createdBy}</TableCell>
           <TableCell sx={{ fontSize: '14px', width: '120px' }}>
             {isLocking ? (
@@ -491,7 +493,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
               <TableCell sx={{ fontSize: '12px', width: '80px' }}>ID</TableCell>
               <TableCell sx={{ fontSize: '12px', width: '200px' }}>Kuvaus</TableCell>
               <TableCell sx={{ fontSize: '12px', width: '60px' }}>Versio</TableCell>
-              <TableCell sx={{ fontSize: '12px', width: '120px' }}>Luontiaika</TableCell>
+              <TableCell sx={{ fontSize: '12px', width: '120px' }}>Muokattu</TableCell>
               <TableCell sx={{ fontSize: '12px', width: '100px' }}>Luonut</TableCell>
               <TableCell sx={{ fontSize: '12px', width: '120px' }}>Lukittu?</TableCell>
               <TableCell sx={{ fontSize: '12px', width: '50px' }}></TableCell>
