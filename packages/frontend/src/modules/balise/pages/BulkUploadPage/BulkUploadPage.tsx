@@ -605,7 +605,7 @@ export const BulkUploadPage: React.FC = () => {
                       Tiedostojen nimet määrittävät baliisin: esim. <strong>10000.il</strong> → baliisi 10000
                     </Typography>
                     <Typography variant="caption" color="text.disabled">
-                      Tuetut tiedostot: .il, .leu, .bis, .pdf, .xlsx ja muut
+                      Tuetut tiedostot: .il, .leu, .bis
                     </Typography>
                   </label>
                 </Paper>
