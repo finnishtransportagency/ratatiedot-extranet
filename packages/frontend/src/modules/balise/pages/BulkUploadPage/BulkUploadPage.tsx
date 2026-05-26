@@ -258,7 +258,7 @@ export const BulkUploadPage: React.FC = () => {
 
   const handleUpload = async () => {
     if (validFileCount === 0) {
-      setLocalError('Ei ladattavia tiedostoja');
+      setLocalError('Ei lisättäviä tiedostoja');
       return;
     }
 
@@ -399,7 +399,7 @@ export const BulkUploadPage: React.FC = () => {
                     Erä {batchProgress.currentBatch} / {batchProgress.totalBatches}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Tiedostoja ladattu: {batchProgress.filesUploaded} / {batchProgress.totalFiles}
+                    Tiedostoja lisätty: {batchProgress.filesUploaded} / {batchProgress.totalFiles}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Baliisit: {batchProgress.successCount} onnistui
@@ -723,7 +723,7 @@ export const BulkUploadPage: React.FC = () => {
                     {isSummaryMode && (
                       <Box sx={{ py: 2 }}>
                         <Typography variant="body1" sx={{ mb: 2 }}>
-                          Yhteenveto ladattavista baliiseista:
+                          Yhteenveto lisättävistä baliiseista:
                         </Typography>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                           {newBaliseCount > 0 && (
