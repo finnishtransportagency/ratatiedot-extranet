@@ -86,7 +86,7 @@ describe('validateUploadedFiles', () => {
       expect(errors).toHaveLength(0);
     });
 
-    it('should reject files with invalid suffix (not K)', () => {
+    it('should reject files with invalid suffix (not K or digit)', () => {
       const files: ParsedFileUpload[] = [
         {
           filename: '12345X.il',
@@ -119,6 +119,62 @@ describe('validateUploadedFiles', () => {
       ];
       const errors = validateUploadedFiles(files, 12345);
       expect(errors).toHaveLength(0);
+    });
+  });
+
+  describe('Digit suffix validation', () => {
+    it('should accept files with single digit suffix (0-9)', () => {
+      const files: ParsedFileUpload[] = [
+        {
+          filename: '123454.il',
+          buffer: Buffer.from('test'),
+        },
+        {
+          filename: '123450.leu',
+          buffer: Buffer.from('test'),
+        },
+        {
+          filename: '123459.bis',
+          buffer: Buffer.from('test'),
+        },
+      ];
+      const errors = validateUploadedFiles(files, 12345);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should reject files with too many digits (7+ chars before extension)', () => {
+      const files: ParsedFileUpload[] = [
+        {
+          filename: '1234567.il',
+          buffer: Buffer.from('test'),
+        },
+      ];
+      const errors = validateUploadedFiles(files, 12345);
+      expect(errors).toHaveLength(1);
+      expect(errors[0].error).toContain('Virheellinen tiedostonimi');
+    });
+
+    it('should match digit suffix files to correct balise ID', () => {
+      const files: ParsedFileUpload[] = [
+        {
+          filename: '100034.il',
+          buffer: Buffer.from('test'),
+        },
+      ];
+      const errors = validateUploadedFiles(files, 10003);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should reject digit suffix files when balise ID does not match', () => {
+      const files: ParsedFileUpload[] = [
+        {
+          filename: '100034.il',
+          buffer: Buffer.from('test'),
+        },
+      ];
+      const errors = validateUploadedFiles(files, 10004);
+      expect(errors).toHaveLength(1);
+      expect(errors[0].error).toContain('baliisi-tunnus (10003)');
     });
   });
 

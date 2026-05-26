@@ -46,31 +46,33 @@ export function isValidBaliseIdRange(baliseId: number): boolean {
 
 /**
  * Parse balise ID from filename
- * Only allows format: {ID}.ext or {ID}K.ext (K suffix only, case insensitive)
+ * Allows format: {5-digit ID}.ext, {5-digit ID}K.ext, or {5-digit ID}{digit}.ext
+ * The suffix can be K/k or a single digit 0-9 (case insensitive for K)
  * Examples:
  *   "10000.il" → 10000
  *   "10000.leu" → 10000
  *   "12345.bis" → 12345
  *   "10000K.il" → 10000
  *   "10000k.LEU" → 10000
- *   "10000X.il" → null (invalid - only K allowed)
+ *   "100034.il" → 10003
+ *   "100030.il" → 10003
+ *   "10000X.il" → null (invalid - only K or digit allowed)
  */
 export function parseBaliseIdFromFilename(filename: string): number | null {
-  // Match: digits, optionally followed by K/k, then a dot and extension
-  // This ensures only K suffix is allowed after the ID
-  const match = filename.match(/^(\d+)[Kk]?\.(il|leu|bis)$/i);
+  // Match: exactly 5 digits (the ID), optionally followed by K/k or a single digit, then a dot and extension
+  const match = filename.match(/^(\d{5})[Kk\d]?\.(il|leu|bis)$/i);
   if (!match) return null;
   const id = parseInt(match[1], 10);
   return isNaN(id) ? null : id;
 }
 
 /**
- * Check if filename has valid format (ID with optional K suffix + valid extension)
+ * Check if filename has valid format (5-digit ID with optional K or digit suffix + valid extension)
  * Returns false if there are invalid characters between ID and extension
  */
 export function isValidFilenameFormat(filename: string): boolean {
-  // Valid format: {digits}{optional K/k}.{il|leu|bis} (case insensitive for extension)
-  return /^(\d+)[Kk]?\.(il|leu|bis)$/i.test(filename);
+  // Valid format: {5 digits}{optional K/k or digit}.{il|leu|bis} (case insensitive for extension)
+  return /^(\d{5})[Kk\d]?\.(il|leu|bis)$/i.test(filename);
 }
 
 /**
@@ -101,7 +103,7 @@ export function validateBaliseFile(filename: string, targetBaliseId: number): Va
       errors.push(`Virheellinen tiedostopääte. Sallitut päätteet: ${getValidExtensionsList()}`);
     } else {
       // Extension is valid but format is wrong (invalid characters between ID and extension)
-      errors.push('Virheellinen tiedostonimi. Sallittu muoto: {ID}.pääte tai {ID}K.pääte');
+      errors.push('Virheellinen tiedostonimi. Sallittu muoto: {ID}.pääte, {ID}K.pääte tai {ID}N.pääte (N=0-9)');
     }
     return { valid: false, errors };
   }
