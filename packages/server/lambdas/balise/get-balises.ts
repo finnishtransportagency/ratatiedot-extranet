@@ -4,7 +4,7 @@ import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
 import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
-import { resolveBalisesForUser } from '../../utils/balise/baliseVersionUtils';
+import { resolveBalisesForUser, getLatestOfficialEditTimes } from '../../utils/balise/baliseVersionUtils';
 
 // Helper to safely get a string query parameter
 const getQueryParam = (event: ALBEvent, key: string, defaultValue?: string): string | undefined =>
@@ -122,11 +122,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // Resolve balises to latest OFFICIAL versions efficiently (unless user is admin or lock owner)
     const resolvedBalises = await resolveBalisesForUser(database, balises, user.uid, isAdmin);
 
+    // Attach latest official version edit time for all balises
+    const balisesWithEditTime = await getLatestOfficialEditTimes(database, resolvedBalises);
+
     const hasNextPage = skip + effectiveLimit < totalCount;
     const hasPreviousPage = page > 1;
 
     const response = {
-      data: resolvedBalises,
+      data: balisesWithEditTime,
       pagination: {
         page: page,
         limit: effectiveLimit,
