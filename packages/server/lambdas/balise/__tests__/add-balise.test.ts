@@ -172,7 +172,7 @@ describe('validateUploadedFiles', () => {
           buffer: Buffer.from('test'),
         },
       ];
-      const errors = validateUploadedFiles(files, 10004);
+      const errors = validateUploadedFiles(files, 100034);
       expect(errors).toHaveLength(1);
       expect(errors[0].error).toContain('baliisi-tunnus (10003)');
     });
