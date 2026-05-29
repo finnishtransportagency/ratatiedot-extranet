@@ -17,6 +17,7 @@ import { useBulkDelete } from './useBulkDelete';
 import { useBaliseLocking } from '../../hooks/useBaliseLocking';
 import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore';
 import { useSectionStore } from '../../store/sectionStore';
+import { getRangesForSectionPrefix } from '../../utils/baliseValidation';
 import { scheduleBaliseDownloads } from '../../utils/baliseDownload';
 import { canUnlockBalises } from '../../utils/baliseLocking';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
@@ -97,9 +98,18 @@ export const BaliseListPage: React.FC = () => {
       } else {
         // Get all selected section ranges
         const selectedSectionDetails = sectionOptions.filter((section) => selectedSections.includes(section.key));
+        const idMins: number[] = [];
+        const idMaxes: number[] = [];
+        for (const s of selectedSectionDetails) {
+          const ranges = getRangesForSectionPrefix(s.sectionPrefix);
+          for (const r of ranges) {
+            idMins.push(r.min);
+            idMaxes.push(r.max);
+          }
+        }
         const filter = {
-          id_min: selectedSectionDetails.map((s) => s.idRangeMin),
-          id_max: selectedSectionDetails.map((s) => s.idRangeMax),
+          id_min: idMins,
+          id_max: idMaxes,
           limit: 200,
           page: 1,
         };
