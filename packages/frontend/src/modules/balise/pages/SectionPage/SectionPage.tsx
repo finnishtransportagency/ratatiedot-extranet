@@ -20,14 +20,14 @@ import { useSectionStore } from '../../store/sectionStore';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
 import type { Section } from '../../types/baliseTypes';
+import { getRangesForSectionPrefix } from '../../utils/baliseValidation';
 import { SectionEditForm } from './SectionEditForm';
 import { SectionCreateForm } from './SectionCreateForm';
 import { ConfirmDialog } from '../../components/ConfirmDialog/ConfirmDialog';
 
 interface ValidationErrors {
   name?: string;
-  idRangeMin?: string;
-  idRangeMax?: string;
+  sectionPrefix?: string;
 }
 
 export const SectionPage: React.FC = () => {
@@ -88,15 +88,13 @@ export const SectionPage: React.FC = () => {
           name: editFormData.name || '',
           key,
           description: editFormData.description || '',
-          idRangeMin: editFormData.idRangeMin || 0,
-          idRangeMax: editFormData.idRangeMax || 0,
+          sectionPrefix: editFormData.sectionPrefix || 0,
         });
       } else if (typeof editingSection === 'string') {
         await updateSection(editingSection, {
           name: editFormData.name,
           description: editFormData.description,
-          idRangeMin: editFormData.idRangeMin,
-          idRangeMax: editFormData.idRangeMax,
+          sectionPrefix: editFormData.sectionPrefix,
         });
       }
       setEditingSection(null);
@@ -148,8 +146,7 @@ export const SectionPage: React.FC = () => {
     const newSection: Partial<Section> = {
       name: '',
       description: '',
-      idRangeMin: 0,
-      idRangeMax: 0,
+      sectionPrefix: undefined as unknown as number,
     };
     setEditingSection('new');
     setEditFormData(newSection);
@@ -242,11 +239,11 @@ export const SectionPage: React.FC = () => {
                     <TableCell sx={{ fontSize: '12px', minWidth: 240, padding: '12px 16px', width: '35%' }}>
                       Kuvaus
                     </TableCell>
-                    <TableCell sx={{ fontSize: '12px', minWidth: 100, padding: '12px 16px', width: '15%' }}>
-                      Min ID
+                    <TableCell sx={{ fontSize: '12px', minWidth: 100, padding: '12px 16px', width: '10%' }}>
+                      Rataosan numero
                     </TableCell>
-                    <TableCell sx={{ fontSize: '12px', minWidth: 100, padding: '12px 16px', width: '15%' }}>
-                      Max ID
+                    <TableCell sx={{ fontSize: '12px', minWidth: 160, padding: '12px 16px', width: '20%' }}>
+                      Baliisit
                     </TableCell>
                     <TableCell
                       sx={{
@@ -286,11 +283,13 @@ export const SectionPage: React.FC = () => {
                             {section.description}
                           </Typography>
                         </TableCell>
-                        <TableCell sx={{ fontSize: '14px', minWidth: 100, padding: '12px 16px', width: '15%' }}>
-                          {section.idRangeMin.toLocaleString()}
+                        <TableCell sx={{ fontSize: '14px', minWidth: 100, padding: '12px 16px', width: '10%' }}>
+                          {section.sectionPrefix}
                         </TableCell>
-                        <TableCell sx={{ fontSize: '14px', minWidth: 100, padding: '12px 16px', width: '15%' }}>
-                          {section.idRangeMax.toLocaleString()}
+                        <TableCell sx={{ fontSize: '14px', minWidth: 160, padding: '12px 16px', width: '20%' }}>
+                          {getRangesForSectionPrefix(section.sectionPrefix)
+                            .map((r) => `${r.min}–${r.max}`)
+                            .join(', ')}
                         </TableCell>
                         <TableCell
                           sx={{
