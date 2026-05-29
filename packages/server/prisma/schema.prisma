@@ -132,19 +132,16 @@ model BaliseVersion {
 
 
 model Section {
-  id          String    @id @default(uuid())
-  name        String // e.g., "Helsinki-Riihimäki"
-  key         String    @unique // e.g., "section_1"
-  idRangeMin  Int // e.g., 10000
-  idRangeMax  Int // e.g., 19999
-  description String? // Optional description
-  active      Boolean   @default(true)
-  createdBy   String
-  createdTime DateTime  @default(now())
-  updatedBy   String?
-  updatedTime DateTime?
-
-  @@index([idRangeMin, idRangeMax])
+  id            String    @id @default(uuid())
+  name          String // e.g., "Helsinki-Riihimäki"
+  key           String    @unique // e.g., "section_10"
+  sectionPrefix Int       @unique // e.g., 10 covers 10000-10999, 9 covers 9000-9999
+  description   String? // Optional description
+  active        Boolean   @default(true)
+  createdBy     String
+  createdTime   DateTime  @default(now())
+  updatedBy     String?
+  updatedTime   DateTime?
 }
 
 model BaliseArchive {
