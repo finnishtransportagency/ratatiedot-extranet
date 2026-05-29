@@ -6,7 +6,8 @@ import { DatabaseClient } from '../../database/client';
 import {
   generateKeyFromName,
   validateRequiredFields,
-  validateIdRange,
+  validateSectionPrefix,
+  validateSectionPrefixUniqueness,
   validateNameUniqueness,
   validateKeyUniqueness,
   createErrorResponse,
@@ -17,8 +18,7 @@ const database = await DatabaseClient.build();
 interface UpdateSectionRequest {
   name: string;
   description?: string;
-  idRangeMin: number;
-  idRangeMax: number;
+  sectionPrefix: number;
 }
 
 /**
@@ -66,10 +66,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       return createErrorResponse(requiredFieldsValidation.error!, requiredFieldsValidation.statusCode!);
     }
 
-    // Validate ID range
-    const idRangeValidation = validateIdRange(body.idRangeMin, body.idRangeMax);
-    if (!idRangeValidation.isValid) {
-      return createErrorResponse(idRangeValidation.error!, idRangeValidation.statusCode!);
+    // Validate section prefix
+    const prefixValidation = validateSectionPrefix(body.sectionPrefix);
+    if (!prefixValidation.isValid) {
+      return createErrorResponse(prefixValidation.error!, prefixValidation.statusCode!);
     }
 
     // Check if section exists
@@ -85,6 +85,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         },
         body: JSON.stringify({ error: 'Section not found' }),
       };
+    }
+
+    // Check if prefix is unique (excluding current section)
+    if (body.sectionPrefix !== existingSection.sectionPrefix) {
+      const prefixUniquenessValidation = await validateSectionPrefixUniqueness(database, body.sectionPrefix, sectionId);
+      if (!prefixUniquenessValidation.isValid) {
+        return createErrorResponse(prefixUniquenessValidation.error!, prefixUniquenessValidation.statusCode!);
+      }
     }
 
     // Check if name is unique (excluding current section)
@@ -113,8 +121,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         name: body.name,
         key,
         description: body.description,
-        idRangeMin: body.idRangeMin,
-        idRangeMax: body.idRangeMax,
+        sectionPrefix: body.sectionPrefix,
         updatedBy: user.uid,
         updatedTime: new Date(),
       },
