@@ -75,6 +75,30 @@ export function isValidFilenameFormat(filename: string): boolean {
   return /^(\d{5}[Kk\d]?|\d{4}[Kk]?)\.(il|leu|bis)$/i.test(filename);
 }
 
+/**
+ * Get the valid balise ID ranges covered by a section prefix.
+ * - 1-digit prefix (e.g. 9): covers 9000-9999 and 90000-99999
+ * - 2-digit prefix (e.g. 10): covers 10000-10999
+ */
+export function getRangesForSectionPrefix(prefix: number): { min: number; max: number }[] {
+  const ranges: { min: number; max: number }[] = [];
+
+  if (prefix >= 1 && prefix <= 9) {
+    // Single digit: 4-digit range (prefix * 1000 to prefix * 1000 + 999)
+    const min4 = prefix * 1000;
+    if (min4 >= MIN_BALISE_ID) {
+      ranges.push({ min: min4, max: min4 + 999 });
+    }
+    // Single digit: 5-digit range (prefix * 10000 to prefix * 10000 + 9999)
+    ranges.push({ min: prefix * 10000, max: prefix * 10000 + 9999 });
+  } else if (prefix >= 10 && prefix <= 99) {
+    // Two digits: 5-digit range (prefix * 1000 to prefix * 1000 + 999)
+    ranges.push({ min: prefix * 1000, max: prefix * 1000 + 999 });
+  }
+
+  return ranges;
+}
+
 export interface BaliseUpdateResult {
   newVersion: number;
   previousVersion?: number;
