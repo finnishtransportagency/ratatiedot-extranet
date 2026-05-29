@@ -2,7 +2,8 @@ import type { PrismaClient } from '../../../generated/prisma/client';
 import {
   generateKeyFromName,
   validateRequiredFields,
-  validateIdRange,
+  validateSectionPrefix,
+  validateSectionPrefixUniqueness,
   validateNameUniqueness,
   validateKeyUniqueness,
   createErrorResponse,
@@ -35,8 +36,7 @@ describe('Section Validation', () => {
   describe('validateRequiredFields', () => {
     const validData: SectionData = {
       name: 'Test Section',
-      idRangeMin: 1,
-      idRangeMax: 100,
+      sectionPrefix: 10,
     };
 
     it('should pass with all required fields', () => {
@@ -47,28 +47,17 @@ describe('Section Validation', () => {
 
     it('should fail when name is missing', () => {
       const data: Partial<SectionData> = {
-        idRangeMin: 1,
-        idRangeMax: 100,
+        sectionPrefix: 10,
       };
       const result = validateRequiredFields(data);
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('Name, idRangeMin, and idRangeMax are required');
+      expect(result.error).toBe('Name and sectionPrefix are required');
       expect(result.statusCode).toBe(400);
     });
 
-    it('should fail when idRangeMin is undefined', () => {
+    it('should fail when sectionPrefix is undefined', () => {
       const data: Partial<SectionData> = {
         name: 'Test Section',
-        idRangeMax: 100,
-      };
-      const result = validateRequiredFields(data);
-      expect(result.isValid).toBe(false);
-    });
-
-    it('should fail when idRangeMax is undefined', () => {
-      const data: Partial<SectionData> = {
-        name: 'Test Section',
-        idRangeMin: 1,
       };
       const result = validateRequiredFields(data);
       expect(result.isValid).toBe(false);
@@ -84,48 +73,92 @@ describe('Section Validation', () => {
     });
   });
 
-  describe('validateIdRange', () => {
-    it('should pass when idRangeMin is less than idRangeMax', () => {
-      const result = validateIdRange(1, 100);
+  describe('validateSectionPrefix', () => {
+    it('should pass with valid prefix 10', () => {
+      const result = validateSectionPrefix(10);
       expect(result.isValid).toBe(true);
-      expect(result.error).toBeUndefined();
     });
 
-    it('should fail when idRangeMin equals idRangeMax', () => {
-      const result = validateIdRange(50, 50);
+    it('should pass with valid prefix 9', () => {
+      const result = validateSectionPrefix(9);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should pass with valid prefix 1', () => {
+      const result = validateSectionPrefix(1);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should pass with valid prefix 99', () => {
+      const result = validateSectionPrefix(99);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should fail with prefix 0', () => {
+      const result = validateSectionPrefix(0);
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('idRangeMin must be less than idRangeMax');
+      expect(result.error).toBe('sectionPrefix must be an integer between 1 and 99');
       expect(result.statusCode).toBe(400);
     });
 
-    it('should fail when idRangeMin is greater than idRangeMax', () => {
-      const result = validateIdRange(100, 50);
+    it('should fail with prefix 100', () => {
+      const result = validateSectionPrefix(100);
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('idRangeMin must be less than idRangeMax');
     });
 
-    it('should fail with negative idRangeMin', () => {
-      const result = validateIdRange(-1, 100);
+    it('should fail with negative prefix', () => {
+      const result = validateSectionPrefix(-1);
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('ID ranges must be non-negative');
+    });
+
+    it('should fail with non-integer prefix', () => {
+      const result = validateSectionPrefix(10.5);
+      expect(result.isValid).toBe(false);
+    });
+  });
+
+  describe('validateSectionPrefixUniqueness', () => {
+    const mockFindFirst = vi.fn();
+    const mockDatabase = {
+      section: {
+        findFirst: mockFindFirst,
+      },
+    } as unknown as PrismaClient;
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should pass when prefix is unique', async () => {
+      mockFindFirst.mockResolvedValue(null);
+
+      const result = await validateSectionPrefixUniqueness(mockDatabase, 10);
+
+      expect(result.isValid).toBe(true);
+      expect(mockFindFirst).toHaveBeenCalledWith({
+        where: { sectionPrefix: 10 },
+      });
+    });
+
+    it('should fail when prefix already exists', async () => {
+      mockFindFirst.mockResolvedValue({ id: 'existing-id', sectionPrefix: 10 });
+
+      const result = await validateSectionPrefixUniqueness(mockDatabase, 10);
+
+      expect(result.isValid).toBe(false);
+      expect(result.error).toBe('A section with this prefix already exists');
       expect(result.statusCode).toBe(400);
     });
 
-    it('should fail with negative idRangeMax', () => {
-      const result = validateIdRange(0, -1);
-      expect(result.isValid).toBe(false);
-      expect(result.error).toBe('ID ranges must be non-negative');
-    });
+    it('should pass when prefix exists but excludeId matches', async () => {
+      mockFindFirst.mockResolvedValue(null);
 
-    it('should fail with both negative values', () => {
-      const result = validateIdRange(-100, -50);
-      expect(result.isValid).toBe(false);
-      expect(result.error).toBe('ID ranges must be non-negative');
-    });
+      const result = await validateSectionPrefixUniqueness(mockDatabase, 10, 'exclude-id');
 
-    it('should pass with zero as minimum', () => {
-      const result = validateIdRange(0, 100);
       expect(result.isValid).toBe(true);
+      expect(mockFindFirst).toHaveBeenCalledWith({
+        where: { sectionPrefix: 10, id: { not: 'exclude-id' } },
+      });
     });
   });
 
