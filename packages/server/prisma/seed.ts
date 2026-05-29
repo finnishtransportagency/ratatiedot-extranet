@@ -57,17 +57,13 @@ async function seedSections() {
 
   const sections = [];
 
-  // Create 63 sections (section 10 through section 72)
-  for (let sectionNum = 10; sectionNum <= 72; sectionNum++) {
-    const idRangeMin = sectionNum * 1000;
-    const idRangeMax = sectionNum * 1000 + 999;
-
+  // Create 64 sections (section 9 through section 72)
+  for (let sectionNum = 9; sectionNum <= 72; sectionNum++) {
     sections.push({
       name: `JKV-rataosa ${sectionNum}`,
       key: `section_${sectionNum}`,
-      idRangeMin,
-      idRangeMax,
-      description: `JKV-rataosa ${sectionNum}, baliisi ID:t ${idRangeMin}-${idRangeMax}`,
+      sectionPrefix: sectionNum,
+      description: `JKV-rataosa ${sectionNum}`,
       createdBy: 'system',
     });
   }
@@ -78,7 +74,7 @@ async function seedSections() {
     });
   }
 
-  console.log(`✅ Created ${sections.length} railway sections (section 10 - section 72)`);
+  console.log(`✅ Created ${sections.length} railway sections (section 9 - section 72)`);
 }
 
 async function seedBalises() {
@@ -91,10 +87,10 @@ async function seedBalises() {
   const balises = [];
   const baliseVersions = [];
 
-  // Generate IDs distributed across all 63 sections (10-72)
+  // Generate IDs distributed across all 64 sections (9-72)
   // Each section gets between 100-600 balises randomly
   const sectionsConfig = [];
-  for (let sectionNum = 10; sectionNum <= 72; sectionNum++) {
+  for (let sectionNum = 9; sectionNum <= 72; sectionNum++) {
     const min = sectionNum * 1000;
     const max = sectionNum * 1000 + 999;
     const balisesInSection = Math.floor(Math.random() * 501) + 100; // Random between 100-600
