@@ -2,11 +2,11 @@ import React from 'react';
 import { Box, Typography, TextField, Button, CircularProgress } from '@mui/material';
 import { Save, Cancel, Delete } from '@mui/icons-material';
 import type { Section } from '../../types/baliseTypes';
+import { getRangesForSectionPrefix } from '../../utils/baliseValidation';
 
 interface ValidationErrors {
   name?: string;
-  idRangeMin?: string;
-  idRangeMax?: string;
+  sectionPrefix?: string;
 }
 
 interface SectionFormFieldsProps {
@@ -39,27 +39,9 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
       errors.name = 'Nimi on pakollinen';
     }
 
-    if (formData.idRangeMin === undefined || formData.idRangeMin === null) {
-      errors.idRangeMin = 'Min ID on pakollinen';
-    } else if (formData.idRangeMin < 0) {
-      errors.idRangeMin = 'Min ID ei voi olla negatiivinen';
-    }
-
-    if (formData.idRangeMax === undefined || formData.idRangeMax === null) {
-      errors.idRangeMax = 'Max ID on pakollinen';
-    } else if (formData.idRangeMax < 0) {
-      errors.idRangeMax = 'Max ID ei voi olla negatiivinen';
-    }
-
-    if (
-      formData.idRangeMin !== undefined &&
-      formData.idRangeMax !== undefined &&
-      formData.idRangeMin >= 0 &&
-      formData.idRangeMax >= 0 &&
-      formData.idRangeMin >= formData.idRangeMax
-    ) {
-      errors.idRangeMin = 'Min ID tulee olla pienempi kuin Max ID';
-      errors.idRangeMax = 'Max ID tulee olla suurempi kuin Min ID';
+    const prefix = formData.sectionPrefix;
+    if (!prefix || !Number.isInteger(prefix) || prefix < 9 || prefix > 99) {
+      errors.sectionPrefix = 'Rataosan numeron tulee olla kokonaisluku välillä 9-99';
     }
 
     return errors;
@@ -74,12 +56,21 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
       onSave();
     }
   };
+
+  // Compute range preview
+  const rangePreview =
+    formData.sectionPrefix && formData.sectionPrefix >= 9 && formData.sectionPrefix <= 99
+      ? getRangesForSectionPrefix(formData.sectionPrefix)
+          .map((r) => `${r.min}–${r.max}`)
+          .join(', ')
+      : '';
+
   return (
     <>
       <Typography variant="h4" gutterBottom sx={{ mb: 2, fontWeight: 500 }}>
         {title}
       </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 2, mb: 2 }}>
         <TextField
           label="Nimi"
           value={formData.name || ''}
@@ -89,7 +80,20 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
           required
           error={!!currentErrors.name}
           helperText={currentErrors.name}
-          sx={{ gridColumn: '1 / -1' }}
+        />
+        <TextField
+          label="Rataosan numero"
+          type="number"
+          value={formData.sectionPrefix ?? ''}
+          onChange={(e) =>
+            onFieldChange('sectionPrefix', e.target.value ? parseInt(e.target.value) : ('' as unknown as number))
+          }
+          fullWidth
+          size="small"
+          required
+          error={!!currentErrors.sectionPrefix}
+          helperText={currentErrors.sectionPrefix || (rangePreview && `Baliisit: ${rangePreview}`)}
+          inputProps={{ min: 9, max: 99 }}
         />
         <TextField
           label="Kuvaus"
@@ -100,30 +104,6 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
           sx={{ gridColumn: '1 / -1' }}
           multiline
           rows={3}
-        />
-        <TextField
-          label="Min ID"
-          type="number"
-          value={formData.idRangeMin ?? ''}
-          onChange={(e) => onFieldChange('idRangeMin', e.target.value ? parseInt(e.target.value) : 0)}
-          fullWidth
-          size="small"
-          required
-          error={!!currentErrors.idRangeMin}
-          helperText={currentErrors.idRangeMin}
-          inputProps={{ min: 0 }}
-        />
-        <TextField
-          label="Max ID"
-          type="number"
-          value={formData.idRangeMax ?? ''}
-          onChange={(e) => onFieldChange('idRangeMax', e.target.value ? parseInt(e.target.value) : 0)}
-          fullWidth
-          size="small"
-          required
-          error={!!currentErrors.idRangeMax}
-          helperText={currentErrors.idRangeMax}
-          inputProps={{ min: 0 }}
         />
       </Box>
       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>

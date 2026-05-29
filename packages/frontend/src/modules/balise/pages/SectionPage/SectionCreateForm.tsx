@@ -5,8 +5,7 @@ import { SectionFormFields } from './SectionFormFields';
 
 interface ValidationErrors {
   name?: string;
-  idRangeMin?: string;
-  idRangeMax?: string;
+  sectionPrefix?: string;
 }
 
 interface SectionCreateFormProps {
