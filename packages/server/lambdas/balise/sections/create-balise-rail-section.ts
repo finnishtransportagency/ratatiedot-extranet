@@ -6,7 +6,8 @@ import { DatabaseClient } from '../../database/client';
 import {
   generateKeyFromName,
   validateRequiredFields,
-  validateIdRange,
+  validateSectionPrefix,
+  validateSectionPrefixUniqueness,
   validateNameUniqueness,
   createErrorResponse,
 } from '../../../utils/balise/sectionValidation';
@@ -17,8 +18,7 @@ interface CreateSectionRequest {
   name: string;
   key?: string; // Optional - will be auto-generated if not provided
   description?: string;
-  idRangeMin: number;
-  idRangeMax: number;
+  sectionPrefix: number;
 }
 
 /**
@@ -56,10 +56,16 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // Generate key from name
     const key = body.key || generateKeyFromName(body.name);
 
-    // Validate ID range
-    const idRangeValidation = validateIdRange(body.idRangeMin, body.idRangeMax);
-    if (!idRangeValidation.isValid) {
-      return createErrorResponse(idRangeValidation.error!, idRangeValidation.statusCode!);
+    // Validate section prefix
+    const prefixValidation = validateSectionPrefix(body.sectionPrefix);
+    if (!prefixValidation.isValid) {
+      return createErrorResponse(prefixValidation.error!, prefixValidation.statusCode!);
+    }
+
+    // Check if prefix is unique
+    const prefixUniquenessValidation = await validateSectionPrefixUniqueness(database, body.sectionPrefix);
+    if (!prefixUniquenessValidation.isValid) {
+      return createErrorResponse(prefixUniquenessValidation.error!, prefixUniquenessValidation.statusCode!);
     }
 
     // Check if name is unique
@@ -74,8 +80,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         name: body.name,
         key,
         description: body.description,
-        idRangeMin: body.idRangeMin,
-        idRangeMax: body.idRangeMax,
+        sectionPrefix: body.sectionPrefix,
         createdBy: user.uid,
         active: true,
       },
