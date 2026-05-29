@@ -2,8 +2,7 @@ import { PrismaClient } from '../../generated/prisma/client';
 
 export interface SectionData {
   name: string;
-  idRangeMin: number;
-  idRangeMax: number;
+  sectionPrefix: number;
   description?: string;
 }
 
@@ -22,31 +21,46 @@ export function generateKeyFromName(name: string): string {
 }
 
 export function validateRequiredFields(data: Partial<SectionData>): ValidationResult {
-  if (!data.name || data.idRangeMin === undefined || data.idRangeMax === undefined) {
+  if (!data.name || data.sectionPrefix === undefined) {
     return {
       isValid: false,
-      error: 'Name, idRangeMin, and idRangeMax are required',
+      error: 'Name and sectionPrefix are required',
       statusCode: 400,
     };
   }
   return { isValid: true };
 }
 
-export function validateIdRange(idRangeMin: number, idRangeMax: number): ValidationResult {
-  if (idRangeMin < 0 || idRangeMax < 0) {
+export function validateSectionPrefix(sectionPrefix: number): ValidationResult {
+  if (!Number.isInteger(sectionPrefix) || sectionPrefix < 1 || sectionPrefix > 99) {
     return {
       isValid: false,
-      error: 'ID ranges must be non-negative',
+      error: 'sectionPrefix must be an integer between 1 and 99',
       statusCode: 400,
     };
   }
-  if (idRangeMin >= idRangeMax) {
+  return { isValid: true };
+}
+
+export async function validateSectionPrefixUniqueness(
+  database: PrismaClient,
+  sectionPrefix: number,
+  excludeId?: string,
+): Promise<ValidationResult> {
+  const whereClause = excludeId ? { sectionPrefix, id: { not: excludeId } } : { sectionPrefix };
+
+  const existingSection = await database.section.findFirst({
+    where: whereClause,
+  });
+
+  if (existingSection) {
     return {
       isValid: false,
-      error: 'idRangeMin must be less than idRangeMax',
+      error: 'A section with this prefix already exists',
       statusCode: 400,
     };
   }
+
   return { isValid: true };
 }
 

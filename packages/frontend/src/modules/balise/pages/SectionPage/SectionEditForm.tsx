@@ -5,8 +5,7 @@ import { SectionFormFields } from './SectionFormFields';
 
 interface ValidationErrors {
   name?: string;
-  idRangeMin?: string;
-  idRangeMax?: string;
+  sectionPrefix?: string;
 }
 
 interface SectionEditFormProps {
@@ -22,6 +21,7 @@ interface SectionEditFormProps {
 }
 
 export const SectionEditForm: React.FC<SectionEditFormProps> = ({
+  section,
   isOpen,
   formData,
   onFieldChange,
@@ -63,6 +63,7 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
               validationErrors={validationErrors}
               isLoading={isLoading}
               isOpen={isOpen}
+              editingSectionId={section.id}
             />
           </Box>
         </Collapse>

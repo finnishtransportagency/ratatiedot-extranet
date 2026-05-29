@@ -5,6 +5,7 @@ import {
   isValidExtension,
   isValidBaliseIdRange,
   parseBaliseIdFromFilename,
+  getRangesForSectionPrefix,
   MIN_BALISE_ID,
   MAX_BALISE_ID,
   type BaliseUpdateOptions,
@@ -412,8 +413,15 @@ describe('baliseUtils', () => {
       expect(isValidBaliseIdRange(50000)).toBe(true);
     });
 
+    it('should return true for 4-digit IDs in 9000-9999 range', () => {
+      expect(isValidBaliseIdRange(9000)).toBe(true);
+      expect(isValidBaliseIdRange(9500)).toBe(true);
+      expect(isValidBaliseIdRange(9999)).toBe(true);
+    });
+
     it('should return false for ID below minimum', () => {
       expect(isValidBaliseIdRange(MIN_BALISE_ID - 1)).toBe(false);
+      expect(isValidBaliseIdRange(8999)).toBe(false);
       expect(isValidBaliseIdRange(-10000)).toBe(false);
     });
 
@@ -460,9 +468,36 @@ describe('baliseUtils', () => {
       expect(parseBaliseIdFromFilename('100034K.il')).toBeNull();
     });
 
-    it('should return null for fewer than 5 digits', () => {
-      expect(parseBaliseIdFromFilename('1234.il')).toBeNull();
+    it('should return null for fewer than 4 digits', () => {
+      expect(parseBaliseIdFromFilename('123.il')).toBeNull();
       expect(parseBaliseIdFromFilename('999.leu')).toBeNull();
+      expect(parseBaliseIdFromFilename('99.bis')).toBeNull();
+    });
+
+    it('should parse 4-digit IDs correctly (9000-9999 range)', () => {
+      expect(parseBaliseIdFromFilename('9000.il')).toBe(9000);
+      expect(parseBaliseIdFromFilename('9001.leu')).toBe(9001);
+      expect(parseBaliseIdFromFilename('9999.bis')).toBe(9999);
+      expect(parseBaliseIdFromFilename('9500.il')).toBe(9500);
+    });
+
+    it('should parse 4-digit IDs with K suffix correctly', () => {
+      expect(parseBaliseIdFromFilename('9000K.il')).toBe(9000);
+      expect(parseBaliseIdFromFilename('9001k.leu')).toBe(9001);
+      expect(parseBaliseIdFromFilename('9999K.BIS')).toBe(9999);
+    });
+
+    it('should NOT allow digit suffix for 4-digit IDs (ambiguous with 5-digit)', () => {
+      // 90001.il is parsed as 5-digit balise 90001, not 4-digit 9000 with suffix 1
+      expect(parseBaliseIdFromFilename('90001.il')).toBe(90001);
+      expect(parseBaliseIdFromFilename('90005.leu')).toBe(90005);
+      expect(parseBaliseIdFromFilename('99990.bis')).toBe(99990);
+    });
+
+    it('should return null for 4-digit IDs with invalid suffix', () => {
+      expect(parseBaliseIdFromFilename('9000X.il')).toBeNull();
+      expect(parseBaliseIdFromFilename('9001AB.leu')).toBeNull();
+      expect(parseBaliseIdFromFilename('9999Z.bis')).toBeNull();
     });
 
     it('should return null for filename without numbers', () => {
@@ -478,12 +513,64 @@ describe('baliseUtils', () => {
       expect(parseBaliseIdFromFilename('10000')).toBeNull();
       expect(parseBaliseIdFromFilename('10000.pdf')).toBeNull();
       expect(parseBaliseIdFromFilename('10000.txt')).toBeNull();
+      expect(parseBaliseIdFromFilename('9000.pdf')).toBeNull();
     });
 
     it('should handle case insensitive extensions', () => {
       expect(parseBaliseIdFromFilename('10000.IL')).toBe(10000);
       expect(parseBaliseIdFromFilename('10000.LEU')).toBe(10000);
       expect(parseBaliseIdFromFilename('10000.BIS')).toBe(10000);
+      expect(parseBaliseIdFromFilename('9000.IL')).toBe(9000);
+      expect(parseBaliseIdFromFilename('9000.LEU')).toBe(9000);
+    });
+  });
+
+  describe('getRangesForSectionPrefix', () => {
+    it('should return 5-digit range for prefix 10', () => {
+      const ranges = getRangesForSectionPrefix(10);
+      expect(ranges).toEqual([{ min: 10000, max: 10999 }]);
+    });
+
+    it('should return 5-digit range for prefix 72', () => {
+      const ranges = getRangesForSectionPrefix(72);
+      expect(ranges).toEqual([{ min: 72000, max: 72999 }]);
+    });
+
+    it('should return both 4-digit and 5-digit ranges for prefix 9', () => {
+      const ranges = getRangesForSectionPrefix(9);
+      expect(ranges).toEqual([
+        { min: 9000, max: 9999 },
+        { min: 90000, max: 99999 },
+      ]);
+    });
+
+    it('should return 5-digit range for prefix 99', () => {
+      const ranges = getRangesForSectionPrefix(99);
+      expect(ranges).toEqual([{ min: 99000, max: 99999 }]);
+    });
+
+    it('should return 5-digit range for prefix 50', () => {
+      const ranges = getRangesForSectionPrefix(50);
+      expect(ranges).toEqual([{ min: 50000, max: 50999 }]);
+    });
+
+    it('should return empty for prefix outside 1-99', () => {
+      const ranges = getRangesForSectionPrefix(100);
+      expect(ranges).toEqual([]);
+    });
+
+    it('should handle prefix 1', () => {
+      // 4-digit: 1000-1999 (below MIN 9000, excluded)
+      // 5-digit: 10000-19999
+      const ranges = getRangesForSectionPrefix(1);
+      expect(ranges).toEqual([{ min: 10000, max: 19999 }]);
+    });
+
+    it('should handle prefix 8', () => {
+      // 4-digit: 8000-8999 (below MIN 9000, excluded)
+      // 5-digit: 80000-89999
+      const ranges = getRangesForSectionPrefix(8);
+      expect(ranges).toEqual([{ min: 80000, max: 89999 }]);
     });
   });
 });
