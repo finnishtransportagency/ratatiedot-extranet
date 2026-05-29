@@ -3,6 +3,7 @@ import { Box, Typography, TextField, Button, CircularProgress } from '@mui/mater
 import { Save, Cancel, Delete } from '@mui/icons-material';
 import type { Section } from '../../types/baliseTypes';
 import { getRangesForSectionPrefix } from '../../utils/baliseValidation';
+import { useSectionStore } from '../../store/sectionStore';
 
 interface ValidationErrors {
   name?: string;
@@ -19,6 +20,7 @@ interface SectionFormFieldsProps {
   validationErrors?: ValidationErrors;
   isLoading?: boolean;
   isOpen?: boolean;
+  editingSectionId?: string | null;
 }
 
 export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
@@ -31,17 +33,24 @@ export const SectionFormFields: React.FC<SectionFormFieldsProps> = ({
   validationErrors,
   isLoading = false,
   isOpen = true,
+  editingSectionId,
 }) => {
+  const { sections } = useSectionStore();
+
   const validateForm = (): ValidationErrors => {
     const errors: ValidationErrors = {};
 
     if (!formData.name?.trim()) {
       errors.name = 'Nimi on pakollinen';
+    } else if (sections.some((s) => s.name === formData.name?.trim() && s.id !== editingSectionId)) {
+      errors.name = 'Rataosan nimen tulee olla uniikki';
     }
 
     const prefix = formData.sectionPrefix;
     if (!prefix || !Number.isInteger(prefix) || prefix < 9 || prefix > 99) {
       errors.sectionPrefix = 'Rataosan numeron tulee olla kokonaisluku välillä 9-99';
+    } else if (sections.some((s) => s.sectionPrefix === prefix && s.id !== editingSectionId)) {
+      errors.sectionPrefix = 'Rataosan numeron tulee olla uniikki';
     }
 
     return errors;
