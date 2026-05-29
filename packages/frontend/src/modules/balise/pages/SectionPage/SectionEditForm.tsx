@@ -21,6 +21,7 @@ interface SectionEditFormProps {
 }
 
 export const SectionEditForm: React.FC<SectionEditFormProps> = ({
+  section,
   isOpen,
   formData,
   onFieldChange,
@@ -62,6 +63,7 @@ export const SectionEditForm: React.FC<SectionEditFormProps> = ({
               validationErrors={validationErrors}
               isLoading={isLoading}
               isOpen={isOpen}
+              editingSectionId={section.id}
             />
           </Box>
         </Collapse>
