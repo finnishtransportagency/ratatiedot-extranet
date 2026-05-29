@@ -5,8 +5,7 @@ export interface Section {
   name: string;
   key: string;
   description?: string;
-  idRangeMin: number;
-  idRangeMax: number;
+  sectionPrefix: number;
   active: boolean;
   createdBy: string;
   createdTime: string | Date;

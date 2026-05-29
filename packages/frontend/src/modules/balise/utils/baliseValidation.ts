@@ -11,14 +11,38 @@ export const MIN_BALISE_ID = 9000;
 export const MAX_BALISE_ID = 99999;
 
 /**
- * Find the section that a balise ID belongs to based on ID ranges
+ * Get the valid balise ID ranges covered by a section prefix.
+ * - 1-digit prefix (e.g. 9): covers 9000-9999 and 90000-99999
+ * - 2-digit prefix (e.g. 10): covers 10000-10999
+ */
+export function getRangesForSectionPrefix(prefix: number): { min: number; max: number }[] {
+  const ranges: { min: number; max: number }[] = [];
+
+  if (prefix >= 1 && prefix <= 9) {
+    // Single digit: 4-digit range (prefix * 1000 to prefix * 1000 + 999)
+    const min4 = prefix * 1000;
+    if (min4 >= MIN_BALISE_ID) {
+      ranges.push({ min: min4, max: min4 + 999 });
+    }
+    // Single digit: 5-digit range (prefix * 10000 to prefix * 10000 + 9999)
+    ranges.push({ min: prefix * 10000, max: prefix * 10000 + 9999 });
+  } else if (prefix >= 10 && prefix <= 99) {
+    // Two digits: 5-digit range (prefix * 1000 to prefix * 1000 + 999)
+    ranges.push({ min: prefix * 1000, max: prefix * 1000 + 999 });
+  }
+
+  return ranges;
+}
+
+/**
+ * Find the section that a balise ID belongs to based on section prefix
  * @param baliseId The balise's secondary ID
  * @param sections Array of sections to search
  * @returns The matching section or undefined if not found
  */
 export function getSectionForBaliseId(baliseId: number, sections: Section[]): Section | undefined {
   if (!baliseId || !sections || sections.length === 0) return undefined;
-  return sections.find((section) => baliseId >= section.idRangeMin && baliseId <= section.idRangeMax);
+  return sections.find((section) => String(baliseId).startsWith(String(section.sectionPrefix)));
 }
 
 export interface ValidationResult {
