@@ -5,6 +5,7 @@ import {
   isValidExtension,
   isValidBaliseIdRange,
   parseBaliseIdFromFilename,
+  getRangesForSectionPrefix,
   MIN_BALISE_ID,
   MAX_BALISE_ID,
   type BaliseUpdateOptions,
@@ -521,6 +522,55 @@ describe('baliseUtils', () => {
       expect(parseBaliseIdFromFilename('10000.BIS')).toBe(10000);
       expect(parseBaliseIdFromFilename('9000.IL')).toBe(9000);
       expect(parseBaliseIdFromFilename('9000.LEU')).toBe(9000);
+    });
+  });
+
+  describe('getRangesForSectionPrefix', () => {
+    it('should return 5-digit range for prefix 10', () => {
+      const ranges = getRangesForSectionPrefix(10);
+      expect(ranges).toEqual([{ min: 10000, max: 10999 }]);
+    });
+
+    it('should return 5-digit range for prefix 72', () => {
+      const ranges = getRangesForSectionPrefix(72);
+      expect(ranges).toEqual([{ min: 72000, max: 72999 }]);
+    });
+
+    it('should return both 4-digit and 5-digit ranges for prefix 9', () => {
+      const ranges = getRangesForSectionPrefix(9);
+      expect(ranges).toEqual([
+        { min: 9000, max: 9999 },
+        { min: 90000, max: 99999 },
+      ]);
+    });
+
+    it('should return 5-digit range for prefix 99', () => {
+      const ranges = getRangesForSectionPrefix(99);
+      expect(ranges).toEqual([{ min: 99000, max: 99999 }]);
+    });
+
+    it('should return 5-digit range for prefix 50', () => {
+      const ranges = getRangesForSectionPrefix(50);
+      expect(ranges).toEqual([{ min: 50000, max: 50999 }]);
+    });
+
+    it('should return empty for prefix outside 1-99', () => {
+      const ranges = getRangesForSectionPrefix(100);
+      expect(ranges).toEqual([]);
+    });
+
+    it('should handle prefix 1', () => {
+      // 4-digit: 1000-1999 (below MIN 9000, excluded)
+      // 5-digit: 10000-19999
+      const ranges = getRangesForSectionPrefix(1);
+      expect(ranges).toEqual([{ min: 10000, max: 19999 }]);
+    });
+
+    it('should handle prefix 8', () => {
+      // 4-digit: 8000-8999 (below MIN 9000, excluded)
+      // 5-digit: 80000-89999
+      const ranges = getRangesForSectionPrefix(8);
+      expect(ranges).toEqual([{ min: 80000, max: 89999 }]);
     });
   });
 });
