@@ -144,6 +144,7 @@ async function seedBalises() {
       locked: isLocked,
       lockedBy: isLocked ? user : null,
       lockedTime: isLocked ? new Date(createdTime.getTime() + Math.random() * 86400000) : null, // Random lock time after creation
+      isTemporary: String(i).startsWith('9'),
     };
 
     balises.push(baliseData);

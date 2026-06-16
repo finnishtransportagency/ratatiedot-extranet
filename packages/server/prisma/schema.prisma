@@ -109,6 +109,7 @@ model Balise {
   lockReason      String?
   deletedAt       DateTime?
   deletedBy       String?
+  isTemporary     Boolean         @default(false)
 }
 
 model BaliseVersion {
