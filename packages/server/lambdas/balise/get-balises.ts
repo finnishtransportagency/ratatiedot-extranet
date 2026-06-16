@@ -100,30 +100,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // Check if history should be included (optional query parameter, admin only)
     const includeHistory = isBaliseAdmin(user) && getQueryParam(event, 'include_history') === 'true';
 
-    // Custom sort: 9-prefix balises appear at the end, otherwise numeric ascending.
-    // Prisma doesn't support raw SQL in orderBy, so we fetch IDs, sort, paginate, then fetch full records.
-
-    // Step 1: Get all matching secondaryIds (lightweight query)
-    const allIds = await database.balise.findMany({
-      where: whereClause,
-      select: { secondaryId: true },
-      orderBy: { secondaryId: 'asc' },
-    });
-
-    // Step 2: Sort with 9-prefix IDs at the end, numerically within each group
-    allIds.sort((a, b) => {
-      const aStarts9 = String(a.secondaryId).startsWith('9') ? 1 : 0;
-      const bStarts9 = String(b.secondaryId).startsWith('9') ? 1 : 0;
-      if (aStarts9 !== bStarts9) return aStarts9 - bStarts9;
-      return a.secondaryId - b.secondaryId;
-    });
-
-    // Step 3: Paginate the sorted IDs
-    const paginatedIds = allIds.slice(skip, skip + effectiveLimit).map((r) => r.secondaryId);
-
-    // Step 4: Fetch full records for this page
+    // Sort: temporary balises (isTemporary=true, secondaryId starts with 9) appear at the end,
+    // otherwise numeric ascending. Relies on the isTemporary generated column in the DB.
     const balises = await database.balise.findMany({
-      where: { secondaryId: { in: paginatedIds } },
+      where: whereClause,
+      orderBy: [{ isTemporary: 'asc' }, { secondaryId: 'asc' }],
+      skip,
+      take: effectiveLimit,
       include: includeHistory
         ? {
             history: {
@@ -134,10 +117,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
           }
         : undefined,
     });
-
-    // Step 5: Re-sort to maintain the custom order (findMany with IN doesn't guarantee order)
-    const orderMap = new Map(paginatedIds.map((id, i) => [id, i]));
-    balises.sort((a, b) => (orderMap.get(a.secondaryId) ?? 0) - (orderMap.get(b.secondaryId) ?? 0));
 
     // Resolve balises to latest OFFICIAL versions efficiently (unless user is admin or lock owner)
     const resolvedBalises = await resolveBalisesForUser(database, balises, user.uid, isAdmin);

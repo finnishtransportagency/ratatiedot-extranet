@@ -431,6 +431,7 @@ async function createNewBalise(
       createdBy: userId,
       createdTime: new Date(),
       locked: false,
+      isTemporary: String(baliseId).startsWith('9'),
     },
   });
 

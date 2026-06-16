@@ -169,6 +169,7 @@ async function reseedBalises() {
 
         batch.push({
           secondaryId,
+          isTemporary: String(secondaryId).startsWith('9'),
           version: 1,
           description: longDescription
             ? `Detailed balise description for ${secondaryId}. This balise is located at a critical junction in the Finnish railway network, providing essential signaling information for train operations. The balise contains multiple data elements including speed restrictions, gradient information, and route-specific operational instructions that ensure safe and efficient train movements through this section of track.`
