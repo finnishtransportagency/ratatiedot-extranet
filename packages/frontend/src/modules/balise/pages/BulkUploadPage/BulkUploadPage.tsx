@@ -320,7 +320,7 @@ export const BulkUploadPage: React.FC = () => {
                 <IconButton onClick={handleBack} size="small">
                   <ArrowBack fontSize="inherit" />
                 </IconButton>
-                <Typography variant="h6">Lähetä tiedostoja</Typography>
+                <Typography variant="h6">Lisää tiedostoja</Typography>
               </Box>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 {files.length > 0 && !uploadResult && (
