@@ -53,8 +53,8 @@ export class RataExtraBastionStack extends Stack {
       securityGroup,
       instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.SMALL),
       // AWS Marketplace image:
-      // CIS Amazon Linux 2023 Benchmark - Level 1 - v12 -prod-fvm47vekg24oc
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-05cb83d12c5e97eb0' }),
+      // CIS Amazon Linux 2023 Benchmark - Level 1 - v12 -prod-fvm47vekg24oc, ami-0e01d24b347b6fac8
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0e01d24b347b6fac8' }),
       role: bastionRole,
       userData,
     });
