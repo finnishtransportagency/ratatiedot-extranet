@@ -45,6 +45,8 @@ import {
   SSM_ALFRESCO_API_KEY,
   SSM_ALFRESCO_API_URL,
   SSM_CODECONNECTION_GITHUB_ARN,
+  SSM_GEOVIITE_API_KEY,
+  SSM_GEOVIITE_API_URL,
 } from './constants';
 
 export const PRODUCTION_STACK_ID = PRODUCTION_BRANCH;
@@ -79,6 +81,8 @@ export const getRataExtraStackConfig = (scope: Construct) => ({
   sonarQubeUrl: getSSMStringParameter(scope, SSM_SONARQUBE_URL),
   serviceUserUid: getSSMStringParameter(scope, SSM_SERVICE_USER_UID),
   cloudfrontSignerPublicKeyId: getSSMStringParameter(scope, SSM_CLOUDFRONT_SIGNER_PUBLIC_KEY_ID),
+  geoviiteApiURL: getSSMStringParameter(scope, SSM_GEOVIITE_API_URL),
+  geoviiteApiKey: SSM_GEOVIITE_API_KEY,
 });
 
 // Runtime variables from SSM/Parameter Store

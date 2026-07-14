@@ -36,6 +36,8 @@ export class RataExtraStack extends Stack {
       alfrescoSitePath,
       serviceUserUid,
       cloudfrontSignerPublicKeyId,
+      geoviiteApiKey,
+      geoviiteApiURL,
     } = getRataExtraStackConfig(this);
 
     const vpc = Vpc.fromVpcAttributes(this, 'rataextra-vpc', {
@@ -107,6 +109,8 @@ export class RataExtraStack extends Stack {
       imageBucket: imageBucket,
       balisesBucket: balisesBucket,
       cloudfrontSignerPublicKeyId: cloudfrontSignerPublicKeyId,
+      geoviiteAPIKey: geoviiteApiKey,
+      geoviiteAPIUrl: geoviiteApiURL,
     });
     Object.entries(props.tags).forEach(([key, value]) => Tags.of(backendStack).add(key, value));
 

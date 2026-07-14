@@ -1,11 +1,16 @@
 import axios from 'axios';
 import { getAlfrescoUrlBase } from './alfresco';
+import { getGeoviiteUrlBase } from './geoviite';
 
 export const alfrescoApiVersion = '/alfresco/versions/1';
 export const alfrescoSearchApiVersion = '/search/versions/1/search';
 
 export const alfrescoAxios = axios.create({
   baseURL: getAlfrescoUrlBase(),
+});
+
+export const geoviiteAxios = axios.create({
+  baseURL: getGeoviiteUrlBase(),
 });
 
 alfrescoAxios.interceptors.response.use(
@@ -19,6 +24,21 @@ alfrescoAxios.interceptors.response.use(
           return Promise.resolve(error.response);
         }
       }
+      const simplifiedError = {
+        status: error.response?.status,
+        message: error.message,
+        stack: error.stack,
+      };
+      throw simplifiedError;
+    }
+    throw error;
+  },
+);
+
+geoviiteAxios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error)) {
       const simplifiedError = {
         status: error.response?.status,
         message: error.message,

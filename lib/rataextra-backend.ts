@@ -43,6 +43,8 @@ interface ResourceNestedStackProps extends NestedStackProps {
   readonly imageBucket: Bucket;
   readonly balisesBucket: Bucket;
   readonly cloudfrontSignerPublicKeyId: string;
+  readonly geoviiteAPIKey: string;
+  readonly geoviiteAPIUrl: string;
 }
 
 type ListenerTargetLambdas = {
@@ -102,6 +104,8 @@ export class RataExtraBackendStack extends NestedStack {
       imageBucket,
       balisesBucket,
       cloudfrontSignerPublicKeyId,
+      geoviiteAPIKey,
+      geoviiteAPIUrl,
     } = props;
 
     const securityGroups = securityGroup ? [securityGroup] : undefined;
@@ -125,6 +129,14 @@ export class RataExtraBackendStack extends NestedStack {
       resources: [
         `arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoAPIKey}`,
         `arn:aws:ssm:${this.region}:${this.account}:parameter/${alfrescoSitePath}`,
+      ],
+    });
+
+    const ssmGeoviiteParameterPolicy = new PolicyStatement({
+      actions: ['ssm:GetParameter', 'ssm:GetParameters', 'ssm:DescribeParameters'],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${geoviiteAPIKey}`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/${geoviiteAPIUrl}`,
       ],
     });
 
@@ -188,6 +200,16 @@ export class RataExtraBackendStack extends NestedStack {
         ALFRESCO_SITE_PATH: alfrescoSitePath,
       },
       initialPolicy: [ssmAlfrescoParameterPolicy, kmsDecryptPolicy],
+    };
+
+    const geoviiteParameters: GeneralLambdaParameters = {
+      ...genericLambdaParameters,
+      environment: {
+        ...genericLambdaParameters.environment,
+        GEOVIITE_API_KEY_NAME: geoviiteAPIKey,
+        GEOVIITE_API_URL: geoviiteAPIUrl,
+      },
+      initialPolicy: [ssmGeoviiteParameterPolicy, kmsDecryptPolicy],
     };
 
     const prismaAlfrescoCombinedParameters: GeneralLambdaParameters = {
@@ -496,6 +518,12 @@ export class RataExtraBackendStack extends NestedStack {
       ...prismaParameters,
       name: 'delete-balise-rail-section',
       relativePath: '../packages/server/lambdas/balise/sections/delete-balise-rail-section.ts',
+    });
+
+    const getGeoviiteRailNumbers = this.createNodejsLambda({
+      ...geoviiteParameters,
+      name: 'get-geoviite-rail-numbers',
+      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-rail-numbers.ts',
     });
 
     imageBucket.grantReadWrite(postNotice);
@@ -841,6 +869,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/balise/*/unlock'],
         httpRequestMethods: ['POST'],
         targetName: 'unlockBalise',
+      },
+      {
+        lambda: getGeoviiteRailNumbers,
+        priority: 330,
+        path: ['/api/geoviite'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getGeoviiteRailNumbers',
       },
     ];
 
