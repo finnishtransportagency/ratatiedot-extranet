@@ -520,10 +520,22 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/balise/sections/delete-balise-rail-section.ts',
     });
 
-    const getGeoviiteRailNumbers = this.createNodejsLambda({
+    const getGeoviiteCommonData = this.createNodejsLambda({
       ...geoviiteParameters,
-      name: 'get-geoviite-rail-numbers',
-      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-rail-numbers.ts',
+      name: 'get-geoviite-common-data',
+      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-common-data.ts',
+    });
+
+    const getGeoviiteLocationTracks = this.createNodejsLambda({
+      ...geoviiteParameters,
+      name: 'get-geoviite-locationtracks',
+      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-locationtracks.ts',
+    });
+
+    const getGeoviiteLocationTracksGeometry = this.createNodejsLambda({
+      ...geoviiteParameters,
+      name: 'get-geoviite-locationtracks-geometry',
+      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-locationtracks-geometry.ts',
     });
 
     imageBucket.grantReadWrite(postNotice);
@@ -871,11 +883,25 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'unlockBalise',
       },
       {
-        lambda: getGeoviiteRailNumbers,
+        lambda: getGeoviiteCommonData,
         priority: 330,
-        path: ['/api/geoviite'],
+        path: ['/api/geoviite/common'],
         httpRequestMethods: ['GET'],
-        targetName: 'getGeoviiteRailNumbers',
+        targetName: 'getGeoviiteCommonData',
+      },
+      {
+        lambda: getGeoviiteLocationTracks,
+        priority: 335,
+        path: ['/api/geoviite/locationtracks'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getGeoviiteLocationTracks',
+      },
+      {
+        lambda: getGeoviiteLocationTracksGeometry,
+        priority: 340,
+        path: ['/api/geoviite/locationtracks/geometry'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getGeoviiteLocationTracksGeometry',
       },
     ];
 
