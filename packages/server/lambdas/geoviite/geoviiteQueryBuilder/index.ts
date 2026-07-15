@@ -3,8 +3,9 @@ interface GeoViiteEndpointProps {
   operationalPoints: string;
   locationTracks: string;
 }
+const apiBase = '/paikannuspohja/v1';
 export const geoviiteEndpoints: GeoViiteEndpointProps = {
-  trackNumbers: '/paikannuspohja/v1/ratanumerot',
-  operationalPoints: '/paikannuspohja/v1/toiminnalliset-pisteet',
-  locationTracks: '/paikannuspohja/v1/sijaintiraiteet',
+  trackNumbers: `${apiBase}/ratanumerot`,
+  operationalPoints: `${apiBase}/toiminnalliset-pisteet`,
+  locationTracks: `${apiBase}/sijaintiraiteet`,
 };
