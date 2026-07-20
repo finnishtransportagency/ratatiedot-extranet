@@ -534,8 +534,8 @@ export class RataExtraBackendStack extends NestedStack {
 
     const getGeoviiteLocationTracksGeometry = this.createNodejsLambda({
       ...geoviiteParameters,
-      name: 'get-geoviite-locationtracks-geometry',
-      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-locationtracks-geometry.ts',
+      name: 'get-geoviite-locationtracks-geo',
+      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-locationtracks-geo.ts',
     });
 
     imageBucket.grantReadWrite(postNotice);
