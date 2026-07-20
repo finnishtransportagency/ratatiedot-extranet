@@ -49,7 +49,8 @@
     "favorite": "Suosikit",
     "balise": "Baliisisanomat",
     "extranet": "Poistu Extranetiin",
-    "instructions": "Käyttöohjeet"
+    "instructions": "Käyttöohjeet",
+    "geoviite": "Geoviite"
   },
   "file": {
     "select_file_title": "Valitse tiedosto (kuva, pdf, docx, xlsx, pptx, txt).",

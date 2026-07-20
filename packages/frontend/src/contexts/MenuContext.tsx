@@ -189,6 +189,12 @@ export const MenuContextProvider = ({ children }: { children?: ReactNode }) => {
           },
         ]
       : []),
+    {
+      key: t('common:menu.geoviite'),
+      primary: t('common:menu.geoviite'),
+      icon: <SsidChartIcon />,
+      to: Routes.GEOVIITE,
+    },
     // Extranet link should always be the last menu item
     {
       key: t('common:menu.extranet'),

@@ -9,6 +9,7 @@ import search from './assets/locales/fi/search.json';
 import accessDenied from './assets/locales/fi/accessDenied.json';
 import notFound from './assets/locales/fi/notFound.json';
 import apiErrors from './assets/locales/fi/apiErrors.json';
+import geoviite from './assets/locales/fi/geoviite.json';
 
 export const defaultNS = 'common';
 export const resources = {
@@ -19,6 +20,7 @@ export const resources = {
     accessDenied,
     notFound,
     apiErrors,
+    geoviite,
   },
 };
 

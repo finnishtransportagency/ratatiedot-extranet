@@ -12,6 +12,7 @@ export const Routes = {
   BALISE: '/baliisisanomat',
   BALISE_BULK_UPLOAD: '/baliisisanomat/massalisays',
   BALISE_SECTION_MANAGEMENT: '/baliisisanomat/rataosat',
+  GEOVIITE: '/geoviite',
   LINE_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.LINE_DIAGRAMS)}`,
   SPEED_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.SPEED_DIAGRAMS)}`,
   TRACK_DIAGRAMS: `/${getRouterName(MainCategoryNames.DIAGRAMS)}/${getRouterName(SubCategoryNames.TRACK_DIAGRAMS)}`,

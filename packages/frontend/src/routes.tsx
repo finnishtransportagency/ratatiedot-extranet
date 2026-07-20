@@ -53,6 +53,9 @@ import { OtherRailway } from './pages/Others/OtherRailway';
 import { BaliseListPage, BaliseEditPage, BulkUploadPage, SectionPage } from './modules/balise';
 
 import { findCategoryIdByKey } from './utils/helpers';
+import { GeoviitePage } from './modules/geoviite/pages/GeoviitePage';
+import { GeoviiteAppPage } from './modules/geoviite/pages/GeoviiteAppPage';
+import { GeoviiteContextProvider } from './modules/geoviite/contexts/GeoviiteContextProvider';
 
 /**
  * Return router name based on page title's name
@@ -277,6 +280,16 @@ const BALISE_ROUTE: RouteObject[] = [
   },
 ];
 
+const GEOVIITE_ROUTE: RouteObject = {
+  path: `${Routes.GEOVIITE}`,
+  element: (
+    <GeoviiteContextProvider>
+      <GeoviitePage children={<GeoviiteAppPage />} />
+    </GeoviiteContextProvider>
+  ),
+  errorElement: <RootBoundary />,
+};
+
 export const categoryRoutes: RouteObject[] = [
   ...DIAGRAMS_ROUTES,
   ...OPERATION_ROUTES,
@@ -297,6 +310,7 @@ const routes: RouteObject[] = [
   ...SINGLE_NOTICE_ROUTE,
   ...NEW_NOTICE,
   ...BALISE_ROUTE,
+  GEOVIITE_ROUTE,
 ];
 
 const combinedRoutes = routes.concat(categoryRoutes);
