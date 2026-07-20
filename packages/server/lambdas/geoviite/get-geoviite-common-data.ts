@@ -8,6 +8,7 @@ import { GeoViiteEndpointProps, geoviiteEndpoints } from './geoviiteQueryBuilder
 
 const getGeoviiteCommonData = async (options: AxiosRequestConfig) => {
   const response = await geoviiteAxios(options);
+  auditLog.info(`axios response`, response.request, response.headers, response.statusText);
   return response.data;
 };
 
