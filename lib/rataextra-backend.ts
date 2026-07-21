@@ -535,7 +535,7 @@ export class RataExtraBackendStack extends NestedStack {
     const getGeoviiteLocationTracksOne = this.createNodejsLambda({
       ...geoviiteParameters,
       name: 'get-geoviite-locationtracks-one',
-      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-locationtrack-one.ts',
+      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-locationtracks-one.ts',
     });
 
     const getGeoviiteLocationTracksGeometry = this.createNodejsLambda({

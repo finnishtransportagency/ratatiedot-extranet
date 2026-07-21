@@ -21,7 +21,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
 
     const headers = (await getGeoviiteOptions({ 'Content-Type': 'application/json;charset=UTF-8' })).headers;
     const options: AxiosRequestConfig = {
-      url: `${geoviiteEndpoints.locationtracks}/${queryStringParameters.rail_oid}`,
+      url: `${geoviiteEndpoints.locationtracks}?ratanumero_oid=${queryStringParameters.rail_oid}`,
       method: 'GET',
       headers: { ...headers },
     };
