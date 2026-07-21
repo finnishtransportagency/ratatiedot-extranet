@@ -42,7 +42,7 @@ export const TrackNumberSelect: React.FC = () => {
   const { trackNumberOid, trackNumberSelected } = useSelectionStore();
   const { fetchTrackNumberTracks } = useQueryDataStore();
 
-  const options = React.useMemo(() => (trackNumbers ?? []).map(toOption), []);
+  const options = React.useMemo(() => (trackNumbers ?? []).map(toOption), [trackNumbers]);
   const selectedOption = options.find((option) => option.value === trackNumberOid) ?? null;
 
   return (

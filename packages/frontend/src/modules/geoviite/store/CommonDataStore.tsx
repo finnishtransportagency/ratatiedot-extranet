@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { ExtOperationalPoint, ExtTrackNumber } from './types';
+import {
+  ExtOperationalPoint,
+  ExtOperationalPointCollectionResponse,
+  ExtTrackNumber,
+  ExtTrackNumberCollectionResponse,
+} from './types';
 
 type DataFetchState = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -17,7 +22,7 @@ export interface CommonDataState {
   fetchOperationalPoints: () => Promise<void>;
 }
 
-const fetchCommonData = async <T extends object>(target: string): Promise<{ data: T[] }> => {
+const fetchCommonData = async <T extends object>(target: string): Promise<T> => {
   try {
     const queryString = new URLSearchParams({ endpoint: target }).toString();
     const url = `/api/geoviite/common?${queryString}`;
@@ -61,9 +66,9 @@ export const useCommonDataStore = create<CommonDataState>((set) => ({
       trackNumberStatus: 'loading',
     });
     try {
-      const result = await fetchCommonData<ExtTrackNumber>('tracknumbers');
+      const result = await fetchCommonData<ExtTrackNumberCollectionResponse>('tracknumbers');
       set({
-        trackNumbers: result.data,
+        trackNumbers: result.ratanumerot,
         trackNumberStatus: 'ready',
         error: null,
       });
@@ -79,9 +84,9 @@ export const useCommonDataStore = create<CommonDataState>((set) => ({
       operationalPointsStatus: 'loading',
     });
     try {
-      const result = await fetchCommonData<ExtOperationalPoint>('operationalpoints');
+      const result = await fetchCommonData<ExtOperationalPointCollectionResponse>('operationalpoints');
       set({
-        operationalPoints: result.data,
+        operationalPoints: result.toiminnalliset_pisteet,
         operationalPointsStatus: 'ready',
         error: null,
       });

@@ -44,13 +44,15 @@ export const useSelectionStore = create<SelectionState>((set) => ({
     selectedLocationTrackOids: [],
   }),
 
-  addressStartSet: (value: string) => ({
-    addressStart: value,
-  }),
+  addressStartSet: (value: string) =>
+    set({
+      addressStart: value,
+    }),
 
-  addressEndSet: (value: string) => ({
-    addressEnd: value,
-  }),
+  addressEndSet: (value: string) =>
+    set({
+      addressEnd: value,
+    }),
 
   trackTypeFilterToggled: (type: LocationTrackType) =>
     set((state) => ({
@@ -66,13 +68,15 @@ export const useSelectionStore = create<SelectionState>((set) => ({
         : state.selectedLocationTrackOids.concat(oid),
     })),
 
-  routeStartSet: (oid: string | undefined) => ({
-    routeStartOid: oid ?? null,
-  }),
+  routeStartSet: (oid: string | undefined) =>
+    set({
+      routeStartOid: oid ?? null,
+    }),
 
-  routeEndSet: (oid: string | undefined) => ({
-    routeEndOid: oid ?? null,
-  }),
+  routeEndSet: (oid: string | undefined) =>
+    set({
+      routeEndOid: oid ?? null,
+    }),
   routeEndpointsSwapped: () =>
     set((state) => ({
       routeStartOid: state.routeEndOid,

@@ -532,6 +532,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/geoviite/get-geoviite-locationtracks.ts',
     });
 
+    const getGeoviiteLocationTracksOne = this.createNodejsLambda({
+      ...geoviiteParameters,
+      name: 'get-geoviite-locationtracks-one',
+      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-locationtrack-one.ts',
+    });
+
     const getGeoviiteLocationTracksGeometry = this.createNodejsLambda({
       ...geoviiteParameters,
       name: 'get-geoviite-locationtracks-geo',
@@ -897,8 +903,15 @@ export class RataExtraBackendStack extends NestedStack {
         targetName: 'getGeoviiteLocationTracks',
       },
       {
-        lambda: getGeoviiteLocationTracksGeometry,
+        lambda: getGeoviiteLocationTracksOne,
         priority: 340,
+        path: ['/api/geoviite/locationtracks/one'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getGeoviiteLocationTracksOne',
+      },
+      {
+        lambda: getGeoviiteLocationTracksGeometry,
+        priority: 345,
         path: ['/api/geoviite/locationtracks/geometry'],
         httpRequestMethods: ['GET'],
         targetName: 'getGeoviiteLocationTracksGeometry',

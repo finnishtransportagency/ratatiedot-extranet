@@ -20,7 +20,7 @@ export interface QueryDateState {
   // given locations (204). `key` identifies the request (see routeRequestKey) so a
   // stale response cannot overwrite a newer request's state.
   route: AsyncData<ExtRouteResponse | null> & { key?: string };
-  locationTracks: Record<string, AsyncData<LocationTrackResponse>>;
+  locationTracks: AsyncData<LocationTrackResponse | null>;
   fetchTrackNumberTracks: (trackNumberOid: string) => Promise<void>;
   fetchLocationTrack: (locationTrackOid: string) => Promise<void>;
   fetchRoute: (request: RouteRequest) => Promise<void>;
@@ -48,38 +48,38 @@ const fetchTrackNumberTracksApi = async (trackNumberOid: string) => {
 
 const fetchLocationTrackApi = async (locationTrackOid: string) => {
   try {
-    const queryString = new URLSearchParams({ rail_oid: locationTrackOid }).toString();
-    const url = `/api/geoviite/locationtracks?${queryString}`;
+    const queryString = new URLSearchParams({ rail_oid: encodeURIComponent(locationTrackOid) }).toString();
+    const url = `/api/geoviite/locationtracks/one?${queryString}`;
     const info = await fetch(url);
     if (!info.ok) {
       throw new Error(`Error fetching locationTrackOid:, ${await info.text()}`);
     }
-    const infoJson = await info.json();
+    const parsedInfo = await info.json();
 
     const geometryQueryString = new URLSearchParams({ oid: locationTrackOid, endpoint: 'geometria' }).toString();
-    const geometryUrl = `/api/geoviite/locationtracks?${geometryQueryString}`;
+    const geometryUrl = `/api/geoviite/locationtracks/geometry?${geometryQueryString}`;
     // { osoitepistevali: '10' },
     const geometry = await fetch(geometryUrl);
     if (!geometry.ok) {
       throw new Error(`Error fetching geometry:, ${await info.text()}`);
     }
-    const geometryJson = await geometry.json();
+    const parsedGeometry = await geometry.json();
 
     const profileQueryString = new URLSearchParams({
       oid: locationTrackOid,
       endpoint: 'pystygeometria',
     }).toString();
-    const profileGeometryUrl = `/api/geoviite/locationtracks?${profileQueryString}`;
+    const profileGeometryUrl = `/api/geoviite/locationtracks/geometry?${profileQueryString}`;
     const profile = await fetch(profileGeometryUrl);
     if (!profile.ok) {
       throw new Error(`Error fetching vertical geometry:, ${await info.text()}`);
     }
-    const profileJson = await profile.json();
+    const parsedProfile = await profile.json();
 
     return {
-      info: infoJson.sijaintiraide,
-      profile: profileJson,
-      geometry: geometryJson,
+      info: parsedInfo.sijaintiraide,
+      profile: parsedProfile,
+      geometry: parsedGeometry,
     };
   } catch (error) {
     throw new Error(`Error fetching locationTrackOid:, ${error}`);
@@ -116,7 +116,9 @@ export const useQueryDataStore = create<QueryDateState>((set) => ({
     status: 'idle',
     data: null,
   },
-  locationTracks: {},
+  locationTracks: {
+    status: 'idle',
+  },
   fetchTrackNumberTracks: async (oid: string) => {
     set((state) => ({
       trackNumberTracks: {
@@ -146,17 +148,27 @@ export const useQueryDataStore = create<QueryDateState>((set) => ({
     }
   },
   fetchLocationTrack: async (oid: string) => {
+    set(() => ({
+      locationTracks: {
+        status: 'loading',
+      },
+    }));
     try {
       const data = await fetchLocationTrackApi(oid);
       set(() => ({
-        locationTracks: data,
+        locationTracks: {
+          status: 'ready',
+          data: data,
+        },
       }));
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error(error.message);
       }
       set(() => ({
-        locationTracks: {},
+        locationTracks: {
+          status: 'loading',
+        },
       }));
     }
   },

@@ -6,7 +6,7 @@ import { geoviiteAxios } from '../../utils/axios';
 import { getGeoviiteOptions } from '../../utils/geoviite';
 import { geoviiteEndpoints } from './geoviiteQueryBuilder';
 
-const getGeoviiteLocationTracks = async (options: AxiosRequestConfig) => {
+const getGeoviiteLocationTracksOne = async (options: AxiosRequestConfig) => {
   const response = await geoviiteAxios(options);
   return response.data;
 };
@@ -25,7 +25,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       method: 'GET',
       headers: { ...headers },
     };
-    const result = await getGeoviiteLocationTracks(options);
+    const result = await getGeoviiteLocationTracksOne(options);
     auditLog.info(`fetch from geoviite api`);
     return {
       statusCode: 200,
