@@ -35,7 +35,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     auditLog.info(`fetch from geoviite api`);
     return {
       statusCode: 200,
-      headers: { 'Content-Type:': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(result),
     };
   } catch (error) {
