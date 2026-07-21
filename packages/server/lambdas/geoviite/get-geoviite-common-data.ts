@@ -8,7 +8,6 @@ import { GeoViiteEndpointProps, geoviiteEndpoints } from './geoviiteQueryBuilder
 
 const getGeoviiteCommonData = async (options: AxiosRequestConfig) => {
   const response = await geoviiteAxios(options);
-  auditLog.info(`axios response: ${response.request}, ${response.headers}, ${response.status}`);
   return response.data;
 };
 
@@ -34,7 +33,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     return {
       statusCode: 200,
       headers: { 'Content-Type:': 'application/json' },
-      body: JSON.stringify(result),
+      body: result,
     };
   } catch (error) {
     log.error(error);
