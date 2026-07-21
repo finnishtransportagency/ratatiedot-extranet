@@ -28,8 +28,6 @@ export const DiagramContainer: React.FC = () => {
     () => (mode === 'route' && route.data ? routeSpans(route.data.reitti) : []),
     [mode, route.data],
   );
-  console.log(locationTracks);
-  console.log(selectedLocationTrackOids);
 
   const displayedOids = React.useMemo(
     () => (mode === 'route' ? [...new Set(spans.map((span) => span.trackOid))] : selectedLocationTrackOids),

@@ -20,7 +20,7 @@ export interface QueryDateState {
   // given locations (204). `key` identifies the request (see routeRequestKey) so a
   // stale response cannot overwrite a newer request's state.
   route: AsyncData<ExtRouteResponse | null> & { key?: string };
-  locationTracks: AsyncData<LocationTrackResponse | null>;
+  locationTracks: Record<string, AsyncData<LocationTrackResponse>>;
   fetchTrackNumberTracks: (trackNumberOid: string) => Promise<void>;
   fetchLocationTrack: (locationTrackOid: string) => Promise<void>;
   fetchRoute: (request: RouteRequest) => Promise<void>;
@@ -116,9 +116,7 @@ export const useQueryDataStore = create<QueryDateState>((set) => ({
     status: 'idle',
     data: null,
   },
-  locationTracks: {
-    status: 'idle',
-  },
+  locationTracks: {},
   fetchTrackNumberTracks: async (oid: string) => {
     set((state) => ({
       trackNumberTracks: {
@@ -148,17 +146,14 @@ export const useQueryDataStore = create<QueryDateState>((set) => ({
     }
   },
   fetchLocationTrack: async (oid: string) => {
-    set(() => ({
-      locationTracks: {
-        status: 'loading',
-      },
-    }));
     try {
       const data = await fetchLocationTrackApi(oid);
       set(() => ({
         locationTracks: {
-          status: 'ready',
-          data: data,
+          [oid]: {
+            status: 'ready',
+            data: data,
+          },
         },
       }));
     } catch (error: unknown) {
@@ -166,9 +161,7 @@ export const useQueryDataStore = create<QueryDateState>((set) => ({
         console.error(error.message);
       }
       set(() => ({
-        locationTracks: {
-          status: 'loading',
-        },
+        locationTracks: {},
       }));
     }
   },
