@@ -544,6 +544,12 @@ export class RataExtraBackendStack extends NestedStack {
       relativePath: '../packages/server/lambdas/geoviite/get-geoviite-locationtracks-geo.ts',
     });
 
+    const getGeoviiteRouting = this.createNodejsLambda({
+      ...geoviiteParameters,
+      name: 'get-geoviite-routing',
+      relativePath: '../packages/server/lambdas/geoviite/get-geoviite-routing.ts',
+    });
+
     imageBucket.grantReadWrite(postNotice);
     imageBucket.grantReadWrite(putNotice);
     imageBucket.grantReadWrite(deleteNotice);
@@ -915,6 +921,13 @@ export class RataExtraBackendStack extends NestedStack {
         path: ['/api/geoviite/locationtracks/geometry'],
         httpRequestMethods: ['GET'],
         targetName: 'getGeoviiteLocationTracksGeometry',
+      },
+      {
+        lambda: getGeoviiteRouting,
+        priority: 350,
+        path: ['/api/geoviite/routing'],
+        httpRequestMethods: ['GET'],
+        targetName: 'getGeoviiteRouting',
       },
     ];
 

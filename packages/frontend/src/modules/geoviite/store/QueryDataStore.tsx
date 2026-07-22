@@ -30,7 +30,7 @@ export function routeRequestKey(request: RouteRequest): string {
   return `${request.start.x},${request.start.y}->${request.end.x},${request.end.y}`;
 }
 
-const fetchTrackNumberTracksApi = async (trackNumberOid: string) => {
+const fetchTrackNumberTracksApi = async (trackNumberOid: string): Promise<ExtLocationTrack[]> => {
   try {
     const queryString = new URLSearchParams({ rail_oid: trackNumberOid }).toString();
     const url = `/api/geoviite/locationtracks?${queryString}`;
@@ -46,7 +46,7 @@ const fetchTrackNumberTracksApi = async (trackNumberOid: string) => {
   }
 };
 
-const fetchLocationTrackApi = async (locationTrackOid: string) => {
+const fetchLocationTrackApi = async (locationTrackOid: string): Promise<LocationTrackResponse> => {
   try {
     const queryString = new URLSearchParams({ rail_oid: encodeURIComponent(locationTrackOid) }).toString();
     const url = `/api/geoviite/locationtracks/one?${queryString}`;
@@ -86,7 +86,7 @@ const fetchLocationTrackApi = async (locationTrackOid: string) => {
   }
 };
 
-const fetchRouteApi = async (request: RouteRequest) => {
+const fetchRouteApi = async (request: RouteRequest): Promise<ExtRouteResponse> => {
   try {
     const queryString = new URLSearchParams({
       sijainti_alku_x: String(request.start.x),

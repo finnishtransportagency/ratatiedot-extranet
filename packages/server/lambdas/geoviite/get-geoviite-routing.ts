@@ -18,13 +18,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     if (!queryStringParameters) {
       throw new Error('Missing query parameters');
     }
-
-    const headers = (await getGeoviiteOptions({ 'Content-Type': 'application/json;charset=UTF-8' })).headers;
-
     const queryString = new URLSearchParams({ ...queryStringParameters } as unknown as Record<
       string,
       string
     >).toString();
+
+    const headers = (await getGeoviiteOptions({ 'Content-Type': 'application/json;charset=UTF-8' })).headers;
+
     const options: AxiosRequestConfig = {
       url: `${geoviiteEndpoints.routing}?${queryString}`,
       method: 'GET',
