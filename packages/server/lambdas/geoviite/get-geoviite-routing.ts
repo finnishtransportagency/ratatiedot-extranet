@@ -18,10 +18,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
     if (!queryStringParameters) {
       throw new Error('Missing query parameters');
     }
-    const queryString = new URLSearchParams({ ...queryStringParameters } as unknown as Record<
-      string,
-      string
-    >).toString();
+    const queryString = new URLSearchParams(queryStringParameters as Record<string, string>).toString();
 
     const headers = (await getGeoviiteOptions({ 'Content-Type': 'application/json;charset=UTF-8' })).headers;
 
@@ -30,6 +27,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult | undefi
       method: 'GET',
       headers: { ...headers },
     };
+    auditLog.info(`Fetch route url: ${options.url}`);
     const result = await getGeoviiteRouting(options);
     auditLog.info(`fetch from geoviite api`);
     return {
