@@ -37,12 +37,13 @@ export const useSelectionStore = create<SelectionState>((set) => ({
   routeStartOid: null,
   routeEndOid: null,
 
-  trackNumberSelected: (selection: SelectionType) => ({
-    trackNumberOid: selection.oid,
-    addressStart: selection.addressStart,
-    addressEnd: selection.addressEnd,
-    selectedLocationTrackOids: [],
-  }),
+  trackNumberSelected: (selection: SelectionType) =>
+    set({
+      trackNumberOid: selection.oid,
+      addressStart: selection.addressStart,
+      addressEnd: selection.addressEnd,
+      selectedLocationTrackOids: [],
+    }),
 
   addressStartSet: (value: string) =>
     set({
