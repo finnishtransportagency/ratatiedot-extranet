@@ -44,7 +44,7 @@
   "homepage": "https://github.com/finnishtransportagency/ratatiedot-extranet#readme",
   "dependencies": {
     "axios": "1.15.0",
-    "date-fns": "^2.30.0",
+    "date-fns": "2.30.0",
     "lodash": "4.17.23"
   },
   "overrides": {
@@ -52,10 +52,10 @@
   },
   "devDependencies": {
     "@types/lodash": "4.17.23",
-    "@types/node": "^22.19.7",
+    "@types/node": "22.19.7",
     "@typescript-eslint/eslint-plugin": "8.53.1",
     "@typescript-eslint/parser": "8.53.1",
-    "aws-cdk": "^2.1101.0",
+    "aws-cdk": "2.1101.0",
     "aws-cdk-lib": "2.235.1",
     "concurrently": "9.2.1",
     "constructs": "10.2.69",
@@ -66,12 +66,12 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-prettier": "5.5.5",
-    "husky": "^9.1.7",
+    "husky": "9.1.7",
     "lerna": "9.0.3",
     "lint-staged": "16.2.7",
-    "prettier": "^3.8.1",
+    "prettier": "3.8.1",
     "tsx": "4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "5.9.3"
   },
   "lint-staged": {
     "*.{js,json,jsx,css,md}": [
