@@ -1,0 +1,19 @@
+nodeVersion: '22.22.0'
+engineStrict: true
+
+minimumReleaseAge: 1440 # Minimum package release age in minutes. 1440 = 24h.
+blockExoticSubdeps: true # Block transitive dependencies pulling code from git, tarballs, non-registry sources
+
+packages:
+  - 'packages/frontend'
+  - 'packages/node-server'
+  - 'packages/server'
+
+injectWorkspacePackages: true
+
+allowBuilds:
+  cypress: true
+  esbuild: true
+  nx: true
+  prisma: true
+  '@prisma/engines': true

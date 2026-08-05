@@ -83,7 +83,7 @@ export class RatatietoNodeBackendConstruct extends Construct {
     );
 
     const nodeServerAsset = new Asset(this, 'NodeServerAsset', {
-      path: 'packages/node-server',
+      path: 'packages/deploy/node-server.tar.gz',
     });
     nodeServerAsset.grantRead(asgRole);
 
@@ -116,12 +116,11 @@ export class RatatietoNodeBackendConstruct extends Construct {
       },
       configs: {
         getSource: new InitConfig([
-          InitCommand.shellCommand('dnf install -y unzip'),
           InitCommand.shellCommand('mkdir -p /home/ec2-user/node-server'),
           InitCommand.shellCommand(
-            `aws s3 cp s3://${nodeServerAsset.s3BucketName}/${nodeServerAsset.s3ObjectKey} /home/ec2-user/node-server-artifact.zip`,
+            `aws s3 cp s3://${nodeServerAsset.s3BucketName}/${nodeServerAsset.s3ObjectKey} /home/ec2-user/node-server-artifact.tar.gz`,
           ),
-          InitCommand.shellCommand('unzip -o /home/ec2-user/node-server-artifact.zip -d /home/ec2-user/node-server'),
+          InitCommand.shellCommand('tar -xzf /home/ec2-user/node-server-artifact.tar.gz -C /home/ec2-user/node-server'),
           InitCommand.shellCommand('chown -R ec2-user:ec2-user /home/ec2-user/node-server'),
         ]),
         loggingSetup: new InitConfig([
@@ -177,7 +176,9 @@ export class RatatietoNodeBackendConstruct extends Construct {
     autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v22.22.0/bin/node /usr/bin/node');
     autoScalingGroup.addUserData('sudo ln -s /home/ec2-user/.nvm/versions/node/v22.22.0/bin/npm /usr/bin/npm');
     autoScalingGroup.addUserData('exec >> /var/log/nodeserver/logs.log 2>&1');
-    autoScalingGroup.addUserData('cd /home/ec2-user/node-server && su ec2-user -c "npm run start"');
+    autoScalingGroup.addUserData(
+      'cd /home/ec2-user/node-server && su ec2-user -c "cd /home/ec2-user/node-server && npm run start"',
+    );
 
     return autoScalingGroup;
   }

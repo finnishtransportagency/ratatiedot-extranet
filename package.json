@@ -4,31 +4,35 @@
   "private": true,
   "description": "Väyläviraston ratatiedot extranet",
   "main": "index.js",
+  "engines": {
+    "node": "^22.22.0"
+  },
   "scripts": {
     "prepare": "husky",
     "build": "lerna run build",
-    "build:frontend": "npm --prefix packages/frontend run build",
-    "ci": "npm ci",
-    "dev-client": "cd packages/frontend && npm start",
-    "dev-server": "cd packages/server && npm start",
-    "dev-node": "cd packages/node-server && npm run watch",
-    "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
+    "build:frontend": "pnpm --filter frontend build",
+    "deploy:node-server": "pnpm --filter node-server --prod deploy packages/deploy/node-server",
+    "ci": "pnpm ci",
+    "dev-client": "pnpm --filter frontend start",
+    "dev-server": "pnpm --filter server start",
+    "dev-node": "pnpm --filter node-server watch",
+    "dev": "concurrently \"pnpm run dev-server\" \"pnpm run dev-client\"",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
     "test": "lerna run test --no-sort",
-    "test:client": "cd packages/frontend && npm run test",
-    "test:client:ci": "cd packages/frontend && npm run test:no-watch",
-    "test:server": "cd packages/server && npm run test",
+    "test:client": "pnpm --filter frontend test",
+    "test:client:ci": "pnpm --filter frontend test:no-watch",
+    "test:server": "pnpm --filter server test",
     "cdk": "cdk",
-    "prelocal:synth": "npm run prisma:generate",
+    "prelocal:synth": "pnpm run prisma:generate",
     "local:synth": "ENVIRONMENT=local BRANCH=local STACK_ID=local cdk --app \"tsx bin/rataextra\" -o cdk.rataextra synth",
     "sam:invoke": "ENVIRONMENT=local sam local invoke -t ./cdk.rataextra/rataextra.template.json $npm_config_handler --profile $npm_config_profile",
-    "sam:synthinvoke": "npm run local:synth && npm run sam:invoke",
+    "sam:synthinvoke": "pnpm run local:synth && pnpm run sam:invoke",
     "pipeline:synth": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk synth",
     "pipeline:diff": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk diff",
     "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk deploy stack-pipeline-rataextra-$npm_config_stackid --no-rollback",
     "prisma:format": "prisma format --schema packages/server/prisma/schema.prisma",
-    "prisma:generate": "prisma generate --schema packages/server/prisma/schema.prisma",
+    "prisma:generate": "pnpm --filter server run prisma:generate",
     "local:db:migrate": "cd packages/server && npm run loadenv && prisma migrate dev --name init --schema prisma/schema.prisma",
     "local:db:populate": "cd packages/server && ./populate-local-db.sh"
   },
@@ -44,13 +48,14 @@
   "homepage": "https://github.com/finnishtransportagency/ratatiedot-extranet#readme",
   "dependencies": {
     "axios": "1.15.0",
-    "date-fns": "2.30.0",
     "lodash": "4.17.23"
   },
   "overrides": {
     "axios": "1.15.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "3.3.6",
+    "@eslint/js": "9.39.2",
     "@types/lodash": "4.17.23",
     "@types/node": "22.19.7",
     "@typescript-eslint/eslint-plugin": "8.53.1",
@@ -78,7 +83,7 @@
       "prettier --write"
     ],
     "*.{ts,tsx}": [
-      "eslint --fix",
+      "pnpm exec eslint --fix",
       "prettier --write --parser=typescript"
     ]
   },
@@ -89,5 +94,6 @@
   "directories": {
     "lib": "lib"
   },
-  "keywords": []
+  "keywords": [],
+  "packageManager": "pnpm@11.20.0"
 }

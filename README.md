@@ -93,9 +93,10 @@ Check node version. You can use `nvm use` to automatically set the right version
 To bootstrap the project, run:
 
 ```shell
-npm ci && (cd packages/node-server && npm ci)
-npm run prisma:generate
-npm run build
+pnpm ci
+pnpm run prisma:generate
+pnpm run build
+pnpm run deploy:node-server
 ```
 
 Create `.env` file in server package and copy from `.env.example` to `.env`.
@@ -103,13 +104,13 @@ Create `.env` file in server package and copy from `.env.example` to `.env`.
 To install dependencies that only frontend or backend use, run command in the root repository:
 
 ```shell
-npx lerna add <npm_package> [--dev] --scope=[frontend/server]
+pnpm add <npm_package> [--save-dev|-D] --filter [frontend/server]
 ```
 
 To install a common dependency that both frontend and server can use, run command in the root repository:
 
 ```shell
-npm install <npm_package>
+pnpm add <npm_package>
 ```
 
 ## Usage

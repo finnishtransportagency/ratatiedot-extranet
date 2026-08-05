@@ -76,18 +76,22 @@ export class RataExtraPipelineStack extends Stack {
       codePipeline: pipeline,
       synth: new ShellStep('Synth', {
         input: codeConnectionGithub,
-        installCommands: ['npm ci'],
+        installCommands: ['corepack enable', 'corepack use pnpm@11.20.0', 'pnpm ci'],
         commands: [
           // Build Frontend
-          `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} npm run build:frontend`,
+          `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} pnpm run build:frontend`,
           // Generate prisma schema
-          `npm run prisma:generate`,
+          `pnpm run prisma:generate`,
           // Copy Prisma schema to node-server
           'cp -r packages/server/generated packages/node-server/generated',
           // Build node-server
-          '(cd packages/node-server && npm ci && npm run build)',
+          'pnpm --filter node-server build',
+          // deploy node-server
+          'pnpm --filter node-server --prod deploy packages/deploy/node-server',
+          // package node-server with tar to retain dependency symlink structure
+          'tar -czf packages/deploy/node-server.tar.gz -C packages/deploy/node-server .',
           // Build server (bundle Lambda functions)
-          `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
+          `npm_config_environment=${config.env} npm_config_branch=${config.branch} npm_config_stackid=${config.stackId} pnpm run pipeline:synth`,
         ],
       }),
       dockerEnabledForSynth: true,

@@ -221,7 +221,7 @@ There are three variables that determine how the pipeline and the application it
 To set up a new pipeline, run the deployment script `pipeline:deploy` providing environment, branch and stackId as command line arguments with optionally also providing your AWS profile (here environment, branch and stackid correspond to variables explained above):
 
 ```shell
-npm run pipeline:deploy --environment=feat --branch=feature/RTENU-07-test --stackid=mytestbranch -- --profile myFavouriteAWSProfile
+npm_config_environment=feat npm_config_branch=feature/RTENU-07-test npm_config_stackid=mytestbranch pnpm run pipeline:deploy --profile myFavouriteAWSProfile
 ```
 
 The script will deploy CodePipeline, which will automatically set up the environment. You need to have the changes pushed to GitHub for the pipeline to work. Once set up, the pipeline will automatically update itself and deploy any changes made to the app when commits are pushed to the branch defined in deploy. You can access pipeline resources through the bastion host. See "Connecting to feature ALB".

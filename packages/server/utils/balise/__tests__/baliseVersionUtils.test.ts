@@ -43,6 +43,7 @@ const createMockBalise = (overrides: Partial<Balise> = {}): Balise => ({
   createdBy: 'user1',
   deletedAt: null,
   deletedBy: null,
+  isTemporary: true,
   ...overrides,
 });
 
