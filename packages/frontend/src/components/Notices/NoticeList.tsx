@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardContent, Typography, Box, Button } from '@mui/material';
+import { Card, CardHeader, CardContent, Typography, Box, Button, Chip } from '@mui/material';
 import { t } from 'i18next';
 import { HighlightedTitle } from '../Typography/HighlightedTitle';
 import { Colors } from '../../constants/Colors';
@@ -11,6 +11,10 @@ import { Routes } from '../../constants/Routes';
 
 export const NoticeList = ({ notices }: { notices: Notice[] }) => {
   const navigate = useNavigate();
+  const activeFirstNotices = [...notices].sort(
+    (a, b) => (a.state === 'archived' ? 1 : 0) - (b.state === 'archived' ? 1 : 0),
+  );
+
   return (
     <Card sx={{ minWidth: 275 }}>
       <Box sx={{ display: 'flex', flex: 1, flexDirection: 'row', alignItems: 'center' }}>
@@ -19,23 +23,33 @@ export const NoticeList = ({ notices }: { notices: Notice[] }) => {
       <CardContent>
         {!notices.length && <Typography>{t('noticeList.noRecentNotices')}</Typography>}
 
-        {notices?.slice(0, 5).map((node) => {
+        {activeFirstNotices?.slice(0, 5).map((node) => {
           return (
             <Box sx={{ cursor: 'pointer' }} key={node.id}>
               <Typography>{format(new Date(node.publishTimeStart), DateFormat)}</Typography>
-              <Typography
-                sx={{ color: Colors.darkblue, marginBottom: '12px', fontSize: '18px', fontFamily: 'Exo2-Bold' }}
-                onClick={() =>
-                  navigate(
-                    `${Routes.NOTICES}/${node.id}/${format(new Date(node.publishTimeStart), URIFriendlyDateFormat)}`,
-                    {
-                      state: { noticeId: node.id },
-                    },
-                  )
-                }
-              >
-                {node.title}
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography
+                  sx={{
+                    color: node.state === 'archived' ? Colors.darkgrey : Colors.darkblue,
+                    marginBottom: '12px',
+                    fontSize: '18px',
+                    fontFamily: 'Exo2-Bold',
+                  }}
+                  onClick={() =>
+                    navigate(
+                      `${Routes.NOTICES}/${node.id}/${format(new Date(node.publishTimeStart), URIFriendlyDateFormat)}`,
+                      {
+                        state: { noticeId: node.id },
+                      },
+                    )
+                  }
+                >
+                  {node.title}
+                </Typography>
+                {node.state === 'archived' && (
+                  <Chip label="Vanhentunut" color="secondary" variant="outlined" size="small" />
+                )}
+              </Box>
             </Box>
           );
         })}
