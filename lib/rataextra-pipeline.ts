@@ -75,8 +75,13 @@ export class RataExtraPipelineStack extends Stack {
     const codePipeline = new CodePipeline(this, 'Pipeline-RataExtra', {
       codePipeline: pipeline,
       synth: new ShellStep('Synth', {
+        env: {
+          ENVIRONMENT: config.env,
+          BRANCH: config.branch,
+          STACK_ID: config.stackId,
+        },
         input: codeConnectionGithub,
-        installCommands: ['npm ci'],
+        installCommands: ['npm install -g npm@12.0.2', 'npm ci'],
         commands: [
           // Build Frontend
           `VITE_ALFRESCO_DOWNLOAD_URL=${alfrescoDownloadUrl} VITE_BUILD_ENVIRONMENT=${viteEnvironment()} npm run build:frontend`,
@@ -87,7 +92,7 @@ export class RataExtraPipelineStack extends Stack {
           // Build node-server
           '(cd packages/node-server && npm ci && npm run build)',
           // Build server (bundle Lambda functions)
-          `npm run pipeline:synth --environment=${config.env} --branch=${config.branch} --stackid=${config.stackId}`,
+          `npm run pipeline:synth`,
         ],
       }),
       dockerEnabledForSynth: true,
@@ -103,7 +108,7 @@ export class RataExtraPipelineStack extends Stack {
           },
         }),
         buildEnvironment: {
-          buildImage: LinuxBuildImage.STANDARD_7_0,
+          buildImage: LinuxBuildImage.fromDockerRegistry('public.ecr.aws/docker/library/node:22.23.2'),
         },
       },
     });
@@ -111,6 +116,12 @@ export class RataExtraPipelineStack extends Stack {
     const strip = new CodeBuildStep('StripAssetsFromAssembly', {
       input: codePipeline.cloudAssemblyFileSet,
       commands: [
+        //Image does not contain zip
+        'apt-get update && apt-get install -y zip',
+        'which zip',
+        //Image does not contain aws tooling
+        'curl -fsSL https://awscli.amazonaws.com/v2/install.sh | bash -s -- --system',
+        'aws --version',
         "cross_region_replication_buckets=$(grep BucketName cross-region-stack-* | awk -F 'BucketName' '{print $2}' | tr -d ': ' | tr -d '\"' | tr -d ',')",
         'S3_PATH=${CODEBUILD_SOURCE_VERSION#"arn:aws:s3:::"}',
         'ZIP_ARCHIVE=$(basename $S3_PATH)',

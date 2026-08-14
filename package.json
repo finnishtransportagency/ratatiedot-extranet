@@ -4,6 +4,17 @@
   "private": true,
   "description": "Väyläviraston ratatiedot extranet",
   "main": "index.js",
+  "engines": {
+    "node": "22.23.2",
+    "npm": "12.0.2"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "prisma": true,
+    "@prisma/engines": true,
+    "cypress": true,
+    "nx": true
+  },
   "scripts": {
     "prepare": "husky",
     "build": "lerna run build",
@@ -24,7 +35,7 @@
     "local:synth": "ENVIRONMENT=local BRANCH=local STACK_ID=local cdk --app \"tsx bin/rataextra\" -o cdk.rataextra synth",
     "sam:invoke": "ENVIRONMENT=local sam local invoke -t ./cdk.rataextra/rataextra.template.json $npm_config_handler --profile $npm_config_profile",
     "sam:synthinvoke": "npm run local:synth && npm run sam:invoke",
-    "pipeline:synth": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk synth",
+    "pipeline:synth": "cdk synth",
     "pipeline:diff": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk diff",
     "pipeline:deploy": "cross-env ENVIRONMENT=$npm_config_environment BRANCH=$npm_config_branch STACK_ID=$npm_config_stackid cdk deploy stack-pipeline-rataextra-$npm_config_stackid --no-rollback",
     "prisma:format": "prisma format --schema packages/server/prisma/schema.prisma",
