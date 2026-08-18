@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Theme as MaterialTheme } from '@mui/material';
 import { SearchParameterName } from '../components/Search/FilterSearchData';
 
@@ -97,6 +98,7 @@ type SubCategoryData = {
   BRIDGE_MAINTENANCE_INSTRUCTIONS: string;
   TUNNELS: string;
   RAILWAY_TUNNEL_RESCUE_PLANS: string;
+  SAFETY_ARCHIVE: string;
   SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS: string;
   SAFETY_EQUIPMENT_MANUALS: string;
   INPUT_STATION_MANUALS: string;

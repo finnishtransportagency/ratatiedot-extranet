@@ -42,6 +42,7 @@ export const Routes = {
   RAILWAY_TUNNEL_RESCUE_PLANS: `/${getRouterName(MainCategoryNames.SPECIALTY_STRUCTURES)}/${getRouterName(
     SubCategoryNames.RAILWAY_TUNNEL_RESCUE_PLANS,
   )}`,
+  SAFETY_ARCHIVE: `/${getRouterName(MainCategoryNames.OTHERS)}/${getRouterName(SubCategoryNames.SAFETY_ARCHIVE)}`,
   SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS: `/${getRouterName(MainCategoryNames.SAFETY_EQUIPMENT)}/${getRouterName(
     SubCategoryNames.SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS,
   )}`,
