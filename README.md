@@ -95,22 +95,25 @@ To bootstrap the project, run:
 ```shell
 npm ci && (cd packages/node-server && npm ci)
 npm run prisma:generate
-npm run build
+npm run build:frontend
+```
+
+Backend packages can be built separately if needed:
+
+```shell
+(cd packages/node-server && npm run build)
+(cd packages/server && npm run build)
 ```
 
 Create `.env` file in server package and copy from `.env.example` to `.env`.
-
-To install dependencies that only frontend or backend use, run command in the root repository:
-
-```shell
-npx lerna add <npm_package> [--dev] --scope=[frontend/server]
-```
 
 To install a common dependency that both frontend and server can use, run command in the root repository:
 
 ```shell
 npm install <npm_package>
 ```
+
+Otherwise, install it inside the relevant directory so that it's scoped to only frontend/server/node-server.
 
 ## Usage
 

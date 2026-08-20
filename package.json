@@ -6,7 +6,6 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky",
-    "build": "lerna run build",
     "build:frontend": "npm --prefix packages/frontend run build",
     "ci": "npm ci",
     "dev-client": "cd packages/frontend && npm start",
@@ -15,7 +14,6 @@
     "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
-    "test": "lerna run test --no-sort",
     "test:client": "cd packages/frontend && npm run test",
     "test:client:ci": "cd packages/frontend && npm run test:no-watch",
     "test:server": "cd packages/server && npm run test",
@@ -67,7 +65,6 @@
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-prettier": "5.5.5",
     "husky": "^9.1.7",
-    "lerna": "9.0.3",
     "lint-staged": "16.2.7",
     "prettier": "^3.8.1",
     "tsx": "4.21.0",
