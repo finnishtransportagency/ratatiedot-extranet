@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Theme as MaterialTheme } from '@mui/material';
 import { SearchParameterName } from '../components/Search/FilterSearchData';
 
@@ -124,6 +123,7 @@ type TNode = {
     name: string;
     modifiedAt: string;
     nodeType: string;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     content: any;
     parentId: string;
     isFile: boolean;
@@ -184,6 +184,7 @@ interface AlfrescoResponse {
 interface Notice {
   id: string;
   title: string | null;
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   content: any;
   authorId: string | null;
   createdTime: Date;
