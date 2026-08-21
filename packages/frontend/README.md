@@ -76,6 +76,30 @@ i18next is used for translations. See their docs for more instructions at <https
 
 For API error translation, see - [server README](../server/README.md#translation)
 
+## Creating Alfresco based views
+
+Views containing file read and upload are likely based on Alfresco folder structure, verify to be sure.
+For example piirustusarkisto corresponds to piirustusarkisto folder in Alfresco.
+
+To create Alfresco based view do the following.
+
+- Create react component for the view
+- Setup routing routes.tsx, Routes.ts and correct categorydata type in types.d.ts
+- Include category in FinnishCategories.json
+
+For dev:
+
+- Create a category folder in Alfresco dev environment
+- Open developer console and create a new file or folder inside the category
+- Copy alfresco id from workspace response
+- Connect to dev database and create category entry for the new category. Copy the entry of the database entry id
+- Create an entry in categories.ts devCategories with dev database id and alfresco id
+
+For prod:
+
+- As above but do the operations on production Alfresco and database
+- Create entry in prodCategories
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).

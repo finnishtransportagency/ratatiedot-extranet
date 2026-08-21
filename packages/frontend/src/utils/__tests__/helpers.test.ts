@@ -91,6 +91,7 @@ describe('Helpers Utility', () => {
         REGIONAL_LIMITATIONS_DRIVER_ACTIVITY: 'Pienimuotoisen kuljettajatoiminnan aluerajaukset',
         RINF_REGISTER: 'RINF-rekisteri (ERADIS-tunnus)',
         ROUTE_DOCUMENTS: 'Reittikirjatiedot',
+        SAFETY_ARCHIVE: 'Turvallisuus',
         SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS: 'Turvalaitteiden huolto-ohjeet',
         SAFETY_EQUIPMENT_MANUALS: 'Turvalaitteiden käyttöohjeet',
         SEARCH_AND_FILTERS: 'Haku ja suodattimet',
