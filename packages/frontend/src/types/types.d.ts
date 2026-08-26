@@ -97,6 +97,7 @@ type SubCategoryData = {
   BRIDGE_MAINTENANCE_INSTRUCTIONS: string;
   TUNNELS: string;
   RAILWAY_TUNNEL_RESCUE_PLANS: string;
+  SAFETY_ARCHIVE: string;
   SAFETY_EQUIPMENT_MAINTENANCE_INSTRUCTIONS: string;
   SAFETY_EQUIPMENT_MANUALS: string;
   INPUT_STATION_MANUALS: string;
@@ -122,6 +123,7 @@ type TNode = {
     name: string;
     modifiedAt: string;
     nodeType: string;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     content: any;
     parentId: string;
     isFile: boolean;
@@ -182,6 +184,7 @@ interface AlfrescoResponse {
 interface Notice {
   id: string;
   title: string | null;
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   content: any;
   authorId: string | null;
   createdTime: Date;

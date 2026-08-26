@@ -219,6 +219,12 @@ export const prodCategories = [
     name: 'Ratajohdon laitteiden huolto- ja käyttöohjeet',
     alfrescoId: 'c1c9e7a1-b681-4adc-8caf-4eba9d19c889',
   },
+  {
+    key: 30,
+    id: 'c7a63dc4-2ab4-4748-8fe6-91c33ca7e30e',
+    name: 'Turvallisuus',
+    alfrescoId: '5829144a-12e7-42f4-a914-4a12e772f4af',
+  },
 ];
 
 export const devCategories = [
@@ -395,6 +401,12 @@ export const devCategories = [
     id: '878a9561-9957-4c70-9b59-cb0d0183a1cc',
     name: 'Ratajohdon laitteiden huolto- ja käyttöohjeet',
     alfrescoId: '0d6d4045-4ebb-4e37-b677-21843c3a150f',
+  },
+  {
+    key: 30,
+    id: 'b4ffcd5a-1a22-404c-8425-940cfa1dddb8',
+    name: 'Turvallisuus',
+    alfrescoId: '0cee3e80-1818-4df1-ae3e-8018180df108',
   },
 ];
 

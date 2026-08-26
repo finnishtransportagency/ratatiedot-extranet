@@ -32,6 +32,7 @@ import { MonitoringEquipment } from './pages/Others/MonitoringEquipment';
 import { DriverActivity } from './pages/Others/DriverActivity';
 import { PlanningArchive } from './pages/Others/PlanningArchive';
 import { RailwayMonitoringService } from './pages/Others/RailwayMonitoringService';
+import { SafetyArchive } from './pages/Others/SafetyArchive';
 import { AppContextProvider } from './contexts/AppContextProvider';
 import { BaliseContextProvider } from './modules/balise/contexts/BaliseContextProvider';
 import { AcceptInstructions } from './pages/AcceptInstructions';
@@ -197,6 +198,7 @@ const OTHERS_ROUTES = [
   ...getProtectedRoute(Routes.RAILWAY_MONITORING_SERVICE, <RailwayMonitoringService />),
   ...getProtectedRoute(Routes.RAILWAY_CATEGORY, <RailwayCategory />),
   ...getProtectedRoute(Routes.OTHER_RAILWAY, <OtherRailway />),
+  ...getProtectedRoute(Routes.SAFETY_ARCHIVE, <SafetyArchive />),
 ];
 
 const INSTRUCTIONS_ROUTES = [
