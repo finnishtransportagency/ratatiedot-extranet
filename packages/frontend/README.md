@@ -81,7 +81,7 @@ For API error translation, see - [server README](../server/README.md#translation
 Views containing file read and upload are likely based on Alfresco folder structure, verify to be sure.
 For example piirustusarkisto corresponds to piirustusarkisto folder in Alfresco.
 
-To create Alfresco based view do the following.
+To create an Alfresco based view do the following.
 
 - Create react component for the view
 - Setup routing routes.tsx, Routes.ts and correct categorydata type in types.d.ts
@@ -89,16 +89,24 @@ To create Alfresco based view do the following.
 
 For dev:
 
-- Create a category folder in Alfresco dev environment
+- Create a category folder in an Alfresco dev environment
 - Open developer console and create a new file or folder inside the category
-- Copy alfresco id from workspace response
-- Connect to dev database and create category entry for the new category. Copy the entry of the database entry id
+- Copy alfresco id from http response workspace string
+- Connect to dev database and create CategoryDataBase entry for the new category. NOTE creating a new rights group below. Copy the entry id
 - Create an entry in categories.ts devCategories with dev database id and alfresco id
 
 For prod:
 
 - As above but do the operations on production Alfresco and database
 - Create entry in prodCategories
+
+### New rights group:
+
+If the view requires a new access rights group, contact primary customer contact person.
+
+- Give them the name for the rights group, for example ratatieto_kirjoitus_examplefolder
+- They will make a request for creating a new rights group, this can take some time
+- When the group is created add the rights group to the folder in Alfresco document view - Manage Rights
 
 ## Learn More
 
