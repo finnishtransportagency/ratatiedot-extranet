@@ -173,10 +173,10 @@ export class RataExtraPipelineStack extends Stack {
           },
         },
         installCommands: [
-          'export SONAR_SCANNER_VERSION=5.0.1.3006',
-          'export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux',
-          'curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip',
+          'export SONAR_SCANNER_VERSION=8.1.0.6389',
+          'curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux-x64.zip',
           'unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/',
+          'export SONAR_SCANNER_HOME=$(find $HOME/.sonar -maxdepth 1 -type d -name "sonar-scanner-*" | head -n 1)',
           'export PATH=$SONAR_SCANNER_HOME/bin:$PATH',
           'export SONAR_SCANNER_OPTS="-server"',
         ],
