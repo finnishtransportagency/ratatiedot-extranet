@@ -35,6 +35,6 @@
     "@types/jwk-to-pem": "2.0.3",
     "@types/node": "22.19.7",
     "prisma": "7.3.0",
-    "vitest": "4.0.15"
+    "vitest": "4.1.0"
   }
 }
