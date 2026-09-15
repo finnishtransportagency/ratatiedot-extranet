@@ -392,6 +392,11 @@ export const BaliseListPage: React.FC = () => {
         {isBackgroundLoading && (
           <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000 }} />
         )}
+        {/* TEMPORARY NOTIFICATION BANNER - remove manually later */}
+        <Alert severity="warning" sx={{ mb: 1 }}>
+          <div>Toistaiseksi pidetään myös Sovelia rinnakkaisena varatietolähteenä.</div>
+          <div>Huolehdithan, että sanomat ovat ajan tasalla molemmissa!</div>
+        </Alert>
         {sectionError && (
           <Alert severity="error" sx={{ mb: 1 }}>
             {sectionError}
