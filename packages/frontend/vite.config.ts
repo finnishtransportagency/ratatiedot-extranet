@@ -14,7 +14,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:3002',
+        // Target port must match `localPortNumber` in your pipe script:
+        // usually 3001 for dev backend, or 3002 for feat backend.
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
       },

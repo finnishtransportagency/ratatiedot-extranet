@@ -21,26 +21,26 @@ As doing synth is a slower process, it's recommended to use basic `sam:invoke` w
 
 ### Connecting to AWS dev environment
 
-Copy `.env.bastion.example` as `.env.bastion` and fill the parameters. Refresh your local AWS access credentials in ~/.aws/credentials (if you haven't done so already) and run
+Copy `.env.bastion.example` as `.env.bastion` and fill the parameters. Then run
 
 ```shell
 ./bastion-backend-pipe.sh
 ```
 
-This will set up a pipe to the bastion host using AWS SSM on localhost:3001. These are then piped to the ALB. If you get "Forbidden"-error, you need to refresh your credentials in `~/.aws/credentials`. For this to keep working, `bastion-backend-pipe.sh` locally needs to be up and running.
+The script automatically refreshes your SSO session if it has expired. This will set up a pipe to the bastion host using AWS SSM on localhost:3001, which is then piped to the ALB. For this to keep working, `bastion-backend-pipe.sh` locally needs to be up and running.
 
 #### Connecting to dev/prod database
 
-Do `.env.bastion` steps above if you have not done so already. Refresh local AWS credentials and run
+Do `.env.bastion` steps above if you have not done so already. Then run
 
 ```shell
 ./bastion-database-pipe.sh
 ```
 
-This will set up a pipe to the bastion host using AWS SSM on localhost:5433. These are then piped to the DB. For this to keep working, `bastion-database-pipe.sh` locally needs to be up and running.
+The script automatically refreshes your SSO session if it has expired. This will set up a pipe to the bastion host using AWS SSM on localhost:5433, which is then piped to the DB. For this to keep working, `bastion-database-pipe.sh` locally needs to be up and running.
 
 > [!NOTE]
-> If you have configured `.env.bastion` file with desired bastion `INSTANCE_ID` and aws `PROFILE`, updated your AWS credentials in `~/.aws/credentials` file and have correct database credentials in `/packages/server/.env` file but still are not able to connect to desired database through bastion host, check that `nohup socat` process is running in the instance. You can use AWS EC2 console to login to bastion host terminal.
+> If you have configured `.env.bastion` file with desired bastion `INSTANCE_ID` and aws `PROFILE`, and have correct database credentials in `/packages/server/.env` file but still are not able to connect to desired database through bastion host, check that `nohup socat` process is running in the instance. You can use AWS EC2 console to login to bastion host terminal.
 >
 > - login to bastion host terminal and list all running processes `sudo lsof -i -P -n`
 >   - see if process listening port `*:5432` is in the list

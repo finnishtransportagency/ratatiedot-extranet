@@ -84,7 +84,17 @@ brew install awscli
 brew install --cask session-manager-plugin
 ```
 
-For other platforms, please see <https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html> and <https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html>
+For other platforms, please see
+<https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html>
+and
+<https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html>
+
+#### AWS SSO configuration
+
+Update your AWS CLI `config` file with Ratatieto's SSO profile:
+<https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html>
+
+You can see find the variable values from Väyläpilvi AWS access portal.
 
 ### Installation
 
