@@ -18,6 +18,7 @@ export const STATIC_ROLES = {
 
 const BALISE_ROLES = {
   read: 'ratatieto_luku_baliisisanomat',
+  readRaide: 'ratatieto_luku_baliisisanomat_raide',
   write: 'ratatieto_kirjoitus_baliisisanomat',
   admin: 'ratatieto_admin_baliisisanomat',
 };
@@ -89,7 +90,8 @@ const isWriteUser = (user: RataExtraUser, writeRole: string) =>
   user.roles?.map((role) => role.toLowerCase()).includes(STATIC_ROLES.write.toLowerCase());
 
 export const isBaliseReadUser = (user: RataExtraUser) =>
-  user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.read.toLowerCase());
+  user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.read.toLowerCase()) ||
+  user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.readRaide.toLowerCase());
 
 export const isBaliseWriteUser = (user: RataExtraUser) =>
   user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.write.toLowerCase());
