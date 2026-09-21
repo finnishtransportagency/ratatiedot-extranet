@@ -38,7 +38,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       where: { secondaryId: baliseId },
     });
 
-    if (!balise) {
+    // Shareable links carry the balise's immutable id so a reused number can't resolve a stale link
+    const linkedId = event.queryStringParameters?.uid;
+    if (!balise || (linkedId && balise.id !== linkedId)) {
       return {
         statusCode: 404,
         headers: { 'Content-Type': 'application/json' },
