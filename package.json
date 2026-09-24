@@ -67,7 +67,7 @@
     "@typescript-eslint/eslint-plugin": "8.53.1",
     "@typescript-eslint/parser": "8.53.1",
     "aws-cdk": "2.1101.0",
-    "aws-cdk-lib": "2.235.1",
+    "aws-cdk-lib": "2.260.0",
     "concurrently": "9.2.1",
     "constructs": "10.2.69",
     "cross-env": "10.1.0",
