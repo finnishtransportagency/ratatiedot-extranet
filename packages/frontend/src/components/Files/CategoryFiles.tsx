@@ -24,6 +24,29 @@ type TCategoryFilesProps = {
   nestedFolderId?: string;
 };
 
+const getNodeSortName = (node: TNode) => {
+  const entry = node.entry;
+  const title = entry.properties?.['cm:title'];
+  const name = title || entry.name || '';
+  return String(name).trim().toLocaleLowerCase();
+};
+
+const sortNodesByFolderThenName = (nodes: TNode[]) => {
+  return [...nodes].sort((a, b) => {
+    const aIsFolder = Boolean(a.entry.isFolder);
+    const bIsFolder = Boolean(b.entry.isFolder);
+
+    if (aIsFolder !== bIsFolder) {
+      return aIsFolder ? -1 : 1;
+    }
+
+    return getNodeSortName(a).localeCompare(getNodeSortName(b), undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    });
+  });
+};
+
 export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
   const { t } = useTranslation(['common', 'search']);
   const location = useLocation();
@@ -67,11 +90,12 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
       hasConfidentialContentHandler(hasConfidentialContent);
 
       setFileList((f) => {
-        return page > 0 ? [...f, ...totalFiles] : [...totalFiles];
+        const nextList = page > 0 ? [...f, ...totalFiles] : [...totalFiles];
+        return sortNodesByFolderThenName(nextList);
       });
       setTotalFiles(totalItems);
       setHasMoreItems(hasMoreItems);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err);
     } finally {
       setLoading(false);
