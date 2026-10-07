@@ -145,7 +145,7 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
     if (index > -1) {
       const newList = [...fileList];
       newList.splice(index, 1);
-      setFileList(newList);
+      setFileList(sortNodesByFolderThenName(newList));
       setTotalFiles(totalFiles - 1);
     }
   };
@@ -154,7 +154,7 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
     if (fileExists(node.entry.name)) {
       deleteFile(node);
     }
-    setFileList((currentFileList) => [...currentFileList, node]);
+    setFileList((currentFileList) => sortNodesByFolderThenName([...currentFileList, node]));
     setTotalFiles((currentTotalFiles) => currentTotalFiles + 1);
   };
 
@@ -166,7 +166,7 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
         }
         return node;
       });
-      return updatedList;
+      return sortNodesByFolderThenName(updatedList);
     });
   };
 
