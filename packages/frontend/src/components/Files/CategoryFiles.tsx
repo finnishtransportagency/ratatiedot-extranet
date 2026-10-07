@@ -53,7 +53,7 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
   const [fileList, setFileList] = useState<TNode[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState();
+  const [error, setError] = useState<Error | null>(null);
   const [totalFiles, setTotalFiles] = useState(0);
   const [hasMoreItems, setHasMoreItems] = useState(false);
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
@@ -96,7 +96,7 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
       setTotalFiles(totalItems);
       setHasMoreItems(hasMoreItems);
     } catch (err: unknown) {
-      setError(err);
+      setError(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setLoading(false);
     }
