@@ -24,13 +24,36 @@ type TCategoryFilesProps = {
   nestedFolderId?: string;
 };
 
+const getNodeSortName = (node: TNode) => {
+  const entry = node.entry;
+  const title = entry.properties?.['cm:title'];
+  const name = title || entry.name || '';
+  return String(name).trim().toLocaleLowerCase();
+};
+
+const sortNodesByFolderThenName = (nodes: TNode[]) => {
+  return [...nodes].sort((a, b) => {
+    const aIsFolder = Boolean(a.entry.isFolder);
+    const bIsFolder = Boolean(b.entry.isFolder);
+
+    if (aIsFolder !== bIsFolder) {
+      return aIsFolder ? -1 : 1;
+    }
+
+    return getNodeSortName(a).localeCompare(getNodeSortName(b), undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    });
+  });
+};
+
 export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
   const { t } = useTranslation(['common', 'search']);
   const location = useLocation();
   const [fileList, setFileList] = useState<TNode[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState();
+  const [error, setError] = useState<Error | null>(null);
   const [totalFiles, setTotalFiles] = useState(0);
   const [hasMoreItems, setHasMoreItems] = useState(false);
   const [selectedFile, setSelectedFile] = useState<TNode | null>(null);
@@ -67,12 +90,13 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
       hasConfidentialContentHandler(hasConfidentialContent);
 
       setFileList((f) => {
-        return page > 0 ? [...f, ...totalFiles] : [...totalFiles];
+        const nextList = page > 0 ? [...f, ...totalFiles] : [...totalFiles];
+        return sortNodesByFolderThenName(nextList);
       });
       setTotalFiles(totalItems);
       setHasMoreItems(hasMoreItems);
-    } catch (err: any) {
-      setError(err);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setLoading(false);
     }
@@ -121,7 +145,7 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
     if (index > -1) {
       const newList = [...fileList];
       newList.splice(index, 1);
-      setFileList(newList);
+      setFileList(sortNodesByFolderThenName(newList));
       setTotalFiles(totalFiles - 1);
     }
   };
@@ -130,7 +154,7 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
     if (fileExists(node.entry.name)) {
       deleteFile(node);
     }
-    setFileList((currentFileList) => [...currentFileList, node]);
+    setFileList((currentFileList) => sortNodesByFolderThenName([...currentFileList, node]));
     setTotalFiles((currentTotalFiles) => currentTotalFiles + 1);
   };
 
@@ -142,7 +166,7 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
         }
         return node;
       });
-      return updatedList;
+      return sortNodesByFolderThenName(updatedList);
     });
   };
 
