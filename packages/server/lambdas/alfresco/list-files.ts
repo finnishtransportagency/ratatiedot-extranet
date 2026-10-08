@@ -28,7 +28,8 @@ const listFiles = async (uid: string, nodeId: string, page: number, ascending: b
   try {
     const skipCount = Math.max(page ?? 0, 0) * 50;
     const order = ascending ? 'ASC' : 'DESC';
-    const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?skipCount=${skipCount}&maxItems=50&include=${AdditionalFields.PROPERTIES}&orderBy=name ${order}`;
+    const isFolder = 'ASC';
+    const url = `${alfrescoApiVersion}/nodes/${nodeId}/children?skipCount=${skipCount}&maxItems=50&include=${AdditionalFields.PROPERTIES}&orderBy=name ${order} isfolder ${isFolder}`;
     const options = await getAlfrescoOptions(uid, { 'Content-Type': 'application/json;charset=UTF-8' });
     const response = await alfrescoAxios.get(url, options);
     return response.data;
