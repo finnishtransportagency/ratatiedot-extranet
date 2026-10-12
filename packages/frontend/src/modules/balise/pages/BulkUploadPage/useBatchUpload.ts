@@ -13,7 +13,7 @@ interface UploadResult {
   previousVersion?: number;
   filesUploaded?: number;
   error?: string;
-  errorType?: 'not_locked' | 'locked_by_other' | 'not_found' | 'permission' | 'storage' | 'unknown';
+  errorType?: 'not_locked' | 'locked_by_other' | 'not_found' | 'permission' | 'storage' | 'too_large' | 'unknown';
   lockedBy?: string;
   isNewBalise?: boolean;
 }
@@ -41,6 +41,13 @@ interface ValidationErrorResponse {
   failures: ValidationFailure[];
 }
 
+interface ErrorResponse {
+  success: false;
+  error: string;
+}
+
+type BatchResponseData = UploadResponse | ValidationErrorResponse | ErrorResponse;
+
 export interface BatchUploadProgress {
   currentBatch: number;
   totalBatches: number;
@@ -61,7 +68,12 @@ interface BatchUploadResult {
   totalBalises: number;
 }
 
-const BATCH_SIZE = 200;
+// Lambda (via ALB) request body limit is 1 MB. Binary bodies are base64-encoded (~4/3 size),
+// so the raw multipart payload must stay below ~750 KB. Use a safety margin on top of that.
+const LAMBDA_PAYLOAD_LIMIT_BYTES = 1024 * 1024;
+const MAX_BATCH_PAYLOAD_BYTES = Math.floor((LAMBDA_PAYLOAD_LIMIT_BYTES * 3) / 4) - 64 * 1024;
+// Estimated multipart overhead per part (boundary + Content-Disposition/Content-Type headers)
+const MULTIPART_PART_OVERHEAD_BYTES = 256;
 const BATCH_DELAY_MS = 200;
 const MAX_RETRIES = 3;
 const RETRY_DELAY_BASE_MS = 1000;
@@ -96,25 +108,70 @@ function groupFilesByBalise(files: FileWithBaliseId[]): Map<number, FileWithBali
 }
 
 /**
- * Split files into batches, keeping all files for each balise together.
- * Batches by file count (~200 files per batch) but never splits a balise across batches.
+ * Estimate the multipart payload size contributed by a single file
  */
-function splitIntoBatches(files: FileWithBaliseId[], batchSize: number): FileWithBaliseId[][] {
+function estimateFilePayloadSize(item: FileWithBaliseId): number {
+  return item.file.size + item.file.name.length + MULTIPART_PART_OVERHEAD_BYTES;
+}
+
+/**
+ * Estimate the multipart payload size of the text fields (descriptions) sent for a balise
+ */
+function estimateDescriptionPayloadSize(description: string | undefined): number {
+  const trimmed = description?.trim();
+  if (!trimmed) return 0;
+  return new TextEncoder().encode(trimmed).length + MULTIPART_PART_OVERHEAD_BYTES;
+}
+
+interface OversizedBalise {
+  baliseId: number;
+  payloadSize: number;
+}
+
+function formatKilobytes(bytes: number): string {
+  return `${Math.ceil(bytes / 1024)} kt`;
+}
+
+/**
+ * Split files into batches, keeping all files for each balise together.
+ * Batches are sized dynamically so the estimated request payload stays below the Lambda
+ * payload limit. A balise is never split across batches; balises too large to fit in any
+ * batch are returned separately in `oversized`.
+ */
+function splitIntoBatches(
+  files: FileWithBaliseId[],
+  globalDescription: string,
+  baliseDescriptions: Record<number, string>,
+): { batches: FileWithBaliseId[][]; oversized: OversizedBalise[] } {
   const grouped = groupFilesByBalise(files);
   const baliseEntries = Array.from(grouped.entries());
+  const basePayloadSize = estimateDescriptionPayloadSize(globalDescription);
 
   const batches: FileWithBaliseId[][] = [];
+  const oversized: OversizedBalise[] = [];
   let currentBatch: FileWithBaliseId[] = [];
+  let currentBatchSize = basePayloadSize;
 
-  for (const [, baliseFiles] of baliseEntries) {
-    // If adding this balise would exceed batch size and we have files already, start a new batch
-    if (currentBatch.length > 0 && currentBatch.length + baliseFiles.length > batchSize) {
+  for (const [baliseId, baliseFiles] of baliseEntries) {
+    const balisePayloadSize =
+      baliseFiles.reduce((sum, f) => sum + estimateFilePayloadSize(f), 0) +
+      estimateDescriptionPayloadSize(baliseDescriptions[baliseId]);
+
+    if (basePayloadSize + balisePayloadSize > MAX_BATCH_PAYLOAD_BYTES) {
+      oversized.push({ baliseId, payloadSize: balisePayloadSize });
+      continue;
+    }
+
+    // If adding this balise would exceed the payload limit and we have files already, start a new batch
+    if (currentBatch.length > 0 && currentBatchSize + balisePayloadSize > MAX_BATCH_PAYLOAD_BYTES) {
       batches.push(currentBatch);
       currentBatch = [];
+      currentBatchSize = basePayloadSize;
     }
 
     // Add all files for this balise to current batch
     currentBatch.push(...baliseFiles);
+    currentBatchSize += balisePayloadSize;
   }
 
   // Don't forget remaining files
@@ -122,7 +179,7 @@ function splitIntoBatches(files: FileWithBaliseId[], batchSize: number): FileWit
     batches.push(currentBatch);
   }
 
-  return batches;
+  return { batches, oversized };
 }
 
 /**
@@ -139,7 +196,7 @@ async function uploadBatch(
   batchFiles: FileWithBaliseId[],
   globalDescription: string,
   baliseDescriptions: Record<number, string>,
-): Promise<{ response: Response; data: UploadResponse | ValidationErrorResponse }> {
+): Promise<{ response: Response; data: BatchResponseData }> {
   const formData = new FormData();
 
   batchFiles.forEach((item, index) => {
@@ -163,7 +220,17 @@ async function uploadBatch(
     body: formData,
   });
 
-  const data = await response.json();
+  // Load balancer errors (e.g. payload too large) return HTML instead of JSON
+  const data: BatchResponseData = await response.json().catch((): ErrorResponse => {
+    if (response.ok) throw new Error('Palvelimen vastaus oli virheellinen');
+    return {
+      success: false,
+      error:
+        response.status === 413
+          ? `Tiedostojen yhteiskoko on liian suuri (enintään ${formatKilobytes(MAX_BATCH_PAYLOAD_BYTES)} kerralla)`
+          : `Palvelinvirhe (${response.status})`,
+    };
+  });
   return { response, data };
 }
 
@@ -175,7 +242,7 @@ async function uploadBatchWithRetry(
   globalDescription: string,
   baliseDescriptions: Record<number, string>,
   onRetry?: (attempt: number) => void,
-): Promise<{ response: Response; data: UploadResponse | ValidationErrorResponse; retried: boolean }> {
+): Promise<{ response: Response; data: BatchResponseData; retried: boolean }> {
   let lastError: Error | null = null;
   let retried = false;
 
@@ -278,10 +345,7 @@ function processPartialFailure(data: UploadResponse): {
 /**
  * Process general error response (no results array)
  */
-function processGeneralError(
-  batch: FileWithBaliseId[],
-  data: UploadResponse | ValidationErrorResponse,
-): UploadResult[] {
+function processGeneralError(batch: FileWithBaliseId[], data: BatchResponseData): UploadResult[] {
   const errorMessage = 'error' in data ? data.error : 'Baliisien lisäys epäonnistui';
   return getBatchBaliseIds(batch).map((baliseId) => ({
     baliseId,
@@ -371,12 +435,7 @@ export const useBatchUpload = () => {
   }, []);
 
   const processBatchResponse = useCallback(
-    (
-      response: Response,
-      data: UploadResponse | ValidationErrorResponse,
-      batch: FileWithBaliseId[],
-      state: BatchProcessingState,
-    ): void => {
+    (response: Response, data: BatchResponseData, batch: FileWithBaliseId[], state: BatchProcessingState): void => {
       // Success response
       if (response.ok) {
         const processed = processSuccessResponse(data as UploadResponse);
@@ -428,10 +487,10 @@ export const useBatchUpload = () => {
       setIsUploading(true);
       abortRef.current = false;
 
-      const batches = splitIntoBatches(files, BATCH_SIZE);
+      const { batches, oversized } = splitIntoBatches(files, globalDescription, baliseDescriptions);
       const totalFiles = files.filter((f) => f.isValid).length;
 
-      if (batches.length === 0) {
+      if (batches.length === 0 && oversized.length === 0) {
         setError('Ei lisättäviä tiedostoja');
         setIsUploading(false);
         return null;
@@ -440,6 +499,16 @@ export const useBatchUpload = () => {
       setProgress({ ...INITIAL_PROGRESS, totalBatches: batches.length, totalFiles });
 
       const state = createInitialState();
+
+      for (const { baliseId, payloadSize } of oversized) {
+        state.allResults.push({
+          baliseId,
+          success: false,
+          error: `Baliisin tiedostot ovat yhteensä liian suuria (${formatKilobytes(payloadSize)}, enintään ${formatKilobytes(MAX_BATCH_PAYLOAD_BYTES)})`,
+          errorType: 'too_large',
+        });
+        state.failureCount++;
+      }
 
       for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
         if (abortRef.current) break;
