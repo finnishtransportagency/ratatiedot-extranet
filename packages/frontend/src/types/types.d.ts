@@ -117,6 +117,10 @@ type SubCategoryData = {
   EDIT_TOOL: string;
 };
 
+type BaliseCategoryData = {
+  BALISE_PLAN_FILES: string;
+};
+
 type TNode = {
   entry: {
     id: string;

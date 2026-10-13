@@ -408,6 +408,12 @@ export const devCategories = [
     name: 'Turvallisuus',
     alfrescoId: '0cee3e80-1818-4df1-ae3e-8018180df108',
   },
+  {
+    key: 31,
+    id: '34b6cfce-6fff-40e3-b3bc-750ae202e0c5',
+    name: 'Baliisi suunnitelmat',
+    alfrescoId: '1f2c25dc-ee98-4133-99d0-ec35ef3491e8',
+  },
 ];
 
 export const prodAreas = [
