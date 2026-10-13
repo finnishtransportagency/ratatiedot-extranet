@@ -412,7 +412,7 @@ export const devCategories = [
     key: 31,
     id: '34b6cfce-6fff-40e3-b3bc-750ae202e0c5',
     name: 'Baliisi suunnitelmat',
-    alfrescoId: '1f2c25dc-ee98-4133-99d0-ec35ef3491e8',
+    alfrescoId: '39ec9e5a-69bf-4ec7-ac9e-5a69bf1ec75c',
   },
 ];
 
