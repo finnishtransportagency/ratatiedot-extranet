@@ -54,6 +54,7 @@ import { OtherRailway } from './pages/Others/OtherRailway';
 import { BaliseListPage, BaliseEditPage, BulkUploadPage, SectionPage } from './modules/balise';
 
 import { findCategoryIdByKey } from './utils/helpers';
+import { BalisePlanFiles } from './modules/balise/pages/BalisePlanFiles';
 
 /**
  * Return router name based on page title's name
@@ -277,6 +278,7 @@ const BALISE_ROUTE: RouteObject[] = [
       return null;
     },
   },
+  ...getProtectedRoute(Routes.BALISE_PLAN_FILES, <BalisePlanFiles />),
 ];
 
 export const categoryRoutes: RouteObject[] = [
