@@ -21,6 +21,7 @@ alfrescoAxios.interceptors.response.use(
       }
       const simplifiedError = {
         status: error.response?.status,
+        data: error.response?.data,
         message: error.message,
         stack: error.stack,
       };

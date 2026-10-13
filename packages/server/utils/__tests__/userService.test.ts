@@ -192,6 +192,14 @@ describe('Balise role validation', () => {
       expect(() => validateBaliseReadUser(user)).not.toThrow();
     });
 
+    it('should allow user with balise raide read role', () => {
+      const user: RataExtraUser = {
+        uid: 'user-1-raide',
+        roles: ['ratatieto_luku_baliisisanomat_raide'],
+      };
+      expect(() => validateBaliseReadUser(user)).not.toThrow();
+    });
+
     it('should allow user with balise write role', () => {
       const user: RataExtraUser = {
         uid: 'user-2',

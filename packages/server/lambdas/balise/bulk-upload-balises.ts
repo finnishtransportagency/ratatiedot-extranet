@@ -310,6 +310,10 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const buffer = event.isBase64Encoded
       ? base64ToBuffer(event.body as string)
       : Buffer.from(event.body || '', 'utf-8');
+    log.info(
+      user,
+      `Bulk upload payload: isBase64Encoded=${event.isBase64Encoded} bodyLength=${event.body?.length ?? 0} decodedLength=${buffer.length} contentLength=${event.headers?.['content-length']}`,
+    );
     const {
       files: fileUploads,
       invalidFiles,
