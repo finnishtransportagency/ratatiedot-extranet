@@ -411,8 +411,8 @@ export const devCategories = [
   {
     key: 31,
     id: '34b6cfce-6fff-40e3-b3bc-750ae202e0c5',
-    name: 'Baliisi suunnitelmat',
-    alfrescoId: '39ec9e5a-69bf-4ec7-ac9e-5a69bf1ec75c',
+    name: 'Baliisisuunnitelmat',
+    alfrescoId: '15d9398d-bc43-407e-9939-8dbc43407eea',
   },
 ];
 
