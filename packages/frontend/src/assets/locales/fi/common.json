@@ -47,7 +47,9 @@
   "menu": {
     "frontpage": "Etusivu",
     "favorite": "Suosikit",
-    "balise": "Baliisisanomat",
+    "balise": "Baliisi",
+    "balise_list": "Baliisisanomat",
+    "balise_plan_files": "Baliisi suunnitelmat",
     "extranet": "Poistu Extranetiin",
     "instructions": "Käyttöohjeet"
   },

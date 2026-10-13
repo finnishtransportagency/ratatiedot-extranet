@@ -185,7 +185,18 @@ export const MenuContextProvider = ({ children }: { children?: ReactNode }) => {
             key: t('common:menu.balise'),
             primary: t('common:menu.balise'),
             icon: <SensorsIcon />,
-            to: Routes.BALISE,
+            children: [
+              {
+                key: t('common:menu.balise_list'),
+                primary: t('common:menu.balise_list'),
+                to: Routes.BALISE,
+              },
+              {
+                key: t('common:menu.balise_plan_files'),
+                primary: t('common:menu.balise_plan_files'),
+                to: Routes.BALISE_PLAN_FILES,
+              },
+            ],
           },
         ]
       : []),
