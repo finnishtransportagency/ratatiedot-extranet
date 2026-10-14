@@ -1,7 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseWriteUser, isBaliseAdmin } from '../../utils/userService';
+import { getUser, validateBaliseWriteUser, canUnlockOthers } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { VersionStatus } from '../../generated/prisma/client';
 
@@ -50,8 +50,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     // Check if user is the one who locked it or is an admin
-    const isAdmin = isBaliseAdmin(user);
-    if (balise.lockedBy !== user.uid && !isAdmin) {
+    if (balise.lockedBy !== user.uid && !canUnlockOthers(user)) {
       return {
         statusCode: 403,
         headers: { 'Content-Type': 'application/json' },
