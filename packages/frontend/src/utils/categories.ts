@@ -229,7 +229,7 @@ export const prodCategories = [
     key: 31,
     id: '1a4376c9-a222-4463-b4ea-e59fa87d63da',
     name: 'Nopeusrajoitussuunnitelmat',
-    alfrescoId: '077fd283-9078-437e-bfd2-839078a37e21',
+    alfrescoId: '554e6389-0042-4c47-8e63-890042ec47e0',
   },
 ];
 
