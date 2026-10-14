@@ -225,6 +225,12 @@ export const prodCategories = [
     name: 'Turvallisuus',
     alfrescoId: '5829144a-12e7-42f4-a914-4a12e772f4af',
   },
+  {
+    key: 31,
+    id: '1a4376c9-a222-4463-b4ea-e59fa87d63da',
+    name: 'Nopeusrajoitussuunnitelmat',
+    alfrescoId: '077fd283-9078-437e-bfd2-839078a37e21',
+  },
 ];
 
 export const devCategories = [
@@ -411,7 +417,7 @@ export const devCategories = [
   {
     key: 31,
     id: '34b6cfce-6fff-40e3-b3bc-750ae202e0c5',
-    name: 'Baliisisuunnitelmat',
+    name: 'Nopeusrajoitussuunnitelmat',
     alfrescoId: '15d9398d-bc43-407e-9939-8dbc43407eea',
   },
 ];
