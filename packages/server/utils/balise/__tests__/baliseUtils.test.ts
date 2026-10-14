@@ -103,6 +103,31 @@ describe('baliseUtils', () => {
       });
     });
 
+    it('should keep only the last file when the same filename is uploaded twice', async () => {
+      const options: BaliseUpdateOptions = {
+        baliseId: 12345,
+        files: [
+          { filename: '12345.il', buffer: Buffer.from('first') },
+          { filename: '12345.IL', buffer: Buffer.from('second') },
+        ],
+        description: 'Test balise',
+        userId: 'test-user',
+      };
+
+      const result = await updateOrCreateBalise(options);
+
+      expect(result.filesUploaded).toBe(1);
+      expect(uploadFilesToS3WithCleanup).toHaveBeenCalledWith(
+        '',
+        [{ filename: '12345.IL', buffer: Buffer.from('second') }],
+        'balise_12345/v1',
+        'test-user',
+      );
+      expect(mockDatabase.balise.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ fileTypes: ['12345.IL'] }),
+      });
+    });
+
     it('should update existing balise and create new version when files are uploaded', async () => {
       const options: BaliseUpdateOptions = {
         baliseId: 456,

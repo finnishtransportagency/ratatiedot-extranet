@@ -130,7 +130,10 @@ export const BulkUploadPage: React.FC = () => {
       });
 
       setFiles((prev) => {
-        const updated = [...prev, ...processedFiles];
+        // Same filename selected again replaces the earlier one
+        const updated = Array.from(
+          new Map([...prev, ...processedFiles].map((f) => [f.file.name.toLowerCase(), f])).values(),
+        );
         // Extract unique balise IDs to fetch data
         const baliseIds = Array.from(
           new Set(updated.filter((f) => f.isValid && f.baliseId).map((f) => f.baliseId as number)),

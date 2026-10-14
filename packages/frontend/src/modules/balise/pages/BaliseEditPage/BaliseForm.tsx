@@ -153,7 +153,11 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
   // Handler for file upload that adds files and marks existing for deletion
   const handleFileUploadMultiple = useCallback(
     (files: File[]) => {
-      setFormData((prev) => ({ ...prev, files: [...(prev.files || []), ...files] }));
+      // Same filename selected again replaces the earlier one
+      setFormData((prev) => ({
+        ...prev,
+        files: Array.from(new Map([...(prev.files || []), ...files].map((f) => [f.name.toLowerCase(), f])).values()),
+      }));
 
       // Mark all existing files for deletion (full replacement)
       if (balise && balise.fileTypes.length > 0 && files.length > 0) {
