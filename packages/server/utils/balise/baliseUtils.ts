@@ -449,7 +449,9 @@ async function createNewBalise(
  * Handles both single balise updates and bulk operations
  */
 export async function updateOrCreateBalise(options: BaliseUpdateOptions): Promise<BaliseUpdateResult> {
-  const { baliseId, files = [], description, userId } = options;
+  const { baliseId, description, userId } = options;
+  // Duplicate filenames would map to the same S3 key and duplicate fileTypes entries
+  const files = Array.from(new Map((options.files ?? []).map((f) => [f.filename.toLowerCase(), f])).values());
 
   // Check if balise exists
   const existingBalise = await database.balise.findUnique({
