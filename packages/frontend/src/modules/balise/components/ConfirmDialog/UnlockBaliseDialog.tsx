@@ -5,6 +5,7 @@ import { ConfirmDialog } from './ConfirmDialog';
 interface UnlockBaliseDialogProps {
   open: boolean;
   version?: number;
+  lockedByOther?: string | null;
   bulkCount?: number; // Number of balises for bulk unlock
   loading?: boolean;
   disabled?: boolean;
@@ -20,6 +21,7 @@ interface UnlockBaliseDialogProps {
 export const UnlockBaliseDialog: React.FC<UnlockBaliseDialogProps> = ({
   open,
   version,
+  lockedByOther,
   bulkCount,
   loading = false,
   disabled = false,
@@ -33,6 +35,14 @@ export const UnlockBaliseDialog: React.FC<UnlockBaliseDialogProps> = ({
     <>
       <Alert severity="warning" sx={{ mb: 2 }}>
         Lukituksen avaaminen asettaa uudet versiot virallisiksi.
+      </Alert>
+      <Alert severity="info">Aiemmat versiot säilyvät versiohistoriassa.</Alert>
+    </>
+  ) : lockedByOther ? (
+    <>
+      <Alert severity="warning" sx={{ mb: 2 }}>
+        Baliisi on käyttäjän {lockedByOther} lukitsema. Lukituksen avaaminen asettaa käyttäjän mahdolliset uudet versiot
+        virallisiksi.
       </Alert>
       <Alert severity="info">Aiemmat versiot säilyvät versiohistoriassa.</Alert>
     </>

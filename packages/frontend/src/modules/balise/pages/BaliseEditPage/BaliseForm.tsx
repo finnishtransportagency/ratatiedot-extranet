@@ -72,6 +72,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
     handleLockCancel,
     handleUnlockCancel,
   } = useBaliseLocking({
+    currentUserUid: permissions?.currentUserUid,
     onSuccess: async () => {
       setError(null);
       setErrorType(null);
@@ -299,7 +300,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
             {/* Right: Action buttons */}
             <Box sx={{ display: 'flex', gap: 1 }}>
               {permissions?.canWrite &&
-                (!balise?.locked || canUnlockBalises([balise], permissions?.currentUserUid, permissions?.isAdmin)) && (
+                (!balise?.locked ||
+                  canUnlockBalises([balise], permissions?.currentUserUid, permissions?.canUnlockOthers)) && (
                   <Button
                     variant="outlined"
                     startIcon={
@@ -570,6 +572,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
       <UnlockBaliseDialog
         open={unlockDialogOpen}
         version={baliseToUnlock?.version}
+        lockedByOther={baliseToUnlock?.lockedBy !== permissions?.currentUserUid ? baliseToUnlock?.lockedBy : undefined}
         disabled={isLocking}
         loading={isLocking}
         onConfirm={handleUnlockConfirm}
