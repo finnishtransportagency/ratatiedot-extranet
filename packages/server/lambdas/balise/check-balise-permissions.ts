@@ -2,7 +2,7 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, isBaliseAdmin, isBaliseReadUser, isBaliseWriteUser } from '../../utils/userService';
+import { canUnlockOthers, getUser, isBaliseAdmin, isBaliseReadUser, isBaliseWriteUser } from '../../utils/userService';
 
 /**
  * Check user's balise permissions. Example request: /api/balise/permissions
@@ -18,6 +18,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       canRead: isBaliseReadUser(user) || isBaliseWriteUser(user) || isBaliseAdmin(user),
       canWrite: isBaliseWriteUser(user) || isBaliseAdmin(user),
       isAdmin: isBaliseAdmin(user),
+      canUnlockOthers: canUnlockOthers(user),
       currentUserUid: user.uid,
     };
 

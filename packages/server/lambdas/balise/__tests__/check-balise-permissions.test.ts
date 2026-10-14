@@ -37,7 +37,13 @@ describe('check-balise-permissions', () => {
 
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body!);
-    expect(body).toEqual({ canRead: true, canWrite: true, isAdmin: true, currentUserUid: 'admin-user' });
+    expect(body).toEqual({
+      canRead: true,
+      canWrite: true,
+      isAdmin: true,
+      canUnlockOthers: true,
+      currentUserUid: 'admin-user',
+    });
   });
 
   it('should return limited permissions for balise write user', async () => {
@@ -50,7 +56,13 @@ describe('check-balise-permissions', () => {
 
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body!);
-    expect(body).toEqual({ canRead: true, canWrite: true, isAdmin: false, currentUserUid: 'write-user' });
+    expect(body).toEqual({
+      canRead: true,
+      canWrite: true,
+      isAdmin: false,
+      canUnlockOthers: false,
+      currentUserUid: 'write-user',
+    });
   });
 
   it('should return read-only permissions for balise read user', async () => {
@@ -63,7 +75,30 @@ describe('check-balise-permissions', () => {
 
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body!);
-    expect(body).toEqual({ canRead: true, canWrite: false, isAdmin: false, currentUserUid: 'read-user' });
+    expect(body).toEqual({
+      canRead: true,
+      canWrite: false,
+      isAdmin: false,
+      canUnlockOthers: false,
+      currentUserUid: 'read-user',
+    });
+  });
+
+  it('should return write and unlock-others permissions for balise lite admin user', async () => {
+    const mockUser = { uid: 'lite-admin-user', roles: ['ratatieto_liteadmin_baliisisanomat'] };
+
+    vi.mocked(userService.getUser).mockResolvedValue(mockUser);
+
+    const result = await handleRequest(createMockEvent());
+
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body!)).toEqual({
+      canRead: true,
+      canWrite: true,
+      isAdmin: false,
+      canUnlockOthers: true,
+      currentUserUid: 'lite-admin-user',
+    });
   });
 
   it('should return no balise permissions for user without balise roles', async () => {
@@ -76,7 +111,13 @@ describe('check-balise-permissions', () => {
 
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body!);
-    expect(body).toEqual({ canRead: false, canWrite: false, isAdmin: false, currentUserUid: 'regular-user' });
+    expect(body).toEqual({
+      canRead: false,
+      canWrite: false,
+      isAdmin: false,
+      canUnlockOthers: false,
+      currentUserUid: 'regular-user',
+    });
   });
 
   it('should return no permissions for user with no roles', async () => {
@@ -89,6 +130,12 @@ describe('check-balise-permissions', () => {
 
     expect(result.statusCode).toBe(200);
     const body = JSON.parse(result.body!);
-    expect(body).toEqual({ canRead: false, canWrite: false, isAdmin: false, currentUserUid: 'no-roles-user' });
+    expect(body).toEqual({
+      canRead: false,
+      canWrite: false,
+      isAdmin: false,
+      canUnlockOthers: false,
+      currentUserUid: 'no-roles-user',
+    });
   });
 });

@@ -20,6 +20,7 @@ const BALISE_ROLES = {
   read: 'ratatieto_luku_baliisisanomat',
   readRaide: 'ratatieto_luku_baliisisanomat_raide',
   write: 'ratatieto_kirjoitus_baliisisanomat',
+  liteAdmin: 'ratatieto_liteadmin_baliisisanomat',
   admin: 'ratatieto_admin_baliisisanomat',
 };
 
@@ -47,7 +48,14 @@ export function parseRoles(roles: string): string[] | undefined {
 
 export const getMockUser = (): RataExtraUser => ({
   uid: MOCK_UID,
-  roles: [STATIC_ROLES.read, STATIC_ROLES.admin, BALISE_ROLES.read, BALISE_ROLES.write, BALISE_ROLES.admin],
+  roles: [
+    STATIC_ROLES.read,
+    STATIC_ROLES.admin,
+    BALISE_ROLES.read,
+    BALISE_ROLES.write,
+    BALISE_ROLES.liteAdmin,
+    BALISE_ROLES.admin,
+  ],
   isMockUser: true,
 });
 
@@ -93,11 +101,16 @@ export const isBaliseReadUser = (user: RataExtraUser) =>
   user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.read.toLowerCase()) ||
   user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.readRaide.toLowerCase());
 
+export const isBaliseLiteAdmin = (user: RataExtraUser) =>
+  user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.liteAdmin.toLowerCase());
+
 export const isBaliseWriteUser = (user: RataExtraUser) =>
-  user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.write.toLowerCase());
+  user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.write.toLowerCase()) || isBaliseLiteAdmin(user);
 
 export const isBaliseAdmin = (user: RataExtraUser) =>
   user.roles?.map((role) => role.toLowerCase()).includes(BALISE_ROLES.admin.toLowerCase());
+
+export const canUnlockOthers = (user: RataExtraUser): boolean => !!(isBaliseAdmin(user) || isBaliseLiteAdmin(user));
 
 export const getUser = async (event: ALBEvent): Promise<RataExtraUser> => {
   if (!STACK_ID || !ENVIRONMENT) {
