@@ -4,11 +4,11 @@ import { BaliseWithHistory } from '../types/baliseTypes';
 export const canUnlockBalises = (
   balises: BaliseWithHistory[],
   currentUserUid?: string | undefined | null,
-  isAdmin?: boolean,
+  canUnlockOthers?: boolean,
 ): boolean => {
   if (!balises.length) return false;
-  // Admins can unlock any locked balise
-  if (isAdmin) {
+  // Admins and lite admins can unlock any locked balise
+  if (canUnlockOthers) {
     return balises.every((b) => b.locked);
   }
   if (!currentUserUid) return false;
