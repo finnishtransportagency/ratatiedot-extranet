@@ -1,6 +1,17 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { Box, Paper, Typography, Button, Alert, Divider, List, ListItem, ListItemText } from '@mui/material';
-import { Description, Download } from '@mui/icons-material';
+import {
+  Box,
+  Paper,
+  Typography,
+  Button,
+  Alert,
+  AlertTitle,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+} from '@mui/material';
+import { Description, Download, Undo } from '@mui/icons-material';
 import { ChipWrapper } from '../../../../components/Chip';
 import { scheduleBaliseDownloads } from '../../utils/baliseDownload';
 import { validateBaliseFiles, getValidExtensionsList } from '../../utils/baliseValidation';
@@ -23,16 +34,20 @@ interface BaliseFileManagerProps {
     isAdmin?: boolean;
     currentUserUid?: string;
   } | null;
+  filesToDelete: string[];
   onFileUpload: (files: File[]) => void;
   onRemoveFile: (index: number) => void;
+  onToggleDeleteFile: (fileName: string) => void;
 }
 
 export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
   balise,
   formData,
   permissions,
+  filesToDelete,
   onFileUpload,
   onRemoveFile,
+  onToggleDeleteFile,
 }) => {
   const [validationErrors, setValidationErrors] = useState<FileValidationError[]>();
 
@@ -125,13 +140,16 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
     fileListLabel = 'Luonnoksen tiedostot';
   }
 
+  const uploadedLower = new Set(formData.files.map((f) => f.name.toLowerCase()));
+  const existingLower = new Set((balise?.fileTypes ?? []).map((name) => name.toLowerCase()));
+  const allFilesRemoved = hasExistingFiles && !hasNewFiles && filesToDelete.length === (balise?.fileTypes.length ?? 0);
+
   if (!showContent) return null;
 
   return (
     <Paper sx={{ p: 3, mb: 2 }} variant="outlined">
       <Box>
-        {/* Show existing files with download button when no new files uploaded */}
-        {!hasNewFiles && hasExistingFiles && (
+        {hasExistingFiles && (
           <Box sx={{ mb: canWrite ? 2 : 0 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
               <Typography variant="subtitle2" color="text.secondary">
@@ -147,10 +165,55 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
                 Lataa tiedostot
               </Button>
             </Box>
+            {canUpload && allFilesRemoved && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                Baliisilla täytyy olla vähintään yksi tiedosto. Palauta tiedosto tai lisää uusi.
+              </Alert>
+            )}
+            {canUpload && !allFilesRemoved && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                <AlertTitle>Tiedostojen muokkaus</AlertTitle>
+                <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+                  <li>Lisätty tiedosto korvaa samannimisen tiedoston.</li>
+                  <li>Muut nykyiset tiedostot säilyvät uudessa versiossa.</li>
+                </Box>
+              </Alert>
+            )}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-              {balise.fileTypes.map((fileType, index) => (
-                <ChipWrapper key={index} text={fileType} icon={<Description />} />
-              ))}
+              {balise.fileTypes.map((fileType) => {
+                const isReplaced = uploadedLower.has(fileType.toLowerCase());
+                const isRemoved = !isReplaced && filesToDelete.includes(fileType);
+                const struck = { textDecoration: 'line-through', opacity: 0.6 };
+
+                if (!canUpload) {
+                  return <ChipWrapper key={fileType} text={fileType} icon={<Description />} />;
+                }
+                if (isReplaced) {
+                  return (
+                    <ChipWrapper key={fileType} text={`${fileType} (korvataan)`} icon={<Description />} sx={struck} />
+                  );
+                }
+                if (isRemoved) {
+                  return (
+                    <ChipWrapper
+                      key={fileType}
+                      text={`${fileType} (poistetaan)`}
+                      icon={<Undo />}
+                      onClick={() => onToggleDeleteFile(fileType)}
+                      sx={struck}
+                    />
+                  );
+                }
+                return (
+                  <ChipWrapper
+                    key={fileType}
+                    text={fileType}
+                    icon={<Description />}
+                    onDelete={() => onToggleDeleteFile(fileType)}
+                    sx={{ pr: 1, '& > .MuiChip-deleteIcon': { m: 0 } }}
+                  />
+                );
+              })}
             </Box>
           </Box>
         )}
@@ -244,63 +307,14 @@ export const BaliseFileManager: React.FC<BaliseFileManagerProps> = ({
               </Alert>
             )}
 
-            {/* Show different messaging based on whether there are existing files */}
-            {hasExistingFiles ? (
-              <>
-                <Typography variant="h4" sx={{ mb: 1, fontWeight: 500 }}>
-                  Korvaa tiedostot
-                </Typography>
-                <Alert severity="warning" sx={{ mb: 3 }}>
-                  <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-                    Uudet tiedostot korvaavat kaikki nykyiset tiedostot
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Lisätessäsi uusia tiedostoja, kaikki {balise?.fileTypes.length} nykyistä tiedostoa korvataan. Vanhat
-                    tiedostot säilytetään versiohistoriassa.
-                  </Typography>
-                </Alert>
+            <Divider sx={{ my: 3 }} />
 
-                <Divider sx={{ my: 3 }} />
-
-                {/* Current files - will be replaced */}
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>
-                    {fileListLabel} (korvataan)
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-                    {balise?.fileTypes.map((fileType, index) => (
-                      <ChipWrapper
-                        key={index}
-                        text={fileType}
-                        icon={<Description />}
-                        sx={{
-                          textDecoration: 'line-through',
-                          opacity: 0.6,
-                        }}
-                      />
-                    ))}
-                  </Box>
-                </Box>
-
-                <Divider sx={{ my: 3 }} />
-              </>
-            ) : (
-              <>
-                <Typography variant="h4" sx={{ mb: 1, fontWeight: 500 }}>
-                  Lisää tiedostot
-                </Typography>
-                <Alert severity="info" sx={{ mb: 3 }}>
-                  <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-                    Lisäät uusia tiedostoja baliisille
-                  </Typography>
-                </Alert>
-
-                <Divider sx={{ my: 3 }} />
-              </>
-            )}
-
-            {/* New uploaded files - will become the new set */}
-            <UploadedFilesList files={formData.files} title="Uudet tiedostot" onRemoveFile={handleRemoveFile} />
+            <UploadedFilesList
+              files={formData.files}
+              title="Uudet tiedostot"
+              onRemoveFile={handleRemoveFile}
+              replacedNames={hasExistingFiles ? existingLower : undefined}
+            />
 
             <Divider sx={{ my: 3 }} />
 
