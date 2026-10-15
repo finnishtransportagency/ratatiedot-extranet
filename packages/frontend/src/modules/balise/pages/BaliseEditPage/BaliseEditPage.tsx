@@ -28,11 +28,16 @@ const fetchBalise = async (secondaryId: string): Promise<BaliseWithHistory> => {
 };
 
 // Function to handle balise update with optional files
-const saveBalise = async (data: Partial<BaliseWithHistory>, files?: File[]): Promise<void> => {
-  if (!data.secondaryId) {
+const saveBalise = async (
+  baliseData: Partial<BaliseWithHistory>,
+  files?: File[],
+  filesToDelete?: string[],
+): Promise<void> => {
+  if (!baliseData.secondaryId) {
     throw new Error('Baliisin ID vaaditaan.');
   }
 
+  const data = filesToDelete && filesToDelete.length > 0 ? { ...baliseData, filesToDelete } : baliseData;
   let response: Response;
 
   if (files && files.length > 0) {
@@ -94,21 +99,13 @@ export const BaliseEditPage: React.FC = () => {
     }
   };
 
-  const handleSave = async (data: Partial<BaliseWithHistory>, files?: File[]) => {
+  const handleSave = async (data: Partial<BaliseWithHistory>, files?: File[], filesToDelete?: string[]) => {
     if (!id) return;
 
     try {
-      let savedBalise: BaliseWithHistory;
-
-      if (files && files.length > 0) {
-        // Files uploaded: create new version and replace ALL existing files
-        await saveBalise(data, files);
-        savedBalise = await fetchBalise(id);
-      } else {
-        // No files uploaded: update description only (no new version)
-        await saveBalise(data);
-        savedBalise = await fetchBalise(id);
-      }
+      // Uploads replace same-named files and removals drop files, both creating a new version
+      await saveBalise(data, files, filesToDelete);
+      const savedBalise = await fetchBalise(id);
 
       // Update both the store cache and local state with the latest data
       updateBaliseInStore(savedBalise);

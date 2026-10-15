@@ -127,18 +127,39 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
       };
       setFormData(initialData);
       setOriginalData({ ...initialData, files: [] }); // Original has no files
+      setFilesToDelete([]);
       setHasChanges(false);
     }
   }, [balise]);
+
+  // Mirrors backend planFileChanges: uploads replace same-named files (case-insensitive)
+  const filePlan = useMemo(() => {
+    const existing = balise?.fileTypes ?? [];
+    const existingLower = new Set(existing.map((name) => name.toLowerCase()));
+    const uploadedLower = new Set(formData.files.map((f) => f.name.toLowerCase()));
+    const deleteLower = new Set(filesToDelete.map((name) => name.toLowerCase()));
+
+    const replacedFiles = existing.filter((name) => uploadedLower.has(name.toLowerCase()));
+    const removedFiles = existing.filter(
+      (name) => deleteLower.has(name.toLowerCase()) && !uploadedLower.has(name.toLowerCase()),
+    );
+    const addedFiles = formData.files.filter((f) => !existingLower.has(f.name.toLowerCase()));
+    const resultingFileCount = existing.length - replacedFiles.length - removedFiles.length + formData.files.length;
+    const createsNewVersion = formData.files.length > 0 || removedFiles.length > 0;
+
+    return { replacedFiles, removedFiles, addedFiles, resultingFileCount, createsNewVersion };
+  }, [balise?.fileTypes, formData.files, filesToDelete]);
+
+  const wouldRemoveAllFiles = filePlan.createsNewVersion && filePlan.resultingFileCount === 0;
 
   // Detect changes
   useEffect(() => {
     const changed =
       formData.secondaryId !== originalData.secondaryId ||
       formData.description !== originalData.description ||
-      formData.files.length > 0;
+      filePlan.createsNewVersion;
     setHasChanges(changed);
-  }, [formData, originalData]);
+  }, [formData, originalData, filePlan.createsNewVersion]);
 
   const handleInputChange = useCallback((field: keyof FormData, value: string | File[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -151,23 +172,19 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
     }));
   }, []);
 
-  // Handler for file upload that adds files and marks existing for deletion
-  const handleFileUploadMultiple = useCallback(
-    (files: File[]) => {
-      // Same filename selected again replaces the earlier one
-      setFormData((prev) => ({
-        ...prev,
-        files: Array.from(new Map([...(prev.files || []), ...files].map((f) => [f.name.toLowerCase(), f])).values()),
-      }));
+  const handleFileUploadMultiple = useCallback((files: File[]) => {
+    // Same filename selected again replaces the earlier one
+    setFormData((prev) => ({
+      ...prev,
+      files: Array.from(new Map([...(prev.files || []), ...files].map((f) => [f.name.toLowerCase(), f])).values()),
+    }));
+  }, []);
 
-      // Mark all existing files for deletion (full replacement)
-      if (balise && balise.fileTypes.length > 0 && files.length > 0) {
-        setFilesToDelete(balise.fileTypes);
-        setHasChanges(true);
-      }
-    },
-    [balise],
-  );
+  const toggleFileForDeletion = useCallback((fileName: string) => {
+    setFilesToDelete((prev) =>
+      prev.includes(fileName) ? prev.filter((name) => name !== fileName) : [...prev, fileName],
+    );
+  }, []);
 
   // Undo all changes (description + file deletions)
   const handleUndo = useCallback(() => {
@@ -205,7 +222,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
       };
 
       // Pass metadata, files, and files to delete to parent handler
-      await onSave(submitData, formData.files, filesToDelete.length > 0 ? filesToDelete : undefined);
+      await onSave(submitData, formData.files, filePlan.removedFiles.length > 0 ? filePlan.removedFiles : undefined);
 
       // Update original data after successful save
       setOriginalData({
@@ -229,9 +246,9 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
     } finally {
       setLoading(false);
     }
-  }, [formData, onSave, filesToDelete, confirmDescription]);
+  }, [formData, onSave, filePlan.removedFiles, confirmDescription]);
 
-  const needsConfirmDescription = formData.files.length > 0;
+  const needsConfirmDescription = filePlan.createsNewVersion;
 
   const handleBack = useCallback(() => {
     navigate(Routes.BALISE);
@@ -349,7 +366,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
                     color="primary"
                     startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Save />}
                     onClick={handleSaveClick}
-                    disabled={loading || !formData.secondaryId || !formData.description}
+                    disabled={loading || !formData.secondaryId || !formData.description || wouldRemoveAllFiles}
                     size="small"
                   >
                     {loading ? 'Tallennetaan...' : 'Tallenna'}
@@ -480,8 +497,10 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
             balise={balise}
             formData={formData}
             permissions={permissions}
+            filesToDelete={filePlan.removedFiles}
             onFileUpload={handleFileUploadMultiple}
             onRemoveFile={removeFile}
+            onToggleDeleteFile={toggleFileForDeletion}
           />
 
           {/* Version Timeline - Unified timeline showing historical and draft versions */}
@@ -509,21 +528,30 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
           <>
             <DialogContentText>Olet tekemässä seuraavat muutokset:</DialogContentText>
             <List>
-              {filesToDelete.length > 0 && formData.files.length > 0 && (
+              {filePlan.replacedFiles.length > 0 && (
                 <ListItem>
                   <ListItemText
-                    primary={`Korvaa ${filesToDelete.length} tiedosto(a) → ${formData.files.length} uudella tiedostolla`}
-                    secondary={`Uudet: ${formData.files.map((f) => f.name).join(', ')}`}
+                    primary={`${filePlan.replacedFiles.length} tiedosto(a) korvataan`}
+                    secondary={filePlan.replacedFiles.join(', ')}
                     primaryTypographyProps={{ color: 'warning.main' }}
                   />
                 </ListItem>
               )}
-              {(!filesToDelete.length || filesToDelete.length === 0) && formData.files && formData.files.length > 0 && (
+              {filePlan.addedFiles.length > 0 && (
                 <ListItem>
                   <ListItemText
-                    primary={`${formData.files.length} uutta tiedosto(a) lisätään`}
-                    secondary={formData.files.map((f) => f.name).join(', ')}
+                    primary={`${filePlan.addedFiles.length} uutta tiedosto(a) lisätään`}
+                    secondary={filePlan.addedFiles.map((f) => f.name).join(', ')}
                     primaryTypographyProps={{ color: 'success.main' }}
+                  />
+                </ListItem>
+              )}
+              {filePlan.removedFiles.length > 0 && (
+                <ListItem>
+                  <ListItemText
+                    primary={`${filePlan.removedFiles.length} tiedosto(a) poistetaan`}
+                    secondary={filePlan.removedFiles.join(', ')}
+                    primaryTypographyProps={{ color: 'error.main' }}
                   />
                 </ListItem>
               )}
@@ -550,7 +578,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
               )}
             </List>
 
-            {filesToDelete.length > 0 && (
+            {(filePlan.replacedFiles.length > 0 || filePlan.removedFiles.length > 0) && (
               <Alert severity="info" sx={{ mt: 2 }}>
                 Vanhat tiedostot säilytetään versiohistoriassa ja voidaan palauttaa tarvittaessa.
               </Alert>
