@@ -595,6 +595,7 @@ export const BaliseListPage: React.FC = () => {
           lockedByOther={
             baliseToUnlock?.lockedBy !== permissions?.currentUserUid ? baliseToUnlock?.lockedBy : undefined
           }
+          lockReason={baliseToUnlock?.lockReason}
           loading={isLocking}
           onConfirm={handleUnlockConfirm}
           onCancel={handleUnlockCancel}

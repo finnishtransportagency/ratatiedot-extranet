@@ -6,6 +6,7 @@ interface UnlockBaliseDialogProps {
   open: boolean;
   version?: number;
   lockedByOther?: string | null;
+  lockReason?: string | null;
   bulkCount?: number; // Number of balises for bulk unlock
   loading?: boolean;
   disabled?: boolean;
@@ -22,6 +23,7 @@ export const UnlockBaliseDialog: React.FC<UnlockBaliseDialogProps> = ({
   open,
   version,
   lockedByOther,
+  lockReason,
   bulkCount,
   loading = false,
   disabled = false,
@@ -43,6 +45,13 @@ export const UnlockBaliseDialog: React.FC<UnlockBaliseDialogProps> = ({
       <Alert severity="warning" sx={{ mb: 2 }}>
         Baliisi on käyttäjän {lockedByOther} lukitsema. Lukituksen avaaminen asettaa käyttäjän mahdolliset uudet versiot
         virallisiksi.
+        {lockReason && (
+          <>
+            <br />
+            <br />
+            Lukituksen syy: {lockReason}
+          </>
+        )}
       </Alert>
       <Alert severity="info">Aiemmat versiot säilyvät versiohistoriassa.</Alert>
     </>

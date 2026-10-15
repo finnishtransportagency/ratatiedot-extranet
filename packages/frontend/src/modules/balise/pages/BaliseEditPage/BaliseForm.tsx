@@ -573,6 +573,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
         open={unlockDialogOpen}
         version={baliseToUnlock?.version}
         lockedByOther={baliseToUnlock?.lockedBy !== permissions?.currentUserUid ? baliseToUnlock?.lockedBy : undefined}
+        lockReason={baliseToUnlock?.lockReason}
         disabled={isLocking}
         loading={isLocking}
         onConfirm={handleUnlockConfirm}
