@@ -225,6 +225,12 @@ export const prodCategories = [
     name: 'Turvallisuus',
     alfrescoId: '5829144a-12e7-42f4-a914-4a12e772f4af',
   },
+  {
+    key: 31,
+    id: '1a4376c9-a222-4463-b4ea-e59fa87d63da',
+    name: 'Nopeusrajoitussuunnitelmat',
+    alfrescoId: '554e6389-0042-4c47-8e63-890042ec47e0',
+  },
 ];
 
 export const devCategories = [
@@ -407,6 +413,12 @@ export const devCategories = [
     id: 'b4ffcd5a-1a22-404c-8425-940cfa1dddb8',
     name: 'Turvallisuus',
     alfrescoId: '0cee3e80-1818-4df1-ae3e-8018180df108',
+  },
+  {
+    key: 31,
+    id: '34b6cfce-6fff-40e3-b3bc-750ae202e0c5',
+    name: 'Nopeusrajoitussuunnitelmat',
+    alfrescoId: '15d9398d-bc43-407e-9939-8dbc43407eea',
   },
 ];
 

@@ -54,6 +54,8 @@ import { OtherRailway } from './pages/Others/OtherRailway';
 import { BaliseListPage, BaliseEditPage, BulkUploadPage, SectionPage } from './modules/balise';
 
 import { findCategoryIdByKey } from './utils/helpers';
+import { BalisePlanFiles } from './modules/balise/pages/BalisePlanFiles';
+import { BalisePermissionGuard } from './modules/balise/components/BalisePermissionGuard';
 
 /**
  * Return router name based on page title's name
@@ -208,6 +210,17 @@ const INSTRUCTIONS_ROUTES = [
   ...getProtectedStaticRoute(Routes.EDIT_TOOL, <EditToolInstructions />),
 ];
 
+// Guard wraps the whole ProtectedPage so CategoryFiles doesn't render or fetch without canRead
+const BALISE_PLAN_FILES_ROUTE = getProtectedRoute(Routes.BALISE_PLAN_FILES, <BalisePlanFiles />).map((route) => ({
+  ...route,
+  element: (
+    <AppContextProvider>
+      <BalisePermissionGuard requiredPermission="canRead">
+        <ProtectedPage children={<BalisePlanFiles />} />
+      </BalisePermissionGuard>
+    </AppContextProvider>
+  ),
+}));
 const NOTICES_ROUTE = getProtectedRoute(Routes.NOTICES, <Notices />);
 const SINGLE_NOTICE_ROUTE = getProtectedNoticeRoute(Routes.SINGLE_NOTICE, <SingleNotice />);
 const NEW_NOTICE = getProtectedNoticeRoute(Routes.NEW_NOTICE, <NewNotice />);
@@ -288,6 +301,7 @@ export const categoryRoutes: RouteObject[] = [
   ...CONTACT_INFORMATION_ROUTES,
   ...OTHERS_ROUTES,
   ...INSTRUCTIONS_ROUTES,
+  ...BALISE_PLAN_FILES_ROUTE,
 ];
 
 const routes: RouteObject[] = [
