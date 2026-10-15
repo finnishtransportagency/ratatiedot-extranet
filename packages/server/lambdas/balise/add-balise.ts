@@ -115,6 +115,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     let body: {
       description?: string;
       fileTypes?: string[];
+      filesToDelete?: unknown;
       version?: number;
       baliseData?: string;
     } = {};
@@ -160,6 +161,18 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
+    if (
+      body.filesToDelete !== undefined &&
+      (!Array.isArray(body.filesToDelete) || !body.filesToDelete.every((name) => typeof name === 'string'))
+    ) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Virheellinen poistettavien tiedostojen lista' }),
+      };
+    }
+    const filesToDelete = (body.filesToDelete as string[] | undefined) ?? [];
+
     // Convert to FileUpload format
     const files: FileUpload[] = uploadedFiles.map((file) => ({
       filename: file.filename,
@@ -169,6 +182,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const result = await updateOrCreateBalise({
       baliseId,
       files,
+      filesToDelete,
       description: body.description,
       userId: user.uid,
     });
