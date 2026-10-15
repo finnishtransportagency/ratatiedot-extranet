@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../../../constants/Routes';
+import { Colors } from '../../../../constants/Colors';
 import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { useBatchUpload } from './useBatchUpload';
@@ -52,6 +53,14 @@ interface FileWithBaliseId {
   isValid: boolean;
 }
 
+interface ExistingBaliseData {
+  version: number;
+  description: string;
+  locked: boolean;
+  lockedBy?: string | null;
+  fileTypes: string[];
+}
+
 const SUMMARY_MODE_THRESHOLD = 50;
 
 export const BulkUploadPage: React.FC = () => {
@@ -72,9 +81,7 @@ export const BulkUploadPage: React.FC = () => {
   const [unchangedBaliseIds, setUnchangedBaliseIds] = useState<number[]>([]);
   const [globalDescription, setGlobalDescription] = useState<string>('');
   const [baliseDescriptions, setBaliseDescriptions] = useState<Record<number, string>>({});
-  const [existingBalises, setExistingBalises] = useState<
-    Record<number, { version: number; description: string; locked: boolean; lockedBy?: string | null }>
-  >({});
+  const [existingBalises, setExistingBalises] = useState<Record<number, ExistingBaliseData>>({});
   const [loadingBaliseData, setLoadingBaliseData] = useState(false);
 
   const { permissions } = useBalisePermissions();
@@ -89,26 +96,16 @@ export const BulkUploadPage: React.FC = () => {
       if (response.ok) {
         const responseData = await response.json();
         const balises = responseData.data || responseData; // Handle both paginated and direct array response
-        const baliseMap: Record<
-          number,
-          { version: number; description: string; locked: boolean; lockedBy?: string | null }
-        > = {};
-        balises.forEach(
-          (b: {
-            secondaryId: number;
-            version: number;
-            description: string;
-            locked: boolean;
-            lockedBy?: string | null;
-          }) => {
-            baliseMap[b.secondaryId] = {
-              version: b.version,
-              description: b.description,
-              locked: b.locked,
-              lockedBy: b.lockedBy,
-            };
-          },
-        );
+        const baliseMap: Record<number, ExistingBaliseData> = {};
+        balises.forEach((b: ExistingBaliseData & { secondaryId: number }) => {
+          baliseMap[b.secondaryId] = {
+            version: b.version,
+            description: b.description,
+            locked: b.locked,
+            lockedBy: b.lockedBy,
+            fileTypes: b.fileTypes ?? [],
+          };
+        });
         setExistingBalises(baliseMap);
       }
     } catch (err) {
@@ -779,9 +776,13 @@ export const BulkUploadPage: React.FC = () => {
                           const currentDescription = baliseDescriptions[bId] || '';
                           const showFieldError =
                             !globalDescription.trim() && !currentDescription.trim() && requiredBaliseIds.includes(bId);
+                          const existingLower = new Set(
+                            (existingData?.fileTypes ?? []).map((name) => name.toLowerCase()),
+                          );
+                          const uploadedLower = new Set(baliseFiles.map((f) => f.name.toLowerCase()));
                           return (
                             <Box key={baliseId} sx={{ mb: 3, pb: 2, borderBottom: 1, borderColor: 'divider' }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 1 }}>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                                   Baliisi {baliseId}
                                 </Typography>
@@ -802,7 +803,27 @@ export const BulkUploadPage: React.FC = () => {
                                     icon={<Update />}
                                   />
                                 )}
-                                <Chip label={`${baliseFiles.length} tiedostoa`} size="small" variant="outlined" />
+                                {!isNew &&
+                                  !isLoadingStatus &&
+                                  existingData.fileTypes.map((name) => {
+                                    const isReplaced = uploadedLower.has(name.toLowerCase());
+                                    return (
+                                      <Chip
+                                        key={name}
+                                        label={isReplaced ? `${name} (korvataan)` : name}
+                                        size="small"
+                                        sx={{
+                                          bgcolor: Colors.lightgrey,
+                                          color: Colors.darkgrey,
+                                          border: 1,
+                                          borderColor: Colors.midgrey,
+                                          borderRadius: '8px',
+                                          fontWeight: 500,
+                                          ...(isReplaced && { textDecoration: 'line-through', opacity: 0.6 }),
+                                        }}
+                                      />
+                                    );
+                                  })}
                               </Box>
 
                               {/* Per-Balise Description Field */}
@@ -832,6 +853,7 @@ export const BulkUploadPage: React.FC = () => {
                               <List dense disablePadding>
                                 {baliseFiles.map((file, index) => {
                                   const globalIndex = files.findIndex((f) => f.file === file);
+                                  const isReplacement = !isNew && existingLower.has(file.name.toLowerCase());
                                   return (
                                     <ListItem
                                       key={index}
@@ -839,7 +861,7 @@ export const BulkUploadPage: React.FC = () => {
                                         mb: 0.5,
                                         borderRadius: 1,
                                         border: 1,
-                                        borderColor: 'primary.light',
+                                        borderColor: isReplacement ? 'primary.light' : '#2fa34b',
                                         bgcolor: 'primary.lighter',
                                       }}
                                       secondaryAction={
@@ -851,7 +873,13 @@ export const BulkUploadPage: React.FC = () => {
                                       <Description sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
                                       <ListItemText
                                         primary={file.name}
-                                        secondary={`${(file.size / 1024).toFixed(1)} KB`}
+                                        secondary={`${(file.size / 1024).toFixed(1)} KB${
+                                          isNew || isLoadingStatus
+                                            ? ''
+                                            : isReplacement
+                                              ? ' · korvaa nykyisen tiedoston'
+                                              : ' · uusi tiedosto'
+                                        }`}
                                         primaryTypographyProps={{ variant: 'body2' }}
                                         secondaryTypographyProps={{ variant: 'caption' }}
                                       />
