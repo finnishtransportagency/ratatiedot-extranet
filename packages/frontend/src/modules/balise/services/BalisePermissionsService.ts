@@ -3,8 +3,11 @@ import axios from 'axios';
 export interface BalisePermissions {
   canRead: boolean;
   canWrite: boolean;
-  isAdmin: boolean;
   canUnlockOthers: boolean;
+  canDelete: boolean;
+  canDeleteLocked: boolean;
+  canViewHistory: boolean;
+  canManageSections: boolean;
   currentUserUid: string;
 }
 

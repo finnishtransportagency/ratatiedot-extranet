@@ -4,14 +4,14 @@ import { useBalisePermissions } from '../contexts/BalisePermissionsContext';
 
 interface BalisePermissionGuardProps {
   children: React.ReactNode;
-  requiredPermission: 'canRead' | 'canWrite' | 'isAdmin';
+  requiredPermission: 'canRead' | 'canWrite' | 'canManageSections';
   errorMessage?: string;
 }
 
 const DEFAULT_ERROR_MESSAGES = {
   canRead: 'Sinulla ei ole oikeuksia tarkastella tätä sivua.',
   canWrite: 'Sinulla ei ole oikeuksia ohjelmoida baliiseja.',
-  isAdmin: 'Sinulla ei ole ylläpito-oikeuksia.',
+  canManageSections: 'Sinulla ei ole ylläpito-oikeuksia.',
   permissionFetchError: 'Palveluun ei saada yhteyttä. Yritä myöhemmin uudelleen.',
 };
 

@@ -1,7 +1,8 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../../utils/logger';
 import { getRataExtraLambdaError } from '../../../utils/errors';
-import { getUser, validateBaliseReadUser } from '../../../utils/userService';
+import { getUser } from '../../../utils/userService';
+import { validateBaliseCapability } from '../../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../../database/client';
 
 const database = await DatabaseClient.build();
@@ -18,7 +19,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Get all sections. params: ${JSON.stringify(event.queryStringParameters)}`);
 
-    validateBaliseReadUser(user);
+    validateBaliseCapability(user, 'read');
 
     const response = await database.section.findMany({
       orderBy: {

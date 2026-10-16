@@ -21,13 +21,9 @@ const pulseAnimation = {
 
 interface BaliseVersionTimelineProps {
   balise: BaliseWithHistory;
-  permissions?: {
-    isAdmin: boolean;
-    currentUserUid: string | null;
-  } | null;
 }
 
-export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({ balise, permissions }) => {
+export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({ balise }) => {
   const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set());
 
   const handleDownloadVersion = useCallback(
@@ -44,21 +40,8 @@ export const BaliseVersionTimeline: React.FC<BaliseVersionTimelineProps> = ({ ba
     [],
   );
 
-  // Determine which versions to show
-  let visibleVersions: (Balise | BaliseVersion)[] = [];
-  if (permissions?.isAdmin) {
-    // Admin: show all
-    visibleVersions = [balise, ...(balise.history || [])];
-  } else if (balise.lockedBy === permissions?.currentUserUid) {
-    // Lock owner: show lockedAtVersion (latest official) and drafts
-    visibleVersions = [balise, ...(balise.history || [])].filter(
-      (v) =>
-        (v.versionStatus === VersionStatus.OFFICIAL && v.version === balise.lockedAtVersion) ||
-        v.versionStatus === VersionStatus.UNCONFIRMED,
-    );
-  }
-
-  if (!visibleVersions.length) return null;
+  // History is already filtered per user by the backend
+  const visibleVersions: (Balise | BaliseVersion)[] = [balise, ...(balise.history || [])];
 
   const formatDate = (date: Date | string | null | undefined): string => {
     if (!date) return 'Unknown';

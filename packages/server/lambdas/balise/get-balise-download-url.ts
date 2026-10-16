@@ -3,7 +3,8 @@ import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { validateBaliseCapability, hasBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
 import {
   parseVersionParameter,
@@ -19,6 +20,7 @@ const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
+    validateBaliseCapability(user, 'read');
 
     // Extract balise ID from path (e.g., /api/balise/12345/download)
     const pathParts = event.path.split('/').filter((p) => p);
@@ -36,8 +38,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    validateBaliseReadUser(user);
-
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
     });
@@ -50,15 +50,13 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    // Check if user is admin
-    const isAdmin = isBaliseAdmin(user) ?? false;
+    const canViewHistory = hasBaliseCapability(user, 'viewHistory');
 
-    // Validate that only admins and lock owners can specify version parameter
-    validateVersionParameterAccess(user, requestedVersion, balise, isAdmin);
+    validateVersionParameterAccess(user, requestedVersion, balise, canViewHistory);
 
     // If lock owner specified a version, validate they can only access versions from their lock session
     const isLockOwner = balise.locked && balise.lockedBy === user.uid;
-    if (requestedVersion !== undefined && isLockOwner && !isAdmin) {
+    if (requestedVersion !== undefined && isLockOwner && !canViewHistory) {
       validateLockOwnerVersionAccess(requestedVersion, balise);
     }
 

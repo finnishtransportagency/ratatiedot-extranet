@@ -19,7 +19,7 @@ import { useBaliseStore, type BaliseWithHistory } from '../../store/baliseStore'
 import { useSectionStore } from '../../store/sectionStore';
 import { getRangesForSectionPrefix } from '../../utils/baliseValidation';
 import { scheduleBaliseDownloads } from '../../utils/baliseDownload';
-import { canUnlockBalises } from '../../utils/baliseLocking';
+import { canUnlockBalises } from '../../utils/balisePermissions';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
 
@@ -394,7 +394,7 @@ export const BaliseListPage: React.FC = () => {
           <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000 }} />
         )}
         {/* TEMPORARY NOTIFICATION BANNER - remove manually later */}
-        {(permissions?.canWrite || permissions?.isAdmin) && (
+        {permissions?.canWrite && (
           <Alert severity="warning" sx={{ mb: 1 }}>
             <div>Toistaiseksi pidetään myös Sovelia rinnakkaisena varatietolähteenä.</div>
             <div>Huolehdithan, että sanomat ovat ajan tasalla molemmissa!</div>
@@ -441,7 +441,7 @@ export const BaliseListPage: React.FC = () => {
                 onSectionsSelect={setSelectedSections}
               />
             </Box>
-            {permissions?.isAdmin &&
+            {permissions?.canManageSections &&
               (isCompact ? (
                 <IconButton
                   id="section-edit-button"
@@ -503,7 +503,7 @@ export const BaliseListPage: React.FC = () => {
         <BulkActionsBar
           selectedCount={selectedItems.length}
           canWrite={permissions?.canWrite}
-          isAdmin={permissions?.isAdmin}
+          canDelete={permissions?.canDelete}
           allSelectedLocked={allSelectedLocked}
           onBulkDownload={handleBulkDownload}
           onBulkLock={handleBulkLock}

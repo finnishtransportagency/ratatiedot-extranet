@@ -1,7 +1,8 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseWriteUser, canUnlockOthers } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { validateBaliseCapability, hasBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
 import { VersionStatus } from '../../generated/prisma/client';
 
@@ -10,6 +11,7 @@ const database = await DatabaseClient.build();
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
+    validateBaliseCapability(user, 'write');
 
     // Extract balise ID from path (e.g., /api/balise/12345/unlock)
     const pathParts = event.path.split('/').filter((p) => p);
@@ -25,8 +27,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         body: JSON.stringify({ error: 'Virheellinen tai puuttuva baliisi-tunnus' }),
       };
     }
-
-    validateBaliseWriteUser(user);
 
     const balise = await database.balise.findUnique({
       where: { secondaryId: baliseId },
@@ -50,7 +50,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     // Check if user is the one who locked it or is an admin
-    if (balise.lockedBy !== user.uid && !canUnlockOthers(user)) {
+    if (balise.lockedBy !== user.uid && !hasBaliseCapability(user, 'unlockOthers')) {
       return {
         statusCode: 403,
         headers: { 'Content-Type': 'application/json' },
