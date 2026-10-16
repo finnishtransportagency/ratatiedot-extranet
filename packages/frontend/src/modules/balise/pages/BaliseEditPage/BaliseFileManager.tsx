@@ -31,7 +31,6 @@ interface BaliseFileManagerProps {
   formData: { files: File[] };
   permissions?: {
     canWrite: boolean;
-    isAdmin?: boolean;
     currentUserUid?: string;
   } | null;
   filesToDelete: string[];

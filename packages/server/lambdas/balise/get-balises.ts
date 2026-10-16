@@ -2,7 +2,8 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { validateBaliseCapability, hasBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
 import { resolveBalisesForUser, getLatestOfficialEditTimes } from '../../utils/balise/baliseVersionUtils';
 
@@ -55,10 +56,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Get all balises. params: ${JSON.stringify(event.queryStringParameters)}`);
 
-    validateBaliseReadUser(user);
+    validateBaliseCapability(user, 'read');
 
-    // Check if user is admin
-    const isAdmin = isBaliseAdmin(user);
+    const canViewHistory = hasBaliseCapability(user, 'viewHistory');
 
     // Get pagination parameters
     const page = getQueryParamAsInt(event, 'page', 1) ?? 1;
@@ -97,8 +97,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       where: whereClause,
     });
 
-    // Check if history should be included (optional query parameter, admin only)
-    const includeHistory = isBaliseAdmin(user) && getQueryParam(event, 'include_history') === 'true';
+    const includeHistory = canViewHistory && getQueryParam(event, 'include_history') === 'true';
 
     // Sort: temporary balises (isTemporary=true, secondaryId starts with 9) appear at the end,
     // otherwise numeric ascending. Relies on the isTemporary generated column in the DB.
@@ -118,8 +117,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         : undefined,
     });
 
-    // Resolve balises to latest OFFICIAL versions efficiently (unless user is admin or lock owner)
-    const resolvedBalises = await resolveBalisesForUser(database, balises, user.uid, isAdmin);
+    // Resolve balises to latest OFFICIAL versions efficiently (unless user can view history or is lock owner)
+    const resolvedBalises = await resolveBalisesForUser(database, balises, user.uid, canViewHistory);
 
     // Attach latest official version edit time for all balises
     const balisesWithEditTime = await getLatestOfficialEditTimes(database, resolvedBalises);

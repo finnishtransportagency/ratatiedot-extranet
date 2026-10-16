@@ -1,6 +1,11 @@
 import { BaliseWithHistory } from '../types/baliseTypes';
+import type { BalisePermissions } from '../services/BalisePermissionsService';
 
-// Utility to check if the current user can unlock balises
+export const canDeleteBalise = (
+  balise: Pick<BaliseWithHistory, 'locked'>,
+  permissions?: Pick<BalisePermissions, 'canDelete' | 'canDeleteLocked'> | null,
+): boolean => !!permissions?.canDelete && (!balise.locked || !!permissions.canDeleteLocked);
+
 export const canUnlockBalises = (
   balises: BaliseWithHistory[],
   currentUserUid?: string | undefined | null,

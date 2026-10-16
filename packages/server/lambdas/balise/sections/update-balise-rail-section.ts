@@ -1,7 +1,8 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../../utils/logger';
 import { getRataExtraLambdaError } from '../../../utils/errors';
-import { getUser, validateBaliseAdminUser } from '../../../utils/userService';
+import { getUser } from '../../../utils/userService';
+import { validateBaliseCapability } from '../../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../../database/client';
 import {
   generateKeyFromName,
@@ -30,6 +31,8 @@ interface UpdateSectionRequest {
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
+    validateBaliseCapability(user, 'manageSections');
+
     // Extract section ID from path (e.g., /api/balise/sections/{sectionId})
     const pathParts = event.path.split('/').filter((p) => p);
     const sectionId = pathParts[pathParts.indexOf('sections') + 1];
@@ -45,8 +48,6 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     log.info(user, `Update section. id: ${sectionId}, path: ${event.path}`);
-
-    validateBaliseAdminUser(user);
 
     if (!event.body) {
       return {

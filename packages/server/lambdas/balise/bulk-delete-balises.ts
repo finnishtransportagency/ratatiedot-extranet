@@ -1,6 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseAdminUser } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { validateBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
 import { type BaliseWithHistory, deleteSingleBalise } from '../../utils/balise/baliseArchiveUtils';
 import {
@@ -99,7 +100,7 @@ async function processBulkDeletion(baliseIds: number[], userUid: string): Promis
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    validateBaliseAdminUser(user);
+    validateBaliseCapability(user, 'delete');
 
     const baliseIds = parseBaliseIds(event);
 

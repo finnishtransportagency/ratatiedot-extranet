@@ -18,8 +18,9 @@ import {
 } from '@mui/material';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ExpandMore, ExpandLess, Edit, Lock, LockOpen, Delete, Download, Visibility } from '@mui/icons-material';
-import { canUnlockBalises } from '../../utils/baliseLocking';
+import { canDeleteBalise, canUnlockBalises } from '../../utils/balisePermissions';
 import type { BaliseWithHistory } from '../../types/baliseTypes';
+import type { BalisePermissions } from '../../services/BalisePermissionsService';
 import { VersionStatus } from '../../constants/enums';
 
 interface BaliseTableProps {
@@ -38,13 +39,7 @@ interface BaliseTableProps {
   onRowClick?: (row: BaliseWithHistory) => void;
   onEditClick?: (row: BaliseWithHistory) => void;
   lockingBaliseId?: string;
-  permissions?: {
-    canRead: boolean;
-    canWrite: boolean;
-    isAdmin: boolean;
-    canUnlockOthers: boolean;
-    currentUserUid: string;
-  };
+  permissions?: BalisePermissions;
 }
 
 interface ExpandedRows {
@@ -61,13 +56,7 @@ interface CollapsibleRowProps {
   onContextMenu?: (event: React.MouseEvent, row: BaliseWithHistory) => void;
   onRowClick?: (row: BaliseWithHistory) => void;
   isLocking?: boolean;
-  permissions?: {
-    canRead: boolean;
-    canWrite: boolean;
-    isAdmin: boolean;
-    canUnlockOthers: boolean;
-    currentUserUid: string;
-  };
+  permissions?: BalisePermissions;
 }
 
 const getBestLocale = (): string => {
@@ -217,7 +206,7 @@ const CollapsibleRow: React.FC<CollapsibleRowProps> = React.memo(
             )}
           </TableCell>
           <TableCell sx={{ textAlign: 'right', width: '50px' }}>
-            {permissions?.isAdmin && (
+            {permissions?.canViewHistory && (
               <IconButton
                 size="small"
                 onClick={(e) => {
@@ -601,7 +590,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
           },
         }}
       >
-        {permissions?.isAdmin && (
+        {permissions?.canWrite && (
           <MenuItem onClick={handleContextEdit} sx={{ fontSize: '14px', py: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
               <Edit fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
@@ -626,7 +615,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
             </MenuItem>
           )}
 
-        {permissions?.isAdmin && (
+        {permissions?.canViewHistory && (
           <MenuItem onClick={handleContextViewHistory} sx={{ fontSize: '14px', py: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
               <Visibility fontSize="small" sx={{ mr: 1.5, color: 'text.secondary' }} />
@@ -642,9 +631,9 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
           </Box>
         </MenuItem>
 
-        {permissions?.isAdmin && <Divider sx={{ my: 0.5 }} />}
+        {contextMenu?.rowData && canDeleteBalise(contextMenu.rowData, permissions) && <Divider sx={{ my: 0.5 }} />}
 
-        {permissions?.isAdmin && (
+        {contextMenu?.rowData && canDeleteBalise(contextMenu.rowData, permissions) && (
           <MenuItem onClick={handleContextDelete} sx={{ fontSize: '14px', py: 1, color: 'error.main' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
               <Delete fontSize="small" sx={{ mr: 1.5, color: 'error.main' }} />
