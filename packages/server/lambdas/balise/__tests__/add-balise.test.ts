@@ -1,4 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { ALBEvent } from 'aws-lambda';
 import { FileUpload as ParsedFileUpload } from '../../../utils/parser';
 
 vi.mock('../../../lambdas/database/client', () => {
@@ -10,8 +11,63 @@ vi.mock('../../../lambdas/database/client', () => {
     },
   };
 });
+vi.mock('../../../utils/userService', () => ({
+  getUser: vi.fn().mockResolvedValue({ uid: 'test-user', roles: [] }),
+  validateBaliseWriteUser: vi.fn(),
+}));
+vi.mock('../../../utils/logger', () => ({ log: { info: vi.fn(), error: vi.fn() } }));
+vi.mock('../../../utils/balise/baliseUtils', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../utils/balise/baliseUtils')>()),
+  updateOrCreateBalise: vi.fn(),
+  validateBalisesLockedByUser: vi.fn().mockResolvedValue(null),
+}));
 
-import { validateUploadedFiles } from '../add-balise';
+import { validateUploadedFiles, handleRequest } from '../add-balise';
+import { updateOrCreateBalise } from '../../../utils/balise/baliseUtils';
+
+describe('handleRequest filesToDelete', () => {
+  const createJsonEvent = (body: unknown): ALBEvent => ({
+    requestContext: { elb: { targetGroupArn: 'arn:aws:elasticloadbalancing:test' } },
+    httpMethod: 'PUT',
+    path: '/api/balise/12345/add',
+    queryStringParameters: undefined,
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+    isBase64Encoded: false,
+  });
+
+  beforeEach(() => {
+    vi.mocked(updateOrCreateBalise).mockReset();
+    vi.mocked(updateOrCreateBalise).mockResolvedValue({
+      newVersion: 3,
+      filesUploaded: 0,
+      isNewBalise: false,
+      balise: {} as Awaited<ReturnType<typeof updateOrCreateBalise>>['balise'],
+    });
+  });
+
+  it('should pass filesToDelete to updateOrCreateBalise', async () => {
+    const result = await handleRequest(createJsonEvent({ description: 'desc', filesToDelete: ['12345.il'] }));
+
+    expect(result.statusCode).toBe(200);
+    expect(updateOrCreateBalise).toHaveBeenCalledWith(
+      expect.objectContaining({ baliseId: 12345, files: [], filesToDelete: ['12345.il'] }),
+    );
+  });
+
+  it('should default filesToDelete to an empty list', async () => {
+    await handleRequest(createJsonEvent({ description: 'desc' }));
+
+    expect(updateOrCreateBalise).toHaveBeenCalledWith(expect.objectContaining({ filesToDelete: [] }));
+  });
+
+  it('should reject malformed filesToDelete', async () => {
+    const result = await handleRequest(createJsonEvent({ description: 'desc', filesToDelete: [1, 2] }));
+
+    expect(result.statusCode).toBe(400);
+    expect(updateOrCreateBalise).not.toHaveBeenCalled();
+  });
+});
 
 describe('validateUploadedFiles', () => {
   describe('Valid files', () => {

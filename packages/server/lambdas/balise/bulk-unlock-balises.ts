@@ -1,6 +1,6 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseWriteUser, isBaliseAdmin } from '../../utils/userService';
+import { getUser, validateBaliseWriteUser, canUnlockOthers } from '../../utils/userService';
 import { DatabaseClient } from '../database/client';
 import { VersionStatus } from '../../generated/prisma/client';
 import {
@@ -14,7 +14,7 @@ const database = await DatabaseClient.build();
 
 interface UnlockContext {
   userUid: string;
-  isAdmin: boolean;
+  canUnlockOthers: boolean;
 }
 
 async function executeUnlock(baliseId: number, context: UnlockContext): Promise<BulkOperationResult> {
@@ -33,7 +33,7 @@ async function executeUnlock(baliseId: number, context: UnlockContext): Promise<
       return { baliseId, success: false, skipped: true, error: 'Already unlocked' };
     }
 
-    if (balise.lockedBy !== context.userUid && !context.isAdmin) {
+    if (balise.lockedBy !== context.userUid && !context.canUnlockOthers) {
       log.info(`User ${context.userUid} cannot unlock balise ${baliseId} locked by ${balise.lockedBy}`);
       return { baliseId, success: false, skipped: false, error: `Cannot unlock - locked by ${balise.lockedBy}` };
     }
@@ -72,8 +72,11 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateBaliseWriteUser(user);
 
     const baliseIds = parseBaliseIds(event);
-    const isAdmin = isBaliseAdmin(user) || false;
-    const response = await processBulkOperation(baliseIds, { userUid: user.uid, isAdmin }, executeUnlock);
+    const response = await processBulkOperation(
+      baliseIds,
+      { userUid: user.uid, canUnlockOthers: canUnlockOthers(user) },
+      executeUnlock,
+    );
 
     log.info(
       user,

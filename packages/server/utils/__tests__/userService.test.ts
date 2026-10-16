@@ -4,6 +4,7 @@ import {
   validateBaliseReadUser,
   validateBaliseWriteUser,
   validateBaliseAdminUser,
+  canUnlockOthers,
   validateWriteUser,
   validateReadUser,
   validateAdminUser,
@@ -379,6 +380,32 @@ describe('Balise role validation', () => {
         uid: 'user-8',
       };
       expect(() => validateBaliseAdminUser(user)).toThrow(RataExtraLambdaError);
+    });
+  });
+
+  describe('balise lite admin', () => {
+    const liteAdmin: RataExtraUser = { uid: 'lite-1', roles: ['ratatieto_liteadmin_baliisisanomat'] };
+
+    it('should have read and write access', () => {
+      expect(() => validateBaliseReadUser(liteAdmin)).not.toThrow();
+      expect(() => validateBaliseWriteUser(liteAdmin)).not.toThrow();
+    });
+
+    it('should not have admin access', () => {
+      expect(() => validateBaliseAdminUser(liteAdmin)).toThrow(RataExtraLambdaError);
+    });
+
+    it('should be allowed to unlock balises of others', () => {
+      expect(canUnlockOthers(liteAdmin)).toBe(true);
+    });
+  });
+
+  describe('canUnlockOthers', () => {
+    it('should be true only for admin and lite admin', () => {
+      expect(canUnlockOthers({ uid: 'a', roles: ['ratatieto_admin_baliisisanomat'] })).toBe(true);
+      expect(canUnlockOthers({ uid: 'w', roles: ['ratatieto_kirjoitus_baliisisanomat'] })).toBe(false);
+      expect(canUnlockOthers({ uid: 'r', roles: ['ratatieto_luku_baliisisanomat'] })).toBe(false);
+      expect(canUnlockOthers({ uid: 'n' })).toBe(false);
     });
   });
 });

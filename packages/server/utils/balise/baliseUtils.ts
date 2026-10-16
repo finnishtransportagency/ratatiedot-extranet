@@ -1,7 +1,8 @@
 import { log } from '../logger';
 import { DatabaseClient } from '../../lambdas/database/client';
-import { FileUpload, uploadFilesToS3WithCleanup } from '../s3utils';
+import { FileUpload, uploadFilesToS3WithCleanup, copyFilesToArchive, deleteFromS3WithRetry } from '../s3utils';
 import { VersionStatus } from '../../generated/prisma/client';
+import { RataExtraLambdaError } from '../errors';
 
 const database = await DatabaseClient.build();
 const BALISES_BUCKET_NAME = process.env.BALISES_BUCKET_NAME || '';
@@ -123,6 +124,7 @@ export interface BaliseUpdateResult {
 export interface BaliseUpdateOptions {
   baliseId: number;
   files?: FileUpload[];
+  filesToDelete?: string[];
   description: string;
   userId: string;
 }
@@ -244,43 +246,77 @@ export async function validateBalisesLockedByUser(
   return null;
 }
 
-interface VersionManagementResult {
-  shouldCreateNewVersion: boolean;
-  newVersion: number;
+interface FileChangePlan {
+  retainedFiles: string[];
+  removedFiles: string[];
 }
 
 /**
- * Determines version management strategy based on existing balise and files
+ * Uploads replace existing files with the same name (case-insensitive); filesToDelete drops files.
  */
-function determineVersionManagement(existingBalise: { version: number }, hasFiles: boolean): VersionManagementResult {
-  const shouldCreateNewVersion = hasFiles;
-  const newVersion = shouldCreateNewVersion ? existingBalise.version + 1 : existingBalise.version;
-
-  return {
-    shouldCreateNewVersion,
-    newVersion,
-  };
-}
-
-/**
- * Handles file type management for balise updates
- */
-async function handleFileTypeUpdate(
-  files: FileUpload[],
+export function planFileChanges(
   existingFileTypes: string[],
-  baliseId: number,
-  version: number,
-  userId: string,
-  shouldCreateNewVersion: boolean,
-): Promise<string[]> {
-  if (files.length === 0) {
-    return existingFileTypes;
+  files: FileUpload[],
+  filesToDelete: string[],
+): FileChangePlan {
+  const uploadedLower = new Set(files.map((f) => f.filename.toLowerCase()));
+  const deleteLower = new Set(filesToDelete.map((name) => name.toLowerCase()));
+
+  const retainedFiles: string[] = [];
+  const removedFiles: string[] = [];
+  for (const name of existingFileTypes) {
+    const lower = name.toLowerCase();
+    if (uploadedLower.has(lower)) continue;
+    if (deleteLower.has(lower)) {
+      removedFiles.push(name);
+    } else {
+      retainedFiles.push(name);
+    }
   }
 
-  const uploadedFilenames = await uploadFilesToS3(files, baliseId, version, userId);
-  log.info({ userId }, `Successfully uploaded ${files.length} files for balise ${baliseId}`);
+  return { retainedFiles, removedFiles };
+}
 
-  return shouldCreateNewVersion ? uploadedFilenames : [...existingFileTypes, ...uploadedFilenames];
+/**
+ * Builds the file set of a new version: uploads new files and copies retained files from the previous version.
+ * On copy failure the uploaded files are removed again.
+ */
+async function buildNewVersionFiles(
+  files: FileUpload[],
+  retainedFiles: string[],
+  baliseId: number,
+  previousVersion: number,
+  newVersion: number,
+  userId: string,
+): Promise<string[]> {
+  const uploadedFilenames = files.length > 0 ? await uploadFilesToS3(files, baliseId, newVersion, userId) : [];
+
+  if (retainedFiles.length > 0) {
+    try {
+      await copyFilesToArchive(
+        BALISES_BUCKET_NAME,
+        retainedFiles.map((name) => ({
+          sourceKey: `balise_${baliseId}/v${previousVersion}/${name}`,
+          archiveKey: `balise_${baliseId}/v${newVersion}/${name}`,
+        })),
+        userId,
+      );
+    } catch (error) {
+      await Promise.allSettled(
+        uploadedFilenames.map((name) =>
+          deleteFromS3WithRetry(BALISES_BUCKET_NAME, `balise_${baliseId}/v${newVersion}/${name}`, userId),
+        ),
+      );
+      throw error;
+    }
+  }
+
+  log.info(
+    { userId },
+    `Balise ${baliseId} v${newVersion}: uploaded ${uploadedFilenames.length}, retained ${retainedFiles.length} files`,
+  );
+
+  return [...retainedFiles, ...uploadedFilenames];
 }
 
 /**
@@ -346,34 +382,45 @@ async function updateExistingBalise(
     lockedAtVersion?: number | null;
   },
   files: FileUpload[],
+  filesToDelete: string[],
   description: string,
   userId: string,
 ): Promise<BaliseUpdateResult> {
-  const versionManagement = determineVersionManagement(existingBalise, files.length > 0);
-  const { shouldCreateNewVersion, newVersion } = versionManagement;
+  const { retainedFiles, removedFiles } = planFileChanges(existingBalise.fileTypes, files, filesToDelete);
+  const shouldCreateNewVersion = files.length > 0 || removedFiles.length > 0;
+  const newVersion = shouldCreateNewVersion ? existingBalise.version + 1 : existingBalise.version;
+
+  let fileTypes = existingBalise.fileTypes;
 
   if (shouldCreateNewVersion) {
+    if (files.length === 0 && retainedFiles.length === 0) {
+      throw new RataExtraLambdaError('Baliisilla täytyy olla vähintään yksi tiedosto', 400);
+    }
+
+    log.info(
+      { userId },
+      `Creating new version ${newVersion} for balise ${existingBalise.secondaryId}, removing: ${removedFiles.join(', ') || '-'}`,
+    );
+
+    fileTypes = await buildNewVersionFiles(
+      files,
+      retainedFiles,
+      existingBalise.secondaryId,
+      existingBalise.version,
+      newVersion,
+      userId,
+    );
+
     // Create version history entry for the OLD version (only if it has content and version > 0)
     if (existingBalise.version > 0) {
       await createVersionHistory(existingBalise);
     }
-    log.info({ userId }, `Creating new version ${newVersion} for balise ${existingBalise.secondaryId}`);
   } else {
     log.info(
       { userId },
       `Updating existing version ${newVersion} for balise ${existingBalise.secondaryId} (metadata only)`,
     );
   }
-
-  // Handle file uploads and type management
-  const fileTypes = await handleFileTypeUpdate(
-    files,
-    existingBalise.fileTypes,
-    existingBalise.secondaryId,
-    newVersion,
-    userId,
-    shouldCreateNewVersion,
-  );
 
   // Prepare and apply update
   const updateData = prepareUpdateData(
@@ -449,7 +496,9 @@ async function createNewBalise(
  * Handles both single balise updates and bulk operations
  */
 export async function updateOrCreateBalise(options: BaliseUpdateOptions): Promise<BaliseUpdateResult> {
-  const { baliseId, files = [], description, userId } = options;
+  const { baliseId, description, userId, filesToDelete = [] } = options;
+  // Dedupe uploads (last wins) case-insensitive
+  const files = Array.from(new Map((options.files ?? []).map((f) => [f.filename.toLowerCase(), f])).values());
 
   // Check if balise exists
   const existingBalise = await database.balise.findUnique({
@@ -457,7 +506,7 @@ export async function updateOrCreateBalise(options: BaliseUpdateOptions): Promis
   });
 
   if (existingBalise) {
-    return await updateExistingBalise(existingBalise, files, description, userId);
+    return await updateExistingBalise(existingBalise, files, filesToDelete, description, userId);
   } else {
     return await createNewBalise(baliseId, files, description, userId);
   }

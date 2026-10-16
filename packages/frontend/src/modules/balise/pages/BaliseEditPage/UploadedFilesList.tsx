@@ -6,9 +6,10 @@ interface UploadedFilesListProps {
   files: File[];
   title: string;
   onRemoveFile: (index: number) => void;
+  replacedNames?: Set<string>;
 }
 
-export const UploadedFilesList: React.FC<UploadedFilesListProps> = ({ files, title, onRemoveFile }) => {
+export const UploadedFilesList: React.FC<UploadedFilesListProps> = ({ files, title, onRemoveFile, replacedNames }) => {
   return (
     <Box sx={{ mb: 3 }}>
       <Typography
@@ -42,7 +43,13 @@ export const UploadedFilesList: React.FC<UploadedFilesListProps> = ({ files, tit
             </ListItemIcon>
             <ListItemText
               primary={file.name}
-              secondary={`${(file.size / 1024).toFixed(0)} kB`}
+              secondary={`${(file.size / 1024).toFixed(0)} kB${
+                !replacedNames
+                  ? ''
+                  : replacedNames.has(file.name.toLowerCase())
+                    ? ' · korvaa nykyisen tiedoston'
+                    : ' · uusi tiedosto'
+              }`}
               primaryTypographyProps={{
                 sx: {
                   fontWeight: 500,

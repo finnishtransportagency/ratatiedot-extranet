@@ -42,6 +42,7 @@ interface BaliseTableProps {
     canRead: boolean;
     canWrite: boolean;
     isAdmin: boolean;
+    canUnlockOthers: boolean;
     currentUserUid: string;
   };
 }
@@ -64,6 +65,7 @@ interface CollapsibleRowProps {
     canRead: boolean;
     canWrite: boolean;
     isAdmin: boolean;
+    canUnlockOthers: boolean;
     currentUserUid: string;
   };
 }
@@ -611,7 +613,7 @@ export const VirtualBaliseTable: React.FC<BaliseTableProps> = ({
         {permissions?.canWrite &&
           contextMenu?.rowData &&
           (!contextMenu.rowData.locked ||
-            canUnlockBalises([contextMenu.rowData], permissions?.currentUserUid, permissions?.isAdmin)) && (
+            canUnlockBalises([contextMenu.rowData], permissions?.currentUserUid, permissions?.canUnlockOthers)) && (
             <MenuItem onClick={handleContextLock} sx={{ fontSize: '14px', py: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                 {contextMenu?.rowData.locked ? (

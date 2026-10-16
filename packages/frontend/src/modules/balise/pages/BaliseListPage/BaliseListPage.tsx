@@ -75,6 +75,7 @@ export const BaliseListPage: React.FC = () => {
     handleLockCancel,
     handleUnlockCancel,
   } = useBaliseLocking({
+    currentUserUid: permissions?.currentUserUid,
     onSuccess: async (secondaryId) => {
       await refreshBalise(secondaryId);
     },
@@ -251,8 +252,8 @@ export const BaliseListPage: React.FC = () => {
   const allSelectedLocked = useMemo(() => {
     if (selectedItems.length === 0) return false;
     const selectedBalises = balises.filter((b) => selectedItems.includes(b.id));
-    return canUnlockBalises(selectedBalises, permissions?.currentUserUid, permissions?.isAdmin);
-  }, [balises, selectedItems, permissions?.currentUserUid, permissions?.isAdmin]);
+    return canUnlockBalises(selectedBalises, permissions?.currentUserUid, permissions?.canUnlockOthers);
+  }, [balises, selectedItems, permissions?.currentUserUid, permissions?.canUnlockOthers]);
 
   // Other bulk actions
   const handleBulkLock = useCallback(() => {
@@ -591,6 +592,10 @@ export const BaliseListPage: React.FC = () => {
         <UnlockBaliseDialog
           open={unlockDialogOpen}
           version={baliseToUnlock?.version}
+          lockedByOther={
+            baliseToUnlock?.lockedBy !== permissions?.currentUserUid ? baliseToUnlock?.lockedBy : undefined
+          }
+          lockReason={baliseToUnlock?.lockReason}
           loading={isLocking}
           onConfirm={handleUnlockConfirm}
           onCancel={handleUnlockCancel}

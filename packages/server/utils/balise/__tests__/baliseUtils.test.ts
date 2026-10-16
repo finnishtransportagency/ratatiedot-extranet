@@ -10,7 +10,7 @@ import {
   MAX_BALISE_ID,
   type BaliseUpdateOptions,
 } from '../baliseUtils';
-import { uploadFilesToS3WithCleanup } from '../../s3utils';
+import { uploadFilesToS3WithCleanup, copyFilesToArchive, deleteFromS3WithRetry } from '../../s3utils';
 
 // Define mock database interface
 interface MockDatabase {
@@ -28,6 +28,8 @@ interface MockDatabase {
 
 vi.mock('../../s3utils', () => ({
   uploadFilesToS3WithCleanup: vi.fn(),
+  copyFilesToArchive: vi.fn(),
+  deleteFromS3WithRetry: vi.fn(),
 }));
 
 vi.mock('../../../lambdas/database/client', () => {
@@ -68,6 +70,10 @@ describe('baliseUtils', () => {
       void userId;
       return files.map((file) => file.filename);
     });
+    vi.mocked(copyFilesToArchive).mockImplementation(async (bucket, filesToCopy) => {
+      void bucket;
+      return filesToCopy.map((f) => f.sourceKey);
+    });
   });
 
   describe('updateOrCreateBalise', () => {
@@ -100,6 +106,31 @@ describe('baliseUtils', () => {
           createdBy: 'test-user',
           locked: false,
         }),
+      });
+    });
+
+    it('should keep only the last file when the same filename is uploaded twice', async () => {
+      const options: BaliseUpdateOptions = {
+        baliseId: 12345,
+        files: [
+          { filename: '12345.il', buffer: Buffer.from('first') },
+          { filename: '12345.IL', buffer: Buffer.from('second') },
+        ],
+        description: 'Test balise',
+        userId: 'test-user',
+      };
+
+      const result = await updateOrCreateBalise(options);
+
+      expect(result.filesUploaded).toBe(1);
+      expect(uploadFilesToS3WithCleanup).toHaveBeenCalledWith(
+        '',
+        [{ filename: '12345.IL', buffer: Buffer.from('second') }],
+        'balise_12345/v1',
+        'test-user',
+      );
+      expect(mockDatabase.balise.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ fileTypes: ['12345.IL'] }),
       });
     });
 
@@ -145,6 +176,158 @@ describe('baliseUtils', () => {
         'balise_456/v3',
         'test-user',
       );
+      expect(copyFilesToArchive).toHaveBeenCalledWith(
+        '',
+        [{ sourceKey: 'balise_456/v2/old-file.txt', archiveKey: 'balise_456/v3/old-file.txt' }],
+        'test-user',
+      );
+      expect(mockDatabase.balise.update).toHaveBeenCalledWith({
+        where: { secondaryId: 456 },
+        data: expect.objectContaining({ fileTypes: ['old-file.txt', 'update.pdf'], version: 3 }),
+      });
+    });
+
+    describe('per-file replacement', () => {
+      const existingBalise = {
+        id: 'existing-uuid',
+        secondaryId: 12345,
+        version: 2,
+        description: 'Old description',
+        fileTypes: ['12345.il', '12345K.leu', '12345.bis'],
+        createdBy: 'previous-user',
+        createdTime: new Date('2026-01-01T00:00:00.000Z'),
+        locked: true,
+        lockedBy: 'test-user',
+        lockedTime: new Date('2026-01-01T12:00:00.000Z'),
+      };
+
+      beforeEach(() => {
+        mockDatabase.balise.findUnique.mockResolvedValue(existingBalise);
+      });
+
+      it('should replace only the same-named file case-insensitively and keep the rest', async () => {
+        const result = await updateOrCreateBalise({
+          baliseId: 12345,
+          files: [{ filename: '12345k.LEU', buffer: Buffer.from('new') }],
+          description: 'Replace one',
+          userId: 'test-user',
+        });
+
+        expect(result.newVersion).toBe(3);
+        expect(copyFilesToArchive).toHaveBeenCalledWith(
+          '',
+          [
+            { sourceKey: 'balise_12345/v2/12345.il', archiveKey: 'balise_12345/v3/12345.il' },
+            { sourceKey: 'balise_12345/v2/12345.bis', archiveKey: 'balise_12345/v3/12345.bis' },
+          ],
+          'test-user',
+        );
+        expect(mockDatabase.balise.update).toHaveBeenCalledWith({
+          where: { secondaryId: 12345 },
+          data: expect.objectContaining({ fileTypes: ['12345.il', '12345.bis', '12345k.LEU'] }),
+        });
+      });
+
+      it('should create a new version without the removed files when only removing', async () => {
+        const result = await updateOrCreateBalise({
+          baliseId: 12345,
+          filesToDelete: ['12345.BIS'],
+          description: 'Remove one',
+          userId: 'test-user',
+        });
+
+        expect(result.newVersion).toBe(3);
+        expect(result.previousVersion).toBe(2);
+        expect(uploadFilesToS3WithCleanup).not.toHaveBeenCalled();
+        expect(mockDatabase.baliseVersion.create).toHaveBeenCalled();
+        expect(mockDatabase.balise.update).toHaveBeenCalledWith({
+          where: { secondaryId: 12345 },
+          data: expect.objectContaining({ fileTypes: ['12345.il', '12345K.leu'], version: 3 }),
+        });
+      });
+
+      it('should treat a file both uploaded and marked for removal as replaced', async () => {
+        await updateOrCreateBalise({
+          baliseId: 12345,
+          files: [{ filename: '12345.il', buffer: Buffer.from('new') }],
+          filesToDelete: ['12345.il', '12345.bis'],
+          description: 'Mixed',
+          userId: 'test-user',
+        });
+
+        expect(mockDatabase.balise.update).toHaveBeenCalledWith({
+          where: { secondaryId: 12345 },
+          data: expect.objectContaining({ fileTypes: ['12345K.leu', '12345.il'] }),
+        });
+      });
+
+      it('should ignore unknown filesToDelete and keep metadata-only update', async () => {
+        const result = await updateOrCreateBalise({
+          baliseId: 12345,
+          filesToDelete: ['99999.il'],
+          description: 'Metadata only',
+          userId: 'test-user',
+        });
+
+        expect(result.newVersion).toBe(2);
+        expect(mockDatabase.baliseVersion.create).not.toHaveBeenCalled();
+        expect(copyFilesToArchive).not.toHaveBeenCalled();
+      });
+
+      it('should reject removing all files', async () => {
+        await expect(
+          updateOrCreateBalise({
+            baliseId: 12345,
+            filesToDelete: ['12345.il', '12345K.leu', '12345.bis'],
+            description: 'Remove all',
+            userId: 'test-user',
+          }),
+        ).rejects.toMatchObject({ statusCode: 400 });
+
+        expect(mockDatabase.baliseVersion.create).not.toHaveBeenCalled();
+        expect(mockDatabase.balise.update).not.toHaveBeenCalled();
+      });
+
+      it('should allow removing all existing files when a new file is uploaded', async () => {
+        const result = await updateOrCreateBalise({
+          baliseId: 12345,
+          files: [{ filename: '123451.il', buffer: Buffer.from('new') }],
+          filesToDelete: ['12345.il', '12345K.leu', '12345.bis'],
+          description: 'Replace all with new',
+          userId: 'test-user',
+        });
+
+        expect(result.newVersion).toBe(3);
+        expect(copyFilesToArchive).not.toHaveBeenCalled();
+        expect(uploadFilesToS3WithCleanup).toHaveBeenCalledWith(
+          '',
+          [{ filename: '123451.il', buffer: Buffer.from('new') }],
+          'balise_12345/v3',
+          'test-user',
+        );
+        expect(mockDatabase.baliseVersion.create).toHaveBeenCalled();
+        expect(mockDatabase.balise.update).toHaveBeenCalledWith({
+          where: { secondaryId: 12345 },
+          data: expect.objectContaining({ fileTypes: ['123451.il'], version: 3 }),
+        });
+      });
+
+      it('should clean up uploaded files and skip db writes when copying retained files fails', async () => {
+        vi.mocked(copyFilesToArchive).mockRejectedValue(new Error('copy failed'));
+
+        await expect(
+          updateOrCreateBalise({
+            baliseId: 12345,
+            files: [{ filename: '12345.il', buffer: Buffer.from('new') }],
+            description: 'Copy fails',
+            userId: 'test-user',
+          }),
+        ).rejects.toThrow('copy failed');
+
+        expect(deleteFromS3WithRetry).toHaveBeenCalledWith('', 'balise_12345/v3/12345.il', 'test-user');
+        expect(mockDatabase.baliseVersion.create).not.toHaveBeenCalled();
+        expect(mockDatabase.balise.update).not.toHaveBeenCalled();
+      });
     });
 
     it('should update description only without creating new version when no files provided', async () => {

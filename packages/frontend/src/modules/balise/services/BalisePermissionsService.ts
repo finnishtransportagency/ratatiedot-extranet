@@ -4,6 +4,7 @@ export interface BalisePermissions {
   canRead: boolean;
   canWrite: boolean;
   isAdmin: boolean;
+  canUnlockOthers: boolean;
   currentUserUid: string;
 }
 

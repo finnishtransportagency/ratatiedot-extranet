@@ -3,6 +3,7 @@ import { useBaliseStore } from '../store/baliseStore';
 import type { BaliseWithHistory } from '../types/baliseTypes';
 
 interface UseBaliseLockingOptions {
+  currentUserUid?: string;
   onSuccess?: (secondaryId: number) => Promise<void> | void;
   onError?: (error: string, errorType?: 'locked' | 'already_locked' | 'error') => void;
 }
@@ -31,7 +32,7 @@ interface UseBaliseLockingReturn {
  * Provides dialog state management and handlers for locking/unlocking balises.
  */
 export const useBaliseLocking = (options: UseBaliseLockingOptions = {}): UseBaliseLockingReturn => {
-  const { onSuccess, onError } = options;
+  const { currentUserUid, onSuccess, onError } = options;
   const { lockBalise, unlockBalise } = useBaliseStore();
 
   const [lockDialogOpen, setLockDialogOpen] = useState(false);
@@ -63,8 +64,11 @@ export const useBaliseLocking = (options: UseBaliseLockingOptions = {}): UseBali
 
   const handleLockToggle = useCallback(
     (balise: BaliseWithHistory) => {
-      // If unlocking and version has changed, show confirmation dialog
-      if (balise.locked && balise.lockedAtVersion && balise.version > balise.lockedAtVersion) {
+      // Confirm when version has changed, or when unlocking another user's lock (their unconfirmed versions may be hidden)
+      if (
+        balise.locked &&
+        ((balise.lockedAtVersion && balise.version > balise.lockedAtVersion) || balise.lockedBy !== currentUserUid)
+      ) {
         setBaliseToUnlock(balise);
         setUnlockDialogOpen(true);
         return;
@@ -89,7 +93,7 @@ export const useBaliseLocking = (options: UseBaliseLockingOptions = {}): UseBali
           setLockingBaliseId(null);
         });
     },
-    [unlockBalise, onSuccess, handleError],
+    [unlockBalise, onSuccess, handleError, currentUserUid],
   );
 
   const handleLockConfirm = useCallback(
