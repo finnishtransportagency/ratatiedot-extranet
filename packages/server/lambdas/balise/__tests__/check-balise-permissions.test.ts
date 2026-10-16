@@ -40,8 +40,11 @@ describe('check-balise-permissions', () => {
     expect(body).toEqual({
       canRead: true,
       canWrite: true,
-      isAdmin: true,
       canUnlockOthers: true,
+      canDelete: true,
+      canDeleteLocked: true,
+      canViewHistory: true,
+      canManageSections: true,
       currentUserUid: 'admin-user',
     });
   });
@@ -59,8 +62,11 @@ describe('check-balise-permissions', () => {
     expect(body).toEqual({
       canRead: true,
       canWrite: true,
-      isAdmin: false,
       canUnlockOthers: false,
+      canDelete: true,
+      canDeleteLocked: false,
+      canViewHistory: false,
+      canManageSections: false,
       currentUserUid: 'write-user',
     });
   });
@@ -78,8 +84,11 @@ describe('check-balise-permissions', () => {
     expect(body).toEqual({
       canRead: true,
       canWrite: false,
-      isAdmin: false,
       canUnlockOthers: false,
+      canDelete: false,
+      canDeleteLocked: false,
+      canViewHistory: false,
+      canManageSections: false,
       currentUserUid: 'read-user',
     });
   });
@@ -95,8 +104,11 @@ describe('check-balise-permissions', () => {
     expect(JSON.parse(result.body!)).toEqual({
       canRead: true,
       canWrite: true,
-      isAdmin: false,
       canUnlockOthers: true,
+      canDelete: true,
+      canDeleteLocked: false,
+      canViewHistory: false,
+      canManageSections: false,
       currentUserUid: 'lite-admin-user',
     });
   });
@@ -114,8 +126,11 @@ describe('check-balise-permissions', () => {
     expect(body).toEqual({
       canRead: false,
       canWrite: false,
-      isAdmin: false,
       canUnlockOthers: false,
+      canDelete: false,
+      canDeleteLocked: false,
+      canViewHistory: false,
+      canManageSections: false,
       currentUserUid: 'regular-user',
     });
   });
@@ -133,8 +148,11 @@ describe('check-balise-permissions', () => {
     expect(body).toEqual({
       canRead: false,
       canWrite: false,
-      isAdmin: false,
       canUnlockOthers: false,
+      canDelete: false,
+      canDeleteLocked: false,
+      canViewHistory: false,
+      canManageSections: false,
       currentUserUid: 'no-roles-user',
     });
   });

@@ -31,7 +31,7 @@ import { DeleteBaliseDialog } from '../../components/ConfirmDialog/DeleteBaliseD
 import { LockBaliseDialog } from '../../components/ConfirmDialog/LockBaliseDialog';
 import { UnlockBaliseDialog } from '../../components/ConfirmDialog/UnlockBaliseDialog';
 import { useBaliseLocking } from '../../hooks/useBaliseLocking';
-import { canUnlockBalises } from '../../utils/baliseLocking';
+import { canDeleteBalise, canUnlockBalises } from '../../utils/balisePermissions';
 
 interface BaliseFormProps {
   balise: BaliseWithHistory | null;
@@ -344,7 +344,7 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
                         : 'Lukitse'}
                   </Button>
                 )}
-              {permissions?.isAdmin && (
+              {balise && canDeleteBalise(balise, permissions) && (
                 <Button
                   variant="outlined"
                   color="error"
@@ -504,8 +504,8 @@ export const BaliseForm: React.FC<BaliseFormProps> = ({ balise, onSave, onRefres
           />
 
           {/* Version Timeline - Unified timeline showing historical and draft versions */}
-          {balise && (permissions?.isAdmin || balise.lockedBy === permissions?.currentUserUid) && (
-            <BaliseVersionTimeline balise={balise} permissions={permissions} />
+          {balise && (permissions?.canViewHistory || balise.lockedBy === permissions?.currentUserUid) && (
+            <BaliseVersionTimeline balise={balise} />
           )}
         </Box>
       </Box>

@@ -52,10 +52,10 @@ export const SectionPage: React.FC = () => {
   const [sectionToDelete, setSectionToDelete] = useState<Section | null>(null);
 
   useEffect(() => {
-    if (permissions?.isAdmin) {
+    if (permissions?.canManageSections) {
       fetchSections();
     }
-  }, [fetchSections, permissions?.isAdmin]);
+  }, [fetchSections, permissions?.canManageSections]);
 
   const handleBack = () => {
     navigate(Routes.BALISE);
@@ -153,7 +153,7 @@ export const SectionPage: React.FC = () => {
   };
 
   return (
-    <BalisePermissionGuard requiredPermission="isAdmin">
+    <BalisePermissionGuard requiredPermission="canManageSections">
       <Box
         sx={{
           height: '100%',

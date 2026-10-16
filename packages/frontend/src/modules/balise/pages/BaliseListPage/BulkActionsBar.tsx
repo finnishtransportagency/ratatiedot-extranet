@@ -5,7 +5,7 @@ import { Download, Delete, Lock, LockOpen } from '@mui/icons-material';
 interface BulkActionsBarProps {
   selectedCount: number;
   canWrite?: boolean;
-  isAdmin?: boolean;
+  canDelete?: boolean;
   allSelectedLocked?: boolean;
   onBulkDownload: () => void;
   onBulkLock: () => void;
@@ -16,7 +16,7 @@ interface BulkActionsBarProps {
 export const BulkActionsBar: React.FC<BulkActionsBarProps> = ({
   selectedCount,
   canWrite,
-  isAdmin,
+  canDelete,
   allSelectedLocked = false,
   onBulkDownload,
   onBulkLock,
@@ -88,7 +88,7 @@ export const BulkActionsBar: React.FC<BulkActionsBarProps> = ({
           Lukitse
         </Button>
       )}
-      {isAdmin && (
+      {canDelete && (
         <Button
           variant="outlined"
           startIcon={<Delete fontSize="small" />}

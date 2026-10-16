@@ -1,6 +1,7 @@
 import { ALBEvent, ALBEventHeaders, ALBResult } from 'aws-lambda';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseWriteUser } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { validateBaliseCapability } from '../../utils/balise/balisePermissions';
 import { parseForm, FileUpload as ParsedFileUpload } from '../../utils/parser';
 import { base64ToBuffer } from '../alfresco/fileRequestBuilder/alfrescoRequestBuilder';
 import {
@@ -77,7 +78,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
 
-    validateBaliseWriteUser(user);
+    validateBaliseCapability(user, 'write');
 
     // Extract balise ID from path (e.g., /api/balise/12345/add)
     const pathParts = event.path.split('/').filter((p) => p);

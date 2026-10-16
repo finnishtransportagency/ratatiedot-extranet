@@ -1,7 +1,8 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../../utils/logger';
 import { getRataExtraLambdaError } from '../../../utils/errors';
-import { getUser, validateBaliseAdminUser } from '../../../utils/userService';
+import { getUser } from '../../../utils/userService';
+import { validateBaliseCapability } from '../../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../../database/client';
 
 const database = await DatabaseClient.build();
@@ -14,14 +15,13 @@ const database = await DatabaseClient.build();
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
+    validateBaliseCapability(user, 'manageSections');
 
     // Extract section ID from path
     const pathParts = event.path.split('/');
     const sectionId = pathParts[pathParts.length - 1];
 
     log.info(user, `Delete section. id: ${sectionId}, path: ${event.path}`);
-
-    validateBaliseAdminUser(user);
 
     if (!sectionId) {
       return {

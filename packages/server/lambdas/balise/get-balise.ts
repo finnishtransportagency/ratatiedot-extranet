@@ -1,7 +1,8 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { validateBaliseCapability, hasBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
 import {
   resolveBalisesForUser,
@@ -14,6 +15,7 @@ const database = await DatabaseClient.build();
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
+    validateBaliseCapability(user, 'read');
 
     // Extract balise ID from path (e.g., /api/balise/12345 or /api/balise/12345/edit)
     const pathParts = event.path.split('/').filter((p) => p);
@@ -30,8 +32,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       };
     }
 
-    validateBaliseReadUser(user);
-    const isAdmin = isBaliseAdmin(user) ?? false;
+    const canViewHistory = hasBaliseCapability(user, 'viewHistory');
 
     // First fetch balise without history to check lock ownership
     const balise = await database.balise.findUnique({
@@ -49,8 +50,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     // Determine if user is lock owner
     const isLockOwner = Boolean(balise.locked && balise.lockedBy === user.uid);
 
-    // Include history for admins and lock owners
-    const includeHistory = isAdmin || isLockOwner;
+    const includeHistory = canViewHistory || isLockOwner;
     let history: Awaited<ReturnType<typeof database.baliseVersion.findMany>> = [];
 
     if (includeHistory) {
@@ -60,14 +60,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       });
 
       // Filter history based on user role
-      history = filterHistoryForUser(history, balise.lockedAtVersion, isLockOwner, isAdmin);
+      history = filterHistoryForUser(history, balise.lockedAtVersion, isLockOwner, canViewHistory);
     }
 
     // Attach filtered history to balise
     const baliseWithHistory = { ...balise, history };
 
-    // Resolve to latest OFFICIAL version if current is UNCONFIRMED (unless user is admin or lock owner)
-    const [resolvedBalise] = await resolveBalisesForUser(database, [baliseWithHistory], user.uid, isAdmin);
+    // Resolve to latest OFFICIAL version if current is UNCONFIRMED (unless user can view history or is lock owner)
+    const [resolvedBalise] = await resolveBalisesForUser(database, [baliseWithHistory], user.uid, canViewHistory);
 
     // Attach latest official version edit time
     const [baliseWithEditTime] = await getLatestOfficialEditTimes(database, [resolvedBalise]);

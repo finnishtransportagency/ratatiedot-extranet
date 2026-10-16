@@ -1,6 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseWriteUser } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { validateBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
 import {
   BulkOperationResult,
@@ -56,7 +57,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     log.info(user, `Bulk lock balises request`);
 
-    validateBaliseWriteUser(user);
+    validateBaliseCapability(user, 'write');
 
     const baliseIds = parseBaliseIds(event);
     const lockReason = parseLockReason(event);

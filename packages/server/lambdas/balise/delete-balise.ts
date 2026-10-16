@@ -1,7 +1,8 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseAdminUser } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { canDeleteBalise, validateBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
 import {
   type BaliseWithHistory,
@@ -57,6 +58,14 @@ function handleArchiveError(err: unknown): ALBResult {
     };
   }
 
+  if (errorMessage === 'BALISE_LOCKED') {
+    return {
+      statusCode: 409,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Lukittua baliisia ei voi poistaa. Avaa lukitus ensin.' }),
+    };
+  }
+
   if (errorMessage === 'BALISE_NOT_FOUND') {
     return {
       statusCode: 404,
@@ -72,13 +81,17 @@ function handleArchiveError(err: unknown): ALBResult {
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
+    validateBaliseCapability(user, 'delete');
+
     const baliseId = await parseAndValidateBaliseId(event);
 
     log.info(user, `Archive balise id: ${baliseId}, path: ${event.path}`);
 
-    validateBaliseAdminUser(user);
-
     const balise = await fetchBaliseWithHistory(database, baliseId);
+
+    if (!canDeleteBalise(user, balise)) {
+      throw new Error('BALISE_LOCKED');
+    }
 
     const { archivedSecondaryId, deletedFilesCount } = await deleteSingleBalise(
       database,
