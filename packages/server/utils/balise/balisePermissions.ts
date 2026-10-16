@@ -19,21 +19,14 @@ export type BaliseCapability =
   | 'viewHistory'
   | 'manageSections';
 
-const BALISE_WRITE_CAPABILITIES: BaliseCapability[] = ['read', 'write'];
+const BALISE_WRITE_CAPABILITIES: BaliseCapability[] = ['read', 'write', 'delete'];
 
 const BALISE_ROLE_CAPABILITIES: Record<string, BaliseCapability[]> = {
   [BALISE_ROLES.read]: ['read'],
   [BALISE_ROLES.readRaide]: ['read'],
   [BALISE_ROLES.write]: BALISE_WRITE_CAPABILITIES,
   [BALISE_ROLES.liteAdmin]: [...BALISE_WRITE_CAPABILITIES, 'unlockOthers'],
-  [BALISE_ROLES.admin]: [
-    ...BALISE_WRITE_CAPABILITIES,
-    'unlockOthers',
-    'delete',
-    'deleteLocked',
-    'viewHistory',
-    'manageSections',
-  ],
+  [BALISE_ROLES.admin]: [...BALISE_WRITE_CAPABILITIES, 'unlockOthers', 'deleteLocked', 'viewHistory', 'manageSections'],
 };
 
 export const getBaliseCapabilities = (user: RataExtraUser): Set<BaliseCapability> =>
