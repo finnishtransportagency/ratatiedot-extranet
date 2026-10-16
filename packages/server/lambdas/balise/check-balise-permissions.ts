@@ -2,14 +2,8 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import {
-  canUnlockOthers,
-  getUser,
-  isBaliseAdmin,
-  isBaliseLiteAdmin,
-  isBaliseReadUser,
-  isBaliseWriteUser,
-} from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { getBaliseCapabilities } from '../../utils/balise/balisePermissions';
 
 /**
  * Check user's balise permissions. Example request: /api/balise/permissions
@@ -21,11 +15,15 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     log.info(user, `Check balise permissions`);
 
+    const capabilities = getBaliseCapabilities(user);
     const permissions = {
-      canRead: isBaliseReadUser(user) || isBaliseWriteUser(user) || isBaliseLiteAdmin(user) || isBaliseAdmin(user),
-      canWrite: isBaliseWriteUser(user) || isBaliseLiteAdmin(user) || isBaliseAdmin(user),
-      isAdmin: isBaliseAdmin(user),
-      canUnlockOthers: canUnlockOthers(user),
+      canRead: capabilities.has('read'),
+      canWrite: capabilities.has('write'),
+      canUnlockOthers: capabilities.has('unlockOthers'),
+      canDelete: capabilities.has('delete'),
+      canDeleteLocked: capabilities.has('deleteLocked'),
+      canViewHistory: capabilities.has('viewHistory'),
+      canManageSections: capabilities.has('manageSections'),
       currentUserUid: user.uid,
     };
 

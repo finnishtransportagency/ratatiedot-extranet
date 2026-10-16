@@ -6,20 +6,20 @@ import { log } from '../logger';
 
 /**
  * Filter history array based on user permissions
- * Admins see full history, lock owners see lockedAtVersion and above, others see nothing
+ * Users with viewHistory see full history, lock owners see lockedAtVersion and above, others see nothing
  * @param history Full history array
  * @param lockedAtVersion Version number when balise was locked
  * @param isLockOwner Whether the current user is the lock owner
- * @param isAdmin Whether the current user is an admin
+ * @param canViewHistory Whether the current user has the viewHistory capability
  * @returns Filtered history array
  */
 export function filterHistoryForUser(
   history: BaliseVersion[],
   lockedAtVersion: number | null,
   isLockOwner: boolean,
-  isAdmin: boolean,
+  canViewHistory: boolean,
 ): BaliseVersion[] {
-  if (isAdmin) return history;
+  if (canViewHistory) return history;
   if (!isLockOwner) return [];
   if (lockedAtVersion === null) return [];
   return history.filter((v) => v.version >= lockedAtVersion);
@@ -41,27 +41,26 @@ export function parseVersionParameter(queryStringParameters?: ALBEventQueryStrin
 }
 
 /**
- * Validate that only admin users and lock owners can specify version parameters
+ * Validate that only users with viewHistory and lock owners can specify version parameters
  * Read users must always use the default (latest OFFICIAL) version
  * @param user Current user
  * @param requestedVersion Version requested by user (or undefined)
  * @param balise Balise object (needed to check lock ownership)
- * @param isAdmin Whether the current user is an admin
+ * @param canViewHistory Whether the current user has the viewHistory capability
  * @throws Error if unauthorized user attempts to specify a version
  */
 export function validateVersionParameterAccess(
   user: RataExtraUser,
   requestedVersion: number | undefined,
   balise: Balise,
-  isAdmin: boolean,
+  canViewHistory: boolean,
 ): void {
   // If no version requested, all users can proceed
   if (requestedVersion === undefined) {
     return;
   }
 
-  // Admins can access any version
-  if (isAdmin) {
+  if (canViewHistory) {
     return;
   }
 
@@ -143,23 +142,22 @@ export async function getVersionFileTypes(
 
 /**
  * Resolve multiple balises to show latest OFFICIAL versions (optimized for bulk operations)
- * Admins and lock owners see UNCONFIRMED versions as-is
+ * Users with viewHistory and lock owners see UNCONFIRMED versions as-is
  * Other users see latest OFFICIAL version data from history
  * This function is optimized to fetch all OFFICIAL versions in a single query
  * @param database Database client instance
  * @param balises Array of balise objects
  * @param currentUserId Current user's UID (to check lock ownership)
- * @param isAdmin Whether the current user is an admin
+ * @param canViewHistory Whether the current user has the viewHistory capability
  * @returns Array of balise objects (either original or resolved to latest OFFICIAL)
  */
 export async function resolveBalisesForUser(
   database: PrismaClient,
   balises: Balise[],
   currentUserId?: string,
-  isAdmin: boolean = false,
+  canViewHistory: boolean = false,
 ): Promise<Balise[]> {
-  // Admins always see actual current versions (including UNCONFIRMED)
-  if (isAdmin) {
+  if (canViewHistory) {
     return balises;
   }
 

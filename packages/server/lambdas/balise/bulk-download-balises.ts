@@ -3,7 +3,8 @@ import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import archiver from 'archiver';
 import { PassThrough, Readable } from 'stream';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseReadUser } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { validateBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
 import { parseBaliseIds, handleBulkOperationError } from '../../utils/balise/bulkUtils';
 
@@ -32,7 +33,7 @@ async function streamToBuffer(stream: Readable | ReadableStream | Blob): Promise
 export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
   try {
     const user = await getUser(event);
-    validateBaliseReadUser(user);
+    validateBaliseCapability(user, 'read');
 
     log.info(user, `Bulk download request`);
 
