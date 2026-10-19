@@ -90,8 +90,7 @@ export const CategoryFiles = ({ nestedFolderId }: TCategoryFilesProps) => {
       hasConfidentialContentHandler(hasConfidentialContent);
 
       setFileList((f) => {
-        const nextList = page > 0 ? [...f, ...totalFiles] : [...totalFiles];
-        return sortNodesByFolderThenName(nextList);
+        return page > 0 ? [...f, ...totalFiles] : [...totalFiles];
       });
       setTotalFiles(totalItems);
       setHasMoreItems(hasMoreItems);
