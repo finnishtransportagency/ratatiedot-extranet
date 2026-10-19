@@ -23,10 +23,21 @@ import { canUnlockBalises } from '../../utils/balisePermissions';
 import { useBalisePermissions } from '../../contexts/BalisePermissionsContext';
 import { BalisePermissionGuard } from '../../components/BalisePermissionGuard';
 
+const SELECTED_SECTIONS_STORAGE_KEY = 'baliseSelectedSections';
+
+const loadSelectedSections = (): string[] => {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(SELECTED_SECTIONS_STORAGE_KEY) ?? '[]');
+    return Array.isArray(parsed) && parsed.every((s) => typeof s === 'string') ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
 export const BaliseListPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSections, setSelectedSections] = useState<string[]>([]);
+  const [selectedSections, setSelectedSections] = useState<string[]>(loadSelectedSections);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
@@ -89,9 +100,28 @@ export const BaliseListPage: React.FC = () => {
     }
   }, [fetchSectionOptions, permissions?.canRead]);
 
+  useEffect(() => {
+    if (selectedSections.length === 0) {
+      sessionStorage.removeItem(SELECTED_SECTIONS_STORAGE_KEY);
+    } else {
+      sessionStorage.setItem(SELECTED_SECTIONS_STORAGE_KEY, JSON.stringify(selectedSections));
+    }
+  }, [selectedSections]);
+
+  // Drop restored selections whose section no longer exists
+  useEffect(() => {
+    if (sectionOptions.length === 0) return;
+    setSelectedSections((prev) => {
+      const valid = prev.filter((key) => sectionOptions.some((s) => s.key === key));
+      return valid.length === prev.length ? prev : valid;
+    });
+  }, [sectionOptions]);
+
   // Load initial data based on section selection
   const loadInitialData = useCallback(
     async (background = false) => {
+      // Restored selection can't be resolved to ID ranges until sections have loaded
+      if (selectedSections.length > 0 && sectionOptions.length === 0) return;
       clearCache(); // Always clear cache before loading new data set
       if (selectedSections.length === 0) {
         // Load all data if no section is selected
