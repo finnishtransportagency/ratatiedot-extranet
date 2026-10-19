@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from '../../../../constants/Routes';
@@ -50,6 +50,7 @@ export const BaliseListPage: React.FC = () => {
   const [isBulkLocking, setIsBulkLocking] = useState(false);
   const [bulkUnlockDialogOpen, setBulkUnlockDialogOpen] = useState(false);
   const [isBulkUnlocking, setIsBulkUnlocking] = useState(false);
+  const hasLoadedRef = useRef(false);
 
   // Permissions
   const { permissions } = useBalisePermissions();
@@ -119,7 +120,7 @@ export const BaliseListPage: React.FC = () => {
   }, [sectionOptions]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 300);
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
@@ -154,6 +155,7 @@ export const BaliseListPage: React.FC = () => {
         };
         await fetchBalises(filter, background);
       }
+      hasLoadedRef.current = true;
     },
     [selectedSections, fetchBalises, sectionOptions, clearCache, debouncedSearch],
   );
@@ -180,7 +182,8 @@ export const BaliseListPage: React.FC = () => {
   // Initial data load and re-load on section change
   useEffect(() => {
     if (permissions?.canRead) {
-      loadInitialData();
+      // Background after the first load, otherwise the full-page spinner unmounts the search field
+      loadInitialData(hasLoadedRef.current);
     }
   }, [loadInitialData, permissions?.canRead]); // Re-runs when section selection or search changes
 
