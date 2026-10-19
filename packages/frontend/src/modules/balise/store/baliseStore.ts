@@ -19,6 +19,7 @@ export interface BaliseFilters {
   page?: number;
   limit?: number;
   include_history?: boolean;
+  search?: string;
 }
 
 export interface BaliseState {
@@ -79,6 +80,7 @@ const fetchBaliseAPI = async (
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.include_history) params.append('include_history', 'true');
+    if (filters?.search) params.append('search', filters.search);
     const queryString = params.toString();
     const url = `/api/balises${queryString ? `?${queryString}` : ''}`;
 
