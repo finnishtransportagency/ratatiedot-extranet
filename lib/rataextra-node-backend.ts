@@ -93,8 +93,8 @@ export class RatatietoNodeBackendConstruct extends Construct {
       vpc,
       instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
       // AWS Marketplace image:
-      // CIS Amazon Linux 2023 Benchmark - Level 1 - v12 -prod-fvm47vekg24oc, ami-0e01d24b347b6fac8
-      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0e01d24b347b6fac8' }),
+      // CIS Amazon Linux 2023 Benchmark - Level 1 - v12 -prod-fvm47vekg24oc
+      machineImage: MachineImage.genericLinux({ 'eu-west-1': 'ami-0abd999432557f3df' }),
       allowAllOutbound: true,
       role: asgRole,
       healthChecks: HealthChecks.withAdditionalChecks({
