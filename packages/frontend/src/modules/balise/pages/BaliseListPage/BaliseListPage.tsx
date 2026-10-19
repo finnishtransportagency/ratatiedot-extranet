@@ -37,6 +37,7 @@ const loadSelectedSections = (): string[] => {
 export const BaliseListPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>(loadSelectedSections);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -117,15 +118,21 @@ export const BaliseListPage: React.FC = () => {
     });
   }, [sectionOptions]);
 
-  // Load initial data based on section selection
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Load initial data based on section selection and search
   const loadInitialData = useCallback(
     async (background = false) => {
       // Restored selection can't be resolved to ID ranges until sections have loaded
       if (selectedSections.length > 0 && sectionOptions.length === 0) return;
       clearCache(); // Always clear cache before loading new data set
+      const search = debouncedSearch || undefined;
       if (selectedSections.length === 0) {
         // Load all data if no section is selected
-        await fetchBalises({ limit: 200, page: 1 }, background);
+        await fetchBalises({ limit: 200, page: 1, search }, background);
       } else {
         // Get all selected section ranges
         const selectedSectionDetails = sectionOptions.filter((section) => selectedSections.includes(section.key));
@@ -143,11 +150,12 @@ export const BaliseListPage: React.FC = () => {
           id_max: idMaxes,
           limit: 200,
           page: 1,
+          search,
         };
         await fetchBalises(filter, background);
       }
     },
-    [selectedSections, fetchBalises, sectionOptions, clearCache],
+    [selectedSections, fetchBalises, sectionOptions, clearCache, debouncedSearch],
   );
 
   // Bulk delete functionality
@@ -174,7 +182,7 @@ export const BaliseListPage: React.FC = () => {
     if (permissions?.canRead) {
       loadInitialData();
     }
-  }, [selectedSections, loadInitialData, permissions?.canRead]); // Re-run when section selection changes
+  }, [loadInitialData, permissions?.canRead]); // Re-runs when section selection or search changes
 
   // Check for recently edited balise and refresh it
   useEffect(() => {
@@ -211,20 +219,8 @@ export const BaliseListPage: React.FC = () => {
     [navigate],
   );
 
-  // Filtered data based on search term
-  const filteredData = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return balises;
-    }
-    const lowercaseSearch = searchTerm.toLowerCase();
-    return balises.filter(
-      (item) =>
-        item.secondaryId.toString().includes(searchTerm) ||
-        item.description.toLowerCase().includes(lowercaseSearch) ||
-        item.createdBy.toLowerCase().includes(lowercaseSearch) ||
-        (item.lockedBy && item.lockedBy.toLowerCase().includes(lowercaseSearch)),
-    );
-  }, [balises, searchTerm]);
+  // Search is applied server-side so unloaded pages are included
+  const filteredData = balises;
 
   const handleDelete = useCallback((row: BaliseWithHistory) => {
     setBaliseToDelete(row);
@@ -560,11 +556,7 @@ export const BaliseListPage: React.FC = () => {
             onLoadHistory={handleLoadHistory}
             lockingBaliseId={lockingBaliseId ?? undefined}
             permissions={permissions ?? undefined}
-            loadMoreItems={async () => {
-              if (searchTerm === '') {
-                await loadMoreBalises();
-              }
-            }}
+            loadMoreItems={loadMoreBalises}
             totalCount={pagination?.totalCount ?? filteredData.length}
           />
         </Paper>
