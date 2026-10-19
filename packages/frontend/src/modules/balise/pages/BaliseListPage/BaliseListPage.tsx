@@ -170,12 +170,12 @@ export const BaliseListPage: React.FC = () => {
     handleCloseResult,
   } = useBulkDelete(selectedItems, balises, () => setSelectedItems([]));
 
-  // Refresh data after bulk delete completes to fix pagination
-  useEffect(() => {
-    if (permissions?.canRead && deleteResult?.show && deleteResult.successCount > 0) {
-      loadInitialData();
-    }
-  }, [deleteResult, loadInitialData, permissions?.canRead]);
+  // Refresh on close to fix pagination
+  const handleCloseResultAndRefresh = useCallback(() => {
+    const deletedAny = (deleteResult?.successCount ?? 0) > 0;
+    handleCloseResult();
+    if (deletedAny && permissions?.canRead) loadInitialData();
+  }, [deleteResult, handleCloseResult, loadInitialData, permissions?.canRead]);
 
   // Initial data load and re-load on section change
   useEffect(() => {
@@ -569,7 +569,7 @@ export const BaliseListPage: React.FC = () => {
           onDeleteConfirm={handleDeleteConfirm}
           onDeleteCancel={handleDeleteCancel}
           onRetryFailed={handleRetryFailed}
-          onCloseResult={handleCloseResult}
+          onCloseResult={handleCloseResultAndRefresh}
         />
 
         <DownloadBaliseDialog
