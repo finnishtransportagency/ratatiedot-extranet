@@ -327,3 +327,14 @@ In client you must have the corresponding translation in `apiErrors.json` file:
   "errorOccurredKey": "Jokin meni pieleen!"
 }
 ```
+
+## Updating ami for node-server and bastion
+
+Fetch new ami by running the script
+
+```shell
+./get-current-cis-ami.sh
+```
+
+Update rataextra-bastion.ts MachineImage to use the new ami.
+Update rataextra-node-backend.ts autoscaling group MachineImage to use the new ami.
