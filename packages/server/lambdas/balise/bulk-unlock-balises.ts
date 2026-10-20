@@ -1,6 +1,7 @@
 import { ALBEvent, ALBResult } from 'aws-lambda';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseWriteUser, canUnlockOthers } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { validateBaliseCapability, hasBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
 import { VersionStatus } from '../../generated/prisma/client';
 import {
@@ -69,12 +70,12 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const user = await getUser(event);
     log.info(user, `Bulk unlock balises request`);
 
-    validateBaliseWriteUser(user);
+    validateBaliseCapability(user, 'write');
 
     const baliseIds = parseBaliseIds(event);
     const response = await processBulkOperation(
       baliseIds,
-      { userUid: user.uid, canUnlockOthers: canUnlockOthers(user) },
+      { userUid: user.uid, canUnlockOthers: hasBaliseCapability(user, 'unlockOthers') },
       executeUnlock,
     );
 

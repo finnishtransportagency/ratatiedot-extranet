@@ -2,8 +2,10 @@ import { ALBEvent, ALBResult } from 'aws-lambda';
 
 import { getRataExtraLambdaError } from '../../utils/errors';
 import { log } from '../../utils/logger';
-import { getUser, validateBaliseReadUser, isBaliseAdmin } from '../../utils/userService';
+import { getUser } from '../../utils/userService';
+import { validateBaliseCapability, hasBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
+import { Prisma, VersionStatus } from '../../generated/prisma/client';
 import { resolveBalisesForUser, getLatestOfficialEditTimes } from '../../utils/balise/baliseVersionUtils';
 
 // Helper to safely get a string query parameter
@@ -43,6 +45,52 @@ const getMultipleRangesFromParams = (event: ALBEvent) => {
 
 const database = await DatabaseClient.build();
 
+// Mirrors resolveBalisesForUser: non-admins see the latest OFFICIAL version's description/createdBy
+// for UNCONFIRMED balises they don't hold the lock on.
+const buildSearchWhere = async (
+  search: string,
+  userId: string,
+  canViewHistory = false,
+): Promise<Prisma.BaliseWhereInput> => {
+  const textMatch: Prisma.BaliseWhereInput[] = [
+    { description: { contains: search, mode: 'insensitive' } },
+    { createdBy: { contains: search, mode: 'insensitive' } },
+  ];
+
+  const conditions: Prisma.BaliseWhereInput[] = [{ lockedBy: { contains: search, mode: 'insensitive' } }];
+
+  if (/^\d+$/.test(search)) {
+    const idMatches = await database.$queryRaw<{ secondaryId: number }[]>`
+      SELECT "secondaryId" FROM "Balise" WHERE CAST("secondaryId" AS TEXT) LIKE ${`%${search}%`}`;
+    if (idMatches.length > 0) {
+      conditions.push({ secondaryId: { in: idMatches.map((r) => r.secondaryId) } });
+    }
+  }
+
+  if (canViewHistory) {
+    conditions.push(...textMatch);
+  } else {
+    conditions.push(
+      { versionStatus: VersionStatus.OFFICIAL, OR: textMatch },
+      { locked: true, lockedBy: userId, OR: textMatch },
+      {
+        versionStatus: VersionStatus.UNCONFIRMED,
+        history: {
+          some: {
+            versionStatus: VersionStatus.OFFICIAL,
+            OR: [
+              { description: { contains: search, mode: 'insensitive' } },
+              { createdBy: { contains: search, mode: 'insensitive' } },
+            ],
+          },
+        },
+      },
+    );
+  }
+
+  return { OR: conditions };
+};
+
 /**
  * Get an array of balises. Example request: /api/balises?id_min=14000,22000&id_max=14999,23999&page=1&limit=100
  * @param {ALBEvent} event
@@ -55,10 +103,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     log.info(user, `Get all balises. params: ${JSON.stringify(event.queryStringParameters)}`);
 
-    validateBaliseReadUser(user);
+    validateBaliseCapability(user, 'read');
 
-    // Check if user is admin
-    const isAdmin = isBaliseAdmin(user);
+    const canViewHistory = hasBaliseCapability(user, 'viewHistory');
 
     // Get pagination parameters
     const page = getQueryParamAsInt(event, 'page', 1) ?? 1;
@@ -76,7 +123,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     const ranges = getMultipleRangesFromParams(event);
 
     // Build where clause based on query parameters
-    let whereClause;
+    let whereClause: Prisma.BaliseWhereInput;
     if (specificIds.length > 0) {
       // Filter by specific IDs
       whereClause = {
@@ -92,13 +139,23 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       whereClause = {};
     }
 
+    const rawSearch = (getQueryParam(event, 'search') ?? '').replace(/\+/g, ' ');
+    let search: string;
+    try {
+      search = decodeURIComponent(rawSearch).trim();
+    } catch {
+      search = rawSearch.trim();
+    }
+    if (search) {
+      whereClause = { AND: [whereClause, await buildSearchWhere(search, user.uid, canViewHistory)] };
+    }
+
     // Get total count for pagination info
     const totalCount = await database.balise.count({
       where: whereClause,
     });
 
-    // Check if history should be included (optional query parameter, admin only)
-    const includeHistory = isBaliseAdmin(user) && getQueryParam(event, 'include_history') === 'true';
+    const includeHistory = canViewHistory && getQueryParam(event, 'include_history') === 'true';
 
     // Sort: temporary balises (isTemporary=true, secondaryId starts with 9) appear at the end,
     // otherwise numeric ascending. Relies on the isTemporary generated column in the DB.
@@ -118,8 +175,8 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         : undefined,
     });
 
-    // Resolve balises to latest OFFICIAL versions efficiently (unless user is admin or lock owner)
-    const resolvedBalises = await resolveBalisesForUser(database, balises, user.uid, isAdmin);
+    // Resolve balises to latest OFFICIAL versions efficiently (unless user can view history or is lock owner)
+    const resolvedBalises = await resolveBalisesForUser(database, balises, user.uid, canViewHistory);
 
     // Attach latest official version edit time for all balises
     const balisesWithEditTime = await getLatestOfficialEditTimes(database, resolvedBalises);

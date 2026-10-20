@@ -13,7 +13,9 @@ vi.mock('../../../lambdas/database/client', () => {
 });
 vi.mock('../../../utils/userService', () => ({
   getUser: vi.fn().mockResolvedValue({ uid: 'test-user', roles: [] }),
-  validateBaliseWriteUser: vi.fn(),
+}));
+vi.mock('../../../utils/balise/balisePermissions', () => ({
+  validateBaliseCapability: vi.fn(),
 }));
 vi.mock('../../../utils/logger', () => ({ log: { info: vi.fn(), error: vi.fn() } }));
 vi.mock('../../../utils/balise/baliseUtils', async (importOriginal) => ({
