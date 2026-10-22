@@ -108,7 +108,7 @@ export class RataExtraPipelineStack extends Stack {
           },
         }),
         buildEnvironment: {
-          buildImage: LinuxBuildImage.fromDockerRegistry('public.ecr.aws/docker/library/node:22.23.2'),
+          buildImage: LinuxBuildImage.fromDockerRegistry('public.ecr.aws/docker/library/node:22.23.4'),
         },
       },
     });
