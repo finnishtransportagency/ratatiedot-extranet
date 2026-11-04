@@ -12,19 +12,15 @@ import { TypeContainerWrapper } from './NotificationTypes';
 import { toast } from 'react-toastify';
 
 export const ContentTypes = () => {
-  const { editor, value, valueHandler, selectedImageHandler } = useContext(EditorContext);
+  const { editor, selectedImageHandler } = useContext(EditorContext);
   const { t } = useTranslation(['common']);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const contactCardHandler = () => {
-    const newValue = [{ type: ElementType.CARD, ...value }];
-    valueHandler(newValue);
     openContactCard(editor, ElementType.CARD);
   };
 
   const paragraphHandler = () => {
-    const newValue = [{ type: ElementType.PARAGRAPH_TWO, ...value }];
-    valueHandler(newValue);
     insertParagraph(editor, ElementType.PARAGRAPH_TWO);
   };
 

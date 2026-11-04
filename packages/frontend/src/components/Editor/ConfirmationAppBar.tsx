@@ -18,7 +18,7 @@ import { useCreateNoticePageContent } from '../../hooks/mutations/CreateNoticePa
 
 export const ConfirmationAppBar = () => {
   const { toggleEdit, openToolbarHandler } = useContext(AppBarContext);
-  const { value, valueReset, noticeFields, selectedImage } = useContext(EditorContext);
+  const { value, valueReset, noticeFields, selectedImage, markSaved } = useContext(EditorContext);
   const { pathname } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
   const noticeRoute = useMatch('/ajankohtaista/:id/:date');
@@ -46,7 +46,8 @@ export const ConfirmationAppBar = () => {
       mutateNoticePageContents.mutate(
         { value, noticeFields, selectedImage },
         {
-          onSuccess: () => {
+          onSuccess: (_response, submitted) => {
+            markSaved(submitted.value);
             toast(t('common:edit.saved_success'), { type: 'success' });
             toggleEdit();
           },
@@ -59,7 +60,8 @@ export const ConfirmationAppBar = () => {
       createNoticePageContent.mutate(
         { value, noticeFields, selectedImage },
         {
-          onSuccess: () => {
+          onSuccess: (_response, submitted) => {
+            markSaved(submitted.value);
             toast(t('common:edit.saved_success'), { type: 'success' });
             toggleEdit();
           },
@@ -72,7 +74,8 @@ export const ConfirmationAppBar = () => {
       mutatePageContents.mutate(
         { value, selectedImage },
         {
-          onSuccess: () => {
+          onSuccess: (_response, submitted) => {
+            markSaved(submitted.value);
             toast(t('common:edit.saved_success'), { type: 'success' });
             toggleEdit();
           },
