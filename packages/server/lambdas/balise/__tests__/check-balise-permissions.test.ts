@@ -44,6 +44,7 @@ describe('check-balise-permissions', () => {
       canDelete: true,
       canDeleteLocked: true,
       canViewHistory: true,
+      canViewUnconfirmed: true,
       canManageSections: true,
       currentUserUid: 'admin-user',
     });
@@ -65,7 +66,8 @@ describe('check-balise-permissions', () => {
       canUnlockOthers: false,
       canDelete: true,
       canDeleteLocked: false,
-      canViewHistory: false,
+      canViewHistory: true,
+      canViewUnconfirmed: false,
       canManageSections: false,
       currentUserUid: 'write-user',
     });
@@ -88,6 +90,7 @@ describe('check-balise-permissions', () => {
       canDelete: false,
       canDeleteLocked: false,
       canViewHistory: false,
+      canViewUnconfirmed: false,
       canManageSections: false,
       currentUserUid: 'read-user',
     });
@@ -107,7 +110,8 @@ describe('check-balise-permissions', () => {
       canUnlockOthers: true,
       canDelete: true,
       canDeleteLocked: false,
-      canViewHistory: false,
+      canViewHistory: true,
+      canViewUnconfirmed: false,
       canManageSections: false,
       currentUserUid: 'lite-admin-user',
     });
@@ -130,6 +134,7 @@ describe('check-balise-permissions', () => {
       canDelete: false,
       canDeleteLocked: false,
       canViewHistory: false,
+      canViewUnconfirmed: false,
       canManageSections: false,
       currentUserUid: 'regular-user',
     });
@@ -152,6 +157,7 @@ describe('check-balise-permissions', () => {
       canDelete: false,
       canDeleteLocked: false,
       canViewHistory: false,
+      canViewUnconfirmed: false,
       canManageSections: false,
       currentUserUid: 'no-roles-user',
     });

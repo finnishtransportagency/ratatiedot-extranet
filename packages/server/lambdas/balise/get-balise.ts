@@ -33,6 +33,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     const canViewHistory = hasBaliseCapability(user, 'viewHistory');
+    const canViewUnconfirmed = hasBaliseCapability(user, 'viewUnconfirmed');
 
     // First fetch balise without history to check lock ownership
     const balise = await database.balise.findUnique({
@@ -60,14 +61,14 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       });
 
       // Filter history based on user role
-      history = filterHistoryForUser(history, balise.lockedAtVersion, isLockOwner, canViewHistory);
+      history = filterHistoryForUser(history, balise, isLockOwner, canViewUnconfirmed);
     }
 
     // Attach filtered history to balise
     const baliseWithHistory = { ...balise, history };
 
-    // Resolve to latest OFFICIAL version if current is UNCONFIRMED (unless user can view history or is lock owner)
-    const [resolvedBalise] = await resolveBalisesForUser(database, [baliseWithHistory], user.uid, canViewHistory);
+    // Resolve to latest OFFICIAL version if current is UNCONFIRMED (unless user can view unconfirmed or is lock owner)
+    const [resolvedBalise] = await resolveBalisesForUser(database, [baliseWithHistory], user.uid, canViewUnconfirmed);
 
     // Attach latest official version edit time
     const [baliseWithEditTime] = await getLatestOfficialEditTimes(database, [resolvedBalise]);
