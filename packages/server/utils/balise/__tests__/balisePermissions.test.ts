@@ -251,11 +251,18 @@ describe('Balise role validation', () => {
       expect(hasBaliseCapability(writer, 'deleteLocked')).toBe(false);
     });
 
-    it('should allow viewing history only for admin', () => {
+    it('should allow viewing history for lite admin and admin', () => {
       expect(hasBaliseCapability(admin, 'viewHistory')).toBe(true);
-      expect(hasBaliseCapability(liteAdmin, 'viewHistory')).toBe(false);
+      expect(hasBaliseCapability(liteAdmin, 'viewHistory')).toBe(true);
       expect(hasBaliseCapability(writer, 'viewHistory')).toBe(false);
       expect(hasBaliseCapability(reader, 'viewHistory')).toBe(false);
+    });
+
+    it('should allow viewing unconfirmed versions only for admin', () => {
+      expect(hasBaliseCapability(admin, 'viewUnconfirmed')).toBe(true);
+      expect(hasBaliseCapability(liteAdmin, 'viewUnconfirmed')).toBe(false);
+      expect(hasBaliseCapability(writer, 'viewUnconfirmed')).toBe(false);
+      expect(hasBaliseCapability(reader, 'viewUnconfirmed')).toBe(false);
     });
 
     it('should allow deleting unlocked balises for delete users', () => {

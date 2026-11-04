@@ -23,6 +23,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       canDelete: capabilities.has('delete'),
       canDeleteLocked: capabilities.has('deleteLocked'),
       canViewHistory: capabilities.has('viewHistory'),
+      canViewUnconfirmed: capabilities.has('viewUnconfirmed'),
       canManageSections: capabilities.has('manageSections'),
       currentUserUid: user.uid,
     };
