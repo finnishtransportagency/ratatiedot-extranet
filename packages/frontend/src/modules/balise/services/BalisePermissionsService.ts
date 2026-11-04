@@ -7,6 +7,7 @@ export interface BalisePermissions {
   canDelete: boolean;
   canDeleteLocked: boolean;
   canViewHistory: boolean;
+  canViewUnconfirmed: boolean;
   canManageSections: boolean;
   currentUserUid: string;
 }

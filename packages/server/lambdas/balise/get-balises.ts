@@ -5,8 +5,13 @@ import { log } from '../../utils/logger';
 import { getUser } from '../../utils/userService';
 import { validateBaliseCapability, hasBaliseCapability } from '../../utils/balise/balisePermissions';
 import { DatabaseClient } from '../database/client';
-import { Prisma, VersionStatus } from '../../generated/prisma/client';
-import { resolveBalisesForUser, getLatestOfficialEditTimes } from '../../utils/balise/baliseVersionUtils';
+import { BaliseVersion, Prisma, VersionStatus } from '../../generated/prisma/client';
+import {
+  resolveBalisesForUser,
+  getLatestOfficialEditTimes,
+  filterHistoryForUser,
+  isBaliseLockOwner,
+} from '../../utils/balise/baliseVersionUtils';
 
 // Helper to safely get a string query parameter
 const getQueryParam = (event: ALBEvent, key: string, defaultValue?: string): string | undefined =>
@@ -50,7 +55,7 @@ const database = await DatabaseClient.build();
 const buildSearchWhere = async (
   search: string,
   userId: string,
-  canViewHistory = false,
+  canViewUnconfirmed = false,
 ): Promise<Prisma.BaliseWhereInput> => {
   const textMatch: Prisma.BaliseWhereInput[] = [
     { description: { contains: search, mode: 'insensitive' } },
@@ -67,7 +72,7 @@ const buildSearchWhere = async (
     }
   }
 
-  if (canViewHistory) {
+  if (canViewUnconfirmed) {
     conditions.push(...textMatch);
   } else {
     conditions.push(
@@ -106,6 +111,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     validateBaliseCapability(user, 'read');
 
     const canViewHistory = hasBaliseCapability(user, 'viewHistory');
+    const canViewUnconfirmed = hasBaliseCapability(user, 'viewUnconfirmed');
 
     // Get pagination parameters
     const page = getQueryParamAsInt(event, 'page', 1) ?? 1;
@@ -147,7 +153,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
       search = rawSearch.trim();
     }
     if (search) {
-      whereClause = { AND: [whereClause, await buildSearchWhere(search, user.uid, canViewHistory)] };
+      whereClause = { AND: [whereClause, await buildSearchWhere(search, user.uid, canViewUnconfirmed)] };
     }
 
     // Get total count for pagination info
@@ -175,8 +181,19 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
         : undefined,
     });
 
-    // Resolve balises to latest OFFICIAL versions efficiently (unless user can view history or is lock owner)
-    const resolvedBalises = await resolveBalisesForUser(database, balises, user.uid, canViewHistory);
+    const filteredBalises = includeHistory
+      ? balises.map((b) => ({
+          ...b,
+          history: filterHistoryForUser((b as typeof b & { history: BaliseVersion[] }).history, b, {
+            isLockOwner: isBaliseLockOwner(b, user.uid),
+            canViewHistory,
+            canViewUnconfirmed,
+          }),
+        }))
+      : balises;
+
+    // Resolve balises to latest OFFICIAL versions efficiently (unless user can view unconfirmed or is lock owner)
+    const resolvedBalises = await resolveBalisesForUser(database, filteredBalises, user.uid, canViewUnconfirmed);
 
     // Attach latest official version edit time for all balises
     const balisesWithEditTime = await getLatestOfficialEditTimes(database, resolvedBalises);
