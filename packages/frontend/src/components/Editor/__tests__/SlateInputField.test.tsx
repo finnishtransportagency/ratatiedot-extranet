@@ -4,11 +4,25 @@ import { vi } from 'vitest';
 import { ThemeProvider } from '@mui/material';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { EditorContextProvider } from '../../../contexts/EditorContext';
+import { createEditor } from 'slate';
+import { ReactEditor } from 'slate-react';
+import {
+  createEditorWithPlugins,
+  EditorContext,
+  EditorContextProvider,
+  nodeTemplate,
+} from '../../../contexts/EditorContext';
 
 import { SlateInputField } from '../SlateInputField';
 import { theme } from '../../../styles/createTheme';
 import { AppBarContext, AppBarContextProvider } from '../../../contexts/AppBarContext';
+
+vi.mock('../../../hooks/query/GetCategoryPageContent', () => ({
+  useGetCategoryPageContent: () => ({}),
+}));
+vi.mock('../../../hooks/query/GetNoticePageContent', () => ({
+  useGetNoticePageContent: () => ({}),
+}));
 
 beforeAll(() => {
   vi.stubGlobal('localStorage', {
@@ -67,7 +81,7 @@ const EditorStateControls = () => {
   );
 };
 
-const renderEditorStateControls = () => {
+const renderEditorStateControls = (field?: React.ReactElement) => {
   const queryClient = createTestQueryClient();
   const router = createMemoryRouter(
     [
@@ -77,6 +91,11 @@ const renderEditorStateControls = () => {
           <QueryClientProvider client={queryClient}>
             <AppBarContextProvider>
               <EditorStateControls />
+              {field && (
+                <EditorContextProvider>
+                  <ThemeProvider theme={theme}>{field}</ThemeProvider>
+                </EditorContextProvider>
+              )}
             </AppBarContextProvider>
           </QueryClientProvider>
         ),
@@ -90,6 +109,37 @@ const renderEditorStateControls = () => {
 
 describe('Editor state on navigation', () => {
   afterEach(cleanup);
+
+  test('reopens an editable empty field after navigating away and back', async () => {
+    const EmptyField = () => {
+      const { openToolbar, openEdit } = useContext(AppBarContext);
+      return openToolbar || openEdit ? <SlateInputField /> : null;
+    };
+    const router = renderEditorStateControls(<EmptyField />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open editor' }));
+    expect(screen.getByRole('textbox')).toHaveAttribute('contenteditable', 'true');
+
+    await act(async () => router.navigate('/second'));
+    expect(screen.queryByTestId('slate-editor')).not.toBeInTheDocument();
+    await act(async () => router.navigate(-1));
+    expect(router.state.location.pathname).toBe('/first');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open editor' }));
+    expect(screen.getByRole('textbox')).toHaveAttribute('contenteditable', 'true');
+    expect(screen.getByTestId('slate-editor')).toHaveStyle({ borderStyle: 'dashed', padding: '10px' });
+    expect(await screen.findByText(/.+/, { selector: '[data-slate-placeholder]' })).toBeInTheDocument();
+    expect(screen.getByTestId('slate-editor').querySelector('[data-slate-zero-width]')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open confirmation' }));
+    expect(screen.getByTestId('slate-editor').querySelector('[data-slate-editor]')).toHaveAttribute(
+      'contenteditable',
+      'false',
+    );
+    expect(screen.getByTestId('slate-editor')).not.toHaveStyle({ borderStyle: 'dashed' });
+    expect(screen.getByTestId('slate-editor')).toHaveStyle({ padding: '0px' });
+    expect(screen.getByTestId('slate-editor').querySelector('[data-slate-placeholder]')).not.toBeInTheDocument();
+  });
 
   test.each(['Open editor', 'Open confirmation'])('%s closes when the pathname changes', async (buttonName) => {
     const router = renderEditorStateControls();
@@ -142,6 +192,30 @@ describe('SlateInputField component', () => {
   });
 
   afterEach(cleanup);
+
+  test('opens an empty field even when Slate already reports it focused', async () => {
+    const editor = createEditorWithPlugins(createEditor());
+    const isFocused = vi.spyOn(ReactEditor, 'isFocused').mockReturnValue(true);
+    const EmptyEditor = () => {
+      const editorContext = useContext(EditorContext);
+      const appBarContext = useContext(AppBarContext);
+      return (
+        <EditorContext.Provider value={{ ...editorContext, editor, value: nodeTemplate }}>
+          <AppBarContext.Provider value={{ ...appBarContext, openToolbar: true }}>{component}</AppBarContext.Provider>
+        </EditorContext.Provider>
+      );
+    };
+
+    try {
+      await act(async () => renderWithRouter(<EmptyEditor />));
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('contenteditable', 'true');
+      expect(screen.getByTestId('slate-editor')).toHaveStyle({ borderStyle: 'dashed', padding: '10px' });
+      expect(await screen.findByText(/.+/, { selector: '[data-slate-placeholder]' })).toBeInTheDocument();
+    } finally {
+      isFocused.mockRestore();
+    }
+  });
 
   test('SlateInputField should render properly', async () => {
     await act(async () => {
