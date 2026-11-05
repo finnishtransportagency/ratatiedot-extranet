@@ -1,12 +1,12 @@
 import styled from '@emotion/styled';
 import { Paper } from '@mui/material';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Editable, ReactEditor, Slate } from 'slate-react';
+import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate } from 'slate-react';
 import { Editor, Operation, Transforms } from 'slate';
 
 import { Colors } from '../../constants/Colors';
-import { EditorContext } from '../../contexts/EditorContext';
-import { SlateElement, SlateLeaf } from '../../utils/slateEditorUtil';
+import { EditorContext, TSlateNode } from '../../contexts/EditorContext';
+import { SlateElement, SlateElementProps, SlateLeaf } from '../../utils/slateEditorUtil';
 import { DrawerWrapperProps } from '../NavBar/DesktopDrawer';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { useTranslation } from 'react-i18next';
@@ -17,55 +17,46 @@ export const SlateInputField = () => {
   const { openToolbar } = useContext(AppBarContext);
 
   const [slateValue, setSlateValue] = useState(value);
-  const [isEditorOpened, setIsEditorOpened] = useState(false);
 
   useEffect(() => {
     if (openToolbar) {
       if (!ReactEditor.isFocused(editor)) {
-        refocusEditor(editor);
+        ReactEditor.focus(editor);
       }
-    } else {
-      setIsEditorOpened(false);
+      Transforms.select(editor, Editor.end(editor, []));
     }
   }, [editor, openToolbar]);
-
-  const refocusEditor = (editor: any) => {
-    ReactEditor.focus(editor);
-    Transforms.select(editor, Editor.end(editor, []));
-    if (ReactEditor.isFocused(editor)) {
-      setIsEditorOpened(true);
-    } else {
-      setIsEditorOpened(false);
-    }
-  };
 
   useEffect(() => {
     setSlateValue(value);
   }, [value]);
 
-  const renderElement = useCallback((props: any) => <SlateElement {...props} />, []);
-  const renderLeaf = useCallback((props: any) => <SlateLeaf {...props} />, []);
+  const renderElement = useCallback(
+    (props: RenderElementProps) => <SlateElement {...props} element={props.element as SlateElementProps['element']} />,
+    [],
+  );
+  const renderLeaf = useCallback((props: RenderLeafProps) => <SlateLeaf {...props} />, []);
 
   return (
-    <SlateInputFieldPaperWrapper data-testid="slate-editor" elevation={2} opentoolbar={isEditorOpened}>
+    <SlateInputFieldPaperWrapper data-testid="slate-editor" elevation={2} opentoolbar={openToolbar}>
       <Slate
         editor={editor}
         initialValue={slateValue}
-        onChange={(value: any) => {
+        onChange={(value) => {
           const isAstChange = editor.operations.some((op: Operation) => 'set_selection' !== op.type);
           if (isAstChange) {
-            setSlateValue(value);
-            valueHandler(value);
+            const nextValue = value as TSlateNode[];
+            setSlateValue(nextValue);
+            valueHandler(nextValue);
           }
         }}
       >
         <Editable
-          autoFocus={true}
           renderLeaf={renderLeaf}
           renderElement={renderElement}
-          placeholder={isEditorOpened ? t('common:edit.write_content') : ''}
-          readOnly={!isEditorOpened}
-          style={{ cursor: isEditorOpened ? 'text' : 'default' }}
+          placeholder={openToolbar ? t('common:edit.write_content') : ''}
+          readOnly={!openToolbar}
+          style={{ cursor: openToolbar ? 'text' : 'default' }}
         />
       </Slate>
     </SlateInputFieldPaperWrapper>

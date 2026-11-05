@@ -12,12 +12,10 @@ import { openNotification } from '../../utils/slateEditorUtil';
 import { useTranslation } from 'react-i18next';
 
 export const NotificationTypes = () => {
-  const { editor, value, valueHandler } = useContext(EditorContext);
+  const { editor } = useContext(EditorContext);
   const { t } = useTranslation(['common']);
 
   const handleOpenToolbar = (notificationType: ElementType) => {
-    const newValue = [{ type: notificationType, ...value }];
-    valueHandler(newValue);
     openNotification(editor, notificationType);
   };
 

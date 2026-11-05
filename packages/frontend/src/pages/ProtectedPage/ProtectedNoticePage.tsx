@@ -44,7 +44,7 @@ export const ProtectedNoticePage = ({ children }: Props) => {
     }
   };
 
-  const handleIsBannerChange = (event: any) => {
+  const handleIsBannerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = event.target;
     noticeFieldsHandler({ ...noticeFields, showAsBanner: checked });
   };
@@ -71,7 +71,7 @@ export const ProtectedNoticePage = ({ children }: Props) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         <DesktopAppBar />
         <ContentWrapper openedit={openEdit} opentoolbar={openToolbar}>
-          {!openToolbar && <PageTitle routerName={pageTitle} />}
+          {!openToolbar && <PageTitle routerName={pageTitle ?? ''} />}
           {openToolbar && (
             <InputFieldWrapper>
               <TextField

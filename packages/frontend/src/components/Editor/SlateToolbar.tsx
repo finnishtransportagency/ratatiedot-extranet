@@ -17,7 +17,8 @@ import { insertLink, isBlockActive, isMarkActive, toggleBlock, toggleMark } from
 import { Colors } from '../../constants/Colors';
 import { ElementType, FontFormatType } from '../../utils/types';
 import { NotificationTypes } from './NotificationTypes';
-import { useContext, useEffect, useState } from 'react';
+import { ReactNode, useContext, useState } from 'react';
+import { Editor } from 'slate';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { EditorContext } from '../../contexts/EditorContext';
 import { useTranslation } from 'react-i18next';
@@ -29,17 +30,16 @@ import { useUpdatePageContents } from '../../hooks/mutations/UpdateCategoryPageC
 import { getRouterName } from '../../utils/helpers';
 import { useLocation, useMatch, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { isEqual } from 'lodash';
 import { HistoryEditor } from 'slate-history';
 import { useUpdateNoticePageContents } from '../../hooks/mutations/UpdateNoticePageContent';
 import { useCreateNoticePageContent } from '../../hooks/mutations/CreateNoticePageContent';
 
-type MarkButtonProps = { editor: any; format: FontFormatType; icon: any };
+type MarkButtonProps = { editor: Editor; format: FontFormatType; icon: ReactNode };
 
 type BlockButtonProps = {
-  editor: any;
+  editor: Editor;
   format: ElementType;
-  icon: any;
+  icon: ReactNode;
 };
 
 const MarkButton = ({ editor, format, icon }: MarkButtonProps) => {
@@ -81,9 +81,9 @@ const BlockButton = ({ editor, format, icon }: BlockButtonProps) => {
 export const SlateToolbar = () => {
   const { t } = useTranslation(['common']);
   const { closeToolbarHandler, closeToolbarWithoutSaveHandler } = useContext(AppBarContext);
-  const { editor, value, valueReset, noticeFields, selectedImage } = useContext(EditorContext);
+  const { editor, value, valueReset, noticeFields, selectedImage, hasUnsavedChanges, markSaved } =
+    useContext(EditorContext);
   const [isColorOpened, setIsColorOpened] = useState(false);
-  const [initialValue, setInitialValue] = useState([]);
   const { pathname } = useLocation();
   const categoryName = pathname.split('/').at(-1) || '';
   const noticeRoute = useMatch('/ajankohtaista/:id/:date');
@@ -101,9 +101,6 @@ export const SlateToolbar = () => {
 
   const { error } = mutatePageContents;
 
-  useEffect(() => {
-    setInitialValue(value);
-  }, []);
   const handleInsertLink = () => {
     const url = prompt(t('common:edit.enter_url'));
     if (!url) return;
@@ -117,9 +114,9 @@ export const SlateToolbar = () => {
       mutateNoticePageContents.mutate(
         { value, noticeFields, selectedImage },
         {
-          onSuccess: () => {
+          onSuccess: (_response, submitted) => {
             toast(t('common:edit.saved_success'), { type: 'success' });
-            setInitialValue(value);
+            markSaved(submitted.value);
           },
           onError: () => {
             toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
@@ -130,9 +127,9 @@ export const SlateToolbar = () => {
       createNoticePageContent.mutate(
         { value, noticeFields, selectedImage },
         {
-          onSuccess: () => {
+          onSuccess: (_response, submitted) => {
             toast(t('common:edit.saved_success'), { type: 'success' });
-            setInitialValue(value);
+            markSaved(submitted.value);
           },
           onError: () => {
             toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
@@ -143,9 +140,9 @@ export const SlateToolbar = () => {
       mutatePageContents.mutate(
         { value, selectedImage },
         {
-          onSuccess: () => {
+          onSuccess: (_response, submitted) => {
             toast(t('common:edit.saved_success'), { type: 'success' });
-            setInitialValue(value);
+            markSaved(submitted.value);
           },
           onError: () => {
             toast(error ? error.message : t('common:edit.saved_failure'), { type: 'error' });
@@ -156,7 +153,7 @@ export const SlateToolbar = () => {
   };
 
   const handleClose = () => {
-    if (isEqual(initialValue, value)) {
+    if (!hasUnsavedChanges) {
       closeToolbarWithoutSaveHandler();
     } else {
       closeToolbarHandler();
@@ -227,7 +224,7 @@ export const SlateToolbar = () => {
   );
 };
 
-const ToolbarPaperWrapper = styled(Paper)(({ theme }) => ({
+const ToolbarPaperWrapper = styled(Paper)({
   display: 'flex',
   borderRadius: 0,
   boxShadow: 'none',
@@ -235,7 +232,7 @@ const ToolbarPaperWrapper = styled(Paper)(({ theme }) => ({
   backgroundColor: Colors.aliceblue,
   borderBottom: `1px dashed ${Colors.darkblue}`,
   padding: '16px 15px',
-}));
+});
 
 const ToggleButtonGroupWrapper = styled(ToggleButtonGroup, {
   shouldForwardProp: (prop) => prop !== 'fullWidth',

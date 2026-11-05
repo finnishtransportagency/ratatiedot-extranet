@@ -49,7 +49,7 @@
     "favorite": "Suosikit",
     "balise": "Baliisisanomat",
     "balise_list": "Sanomat",
-    "balise_plan_files": "Suunnitelmat",
+    "balise_plan_files": "Nopeusrajoitussuunnitelmat",
     "extranet": "Poistu Extranetiin",
     "instructions": "Käyttöohjeet"
   },
@@ -126,7 +126,10 @@
     "toolbar": "työkalupalkki",
     "choose_fontsize": "Valitse fontin koko",
     "saved_success": "Sisällön tallennus onnistui",
-    "saved_failure": "Sisällön tallennus epäonnistui"
+    "saved_failure": "Sisällön tallennus epäonnistui",
+    "unsaved_changes_title": "Tallentamattomia muutoksia",
+    "unsaved_changes_message": "Sinulla on tallentamattomia muutoksia. Jos poistut sivulta, muutokset menetetään.",
+    "leave_without_saving": "OK"
   },
   "notification": {
     "info": "info",
