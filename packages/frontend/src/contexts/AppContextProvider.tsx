@@ -5,6 +5,7 @@ import { EditorContextProvider } from './EditorContext';
 import { CategoryDataContextProvider } from './CategoryDataContext';
 import { ErrorContextProvider } from './ErrorContext';
 import { BalisePermissionsProvider } from '../modules/balise/contexts/BalisePermissionsContext';
+import { EditorNavigationGuard } from '../components/Editor/EditorNavigationGuard';
 
 const providers = [
   AppBarContextProvider,
@@ -30,4 +31,11 @@ const combineComponents = (...components: FC<{ children?: ReactNode }>[]) => {
   );
 };
 
-export const AppContextProvider = combineComponents(...providers);
+const CombinedProviders = combineComponents(...providers);
+
+export const AppContextProvider: FC<{ children?: ReactNode }> = ({ children }) => (
+  <CombinedProviders>
+    <EditorNavigationGuard />
+    {children}
+  </CombinedProviders>
+);

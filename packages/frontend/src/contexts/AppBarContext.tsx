@@ -20,13 +20,13 @@ export const AppBarContext = React.createContext({
   closeToolbarHandler: () => {},
   closeToolbarWithoutSaveHandler: () => {},
   userRight: { canRead: false, canWrite: false, isAdmin: false },
-  userRightHandler: (_: TUserRight) => {},
+  userRightHandler: (() => {}) as (userRight: TUserRight) => void,
   closeEdit: () => {},
 });
 
 export type TUserRight = { canRead: boolean; canWrite: boolean; isAdmin: boolean };
 
-export const AppBarContextProvider = (props: any) => {
+export const AppBarContextProvider = (props: React.PropsWithChildren) => {
   const [openMiniDrawer, setOpenMiniDrawer] = useState(false);
   const [openDesktopDrawer, setOpenDesktopDrawer] = useState(() => {
     const storedValue = localStorage.getItem('desktopDrawerOpen');
@@ -52,6 +52,11 @@ export const AppBarContextProvider = (props: any) => {
       closeEdit();
     }
   }, [data]);
+
+  useEffect(() => {
+    setOpenToolbar(false);
+    setOpenEdit(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     localStorage.setItem('desktopDrawerOpen', String(openDesktopDrawer));

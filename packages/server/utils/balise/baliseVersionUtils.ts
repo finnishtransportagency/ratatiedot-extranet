@@ -5,24 +5,32 @@ import { RataExtraLambdaError } from '../errors';
 import { log } from '../logger';
 
 /**
+ * Check whether the user holds the current lock on a balise
+ * @param balise Balise (or lock fields of it)
+ * @param userId UID of the user to check
+ * @returns True if the balise is locked by the user
+ */
+export const isBaliseLockOwner = (balise: Pick<Balise, 'locked' | 'lockedBy'>, userId?: string): boolean =>
+  balise.locked && balise.lockedBy === userId;
+
+/**
  * Filter history array based on user permissions
- * Users with viewHistory see full history, lock owners see lockedAtVersion and above, others see nothing
+ * Versions below the OFFICIAL baseline need viewHistory. The baseline is shown to other users as the current
+ * version, so it and the drafts above it appear only for the lock owner or users with viewUnconfirmed.
  * @param history Full history array
- * @param lockedAtVersion Version number when balise was locked
- * @param isLockOwner Whether the current user is the lock owner
- * @param canViewHistory Whether the current user has the viewHistory capability
+ * @param balise Current balise (version and lockedAtVersion define the OFFICIAL baseline)
+ * @param access What the current user may see
  * @returns Filtered history array
  */
 export function filterHistoryForUser(
   history: BaliseVersion[],
-  lockedAtVersion: number | null,
-  isLockOwner: boolean,
-  canViewHistory: boolean,
+  balise: Pick<Balise, 'version' | 'lockedAtVersion'>,
+  access: { isLockOwner: boolean; canViewHistory: boolean; canViewUnconfirmed: boolean },
 ): BaliseVersion[] {
-  if (canViewHistory) return history;
-  if (!isLockOwner) return [];
-  if (lockedAtVersion === null) return [];
-  return history.filter((v) => v.version >= lockedAtVersion);
+  const baseline = balise.lockedAtVersion ?? balise.version;
+  return history.filter((v) =>
+    v.version < baseline ? access.canViewHistory : access.isLockOwner || access.canViewUnconfirmed,
+  );
 }
 
 /**
@@ -41,11 +49,11 @@ export function parseVersionParameter(queryStringParameters?: ALBEventQueryStrin
 }
 
 /**
- * Validate that only users with viewHistory and lock owners can specify version parameters
- * Read users must always use the default (latest OFFICIAL) version
+ * Validate that only users with viewHistory can specify version parameters, except that the lock owner
+ * may request the OFFICIAL baseline and the drafts above it. Everyone else gets the default (latest OFFICIAL).
  * @param user Current user
  * @param requestedVersion Version requested by user (or undefined)
- * @param balise Balise object (needed to check lock ownership)
+ * @param balise Current balise (lock state defines what the lock owner may request)
  * @param canViewHistory Whether the current user has the viewHistory capability
  * @throws Error if unauthorized user attempts to specify a version
  */
@@ -55,44 +63,55 @@ export function validateVersionParameterAccess(
   balise: Balise,
   canViewHistory: boolean,
 ): void {
-  // If no version requested, all users can proceed
-  if (requestedVersion === undefined) {
+  if (requestedVersion === undefined || canViewHistory) {
     return;
   }
 
-  if (canViewHistory) {
+  if (
+    isBaliseLockOwner(balise, user.uid) &&
+    balise.lockedAtVersion !== null &&
+    requestedVersion >= balise.lockedAtVersion
+  ) {
     return;
   }
 
-  // Check if user is the lock owner
-  const isLockOwner = balise.locked && balise.lockedBy === user.uid;
-  if (!isLockOwner) {
-    log.warn(
-      { userId: user.uid, baliseId: balise.secondaryId, requestedVersion },
-      'Version access denied: user is not admin or lock owner',
-    );
-    throw new RataExtraLambdaError(
-      'Vain järjestelmän ylläpitäjät ja lukituksen tehneet käyttäjät voivat ladata tiettyjä versioita',
-      403,
-    );
-  }
+  log.warn({ userId: user.uid, requestedVersion }, 'Version access denied: user cannot view history');
+  throw new RataExtraLambdaError(
+    'Vain käyttäjät joilla on oikeus versiohistoriaan voivat ladata tiettyjä versioita',
+    403,
+  );
 }
 
 /**
- * Validate that lock owner is only accessing versions from their lock session
- * Lock owners can access any version from when they locked the balise onwards
- * @param requestedVersion Version requested by lock owner
- * @param balise Current balise object
- * @throws Error if lock owner tries to access versions before their lock or versions that don't exist
+ * Validate access to a resolved version: UNCONFIRMED versions are only available to
+ * users with viewUnconfirmed and to the lock owner.
+ * @param user Current user
+ * @param balise Current balise object (needed to check lock ownership)
+ * @param version Version number being accessed
+ * @param versionStatus Status of the version being accessed
+ * @param canViewUnconfirmed Whether the current user has the viewUnconfirmed capability
+ * @throws Error with 403 status if access is denied
  */
-export function validateLockOwnerVersionAccess(requestedVersion: number, balise: Balise): void {
-  // Lock owner can access any version from when they locked onwards (version >= lockedAtVersion)
-  if (balise.lockedAtVersion === null || requestedVersion < balise.lockedAtVersion) {
+export function validateVersionStatusAccess(
+  user: RataExtraUser,
+  balise: Balise,
+  version: number,
+  versionStatus: string,
+  canViewUnconfirmed: boolean,
+): void {
+  if (versionStatus !== VersionStatus.UNCONFIRMED || canViewUnconfirmed) {
+    return;
+  }
+
+  if (!isBaliseLockOwner(balise, user.uid)) {
     log.warn(
-      { baliseId: balise.secondaryId, requestedVersion, lockedAtVersion: balise.lockedAtVersion },
-      'Version access denied: requested version predates lock session',
+      { userId: user.uid, baliseId: balise.secondaryId, version },
+      'Version access denied: unconfirmed version requires admin or lock owner',
     );
-    throw new RataExtraLambdaError('Voit ladata vain lukituksesi aikana lisättyjä versioita', 403);
+    throw new RataExtraLambdaError(
+      'Vain järjestelmän ylläpitäjät ja lukituksen tehneet käyttäjät voivat ladata luonnosversioita',
+      403,
+    );
   }
 }
 
@@ -142,22 +161,22 @@ export async function getVersionFileTypes(
 
 /**
  * Resolve multiple balises to show latest OFFICIAL versions (optimized for bulk operations)
- * Users with viewHistory and lock owners see UNCONFIRMED versions as-is
+ * Users with viewUnconfirmed and lock owners see UNCONFIRMED versions as-is
  * Other users see latest OFFICIAL version data from history
  * This function is optimized to fetch all OFFICIAL versions in a single query
  * @param database Database client instance
  * @param balises Array of balise objects
  * @param currentUserId Current user's UID (to check lock ownership)
- * @param canViewHistory Whether the current user has the viewHistory capability
+ * @param canViewUnconfirmed Whether the current user has the viewUnconfirmed capability
  * @returns Array of balise objects (either original or resolved to latest OFFICIAL)
  */
 export async function resolveBalisesForUser(
   database: PrismaClient,
   balises: Balise[],
   currentUserId?: string,
-  canViewHistory: boolean = false,
+  canViewUnconfirmed: boolean = false,
 ): Promise<Balise[]> {
-  if (canViewHistory) {
+  if (canViewUnconfirmed) {
     return balises;
   }
 
@@ -166,8 +185,8 @@ export async function resolveBalisesForUser(
   const unconfirmedBalises = balises.filter((b) => b.versionStatus === VersionStatus.UNCONFIRMED);
 
   // Lock owners see their UNCONFIRMED versions as-is
-  const lockOwnerBalises = unconfirmedBalises.filter((b) => b.locked && b.lockedBy === currentUserId);
-  const otherUnconfirmedBalises = unconfirmedBalises.filter((b) => !b.locked || b.lockedBy !== currentUserId);
+  const lockOwnerBalises = unconfirmedBalises.filter((b) => isBaliseLockOwner(b, currentUserId));
+  const otherUnconfirmedBalises = unconfirmedBalises.filter((b) => !isBaliseLockOwner(b, currentUserId));
 
   // If no UNCONFIRMED balises (excluding lock owner's), return as-is
   if (otherUnconfirmedBalises.length === 0) {

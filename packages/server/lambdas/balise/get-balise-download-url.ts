@@ -9,7 +9,7 @@ import { DatabaseClient } from '../database/client';
 import {
   parseVersionParameter,
   validateVersionParameterAccess,
-  validateLockOwnerVersionAccess,
+  validateVersionStatusAccess,
   getVersionFileTypes,
 } from '../../utils/balise/baliseVersionUtils';
 
@@ -51,14 +51,9 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     const canViewHistory = hasBaliseCapability(user, 'viewHistory');
+    const canViewUnconfirmed = hasBaliseCapability(user, 'viewUnconfirmed');
 
     validateVersionParameterAccess(user, requestedVersion, balise, canViewHistory);
-
-    // If lock owner specified a version, validate they can only access versions from their lock session
-    const isLockOwner = balise.locked && balise.lockedBy === user.uid;
-    if (requestedVersion !== undefined && isLockOwner && !canViewHistory) {
-      validateLockOwnerVersionAccess(requestedVersion, balise);
-    }
 
     // Resolve which version to use:
     const officialVersion =
@@ -69,6 +64,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
 
     // Get fileTypes for the requested version (handles both current and historical)
     const versionData = await getVersionFileTypes(database, baliseId, version, balise);
+    validateVersionStatusAccess(user, balise, version, versionData.versionStatus, canViewUnconfirmed);
 
     // Generate presigned URLs for all files in this version
     const downloadUrls = await Promise.all(

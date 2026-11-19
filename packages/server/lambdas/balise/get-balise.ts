@@ -7,6 +7,7 @@ import { DatabaseClient } from '../database/client';
 import {
   resolveBalisesForUser,
   filterHistoryForUser,
+  isBaliseLockOwner,
   getLatestOfficialEditTimes,
 } from '../../utils/balise/baliseVersionUtils';
 
@@ -33,6 +34,7 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     const canViewHistory = hasBaliseCapability(user, 'viewHistory');
+    const canViewUnconfirmed = hasBaliseCapability(user, 'viewUnconfirmed');
 
     // First fetch balise without history to check lock ownership
     const balise = await database.balise.findUnique({
@@ -48,26 +50,25 @@ export async function handleRequest(event: ALBEvent): Promise<ALBResult> {
     }
 
     // Determine if user is lock owner
-    const isLockOwner = Boolean(balise.locked && balise.lockedBy === user.uid);
+    const isLockOwner = isBaliseLockOwner(balise, user.uid);
 
-    const includeHistory = canViewHistory || isLockOwner;
     let history: Awaited<ReturnType<typeof database.baliseVersion.findMany>> = [];
 
-    if (includeHistory) {
+    if (canViewHistory || isLockOwner) {
       history = await database.baliseVersion.findMany({
         where: { baliseId: balise.id },
         orderBy: { createdTime: 'desc' },
       });
 
-      // Filter history based on user role
-      history = filterHistoryForUser(history, balise.lockedAtVersion, isLockOwner, canViewHistory);
+      // Past versions need viewHistory; the baseline and drafts need the lock or viewUnconfirmed
+      history = filterHistoryForUser(history, balise, { isLockOwner, canViewHistory, canViewUnconfirmed });
     }
 
     // Attach filtered history to balise
     const baliseWithHistory = { ...balise, history };
 
-    // Resolve to latest OFFICIAL version if current is UNCONFIRMED (unless user can view history or is lock owner)
-    const [resolvedBalise] = await resolveBalisesForUser(database, [baliseWithHistory], user.uid, canViewHistory);
+    // Resolve to latest OFFICIAL version if current is UNCONFIRMED (unless user can view unconfirmed or is lock owner)
+    const [resolvedBalise] = await resolveBalisesForUser(database, [baliseWithHistory], user.uid, canViewUnconfirmed);
 
     // Attach latest official version edit time
     const [baliseWithEditTime] = await getLatestOfficialEditTimes(database, [resolvedBalise]);

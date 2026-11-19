@@ -1,4 +1,4 @@
-import { FunctionComponent, JSXElementConstructor, ReactElement } from 'react';
+import { FunctionComponent, ReactElement } from 'react';
 
 import Close from '@mui/icons-material/Close';
 import { Box, IconButton, Modal as MuiModal } from '@mui/material';
@@ -11,7 +11,7 @@ import { SnackbarAlert } from '../Notification/Snackbar';
 
 interface ModalProps {
   title?: string;
-  children?: ReactElement<any, string | JSXElementConstructor<any>>;
+  children?: ReactElement;
   open: boolean;
   error?: boolean;
   success?: boolean;
@@ -19,6 +19,7 @@ interface ModalProps {
   successMessage: string;
   handleClose: () => void;
   onSnackbarClose?: () => void;
+  role?: 'dialog' | 'alertdialog';
 }
 
 export const Modal: FunctionComponent<ModalProps> = ({
@@ -31,6 +32,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
   handleClose,
   onSnackbarClose,
   success,
+  role,
 }) => {
   const { t } = useTranslation(['common']);
   return (
@@ -41,7 +43,12 @@ export const Modal: FunctionComponent<ModalProps> = ({
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <ModalContentWrapper>
+        <ModalContentWrapper
+          role={role}
+          aria-modal={role ? true : undefined}
+          aria-labelledby={role ? 'modal-modal-title' : undefined}
+          aria-describedby={role ? 'modal-modal-description' : undefined}
+        >
           <div>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <HighlightedTitle>{title}</HighlightedTitle>

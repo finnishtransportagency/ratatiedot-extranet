@@ -1,41 +1,69 @@
-import { isEmpty } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import { cloneDeep, isEmpty, isEqual } from 'lodash';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useMatch, useParams } from 'react-router-dom';
-import { Transforms, createEditor } from 'slate';
+import { Editor, Transforms, createEditor } from 'slate';
 import { withReact } from 'slate-react';
 import pipe from 'lodash/fp/pipe';
 
 import { useGetCategoryPageContent } from '../hooks/query/GetCategoryPageContent';
-import { isSlateValueEmpty } from '../utils/slateEditorUtil';
 import withLinks from '../plugins/withLinks';
 import { createParagraphNode } from '../utils/createSlateNode';
-import { withHistory } from 'slate-history';
+import { HistoryEditor, withHistory } from 'slate-history';
 import { useGetNoticePageContent } from '../hooks/query/GetNoticePageContent';
 
 export const createEditorWithPlugins = pipe(withReact, withHistory, withLinks);
 
-export const EditorContext = React.createContext({
+export type TSlateNode = {
+  children: (TSlateNode | { text: string; children?: never })[];
+  text?: never;
+  type?: string;
+};
+
+type NoticeFields = {
+  publishTimeStart?: string | Date | null;
+  publishTimeEnd?: string | Date | null;
+  showAsBanner: boolean;
+  id: string;
+  title?: string | null;
+};
+
+type EditorContextValue = {
+  editor: ReturnType<typeof createEditorWithPlugins>;
+  value: TSlateNode[];
+  noticeFields: NoticeFields;
+  selectedImage: File | undefined;
+  valueHandler: (value: TSlateNode[]) => void;
+  valueReset: () => void;
+  hasUnsavedChanges: boolean;
+  markSaved: (submittedValue: TSlateNode[]) => void;
+  noticeFieldsHandler: (fields: NoticeFields) => void;
+  noticeFieldsReset: () => void;
+  selectedImageHandler: (image: File | undefined) => void;
+};
+
+export const EditorContext = React.createContext<EditorContextValue>({
   editor: createEditorWithPlugins(createEditor()),
-  value: [] as any,
-  noticeFields: [] as any,
-  selectedImage: undefined as any,
-  valueHandler: (_: any) => {},
+  value: [],
+  noticeFields: { showAsBanner: false, id: '' },
+  selectedImage: undefined,
+  valueHandler: () => {},
   valueReset: () => {},
-  noticeFieldsHandler: (_: any) => {},
+  hasUnsavedChanges: false,
+  markSaved: () => {},
+  noticeFieldsHandler: () => {},
   noticeFieldsReset: () => {},
-  selectedImageHandler: (_: any) => {},
+  selectedImageHandler: () => {},
 });
 
-export type TSlateNode = { children: { text?: string; children?: any }[]; type?: string };
 export const nodeTemplate: TSlateNode[] = [createParagraphNode()];
-const noticeFieldsTemplate = {
+const noticeFieldsTemplate: NoticeFields = {
   publishTimeStart: undefined,
   publishTimeEnd: undefined,
   showAsBanner: false,
   id: '',
 };
 
-export const EditorContextProvider = (props: any) => {
+export const EditorContextProvider = (props: React.PropsWithChildren) => {
   const { pathname } = useLocation();
   const noticeRoute = useMatch('/ajankohtaista/:id/:date');
   const { id: noticeId } = useParams();
@@ -43,13 +71,34 @@ export const EditorContextProvider = (props: any) => {
   const { data } = useGetCategoryPageContent(pathname);
   const { data: noticeData } = useGetNoticePageContent(noticeId!);
 
-  const [editor, setEditor] = useState(createEditorWithPlugins(createEditor()));
+  const [editor] = useState(() => createEditorWithPlugins(createEditor()));
   const [dbValue, setDBValue] = useState(nodeTemplate);
   const [value, setValue] = useState(nodeTemplate);
+  const documentState = useRef({ pathname, value: nodeTemplate, savedValue: nodeTemplate });
   const [noticeFields, setNoticeFields] = useState(noticeFieldsTemplate);
-  const [selectedImage, setSelectedImage] = useState<any>();
+  const [selectedImage, setSelectedImage] = useState<File>();
+
+  const replaceDocument = (document: TSlateNode[]) => {
+    const nextValue = cloneDeep(document);
+    documentState.current.value = nextValue;
+    setValue(nextValue);
+    HistoryEditor.withoutSaving(editor, () => {
+      Editor.withoutNormalizing(editor, () => {
+        Transforms.deselect(editor);
+        for (let index = editor.children.length - 1; index >= 0; index--) {
+          Transforms.removeNodes(editor, { at: [index] });
+        }
+        Transforms.insertNodes(editor, cloneDeep(nextValue), { at: [0] });
+      });
+    });
+    editor.history = { undos: [], redos: [] };
+  };
 
   useEffect(() => {
+    const previous = documentState.current;
+    if (previous.pathname === pathname && !isEqual(previous.value, previous.savedValue)) {
+      return;
+    }
     const getPageData = () => {
       if (noticeRoute && noticeData && noticeData.content && !isEmpty(noticeData.content)) {
         return noticeData.content;
@@ -70,34 +119,35 @@ export const EditorContextProvider = (props: any) => {
     const dataResponse = getPageData();
     // TODO: check if response data has slate editor's format
     if (dataResponse && dataResponse.length) {
-      setDBValue(dataResponse);
-      setValue(dataResponse);
-      editor.children.forEach(() => {
-        Transforms.delete(editor, { at: [0] });
-      });
-      editor.children = dbValue as any;
+      const savedValue = cloneDeep(dataResponse);
+      documentState.current = { pathname, value: savedValue, savedValue };
+      setDBValue(savedValue);
+      replaceDocument(savedValue);
     }
     const noticeResponse = getNoticeProperties();
     if (noticeResponse && Object.keys(noticeResponse).length) {
-      const { content, ...noticeProperties } = noticeResponse;
-      setNoticeFields(noticeProperties);
+      const { publishTimeStart, publishTimeEnd, showAsBanner, id, title } = noticeResponse;
+      setNoticeFields({ publishTimeStart, publishTimeEnd, showAsBanner, id, title });
     }
-  }, [data, dbValue, editor, noticeData, noticeRoute, pathname]);
+  }, [data, editor, noticeData, Boolean(noticeRoute), pathname]);
 
-  const valueHandler = (v: any) => setValue(v);
-  const noticeFieldsHandler = (v: any) => setNoticeFields(v);
-  const selectedImageHandler = (v: any) => setSelectedImage(v);
+  const valueHandler = (nextValue: TSlateNode[]) => {
+    documentState.current.value = nextValue;
+    setValue(nextValue);
+  };
+  const markSaved = (submittedValue: TSlateNode[]) => {
+    if (documentState.current.pathname !== pathname) {
+      return;
+    }
+    const savedValue = cloneDeep(submittedValue);
+    documentState.current.savedValue = savedValue;
+    setDBValue(savedValue);
+  };
+  const noticeFieldsHandler = (fields: NoticeFields) => setNoticeFields(fields);
+  const selectedImageHandler = (image: File | undefined) => setSelectedImage(image);
 
   const valueReset = () => {
-    if (isSlateValueEmpty(dbValue)) {
-      setValue(nodeTemplate);
-      setEditor(createEditorWithPlugins(createEditor()));
-    } else {
-      editor.children.forEach(() => {
-        Transforms.delete(editor, { at: [0] });
-      });
-      editor.children = dbValue as any;
-    }
+    replaceDocument(dbValue);
   };
 
   const noticeFieldsReset = () => {
@@ -113,6 +163,8 @@ export const EditorContextProvider = (props: any) => {
         selectedImage: selectedImage,
         valueHandler: valueHandler,
         valueReset: valueReset,
+        hasUnsavedChanges: !isEqual(value, dbValue),
+        markSaved: markSaved,
         noticeFieldsHandler: noticeFieldsHandler,
         noticeFieldsReset: noticeFieldsReset,
         selectedImageHandler: selectedImageHandler,
