@@ -108,7 +108,7 @@ export class RataExtraPipelineStack extends Stack {
           },
         }),
         buildEnvironment: {
-          buildImage: LinuxBuildImage.fromDockerRegistry('public.ecr.aws/docker/library/node:22.23.4'),
+          buildImage: LinuxBuildImage.STANDARD_7_0,
         },
       },
     });
@@ -116,12 +116,6 @@ export class RataExtraPipelineStack extends Stack {
     const strip = new CodeBuildStep('StripAssetsFromAssembly', {
       input: codePipeline.cloudAssemblyFileSet,
       commands: [
-        //Image does not contain zip
-        'apt-get update && apt-get install -y zip',
-        'which zip',
-        //Image does not contain aws tooling
-        'curl -fsSL https://awscli.amazonaws.com/v2/install.sh | bash -s -- --system',
-        'aws --version',
         "cross_region_replication_buckets=$(grep BucketName cross-region-stack-* | awk -F 'BucketName' '{print $2}' | tr -d ': ' | tr -d '\"' | tr -d ',')",
         'S3_PATH=${CODEBUILD_SOURCE_VERSION#"arn:aws:s3:::"}',
         'ZIP_ARCHIVE=$(basename $S3_PATH)',
