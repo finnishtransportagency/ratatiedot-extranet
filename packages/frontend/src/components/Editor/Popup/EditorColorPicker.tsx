@@ -2,6 +2,7 @@ import { styled, ToggleButton } from '@mui/material';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import CircleIcon from '@mui/icons-material/Circle';
+import { ReactEditor } from 'slate-react';
 
 import { Colors } from '../../../constants/Colors';
 import { EditorContext } from '../../../contexts/EditorContext';
@@ -11,7 +12,7 @@ import { FontFormatType } from '../../../utils/types';
 import { HighlightedTitle } from '../../Typography/HighlightedTitle';
 
 type ColorButtonProps = {
-  editor: any;
+  editor: ReactEditor;
   format: FontFormatType;
   color: string;
   colorName: string;

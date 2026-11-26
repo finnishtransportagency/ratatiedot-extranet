@@ -1,6 +1,20 @@
-import { isSlateValueEmpty } from '../slateEditorUtil';
+import { countChangedTopLevelNodes, isSlateValueEmpty } from '../slateEditorUtil';
 
 describe('slateEditorUtil', () => {
+  describe('countChangedTopLevelNodes', () => {
+    const node = (text: string) => ({ type: 'paragraph-two', children: [{ text }] });
+
+    it('should return 0 for equal values', () => {
+      expect(countChangedTopLevelNodes([node('a'), node('b')], [node('a'), node('b')])).toBe(0);
+    });
+
+    it('should count changed, added and removed nodes', () => {
+      expect(countChangedTopLevelNodes([node('a'), node('x')], [node('a'), node('b')])).toBe(1);
+      expect(countChangedTopLevelNodes([node('a'), node('b'), node('c')], [node('a')])).toBe(2);
+      expect(countChangedTopLevelNodes([node('a')], [node('a'), node('b')])).toBe(1);
+    });
+  });
+
   describe('isSlateValueEmpty', () => {
     it('should return true', () => {
       const text = [{ type: 'paragraph-two', children: [{ text: '' }] }];

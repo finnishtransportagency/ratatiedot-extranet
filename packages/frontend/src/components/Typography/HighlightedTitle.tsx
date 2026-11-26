@@ -1,9 +1,9 @@
-import { FunctionComponent } from 'react';
+import { FunctionComponent, ReactNode } from 'react';
 import { Typography } from '@mui/material';
 import { Colors } from '../../constants/Colors';
 
 interface Props {
-  children?: string;
+  children?: ReactNode;
 }
 
 export const HighlightedTitle: FunctionComponent<Props> = (props) => {

@@ -21,6 +21,7 @@
     "reject": "Hylkää",
     "delete": "Poista",
     "close": "Sulje",
+    "done": "Valmis",
     "open_edit": "Avaa muokkausnäkymä",
     "open_search": "Avaa hakunäkymä",
     "search": "Hae",
@@ -127,6 +128,7 @@
     "choose_fontsize": "Valitse fontin koko",
     "saved_success": "Sisällön tallennus onnistui",
     "saved_failure": "Sisällön tallennus epäonnistui",
+    "unsaved_changes_count": "Tallentamattomat muutokset: {{count}}",
     "unsaved_changes_title": "Tallentamattomia muutoksia",
     "unsaved_changes_message": "Sinulla on tallentamattomia muutoksia. Jos poistut sivulta, muutokset menetetään.",
     "leave_without_saving": "OK"

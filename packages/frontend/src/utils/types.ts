@@ -1,3 +1,5 @@
+import type { Descendant, Text } from 'slate';
+
 export enum FontFormatType {
   BOLD = 'bold',
   ITALIC = 'italic',
@@ -23,30 +25,34 @@ export enum ElementType {
   IMAGE = 'image',
 }
 
+export type FormattedText = Text & {
+  bold?: boolean;
+  italic?: boolean;
+  underlined?: boolean;
+  color?: string;
+};
+
 export interface IElement {
   type: ElementType;
+  children: Descendant[];
 }
 
 export interface IParagraphElement extends IElement {
   type: ElementType.PARAGRAPH_ONE | ElementType.PARAGRAPH_TWO;
-  children: any;
 }
 
 export interface IHeadingElement extends IElement {
   type: ElementType.HEADING_ONE | ElementType.HEADING_TWO;
   level: number;
-  children: any;
 }
 
 export interface IListElement extends IElement {
   type: ElementType.LIST_ITEM | ElementType.BULLET_LIST | ElementType.NUMBERED_LIST;
-  children: any;
 }
 
 export interface ILinkElement extends IElement {
   type: ElementType.LINK;
   href: string;
-  children: any;
 }
 
 export interface INotificationElement extends IElement {
