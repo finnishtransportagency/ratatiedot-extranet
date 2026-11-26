@@ -9,8 +9,8 @@ import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import RedoIcon from '@mui/icons-material/Redo';
 import UndoIcon from '@mui/icons-material/Undo';
 import CheckIcon from '@mui/icons-material/Check';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import ClearIcon from '@mui/icons-material/Clear';
+import UploadIcon from '@mui/icons-material/Upload';
 import LinkIcon from '../../assets/icons/Link.svg';
 import PaletteIcon from '../../assets/icons/Palette.svg';
 import { insertLink, isBlockActive, isMarkActive, toggleBlock, toggleMark } from '../../utils/slateEditorUtil';
@@ -213,16 +213,16 @@ export const SlateToolbar = () => {
           <ContentTypes />
           <DividerWrapper orientation="vertical" variant="middle" flexItem />
         </SpacingWrapper>
-        <SpacingWrapper justifyContent={'Space-between'} width={'auto'}>
-          <RejectButton variant="contained" disabled={!hasUnsavedChanges} onClick={valueReset}>
-            <DeleteIcon fontSize="small" />
-            {t('common:action.reject')}
-          </RejectButton>
-          <SaveButton variant="contained" disabled={!hasUnsavedChanges} onClick={handleSave}>
-            <SaveAltIcon fontSize="small" />
-            {t('common:action.save')}
-          </SaveButton>
-          <DoneContainer>
+        <DoneContainer>
+          <SpacingWrapper justifyContent={'Space-between'} width={'auto'}>
+            <RejectButton variant="contained" disabled={!hasUnsavedChanges} onClick={valueReset}>
+              <ClearIcon fontSize="small" />
+              {t('common:action.reject')}
+            </RejectButton>
+            <SaveButton variant="contained" disabled={!hasUnsavedChanges} onClick={handleSave}>
+              <UploadIcon fontSize="small" />
+              {t('common:action.save')}
+            </SaveButton>
             <DoneButton
               variant="contained"
               aria-label={t('common:action.close')}
@@ -232,9 +232,9 @@ export const SlateToolbar = () => {
               <CheckIcon fontSize="small" />
               {t('common:action.done')}
             </DoneButton>
-            <UnsavedChangesIndicator />
-          </DoneContainer>
-        </SpacingWrapper>
+          </SpacingWrapper>
+          <UnsavedChangesIndicator />
+        </DoneContainer>
       </SpacingWrapper>
     </ToolbarPaperWrapper>
   );
@@ -264,7 +264,6 @@ const disabledButtonStyle = {
 };
 
 const RejectButton = styled(ButtonWrapper)({
-  height: '3em',
   backgroundColor: Colors.yellow,
   color: Colors.extrablack,
   '&:hover': { backgroundColor: Colors.yellow },
@@ -272,7 +271,6 @@ const RejectButton = styled(ButtonWrapper)({
 });
 
 const SaveButton = styled(ButtonWrapper)({
-  height: '3em',
   backgroundColor: Colors.darkblue,
   color: Colors.white,
   '&:hover': { backgroundColor: Colors.darkblue },
