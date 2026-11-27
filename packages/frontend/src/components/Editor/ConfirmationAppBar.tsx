@@ -1,11 +1,12 @@
 import styled from '@emotion/styled';
-import { Box, Button, Grid } from '@mui/material';
-import { useContext } from 'react';
+import { Button } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useContext, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import CheckIcon from '@mui/icons-material/Check';
 import { toast } from 'react-toastify';
 
-import CloseIcon from '../../assets/icons/Close.svg';
 import { Colors } from '../../constants/Colors';
 import { AppBarContext } from '../../contexts/AppBarContext';
 import { ParagraphWrapper } from '../../pages/Landing/index.styles';
@@ -88,32 +89,39 @@ export const ConfirmationAppBar = () => {
   };
 
   return (
-    <ContainerWrapper container>
-      <Grid item>
+    <ContainerWrapper>
+      <ContentWrapper flexDirection="column">
         <ParagraphWrapper variant="body1">{t('common:edit.save_changes_confirmation')}</ParagraphWrapper>
-        <ButtonWrapper onClick={handleReject}>{t('common:action.reject')}</ButtonWrapper>
-        <ButtonWrapper variant="contained" onClick={handleSave}>
-          <CheckIcon fontSize="small" />
-          {t('common:action.save')}
-        </ButtonWrapper>
-      </Grid>
-      <Grid item>
-        <Box
-          aria-label={t('common:action.close')}
-          component="img"
-          sx={{ cursor: 'pointer', marginLeft: 'auto' }}
-          src={CloseIcon}
-          alt="close"
-          onClick={openToolbarHandler}
-        />
-      </Grid>
+        <ContentWrapper flexDirection="row">
+          <ButtonWrapper onClick={handleReject}>
+            <ClearIcon />
+            {t('common:action.reject')}
+          </ButtonWrapper>
+          <ButtonWrapper variant="contained" onClick={handleSave}>
+            <CheckIcon fontSize="small" />
+            {t('common:action.save')}
+          </ButtonWrapper>
+          <ButtonWrapper variant="contained" onClick={openToolbarHandler}>
+            <ArrowBackIcon fontSize="small" />
+            {t('common:action.back')}
+          </ButtonWrapper>
+        </ContentWrapper>
+      </ContentWrapper>
     </ContainerWrapper>
   );
 };
 
-const ContainerWrapper = styled(Grid)(({ theme }) => ({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
+const ContentWrapper = styled('div')<{ flexDirection: CSSProperties['flexDirection'] }>(({ flexDirection }) => ({
+  display: 'flex',
+  flexDirection: flexDirection,
+  justifyContent: 'flex-start',
+  gap: '8px',
+}));
+
+const ContainerWrapper = styled('div')(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  gap: '8px',
   alignItems: 'center',
   backgroundColor: Colors.aliceblue,
   borderBottom: `1px dashed ${Colors.darkblue}`,

@@ -62,6 +62,19 @@ describe('SlateToolbar component', () => {
     expect(screen.getByRole('img', { name: /varoitus/i })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /virhe/i })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /oikein-merkki/i })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /Sulje/i })).toBeInTheDocument();
+    const doneButton = screen.getByRole('button', { name: /Sulje/i });
+    expect(doneButton).toHaveTextContent('Valmis');
+    expect(doneButton.querySelector('[data-testid="CheckIcon"]')).toBeInTheDocument();
+  });
+
+  test('SlateToolbar should disable reject and save buttons without unsaved changes', () => {
+    renderWithRouter(component);
+    const reject = screen.getByRole('button', { name: /Hylkää/i });
+    const save = screen.getByRole('button', { name: /Tallenna/i });
+    expect(reject).toBeDisabled();
+    expect(save).toBeDisabled();
+    expect(reject.querySelector('[data-testid="DeleteIcon"]')).toBeInTheDocument();
+    expect(save.querySelector('[data-testid="SaveAltIcon"]')).toBeInTheDocument();
+    expect(screen.getByText('Tallentamattomat muutokset: 0')).toBeInTheDocument();
   });
 });

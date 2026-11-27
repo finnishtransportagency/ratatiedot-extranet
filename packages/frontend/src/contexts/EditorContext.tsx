@@ -34,6 +34,7 @@ type EditorContextValue = {
   selectedImage: File | undefined;
   valueHandler: (value: TSlateNode[]) => void;
   valueReset: () => void;
+  savedValue: TSlateNode[];
   hasUnsavedChanges: boolean;
   markSaved: (submittedValue: TSlateNode[]) => void;
   noticeFieldsHandler: (fields: NoticeFields) => void;
@@ -48,6 +49,7 @@ export const EditorContext = React.createContext<EditorContextValue>({
   selectedImage: undefined,
   valueHandler: () => {},
   valueReset: () => {},
+  savedValue: [],
   hasUnsavedChanges: false,
   markSaved: () => {},
   noticeFieldsHandler: () => {},
@@ -163,6 +165,7 @@ export const EditorContextProvider = (props: React.PropsWithChildren) => {
         selectedImage: selectedImage,
         valueHandler: valueHandler,
         valueReset: valueReset,
+        savedValue: dbValue,
         hasUnsavedChanges: !isEqual(value, dbValue),
         markSaved: markSaved,
         noticeFieldsHandler: noticeFieldsHandler,

@@ -1,5 +1,6 @@
+import { isEqual } from 'lodash';
 import { Node, Editor, Element, Transforms, Path, Range } from 'slate';
-import { ReactEditor, useSlateStatic } from 'slate-react';
+import { ReactEditor, RenderElementProps, RenderLeafProps, useSlateStatic } from 'slate-react';
 
 import { ContactEditorCard } from '../components/Editor/Cards/ContactEditorCard';
 import { NotificationEditorCard } from '../components/Editor/Cards/NotificationEditorCard';
@@ -17,6 +18,7 @@ import {
 import {
   ElementType,
   FontFormatType,
+  FormattedText,
   ICardElement,
   IHeadingElement,
   IImageElement,
@@ -27,12 +29,14 @@ import {
 } from './types';
 import { IconButton } from '@mui/material';
 import { DeleteOutline } from '@mui/icons-material';
-import { useContext } from 'react';
+import { ReactNode, useContext } from 'react';
 import { AppBarContext } from '../contexts/AppBarContext';
 
+const getType = (n: Node): unknown => ('type' in n ? n.type : undefined);
+
 export type SlateElementProps = {
-  attributes: any;
-  children: any;
+  attributes: RenderElementProps['attributes'];
+  children: ReactNode;
   element:
     | IParagraphElement
     | IHeadingElement
@@ -45,7 +49,7 @@ export type SlateElementProps = {
 
 export const SlateElement = ({ attributes, children, element }: SlateElementProps) => {
   const editor = useSlateStatic() as ReactEditor;
-  const path = ReactEditor.findPath(editor, element as any);
+  const path = ReactEditor.findPath(editor, element);
   const { openToolbar } = useContext(AppBarContext);
   const { selectedImage } = useContext(EditorContext);
 
@@ -119,7 +123,11 @@ export const SlateElement = ({ attributes, children, element }: SlateElementProp
   }
 };
 
-export const SlateLeaf = ({ attributes, children, leaf }: any) => {
+export const SlateLeaf = ({
+  attributes,
+  children,
+  leaf,
+}: Pick<RenderLeafProps, 'attributes' | 'children'> & { leaf: FormattedText }) => {
   if (leaf.bold) {
     children = <span style={{ fontFamily: 'Exo2-Bold' }}>{children}</span>;
   }
@@ -140,40 +148,50 @@ export const SlateLeaf = ({ attributes, children, leaf }: any) => {
   return <span {...attributes}>{children}</span>;
 };
 
-export const isMarkActive = (editor: any, format: FontFormatType) => {
-  const marks = Editor.marks(editor) as any;
-  return marks && marks[format];
+export const countChangedTopLevelNodes = (current: TSlateNode[], saved: TSlateNode[]) => {
+  const shared = Math.min(current.length, saved.length);
+  let changed = Math.abs(current.length - saved.length);
+  for (let i = 0; i < shared; i++) {
+    if (!isEqual(current[i], saved[i])) changed++;
+  }
+  return changed;
 };
 
-export const toggleMark = (editor: any, format: FontFormatType) => {
+type Marks = Partial<Record<FontFormatType, unknown>> | null;
+
+export const isMarkActive = (editor: Editor, format: FontFormatType) => {
+  const marks = Editor.marks(editor) as Marks;
+  return Boolean(marks?.[format]);
+};
+
+export const toggleMark = (editor: ReactEditor, format: FontFormatType) => {
   ReactEditor.focus(editor);
   const isActive = isMarkActive(editor, format);
   return isActive ? Editor.removeMark(editor, format) : Editor.addMark(editor, format, true);
 };
 
-export const isColorActive = (editor: any, format: FontFormatType, color: string) => {
-  const marks = Editor.marks(editor) as any;
-  return marks && marks[format] && marks[format] === color;
+export const isColorActive = (editor: Editor, format: FontFormatType, color: string) => {
+  const marks = Editor.marks(editor) as Marks;
+  return marks?.[format] === color;
 };
 
-export const toggleColor = (editor: any, format: FontFormatType, color: string) => {
+export const toggleColor = (editor: ReactEditor, format: FontFormatType, color: string) => {
   ReactEditor.focus(editor);
   const isActive = isColorActive(editor, format, color);
   return isActive ? Editor.removeMark(editor, format) : Editor.addMark(editor, format, color);
 };
 
-export const isBlockActive = (editor: any, format: ElementType) => {
-  const [match] = Editor.nodes(editor, { match: (n: Node) => (n as any).type === format }) as any;
-  return !!match;
+export const isBlockActive = (editor: Editor, format: ElementType) => {
+  return !Editor.nodes(editor, { match: (n: Node) => getType(n) === format }).next().done;
 };
 
-export const toggleBlock = (editor: any, format: ElementType) => {
+export const toggleBlock = (editor: ReactEditor, format: ElementType) => {
   ReactEditor.focus(editor);
   const isActive = isBlockActive(editor, format);
   const isList = format === ElementType.BULLET_LIST || format === ElementType.NUMBERED_LIST;
 
   Transforms.unwrapNodes(editor, {
-    match: (n: Node) => (n as any).type === ElementType.BULLET_LIST || (n as any).type === ElementType.NUMBERED_LIST,
+    match: (n: Node) => getType(n) === ElementType.BULLET_LIST || getType(n) === ElementType.NUMBERED_LIST,
     split: true,
   });
 
@@ -187,14 +205,14 @@ export const toggleBlock = (editor: any, format: ElementType) => {
   }
 };
 
-export const removeLink = (editor: any, opts = {}) => {
+export const removeLink = (editor: Editor, opts = {}) => {
   Transforms.unwrapNodes(editor, {
     ...opts,
-    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && (n as any).type === ElementType.LINK,
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && getType(n) === ElementType.LINK,
   });
 };
 
-export const insertLink = (editor: any, url: string) => {
+export const insertLink = (editor: ReactEditor, url: string) => {
   if (!url) return;
 
   const { selection } = editor;
@@ -206,23 +224,17 @@ export const insertLink = (editor: any, url: string) => {
     const [parentNode, parentPath] = Editor.parent(editor, selection.focus?.path);
 
     // Remove the Link node if we're inserting a new link node inside of another link.
-    if ((parentNode as any).type === ElementType.LINK) {
+    if (getType(parentNode) === ElementType.LINK) {
       removeLink(editor);
     }
 
     if (editor.isVoid(parentNode)) {
       // Insert the new link after the void node
-      Transforms.insertNodes(
-        editor,
-        {
-          type: ElementType.PARAGRAPH_ONE,
-          children: [link],
-        } as any,
-        {
-          at: Path.next(parentPath),
-          select: true,
-        },
-      );
+      const paragraph: IParagraphElement = { type: ElementType.PARAGRAPH_ONE, children: [link] };
+      Transforms.insertNodes(editor, paragraph, {
+        at: Path.next(parentPath),
+        select: true,
+      });
     } else if (Range.isCollapsed(selection)) {
       // Insert the new link in our last known location
       Transforms.insertNodes(editor, link, { select: true });
@@ -234,14 +246,19 @@ export const insertLink = (editor: any, url: string) => {
     }
   } else {
     // Insert the new link node at the bottom of the Editor when selection is falsey
-    Transforms.insertNodes(editor, {
-      type: ElementType.PARAGRAPH_ONE,
-      children: [link],
-    } as any);
+    const paragraph: IParagraphElement = { type: ElementType.PARAGRAPH_ONE, children: [link] };
+    Transforms.insertNodes(editor, paragraph);
   }
 };
 
-export const openNotification = (editor: any, format: ElementType) => {
+const NOTIFICATION_TYPES: unknown[] = [
+  ElementType.NOTIFICATION_INFO,
+  ElementType.NOTIFICATION_WARNING,
+  ElementType.NOTIFICATION_ERROR,
+  ElementType.NOTIFICATION_CONFIRMATION,
+];
+
+export const openNotification = (editor: ReactEditor, format: ElementType) => {
   const isNotification =
     format === ElementType.NOTIFICATION_INFO ||
     format === ElementType.NOTIFICATION_WARNING ||
@@ -254,18 +271,14 @@ export const openNotification = (editor: any, format: ElementType) => {
   ReactEditor.focus(editor);
 
   Transforms.unwrapNodes(editor, {
-    match: (n: Node) =>
-      (n as any).type === ElementType.NOTIFICATION_INFO ||
-      (n as any).type === ElementType.NOTIFICATION_WARNING ||
-      (n as any).type === ElementType.NOTIFICATION_ERROR ||
-      (n as any).type === ElementType.NOTIFICATION_CONFIRMATION,
+    match: (n: Node) => NOTIFICATION_TYPES.includes(getType(n)),
     split: true,
   });
 
   Transforms.insertNodes(editor, createNotificationNode(format), { at: Editor.start(editor, []) });
 };
 
-export const insertParagraph = (editor: any, format: ElementType) => {
+export const insertParagraph = (editor: ReactEditor, format: ElementType) => {
   const isText = format === ElementType.PARAGRAPH_TWO || format === ElementType.PARAGRAPH_ONE;
   if (!format || !isText) return;
   Transforms.select(editor, Editor.end(editor, []));
@@ -275,7 +288,7 @@ export const insertParagraph = (editor: any, format: ElementType) => {
   Transforms.insertNodes(editor, text, { at: Editor.end(editor, []) });
 };
 
-export const openContactCard = (editor: any, format: ElementType) => {
+export const openContactCard = (editor: ReactEditor, format: ElementType) => {
   const isCard = format === ElementType.CARD;
   if (!format || !isCard) return;
 
@@ -283,14 +296,14 @@ export const openContactCard = (editor: any, format: ElementType) => {
   ReactEditor.focus(editor);
 
   Transforms.unwrapNodes(editor, {
-    match: (n: Node) => (n as any).type === ElementType.CARD,
+    match: (n: Node) => getType(n) === ElementType.CARD,
     split: true,
   });
   const card = createContactCardNode();
   Transforms.insertNodes(editor, card, { at: [editor.children.length - 1] });
 };
 
-export const deleteEditor = (editor: any) => {
+export const deleteEditor = (editor: Editor) => {
   Transforms.delete(editor, {
     at: {
       anchor: Editor.start(editor, []),
@@ -299,7 +312,7 @@ export const deleteEditor = (editor: any) => {
   });
 };
 
-export const insertImage = (editor: any, format: ElementType, url: string) => {
+export const insertImage = (editor: ReactEditor, format: ElementType, url: string) => {
   const isImage = format === ElementType.IMAGE;
   if (!format || !isImage) return;
 
@@ -307,7 +320,7 @@ export const insertImage = (editor: any, format: ElementType, url: string) => {
   ReactEditor.focus(editor);
 
   Transforms.unwrapNodes(editor, {
-    match: (n: Node) => (n as any).type === ElementType.IMAGE,
+    match: (n: Node) => getType(n) === ElementType.IMAGE,
     split: true,
   });
   const image = createImageNode(url);
