@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { Button } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useContext } from 'react';
+import { useContext, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import CheckIcon from '@mui/icons-material/Check';
 import { toast } from 'react-toastify';
@@ -90,22 +90,33 @@ export const ConfirmationAppBar = () => {
 
   return (
     <ContainerWrapper>
-      <ParagraphWrapper variant="body1">{t('common:edit.save_changes_confirmation')}</ParagraphWrapper>
-      <ButtonWrapper onClick={handleReject}>
-        <ClearIcon />
-        {t('common:action.reject')}
-      </ButtonWrapper>
-      <ButtonWrapper variant="contained" onClick={handleSave}>
-        <CheckIcon fontSize="small" />
-        {t('common:action.save')}
-      </ButtonWrapper>
-      <ButtonWrapper variant="contained" onClick={openToolbarHandler}>
-        <ArrowBackIcon fontSize="small" />
-        {t('common:action.back')}
-      </ButtonWrapper>
+      <ContentWrapper flexDirection="column">
+        <ParagraphWrapper variant="body1">{t('common:edit.save_changes_confirmation')}</ParagraphWrapper>
+        <ContentWrapper flexDirection="row">
+          <ButtonWrapper onClick={handleReject}>
+            <ClearIcon />
+            {t('common:action.reject')}
+          </ButtonWrapper>
+          <ButtonWrapper variant="contained" onClick={handleSave}>
+            <CheckIcon fontSize="small" />
+            {t('common:action.save')}
+          </ButtonWrapper>
+          <ButtonWrapper variant="contained" onClick={openToolbarHandler}>
+            <ArrowBackIcon fontSize="small" />
+            {t('common:action.back')}
+          </ButtonWrapper>
+        </ContentWrapper>
+      </ContentWrapper>
     </ContainerWrapper>
   );
 };
+
+const ContentWrapper = styled('div')<{ flexDirection: CSSProperties['flexDirection'] }>(({ flexDirection }) => ({
+  display: 'flex',
+  flexDirection: flexDirection,
+  justifyContent: 'flex-start',
+  gap: '8px',
+}));
 
 const ContainerWrapper = styled('div')(({ theme }) => ({
   display: 'flex',
